@@ -1,0 +1,30 @@
+{
+  "name": "volunteer-manager-animecon",
+  "version": "1.0.0",
+  "description": "Volunteer Management environment for AnimeCon",
+  "scripts": {
+    "dev": "next dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beverloo/volunteer-manager.git"
+  },
+  "author": "Peter Beverloo <peter@animecon.nl>",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/beverloo/volunteer-manager#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "next": "^13.4.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.1.7",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "typescript": "^5.0.4"
+  }
+}
