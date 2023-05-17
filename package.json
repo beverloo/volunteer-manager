@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Volunteer Management environment for AnimeCon",
   "scripts": {
+    "build-prod": "docker build -t volunteer-manager-docker .",
+    "deploy-prod": "TODO",
+    "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
+
+    "build": "next build",
     "dev": "next dev",
     "lint": "next lint"
   },
@@ -15,7 +20,7 @@
   "private": true,
   "homepage": "https://github.com/beverloo/volunteer-manager#readme",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "next": "^13.4.2",
