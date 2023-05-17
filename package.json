@@ -6,7 +6,6 @@
     "build-prod": "docker build -t volunteer-manager-docker .",
     "deploy-prod": "TODO",
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
-
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint"
@@ -23,6 +22,12 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.1",
     "next": "^13.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

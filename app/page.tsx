@@ -2,8 +2,14 @@
 // Use of this source code is governed by a MIT license that can be
 // found in the LICENSE file.
 
+'use client';
+
+import Typography from '@mui/material/Typography';
+
 export default function RootPage() {
   return (
-    <h1>Hello, world!</h1>
+    <Typography variant="h1">
+      Hello, world!
+    </Typography>
   );
 }
