@@ -54,28 +54,28 @@ export class Database {
      * Called when a connection with the server could not be established.
      */
     private onConnectError(error: MysqlError): void {
-        console.log(`[MySQL] Connection could not be established`, error);
+        console.log('[MySQL] Connection could not be established:', error);
     }
 
     /**
      * Called when a connection with the server has been closed.
      */
     private onClose(): void {
-        console.log(`[MySQL] Connection with the server has been closed.`);
+        console.log('[MySQL] Connection with the server has been closed.');
     }
 
     /**
      * Called when an error has occurred while using one of the established connections.
      */
     private onError(error: MysqlError): void {
-        console.log(`[MySQL] An error occurred: `, error);
+        console.log('[MySQL] An error occurred:', error);
     }
 
     /**
      * Called when a connection attempt is being retried.
      */
     private onRetry(error: MysqlError, retries: number, delay: number, backoffType: string): void {
-        console.log(`[MySQL] Connection to the server is being retried.`);
+        console.log('[MySQL] Connection to the server is being retried.');
     }
 }
 
