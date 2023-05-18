@@ -28,10 +28,13 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.1",
+    "iron-session": "^6.3.1",
     "next": "^13.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "serverless-mysql": "^1.5.5"
+    "scrypt-js": "^3.0.1",
+    "serverless-mysql": "^1.5.5",
+    "simple-sha256": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "20.1.7",
