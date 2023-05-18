@@ -19,12 +19,11 @@ export const kInBrowser = typeof document !== 'undefined';
  * https://github.com/mui/material-ui/blob/093c4d29cab975ad90bec3af5b15f919cea255a6/examples/material-next-ts/src/createEmotionCache.ts
  */
 export function createCache() {
-  let insertionPoint = undefined;
-  if (kInBrowser) {
-    insertionPoint = document.querySelector<HTMLMetaElement>(
-      'meta[name="emotion-insertion-point"]',
-    ) ?? undefined;
-  }
+    let insertionPoint = undefined;
+    if (kInBrowser) {
+        insertionPoint = document.querySelector<HTMLMetaElement>(
+            'meta[name="emotion-insertion-point"]') ?? undefined;
+    }
 
-  return createEmotionCache({ key: 'mui-style', insertionPoint });
+    return createEmotionCache({ key: 'mui-style', insertionPoint });
 }

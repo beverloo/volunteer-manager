@@ -12,17 +12,17 @@ import { kDefaultPageTitle, kDefaultPageDescription } from './config';
  * will be swapped out in the <head> section of the <RootLayout /> component.
  */
 export const metadata: Metadata = {
-  colorScheme: 'only light',
-  description: kDefaultPageDescription,
-  robots: 'noindex, nofollow',
-  title: kDefaultPageTitle,
+    colorScheme: 'only light',
+    description: kDefaultPageDescription,
+    robots: 'noindex, nofollow',
+    title: kDefaultPageTitle,
 };
 
 /**
  * Props accepted by the <RootLayout> component. Will be called by NextJS.
  */
 interface RootLayoutProps {
-  children: React.ReactElement,
+    children: React.ReactElement;
 }
 
 /**
@@ -30,14 +30,14 @@ interface RootLayoutProps {
  * the path that has been requested by the client, allowing for middleware routing.
  */
 export default function RootLayout(props: RootLayoutProps) {
-  return (
-    <html lang="en">
-      <head></head>
-      <body>
-        <ClientProviders>
-          {props.children}
-        </ClientProviders>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <head></head>
+            <body>
+                <ClientProviders>
+                    {props.children}
+                </ClientProviders>
+            </body>
+        </html>
+    );
 }

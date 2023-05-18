@@ -30,12 +30,12 @@ export interface ClientProvidersProps {
  * https://nextjs.org/docs/getting-started/react-essentials#rendering-third-party-context-providers-in-server-components
  */
 export function ClientProviders(props: ClientProvidersProps) {
-  return (
-    <CacheProvider value={kCache}>
-      <ThemeProvider theme={kTheme}>
-        <CssBaseline />
-        {props.children}
-      </ThemeProvider>
-    </CacheProvider>
-  )
+    return (
+        <CacheProvider value={kCache}>
+            <ThemeProvider theme={kTheme}>
+                <CssBaseline />
+                {props.children}
+            </ThemeProvider>
+        </CacheProvider>
+    )
 }

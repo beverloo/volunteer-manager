@@ -11,17 +11,17 @@ import { createTheme } from '@mui/material/styles';
  * The Roboto font, loaded through NextJS' font stack, with default settings for Material UI.
  */
 export const kFontRoboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'block',
-  fallback: ['Helvetica', 'Arial', 'sans-serif'],
+    weight: ['300', '400', '500', '700'],
+    subsets: ['latin'],
+    display: 'block',
+    fallback: ['Helvetica', 'Arial', 'sans-serif'],
 });
 
 /**
  * The Material UI theme configuration that will apply to the Volunteer Manager environment.
  */
 export const kTheme = createTheme({
-  typography: {
-    fontFamily: kFontRoboto.style.fontFamily,
-  },
+    typography: {
+        fontFamily: kFontRoboto.style.fontFamily,
+    },
 });

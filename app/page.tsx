@@ -7,9 +7,9 @@
 import Typography from '@mui/material/Typography';
 
 export default function RootPage() {
-  return (
-    <Typography variant="h1">
-      Hello, world!
-    </Typography>
-  );
+    return (
+        <Typography variant="h1">
+            Hello, world!
+        </Typography>
+    );
 }
