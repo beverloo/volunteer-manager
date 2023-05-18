@@ -1,7 +1,19 @@
 {
     "extends": "next",
     "rules": {
+        "eol-last": [ "error", "always" ],
+        "eqeqeq": [ "error", "always" ],
         "indent": [ "error", 4 ],
+        "jsx-quotes": [ "error", "prefer-double" ],
+        "max-len": [ "error", {
+            "code": 100,
+            "ignoreRegExpLiterals": true,
+            "ignoreUrls": true
+        }],
+        "no-tabs": "error",
+        "no-trailing-spaces": "error",
+        "no-var": "error",
+        "prefer-const": "warn",
         "quotes": [ "error", "single" ]
     }
 }
