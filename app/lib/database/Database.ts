@@ -5,6 +5,11 @@ import type { Connection, MysqlError } from 'mysql';
 import ServerlessMySQL from 'serverless-mysql';
 
 /**
+ * Primitive types we allow to be used as parameters in database queries.
+ */
+export type DatabasePrimitive = string | number | boolean | undefined | null;
+
+/**
  * Symbol to avoid anyone from instantiating the Database class directly.
  */
 const kPrivateSymbol = Symbol();
@@ -13,8 +18,11 @@ const kPrivateSymbol = Symbol();
  * Wraps the `serverless-mysql` library for database access provided on the server. The library
  * manages connection management and scaling, automatically reestablishes the connection when it's
  * lost. This class abstracts that away from our server infrastructure.
+ *
+ * Queries can be executed by using the `sql` template literal tag, which automatically turns a
+ * query in a native MySQL parameterized query to prevent SQL injections.
  */
-export class Database {
+class Database {
     private connection: ServerlessMySQL.ServerlessMysql;
 
     constructor(privateSymbol: Symbol) {
@@ -40,6 +48,15 @@ export class Database {
             onConnectError: Database.prototype.onConnectError.bind(this),
             onRetry: Database.prototype.onRetry.bind(this),
         });
+    }
+
+    /**
+     * Executes the given |query|, with the given |parameters| which are to be substituted in the
+     * query itself. Code must not call this method directly, but rather use the sql`` string
+     * template literal exposed in //lib/database, which protects against SQL injection.
+     */
+    async query(query: string, parameters?: DatabasePrimitive[]) {
+        return this.connection.query(query, parameters);
     }
 
     /**
