@@ -4,10 +4,17 @@
 import type { Connection, MysqlError } from 'mysql';
 import ServerlessMySQL from 'serverless-mysql';
 
+import { Result } from './Result';
+
 /**
  * Primitive types we allow to be used as parameters in database queries.
  */
 export type DatabasePrimitive = string | number | boolean | undefined | null;
+
+/**
+ * The default timeout for a single query to execute, in milliseconds.
+ */
+const kDefaultTimeoutMs = 5000;
 
 /**
  * Symbol to avoid anyone from instantiating the Database class directly.
@@ -56,7 +63,10 @@ class Database {
      * template literal exposed in //lib/database, which protects against SQL injection.
      */
     async query(query: string, parameters?: DatabasePrimitive[]) {
-        return this.connection.query(query, parameters);
+        return Result.from(this.connection.query({
+            sql: query,
+            values: parameters,
+            timeout: kDefaultTimeoutMs }));
     }
 
     /**

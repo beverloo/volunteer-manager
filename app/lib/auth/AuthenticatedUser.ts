@@ -23,10 +23,10 @@ export class AuthenticatedUser {
         const result =
             await sql`SELECT * FROM users WHERE user_id = ${id} AND session_token = ${token}`;
 
-        if (!result || !result?.length)
+        if (!result.ok || !result.rows.length)
             return undefined;
 
-        return new AuthenticatedUser(session, result[0].username);
+        return new AuthenticatedUser(session, result.rows[0].username);
     }
 
     constructor(session: IronSession, username: string) {
