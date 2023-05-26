@@ -4,15 +4,10 @@
 import { headers } from 'next/headers';
 
 /**
- * Name of the internal HTTP header through which the pathname will be communicated.
- */
-export const kServerPathnameHeader = 'X-Request-Path';
-
-/**
  * Utility function to retrieve the current path in a server component. This is provided as a work-
  * around to the usePathname() not being available in NextJS for server components, and is
  * is implemented by setting an internal HTTP header in our middleware.
  */
 export function getServerPathname() {
-    return headers().get(kServerPathnameHeader) || '/';
+    return headers().get('X-Request-Path') || '/';
 }

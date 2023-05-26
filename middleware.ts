@@ -4,7 +4,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from './app/lib/auth/Session';
-import { kServerPathnameHeader } from './app/lib/useServerPathname';
 
 /**
  * Endpoint (full pathname) through which login functionality is exposed.
@@ -90,7 +89,7 @@ export async function middleware(request: NextRequest) {
     // https://github.com/vercel/next.js/issues/43704
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set(kServerPathnameHeader, request.nextUrl.pathname);
+    requestHeaders.set('X-Request-Path', request.nextUrl.pathname);
 
     return NextResponse.next({ request: { headers: requestHeaders } });
 }
