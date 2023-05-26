@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
 import { User } from './User';
+import { getServerPathname } from '../getServerPathname';
 import { useSession } from './useSession';
 
 /**
@@ -73,7 +73,7 @@ export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?:
             redirect(behaviourParam || '/');
 
         case 'request-login':
-            redirect('/auth-api/login?returnTo=' + headers().get('X-Request-Path'));
+            redirect('/auth-api/login?returnTo=' + getServerPathname());
     }
 
     return undefined;
