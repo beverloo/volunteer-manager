@@ -3,7 +3,7 @@
     "rules": {
         "eol-last": [ "error", "always" ],
         "eqeqeq": [ "error", "always" ],
-        "indent": [ "error", 4 ],
+        "indent": [ "error", 4, { "SwitchCase": 1 } ],
         "jsx-quotes": [ "error", "prefer-double" ],
         "max-len": [ "error", {
             "code": 100,

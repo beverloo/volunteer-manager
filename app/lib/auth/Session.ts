@@ -67,16 +67,16 @@ export class Session implements SessionData {
     }
 
     /**
-     * Verifies that the given sealed |sealedSession| can be decrypted and has not expired. A
+     * Verifies that the given sealed |sealedSessionData| can be decrypted and has not expired. A
      * plaintext Session will be returned when successful. NULL will be returned in all other
      * cases, which signals that validation failed, with no further information as to the cause.
      *
-     * @param sealedSession The sealed Iron session potentially containing session information.
+     * @param sealedSessionData The sealed Iron session potentially containing session information.
      * @returns The plaintext session data when validation passed, NULL in all other cases.
      */
-    static async verify(sealedSession: string): Promise<Session | null> {
+    static async verify(sealedSessionData: string): Promise<Session | null> {
         try {
-            const sessionData = await unseal(kWebCryptoImpl, sealedSession, kSessionPassword, {
+            const sessionData = await unseal(kWebCryptoImpl, sealedSessionData, kSessionPassword, {
                 ...ironDefaults,
                 ttl: kSessionExpirationTimeSeconds * /* milliseconds= */ 1000,
             });
