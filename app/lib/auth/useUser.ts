@@ -1,25 +1,80 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { notFound, redirect } from 'next/navigation';
 
-import { AuthenticatedUser } from './AuthenticatedUser';
+import { User } from './User';
 import { useSession } from './useSession';
 
 /**
- * Used to retrieve the user who is signed in based on the current session. The user's identity will
- * be validated, which means that a database query will be executed following this call.
- *
- * @note Ideally we would cache the AuthenticatedUser instances based on the given |request|,
- *       however IronSession ties its instance to a specific |response| which means that the ability
- *       to log out may not work as expected.
+ * Valid behaviours that can be specified when using useUser().
  */
-export async function useUser(request: NextRequest, response: NextResponse): Promise<AuthenticatedUser | undefined> {
-    let authenticatedUser;
+type InvalidUserBehaviour = 'ignore' | 'not-found' | 'redirect' | 'request-login';
 
-    const session = await useSession(request, response);
-    if (session.user)
-        authenticatedUser = await AuthenticatedUser.tryAuthenticate(session);
+/**
+ * Returns the User that is signed in for the current page view, or undefined in case they are not
+ * signed in to any (valid) session.
+ */
+export async function useUser(behaviour: 'ignore'): Promise<User | undefined>;
 
-    return authenticatedUser;
+/**
+ * Returns the User that is signed in for the current page view, or displays an HTTP 404 Not Found
+ * error instead.
+ */
+export async function useUser(behaviour: 'not-found'): Promise<User>;
+
+/**
+ * Returns the User that is signed in for the current page view, or redirects them to the given
+ * |redirectUrl| instead. When no |redirectUrl| has been given, the root page will be used.
+ */
+export async function useUser(behaviour: 'redirect', redirectUrl?: string): Promise<User>;
+
+/**
+ * Returns the User that is signed in for the current page view, or redirects them to the login page
+ * instead. They will be redirected back to the current page after a successful login.
+ */
+export async function useUser(behaviour?: 'request-login'): Promise<User>;
+
+/**
+ * Returns the User that is signed in for the current page view. When no (valid) user could be
+ * found, |behaviour| decides on the next steps:
+ *
+ * 'ignore'
+ *     The error will be accepted and an undefined user will be returned.
+ *
+ * 'not-found'
+ *     A response will be generated carrying a HTTP 404 Not Found status code.
+ *
+ * 'redirect'
+ *     A response will be generated that redirects the user to the given |behaviourParam|. The URL
+ *     defaults to the root page of the domain this application runs on.
+ *
+ * 'request-login' (default)
+ *     A response will be generated that redirects the user to the login page. They will be
+ *     redirected back to the current page after a successful login.
+ *
+ * A valid user means that the session has been fully authenticated and can be trusted.
+ */
+export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?: string)
+        : Promise<User | undefined> {
+    const session = await useSession(/* behaviour= */ 'ignore');
+    if (session) {
+        const user = await User.authenticateFromSession(session);
+        if (user)
+            return user;
+    }
+
+    switch (behaviour) {
+        case 'not-found':
+            notFound();
+
+        case 'redirect':
+            redirect(behaviourParam || '/');
+
+        case 'request-login':
+            redirect('/auth-api/login?returnTo=' + headers().get('X-Request-Path'));
+    }
+
+    return undefined;
 }

@@ -9,17 +9,17 @@ import { Session, kSessionCookieName } from './Session';
 /**
  * Valid behaviours that can be specified when using useSession().
  */
-type InvalidSessionBehaviour = 'not-found' | 'redirect';
+export type InvalidSessionBehaviour = 'ignore' | 'not-found' | 'redirect';
 
 /**
  * Returns the unsealed Session that was included in the cookies included in the HTTP request, or
  * undefined in case they don't have a (valid) session.
  */
-export async function useSession(): Promise<Session | undefined>;
+export async function useSession(behaviour?: 'ignore'): Promise<Session | undefined>;
 
 /**
  * Returns the unsealed Session that was included in the cookies included in the HTTP request, or
- * returns an HTTP 404 not-found error instead.
+ * displays an HTTP 404 not-found error instead.
  */
 export async function useSession(behaviour: 'not-found'): Promise<Session>;
 
