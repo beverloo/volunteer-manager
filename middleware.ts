@@ -2,33 +2,26 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { notFound } from 'next/navigation';
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from './app/lib/auth/Session';
 
 /**
  * Endpoint (full pathname) through which login functionality is exposed.
  */
-const kEndpointAuthLogin = '/auth/login';
+const kEndpointAuthLogin = '/auth-api/login';
 
 /**
  * Endpoint (full pathname) through which logout functionality is exposed.
  */
-const kEndpointAuthLogout = '/auth/logout';
+const kEndpointAuthLogout = '/auth-api/logout';
 
 /**
  * Determines the URL to which the user should be navigated after the middleware action has been
- * completed. We prefer the `X-Redirect-To` header, then consider the `RelayState` search param,
- * then default to the domain's root. Only pathnames absolute to the current origin are considered.
+ * completed. We consider the `returnTo` search param and otherwise default to the domain's root.
+ * Only pathnames absolute to the current origin are considered.
  */
 function determineRedirectUrl(request: NextRequest): URL {
-    let candidate: string | undefined;
-
-    if (request.headers.has('X-Redirect-To'))
-        candidate = request.headers.get('X-Redirect-To');
-    else if (request.nextUrl.searchParams.has('RelayState'))
-        candidate = request.nextUrl.searchParams.get('RelayState');
-
+    const candidate = request.nextUrl.searchParams.get('returnTo');
     if (candidate && candidate.startsWith('/'))
         return new URL(candidate, request.url);
 
@@ -40,17 +33,21 @@ function determineRedirectUrl(request: NextRequest): URL {
  * read-only, we use a middleware to handle user authentication and logout -- both of which depend
  * on the ability to set or delete cookies. Two endpoints are exposed:
  *
- * /auth/login
+ * /auth-api/login
  *   - Must be a POST request containing authentication information.
- *   - May include a `RelayState` field (common for SSO) or an `X-Redirect-To` HTTP header.
+ *   - May include a `returnTo` request parameter (analogous to `RelayState` in SSO).
  *     - Will redirect to the domain root in absence of such information.
  *
- * /auth/logout
+ * /auth-api/logout
  *   - Must be a GET request containing no request body.
- *   - May include a `RelayState` request param (common for SSO) or an `X-Redirect-To` HTTP header.
+ *   - May include a `returnTo` request parameter (analogous to `RelayState` in SSO).
  *     - Will redirect to the domain root in absence of such information.
+ *
+ * For all other URLs, middleware is used to inject a header with the current page URL. This enables
+ * authentication that automatically links back to the requesting page.
  *
  * @see https://github.com/vercel/next.js/discussions/49843#discussion-5200631
+ * @see https://github.com/vercel/next.js/issues/43704
  */
 export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith(kEndpointAuthLogin)) {
@@ -87,22 +84,12 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
-    notFound();
-}
+    // TODO: Remove the following once there is a mechanism for server components to retrieve the
+    // current URL and/or pathname. This is currently blocked by the following issue:
+    // https://github.com/vercel/next.js/issues/43704
 
-/**
- * Paths that should be captured by the middleware. Since middleware is injected in every request,
- * we should be conservative to avoid running code when we don't need to.
- *
- * Note that the endpoint constants are duplicated because of the way NextJS parses them:
- * https://nextjs.org/docs/messages/invalid-page-config
- */
-export const config = {
-    experimental: {
-        runtime: 'nodejs',
-    },
-    matcher: [
-        /* kEndpointAuthLogin= */   '/auth/login',
-        /* kEndpointAuthLogout= */  '/auth/logout',
-    ],
-};
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('X-Request-Path', request.nextUrl.pathname);
+
+    return NextResponse.next({ request: { headers: requestHeaders } });
+}
