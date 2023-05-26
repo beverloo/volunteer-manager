@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
 import { User } from './User';
@@ -11,6 +12,12 @@ import { useSession } from './useSession';
  * Valid behaviours that can be specified when using useUser().
  */
 type InvalidUserBehaviour = 'ignore' | 'not-found' | 'redirect' | 'request-login';
+
+/**
+ * A cache used to cache the results of useUser() for a particular request, as identified by the
+ * cookies() instance (which NextJS stores in the RequestAsyncStorage).
+ */
+const kUserCache = new WeakMap<ReturnType<typeof cookies>, User>();
 
 /**
  * Returns the User that is signed in for the current page view, or undefined in case they are not
@@ -58,9 +65,15 @@ export async function useUser(behaviour?: 'request-login'): Promise<User>;
  */
 export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?: string)
         : Promise<User | undefined> {
-    const session = await useSession(/* behaviour= */ 'ignore');
+    const requestIdentifier = cookies();
+    if (kUserCache.has(requestIdentifier))
+        return kUserCache.get(requestIdentifier);
+
+    const session = await useSession(/* behaviour= */ 'ignore');  // eslint-disable-line
     if (session) {
         const user = await User.authenticateFromSession(session);
+        kUserCache.set(requestIdentifier, user);
+
         if (user)
             return user;
     }
