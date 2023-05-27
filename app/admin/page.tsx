@@ -8,7 +8,6 @@ import { useUser } from '../lib/auth/useUser';
 
 export default async function AdminPage() {
     const user = await useUser('request-login');
-    await useUser();
 
     return (
         <p>

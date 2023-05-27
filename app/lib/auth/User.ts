@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { Privilege } from './Privileges';
 import { Session } from './Session';
 import { sql } from '../database';
 
@@ -39,6 +40,11 @@ export class User {
     constructor(user: UserDatabaseRow) {
         this.user = user;
     }
+
+    /**
+     * The privileges the user has access to, fresh from the database for the current request.
+     */
+    get privileges() { return [ Privilege.Foo, Privilege.Bar ]; }
 
     /**
      * Unique, automatically incrementing user ID assigned to this user.
