@@ -7,4 +7,22 @@
  */
 export enum Privilege {
     Administrator = 1,
+    ShowPastEvents = 2,
+    ShowFutureEvents = 4,
+};
+
+/**
+ * Names of each of the privileges.
+ */
+export const PrivilegeNames: { [key in Privilege]: string } = {
+    [Privilege.Administrator]: 'Administrator',
+    [Privilege.ShowPastEvents]: 'Show past events',
+    [Privilege.ShowFutureEvents]: 'Show future events',
+};
+
+/**
+ * Warnings associated with each of the Privileges.
+ */
+export const PrivilegeWarnings: { [key in Privilege]?: string } = {
+    [Privilege.Administrator]: 'Administrator privilege automatically grants all other privileges',
 };

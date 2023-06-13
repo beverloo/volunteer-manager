@@ -17,7 +17,7 @@ interface UserDatabaseRow {
     gender: string;
     birthdate: string;  // YYYY-MM-DD
     phone_number: string;
-    privileges: string;
+    privileges: number;
     session_token: number;
 }
 
@@ -28,7 +28,6 @@ interface UserDatabaseRow {
  * the User.prototype.toUserData() method.
  */
 export class User implements UserData {
-    #privileges: Set<Privilege>;
     #user: UserDatabaseRow;
 
     /**
@@ -47,7 +46,6 @@ export class User implements UserData {
     }
 
     constructor(user: UserDatabaseRow) {
-        this.#privileges = new Set(user.privileges.split(',').map(v => parseInt(v)));
         this.#user = user;
     }
 
@@ -59,7 +57,8 @@ export class User implements UserData {
      * Returns whether the user is allowed to use the given |privilege|.
      */
     can(privilege: Privilege): boolean {
-        return this.#privileges.has(privilege);
+        return (this.#user.privileges & Privilege.Administrator) !== 0 ||
+               (this.#user.privileges & privilege) !== 0;
     }
 
     /**
@@ -93,7 +92,7 @@ export class User implements UserData {
 
     get firstName() { return this.#user.first_name; }
     get lastName() { return this.#user.last_name; }
-    get privileges() { return [ ...this.#privileges ]; }
+    get privileges() { return this.#user.privileges; }
     get username() { return this.#user.username; }
 
     // ---------------------------------------------------------------------------------------------
