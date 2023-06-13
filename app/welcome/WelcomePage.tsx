@@ -3,7 +3,7 @@
 
 'use client';
 
-import { type UserData } from './lib/auth/UserData';
+import { type UserData } from '../lib/auth/UserData';
 import Typography from '@mui/material/Typography';
 
 interface WelcomePageProps {

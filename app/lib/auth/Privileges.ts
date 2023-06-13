@@ -6,7 +6,5 @@
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  */
 export enum Privilege {
-    Foo = 1,
-    Bar,
-    Baz,
+    Administrator = 1,
 };
