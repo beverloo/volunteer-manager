@@ -8,6 +8,6 @@ import { headers } from 'next/headers';
  * around to the usePathname() not being available in NextJS for server components, and is
  * is implemented by setting an internal HTTP header in our middleware.
  */
-export function getServerPathname() {
+export function getRequestPath() {
     return headers().get('X-Request-Path') || '/';
 }

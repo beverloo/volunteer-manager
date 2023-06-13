@@ -3,6 +3,7 @@
 
 import { Privilege } from './Privileges';
 import { Session } from './Session';
+import { type UserData } from './UserData';
 import { sql } from '../database';
 
 /**
@@ -11,15 +12,21 @@ import { sql } from '../database';
 interface UserDatabaseRow {
     user_id: number;
     username: string;
-    password: never;
+    first_name: string;
+    last_name: string;
+    gender: string;
+    birthdate: string;  // YYYY-MM-DD
+    phone_number: string;
     session_token: number;
 }
 
 /**
- * Class representing the user who is signed in based on the current session. Wraps the Iron session
- * and provides convenience
+ * Class representing the user who is signed in based on the current session. An instance of the
+ * User class can only be used by server components, which is a superset of the UserData interface
+ * that can also be made available to client components. Such an object can be obtained by calling
+ * the User.prototype.toUserData() method.
  */
-export class User {
+export class User implements UserData {
     private user: UserDatabaseRow;
 
     /**
@@ -41,10 +48,9 @@ export class User {
         this.user = user;
     }
 
-    /**
-     * The privileges the user has access to, fresh from the database for the current request.
-     */
-    get privileges() { return [ Privilege.Foo, Privilege.Bar ]; }
+    // ---------------------------------------------------------------------------------------------
+    // Functionality limited to server components:
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Unique, automatically incrementing user ID assigned to this user.
@@ -52,12 +58,47 @@ export class User {
     get userId() { return this.user.user_id; }
 
     /**
-     * The username of this user, generally their e-mail address.
+     * Returns the user's gender, which is a string with arbitrary value.
      */
-    get username() { return this.user.username; }
+    get gender() { return this.user.gender; }
+
+    /**
+     * Returns the user's birth date as a YYYY-MM-DD string.
+     */
+    get birthDate() { return this.user.birthdate; }
+
+    /**
+     * Returns the user's phone number, including their country code.
+     */
+    get phoneNumber() { return this.user.phone_number; }
 
     /**
      * The user's current session token. Must match the token given in the Iron Session.
      */
     get sessionToken() { return this.user.session_token; }
+
+    // ---------------------------------------------------------------------------------------------
+    // Functionality also available to client components, i.e. UserData implementation:
+    // ---------------------------------------------------------------------------------------------
+
+    get firstName() { return this.user.first_name; }
+    get lastName() { return this.user.last_name; }
+    get privileges() { return [ Privilege.Foo, Privilege.Bar ]; }
+    get username() { return this.user.username; }
+
+    // ---------------------------------------------------------------------------------------------
+    // Functionality to obtain a plain UserData object:
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns a plain JavaScript object that conforms to the UserData interface.
+     */
+    toUserData(): UserData {
+        return {
+            firstName: this.firstName,
+            lastName: this.lastName,
+            privileges: this.privileges,
+            username: this.username,
+        };
+    }
 }

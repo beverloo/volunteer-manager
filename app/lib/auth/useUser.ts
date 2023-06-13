@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
 import { User } from './User';
-import { getServerPathname } from '../getServerPathname';
+import { getRequestPath } from '../getRequestPath';
 import { useSession } from './useSession';
 
 /**
@@ -86,7 +86,7 @@ export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?:
             redirect(behaviourParam || '/');
 
         case 'request-login':
-            redirect('/auth-api/login?returnTo=' + getServerPathname());
+            redirect('/auth-api/login?returnTo=' + getRequestPath());
     }
 
     return undefined;
