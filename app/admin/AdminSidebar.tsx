@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
@@ -77,7 +77,7 @@ export function AdminSidebar(props: AdminSidebarProps) {
                         () => toggleActiveEvent(index);
 
                     return (
-                        <>
+                        <Fragment key={index}>
                             <ListItemButton onClick={toggleEventVisibility}>
                                 <ListItemIcon>
                                     <LabelIcon />
@@ -113,7 +113,7 @@ export function AdminSidebar(props: AdminSidebarProps) {
                                     </ListItemButton>
                                 </List>
                             </Collapse>
-                        </> ) }) }
+                        </Fragment> ) }) }
             </List>
         </Stack>
     );

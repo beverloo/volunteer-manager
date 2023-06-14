@@ -4,6 +4,22 @@
 'use client';
 
 import Grid from '@mui/material/Unstable_Grid2';
+import { SxProps, Theme } from '@mui/system';
+
+/**
+ *
+ */
+const kStyles: { [key: string]: SxProps<Theme> } = {
+    root: {
+        backgroundColor: '#f8faf0',
+        padding: 2,
+        minHeight: '100vh',
+    },
+    content: {
+        backgroundColor: '#ffffff',
+        borderRadius: 4,
+    }
+};
 
 /**
  *
@@ -25,11 +41,11 @@ export interface AdminLayoutProps {
  */
 export function AdminLayout(props: React.PropsWithChildren<AdminLayoutProps>) {
     return (
-        <Grid container>
+        <Grid sx={kStyles.root} container>
             <Grid xs={3}>
                 {props.sidebar}
             </Grid>
-            <Grid xs={9}>
+            <Grid sx={kStyles.content} xs={9}>
                 {props.header}
                 {props.children}
             </Grid>
