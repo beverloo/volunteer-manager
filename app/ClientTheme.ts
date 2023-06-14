@@ -3,13 +3,18 @@
 
 'use client';
 
+import { type PaletteMode } from '@mui/material';
 import { Roboto } from 'next/font/google';
-import { createTheme } from '@mui/material/styles';
+import { type Theme, type ThemeOptions, createTheme, darken, lighten } from '@mui/material/styles';
+import { deepmerge } from '@mui/utils';
+import grey from '@mui/material/colors/grey'
+
+import { type Environment, kEnvironmentColours } from './Environment';
 
 /**
  * The Roboto font, loaded through NextJS' font stack, with default settings for Material UI.
  */
-export const kFontRoboto = Roboto({
+const kFontRoboto = Roboto({
     weight: ['300', '400', '500', '700'],
     subsets: ['latin'],
     display: 'block',
@@ -17,10 +22,53 @@ export const kFontRoboto = Roboto({
 });
 
 /**
- * The Material UI theme configuration that will apply to the Volunteer Manager environment.
+ * Global cache for the Theme instances created for a given configuration.
  */
-export const kTheme = createTheme({
-    typography: {
-        fontFamily: kFontRoboto.style.fontFamily,
+const kThemeCache = new Map<string, Theme>();
+
+/**
+ * Mixins that should be added to a created type depending on the chosen palette mode.
+ */
+const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
+    dark: {
+        palette: {
+            background: {
+                default: '#000000',
+                paper: lighten(grey[900], .01),
+            },
+        },
     },
-});
+    light: { /* no mixins yet */ },
+};
+
+/**
+ * Creates a theme for the given |environment| in the given |paletteMode|. The result of this call
+ * will be cached for the lifetime of the global environment.
+ */
+export function createCachedTheme(environment: Environment, paletteMode: PaletteMode): Theme {
+    const themeCacheKey = `${environment}#${paletteMode}`;
+    if (!kThemeCache.has(themeCacheKey)) {
+        kThemeCache.set(themeCacheKey, createTheme(deepmerge(kThemePaletteModeMixins[paletteMode], {
+            breakpoints: {
+                values: {
+                    xs: 0,
+                    sm: 600,
+                    md: 840,
+                    lg: 1200,
+                    xl: 1536,
+                },
+            },
+            palette: {
+                mode: paletteMode,
+                primary: {
+                    main: kEnvironmentColours[environment][paletteMode],
+                },
+            },
+            typography: {
+                fontFamily: kFontRoboto.style.fontFamily,
+            },
+        })));
+    }
+
+    return kThemeCache.get(themeCacheKey);
+}

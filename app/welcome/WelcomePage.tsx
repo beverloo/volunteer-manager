@@ -8,6 +8,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { type EventData } from '../lib/Event';
@@ -22,7 +23,7 @@ export function WelcomePage(props: WelcomePageProps) {
     const events = props.events ?? [];
 
     return (
-        <>
+        <Paper>
             <Typography variant="h1">
                 Hello, {props.user?.firstName}!
             </Typography>
@@ -30,12 +31,12 @@ export function WelcomePage(props: WelcomePageProps) {
                 {events.map(event =>
                     <ListItemButton key={event.slug}>
                         <ListItemIcon>
-                            <EventNoteIcon />
+                            <EventNoteIcon color="primary" />
                         </ListItemIcon>
                         <ListItemText primary={event.name}
                                       secondary={event.slug} />
                     </ListItemButton> )}
             </List>
-        </>
+        </Paper>
     );
 }
