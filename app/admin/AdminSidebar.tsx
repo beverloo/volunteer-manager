@@ -23,13 +23,13 @@ import ListItemText from '@mui/material/ListItemText';
 import SmsIcon from '@mui/icons-material/Sms';
 import Stack from '@mui/material/Stack';
 
-import { Privilege } from '../lib/auth/Privileges';
+import { type Privileges } from '../lib/auth/Privileges';
 
 /**
  *
  */
 interface AdminSidebarProps {
-    privileges: Privilege[];
+    privileges: Privileges;
 }
 
 /**
@@ -37,7 +37,6 @@ interface AdminSidebarProps {
  */
 export function AdminSidebar(props: AdminSidebarProps) {
     const events = [ '2023', '2022 Classic', '2022' ];
-    const privileges = new Set(props.privileges);
 
     const [ activeEvent, setActiveEvent ] = useState<number>(/* defaultEvent= */ 0);
     function toggleActiveEvent(index: number): void {

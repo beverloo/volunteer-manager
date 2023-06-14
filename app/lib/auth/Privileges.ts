@@ -12,6 +12,12 @@ export enum Privilege {
 };
 
 /**
+ * Type definition for multiple privileges. They are stored as a singular integer in which each of
+ * the privileges is represented by a singular bit.
+ */
+export type Privileges = number;
+
+/**
  * Names of each of the privileges.
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
