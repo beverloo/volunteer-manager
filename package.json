@@ -36,7 +36,8 @@
     "react-dom": "^18.2.0",
     "scrypt-js": "^3.0.1",
     "serverless-mysql": "^1.5.5",
-    "simple-sha256": "^1.1.0"
+    "simple-sha256": "^1.1.0",
+    "tss-react": "^4.8.6"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",

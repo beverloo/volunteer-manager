@@ -3,17 +3,11 @@
 
 'use client';
 
-import { CacheProvider } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
+import { NextAppDirEmotionCacheProvider } from 'tss-react/next/appDir';
 import { ThemeProvider } from '@mui/material/styles';
 
-import { createCache } from './ClientCache';
 import { kTheme } from './ClientTheme';
-
-/**
- * Client-side cache, kept around for the entire browsing session.
- */
-const kCache = createCache();
 
 /**
  * Props accepted by the <ClientProviders /> React component.
@@ -30,11 +24,13 @@ export interface ClientProvidersProps {
  */
 export function ClientProviders(props: ClientProvidersProps) {
     return (
-        <CacheProvider value={kCache}>
-            <ThemeProvider theme={kTheme}>
-                <CssBaseline />
-                {props.children}
-            </ThemeProvider>
-        </CacheProvider>
+        <>
+            <CssBaseline />
+            <NextAppDirEmotionCacheProvider options={{ key: "css" }}>
+                <ThemeProvider theme={kTheme}>
+                    {props.children}
+                </ThemeProvider>
+            </NextAppDirEmotionCacheProvider>
+        </>
     )
 }
