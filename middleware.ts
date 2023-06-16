@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
     // https://github.com/vercel/next.js/issues/43704
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('X-Request-Origin', request.nextUrl.origin);
+    requestHeaders.set('X-Request-Origin', request.nextUrl.hostname);
     requestHeaders.set('X-Request-Path', request.nextUrl.pathname);
 
     return NextResponse.next({ request: { headers: requestHeaders } });
