@@ -10,6 +10,18 @@ const nextConfig = {
     },
     output: 'standalone',
     reactStrictMode: true,
+    redirects: [
+        {
+            source: '/hallo',
+            destination: '/registration',
+            permanent: true,
+        },
+        {
+            source: '/hello',
+            destination: '/registration',
+            permanent: true,
+        },
+    ]
 };
 
 module.exports = nextConfig;

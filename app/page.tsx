@@ -5,6 +5,8 @@ import { WelcomePage } from './welcome/WelcomePage';
 
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { getEventsForUser } from './lib/EventLoader';
+import { getRequestEnvironment } from './lib/getRequestEnvironment';
+import { getTeamInformationForEnvironment } from './lib/Content';
 import { useUser } from './lib/auth/useUser';
 
 export default async function RootPage() {
@@ -12,8 +14,14 @@ export default async function RootPage() {
     const events = await getEventsForUser(user);
     const eventDatas = events.map(event => event.toEventData());
 
+    const environment = getRequestEnvironment();
+    const team = await getTeamInformationForEnvironment(environment);
+
     return (
-        <RegistrationLayout environment="stewards.team">
+        <RegistrationLayout environment={environment}>
+            <p>
+                <strong>{team.name}</strong>: {team.description}
+            </p>
             <WelcomePage events={eventDatas} user={user?.toUserData()} />
         </RegistrationLayout>
     );

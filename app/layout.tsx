@@ -4,8 +4,7 @@
 import { type Metadata } from 'next';
 
 import { ClientProviders } from './ClientProviders';
-import { type Environment, kEnvironmentColours } from './Environment';
-import { getRequestOrigin } from './lib/getRequestOrigin';
+import { getRequestEnvironment } from './lib/getRequestEnvironment';
 import { kDefaultPageTitle, kDefaultPageDescription } from './config';
 
 /**
@@ -31,16 +30,11 @@ interface RootLayoutProps {
  * the path that has been requested by the client, allowing for middleware routing.
  */
 export default function RootLayout(props: RootLayoutProps) {
-    const requestOrigin = getRequestOrigin();
-    const environment: Environment =
-        Object.hasOwn(kEnvironmentColours, requestOrigin) ? requestOrigin as Environment
-                                                          : 'animecon.team';
-
     return (
         <html lang="en">
             <head></head>
             <body>
-                <ClientProviders darkMode="auto" environment={environment}>
+                <ClientProviders darkMode="auto" environment={getRequestEnvironment()}>
                     {props.children}
                 </ClientProviders>
             </body>
