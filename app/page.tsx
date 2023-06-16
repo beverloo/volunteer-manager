@@ -3,7 +3,8 @@
 
 import { WelcomePage } from './welcome/WelcomePage';
 
-import { getEventBySlug, getEventsForUser } from './lib/EventLoader';
+import { RegistrationLayout } from './registration/RegistrationLayout';
+import { getEventsForUser } from './lib/EventLoader';
 import { useUser } from './lib/auth/useUser';
 
 export default async function RootPage() {
@@ -12,6 +13,8 @@ export default async function RootPage() {
     const eventDatas = events.map(event => event.toEventData());
 
     return (
-        <WelcomePage events={eventDatas} user={user?.toUserData()} />
+        <RegistrationLayout environment="stewards.team">
+            <WelcomePage events={eventDatas} user={user?.toUserData()} />
+        </RegistrationLayout>
     );
 }
