@@ -5,7 +5,6 @@
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
 import { SxProps, Theme } from '@mui/system';
 import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
@@ -81,9 +80,7 @@ export function RegistrationLayout(props: RegistrationLayoutProps) {
                                 data={'/images/logo.svg?' + params} />
                     </a>
                 </Container>
-                <Paper elevation={2}>
-                    {props.children}
-                </Paper>
+                {props.children}
                 <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
                     AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
                 </Typography>

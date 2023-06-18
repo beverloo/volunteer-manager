@@ -22,7 +22,8 @@ export default async function RootPage() {
         <RegistrationLayout environment={environment}>
             <WelcomePage events={eventDatas}
                          user={user?.toUserData()}
-                         title={kEnvironmentTitle[environment]} />
+                         title={kEnvironmentTitle[environment]}
+                         description={team.description} />
         </RegistrationLayout>
     );
 }
