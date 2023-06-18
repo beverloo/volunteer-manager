@@ -10,7 +10,7 @@ const nextConfig = {
     },
     output: 'standalone',
     reactStrictMode: true,
-    redirects: [
+    redirects: async() => ([
         {
             source: '/hallo',
             destination: '/registration',
@@ -21,7 +21,7 @@ const nextConfig = {
             destination: '/registration',
             permanent: true,
         },
-    ]
+    ]),
 };
 
 module.exports = nextConfig;

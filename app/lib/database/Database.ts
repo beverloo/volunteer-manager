@@ -22,6 +22,18 @@ const kDefaultTimeoutMs = 5000;
 const kPrivateSymbol = Symbol();
 
 /**
+ * Interface that can be injected into the Database class to allow testing database interactions
+ * throughout our code. When defined, delegate methods will take priority over regular operations.
+ */
+export interface DatabaseTestingDelegate {
+    /**
+     * Intercepts execution of the given |query| with the given |parameters|, if any. When this
+     * method exists, it must override all queries that are being fed to the method.
+     */
+    query?(query: string, parameters?: DatabasePrimitive[]): Promise<Result>;
+}
+
+/**
  * Wraps the `serverless-mysql` library for database access provided on the server. The library
  * manages connection management and scaling, automatically reestablishes the connection when it's
  * lost. This class abstracts that away from our server infrastructure.
@@ -30,13 +42,15 @@ const kPrivateSymbol = Symbol();
  * query in a native MySQL parameterized query to prevent SQL injections.
  */
 class Database {
-    private connection: ServerlessMySQL.ServerlessMysql;
+    #connection: ServerlessMySQL.ServerlessMysql;
+    #delegate?: DatabaseTestingDelegate;
 
     constructor(privateSymbol: Symbol) {
         if (privateSymbol !== kPrivateSymbol)
             throw new Error('Unable to instantiate the Database class, use `kDatabase` instead.');
 
-        this.connection = ServerlessMySQL({
+        this.#delegate = undefined;
+        this.#connection = ServerlessMySQL({
             backoff: 'full',
             base: 8,
             cap: 30000, // 30 seconds
@@ -63,10 +77,24 @@ class Database {
      * template literal exposed in //lib/database, which protects against SQL injection.
      */
     async query(query: string, parameters?: DatabasePrimitive[]) {
-        return Result.from(this.connection.query({
+        if (this.#delegate) {
+            const delegateResult = await this.#delegate.query(query, parameters);
+            if (delegateResult)
+                return delegateResult;
+        }
+
+        return Result.from(this.#connection.query({
             sql: query,
             values: parameters,
             timeout: kDefaultTimeoutMs }));
+    }
+
+    /**
+     * Sets or clears the delegate used for testing to |delegate|. It can be omitted to remove the
+     * delegate entirely, resuming default behaviour.
+     */
+    setDelegateForTesting(delegate?: DatabaseTestingDelegate): void {
+        this.#delegate = delegate;
     }
 
     /**

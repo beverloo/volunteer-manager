@@ -40,6 +40,46 @@ export class Result {
         }
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Static methods allowing Result instances to be created for testing.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Creates a new Result instance representing an error. Must only be used for testing.
+     */
+    static createErrorForTesting() {
+        return new Result(ResultType.Error, new Error);
+    }
+
+    /**
+     * Creates a new Result instance representing the (successful) results of a SELECT query. Must
+     * only be used for testing.
+     */
+    static createSelectForTesting(rows: Array<{ [key: string]: any }>) {
+        return new Result(ResultType.Select, rows);
+    }
+
+    /**
+     * Creates a new Result instance representing the (successful) results of an UPDATE or INSERT
+     * query. Must only be used for testing.
+     */
+    static createUpdateForTesting(updates: Partial<OkPacket>) {
+        return new Result(ResultType.Update, {
+            fieldCount: 0,
+            affectedRows: 0,
+            insertId: 0,
+            serverStatus: undefined,
+            warningCount: undefined,
+            message: 'success',
+            changedRows: 0,
+            protocol41: false,
+
+            ...updates,
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     private resultType: ResultType;
     private resultValue: unknown;
 

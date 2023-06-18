@@ -10,6 +10,7 @@ import { sql } from '../lib/database';
 export class ServiceLogImpl implements ServiceLog {
     #serviceId: number;
 
+    #finalized: boolean;
     #messages: { type: string, message: string }[];
     #state: ServiceState | undefined;
     #startTime: bigint;
@@ -17,6 +18,7 @@ export class ServiceLogImpl implements ServiceLog {
     constructor(serviceId: number) {
         this.#serviceId = serviceId;
 
+        this.#finalized = false;
         this.#state = undefined;  // pending
         this.#messages = [];
     }
@@ -38,6 +40,9 @@ export class ServiceLogImpl implements ServiceLog {
 
     exception(error: Error): void {
         switch (this.#state) {
+            case undefined:
+                throw new Error('The service has not begun execution yet, cannot yield results');
+
             case 'exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
@@ -60,6 +65,9 @@ export class ServiceLogImpl implements ServiceLog {
 
     error(...data: any): void {
         switch (this.#state) {
+            case undefined:
+                throw new Error('The service has not begun execution yet, cannot yield results');
+
             case 'exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
@@ -80,6 +88,9 @@ export class ServiceLogImpl implements ServiceLog {
 
     warning(...data: any): void {
         switch (this.#state) {
+            case undefined:
+                throw new Error('The service has not begun execution yet, cannot yield results');
+
             case 'exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
@@ -99,6 +110,11 @@ export class ServiceLogImpl implements ServiceLog {
     }
 
     async finishExecution(): Promise<void> {
+        if (this.#finalized)
+            throw new Error('The service execution has already been finalized');
+
+        this.#finalized = true;
+
         const runtimeNanoseconds = process.hrtime.bigint() - this.#startTime;
         const runtimeMilliseconds = Number(runtimeNanoseconds) / 1000 / 1000;
 
