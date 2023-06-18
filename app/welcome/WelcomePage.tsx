@@ -14,7 +14,9 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { type EventData } from '../lib/Event';
 import { type UserData } from '../lib/auth/UserData';
@@ -114,9 +116,14 @@ export function WelcomePage(props: WelcomePageProps) {
                     <Grid item xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
-                                <Typography variant="h5" component="p">
-                                    Administration
-                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Typography variant="h5" component="p">
+                                        Administration
+                                    </Typography>
+                                    <Tooltip title="Access is limited to Senior+ volunteers">
+                                        <VisibilityOffIcon fontSize="small" color="disabled" />
+                                    </Tooltip>
+                                </Stack>
                                 <Typography variant="body2">
                                     Access to the administration area where we manage the events,
                                     volunteers and scheduling.
@@ -136,12 +143,17 @@ export function WelcomePage(props: WelcomePageProps) {
                     <Grid item xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
-                                <Typography variant="h5" component="p">
-                                    Statistics
-                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Typography variant="h5" component="p">
+                                        Statistics
+                                    </Typography>
+                                    <Tooltip title="Access is limited to selected volunteers">
+                                        <VisibilityOffIcon fontSize="small" color="disabled" />
+                                    </Tooltip>
+                                </Stack>
                                 <Typography variant="body2">
-                                    Multi-year statistics about the demographics, performance and
-                                    scope of the {props.title}.
+                                    Multi-year statistics about the demographics, scope and
+                                    performance of the {props.title}.
                                 </Typography>
                             </CardContent>
                             <CardActions>
