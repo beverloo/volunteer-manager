@@ -30,6 +30,7 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.5",
     "@peculiar/webcrypto": "^1.4.3",
+    "dayjs": "^1.11.8",
     "iron-webcrypto": "^0.7.0",
     "next": "^13.4.6",
     "react": "^18.2.0",

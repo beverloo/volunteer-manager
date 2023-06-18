@@ -22,6 +22,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { type EventData } from '../lib/Event';
 import { type UserData } from '../lib/auth/UserData';
+import { DateTime } from '../lib/DateTime';
 import { Privilege, can } from '../lib/auth/Privileges';
 
 /**
@@ -33,9 +34,9 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         flexDirection: 'column',
         pt: { md: 2 },
 
-        '&>:first-of-type': { px: 1 },
+        '&>a>:first-of-type': { px: 1 },
         '&>:not(:first-of-type)': {
-            px: 1,
+            px: 0,
             m: 0,
         },
     },
@@ -95,13 +96,29 @@ export interface WelcomePageProps {
 export function WelcomePage(props: WelcomePageProps) {
     const additionalEvents: EventData[] = [];
 
-    let contentHighlightEvent: EventData | undefined;
-    let portalHighlightEvent: EventData | undefined;
+    const eventContentOverride = can(props.user, Privilege.EventContentOverride);
+    const eventScheduleOverride = can(props.user, Privilege.EventScheduleOverride);
+    const currentTime = DateTime.Now();
+
+    let upcomingEvent: EventData | undefined;
+    let currentEvent: EventData | undefined;
 
     for (const event of props.events) {
-
-        additionalEvents.push(event);
+        const eventTime = DateTime.From(event.endTime);
+        if (eventTime.isAfter(currentTime, 'date') && !upcomingEvent)
+            upcomingEvent = event;
+        else if (!currentEvent)
+            currentEvent = event;
+        else
+            additionalEvents.push(event);
     }
+
+    const shouldHighlight = (value: boolean) => value ? 'contained' : 'outlined';
+
+    const hiddenIcon =
+        <Tooltip title="Access is limited to Senior+ volunteers">
+            <VisibilityOffIcon fontSize="small" color="disabled" />
+        </Tooltip>;
 
     return (
         <>
@@ -125,8 +142,44 @@ export function WelcomePage(props: WelcomePageProps) {
                             {props.description}
                         </Typography>
                         <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                            <Button variant="contained">Want to join the {props.title}?</Button>
-                            <Button variant="outlined">Access the volunteer portal</Button>
+                            { /* TODO: Participating volunteers should see "access" first */ }
+
+                            { (upcomingEvent &&
+                                    (upcomingEvent.enableContent || eventContentOverride)) &&
+                                <Button component={Link}
+                                        href={`/registration/${upcomingEvent.slug}/`}
+                                        endIcon={upcomingEvent.enableContent ? null : hiddenIcon}
+                                        variant={shouldHighlight(upcomingEvent.enableContent)}>
+                                    Join the {upcomingEvent.shortName} {props.title}!
+                                </Button> }
+
+                            { (upcomingEvent &&
+                                    (upcomingEvent.enableSchedule || eventScheduleOverride)) &&
+                                <Button component={Link}
+                                        href={`/schedule/${upcomingEvent.slug}/`}
+                                        endIcon={upcomingEvent.enableSchedule ? null : hiddenIcon}
+                                        variant="outlined">
+                                    {upcomingEvent.shortName} Volunteer Portal
+                                </Button> }
+
+                            { (currentEvent &&
+                                    (currentEvent.enableContent || eventContentOverride)) &&
+                                <Button component={Link}
+                                        href={`/registration/${currentEvent.slug}/`}
+                                        endIcon={currentEvent.enableContent ? null : hiddenIcon}
+                                        variant={shouldHighlight(currentEvent.enableContent)}>
+                                    Join the {currentEvent.shortName} {props.title}!
+                                </Button> }
+
+                            { (currentEvent &&
+                                    (currentEvent.enableSchedule || eventScheduleOverride)) &&
+                                <Button component={Link}
+                                        href={`/schedule/${currentEvent.slug}/`}
+                                        endIcon={currentEvent.enableSchedule ? null : hiddenIcon}
+                                        variant="outlined">
+                                    {currentEvent.shortName} Volunteer Portal
+                                </Button> }
+
                         </Stack>
                     </Grid>
                     <Grid item xs={7}>
@@ -195,17 +248,28 @@ export function WelcomePage(props: WelcomePageProps) {
                     <Grid key={event.slug} item xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
-                                <Typography variant="h5" component="p" noWrap>
-                                    {event.name}
-                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Typography variant="h5" component="p" noWrap>
+                                        {event.name}
+                                    </Typography>
+                                    <Tooltip title="Access is limited to selected volunteers">
+                                        <VisibilityOffIcon fontSize="small" color="disabled" />
+                                    </Tooltip>
+                                </Stack>
                             </CardContent>
                             <CardActions sx={kStyles.eventCardActions}>
-                                <Button size="small" startIcon={ <HowToRegIcon />}>
-                                    Registration
-                                </Button>
-                                <Button size="small" startIcon={ <EventNoteIcon />}>
-                                    Volunteer Portal
-                                </Button>
+                                { (event.enableContent || eventContentOverride) &&
+                                    <Link href={`/registration/${event.slug}/`} passHref>
+                                        <Button size="small" startIcon={ <HowToRegIcon />}>
+                                            Registration
+                                        </Button>
+                                    </Link> }
+                                { (event.enableSchedule || eventScheduleOverride) &&
+                                    <Link href={`/schedule/${event.slug}/`} passHref>
+                                        <Button size="small" startIcon={ <EventNoteIcon />}>
+                                            Volunteer Portal
+                                        </Button>
+                                    </Link> }
                             </CardActions>
                         </Card>
                     </Grid> )}

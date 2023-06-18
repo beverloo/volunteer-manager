@@ -9,19 +9,8 @@ export interface EventDatabaseRow {
     event_name: string;
     event_short_name: string;
     event_slug: string;
-    event_hidden: boolean;
     event_start_time: string;
     event_end_time: string;
-}
-
-/**
- * Interface that maps to the database representation of a team for an event.
- */
-export interface EventTeamsDatabaseRow {
-    event_id: number;
-    team_id: number;
-    team_name: string;
-    team_description: string;
     enable_content: boolean;
     enable_registration: boolean;
     enable_schedule: boolean;
@@ -58,17 +47,17 @@ export interface EventData {
     endTime: string;
 
     /**
-     * Whether access to the registration portal is available to the public.
+     * Whether access to the event's content portal is unrestricted.
      */
     enableContent: boolean;
 
     /**
-     * Whether applications for the team are being accepted.
+     * Whether visitors have the ability to apply to participate in this event.
      */
     enableRegistration: boolean;
 
     /**
-     * Whether access to the volunteer portal is available to volunteers.
+     * Whether visitors have access to the event's volunteer portal.
      */
     enableSchedule: boolean;
 }
@@ -78,11 +67,9 @@ export interface EventData {
  */
 export class Event implements EventData {
     #event: EventDatabaseRow;
-    #teams: EventTeamsDatabaseRow[];
 
-    constructor(event: EventDatabaseRow, teams: EventTeamsDatabaseRow[]) {
+    constructor(event: EventDatabaseRow) {
         this.#event = event;
-        this.#teams = teams;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -103,9 +90,10 @@ export class Event implements EventData {
     get slug() { return this.#event.event_slug; }
     get startTime() { return this.#event.event_start_time; }
     get endTime() { return this.#event.event_end_time; }
-    get enableContent() { return false; }
-    get enableRegistration() { return false; }
-    get enableSchedule() { return false; }
+    get enableContent() { return this.#event.enable_content; }
+    get enableRegistration() { return this.#event.enable_registration; }
+    get enableSchedule() { return this.#event.enable_schedule; }
+
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain EventData object:
