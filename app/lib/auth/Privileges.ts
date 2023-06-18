@@ -9,10 +9,13 @@ import { type UserData } from './UserData';
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  */
 export enum Privilege {
-    Administrator       = 1 << 0,
-    Statistics          = 1 << 1,
-    ShowPastEvents      = 1 << 2,
-    ShowFutureEvents    = 1 << 3,
+    Administrator               = 1 << 0,
+    Statistics                  = 1 << 1,
+
+    // Privileges regarding the visibility and accessibility of events.
+    EventContentOverride        = 1 << 2,
+    EventRegistrationOverride   = 1 << 3,
+    EventScheduleOverride       = 1 << 4,
 };
 
 /**
@@ -39,8 +42,9 @@ export function can(user: User | UserData | undefined, privilege: Privilege): bo
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
     [Privilege.Statistics]: 'Statistics',
-    [Privilege.ShowPastEvents]: 'Show past events',
-    [Privilege.ShowFutureEvents]: 'Show future events',
+    [Privilege.EventContentOverride]: 'Always allow access to event content',
+    [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
+    [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
 };
 
 /**

@@ -56,6 +56,21 @@ export interface EventData {
      * End time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
      */
     endTime: string;
+
+    /**
+     * Whether access to the registration portal is available to the public.
+     */
+    enableContent: boolean;
+
+    /**
+     * Whether applications for the team are being accepted.
+     */
+    enableRegistration: boolean;
+
+    /**
+     * Whether access to the volunteer portal is available to volunteers.
+     */
+    enableSchedule: boolean;
 }
 
 /**
@@ -88,6 +103,9 @@ export class Event implements EventData {
     get slug() { return this.#event.event_slug; }
     get startTime() { return this.#event.event_start_time; }
     get endTime() { return this.#event.event_end_time; }
+    get enableContent() { return false; }
+    get enableRegistration() { return false; }
+    get enableSchedule() { return false; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain EventData object:
@@ -103,6 +121,9 @@ export class Event implements EventData {
             slug: this.slug,
             startTime: this.startTime,
             endTime: this.endTime,
+            enableContent: this.enableContent,
+            enableRegistration: this.enableRegistration,
+            enableSchedule: this.enableSchedule,
         };
     }
 }

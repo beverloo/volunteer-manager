@@ -51,8 +51,10 @@ export async function getEvents(): Promise<Event[]> {
  * their account. This function issues, at most, two database queries.
  */
 export async function getEventsForUser(user?: User): Promise<Event[]> {
-    const showPastEvents = user && user.can(Privilege.ShowPastEvents);
-    const showFutureEvents = user && user.can(Privilege.ShowFutureEvents);
+    const includeAllEvents =
+        user && (user.can(Privilege.EventRegistrationOverride) ||
+                 user.can(Privilege.EventRegistrationOverride) ||
+                 user.can(Privilege.EventScheduleOverride));
 
     const eventResults =
         await sql`
@@ -63,8 +65,7 @@ export async function getEventsForUser(user?: User): Promise<Event[]> {
             WHERE
                 events.event_hidden IS FALSE AND
                 (
-                    (events.event_end_time < NOW() AND ${showPastEvents}) OR
-                    (events.event_start_time > NOW() AND ${showFutureEvents}) OR
+                    ${includeAllEvents} OR
                     EXISTS (
                         SELECT
                             1
@@ -76,7 +77,7 @@ export async function getEventsForUser(user?: User): Promise<Event[]> {
                     )
                 )
             ORDER BY
-                event_start_time ASC`;
+                event_start_time DESC`;
 
     if (!eventResults.ok || !eventResults.rows.length)
         return [ /* no events */ ];

@@ -10,8 +10,10 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Grid from '@mui/material/Grid';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -26,6 +28,20 @@ import { Privilege, can } from '../lib/auth/Privileges';
  * Manual styles that apply to the <WelcomePage> client component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
+    eventCardActions: {
+        alignItems: 'start',
+        flexDirection: 'column',
+        pt: { md: 2 },
+
+        '&>:first-of-type': { px: 1 },
+        '&>:not(:first-of-type)': {
+            px: 1,
+            m: 0,
+        },
+    },
+    hiddenCardActions: {
+        '&>a>:first-of-type': { px: 1 },
+    },
     header: {
         backgroundColor: 'primary.dark',
         color: theme => theme.palette.getContrastText(theme.palette.primary.dark),
@@ -49,7 +65,8 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  */
 export interface WelcomePageProps {
     /**
-     * The events (zero or more) the current visitor has access to.
+     * The events (zero or more) the current visitor has access to. The events should be sorted in
+     * descending order based on the dates during which they will take place.
      */
     events: EventData[];
 
@@ -72,11 +89,19 @@ export interface WelcomePageProps {
 /**
  * The welcome page is the domain's root page, which routes the user to applicable applications. For
  * most visitors (who are not signed in) this includes registration for the latest event and the
- * ability to sign-in to access the portal, whereas more senior volunteers should also see buttons
+ * ability to sign-in to access the portal, whereas more senior volunteers will also see buttons
  * towards the Admin and Statistics apps.
  */
 export function WelcomePage(props: WelcomePageProps) {
-    const events = props.events ?? [];
+    const additionalEvents: EventData[] = [];
+
+    let contentHighlightEvent: EventData | undefined;
+    let portalHighlightEvent: EventData | undefined;
+
+    for (const event of props.events) {
+
+        additionalEvents.push(event);
+    }
 
     return (
         <>
@@ -129,7 +154,7 @@ export function WelcomePage(props: WelcomePageProps) {
                                     volunteers and scheduling.
                                 </Typography>
                             </CardContent>
-                            <CardActions>
+                            <CardActions sx={kStyles.hiddenCardActions}>
                                 <Link href="/admin" passHref>
                                     <Button size="small" startIcon={ <ExitToAppIcon />}>
                                         Launch
@@ -156,7 +181,7 @@ export function WelcomePage(props: WelcomePageProps) {
                                     performance of the {props.title}.
                                 </Typography>
                             </CardContent>
-                            <CardActions>
+                            <CardActions sx={kStyles.hiddenCardActions}>
                                 <Link href="/statistics" passHref>
                                     <Button size="small" startIcon={ <ExitToAppIcon />}>
                                         Launch
@@ -165,6 +190,25 @@ export function WelcomePage(props: WelcomePageProps) {
                             </CardActions>
                         </Card>
                     </Grid> }
+
+                { additionalEvents.map(event =>
+                    <Grid key={event.slug} item xs={12} md={4}>
+                        <Card elevation={2}>
+                            <CardContent sx={{ pb: 0 }}>
+                                <Typography variant="h5" component="p" noWrap>
+                                    {event.name}
+                                </Typography>
+                            </CardContent>
+                            <CardActions sx={kStyles.eventCardActions}>
+                                <Button size="small" startIcon={ <HowToRegIcon />}>
+                                    Registration
+                                </Button>
+                                <Button size="small" startIcon={ <EventNoteIcon />}>
+                                    Volunteer Portal
+                                </Button>
+                            </CardActions>
+                        </Card>
+                    </Grid> )}
             </Grid>
         </>
     );
