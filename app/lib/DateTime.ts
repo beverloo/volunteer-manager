@@ -18,6 +18,16 @@ dayjs.extend(utc);
 const kDefaultTimezone = 'Europe/Amsterdam';
 
 /**
+ * Unit to round down to when comparing two DateTime objects.
+ */
+export type DateTimeComparisonUnit =
+    'year'   |  // The current year on January 1st, 00:00. (YYYY-01-01 00:00:00)
+    'month'  |  // The current month at 00:00 on the first day. (YYYY-MM-01 00:00:00)
+    'date'   |  // The current day at 00:00. (YYYY-MM-DD 00:00:00)
+    'hour'   |  // The beginning of the current minute. (YYYY-MM-DD HH:00:00)
+    'minute';   // The beginning of the current minute. (YYYY-MM-DD HH:mm:00)
+
+/**
  * Formatting rules for date & time representation supported by the `DateTime` class.
  */
 export enum DateTimeFormat {
@@ -141,6 +151,34 @@ export class DateTime {
     get unix(): number { return this.#value.unix(); }
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Comparison.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns whether `this` represents a moment after `that`. Optionally the `unit` may be given,
+     * which limits the scope of the comparison between the two moments.
+     */
+    isAfter(that: DateTime, unit?: DateTimeComparisonUnit): boolean {
+        return this.#value.isAfter(that.value(), unit);
+    }
+
+    /**
+     * Returns whether `this` represents a moment before `that`. Optionally the `unit` may be given,
+     * which limits the scope of the comparison between the two moments.
+     */
+    isBefore(that: DateTime, unit?: DateTimeComparisonUnit): boolean {
+        return this.#value.isBefore(that.value(), unit);
+    }
+
+    /**
+     * Returns whether `this` represents the same moment as `that` at the scope indicated in the
+     * `unit` argument. When `unit` is omitted, both need to represent the exact same moment.
+     */
+    isSame(that: DateTime, unit?: DateTimeComparisonUnit): boolean {
+        return this.#value.isSame(that.value(), unit);
+    }
+
+    // ---------------------------------------------------------------------------------------------
     // Section: Formatting.
     // ---------------------------------------------------------------------------------------------
 
@@ -176,5 +214,17 @@ export class DateTime {
      */
     toString(): string {
         return `[object DateTime(${this.format(DateTimeFormat.ISO8601_FULL)})]`;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Section: Internal, private behaviour.
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the DayJS representation of the date contained within this instance. Must only be
+     * used when dealing with comparisons or durations for functionality within this class.
+     */
+    private value(): dayjs.Dayjs {
+        return this.#value;
     }
 }

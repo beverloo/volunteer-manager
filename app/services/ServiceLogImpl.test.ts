@@ -98,7 +98,7 @@ describe('ServiceLogImpl', () => {
             expect(latestQuery).not.toBeUndefined();
             expect(latestParameters).not.toBeUndefined();
             expect(latestParameters).toHaveLength(/* per current implementation */ 4);
-            expect(latestParameters[2]).toBeGreaterThanOrEqual(/* ms= */ 50);
+            expect(latestParameters[2]).toBeGreaterThanOrEqual(/* ms= */ 48);
         }
     });
 

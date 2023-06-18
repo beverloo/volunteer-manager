@@ -68,4 +68,95 @@ describe('DateTime', () => {
         expect(amsterdam.unix).not.toEqual(london.unix);
         expect(amsterdam.toString()).not.toEqual(london.toString());
     });
+
+    it('should be able to compare two DateTime instances', () => {
+        // Comparison between two timezones:
+        {
+            const amsterdam = DateTime.From('2023-06-18 21:30:00', 'Europe/Amsterdam');
+            const london = DateTime.From('2023-06-18 21:30:00', 'Europe/London');
+
+            expect(amsterdam.isBefore(london)).toBeTruthy();
+            expect(amsterdam.isAfter(london)).toBeFalsy();
+
+            expect(london.isBefore(amsterdam)).toBeFalsy();
+            expect(london.isAfter(amsterdam)).toBeTruthy();
+        }
+
+        // Comparison between two regular dates:
+        {
+            const left = DateTime.From('2023-06-10 00:00:00');
+            const right = DateTime.From('2023-06-20 23:59:59');
+
+            expect(left.isBefore(right)).toBeTruthy();
+            expect(left.isAfter(right)).toBeFalsy();
+
+            expect(right.isBefore(left)).toBeFalsy();
+            expect(right.isAfter(left)).toBeTruthy();
+        }
+
+        // With limited granularities (several cases):
+        {
+            const cases = [
+                [ '2023-06-00 00:00:00', '2024-12-00 00:00:00', 'year', 'before' ],
+                [ '2023-06-00 00:00:00', '2022-12-00 00:00:00', 'year', 'after' ],
+                [ '2023-06-00 00:00:00', '2023-12-00 00:00:00', 'year', 'same' ],
+
+                [ '2023-06-10 00:00:00', '2023-07-10 00:00:00', 'month', 'before' ],
+                [ '2023-06-10 00:00:00', '2023-05-10 00:00:00', 'month', 'after' ],
+                [ '2023-06-10 00:00:00', '2023-06-20 00:00:00', 'month', 'same' ],
+
+                [ '2023-06-10 21:00:00', '2023-06-20 21:00:00', 'date', 'before' ],
+                [ '2023-06-10 21:00:00', '2023-06-05 21:00:00', 'date', 'after' ],
+                [ '2023-06-10 21:00:00', '2023-06-10 23:00:00', 'date', 'same' ],
+
+                [ '2023-06-10 21:30:00', '2023-06-10 22:30:00', 'hour', 'before' ],
+                [ '2023-06-10 21:30:00', '2023-06-10 20:30:00', 'hour', 'after' ],
+                [ '2023-06-10 21:30:00', '2023-06-10 21:45:00', 'hour', 'same' ],
+
+                [ '2023-06-10 21:30:45', '2023-06-10 21:45:45', 'minute', 'before' ],
+                [ '2023-06-10 21:30:45', '2023-06-10 21:15:45', 'minute', 'after' ],
+                [ '2023-06-10 21:30:45', '2023-06-10 21:30:50', 'minute', 'same' ],
+            ] as const;
+
+            for (const [ leftInput, rightInput, unit, expected ] of cases) {
+                const left = DateTime.From(leftInput);
+                const right = DateTime.From(rightInput);
+
+                switch (expected) {
+                    case 'after':
+                        expect(left.isBefore(right, unit)).toBeFalsy();
+                        expect(left.isAfter(right, unit)).toBeTruthy();
+
+                        expect(right.isBefore(left, unit)).toBeTruthy();
+                        expect(right.isAfter(left, unit)).toBeFalsy();
+
+                        expect(left.isSame(right, unit)).toBeFalsy();
+                        expect(right.isSame(left, unit)).toBeFalsy();
+                        break;
+
+                    case 'before':
+                        expect(left.isBefore(right, unit)).toBeTruthy();
+                        expect(left.isAfter(right, unit)).toBeFalsy();
+
+                        expect(right.isBefore(left, unit)).toBeFalsy();
+                        expect(right.isAfter(left, unit)).toBeTruthy();
+
+                        expect(left.isSame(right, unit)).toBeFalsy();
+                        expect(right.isSame(left, unit)).toBeFalsy();
+                        break;
+
+                    case 'same':
+                        expect(left.isBefore(right, unit)).toBeFalsy();
+                        expect(left.isAfter(right, unit)).toBeFalsy();
+
+                        expect(right.isBefore(left, unit)).toBeFalsy();
+                        expect(right.isAfter(left, unit)).toBeFalsy();
+
+                        expect(left.isSame(right, unit)).toBeTruthy();
+                        expect(right.isSame(left, unit)).toBeTruthy();
+                        break;
+                }
+            }
+        }
+    });
 });
