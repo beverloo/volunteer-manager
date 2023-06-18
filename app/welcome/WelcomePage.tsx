@@ -23,6 +23,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { type EventData } from '../lib/Event';
 import { type UserData } from '../lib/auth/UserData';
 import { DateTime } from '../lib/DateTime';
+import { Markdown } from '../components/Markdown';
 import { Privilege, can } from '../lib/auth/Privileges';
 
 /**
@@ -143,10 +144,9 @@ export function WelcomePage(props: WelcomePageProps) {
                 { /* Section: Landing page */ }
                 <Grid container spacing={2} sx={{ mt: 0, mr: '-0.5px' /* thanks... */ }}>
                     <Grid xs={5}>
-                        <Typography variant="body1" sx={{ px: 2 }}>
-                            { /* TODO: Support Markdown */ }
+                        <Markdown sx={{ px: 2 }}>
                             {props.description}
-                        </Typography>
+                        </Markdown>
                         <Stack direction="column" spacing={2} sx={{ p: 2, mt: 1 }}>
                             { /* TODO: Participating volunteers should see "access" first */ }
 
