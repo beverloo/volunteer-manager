@@ -12,7 +12,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Unstable_Grid2';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -54,6 +54,12 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         margin: 0,
         paddingX: 2,
         paddingY: 1,
+    },
+    photo: {
+        backgroundImage: 'url(/images/stewards.team/photo-landing-1.jpg)',
+        backgroundPosition: 'top left',
+        backgroundRepeat: 'no-repeat',
+        borderBottomRightRadius: 4,
     },
     text: {
         flex: 1,
@@ -135,13 +141,13 @@ export function WelcomePage(props: WelcomePageProps) {
                 { /* TODO */ }
 
                 { /* Section: Landing page */ }
-                <Grid container spacing={2}>
-                    <Grid item xs={5} sx={{ m: 2 }}>
-                        <Typography variant="body1">
+                <Grid container spacing={2} sx={{ mt: 0, mr: '-0.5px' /* thanks... */ }}>
+                    <Grid xs={5}>
+                        <Typography variant="body1" sx={{ px: 2 }}>
                             { /* TODO: Support Markdown */ }
                             {props.description}
                         </Typography>
-                        <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
+                        <Stack direction="column" spacing={2} sx={{ p: 2, mt: 1 }}>
                             { /* TODO: Participating volunteers should see "access" first */ }
 
                             { (upcomingEvent &&
@@ -182,16 +188,16 @@ export function WelcomePage(props: WelcomePageProps) {
 
                         </Stack>
                     </Grid>
-                    <Grid item xs={7}>
-                        { /* TODO: Photo */ }
+                    <Grid xs={7} sx={kStyles.photo}>
+                        { /* TODO: Multiple photos per environment */ }
                     </Grid>
                 </Grid>
             </Paper>
 
             { /* Section: Further content */ }
-            <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
                 { can(props.user, Privilege.Administrator) &&
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -218,7 +224,7 @@ export function WelcomePage(props: WelcomePageProps) {
                     </Grid> }
 
                 { can(props.user, Privilege.Statistics) &&
-                    <Grid item xs={12} md={4}>
+                    <Grid xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -245,7 +251,7 @@ export function WelcomePage(props: WelcomePageProps) {
                     </Grid> }
 
                 { additionalEvents.map(event =>
-                    <Grid key={event.slug} item xs={12} md={4}>
+                    <Grid key={event.slug} xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
