@@ -6,9 +6,9 @@
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  */
 export enum Privilege {
-    Administrator = 1,
-    ShowPastEvents = 2,
-    ShowFutureEvents = 4,
+    Administrator       = 1 << 0,
+    ShowPastEvents      = 1 << 1,
+    ShowFutureEvents    = 1 << 2,
 };
 
 /**

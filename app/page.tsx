@@ -7,6 +7,7 @@ import { RegistrationLayout } from './registration/RegistrationLayout';
 import { getEventsForUser } from './lib/EventLoader';
 import { getRequestEnvironment } from './lib/getRequestEnvironment';
 import { getTeamInformationForEnvironment } from './lib/Content';
+import { kEnvironmentTitle } from './Environment';
 import { useUser } from './lib/auth/useUser';
 
 export default async function RootPage() {
@@ -19,10 +20,9 @@ export default async function RootPage() {
 
     return (
         <RegistrationLayout environment={environment}>
-            <p>
-                <strong>{team.name}</strong>: {team.description}
-            </p>
-            <WelcomePage events={eventDatas} user={user?.toUserData()} />
+            <WelcomePage events={eventDatas}
+                         user={user?.toUserData()}
+                         title={kEnvironmentTitle[environment]} />
         </RegistrationLayout>
     );
 }
