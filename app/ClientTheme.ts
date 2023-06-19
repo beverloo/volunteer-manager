@@ -12,6 +12,26 @@ import grey from '@mui/material/colors/grey'
 import { type Environment, kEnvironmentColours } from './Environment';
 
 /**
+ * Add our own style, "hidden", which mimics disabled buttons while still allowing interaction. It
+ * is used to highlight options that are only available through additional granted privileges.
+ */
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        hidden: true;
+    }
+}
+
+declare module '@mui/material/styles' {
+    interface Palette {
+        hidden: Palette['primary'];
+    }
+
+    interface PaletteOptions {
+        hidden?: PaletteOptions['primary'];
+    }
+}
+
+/**
  * The Roboto font, loaded through NextJS' font stack, with default settings for Material UI.
  */
 const kFontRoboto = Roboto({
@@ -62,6 +82,10 @@ export function createCachedTheme(environment: Environment, paletteMode: Palette
                 mode: paletteMode,
                 primary: {
                     main: kEnvironmentColours[environment][paletteMode],
+                },
+                hidden: {
+                    main: grey[500],
+                    contrastText: '#fff',
                 },
             },
             typography: {
