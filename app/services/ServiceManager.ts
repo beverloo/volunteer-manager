@@ -72,7 +72,7 @@ export class ServiceManager {
      * be supplied when calling this method. A ServiceLog constructor must be passed in manually,
      * which will be used instead of the real implementation.
      */
-    static async CreateInstanceForTesting(
+    static CreateInstanceForTesting(
         services: Service<Constructor<IServiceDriver>>[],
         serviceLogConstructor: Constructor<ServiceLog>)
     {

@@ -38,9 +38,9 @@ export interface Service<DriverType = ServiceDriver> {
     driver: DriverType;
 
     /**
-     * Parameters that should be made available to the service.
+     * Parameters that should be made available to the service, serialized as JSON.
      */
-    params: any;
+    params: string;
 
     /**
      * Seconds since the last execution of this service.
