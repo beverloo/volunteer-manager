@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Volunteer Management environment for AnimeCon",
   "scripts": {
-    "build-prod": "docker build -t volunteer-manager-docker .",
+    "build-prod": "node Docker.build.js",
     "deploy-prod": "TODO",
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
     "build": "next build",

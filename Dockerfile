@@ -17,6 +17,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Expose the git revision to the build system, as git won't be installed on the image.
+ARG BUILD_HASH=0
+ENV BUILD_HASH=$BUILD_HASH
+
 # This will do the trick, use the corresponding env file for each environment.
 RUN npm run build
 
