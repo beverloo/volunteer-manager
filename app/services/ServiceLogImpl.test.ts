@@ -118,8 +118,8 @@ describe('ServiceLogImpl', () => {
 
         const messages = JSON.parse(latestParameters[3] as string);
         expect(messages).toHaveLength(3);
-        expect(messages[0]).toEqual({ type: 'warning', message: 'Hello, world!' });
+        expect(messages[0].type).toEqual('exception');
         expect(messages[1]).toEqual({ type: 'error', message: '3.1415' });
-        expect(messages[2].type).toEqual('exception');
+        expect(messages[2]).toEqual({ type: 'warning', message: 'Hello, world!' });
     });
 });
