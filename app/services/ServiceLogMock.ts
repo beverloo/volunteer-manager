@@ -65,22 +65,9 @@ export class ServiceLogMock extends ServiceLog {
         return serviceLogExecutionInfos;
     }
 
-    #serviceId: number;
-
-    constructor(serviceId: number) {
-        super();
-        this.#serviceId = serviceId;
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // ServiceLog implementation:
-    // ---------------------------------------------------------------------------------------------
-
-    beginExecution() { /* no implementation necessary */ }
-
     async finishExecution(): Promise<void> {
         globalServiceLogExecutionInfos.push({
-            serviceId: this.#serviceId,
+            serviceId: this.serviceId,
             state: this.state,
             exceptions: this.exceptions,
             errors: this.errors,

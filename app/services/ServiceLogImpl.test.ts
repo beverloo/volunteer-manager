@@ -27,29 +27,29 @@ describe('ServiceLogImpl', () => {
 
     it('is able to escalate failure statuses', () => {
         const log = new ServiceLogImpl(/* serviceId= */ 42);
-        expect(log.state).toBeUndefined();
+        expect(log.stateForTesting).toBeUndefined();
 
         log.beginExecution();
-        expect(log.state).toBe('success');
+        expect(log.stateForTesting).toBe('success');
         expect(log.success).toBeTruthy();
 
         log.warning();
-        expect(log.state).toBe('warning');
+        expect(log.stateForTesting).toBe('warning');
         expect(log.success).toBeTruthy();
 
         log.error();
         log.warning();
-        expect(log.state).toBe('error');
+        expect(log.stateForTesting).toBe('error');
         expect(log.success).toBeFalsy();
 
         log.exception(new Error);
-        expect(log.state).toBe('exception');
+        expect(log.stateForTesting).toBe('exception');
         expect(log.success).toBeFalsy();
     });
 
     it('disallows messasge reporting outside of its contracted interface', async () => {
         const log = new ServiceLogImpl(/* serviceId= */ 42);
-        expect(log.state).toBeUndefined();
+        expect(log.stateForTesting).toBeUndefined();
 
         expect(() => log.warning()).toThrowError();
         expect(() => log.error()).toThrowError();

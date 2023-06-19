@@ -8,39 +8,13 @@ import { sql } from '../lib/database';
  * Production implementation of the ServiceLog interface.
  */
 export class ServiceLogImpl extends ServiceLog {
-    #phase: 'pending' | 'active' | 'finished';
-    #serviceId: number;
-    #startTime: bigint;
-
-    constructor(serviceId: number) {
-        super();
-
-        this.#phase = 'pending';
-        this.#serviceId = serviceId;
-        this.#startTime = 0n;
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // ServiceLog implementation:
-    // ---------------------------------------------------------------------------------------------
-
-    beginExecution() {
-        if (this.#phase !== 'pending')
-            throw new Error('The service has already begun execution, unable to restart');
-
-        this.#phase = 'active';
-        this.#startTime = process.hrtime.bigint();
-
-        this.state = 'success';
-    }
-
     async finishExecution(): Promise<void> {
-        if (this.#phase !== 'active')
+        if (this.phase !== 'active')
             throw new Error('The service can only be marked as finished when execution is active');
 
-        this.#phase = 'finished';
+        this.phase = 'finished';
 
-        const runtimeNanoseconds = process.hrtime.bigint() - this.#startTime;
+        const runtimeNanoseconds = process.hrtime.bigint() - this.startTime;
         const runtimeMilliseconds = Number(runtimeNanoseconds) / 1000 / 1000;
 
         const messages = JSON.stringify([
@@ -57,6 +31,6 @@ export class ServiceLogImpl extends ServiceLog {
                 services_logs
                 (service_id, service_log_result, service_log_runtime, service_log_data)
             VALUES
-                (${this.#serviceId}, ${this.state}, ${runtimeMilliseconds}, ${messages})`;
+                (${this.serviceId}, ${this.state}, ${runtimeMilliseconds}, ${messages})`;
     }
 }

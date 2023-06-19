@@ -2,7 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
- * State of the service. Thi smaps to the states that can be stored in the database.
+ * Phase of the ServiceLog in the execution cycle of the service.
+ */
+export type ServicePhase = 'pending' | 'active' | 'finished';
+
+/**
+ * State of the service. This maps to the states that can be stored in the database.
  */
 export type ServiceState = 'success' | 'warning' | 'error' | 'exception';
 
@@ -31,25 +36,50 @@ export interface ServiceLogMessage {
  * written information will be committed to the database once execution has completed.
  */
 export abstract class ServiceLog {
+    #serviceId: number;
+
     #exceptions: ServiceLogException[];
     #errors: ServiceLogMessage[];
     #warnings: ServiceLogMessage[];
 
+    #phase: ServicePhase;
     #state: ServiceState | undefined;
+    #startTime: bigint;
 
-    constructor() {
+    constructor(serviceId: number) {
+        this.#serviceId = serviceId;
+
         this.#exceptions = [];
         this.#errors = [];
         this.#warnings = [];
 
+        this.#phase = 'pending';
         this.#state = undefined;
+        this.#startTime = 0n;
     }
 
     /**
-     * Returns the current state of the service according to the logged information.
+     * Returns the ID of the service that this log has been created for.
      */
-    get state(): ServiceState { return this.#state; }
+    get serviceId(): number { return this.#serviceId; }
+
+    /**
+     * Gets or sets the current state in the service log's state machine. May be undefined.
+     */
+    protected get state(): ServiceState { return this.#state; }
     protected set state(value: ServiceState) { this.#state = value; }
+
+    /**
+     * Returns the current state in the service log's state machine. May be undefined. Must only be
+     * used for testing purposes, other code should not rely on access to the state.
+     */
+    get stateForTesting(): ServiceState { return this.#state; }
+
+    /**
+     * Gets or sets the current phase of the service log's state machine.
+     */
+    protected get phase(): ServicePhase { return this.#phase; }
+    protected set phase(value: ServicePhase) { this.#phase = value; }
 
     /**
      * Returns whether execution of the service has completed without errors or exceptions.
@@ -75,9 +105,22 @@ export abstract class ServiceLog {
     protected get warnings() { return this.#warnings; }
 
     /**
+     * Returns the start time of the service. May be 0n when the service has not begun execution.
+     */
+    get startTime(): bigint { return this.#startTime; }
+
+    /**
      * To be called when execution is about to begin.
      */
-    abstract beginExecution();
+    beginExecution() {
+        if (this.#phase !== 'pending')
+            throw new Error('The service has already begun execution, unable to restart');
+
+        this.#phase = 'active';
+        this.#startTime = process.hrtime.bigint();
+
+        this.state = 'success';
+    }
 
     /**
      * To be called when an exception has occurred during execution. Calling this method, which
