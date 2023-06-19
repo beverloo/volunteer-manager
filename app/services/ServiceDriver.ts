@@ -9,19 +9,19 @@ import { DummyService } from './DummyService';
 /**
  * Interface that each of the service driver implementations needs to adhere to.
  */
-export interface IServiceDriver {
+export interface ServiceDriver<ParamsType = unknown> {
     /**
      * Execute the driver for the configured service. Warnings and errors should be logged to the
      * given |log|, which will automatically be finalized after finishing execution. The |params|
      * are included when they have been configured for the service.
      */
-    execute(log: ServiceLog, params: any): Promise<void>;
+    execute(log: ServiceLog, params: ParamsType): Promise<void>;
 }
 
 /**
  * Object containing all constructors for the services that are known to the volunteer manager.
  */
-export const kServiceDriverConstructors: { [key: string]: Constructor<IServiceDriver> } = {
+export const kServiceDriverConstructors: { [key: string]: Constructor<ServiceDriver> } = {
     DummyService,
 };
 
@@ -29,4 +29,4 @@ export const kServiceDriverConstructors: { [key: string]: Constructor<IServiceDr
  * Type containing the names of all known services in the environment. Automatically established
  * based on the driver definitions included above.
  */
-export type ServiceDriver = keyof typeof kServiceDriverConstructors;
+export type ServiceDriverName = keyof typeof kServiceDriverConstructors;

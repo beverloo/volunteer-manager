@@ -1,12 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type ServiceDriver } from './ServiceDriver';
+import { type ServiceDriverName } from './ServiceDriver';
 
 /**
  * Defines the interface that each configured service has to implement.
  */
-export interface Service<DriverType = ServiceDriver> {
+export interface Service<DriverType = ServiceDriverName> {
     /**
      * Unique ID of the service that this instance represents.
      */

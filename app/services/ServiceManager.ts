@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type Constructor } from '../lib/TypeUtilities';
-import { type IServiceDriver, kServiceDriverConstructors } from './ServiceDriver';
-import { type Service } from './Service';
+import { type ServiceDriver, kServiceDriverConstructors } from './ServiceDriver';
 import { type ServiceLog } from './ServiceLog';
+import { type Service } from './Service';
 
 import { ServiceLogImpl } from './ServiceLogImpl';
 import { sql } from '../lib/database';
@@ -53,7 +53,7 @@ export class ServiceManager {
         if (!servicesWithState.ok)
             return undefined;
 
-        const services: Service<Constructor<IServiceDriver>>[] = [];
+        const services: Service<Constructor<ServiceDriver>>[] = [];
         for (const serviceWithState of servicesWithState.rows) {
             if (!Object.hasOwn(kServiceDriverConstructors, serviceWithState.driver))
                 continue;
@@ -73,17 +73,17 @@ export class ServiceManager {
      * which will be used instead of the real implementation.
      */
     static CreateInstanceForTesting(
-        services: Service<Constructor<IServiceDriver>>[],
+        services: Service<Constructor<ServiceDriver>>[],
         serviceLogConstructor: Constructor<ServiceLog>)
     {
         return new ServiceManager(kPrivateSymbol, services, serviceLogConstructor);
     }
 
     #serviceLogConstructor: Constructor<ServiceLog>;
-    #services: Service<Constructor<IServiceDriver>>[];
+    #services: Service<Constructor<ServiceDriver>>[];
 
     constructor(
-        privateSymbol: Symbol, services: Service<Constructor<IServiceDriver>>[],
+        privateSymbol: Symbol, services: Service<Constructor<ServiceDriver>>[],
         serviceLogConstructor: Constructor<ServiceLog>)
     {
         if (privateSymbol !== kPrivateSymbol)
@@ -118,7 +118,7 @@ export class ServiceManager {
      * Executes a single |service|. A boolean will be returned that indicates whether execution of
      * the server completed without an error or exception.
      */
-    async executeSingle(service: Service<Constructor<IServiceDriver>>): Promise<boolean> {
+    async executeSingle(service: Service<Constructor<ServiceDriver>>): Promise<boolean> {
         const log = new this.#serviceLogConstructor(service.id);
         try {
             log.beginExecution();
