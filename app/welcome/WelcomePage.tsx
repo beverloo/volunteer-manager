@@ -56,11 +56,18 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         paddingX: 2,
         paddingY: 1,
     },
+    landingPage: {
+        minHeight: { md: 340 },
+        mt: 0,
+        mr: '-0.5px' /* ... */
+    },
     photo: {
         backgroundImage: 'url(/images/stewards.team/photo-landing-1.jpg)',
         backgroundPosition: 'top left',
         backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
         borderBottomRightRadius: 4,
+        alignSelf: 'stretch',
     },
     text: {
         flex: 1,
@@ -142,8 +149,8 @@ export function WelcomePage(props: WelcomePageProps) {
                 { /* TODO */ }
 
                 { /* Section: Landing page */ }
-                <Grid container spacing={2} sx={{ mt: 0, mr: '-0.5px' /* thanks... */ }}>
-                    <Grid xs={5}>
+                <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
+                    <Grid xs={12} md={5}>
                         <Markdown sx={{ px: 2 }}>
                             {props.description}
                         </Markdown>
@@ -192,7 +199,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                         </Stack>
                     </Grid>
-                    <Grid xs={7} sx={kStyles.photo}>
+                    <Grid xs={0} md={7} sx={kStyles.photo}>
                         { /* TODO: Multiple photos per environment */ }
                     </Grid>
                 </Grid>
