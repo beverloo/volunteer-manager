@@ -47,7 +47,7 @@ export function RegistrationContent(props: RegistrationContentProps) {
     return (
         <Paper elevation={2}>
             <RegistrationHeader title={props.event.name} />
-            <Markdown sx={{ p: 2 }}>
+            <Markdown baseUrl={`/registration/${props.event.slug}/`} sx={{ p: 2 }}>
                 {props.content.markdown}
             </Markdown>
         </Paper>
