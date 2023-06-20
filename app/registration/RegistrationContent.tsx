@@ -3,11 +3,15 @@
 
 'use client';
 
+import Link from 'next/link';
+
 import { type Content } from '../lib/Content';
 import { type EventData } from '../lib/Event';
 import { type RegistrationInfo } from './Registration';
 import { type UserData } from '../lib/auth/UserData';
 
+import Box from '@mui/material/Box';
+import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 
 import { Markdown } from '../components/Markdown';
@@ -17,6 +21,11 @@ import { RegistrationHeader } from './RegistrationHeader';
  * Props accepted by the <RegistrationContent> page.
  */
 export interface RegistrationContentProps {
+    /**
+     * When set, will append a link "back" to the given URL at the bottom of the content page.
+     */
+    backUrl?: string;
+
     /**
      * The content that should be displayed on the registration page.
      */
@@ -50,6 +59,10 @@ export function RegistrationContent(props: RegistrationContentProps) {
             <Markdown baseUrl={`/registration/${props.event.slug}/`} sx={{ p: 2 }}>
                 {props.content.markdown}
             </Markdown>
+            { props.backUrl &&
+                <Box sx={{ mt: -2, p: 2 }}>
+                    <MuiLink component={Link} href={props.backUrl}>« Previous page</MuiLink>
+                </Box> }
         </Paper>
     );
 }

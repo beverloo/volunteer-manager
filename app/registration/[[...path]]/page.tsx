@@ -70,7 +70,8 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // a pure-content registration page with the information made available above.
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContent content={content}
+            <RegistrationContent backUrl={path.length ? `/registration/${event.slug}` : undefined}
+                                 content={content}
                                  event={event.toEventData()}
                                  registration={registration}
                                  user={user.toUserData()} />
