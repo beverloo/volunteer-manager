@@ -25,6 +25,7 @@ import { type UserData } from '../lib/auth/UserData';
 import { DateTime } from '../lib/DateTime';
 import { Markdown } from '../components/Markdown';
 import { Privilege, can } from '../lib/auth/Privileges';
+import { RegistrationHeader } from '../registration/RegistrationHeader';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
@@ -44,18 +45,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
     hiddenCardActions: {
         '&>a>:first-of-type': { px: 1 },
     },
-    header: {
-        backgroundColor: 'primary.dark',
-        color: theme => theme.palette.getContrastText(theme.palette.primary.dark),
-        display: 'flex',
-
-        borderTopLeftRadius: 4,
-        borderTopRightRadius: 4,
-
-        margin: 0,
-        paddingX: 2,
-        paddingY: 1,
-    },
     landingPage: {
         minHeight: { md: 340 },
         mt: 0,
@@ -68,10 +57,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         backgroundSize: 'cover',
         borderBottomRightRadius: 4,
         alignSelf: 'stretch',
-    },
-    text: {
-        flex: 1,
-        paddingRight: 2,
     },
 };
 
@@ -138,12 +123,8 @@ export function WelcomePage(props: WelcomePageProps) {
         <>
             <Paper elevation={2}>
                 { /* Section: Page header */ }
-                <Stack direction="row" justifyContent="space-between" sx={kStyles.header}>
-                    <Typography sx={kStyles.text} variant="h5" component="h1" noWrap>
-                        AnimeCon {props.title}
-                    </Typography>
-                    { /* TODO: Sign-in button */ }
-                </Stack>
+                <RegistrationHeader title={`AnimeCon ${props.title}`}
+                                    user={props.user} />
 
                 { /* Section: Participation status */ }
                 { /* TODO */ }

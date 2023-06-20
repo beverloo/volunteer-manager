@@ -50,7 +50,7 @@ export async function getContent(environment: Environment, event: Event, path: s
                 content.content_title AS title,
                 content.content AS markdown,
                 users.first_name AS authoredBy,
-                content.revision_date AS authoredDate
+                DATE_FORMAT(content.revision_date, "%Y-%m-%d %T") AS authoredDate
             FROM
                 content
             LEFT JOIN
@@ -69,7 +69,7 @@ export async function getContent(environment: Environment, event: Event, path: s
     if (!result.ok || !result.rows.length)
         return undefined;
 
-    return result.rows[0] as Content;
+    return { ...result.rows[0] } as Content;
 }
 
 /**

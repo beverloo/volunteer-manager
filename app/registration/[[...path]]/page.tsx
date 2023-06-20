@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation'
 
 import { Event } from '../../lib/Event';
 import { Privilege, can } from '../../lib/auth/Privileges';
+import { RegistrationContent } from '../RegistrationContent';
 import { RegistrationLayout } from '../RegistrationLayout';
 
 import { getContent } from '../../lib/Content';
@@ -69,10 +70,10 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // a pure-content registration page with the information made available above.
     return (
         <RegistrationLayout environment={environment}>
-            Path: <b>{path.join('/')}</b> - {Object.keys(props).join(',')}
-            <p>
-                {content?.markdown} by {content?.authoredBy}
-            </p>
+            <RegistrationContent content={content}
+                                 event={event.toEventData()}
+                                 registration={registration}
+                                 user={user.toUserData()} />
         </RegistrationLayout>
     );
 }
