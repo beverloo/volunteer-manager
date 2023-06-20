@@ -13,26 +13,50 @@ import { sql } from './database';
  * Returns a single event identified by the given |id|, or undefined when it does not exist. This
  * function issues a database query specific to the current environment.
  */
-export async function getEventById(id: number) {
-    return getEventInternal(id, /* slug= */ null);
+export async function getEventById(id: number, environment?: Environment) {
+    return getEventInternal(environment, id, /* slug= */ undefined);
 }
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist. This
  * function issues a database query specific to the current environment.
  */
-export async function getEventBySlug(slug: string) {
-    return getEventInternal(/* id= */ null, slug);
+export async function getEventBySlug(slug: string, environment?: Environment) {
+    return getEventInternal(environment, /* id= */ undefined, slug);
 }
 
 /**
  * Returns a single event identified by either its unique numeric ID, or by the URL-safe slug.
  */
-async function getEventInternal(id: number, slug: null): Promise<Event | undefined>;
-async function getEventInternal(id: null, slug: string): Promise<Event | undefined>;
-async function getEventInternal(id: number | null, slug: string | null): Promise<Event | undefined>{
-    // TODO: Implement this function.
-    return undefined;
+async function getEventInternal(environment?: Environment, id?: number, slug?: string)
+        : Promise<Event | undefined> {
+    const eventResults = await sql`
+        SELECT
+            events.event_id,
+            events.event_name,
+            events.event_short_name,
+            events.event_slug,
+            events.event_start_time,
+            events.event_end_time,
+            events_teams.enable_content,
+            events_teams.enable_registration,
+            events_teams.enable_schedule
+        FROM
+            events
+        LEFT JOIN
+            events_teams ON events_teams.event_id = events.event_id
+        LEFT JOIN
+            teams ON teams.team_id = events_teams.team_id
+        WHERE
+            (events.event_id = ${id ?? -1} OR events.event_slug = ${slug ?? 'h4ck3rz'}) AND
+            teams.team_environment = ${environment ?? getRequestEnvironment()}
+        ORDER BY
+            event_start_time DESC`;
+
+    if (!eventResults.ok || !eventResults.rows.length)
+        return undefined;  // invalid event
+
+    return new Event(eventResults.rows[0] as EventDatabaseRow);
 }
 
 /**
