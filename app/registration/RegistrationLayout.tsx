@@ -3,6 +3,8 @@
 
 'use client';
 
+import Link from 'next/link'
+
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { SxProps, Theme } from '@mui/system';
@@ -75,10 +77,10 @@ export function RegistrationLayout(props: RegistrationLayoutProps) {
             <Box sx={generateBackgroundStylesForEnvironment(props.environment)}></Box>
             <Container component="main" sx={{ pb: 2 }}>
                 <Container component="header" sx={{ py: 2, textAlign: 'center' }}>
-                    <a href="/" style={{ display: 'inline-block' }}>
+                    <Link href="/" style={{ display: 'inline-block' }}>
                         <object type="image/svg+xml" style={kLogoContainerStyles}
                                 data={'/images/logo.svg?' + params} />
-                    </a>
+                    </Link>
                 </Container>
                 {props.children}
                 <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
