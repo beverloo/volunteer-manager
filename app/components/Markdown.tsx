@@ -71,14 +71,16 @@ function Text(props: TypographyProps & { tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' |
  * <Link> element, that (1) employs NextJS routing and (2) enables resolution using a `baseUrl`.
  */
 function LinkComponent(props: LinkProps & { baseUrl?: string, children?: React.ReactNode }) {
-    if (typeof props.href === 'string' && typeof document !== 'undefined' && props.baseUrl) {
-        const resolvedUrl = new URL(props.href, document.location.origin + props.baseUrl);
+    const { baseUrl, ...rest } = props;  // remove the {baseUrl} property
+
+    if (typeof props.href === 'string' && typeof document !== 'undefined' && baseUrl) {
+        const resolvedUrl = new URL(props.href, document.location.origin + baseUrl);
         const resolvedHref = resolvedUrl.toString();
 
         return <MuiLink component={Link} href={resolvedHref}>{props.children}</MuiLink>;
     }
 
-    return <MuiLink component={Link} {...props} />;
+    return <MuiLink component={Link} {...rest} />;
 }
 
 /**
