@@ -3,7 +3,8 @@
 
 'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
+import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
@@ -22,6 +23,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { type EventData } from '../lib/Event';
 import { type UserData } from '../lib/auth/UserData';
+import { AuthenticationFlow } from '../registration/AuthenticationFlow';
 import { DateTime } from '../lib/DateTime';
 import { Markdown } from '../components/Markdown';
 import { Privilege, can } from '../lib/auth/Privileges';
@@ -118,6 +120,8 @@ export function WelcomePage(props: WelcomePageProps) {
         <Tooltip title="Access is limited to Senior+ volunteers">
             <VisibilityOffIcon fontSize="small" color="disabled" />
         </Tooltip>;
+
+    const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(true);
 
     return (
         <>
@@ -272,6 +276,7 @@ export function WelcomePage(props: WelcomePageProps) {
                         </Card>
                     </Grid> )}
             </Grid>
+            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)} open={authFlowOpen} />
         </>
     );
 }
