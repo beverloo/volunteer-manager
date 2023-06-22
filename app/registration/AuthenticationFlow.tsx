@@ -34,14 +34,22 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Progress in the authentication flow, influenced by the user's actions.
  */
-type AuthenticationFlowState = 'username';
+type AuthenticationFlowState =
+    // (1) Default state: The user has to enter their username.
+    'username' |
+
+    // (2a) There exists a user with the given username.
+    'login' |
+
+    // (2b) There does not exist a user with the given username.
+    'register';
 
 /**
  * Props accepted by the <UsernameDialog> component.
  */
 interface UsernameDialogProps {
     /**
-     *To be invoked when the form should be closed, e.g. by being cancelled.
+     * To be invoked when the form should be closed, e.g. by being cancelled.
      */
     onClose: () => void;
 
@@ -66,7 +74,7 @@ function UsernameDialog(props: UsernameDialogProps) {
         setLoading(true);
 
         try {
-            await onSubmit('username');
+            await onSubmit(data.username);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -103,6 +111,61 @@ function UsernameDialog(props: UsernameDialogProps) {
 }
 
 /**
+ * Props accepted by the <LoginDialog> component.
+ */
+interface LoginDialogProps {
+    /**
+     * To be invoked when the form should be closed, e.g. by being cancelled.
+     */
+    onClose: () => void;
+}
+
+/**
+ * The <LoginDialog> component allows users to sign in to their account. They will be prompted to
+ * enter their password, which, when verified by the server, will sign them in to their account.
+ */
+function LoginDialog(props: LoginDialogProps) {
+    return (
+        <FormContainer>
+            <DialogTitle>Sign in</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Please enter your password to sign in to your account.
+                </DialogContentText>
+            </DialogContent>
+        </FormContainer>
+    );
+}
+
+/**
+ * Props accepted by the <RegisterDialog> component.
+ */
+interface RegisterDialogProps {
+    /**
+     * To be invoked when the form should be closed, e.g. by being cancelled.
+     */
+    onClose: () => void;
+}
+
+/**
+ * The <RegisterDialog> dialog allows users to create a new account. They will be prompted for their
+ * personal information, after which an account will be created for them.
+ */
+function RegisterDialog(props: RegisterDialogProps) {
+    return (
+        <FormContainer>
+            <DialogTitle>Create an account</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Please fill in the following details in order to create an account, which will
+                    allow you to apply as a volunteer to one of the AnimeCon festivals.
+                </DialogContentText>
+            </DialogContent>
+        </FormContainer>
+    );
+}
+
+/**
  * Props accepted by the <AuthenticationFlow> component.
  */
 export interface AuthenticationFlowProps {
@@ -131,6 +194,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const { onClose, open } = props;
 
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>('username');
+    const [ username, setUsername ] = useState<string>();
 
     // Supporting callbacks for any state:
     const onRequestClose = useCallback(() => {
@@ -141,14 +205,37 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     // Supporting callbacks for the 'username' state:
     const onSubmitUsername = useCallback(async username => {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        throw new Error('yo, something went wrong');
+        let responseData: Record<string, any>;
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username }),
+            });
+
+            responseData = await response.json();
+
+        } catch {
+            throw new Error('The server ran into an issue, please try again later.');
+        }
+
+        setUsername(username);
+
+        if (responseData.exists)
+            setAuthFlowState('login');
+        else
+            setAuthFlowState('register');
+
     }, []);
 
     return (
         <Dialog open={open} onClose={onRequestClose} sx={kStyles.root}>
             { authFlowState === 'username' &&
                 <UsernameDialog onClose={onRequestClose} onSubmit={onSubmitUsername} /> }
+            { authFlowState === 'login' &&
+                <LoginDialog onClose={onRequestClose} /> }
+            { authFlowState === 'register' &&
+                <RegisterDialog onClose={onRequestClose} /> }
         </Dialog>
     );
 }

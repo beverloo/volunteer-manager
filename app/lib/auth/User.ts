@@ -7,6 +7,22 @@ import { type UserData } from './UserData';
 import { sql } from '../database';
 
 /**
+ * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
+ * to sign in to their account, preferably using passkeys.
+ */
+interface AuthenticationData {
+    /**
+     * Bytes containing the credential Id using which the user has registered.
+     */
+    credentialId?: string;
+
+    /**
+     * Bytes containing the public key using which the user has registered.
+     */
+    publicKey?: string;
+}
+
+/**
  * Describes the fields that exist in the `users` table in the database.
  */
 interface UserDatabaseRow {
@@ -28,8 +44,6 @@ interface UserDatabaseRow {
  * the User.prototype.toUserData() method.
  */
 export class User implements UserData {
-    #user: UserDatabaseRow;
-
     /**
      * Attempts to authenticate the user based on the given |session|. Will return a User instance
      * when successful, or undefined in all other cases.
@@ -44,6 +58,25 @@ export class User implements UserData {
 
         return new User(result.rows[0] as UserDatabaseRow);
     }
+
+    /**
+     * Gets the authentication data for the given |username| from the database. A return value of
+     * `undefined` means that the user could not be found, whereas every other return value means
+     * that the user exists, and possibly registered using a passkey.
+     */
+    static async getAuthenticationData(username: string): Promise<AuthenticationData | undefined> {
+        const result =
+            await sql`SELECT user_id FROM users WHERE username=${username}`;
+
+        if (!result.ok || !result.rows.length)
+            return undefined;
+
+        return { /* TODO: Credential information for passkeys */ };
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    #user: UserDatabaseRow;
 
     constructor(user: UserDatabaseRow) {
         this.#user = user;
