@@ -12,3 +12,11 @@ const createJestConfig = nextJest({
 module.exports = createJestConfig({
     testEnvironment: 'jest-environment-jsdom',
 });
+
+/**
+ * Set global variables that should be available during the testing cycle. Note that none of these
+ * should match either the development or production settings exported elsewhere.
+ */
+process.env = Object.assign(process.env, {
+    APP_PASSRESET_PASSWORD: 'kf205;e8.F*=AS9ItS(aQ$s;z&PM>6u?',
+});
