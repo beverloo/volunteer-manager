@@ -38,7 +38,7 @@
     "next": "^13.4.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-hook-form-mui": "^6.2.0",
+    "react-hook-form-mui": "^6.3.0",
     "scrypt-js": "^3.0.1",
     "serverless-mysql": "^1.5.5",
     "simple-sha256": "^1.1.0",
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.2",
     "@types/node": "20.3.1",
-    "@types/react": "^18.2.13",
+    "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
