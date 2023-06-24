@@ -7,7 +7,7 @@ import type { SxProps, Theme } from '@mui/system';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { UserData } from '../lib/auth/UserData';
+import { UserData } from '@lib/auth/UserData';
 
 /**
  * Manual styles that apply to the <RegistrationHeader> client component.

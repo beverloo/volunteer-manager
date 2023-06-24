@@ -11,7 +11,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import type { UserData } from '../../lib/auth/UserData';
+import type { UserData } from '@lib/auth/UserData';
 
 /**
  * Styles used by the identity dialog.

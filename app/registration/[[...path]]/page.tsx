@@ -3,15 +3,15 @@
 
 import { notFound, redirect } from 'next/navigation'
 
-import { Event } from '../../lib/Event';
-import { Privilege, can } from '../../lib/auth/Privileges';
+import { Event } from '@lib/Event';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
 import { RegistrationLayout } from '../RegistrationLayout';
 
-import { getContent } from '../../lib/Content';
-import { getEventBySlug, getEventsForUser } from '../../lib/EventLoader';
-import { getRequestEnvironment } from '../../lib/getRequestEnvironment';
-import { useUser } from '../../lib/auth/useUser';
+import { getContent } from '@lib/Content';
+import { getEventBySlug, getEventsForUser } from '@lib/EventLoader';
+import { getRequestEnvironment } from '@lib/getRequestEnvironment';
+import { useUser } from '@lib/auth/useUser';
 
 /**
  * Properties accepted by the <EventRegistrationPage> server component.

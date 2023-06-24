@@ -6,7 +6,7 @@ import { useCallback, useState } from 'react';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
-import type { UserData } from '../lib/auth/UserData';
+import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { RegisterDialog } from './authentication/RegisterDialog';

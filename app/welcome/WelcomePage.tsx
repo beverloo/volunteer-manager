@@ -21,12 +21,12 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { type EventData } from '../lib/Event';
-import { type UserData } from '../lib/auth/UserData';
+import { type EventData } from '@lib/Event';
+import { type UserData } from '@lib/auth/UserData';
 import { AuthenticationFlow } from '../registration/AuthenticationFlow';
-import { DateTime } from '../lib/DateTime';
-import { Markdown } from '../components/Markdown';
-import { Privilege, can } from '../lib/auth/Privileges';
+import { DateTime } from '@lib/DateTime';
+import { Markdown } from '@components/Markdown';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationHeader } from '../registration/RegistrationHeader';
 
 /**

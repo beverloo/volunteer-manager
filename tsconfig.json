@@ -6,6 +6,7 @@
       "esnext"
     ],
     "allowJs": true,
+    "baseUrl": "./app",
     "skipLibCheck": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,
@@ -18,6 +19,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "paths": {
+      "@app/*": [ "*" ],
+      "@components/*": [ "components/*" ],
+      "@lib/*": [ "lib/*" ]
+    },
     "plugins": [
       {
         "name": "next"

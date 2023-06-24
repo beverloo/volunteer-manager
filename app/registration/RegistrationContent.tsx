@@ -5,16 +5,16 @@
 
 import Link from 'next/link';
 
-import { type Content } from '../lib/Content';
-import { type EventData } from '../lib/Event';
+import { type Content } from '@lib/Content';
+import { type EventData } from '@lib/Event';
 import { type RegistrationInfo } from './Registration';
-import { type UserData } from '../lib/auth/UserData';
+import { type UserData } from '@lib/auth/UserData';
 
 import Box from '@mui/material/Box';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 
-import { Markdown } from '../components/Markdown';
+import { Markdown } from '@components/Markdown';
 import { RegistrationHeader } from './RegistrationHeader';
 
 /**
