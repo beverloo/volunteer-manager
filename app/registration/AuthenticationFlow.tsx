@@ -106,7 +106,7 @@ function UsernameDialog(props: UsernameDialogProps) {
                 <Box sx={kStyles.formElements}>
                     <TextFieldElement name="username" label="E-mail" type="email"
                                       fullWidth size="small" required
-                                      autoComplete="username" />
+                                      autoFocus autoComplete="username" />
                 </Box>
             </DialogContent>
             <DialogActions>
@@ -179,7 +179,7 @@ function LoginPasswordDialog(props: LoginPasswordDialogProps) {
                 <Box sx={kStyles.formElements}>
                     <TextFieldElement name="password" label="Password" type="password"
                                       fullWidth size="small" required
-                                      autoComplete="current-password" />
+                                      autoFocus autoComplete="current-password" />
                 </Box>
             </DialogContent>
             <DialogActions>
