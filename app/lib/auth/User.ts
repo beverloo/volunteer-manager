@@ -23,6 +23,27 @@ interface AuthenticationData {
 }
 
 /**
+ * Data that needs to be made available for a password reset request for a particular user. This
+ * information is considered sensitive and should only be shared with the included e-mail address.
+ */
+interface PasswordResetData {
+    /**
+     * The user's unique Id as stored in the database.
+     */
+    userId: number;
+
+    /**
+     * The user's e-mail address with which this information can be shared.
+     */
+    emailAddress: string;
+
+    /**
+     * The user's current session token, instrumental to allowing password reset.
+     */
+    sessionToken: number;
+}
+
+/**
  * Describes the fields that exist in the `users` table in the database.
  */
 interface UserDatabaseRow {
@@ -97,6 +118,28 @@ export class User implements UserData {
             return undefined;
 
         return { /* TODO: Credential information for passkeys */ };
+    }
+
+    /**
+     * Gets the information required in order to reset the password of the given |username|. This
+     * method does not require further authentication, and should be considered sensitive.
+     */
+    static async getPasswordResetData(username: string): Promise<PasswordResetData | undefined> {
+        const result =
+            await sql`
+                SELECT
+                    users.user_id AS userId,
+                    users.username AS emailAddress,
+                    users.session_token AS sessionToken
+                FROM
+                    users
+                WHERE
+                    users.username = ${username}`;
+
+        if (!result.ok || !result.rows.length)
+            return undefined;
+
+        return result.rows[0] as PasswordResetData;
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -9,6 +9,8 @@ import type {
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
+
+import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { securePasswordHash } from '@lib/auth/Password';
 
 /**
@@ -50,8 +52,27 @@ async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResp
 /**
  * Implementation of the password reset API for the /api/auth endpoint.
  */
-async function PasswordResetAPI(request: PasswordLostRequest): Promise<NextResponse> {
-    // TODO: Implement the ability to reset a password.
+async function PasswordResetAPI(origin: string, request: PasswordLostRequest)
+        : Promise<NextResponse> {
+    try {
+        const passwordResetData = await User.getPasswordResetData(request.username);
+        if (passwordResetData) {
+            const passwordResetRequest = await sealPasswordResetRequest({
+                userId: passwordResetData.userId,
+                sessionToken: passwordResetData.sessionToken,
+            });
+
+            const passwordResetLink = `${origin}/password-reset/${passwordResetRequest}`;
+            return NextResponse.json({
+                success: true,
+                tempLink: passwordResetLink,
+            });
+        }
+
+        console.warn(`[/api/auth] Invalid password reset request by ${request.username}`);
+
+    } catch (error) { console.error(error); }
+
     return NextResponse.json({ success: false });
 }
 
@@ -85,7 +106,7 @@ export async function POST(nextRequest: NextRequest) {
         switch (request.action) {
             case 'password-reset':
                 if (Object.hasOwn(request, 'username'))
-                    return PasswordResetAPI(request);
+                    return PasswordResetAPI(nextRequest.nextUrl.origin, request);
 
                 break;
 

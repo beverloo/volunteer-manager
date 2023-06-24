@@ -50,10 +50,10 @@ export interface PasswordResetRequest {
  * @returns The sealed password reset request, as a string.
  */
 export async function sealPasswordResetRequest(request: PasswordResetRequest): Promise<string> {
-    return await seal(kWebCryptoImpl, request, kPasswordResetRequestPassword, {
+    return encodeURIComponent(await seal(kWebCryptoImpl, request, kPasswordResetRequestPassword, {
         ...ironDefaults,
         ttl: kPasswordResetRequestExpirySeconds * /* milliseconds= */ 1000,
-    });
+    }));
 }
 
 /**
@@ -63,8 +63,9 @@ export async function sealPasswordResetRequest(request: PasswordResetRequest): P
  * @returns The password request in plaintext form.
  */
 export async function unsealPasswordResetRequest(request: string): Promise<PasswordResetRequest> {
-    return await unseal(kWebCryptoImpl, request, kPasswordResetRequestPassword, {
-        ...ironDefaults,
-        ttl: kPasswordResetRequestExpirySeconds * /* milliseconds= */ 1000,
-    }) as PasswordResetRequest;
+    return await unseal(kWebCryptoImpl, decodeURIComponent(request),
+        kPasswordResetRequestPassword, {
+            ...ironDefaults,
+            ttl: kPasswordResetRequestExpirySeconds * /* milliseconds= */ 1000,
+        }) as PasswordResetRequest;
 }
