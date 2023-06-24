@@ -87,10 +87,12 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     // Supporting callbacks for any state:
     const onRequestClose = useCallback(() => {
-        setAuthFlowState('username');
+        // Reset the authentication flow state back to the initial state, but don't rely on the
+        // `initialState` member in case the flow included a sign in or sign out operation.
+        setTimeout(() => setAuthFlowState(user ? 'identity' : 'username'), 500);
         onClose();
 
-    }, [ onClose ]);
+    }, [ onClose, user ]);
 
     // Supporting callbacks for the 'username' state:
     const onSubmitUsername = useCallback(async username => {
