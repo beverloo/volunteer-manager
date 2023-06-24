@@ -4,8 +4,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import type {
-    IdentityRequest, PasswordLoginRequest,
-    PasswordLostRequest, PasswordLostVerifyRequest} from '@app/registration/AuthenticationRequest';
+    ConfirmIdentityRequest, SignInPasswordRequest,
+    PasswordResetRequestRequest,
+    PasswordResetVerifyRequest } from '@app/registration/AuthenticationRequest';
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
@@ -16,7 +17,7 @@ import { securePasswordHash } from '@lib/auth/Password';
 /**
  * Implementation of the identity API for the /api/auth endpoint.
  */
-async function ConfirmIdentityAPI(request: IdentityRequest): Promise<NextResponse> {
+async function ConfirmIdentityAPI(request: ConfirmIdentityRequest): Promise<NextResponse> {
     const authenticationData = await User.getAuthenticationData(request.username);
     return NextResponse.json({
         success: !!authenticationData,
@@ -24,9 +25,16 @@ async function ConfirmIdentityAPI(request: IdentityRequest): Promise<NextRespons
 }
 
 /**
+ *
+ */
+async function PasswordResetAPI(request: any): Promise<NextResponse> {
+    return NextResponse.json({ success: false });
+}
+
+/**
  * Implementation of the password reset API for the /api/auth endpoint.
  */
-async function PasswordResetRequestAPI(origin: string, request: PasswordLostRequest)
+async function PasswordResetRequestAPI(origin: string, request: PasswordResetRequestRequest)
         : Promise<NextResponse> {
     try {
         const passwordResetData = await User.getPasswordResetData(request.username);
@@ -53,7 +61,7 @@ async function PasswordResetRequestAPI(origin: string, request: PasswordLostRequ
 /**
  * Implementation of the password reset verification API for the /api/auth endpoint.
  */
-async function PasswordResetVerifyAPI({ request }: PasswordLostVerifyRequest)
+async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
         : Promise<NextResponse> {
     try {
         const passwordResetRequest = await unsealPasswordResetRequest(request);
@@ -81,7 +89,7 @@ async function PasswordResetVerifyAPI({ request }: PasswordLostVerifyRequest)
 /**
  * Implementation of the password login API for the /api/auth endpoint.
  */
-async function SignInPasswordAPI(request: PasswordLoginRequest): Promise<NextResponse> {
+async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextResponse> {
     try {
         const securelyHashedPassword = securePasswordHash(request.password);
         const user = await User.authenticateFromPassword(request.username, securelyHashedPassword);
@@ -133,6 +141,12 @@ export async function POST(nextRequest: NextRequest) {
         case 'confirm-identity':
             if (Object.hasOwn(request, 'username'))
                 return ConfirmIdentityAPI(request);
+
+            break;
+
+        case 'password-reset':
+            if (Object.hasOwn(request, 'password') && Object.hasOwn(request, 'request'))
+                return PasswordResetAPI(request);
 
             break;
 

@@ -178,7 +178,11 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasswordReset = useCallback(async () => {
-        const response = await issueAuthenticationRequest({ action: 'password-reset', username });
+        const response = await issueAuthenticationRequest({
+            action: 'password-reset-request',
+            username
+        });
+
         return response.success;
 
     }, [ username ]);
