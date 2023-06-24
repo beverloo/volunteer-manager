@@ -74,7 +74,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
                                  content={content}
                                  event={event.toEventData()}
                                  registration={registration}
-                                 user={user.toUserData()} />
+                                 user={user?.toUserData()} />
         </RegistrationLayout>
     );
 }

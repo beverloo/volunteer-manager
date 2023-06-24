@@ -29,6 +29,19 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
+ * Creates a SHA256 hash of the given |password|, the result of which will be 64 characters in
+ * length. This is done client side as we don't want to transmit plaintext passwords at all.
+ */
+async function SHA256HashPassword(password: string): Promise<string> {
+    const passwordBuffer = new TextEncoder().encode(password);
+    const passwordHashedBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
+
+    return [ ...new Uint8Array(passwordHashedBuffer) ]
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+/**
  * Verifies that our password safety requirements are met by `password`. We're not super strict, but
  * do require a sensible baseline of security:
  *
@@ -39,7 +52,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  * Further verification is necessary for statistics and the administration area, but access to those
  * is limited to accounts that use passkeys instead, which are much more secure.
  */
-function VerifyPasswordRequirements(password: string) {
+function VerifyPasswordRequirements(password: string): void {
     const requiredLength = password.length >= 8;
     const requiredLowercaseCharacter = /[a-z]/.test(password);
     const requiredUppercaseCharacter = /[A-Z]/.test(password);
@@ -153,17 +166,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
     const onSubmitPassword = useCallback(async password => {
-        const passwordBuffer = new TextEncoder().encode(password);
-        const passwordHashedBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
-
-        const hashedPassword = [ ...new Uint8Array(passwordHashedBuffer) ]
-            .map(byte => byte.toString(16).padStart(2, '0'))
-            .join('');
-
         const response = await issueAuthenticationRequest({
             action: 'sign-in-password',
             username,
-            password: hashedPassword
+            password: await SHA256HashPassword(password),
         });
 
         if (!response.success)
@@ -186,16 +192,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onPasswordReset = useCallback(async (request: string, password: string) => {
         VerifyPasswordRequirements(password);
 
-        const passwordBuffer = new TextEncoder().encode(password);
-        const passwordHashedBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
-
-        const hashedPassword = [ ...new Uint8Array(passwordHashedBuffer) ]
-            .map(byte => byte.toString(16).padStart(2, '0'))
-            .join('');
-
         const response = await issueAuthenticationRequest({
             action: 'password-reset',
-            password: hashedPassword,
+            password: await SHA256HashPassword(password),
             request,
         });
 
