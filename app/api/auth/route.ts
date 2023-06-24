@@ -11,6 +11,9 @@ import type {
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
 
+import {
+    authenticateUserFromPassword, authenticateUserFromSession } from '@lib/auth/Authentication';
+
 import { sealPasswordResetRequest, unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { securePasswordHash, validatePasswordLength } from '@lib/auth/Password';
 
@@ -34,10 +37,7 @@ async function PasswordResetAPI(request: PasswordResetRequest): Promise<NextResp
     try {
         const passwordResetRequest = await unsealPasswordResetRequest(request.request);
         if (passwordResetRequest && validatePasswordLength(request.password)) {
-            const user = await User.authenticateFromSession({
-                id: passwordResetRequest.userId,
-                token: passwordResetRequest.sessionToken,
-            });
+            const user = await authenticateUserFromSession(passwordResetRequest);
 
             if (user) {
                 await user.updatePassword(request.password, /* incrementSessionToken= */ true);
@@ -67,8 +67,8 @@ async function PasswordResetRequestAPI(origin: string, request: PasswordResetReq
         const passwordResetData = await User.getPasswordResetData(request.username);
         if (passwordResetData) {
             const passwordResetRequest = await sealPasswordResetRequest({
-                userId: passwordResetData.userId,
-                sessionToken: passwordResetData.sessionToken,
+                id: passwordResetData.userId,
+                token: passwordResetData.sessionToken,
             });
 
             const passwordResetLink = `${origin}/?password-reset-request=${passwordResetRequest}`;
@@ -93,11 +93,7 @@ async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
     try {
         const passwordResetRequest = await unsealPasswordResetRequest(request);
         if (passwordResetRequest) {
-            const user = await User.authenticateFromSession({
-                id: passwordResetRequest.userId,
-                token: passwordResetRequest.sessionToken,
-            });
-
+            const user = await authenticateUserFromSession(passwordResetRequest);
             if (user) {
                 return NextResponse.json({
                     success: true,
@@ -119,7 +115,7 @@ async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
 async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextResponse> {
     try {
         const securelyHashedPassword = securePasswordHash(request.password);
-        const user = await User.authenticateFromPassword(request.username, securelyHashedPassword);
+        const user = await authenticateUserFromPassword(request.username, securelyHashedPassword);
         if (user) {
             const response = NextResponse.json({ success: true });
             response.cookies.set({

@@ -4,6 +4,8 @@
 import { Crypto } from '@peculiar/webcrypto';
 import { defaults as ironDefaults, seal, unseal } from 'iron-webcrypto';
 
+import { type SessionData } from './Session';
+
 /**
  * The password through which password reset requests will be sealed. This must be set in the global
  * environment at build time, and is considered sensitive information.
@@ -28,18 +30,7 @@ const kWebCryptoImpl =
  * Interface describing the information contained within a password reset request. This will be
  * cryptographically sealed by our server to control genuinity.
  */
-export interface PasswordResetRequest {
-    /**
-     * Unique ID of the user for whom the request is being created.
-     */
-    userId: number;
-
-    /**
-     * Current session token for the user for whom the link has been created. This must match, and
-     * guarantees that the link can only be used to reset the password once.
-     */
-    sessionToken: number;
-}
+export type PasswordResetRequest = SessionData;
 
 /**
  * Creates a sealed password reset request containing the information from the `request`. This is

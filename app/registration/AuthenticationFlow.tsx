@@ -203,7 +203,6 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     }, [ /* no deps */ ]);
 
-
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------

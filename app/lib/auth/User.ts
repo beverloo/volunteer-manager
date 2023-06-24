@@ -48,7 +48,7 @@ interface PasswordResetData {
 /**
  * Describes the fields that exist in the `users` table in the database.
  */
-interface UserDatabaseRow {
+export interface UserDatabaseRow {
     user_id: number;
     username: string;
     first_name: string;
@@ -67,46 +67,6 @@ interface UserDatabaseRow {
  * the User.prototype.toUserData() method.
  */
 export class User implements UserData {
-    /**
-     * Attempts to authenticate the user based on the given |username| and |password|. Will return
-     * a User instance when successful, or undefined in all other cases.
-     */
-    static async authenticateFromPassword(username: string, password: string)
-            : Promise<User | undefined> {
-        const result =
-            await sql`
-                SELECT
-                    users.*
-                FROM
-                    users
-                LEFT JOIN
-                    users_auth ON users_auth.user_id = users.user_id AND
-                                  users_auth.auth_type = 'password'
-                WHERE
-                    users.username = ${username} AND
-                    users_auth.auth_value = ${password}`;
-
-        if (!result.ok || !result.rows.length)
-            return undefined;
-
-        return new User(result.rows[0] as UserDatabaseRow);
-    }
-
-    /**
-     * Attempts to authenticate the user based on the given |session|. Will return a User instance
-     * when successful, or undefined in all other cases.
-     */
-    static async authenticateFromSession(session: SessionData): Promise<User | undefined> {
-        const { id, token } = session;
-        const result =
-            await sql`SELECT * FROM users WHERE user_id = ${id} AND session_token = ${token}`;
-
-        if (!result.ok || !result.rows.length)
-            return undefined;
-
-        return new User(result.rows[0] as UserDatabaseRow);
-    }
-
     /**
      * Gets the authentication data for the given |username| from the database. A return value of
      * `undefined` means that the user could not be found, whereas every other return value means
