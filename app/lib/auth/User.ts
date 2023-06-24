@@ -4,6 +4,8 @@
 import { Privilege } from './Privileges';
 import { type SessionData } from './Session';
 import { type UserData } from './UserData';
+
+import { securePasswordHash } from './Password';
 import { sql } from '../database';
 
 /**
@@ -160,6 +162,50 @@ export class User implements UserData {
     can(privilege: Privilege): boolean {
         return (this.#user.privileges & Privilege.Administrator) !== 0 ||
                (this.#user.privileges & privilege) !== 0;
+    }
+
+    /**
+     * Update the user's password to the given |hashedPassword|, which already should be a SHA-256
+     * hashed representation. Optionally the session token can be incremented as well, which will
+     * invalidate all other existing sessions.
+     *
+     * @param hashedPassword SHA-256 representation of the user's new password.
+     * @param incrementSessionToken Whether the session token should be incremented.
+     */
+    async updatePassword(hashedPassword: string, incrementSessionToken?: boolean): Promise<void> {
+        const securelyHashedPassword = await securePasswordHash(hashedPassword);
+        const queries = [
+            // (1) Delete all old passwords, which should no longer be valid.
+            sql`
+                DELETE FROM
+                    users_auth
+                WHERE
+                    user_id=${this.#user.user_id} AND
+                    auth_type="password" AND
+                    auth_value<>${securelyHashedPassword}`,
+
+            // (2) Store the new password in the authentication table.
+            sql`
+                INSERT INTO
+                    users_auth
+                    (user_id, auth_type, auth_value)
+                VALUES
+                    (${this.#user.user_id}, "password", ${securelyHashedPassword})`,
+        ];
+
+        if (incrementSessionToken) {
+            queries.push(
+                // (3) Increment the user's session token, invalidating all other sessions.
+                sql`
+                    UPDATE
+                        users
+                    SET
+                        session_token=${++this.#user.session_token}
+                    WHERE
+                        user_id=${this.#user.user_id}`);
+        }
+
+        await Promise.all(queries);
     }
 
     /**

@@ -4,18 +4,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import type {
-    ConfirmIdentityRequest, SignInPasswordRequest,
-    PasswordResetRequestRequest,
-    PasswordResetVerifyRequest } from '@app/registration/AuthenticationRequest';
+    ConfirmIdentityRequest, PasswordResetRequest, PasswordResetRequestRequest,
+    PasswordResetVerifyRequest, SignInPasswordRequest
+} from '@app/registration/AuthenticationRequest';
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
 
 import { sealPasswordResetRequest, unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
-import { securePasswordHash } from '@lib/auth/Password';
+import { securePasswordHash, validatePasswordLength } from '@lib/auth/Password';
 
 /**
- * Implementation of the identity API for the /api/auth endpoint.
+ * API called to confirm whether an account with the given username exists, and if so, obtain their
+ * credential ID and public key for use with passkeys, which are preferred over passwords.
  */
 async function ConfirmIdentityAPI(request: ConfirmIdentityRequest): Promise<NextResponse> {
     const authenticationData = await User.getAuthenticationData(request.username);
@@ -25,9 +26,35 @@ async function ConfirmIdentityAPI(request: ConfirmIdentityRequest): Promise<Next
 }
 
 /**
- *
+ * API called to actually reset a user's password. Included are the password reset request unique to
+ * the user and their current state, as well as their desired new password. When successful, should
+ * send a new, sealed authentication token automatically signing the user in to their account.
  */
-async function PasswordResetAPI(request: any): Promise<NextResponse> {
+async function PasswordResetAPI(request: PasswordResetRequest): Promise<NextResponse> {
+    try {
+        const passwordResetRequest = await unsealPasswordResetRequest(request.request);
+        if (passwordResetRequest && validatePasswordLength(request.password)) {
+            const user = await User.authenticateFromSession({
+                id: passwordResetRequest.userId,
+                token: passwordResetRequest.sessionToken,
+            });
+
+            if (user) {
+                await user.updatePassword(request.password, /* incrementSessionToken= */ true);
+
+                const response = NextResponse.json({ success: true });
+                response.cookies.set({
+                    name: kSessionCookieName,
+                    value: await Session.create({ id: user.userId, token: user.sessionToken }),
+                    maxAge: kSessionExpirationTimeSeconds,
+                    httpOnly: true,
+                });
+
+                return response;
+            }
+        }
+    } catch (error) { console.error(error); }
+
     return NextResponse.json({ success: false });
 }
 
