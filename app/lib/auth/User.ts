@@ -45,6 +45,31 @@ interface UserDatabaseRow {
  */
 export class User implements UserData {
     /**
+     * Attempts to authenticate the user based on the given |username| and |password|. Will return
+     * a User instance when successful, or undefined in all other cases.
+     */
+    static async authenticateFromPassword(username: string, password: string)
+            : Promise<User | undefined> {
+        const result =
+            await sql`
+                SELECT
+                    users.*
+                FROM
+                    users
+                LEFT JOIN
+                    users_auth ON users_auth.user_id = users.user_id AND
+                                  users_auth.auth_type = 'password'
+                WHERE
+                    users.username = ${username} AND
+                    users_auth.auth_value = ${password}`;
+
+        if (!result.ok || !result.rows.length)
+            return undefined;
+
+        return new User(result.rows[0] as UserDatabaseRow);
+    }
+
+    /**
      * Attempts to authenticate the user based on the given |session|. Will return a User instance
      * when successful, or undefined in all other cases.
      */

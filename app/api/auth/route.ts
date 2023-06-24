@@ -3,41 +3,66 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import type {
+    IdentityRequest, PasswordLoginRequest } from '../../registration/AuthenticationRequest';
+
+import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '../../lib/auth/Session';
 import { User } from '../../lib/auth/User';
+import { securePasswordHash } from '../../lib/auth/Password';
+
+/**
+ * Implementation of the identity API for the /api/auth endpoint.
+ */
+async function IdentityAPI(request: IdentityRequest): Promise<NextResponse> {
+    const authenticationData = await User.getAuthenticationData(request.username);
+    return NextResponse.json({
+        success: !!authenticationData,
+    });
+}
+
+/**
+ * Implementation of the password login API for the /api/auth endpoint.
+ */
+async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResponse> {
+    try {
+        const securelyHashedPassword = securePasswordHash(request.password);
+        const user = await User.authenticateFromPassword(request.username, securelyHashedPassword);
+        if (user) {
+            const response = NextResponse.json({ success: true });
+            response.cookies.set({
+                name: kSessionCookieName,
+                value: await Session.create({ id: user.userId, token: user.sessionToken }),
+                maxAge: kSessionExpirationTimeSeconds,
+                httpOnly: true,
+            });
+
+            return response;
+        }
+
+        console.warn(`[/api/auth] Invalid authentication attempt by ${request.username}`);
+
+    } catch (error) { console.error(error); }
+
+    return NextResponse.json({ success: false });
+}
 
 /**
  * The /api/auth endpoint exposes the API for providing user authentication. It can check whether a
  * given user exists, return their public key (for use with passkeys), and authenticate them against
  * their account given an authentication token.
  *
- * Supported requests are as follows, whereas unsupported requests will throw an error:
- *
- *   (1)
- *       - Request { username: string }
- *       - Response { success: boolean; credentialId?: string; publicKey?: string }
- *
- *   (2)
- *       - Request { username: string; password: string }
- *       - Response { success: boolean; }
- *
- * TODO: Support WebAuthn/passkeys in the authentication flow.
- * TODO: Support password reset in the authentication flow.
+ * Supported request depend on the parameters included in the request body, and are documented in
+ * //app/registration/AuthenticationRequest.ts.
  */
 export async function POST(nextRequest: NextRequest) {
     const request = await nextRequest.json();
 
     if (Object.hasOwn(request, 'username')) {
-        if (!Object.hasOwn(request, 'password')) {
-            // Case (1): Confirm whether there exists any user with the given username.
-            const authenticationData = await User.getAuthenticationData(request.username);
-            return NextResponse.json({
-                success: !!authenticationData,
-            });
-        }
-
-        // Case (2): Confirm whether the username / password combination is valid, set a cookie.
-        // ..
+        if (Object.hasOwn(request, 'password'))
+            return PasswordLoginAPI(request);
+        else
+            return IdentityAPI(request);
     }
 
-    return NextResponse.error();
+    return NextResponse.json({ /* no body */ }, { status: 404 });
 }

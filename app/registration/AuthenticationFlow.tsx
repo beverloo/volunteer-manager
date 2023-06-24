@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
+import { default as simpleSHA256 } from 'simple-sha256';
 import { useCallback, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
@@ -17,6 +18,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
+
+import { issueAuthenticationRequest } from './AuthenticationRequest';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -151,7 +154,7 @@ function LoginPasswordDialog(props: LoginPasswordDialogProps) {
         setLoading(true);
 
         try {
-            await onSubmit(data.username);
+            await onSubmit(data.password);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -160,7 +163,7 @@ function LoginPasswordDialog(props: LoginPasswordDialogProps) {
     }
 
     return (
-        <FormContainer>
+        <FormContainer onSuccess={requestSubmit}>
             <DialogTitle>Sign in</DialogTitle>
             <DialogContent>
                 <DialogContentText>
@@ -257,23 +260,11 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     // Supporting callbacks for the 'username' state:
     const onSubmitUsername = useCallback(async username => {
-        let responseData: Record<string, any>;
-        try {
-            const response = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username }),
-            });
-
-            responseData = await response.json();
-
-        } catch {
-            throw new Error('The server ran into an issue, please try again later.');
-        }
+        const response = await issueAuthenticationRequest({ username });
 
         setUsername(username);
 
-        if (responseData.success)
+        if (response.success)
             setAuthFlowState('login-password');
         else
             setAuthFlowState('register');
@@ -286,26 +277,23 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, []);
 
     const onSubmitPassword = useCallback(async password => {
-        let responseData: Record<string, any>;
-        try {
-            const response = await fetch('/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
+        const passwordBuffer = new TextEncoder().encode(password);
+        const passwordHashedBuffer = await crypto.subtle.digest('SHA-256', passwordBuffer);
 
-            responseData = await response.json();
+        const hashedPassword = [ ...new Uint8Array(passwordHashedBuffer) ]
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('');
 
-        } catch {
-            throw new Error('The server ran into an issue, please try again later.');
-        }
-
-        if (!responseData.success)
+        const response = await issueAuthenticationRequest({ username, password: hashedPassword });
+        if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
-        onRequestClose();
+        if (typeof document !== 'undefined')
+            document.location.reload();
+        else
+            onRequestClose();
 
-    }, []);
+    }, [ onRequestClose, username ]);
 
     return (
         <Dialog open={open} onClose={onRequestClose} sx={kStyles.root}>
