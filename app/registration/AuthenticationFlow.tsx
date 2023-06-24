@@ -1,32 +1,20 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Link from 'next/link';
-import { default as simpleSHA256 } from 'simple-sha256';
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
-
 import type { SxProps, Theme } from '@mui/system';
-import { default as MuiLink } from '@mui/material/Link';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Collapse from '@mui/material/Collapse';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 
+import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
+import { RegisterDialog } from './authentication/RegisterDialog';
+import { UsernameDialog } from './authentication/UsernameDialog';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
 
 /**
  * Styles used by the various components that make up the authentication flow.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
-    formElements: { paddingTop: 2 },
-
     root: {
         '& .MuiDialogActions-spacing': {
             padding: 2,
@@ -53,177 +41,9 @@ type AuthenticationFlowState =
     'register';
 
 /**
- * Props accepted by the <UsernameDialog> component.
- */
-interface UsernameDialogProps {
-    /**
-     * To be invoked when the form should be closed, e.g. by being cancelled.
-     */
-    onClose: () => void;
-
-    /**
-     * To be invoked when the username dialog has been submitted for the given `username`.
-     */
-    onSubmit: (username: string) => Promise<void>;
-}
-
-/**
- * Prompts the user for their username, which usually will be their e-mail address. Accepts both
- * submission and cancellation of the flow through the dialog's action buttons.
- */
-function UsernameDialog(props: UsernameDialogProps) {
-    const { onClose, onSubmit } = props;
-
-    const [ error, setError ] = useState<string | undefined>();
-    const [ loading, setLoading ] = useState<boolean>(false);
-
-    async function requestSubmit(data: FieldValues) {
-        setError(undefined);
-        setLoading(true);
-
-        try {
-            await onSubmit(data.username);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return (
-        <FormContainer onSuccess={requestSubmit}>
-            <DialogTitle>Hello there!</DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    Please enter your e-mail address to identify yourself with the AnimeCon
-                    volunteer portal, even if you're just about to sign up.
-                </DialogContentText>
-                <Collapse in={!!error}>
-                    <DialogContentText sx={{ paddingTop: 1 }} color="error">
-                        {error}&nbsp;
-                    </DialogContentText>
-                </Collapse>
-                <Box sx={kStyles.formElements}>
-                    <TextFieldElement name="username" label="E-mail" type="email"
-                                      fullWidth size="small" required
-                                      autoFocus autoComplete="username" />
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} type="submit" variant="contained">
-                    Proceed
-                </LoadingButton>
-            </DialogActions>
-        </FormContainer>
-    );
-}
-
-/**
- * Props accepted by the <LoginPasswordDialog> component.
- */
-interface LoginPasswordDialogProps {
-    /**
-     * To be invoked when the form should be closed, e.g. by being cancelled.
-     */
-    onClose: () => void;
-
-    /**
-     * To be invoked when the user has lost their password and wants to request a new one.
-     */
-    onLostPassword: () => void;
-
-    /**
-     * To be invoked when the dialog has been submitted for the given `password`.
-     */
-    onSubmit: (password: string) => Promise<void>;
-}
-
-/**
- * The <LoginPasswordDialog> component allows users to sign in to their account. They will be asked
- * to enter their password, which, when verified by the server, will sign them in to their account.
- */
-function LoginPasswordDialog(props: LoginPasswordDialogProps) {
-    const { onClose, onLostPassword, onSubmit } = props;
-
-    const [ error, setError ] = useState<string | undefined>();
-    const [ loading, setLoading ] = useState<boolean>(false);
-
-    async function requestSubmit(data: FieldValues) {
-        setError(undefined);
-        setLoading(true);
-
-        try {
-            await onSubmit(data.password);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return (
-        <FormContainer onSuccess={requestSubmit}>
-            <DialogTitle>Sign in</DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    Please enter your password to sign in to your account, or&nbsp;
-                    <MuiLink component={Link} href="#" onClick={onLostPassword}>reset
-                    your password</MuiLink> in case you lost it.
-                </DialogContentText>
-                <Collapse in={!!error}>
-                    <DialogContentText sx={{ paddingTop: 1 }} color="error">
-                        {error}&nbsp;
-                    </DialogContentText>
-                </Collapse>
-                <Box sx={kStyles.formElements}>
-                    <TextFieldElement name="password" label="Password" type="password"
-                                      fullWidth size="small" required
-                                      autoFocus autoComplete="current-password" />
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} type="submit" variant="contained">
-                    Sign in
-                </LoadingButton>
-            </DialogActions>
-        </FormContainer>
-    );
-}
-
-/**
- * Props accepted by the <RegisterDialog> component.
- */
-interface RegisterDialogProps {
-    /**
-     * To be invoked when the form should be closed, e.g. by being cancelled.
-     */
-    onClose: () => void;
-}
-
-/**
- * The <RegisterDialog> dialog allows users to create a new account. They will be prompted for their
- * personal information, after which an account will be created for them.
- */
-function RegisterDialog(props: RegisterDialogProps) {
-    return (
-        <FormContainer>
-            <DialogTitle>Create an account</DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    Please fill in the following details in order to create an account, which will
-                    allow you to apply as a volunteer to one of the AnimeCon festivals.
-                </DialogContentText>
-            </DialogContent>
-        </FormContainer>
-    );
-}
-
-/**
  * Props accepted by the <AuthenticationFlow> component.
  */
-export interface AuthenticationFlowProps {
+interface AuthenticationFlowProps {
     /**
      * Callback that will be invoked when the authorization flow should be closed.
      */
@@ -240,7 +60,6 @@ export interface AuthenticationFlowProps {
  * to identify themselves in the volunteer manager.
  *
  * TODO: Support identification using access codes
- * TODO: Support identification using passwords
  * TODO: Support identification using passkeys
  * TODO: Support registration
  * TODO: Support lost password requests
