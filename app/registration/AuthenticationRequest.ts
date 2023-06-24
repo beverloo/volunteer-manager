@@ -6,6 +6,11 @@
  */
 export interface IdentityRequest {
     /**
+     * The "action" must be set to confirm-identity.
+     */
+    action: 'confirm-identity';
+
+    /**
      * The username for whom the associated identity should be found.
      */
     username: string;
@@ -27,6 +32,11 @@ export interface IdentityResponse {
  * Request format for an API call to the authentication endpoint requesting a sign in.
  */
 export interface PasswordLoginRequest {
+    /**
+     * The "action" must be set to sign-in-password.
+     */
+    action: 'sign-in-password';
+
     /**
      * The username whom is attempting to sign in to their account.
      */

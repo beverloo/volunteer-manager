@@ -92,7 +92,7 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
                 <FormContainer onSuccess={requestResetPassword}>
                     <DialogContent sx={{ pt: 0 }}>
                         <DialogContentText>
-                            Thank you for checking your e-mail <strong>{firstName}</strong>. Please
+                            Thank you for checking your e-mail, <strong>{firstName}</strong>. Please
                             enter your new password in the field below in order to update it.
                         </DialogContentText>
                         <Collapse in={!!error}>

@@ -16,7 +16,7 @@ import { securePasswordHash } from '@lib/auth/Password';
 /**
  * Implementation of the identity API for the /api/auth endpoint.
  */
-async function IdentityAPI(request: IdentityRequest): Promise<NextResponse> {
+async function ConfirmIdentityAPI(request: IdentityRequest): Promise<NextResponse> {
     const authenticationData = await User.getAuthenticationData(request.username);
     return NextResponse.json({
         success: !!authenticationData,
@@ -24,35 +24,9 @@ async function IdentityAPI(request: IdentityRequest): Promise<NextResponse> {
 }
 
 /**
- * Implementation of the password login API for the /api/auth endpoint.
- */
-async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResponse> {
-    try {
-        const securelyHashedPassword = securePasswordHash(request.password);
-        const user = await User.authenticateFromPassword(request.username, securelyHashedPassword);
-        if (user) {
-            const response = NextResponse.json({ success: true });
-            response.cookies.set({
-                name: kSessionCookieName,
-                value: await Session.create({ id: user.userId, token: user.sessionToken }),
-                maxAge: kSessionExpirationTimeSeconds,
-                httpOnly: true,
-            });
-
-            return response;
-        }
-
-        console.warn(`[/api/auth] Invalid authentication attempt by ${request.username}`);
-
-    } catch (error) { console.error(error); }
-
-    return NextResponse.json({ success: false });
-}
-
-/**
  * Implementation of the password reset API for the /api/auth endpoint.
  */
-async function PasswordResetAPI(origin: string, request: PasswordLostRequest)
+async function PasswordResetRequestAPI(origin: string, request: PasswordLostRequest)
         : Promise<NextResponse> {
     try {
         const passwordResetData = await User.getPasswordResetData(request.username);
@@ -105,6 +79,32 @@ async function PasswordResetVerifyAPI({ request }: PasswordLostVerifyRequest)
 }
 
 /**
+ * Implementation of the password login API for the /api/auth endpoint.
+ */
+async function SignInPasswordAPI(request: PasswordLoginRequest): Promise<NextResponse> {
+    try {
+        const securelyHashedPassword = securePasswordHash(request.password);
+        const user = await User.authenticateFromPassword(request.username, securelyHashedPassword);
+        if (user) {
+            const response = NextResponse.json({ success: true });
+            response.cookies.set({
+                name: kSessionCookieName,
+                value: await Session.create({ id: user.userId, token: user.sessionToken }),
+                maxAge: kSessionExpirationTimeSeconds,
+                httpOnly: true,
+            });
+
+            return response;
+        }
+
+        console.warn(`[/api/auth] Invalid authentication attempt by ${request.username}`);
+
+    } catch (error) { console.error(error); }
+
+    return NextResponse.json({ success: false });
+}
+
+/**
  * Implementation of the sign out API for the /api/auth endpoint.
  */
 async function SignOutAPI(): Promise<NextResponse> {
@@ -129,31 +129,31 @@ async function SignOutAPI(): Promise<NextResponse> {
  */
 export async function POST(nextRequest: NextRequest) {
     const request = await nextRequest.json();
+    switch (request.action) {
+        case 'confirm-identity':
+            if (Object.hasOwn(request, 'username'))
+                return ConfirmIdentityAPI(request);
 
-    if (Object.hasOwn(request, 'action')) {
-        switch (request.action) {
-            case 'password-reset':
-                if (Object.hasOwn(request, 'username'))
-                    return PasswordResetAPI(nextRequest.nextUrl.origin, request);
+            break;
 
-                break;
+        case 'password-reset-request':
+            if (Object.hasOwn(request, 'username'))
+                return PasswordResetRequestAPI(nextRequest.nextUrl.origin, request);
 
-            case 'password-reset-verify':
-                if (Object.hasOwn(request, 'request'))
-                    return PasswordResetVerifyAPI(request);
+            break;
 
-                break;
+        case 'password-reset-verify':
+            if (Object.hasOwn(request, 'request'))
+                return PasswordResetVerifyAPI(request);
 
-            case 'sign-out':
-                return SignOutAPI();
-        }
-    }
+            break;
 
-    if (Object.hasOwn(request, 'username')) {
-        if (Object.hasOwn(request, 'password'))
-            return PasswordLoginAPI(request);
-        else
-            return IdentityAPI(request);
+        case 'sign-in-password':
+            if (Object.hasOwn(request, 'username') && Object.hasOwn(request, 'password'))
+                return SignInPasswordAPI(request);
+
+        case 'sign-out':
+            return SignOutAPI();
     }
 
     return NextResponse.json({ /* no body */ }, { status: 404 });

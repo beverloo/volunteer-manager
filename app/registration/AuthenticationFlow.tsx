@@ -29,6 +29,29 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
+ * Verifies that our password safety requirements are met by `password`. We're not super strict, but
+ * do require a sensible baseline of security:
+ *
+ * - At least eight characters in length,
+ * - At least one lowercase character,
+ * - At least one uppercase character.
+ *
+ * Further verification is necessary for statistics and the administration area, but access to those
+ * is limited to accounts that use passkeys instead, which are much more secure.
+ */
+function VerifyPasswordRequirements(password: string) {
+    const requiredLength = password.length >= 8;
+    const requiredLowercaseCharacter = /[a-z]/.test(password);
+    const requiredUppercaseCharacter = /[A-Z]/.test(password);
+
+    if (!requiredLength || !requiredLowercaseCharacter || !requiredUppercaseCharacter) {
+        throw new Error(
+            'Your password must be at least 8 characters long, contain at least one lowercase ' +
+            'character, as well as at least one uppercase character.');
+    }
+}
+
+/**
  * Progress in the authentication flow, influenced by the user's actions.
  */
 type AuthenticationFlowState =
@@ -113,7 +136,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'username' state:
     // ---------------------------------------------------------------------------------------------
     const onSubmitUsername = useCallback(async username => {
-        const response = await issueAuthenticationRequest({ username });
+        const response = await issueAuthenticationRequest({ action: 'confirm-identity', username });
 
         setUsername(username);
 
@@ -137,7 +160,12 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             .map(byte => byte.toString(16).padStart(2, '0'))
             .join('');
 
-        const response = await issueAuthenticationRequest({ username, password: hashedPassword });
+        const response = await issueAuthenticationRequest({
+            action: 'sign-in-password',
+            username,
+            password: hashedPassword
+        });
+
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
@@ -156,6 +184,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, [ username ]);
 
     const onPasswordReset = useCallback(async (request: string, password: string) => {
+        VerifyPasswordRequirements(password);
+
         await new Promise(resolve => setTimeout(resolve, 1500));
 
     }, [ /* no deps */ ]);
