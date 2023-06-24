@@ -66,7 +66,7 @@ export function LoginPasswordDialog(props: LoginPasswordDialogProps) {
                 <DialogContentText>
                     Please enter your password to sign in to your account, or&nbsp;
                     <MuiLink component={Link} href="#" onClick={onLostPassword}>reset
-                    your password</MuiLink> in case you lost it.
+                    your password</MuiLink> in case you have lost your password.
                 </DialogContentText>
                 <Collapse in={!!error}>
                     <DialogContentText sx={{ paddingTop: 1 }} color="error">

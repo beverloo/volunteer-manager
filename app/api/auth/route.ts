@@ -4,11 +4,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import type {
-    IdentityRequest, PasswordLoginRequest } from '../../registration/AuthenticationRequest';
+    IdentityRequest, PasswordLoginRequest,
+    PasswordLostRequest } from '@app/registration/AuthenticationRequest';
 
-import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '../../lib/auth/Session';
-import { User } from '../../lib/auth/User';
-import { securePasswordHash } from '../../lib/auth/Password';
+import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
+import { User } from '@lib/auth/User';
+import { securePasswordHash } from '@lib/auth/Password';
 
 /**
  * Implementation of the identity API for the /api/auth endpoint.
@@ -47,6 +48,14 @@ async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResp
 }
 
 /**
+ * Implementation of the password reset API for the /api/auth endpoint.
+ */
+async function PasswordResetAPI(request: PasswordLostRequest): Promise<NextResponse> {
+    // TODO: Implement the ability to reset a password.
+    return NextResponse.json({ success: false });
+}
+
+/**
  * Implementation of the sign out API for the /api/auth endpoint.
  */
 async function SignOutAPI(): Promise<NextResponse> {
@@ -74,6 +83,12 @@ export async function POST(nextRequest: NextRequest) {
 
     if (Object.hasOwn(request, 'action')) {
         switch (request.action) {
+            case 'password-reset':
+                if (Object.hasOwn(request, 'username'))
+                    return PasswordResetAPI(request);
+
+                break;
+
             case 'sign-out':
                 return SignOutAPI();
         }

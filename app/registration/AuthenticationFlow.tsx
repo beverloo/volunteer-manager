@@ -9,6 +9,7 @@ import Dialog from '@mui/material/Dialog';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
+import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { RegisterDialog } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
@@ -39,7 +40,10 @@ type AuthenticationFlowState =
     // (2b) There exists a user with the given username, but no passkey credentials.
     'login-password' |
 
-    // (2c) There does not exist a user with the given username.
+    // (2c) There exists a user with the given username, but the user has lost their credentials.
+    'lost-password' |
+
+    // (2d) There does not exist a user with the given username.
     'register' |
 
     // (3) The user is signed in to their account already, and can sign out.
@@ -85,7 +89,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
     const [ username, setUsername ] = useState<string>();
 
+    // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for any state:
+    // ---------------------------------------------------------------------------------------------
     const onRequestClose = useCallback(() => {
         // Reset the authentication flow state back to the initial state, but don't rely on the
         // `initialState` member in case the flow included a sign in or sign out operation.
@@ -94,7 +100,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     }, [ onClose, user ]);
 
+    // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'username' state:
+    // ---------------------------------------------------------------------------------------------
     const onSubmitUsername = useCallback(async username => {
         const response = await issueAuthenticationRequest({ username });
 
@@ -107,10 +115,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     }, []);
 
+    // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'login-password' state:
-    const onLostPassword = useCallback(async () => {
-
-    }, []);
+    // ---------------------------------------------------------------------------------------------
+    const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
     const onSubmitPassword = useCallback(async password => {
         const passwordBuffer = new TextEncoder().encode(password);
@@ -124,23 +132,32 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
-        if (typeof document !== 'undefined')
-            document.location.reload();
-        else
-            onRequestClose();
+        typeof document !== 'undefined' ? document.location.reload()
+                                        : onRequestClose();
 
     }, [ onRequestClose, username ]);
 
+    // ---------------------------------------------------------------------------------------------
+    // Supporting callbacks for the 'lost-password' state:
+    // ---------------------------------------------------------------------------------------------
+    const onRequestPasswordReset = useCallback(async () => {
+        const response = await issueAuthenticationRequest({ action: 'password-reset', username });
+        return response.success;
+
+    }, [ username ]);
+
+    // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
+    // ---------------------------------------------------------------------------------------------
     const onRequestSignOut = useCallback(async () => {
         await issueAuthenticationRequest({ action: 'sign-out' });
 
-        if (typeof document !== 'undefined')
-            document.location.reload();
-        else
-            onRequestClose();
+        typeof document !== 'undefined' ? document.location.reload()
+                                        : onRequestClose();
 
     }, [ onRequestClose ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     return (
         <Dialog open={open} onClose={onRequestClose} sx={kStyles.root} fullWidth>
@@ -151,6 +168,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 <LoginPasswordDialog onClose={onRequestClose}
                                      onLostPassword={onLostPassword}
                                      onSubmit={onSubmitPassword} /> }
+            { authFlowState === 'lost-password' &&
+                <LostPasswordDialog onClose={onRequestClose}
+                                    onRequestPasswordReset={onRequestPasswordReset} /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose} /> }
             { authFlowState === 'identity' &&

@@ -49,6 +49,31 @@ export interface PasswordLoginResponse {
 }
 
 /**
+ * Request format for an API call to the authentication endpoint requesting a password reset.
+ */
+export interface PasswordLostRequest {
+    /**
+     * The "action" must be set to password reset.
+     */
+    action: 'password-reset';
+
+    /**
+     * The username of the account whose password has been lost.
+     */
+    username: string;
+}
+
+/**
+ * Response format from an API call to the authentication endpoint attempting a password reset.
+ */
+export interface PasswordLostResponse {
+    /**
+     * Whether instructions to reset their password were sent to their e-mail address.
+     */
+    success: boolean;
+}
+
+/**
  * Request format for an API call to the authentication endpoint requesting a sign out.
  */
 export interface SignOutRequest {
@@ -66,12 +91,13 @@ export interface SignOutResponse { /* no values */ }
 /**
  * All valid interfaces for requests, used for the `issueAuthenticationRequest` implementation.
  */
-type RequestTypes = IdentityRequest | PasswordLoginRequest | SignOutRequest;
+type RequestTypes = IdentityRequest | PasswordLoginRequest | PasswordLostRequest | SignOutRequest;
 
 /**
  * All valid interfaces for responses, used for the `issueAuthenticationRequest` implementation.
  */
-type ResponseTypes = IdentityResponse | PasswordLoginResponse | SignOutResponse;
+type ResponseTypes =
+    IdentityResponse | PasswordLoginResponse | PasswordLostResponse | SignOutResponse;
 
 /**
  * Issues an authentication request to validate whether the username in `request` has a known
@@ -93,6 +119,15 @@ export async function issueAuthenticationRequest(request: IdentityRequest)
  */
 export async function issueAuthenticationRequest(request: PasswordLoginRequest)
         : Promise<PasswordLoginResponse>;
+
+/**
+ * Issues an authentication request to reset the password of the user contained within the `request`
+ *
+ * @param request The `{ username }` for whom a password reset should be requested.
+ * @returns Whether the password reset instructions were e-mailed.
+ */
+export async function issueAuthenticationRequest(request: PasswordLostRequest)
+        : Promise<PasswordLostResponse>;
 
 /**
  * Issues an authentication request to sign out from the account that's currently signed in. This
