@@ -4,7 +4,8 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-import { User } from './User';
+import { type User } from './User';
+import { authenticateUserFromSession } from './Authentication';
 import { getRequestPath } from '../getRequestPath';
 import { useSession } from './useSession';
 
@@ -71,7 +72,7 @@ export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?:
 
     const session = await useSession(/* behaviour= */ 'ignore');  // eslint-disable-line
     if (session) {
-        const user = await User.authenticateFromSession(session);
+        const user = await authenticateUserFromSession(session);
         kUserCache.set(requestIdentifier, user);
 
         if (user)

@@ -134,7 +134,8 @@ export function WelcomePage(props: WelcomePageProps) {
         <>
             <Paper elevation={2}>
                 { /* Section: Page header */ }
-                <RegistrationHeader title={`AnimeCon ${props.title}`}
+                <RegistrationHeader onUserChipClick={() => setAuthFlowOpen(true)}
+                                    title={`AnimeCon ${props.title}`}
                                     user={props.user} />
 
                 { /* Section: Participation status */ }

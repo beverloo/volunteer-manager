@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { type Content } from '@lib/Content';
 import { type EventData } from '@lib/Event';
@@ -14,6 +15,7 @@ import Box from '@mui/material/Box';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 
+import { AuthenticationFlow } from '../registration/AuthenticationFlow';
 import { Markdown } from '@components/Markdown';
 import { RegistrationHeader } from './RegistrationHeader';
 
@@ -53,16 +55,25 @@ export interface RegistrationContentProps {
  * shares information with the user towards their application for an event.
  */
 export function RegistrationContent(props: RegistrationContentProps) {
+    const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(false);
     return (
-        <Paper elevation={2}>
-            <RegistrationHeader title={props.event.name} />
-            <Markdown baseUrl={`/registration/${props.event.slug}/`} sx={{ p: 2 }}>
-                {props.content.markdown}
-            </Markdown>
-            { props.backUrl &&
-                <Box sx={{ mt: -2, p: 2 }}>
-                    <MuiLink component={Link} href={props.backUrl}>« Previous page</MuiLink>
-                </Box> }
-        </Paper>
+        <>
+            <Paper elevation={2}>
+                <RegistrationHeader onUserChipClick={() => setAuthFlowOpen(true)}
+                                    title={props.event.name}
+                                    user={props.user} />
+
+                <Markdown baseUrl={`/registration/${props.event.slug}/`} sx={{ p: 2 }}>
+                    {props.content.markdown}
+                </Markdown>
+                { props.backUrl &&
+                    <Box sx={{ mt: -2, p: 2 }}>
+                        <MuiLink component={Link} href={props.backUrl}>« Previous page</MuiLink>
+                    </Box> }
+            </Paper>
+            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
+                                open={authFlowOpen}
+                                user={props.user} />
+        </>
     );
 }

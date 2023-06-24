@@ -4,15 +4,22 @@
 'use client';
 
 import type { SxProps, Theme } from '@mui/system';
+import Avatar from '@mui/material/Avatar';
+import FaceIcon from '@mui/icons-material/Face';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { AuthenticationHeaderChip } from './AuthenticationHeaderChip';
 import { UserData } from '@lib/auth/UserData';
 
 /**
  * Manual styles that apply to the <RegistrationHeader> client component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
+    avatar: {
+        backgroundColor: 'primary.light',
+        color: theme => theme.palette.getContrastText(theme.palette.primary.light),
+    },
     header: {
         backgroundColor: 'primary.dark',
         color: theme => theme.palette.getContrastText(theme.palette.primary.dark),
@@ -36,6 +43,12 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  */
 export interface RegistrationHeaderProps {
     /**
+     * To be called when the user chip has been clicked on, indicating that the authentication flow
+     * should be opened. This works the same for guests and signed in users.
+     */
+    onUserChipClick: () => void;
+
+    /**
      * Title of the page that should be displayed on the header.
      */
     title: string;
@@ -52,12 +65,27 @@ export interface RegistrationHeaderProps {
  * well as the ability for them to sign out.
  */
 export function RegistrationHeader(props: RegistrationHeaderProps) {
+    // TODO: Include the user's avatar.
+
     return (
         <Stack direction="row" justifyContent="space-between" sx={kStyles.header}>
             <Typography sx={kStyles.text} variant="h5" component="h1" noWrap>
                 {props.title}
             </Typography>
-            { /* TODO: Sign-in button */ }
+            { props.user &&
+                <AuthenticationHeaderChip clickable
+                                          avatar={
+                                              <Avatar sx={kStyles.avatar} src={undefined}>
+                                                  PB
+                                              </Avatar> }
+                                          label={props.user.firstName}
+                                          onClick={props.onUserChipClick} /> }
+            { !props.user &&
+                <AuthenticationHeaderChip clickable
+                                          /// @ts-ignore
+                                          icon={ <FaceIcon /> }
+                                          label="Sign in"
+                                          onClick={props.onUserChipClick} /> }
         </Stack>
     );
 }
