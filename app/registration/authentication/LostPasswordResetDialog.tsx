@@ -85,7 +85,7 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
 
     return (
         <>
-            <DialogTitle>Lost password</DialogTitle>
+            <DialogTitle>Password reset</DialogTitle>
             { requestValid === undefined &&
                 <DialogContent>
                     <Skeleton animation="wave" height={16} sx={{ mb: 1 }} />

@@ -9,6 +9,7 @@ import Dialog from '@mui/material/Dialog';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
+import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog } from './authentication/RegisterDialog';
@@ -78,7 +79,7 @@ type AuthenticationFlowState =
     'login-password' |
 
     // (2c) There exists a user with the given username, but the user has lost their credentials.
-    'lost-password' | 'lost-password-reset' |
+    'lost-password' | 'lost-password-reset' | 'lost-password-complete' |
 
     // (2d) There does not exist a user with the given username.
     'register' |
@@ -232,6 +233,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 <LostPasswordResetDialog onClose={onRequestClose}
                                          onPasswordReset={onPasswordReset}
                                          passwordResetRequest={passwordResetRequest} /> }
+            { authFlowState === 'lost-password-complete' &&
+                <LostPasswordCompleteDialog /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose} /> }
             { authFlowState === 'identity' &&

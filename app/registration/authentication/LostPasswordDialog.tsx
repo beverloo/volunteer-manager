@@ -58,7 +58,7 @@ export function LostPasswordDialog(props: LostPasswordDialogProps) {
 
     return (
         <>
-            <DialogTitle>Lost password</DialogTitle>
+            <DialogTitle>Password reset</DialogTitle>
             <DialogContent>
                 <DialogContentText>
                     You have lost your password! Don't worry, we can send you an e-mail with
