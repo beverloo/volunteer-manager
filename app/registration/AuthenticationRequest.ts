@@ -53,7 +53,7 @@ export interface PasswordLoginResponse {
  */
 export interface PasswordLostRequest {
     /**
-     * The "action" must be set to password reset.
+     * The "action" must be set to password-reset.
      */
     action: 'password-reset';
 
@@ -74,6 +74,36 @@ export interface PasswordLostResponse {
 }
 
 /**
+ * Request format for an API call to the authentication endpoint requesting a password reset.
+ */
+export interface PasswordLostVerifyRequest {
+    /**
+     * The "action" must be set to password-reset-verify.
+     */
+    action: 'password-reset-verify';
+
+    /**
+     * The sealed password reset request that the server should verify.
+     */
+    request: string;
+}
+
+/**
+ * Response format from an API call to the authentication endpoint attempting a password reset.
+ */
+export interface PasswordLostVerifyResponse {
+    /**
+     * Whether the password reset token could be successfully verified.
+     */
+    success: boolean;
+
+    /**
+     * The first name of the user whose information is being reset when successful.
+     */
+    firstName?: string;
+}
+
+/**
  * Request format for an API call to the authentication endpoint requesting a sign out.
  */
 export interface SignOutRequest {
@@ -91,13 +121,16 @@ export interface SignOutResponse { /* no values */ }
 /**
  * All valid interfaces for requests, used for the `issueAuthenticationRequest` implementation.
  */
-type RequestTypes = IdentityRequest | PasswordLoginRequest | PasswordLostRequest | SignOutRequest;
+type RequestTypes =
+    IdentityRequest | PasswordLoginRequest | PasswordLostRequest | PasswordLostVerifyRequest |
+    SignOutRequest;
 
 /**
  * All valid interfaces for responses, used for the `issueAuthenticationRequest` implementation.
  */
 type ResponseTypes =
-    IdentityResponse | PasswordLoginResponse | PasswordLostResponse | SignOutResponse;
+    IdentityResponse | PasswordLoginResponse | PasswordLostResponse | PasswordLostVerifyResponse |
+    SignOutResponse;
 
 /**
  * Issues an authentication request to validate whether the username in `request` has a known
@@ -128,6 +161,17 @@ export async function issueAuthenticationRequest(request: PasswordLoginRequest)
  */
 export async function issueAuthenticationRequest(request: PasswordLostRequest)
         : Promise<PasswordLostResponse>;
+
+
+/**
+ * Verifies the validity of a password reset token with the server, and obtains the requester's
+ * first name in order to personalize the continuation of the password reset flow.
+ *
+ * @param request The sealed password reset request information that should be verified.
+ * @returns Whether the request is valid, and the requester's first name.
+ */
+export async function issueAuthenticationRequest(request: PasswordLostVerifyRequest)
+        : Promise<PasswordLostVerifyResponse>;
 
 /**
  * Issues an authentication request to sign out from the account that's currently signed in. This

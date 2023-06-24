@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { Privilege } from './Privileges';
-import { Session } from './Session';
+import { type SessionData } from './Session';
 import { type UserData } from './UserData';
 import { sql } from '../database';
 
@@ -94,7 +94,7 @@ export class User implements UserData {
      * Attempts to authenticate the user based on the given |session|. Will return a User instance
      * when successful, or undefined in all other cases.
      */
-    static async authenticateFromSession(session: Session): Promise<User | undefined> {
+    static async authenticateFromSession(session: SessionData): Promise<User | undefined> {
         const { id, token } = session;
         const result =
             await sql`SELECT * FROM users WHERE user_id = ${id} AND session_token = ${token}`;

@@ -5,12 +5,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import type {
     IdentityRequest, PasswordLoginRequest,
-    PasswordLostRequest } from '@app/registration/AuthenticationRequest';
+    PasswordLostRequest, PasswordLostVerifyRequest} from '@app/registration/AuthenticationRequest';
 
 import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
 
-import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { sealPasswordResetRequest, unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { securePasswordHash } from '@lib/auth/Password';
 
 /**
@@ -62,7 +62,7 @@ async function PasswordResetAPI(origin: string, request: PasswordLostRequest)
                 sessionToken: passwordResetData.sessionToken,
             });
 
-            const passwordResetLink = `${origin}/password-reset/${passwordResetRequest}`;
+            const passwordResetLink = `${origin}/?password-reset-request=${passwordResetRequest}`;
             return NextResponse.json({
                 success: true,
                 tempLink: passwordResetLink,
@@ -70,6 +70,34 @@ async function PasswordResetAPI(origin: string, request: PasswordLostRequest)
         }
 
         console.warn(`[/api/auth] Invalid password reset request by ${request.username}`);
+
+    } catch (error) { console.error(error); }
+
+    return NextResponse.json({ success: false });
+}
+
+/**
+ * Implementation of the password reset verification API for the /api/auth endpoint.
+ */
+async function PasswordResetVerifyAPI({ request }: PasswordLostVerifyRequest)
+        : Promise<NextResponse> {
+    try {
+        const passwordResetRequest = await unsealPasswordResetRequest(request);
+        if (passwordResetRequest) {
+            const user = await User.authenticateFromSession({
+                id: passwordResetRequest.userId,
+                token: passwordResetRequest.sessionToken,
+            });
+
+            if (user) {
+                return NextResponse.json({
+                    success: true,
+                    firstName: user.firstName,
+                });
+            }
+        }
+
+        console.warn('[/api/auth] Invalid password reset verification');
 
     } catch (error) { console.error(error); }
 
@@ -107,6 +135,12 @@ export async function POST(nextRequest: NextRequest) {
             case 'password-reset':
                 if (Object.hasOwn(request, 'username'))
                     return PasswordResetAPI(nextRequest.nextUrl.origin, request);
+
+                break;
+
+            case 'password-reset-verify':
+                if (Object.hasOwn(request, 'request'))
+                    return PasswordResetVerifyAPI(request);
 
                 break;
 

@@ -10,6 +10,7 @@ import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
+import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
@@ -41,7 +42,7 @@ type AuthenticationFlowState =
     'login-password' |
 
     // (2c) There exists a user with the given username, but the user has lost their credentials.
-    'lost-password' |
+    'lost-password' | 'lost-password-reset' |
 
     // (2d) There does not exist a user with the given username.
     'register' |
@@ -64,6 +65,12 @@ interface AuthenticationFlowProps {
     open?: boolean;
 
     /**
+     * The password reset request for which the authentication flow should continue. Normally
+     * injected in the page through URL parameters, but we really don't care.
+     */
+    passwordResetRequest?: string;
+
+    /**
      * Information about the signed in user, when they already are signed in to an account.
      */
     user?: UserData;
@@ -76,15 +83,17 @@ interface AuthenticationFlowProps {
  * TODO: Support identification using access codes
  * TODO: Support identification using passkeys
  * TODO: Support registration
- * TODO: Support lost password requests
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
-    const { onClose, open, user } = props;
+    const { onClose, open, passwordResetRequest, user } = props;
 
     // The initial state of the authentication flow depends on whether |user| is set. If so, they
     // are signed in to their account and we should display the associated information. If not, we
     // should enable them to either sign-in to or register for an account.
-    const initialState: AuthenticationFlowState = user ? 'identity' : 'username';
+    const initialState: AuthenticationFlowState =
+        user ? 'identity'
+             : (passwordResetRequest ? 'lost-password-reset'
+                                     : 'username');
 
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
     const [ username, setUsername ] = useState<string>();
@@ -138,13 +147,19 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, [ onRequestClose, username ]);
 
     // ---------------------------------------------------------------------------------------------
-    // Supporting callbacks for the 'lost-password' state:
+    // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasswordReset = useCallback(async () => {
         const response = await issueAuthenticationRequest({ action: 'password-reset', username });
         return response.success;
 
     }, [ username ]);
+
+    const onPasswordReset = useCallback(async (request: string, password: string) => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+    }, [ /* no deps */ ]);
+
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
@@ -171,6 +186,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { authFlowState === 'lost-password' &&
                 <LostPasswordDialog onClose={onRequestClose}
                                     onRequestPasswordReset={onRequestPasswordReset} /> }
+            { authFlowState === 'lost-password-reset' &&
+                <LostPasswordResetDialog onClose={onRequestClose}
+                                         onPasswordReset={onPasswordReset}
+                                         passwordResetRequest={passwordResetRequest} /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose} /> }
             { authFlowState === 'identity' &&

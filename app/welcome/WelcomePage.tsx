@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
@@ -121,7 +122,13 @@ export function WelcomePage(props: WelcomePageProps) {
             <VisibilityOffIcon fontSize="small" color="disabled" />
         </Tooltip>;
 
-    const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(true);
+    // The authentication flow should be opened automatically when the `password-reset-request`
+    // parameter is included in the URL's search parameters, in which case the user should be thrown
+    // back into the password reset wizard.
+    const searchParams = useSearchParams();
+    const initialAuthFlowOpen = searchParams.has('password-reset-request');
+
+    const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(initialAuthFlowOpen);
 
     return (
         <>
@@ -278,6 +285,7 @@ export function WelcomePage(props: WelcomePageProps) {
             </Grid>
             <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
                                 open={authFlowOpen}
+                                passwordResetRequest={searchParams.get('password-reset-request')}
                                 user={props.user} />
         </>
     );
