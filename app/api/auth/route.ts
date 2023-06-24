@@ -15,7 +15,7 @@ import {
     authenticateUserFromPassword, authenticateUserFromSession } from '@lib/auth/Authentication';
 
 import { sealPasswordResetRequest, unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
-import { securePasswordHash, validatePasswordLength } from '@lib/auth/Password';
+import { validatePasswordLength } from '@lib/auth/Password';
 
 /**
  * API called to confirm whether an account with the given username exists, and if so, obtain their
@@ -59,7 +59,9 @@ async function PasswordResetAPI(request: PasswordResetRequest): Promise<NextResp
 }
 
 /**
- * Implementation of the password reset API for the /api/auth endpoint.
+ * API called when the user requests their password to be reset. We don't reset it straight away,
+ * instead we create a password reset request and e-mail this to the user. They can then click on
+ * the link to re-enter the password reset flow, having proven their identity.
  */
 async function PasswordResetRequestAPI(origin: string, request: PasswordResetRequestRequest)
         : Promise<NextResponse> {
@@ -86,7 +88,9 @@ async function PasswordResetRequestAPI(origin: string, request: PasswordResetReq
 }
 
 /**
- * Implementation of the password reset verification API for the /api/auth endpoint.
+ * API that verifies a password reset request by unsealing the request, and running the necessary
+ * database queries to check whether the request has been issued and settled in the past. When the
+ * verification has passed, additional information is returned to personalize the flow.
  */
 async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
         : Promise<NextResponse> {
@@ -110,22 +114,24 @@ async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
 }
 
 /**
- * Implementation of the password login API for the /api/auth endpoint.
+ * API that allows the user to sign in to their account with a password. The password shared with
+ * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
 async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextResponse> {
     try {
-        const securelyHashedPassword = securePasswordHash(request.password);
-        const user = await authenticateUserFromPassword(request.username, securelyHashedPassword);
-        if (user) {
-            const response = NextResponse.json({ success: true });
-            response.cookies.set({
-                name: kSessionCookieName,
-                value: await Session.create({ id: user.userId, token: user.sessionToken }),
-                maxAge: kSessionExpirationTimeSeconds,
-                httpOnly: true,
-            });
+        if (validatePasswordLength(request.password)) {
+            const user = await authenticateUserFromPassword(request.username, request.password);
+            if (user) {
+                const response = NextResponse.json({ success: true });
+                response.cookies.set({
+                    name: kSessionCookieName,
+                    value: await Session.create({ id: user.userId, token: user.sessionToken }),
+                    maxAge: kSessionExpirationTimeSeconds,
+                    httpOnly: true,
+                });
 
-            return response;
+                return response;
+            }
         }
 
         console.warn(`[/api/auth] Invalid authentication attempt by ${request.username}`);
@@ -136,7 +142,8 @@ async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextRe
 }
 
 /**
- * Implementation of the sign out API for the /api/auth endpoint.
+ * API that signs the user out of their account by setting an empty authentication session cookie
+ * that's due to expire right after receiving it. No verification is done in this method.
  */
 async function SignOutAPI(): Promise<NextResponse> {
     const response = NextResponse.json({ /* no payload */ });
