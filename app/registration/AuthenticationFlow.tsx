@@ -6,6 +6,8 @@ import { useCallback, useState } from 'react';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
+import type { UserData } from '../lib/auth/UserData';
+import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { RegisterDialog } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
@@ -38,7 +40,10 @@ type AuthenticationFlowState =
     'login-password' |
 
     // (2c) There does not exist a user with the given username.
-    'register';
+    'register' |
+
+    // (3) The user is signed in to their account already, and can sign out.
+    'identity';
 
 /**
  * Props accepted by the <AuthenticationFlow> component.
@@ -53,6 +58,11 @@ interface AuthenticationFlowProps {
      * Whether the authorization flow should be opened.
      */
     open?: boolean;
+
+    /**
+     * Information about the signed in user, when they already are signed in to an account.
+     */
+    user?: UserData;
 }
 
 /**
@@ -65,9 +75,14 @@ interface AuthenticationFlowProps {
  * TODO: Support lost password requests
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
-    const { onClose, open } = props;
+    const { onClose, open, user } = props;
 
-    const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>('username');
+    // The initial state of the authentication flow depends on whether |user| is set. If so, they
+    // are signed in to their account and we should display the associated information. If not, we
+    // should enable them to either sign-in to or register for an account.
+    const initialState: AuthenticationFlowState = user ? 'identity' : 'username';
+
+    const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
     const [ username, setUsername ] = useState<string>();
 
     // Supporting callbacks for any state:
@@ -114,8 +129,19 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     }, [ onRequestClose, username ]);
 
+    // Supporting callbacks for the 'identity' state:
+    const onRequestSignOut = useCallback(async () => {
+        await issueAuthenticationRequest({ action: 'sign-out' });
+
+        if (typeof document !== 'undefined')
+            document.location.reload();
+        else
+            onRequestClose();
+
+    }, [ onRequestClose ]);
+
     return (
-        <Dialog open={open} onClose={onRequestClose} sx={kStyles.root}>
+        <Dialog open={open} onClose={onRequestClose} sx={kStyles.root} fullWidth>
             { authFlowState === 'username' &&
                 <UsernameDialog onClose={onRequestClose}
                                 onSubmit={onSubmitUsername} /> }
@@ -125,6 +151,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                                      onSubmit={onSubmitPassword} /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose} /> }
+            { authFlowState === 'identity' &&
+                <IdentityDialog onClose={onRequestClose}
+                                onSignOut={onRequestSignOut}
+                                user={user} /> }
         </Dialog>
     );
 }

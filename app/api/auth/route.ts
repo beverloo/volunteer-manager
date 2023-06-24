@@ -47,6 +47,21 @@ async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResp
 }
 
 /**
+ * Implementation of the sign out API for the /api/auth endpoint.
+ */
+async function SignOutAPI(): Promise<NextResponse> {
+    const response = NextResponse.json({ /* no payload */ });
+    response.cookies.set({
+        name: kSessionCookieName,
+        value: '',
+        maxAge: 0,
+        httpOnly: true,
+    });
+
+    return response;
+}
+
+/**
  * The /api/auth endpoint exposes the API for providing user authentication. It can check whether a
  * given user exists, return their public key (for use with passkeys), and authenticate them against
  * their account given an authentication token.
@@ -56,6 +71,13 @@ async function PasswordLoginAPI(request: PasswordLoginRequest): Promise<NextResp
  */
 export async function POST(nextRequest: NextRequest) {
     const request = await nextRequest.json();
+
+    if (Object.hasOwn(request, 'action')) {
+        switch (request.action) {
+            case 'sign-out':
+                return SignOutAPI();
+        }
+    }
 
     if (Object.hasOwn(request, 'username')) {
         if (Object.hasOwn(request, 'password'))

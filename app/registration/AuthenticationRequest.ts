@@ -49,14 +49,29 @@ export interface PasswordLoginResponse {
 }
 
 /**
+ * Request format for an API call to the authentication endpoint requesting a sign out.
+ */
+export interface SignOutRequest {
+    /**
+     * The "action" must be set to sign-out.
+     */
+    action: 'sign-out';
+}
+
+/**
+ * Response format from an API call to the authentication endpoint attempting a sign out.
+ */
+export interface SignOutResponse { /* no values */ }
+
+/**
  * All valid interfaces for requests, used for the `issueAuthenticationRequest` implementation.
  */
-type RequestTypes = IdentityRequest | PasswordLoginRequest;
+type RequestTypes = IdentityRequest | PasswordLoginRequest | SignOutRequest;
 
 /**
  * All valid interfaces for responses, used for the `issueAuthenticationRequest` implementation.
  */
-type ResponseTypes = IdentityResponse | PasswordLoginResponse;
+type ResponseTypes = IdentityResponse | PasswordLoginResponse | SignOutResponse;
 
 /**
  * Issues an authentication request to validate whether the username in `request` has a known
@@ -78,6 +93,15 @@ export async function issueAuthenticationRequest(request: IdentityRequest)
  */
 export async function issueAuthenticationRequest(request: PasswordLoginRequest)
         : Promise<PasswordLoginResponse>;
+
+/**
+ * Issues an authentication request to sign out from the account that's currently signed in. This
+ * involves HTTP-only cookies that should be destroyed by the server.
+ *
+ * @param request The action that the server is requested to take.
+ * @response Nothing of use.
+ */
+export async function issueAuthenticationRequest(request: SignOutRequest): Promise<SignOutResponse>;
 
 /**
  * Implementation of the various `issueAuthenticationRequest` overloads.

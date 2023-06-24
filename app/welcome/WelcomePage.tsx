@@ -276,7 +276,9 @@ export function WelcomePage(props: WelcomePageProps) {
                         </Card>
                     </Grid> )}
             </Grid>
-            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)} open={authFlowOpen} />
+            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
+                                open={authFlowOpen}
+                                user={props.user} />
         </>
     );
 }
