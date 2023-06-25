@@ -8,14 +8,13 @@ import type {
     PasswordResetVerifyRequest, SignInPasswordRequest
 } from '@app/registration/AuthenticationRequest';
 
-import { Session, kSessionCookieName, kSessionExpirationTimeSeconds } from '@lib/auth/Session';
 import { User } from '@lib/auth/User';
 
 import {
     authenticateUserFromPassword, authenticateUserFromSession } from '@lib/auth/Authentication';
-
 import { sealPasswordResetRequest, unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { validatePasswordLength } from '@lib/auth/Password';
+import { writeEmptySessionCookie, writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
  * API called to confirm whether an account with the given username exists, and if so, obtain their
@@ -43,12 +42,8 @@ async function PasswordResetAPI(request: PasswordResetRequest): Promise<NextResp
                 await user.updatePassword(request.password, /* incrementSessionToken= */ true);
 
                 const response = NextResponse.json({ success: true });
-                response.cookies.set({
-                    name: kSessionCookieName,
-                    value: await Session.create({ id: user.userId, token: user.sessionToken }),
-                    maxAge: kSessionExpirationTimeSeconds,
-                    httpOnly: true,
-                });
+                writeSealedSessionCookie(
+                    { id: user.userId, token: user.sessionToken }, response.cookies);
 
                 return response;
             }
@@ -123,12 +118,8 @@ async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextRe
             const user = await authenticateUserFromPassword(request.username, request.password);
             if (user) {
                 const response = NextResponse.json({ success: true });
-                response.cookies.set({
-                    name: kSessionCookieName,
-                    value: await Session.create({ id: user.userId, token: user.sessionToken }),
-                    maxAge: kSessionExpirationTimeSeconds,
-                    httpOnly: true,
-                });
+                writeSealedSessionCookie(
+                    { id: user.userId, token: user.sessionToken }, response.cookies);
 
                 return response;
             }
@@ -147,12 +138,7 @@ async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextRe
  */
 async function SignOutAPI(): Promise<NextResponse> {
     const response = NextResponse.json({ /* no payload */ });
-    response.cookies.set({
-        name: kSessionCookieName,
-        value: '',
-        maxAge: 0,
-        httpOnly: true,
-    });
+    writeEmptySessionCookie(response.cookies);
 
     return response;
 }

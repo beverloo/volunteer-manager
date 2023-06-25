@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { ResponseCookies } from 'next/dist/server/web/spec-extension/cookies';
 import { seal, unseal } from './Iron';
 
 /**
@@ -60,4 +61,29 @@ export async function sealSession(session: SessionData): Promise<string> {
 export async function unsealSession(sealedSession: string): Promise<SessionData> {
     return await unseal(
         sealedSession, kSessionPassword, kSessionExpirationTimeSeconds) as SessionData;
+}
+
+/**
+ * Writes an empty session cookie to the given `cookies` store.
+ */
+export async function writeEmptySessionCookie(cookies: ResponseCookies): Promise<void> {
+    cookies.set({
+        name: kSessionCookieName,
+        value: '',
+        maxAge: 0,
+        httpOnly: true,
+    });
+}
+
+/**
+ * Writes the given `session` in sealed format to the given `cookies` store.
+ */
+export async function writeSealedSessionCookie(session: SessionData, cookies: ResponseCookies)
+        : Promise<void> {
+    cookies.set({
+        name: kSessionCookieName,
+        value: await sealSession(session),
+        maxAge: kSessionExpirationTimeSeconds,
+        httpOnly: true,
+    });
 }
