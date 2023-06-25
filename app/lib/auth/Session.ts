@@ -1,8 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Crypto } from '@peculiar/webcrypto';
-import { defaults as ironDefaults, seal, unseal } from 'iron-webcrypto';
+import { seal, unseal } from './Iron';
 
 /**
  * Name of the cookie in which session data will be stored.
@@ -22,12 +21,6 @@ export const kSessionExpirationTimeSeconds = 180 * 24 * 60 * 60;
 const kSessionPassword = process.env.APP_COOKIE_PASSWORD;
 if (!kSessionPassword || !kSessionPassword.length)
     throw new Error('Unable to start the Volunteer Manager without a set APP_COOKIE_PASSWORD');
-
-/**
- * Prefer use of the Web Crypto implementation offered natively (in browsers & NodeJS v19+), fall
- * back to the implementation provided by the @peculiar/webcrypto package.
- */
-const kWebCryptoImpl = globalThis.crypto || new Crypto();
 
 /**
  * The data that will be stored in the cookie. This data will be send to the server during every
@@ -60,10 +53,7 @@ export class Session implements SessionData {
      * @return A sealed Iron session when creation was successful, NULL in all other cases.
      */
     static create(sessionData: SessionData): Promise<string | null> {
-        return seal(kWebCryptoImpl, sessionData, kSessionPassword, {
-            ...ironDefaults,
-            ttl: kSessionExpirationTimeSeconds * /* milliseconds= */ 1000,
-        });
+        return seal(sessionData, kSessionPassword, kSessionExpirationTimeSeconds);
     }
 
     /**
@@ -76,10 +66,8 @@ export class Session implements SessionData {
      */
     static async verify(sealedSessionData: string): Promise<Session | null> {
         try {
-            const sessionData = await unseal(kWebCryptoImpl, sealedSessionData, kSessionPassword, {
-                ...ironDefaults,
-                ttl: kSessionExpirationTimeSeconds * /* milliseconds= */ 1000,
-            });
+            const sessionData =
+                await unseal(sealedSessionData, kSessionPassword, kSessionExpirationTimeSeconds);
 
             if (!Session.verifySessionData(sessionData))
                 throw new Error('The unsealed session data does not conform to SessionData');
