@@ -12,8 +12,8 @@ global.TextDecoder = TextDecoder;
 describe('PasswordReset', () => {
     it('should be able to seal and unseal password requests', async () => {
         const plaintextRequest: PasswordResetRequest = {
-            userId: 9001,
-            sessionToken: 1234,
+            id: 9001,
+            token: 1234,
         };
 
         const sealedRequest = await sealPasswordResetRequest(plaintextRequest);

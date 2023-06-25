@@ -4,7 +4,7 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-import { Session, kSessionCookieName } from './Session';
+import { type SessionData, kSessionCookieName, unsealSession } from './Session';
 
 /**
  * Valid behaviours that can be specified when using useSession().
@@ -15,20 +15,20 @@ export type InvalidSessionBehaviour = 'ignore' | 'not-found' | 'redirect';
  * Returns the unsealed Session that was included in the cookies included in the HTTP request, or
  * undefined in case they don't have a (valid) session.
  */
-export async function useSession(behaviour?: 'ignore'): Promise<Session | undefined>;
+export async function useSession(behaviour?: 'ignore'): Promise<SessionData | undefined>;
 
 /**
  * Returns the unsealed Session that was included in the cookies included in the HTTP request, or
  * displays an HTTP 404 not-found error instead.
  */
-export async function useSession(behaviour: 'not-found'): Promise<Session>;
+export async function useSession(behaviour: 'not-found'): Promise<SessionData>;
 
 /**
  * Returns the unsealed Session that was included in the cookies included in the HTTP request, or
  * redirects them to the given |redirectUrl| when they don't have a (valid) session. The redirect
  * will default to the root page on the current domain.
  */
-export async function useSession(behaviour: 'redirect', redirectUrl?: string) : Promise<Session>;
+export async function useSession(behaviour: 'redirect', redirectUrl?: string): Promise<SessionData>;
 
 /**
  * Returns the unsealed Session that was included in the cookies included in the HTTP request. When
@@ -48,14 +48,18 @@ export async function useSession(behaviour: 'redirect', redirectUrl?: string) : 
  * the session data was set and sealed by this application.
  */
 export async function useSession(behaviour?: InvalidSessionBehaviour, behaviourParam?: any)
-        : Promise<Session | undefined> {
+        : Promise<SessionData | undefined> {
     const cookieStore = cookies();
 
-    let session: Session | undefined;
+    let session: SessionData | undefined;
 
     // (1) Verify and unseal the session cookie, if it exists, using Iron.
-    if (cookieStore.has(kSessionCookieName))
-        session = await Session.verify(cookieStore.get(kSessionCookieName).value);
+    if (cookieStore.has(kSessionCookieName)) {
+        try {
+            session = await unsealSession(cookieStore.get(kSessionCookieName).value);
+
+        } catch { /* TODO: remove the cookie once I figure out how to */ }
+    }
 
     // (2) When no session could be verified, respond depending on the requested |behaviour|. Either
     // a not found (HTTP 404) error could be shown, the user is to be redirected to a particular URL
