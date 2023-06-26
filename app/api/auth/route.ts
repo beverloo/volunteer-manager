@@ -42,7 +42,7 @@ async function PasswordResetAPI(request: PasswordResetRequest): Promise<NextResp
                 await user.updatePassword(request.password, /* incrementSessionToken= */ true);
 
                 const response = NextResponse.json({ success: true });
-                writeSealedSessionCookie(
+                await writeSealedSessionCookie(
                     { id: user.userId, token: user.sessionToken }, response.cookies);
 
                 return response;
@@ -118,7 +118,7 @@ async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextRe
             const user = await authenticateUserFromPassword(request.username, request.password);
             if (user) {
                 const response = NextResponse.json({ success: true });
-                writeSealedSessionCookie(
+                await writeSealedSessionCookie(
                     { id: user.userId, token: user.sessionToken }, response.cookies);
 
                 return response;
@@ -138,7 +138,7 @@ async function SignInPasswordAPI(request: SignInPasswordRequest): Promise<NextRe
  */
 async function SignOutAPI(): Promise<NextResponse> {
     const response = NextResponse.json({ /* no payload */ });
-    writeEmptySessionCookie(response.cookies);
+    await writeEmptySessionCookie(response.cookies);
 
     return response;
 }
