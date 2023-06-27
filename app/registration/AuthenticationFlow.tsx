@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
@@ -124,6 +125,9 @@ interface AuthenticationFlowProps {
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const { onClose, open, passwordResetRequest, user } = props;
 
+    // Used to refresh the app context following authentication changes.
+    const router = useRouter();
+
     // The initial state of the authentication flow depends on whether |user| is set. If so, they
     // are signed in to their account and we should display the associated information. If not, we
     // should enable them to either sign-in to or register for an account.
@@ -176,10 +180,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
-        typeof document !== 'undefined' ? document.location.reload()
-                                        : onRequestClose();
+        router.refresh();
+        onRequestClose();
 
-    }, [ onRequestClose, username ]);
+    }, [ onRequestClose, router, username ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
@@ -209,10 +213,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onRequestSignOut = useCallback(async () => {
         await issueAuthenticationRequest({ action: 'sign-out' });
 
-        typeof document !== 'undefined' ? document.location.reload()
-                                        : onRequestClose();
+        router.refresh();
+        onRequestClose();
 
-    }, [ onRequestClose ]);
+    }, [ onRequestClose, router ]);
 
     // ---------------------------------------------------------------------------------------------
 
