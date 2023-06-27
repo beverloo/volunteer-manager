@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
+    from 'react-hook-form-mui';
 
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
@@ -11,7 +12,20 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
+/**
+ * The options we'll present to users when having to pick their gender.
+ */
+const kGenderOptions = [
+    { id: 'Female', label: 'Female' },
+    { id: 'Male', label: 'Male' },
+    { id: 'Other', label: 'Other' },
+];
 
 /**
  * Interface describing the information contained within a registration request. Will be shared with
@@ -63,7 +77,7 @@ interface RegisterDialogProps {
      * when an error occurred (regardless of the type of error), whereas it will be resolved when
      * the registration request went through successfully.
      */
-    onSubmit: (request: RegistrationRequest) => Promise<void>;
+    onSubmit: (plaintextPassword: string, request: RegistrationRequest) => Promise<void>;
 }
 
 /**
@@ -73,13 +87,8 @@ interface RegisterDialogProps {
 export function RegisterDialog(props: RegisterDialogProps) {
     const { onClose, onSubmit } = props;
 
-    // Details:
-    // - username [x]
-    // - first name
-    // - last name
-    // - gender
-    // - birthdate
-    // - phone number
+    // TODO: Enable autofill for gender
+    // TODO: Enable autofill for date of birth
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -88,8 +97,10 @@ export function RegisterDialog(props: RegisterDialogProps) {
         setError(undefined);
         setLoading(true);
 
+        console.log(data);
+
         try {
-            await onSubmit(data as RegistrationRequest);
+            await onSubmit('password', data as RegistrationRequest);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -110,11 +121,49 @@ export function RegisterDialog(props: RegisterDialogProps) {
                         {error}
                     </DialogContentText>
                 </Collapse>
+                <Grid container spacing={2} sx={{ pt: 2 }}>
+                    <Grid xs={6}>
+                        <TextFieldElement name="firstName" label="First name" type="text"
+                                          fullWidth size="small" required
+                                          autoFocus autoComplete="given-name" />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="lastName" label="Last name" type="text"
+                                          fullWidth size="small" required
+                                          autoComplete="family-name" />
+                    </Grid>
+
+                    <Grid xs={12} md={6}>
+                        <SelectElement name="gender" label="Gender" options={kGenderOptions}
+                                       fullWidth size="small" required />
+                    </Grid>
+
+                    <Grid xs={12} md={6}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePickerElement name="birthdate" label="Date of birth"
+                                               disableFuture disableHighlightToday openTo="year"
+                                               inputProps={{ fullWidth: true, size: 'small' }}
+                                               required />
+                        </LocalizationProvider>
+                    </Grid>
+
+                    <Grid xs={12}>
+                        <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
+                                          fullWidth size="small" required
+                                          autoComplete="tel" />
+                    </Grid>
+
+                    <Grid xs={12}>
+                        <TextFieldElement name="password" label="Password" type="password"
+                                          fullWidth size="small" required
+                                          autoComplete="new-password" />
+                    </Grid>
+                </Grid>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>
                 <LoadingButton loading={loading} type="submit" variant="contained">
-                    Update
+                    Register
                 </LoadingButton>
             </DialogActions>
         </FormContainer>

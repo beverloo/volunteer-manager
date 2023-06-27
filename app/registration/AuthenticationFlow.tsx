@@ -213,11 +213,13 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'register' state:
     // ---------------------------------------------------------------------------------------------
-    const onRegistrationRequest = useCallback(async (request: RegistrationRequest) => {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        throw new Error('Not yet implemented.');
+    const onRegistrationRequest
+        = useCallback(async (plaintextPassword: string, request: RegistrationRequest) =>
+        {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            throw new Error('Not yet implemented.');
 
-    }, [ /* no deps */ ]);
+        }, [ /* no deps */ ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
