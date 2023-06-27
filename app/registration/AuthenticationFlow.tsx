@@ -142,10 +142,13 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for any state:
     // ---------------------------------------------------------------------------------------------
-    const onRequestClose = useCallback(() => {
+    const onRequestClose = useCallback((forceState?: AuthenticationFlowState) => {
         // Reset the authentication flow state back to the initial state, but don't rely on the
         // `initialState` member in case the flow included a sign in or sign out operation.
-        setTimeout(() => setAuthFlowState(user ? 'identity' : 'username'), 500);
+        const newState = forceState ? forceState
+                                    : (user ? 'identity' : 'username');
+
+        setTimeout(() => setAuthFlowState(newState), 500);
         onClose();
 
     }, [ onClose, user ]);
@@ -181,7 +184,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
         router.refresh();
-        onRequestClose();
+        onRequestClose(/* forceState= */ 'identity');
 
     }, [ onRequestClose, router, username ]);
 
@@ -214,7 +217,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         await issueAuthenticationRequest({ action: 'sign-out' });
 
         router.refresh();
-        onRequestClose();
+        onRequestClose(/* forceState= */ 'username');
 
     }, [ onRequestClose, router ]);
 
@@ -232,7 +235,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { authFlowState === 'lost-password' &&
                 <LostPasswordDialog onClose={onRequestClose}
                                     onRequestPasswordReset={onRequestPasswordReset} /> }
-            { authFlowState === 'lost-password-reset' &&
+            { (authFlowState === 'lost-password-reset' && passwordResetRequest) &&
                 <LostPasswordResetDialog onClose={onRequestClose}
                                          onPasswordReset={onPasswordReset}
                                          passwordResetRequest={passwordResetRequest} /> }
@@ -240,7 +243,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 <LostPasswordCompleteDialog /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose} /> }
-            { authFlowState === 'identity' &&
+            { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
                                 onSignOut={onRequestSignOut}
                                 user={user} /> }
