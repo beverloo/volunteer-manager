@@ -13,7 +13,7 @@ import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
-import { RegisterDialog } from './authentication/RegisterDialog';
+import { RegisterDialog, type RegistrationRequest } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
 
@@ -145,8 +145,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onRequestClose = useCallback((forceState?: AuthenticationFlowState) => {
         // Reset the authentication flow state back to the initial state, but don't rely on the
         // `initialState` member in case the flow included a sign in or sign out operation.
-        const newState = forceState ? forceState
-                                    : (user ? 'identity' : 'username');
+        const newState = typeof forceState === 'string' ? forceState
+                                                        : (user ? 'identity' : 'username');
 
         setTimeout(() => setAuthFlowState(newState), 500);
         onClose();
@@ -211,6 +211,15 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, [ /* no deps */ ]);
 
     // ---------------------------------------------------------------------------------------------
+    // Supporting callbacks for the 'register' state:
+    // ---------------------------------------------------------------------------------------------
+    const onRegistrationRequest = useCallback(async (request: RegistrationRequest) => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        throw new Error('Not yet implemented.');
+
+    }, [ /* no deps */ ]);
+
+    // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
     const onRequestSignOut = useCallback(async () => {
@@ -242,7 +251,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { authFlowState === 'lost-password-complete' &&
                 <LostPasswordCompleteDialog /> }
             { authFlowState === 'register' &&
-                <RegisterDialog onClose={onRequestClose} /> }
+                <RegisterDialog onClose={onRequestClose}
+                                onSubmit={onRegistrationRequest} /> }
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
                                 onSignOut={onRequestSignOut}
