@@ -3,6 +3,8 @@
 
 import { useState } from 'react';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
@@ -15,8 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { PasswordField } from './PasswordField';
 
 /**
  * The options we'll present to users when having to pick their gender.
@@ -154,9 +155,9 @@ export function RegisterDialog(props: RegisterDialogProps) {
                     </Grid>
 
                     <Grid xs={12}>
-                        <TextFieldElement name="password" label="Password" type="password"
-                                          fullWidth size="small" required
-                                          autoComplete="new-password" />
+                        <PasswordField name="password" label="Password" type="password"
+                                       fullWidth size="small" required
+                                       autoComplete="new-password" />
                     </Grid>
                 </Grid>
             </DialogContent>

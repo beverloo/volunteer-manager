@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer } from 'react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,6 +15,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 
+import { PasswordField } from './PasswordField';
 import { issueAuthenticationRequest } from '../AuthenticationRequest';
 
 /**
@@ -104,9 +105,9 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
                             </DialogContentText>
                         </Collapse>
                         <Box sx={{ pt: 2 }}>
-                            <TextFieldElement name="password" label="New password" type="password"
-                                            fullWidth size="small" required
-                                            autoFocus autoComplete="new-password" />
+                            <PasswordField name="password" label="New password" type="password"
+                                           fullWidth size="small" required requireNumberSum
+                                           autoFocus autoComplete="new-password" />
                         </Box>
                     </DialogContent>
                     <DialogActions>
