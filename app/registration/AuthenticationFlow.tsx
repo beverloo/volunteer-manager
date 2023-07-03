@@ -15,6 +15,7 @@ import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog, type RegistrationRequest } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
+import { validatePassword } from './authentication/PasswordField';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
 
 /**
@@ -41,29 +42,6 @@ async function SHA256HashPassword(password: string): Promise<string> {
     return [ ...new Uint8Array(passwordHashedBuffer) ]
         .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
-}
-
-/**
- * Verifies that our password safety requirements are met by `password`. We're not super strict, but
- * do require a sensible baseline of security:
- *
- * - At least eight characters in length,
- * - At least one lowercase character,
- * - At least one uppercase character.
- *
- * Further verification is necessary for statistics and the administration area, but access to those
- * is limited to accounts that use passkeys instead, which are much more secure.
- */
-function VerifyPasswordRequirements(password: string): void {
-    const requiredLength = password.length >= 8;
-    const requiredLowercaseCharacter = /[a-z]/.test(password);
-    const requiredUppercaseCharacter = /[A-Z]/.test(password);
-
-    if (!requiredLength || !requiredLowercaseCharacter || !requiredUppercaseCharacter) {
-        throw new Error(
-            'Your password must be at least 8 characters long, contain at least one lowercase ' +
-            'character, as well as at least one uppercase character.');
-    }
 }
 
 /**
@@ -198,7 +176,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, [ username ]);
 
     const onPasswordReset = useCallback(async (request: string, password: string) => {
-        VerifyPasswordRequirements(password);
+        validatePassword(password, /* throwOnFailure= */ true);
 
         const response = await issueAuthenticationRequest({
             action: 'password-reset',

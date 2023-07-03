@@ -4,6 +4,7 @@
 'use client';
 
 import { type TextFieldElementProps, TextFieldElement } from 'react-hook-form-mui';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -13,6 +14,94 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+
+/**
+ * Validation state that the <PasswordField> component maintains. Each of these will be filled in by
+ * a separate, focused validation function.
+ */
+interface PasswordValidationState {
+    /**
+     * Whether the password contains both uppercase and lowercase characters.
+     */
+    passedCasingRequirement: boolean;
+
+    /**
+     * Whether the minimum length requirement has been passed.
+     */
+    passedLengthRequirement: boolean;
+
+    /**
+     * Whether the password contains at least one number.
+     */
+    passedNumberRequirement: boolean;
+
+    /**
+     * Whether the numbers in the password add up to 25.
+     */
+    passedNumberSumRequirement: boolean;
+}
+
+/**
+ * Password rules as they will be indicated to the password field, so that password managers can
+ * automatically create a password that meets our requirements.
+ */
+const kPasswordRules =
+    'required: upper; required: lower; required: digit; ' +
+    'minlength: 8; allowed: [-().&@?\'#,/&quot;+]; max-consecutive: 2';
+
+/**
+ * Validates that the given `password` contains at least one uppercase and one lowercase character.
+ */
+function validatePasswordCasingRequirement(password: string): boolean {
+    return /[a-z]/.test(password) &&
+           /[A-Z]/.test(password);
+}
+
+/**
+ * Validates that the given `password` is at least eight characters in length.
+ */
+function validatePasswordLengthRequirement(password: string): boolean {
+    return password.length >= /* minimum length: */ 8;
+}
+
+/**
+ * Validates that the given `password` contains at least one number.
+ */
+function validatePasswordNumberRequirement(password: string): boolean {
+    return /[0-9]/.test(password);
+}
+
+/**
+ * Validates that the given `password` contains numbers that add up to 25.
+ */
+function validatePasswordNumberSumRequirement(password: string): boolean {
+    const numbers = [ ...password.matchAll(/\d/g) ];
+
+    let total = 0;
+    for (const number of numbers)
+        total += parseInt(number[0]);
+
+    return total === 25;
+}
+
+/**
+ * Validates that the given `password` meets all requirements. When set, the `throwOnFailure` flag
+ * will trigger an exception to be thrown instead.
+ */
+export function validatePassword(password: string): boolean;
+export function validatePassword(password: string, throwOnFailure: boolean): boolean | never;
+export function validatePassword(password: string, throwOnFailure?: boolean): boolean | never {
+    const validates = validatePasswordCasingRequirement(password) &&
+                      validatePasswordLengthRequirement(password) &&
+                      validatePasswordNumberRequirement(password);
+
+    if (!validates && throwOnFailure) {
+        throw new Error('Your password must be at least 8 characters long, contain at least one ' +
+                        'number, one lowercase character and one uppercase character.');
+    }
+
+    return validates;
+}
 
 /**
  * Props accepted by the <PasswordField> component.
@@ -31,58 +120,85 @@ export interface PasswordFieldProps extends TextFieldElementProps {
  * the react-hook-for-mui parent.
  */
 export function PasswordField({ requireNumberSum, ...props }: PasswordFieldProps) {
-    const failedLengthRequirement = false;
-    const failedNumberRequirement = false;
-    const failedNumberSumRequirement = true;
-    const failedCaseRequirements = false;
+    const [ password, setPassword ] = useState<string>(/* empty= */ '');
+    const [ state, setState ] = useState<PasswordValidationState>({
+        passedCasingRequirement: false,
+        passedLengthRequirement: false,
+        passedNumberRequirement: false,
+        passedNumberSumRequirement: false,
+    });
 
-    // TODO: Automatically update the state (now stored as constants) whenever the password changes.
+    function onChange(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
+        const password = event.target.value;
+        const updatedState: PasswordValidationState = {
+            passedCasingRequirement: validatePasswordCasingRequirement(password),
+            passedLengthRequirement: validatePasswordLengthRequirement(password),
+            passedNumberRequirement: validatePasswordNumberRequirement(password),
+            passedNumberSumRequirement: validatePasswordNumberSumRequirement(password),
+        };
+
+        setPassword(password);
+        setState(updatedState);
+    }
 
     const failedAnyRequirement =
-        failedLengthRequirement || failedNumberRequirement || failedCaseRequirements ||
-        (failedNumberSumRequirement && requireNumberSum);
+        !state.passedCasingRequirement ||
+        !state.passedLengthRequirement ||
+        !state.passedNumberRequirement ||
+        (!state.passedNumberSumRequirement && requireNumberSum);
 
     return (
         <Box>
-            <TextFieldElement {...props} />
-            <Collapse in={failedAnyRequirement}>
+            <TextFieldElement onChange={onChange}
+                              inputProps={{ passwordRules: kPasswordRules, minLength: 8 }}
+                              {...props} />
+            <Collapse in={password.length && failedAnyRequirement}>
                 <List dense disablePadding sx={{ pt: 1 }}>
-                    { failedLengthRequirement &&
-                        <ListItem disablePadding>
-                            <ListItemIcon sx={{ minWidth: '32px' }}>
-                                <CheckCircleIcon color="success" fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>
-                                At least eight characters in length
-                            </ListItemText>
-                        </ListItem> }
-                    { failedNumberRequirement &&
+                    <ListItem disablePadding>
+                        <ListItemIcon sx={{ minWidth: '32px' }}>
+                            { state.passedLengthRequirement &&
+                                <CheckCircleIcon color="success" fontSize="small" /> }
+                            { !state.passedLengthRequirement &&
+                                <CancelIcon color="error" fontSize="small" /> }
+                        </ListItemIcon>
+                        <ListItemText>
+                            At least eight characters in length
+                        </ListItemText>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemIcon  sx={{ minWidth: '32px' }}>
+                            { state.passedNumberRequirement &&
+                                <CheckCircleIcon color="success" fontSize="small" /> }
+                            { !state.passedNumberRequirement &&
+                                <CancelIcon color="error" fontSize="small" /> }
+                        </ListItemIcon>
+                        <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+                            Contains at least one number
+                        </ListItemText>
+                    </ListItem>
+                    { requireNumberSum &&
                         <ListItem disablePadding>
                             <ListItemIcon  sx={{ minWidth: '32px' }}>
-                                <CheckCircleIcon color="success" fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-                                Contains at least one number
-                            </ListItemText>
-                        </ListItem> }
-                    { failedNumberSumRequirement &&
-                        <ListItem disablePadding>
-                            <ListItemIcon  sx={{ minWidth: '32px' }}>
-                                <CancelIcon color="error" fontSize="small" />
+                                { state.passedNumberSumRequirement &&
+                                    <CheckCircleIcon color="success" fontSize="small" /> }
+                                { !state.passedNumberSumRequirement &&
+                                    <CancelIcon color="error" fontSize="small" /> }
                             </ListItemIcon>
                             <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
                                 Numbers in the password add up to 25
                             </ListItemText>
                         </ListItem> }
-                    { failedCaseRequirements &&
-                        <ListItem disablePadding>
-                            <ListItemIcon  sx={{ minWidth: '32px' }}>
-                                <CheckCircleIcon color="success" fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-                                Contains both lowercase and uppercase characters
-                            </ListItemText>
-                        </ListItem> }
+                    <ListItem disablePadding>
+                        <ListItemIcon  sx={{ minWidth: '32px' }}>
+                            { state.passedCasingRequirement &&
+                                <CheckCircleIcon color="success" fontSize="small" /> }
+                            { !state.passedCasingRequirement &&
+                                <CancelIcon color="error" fontSize="small" /> }
+                        </ListItemIcon>
+                        <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+                            Contains both lowercase and uppercase characters
+                        </ListItemText>
+                    </ListItem>
                 </List>
             </Collapse>
         </Box>
