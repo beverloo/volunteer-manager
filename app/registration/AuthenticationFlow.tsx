@@ -13,7 +13,7 @@ import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
-import { RegisterDialog, type RegistrationRequest } from './authentication/RegisterDialog';
+import { RegisterDialog, type PartialRegistrationRequest } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { validatePassword } from './authentication/PasswordField';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
@@ -175,12 +175,12 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     }, [ username ]);
 
-    const onPasswordReset = useCallback(async (request: string, password: string) => {
-        validatePassword(password, /* throwOnFailure= */ true);
+    const onPasswordReset = useCallback(async (request: string, plaintextPassword: string) => {
+        validatePassword(plaintextPassword, /* throwOnFailure= */ true);
 
         const response = await issueAuthenticationRequest({
             action: 'password-reset',
-            password: await SHA256HashPassword(password),
+            password: await SHA256HashPassword(plaintextPassword),
             request,
         });
 
@@ -192,12 +192,27 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'register' state:
     // ---------------------------------------------------------------------------------------------
     const onRegistrationRequest
-        = useCallback(async (plaintextPassword: string, request: RegistrationRequest) =>
+        = useCallback(async (plaintextPassword: string, request: PartialRegistrationRequest) =>
         {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            throw new Error('Not yet implemented.');
+            validatePassword(plaintextPassword, /* throwOnFailure= */ true);
+            const response = await issueAuthenticationRequest({
+                action: 'registration',
+                ...request,
 
-        }, [ /* no deps */ ]);
+                username,
+                password: await SHA256HashPassword(plaintextPassword),
+            });
+
+            switch (response.result) {
+                case 'success':
+                    // Success - fall through, a confirmation page will be shown.
+                    break;
+
+                default:
+                    throw new Error('The server was not able to create an account.');
+            }
+
+        }, [ username ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:

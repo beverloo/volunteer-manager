@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import type {
     ConfirmIdentityRequest, PasswordResetRequest, PasswordResetRequestRequest,
-    PasswordResetVerifyRequest, SignInPasswordRequest
+    PasswordResetVerifyRequest, RegistrationRequest, SignInPasswordRequest
 } from '@app/registration/AuthenticationRequest';
 
 import { User } from '@lib/auth/User';
@@ -109,6 +109,15 @@ async function PasswordResetVerifyAPI({ request }: PasswordResetVerifyRequest)
 }
 
 /**
+ * API that allows accounts to be created. The `request` includes all the necessary information,
+ * whereas the implementation will do the necessary checks to make sure it's valid.
+ */
+async function RegistrationAPI(request: RegistrationRequest): Promise<NextResponse> {
+    // TODO: Implement this endpoint.
+    return NextResponse.json({ result: 'errorz' });
+}
+
+/**
  * API that allows the user to sign in to their account with a password. The password shared with
  * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
@@ -175,6 +184,17 @@ export async function POST(nextRequest: NextRequest) {
         case 'password-reset-verify':
             if (Object.hasOwn(request, 'request'))
                 return PasswordResetVerifyAPI(request);
+
+            break;
+
+        case 'registration':
+            const required = [
+                'username', 'password', 'firstName', 'lastName', 'gender', 'birthdate',
+                'phoneNumber', 'gdpr'
+            ];
+
+            if (required.every(field => Object.hasOwn(request, field)))
+                return RegistrationAPI(request);
 
             break;
 

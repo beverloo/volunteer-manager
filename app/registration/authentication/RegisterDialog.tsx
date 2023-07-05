@@ -17,6 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 
+import { type RegistrationRequest } from '../AuthenticationRequest';
 import { PasswordField } from './PasswordField';
 
 /**
@@ -32,37 +33,7 @@ const kGenderOptions = [
  * Interface describing the information contained within a registration request. Will be shared with
  * the server in order to finalize a user's registration.
  */
-export interface RegistrationRequest {
-    /**
-     * The user's first name.
-     */
-    firstName: string;
-
-    /**
-     * The user's last name.
-     */
-    lastName: string;
-
-    /**
-     * Gender of the user. A string because we don't care.
-     */
-    gender: string;
-
-    /**
-     * Date on which the user was born. (YYYY-MM-DD)
-     */
-    birthdate: string;
-
-    /**
-     * Phone number of the user, in an undefined format.
-     */
-    phoneNumber: string;
-
-    /**
-     * Whether the user has accepted the terms of our privacy policy.
-     */
-    gdpr: boolean;
-}
+export type PartialRegistrationRequest = Omit<RegistrationRequest, 'username' | 'password'>;
 
 /**
  * Props accepted by the <RegisterDialog> component.
@@ -78,7 +49,7 @@ interface RegisterDialogProps {
      * when an error occurred (regardless of the type of error), whereas it will be resolved when
      * the registration request went through successfully.
      */
-    onSubmit: (plaintextPassword: string, request: RegistrationRequest) => Promise<void>;
+    onSubmit: (plaintextPassword: string, request: PartialRegistrationRequest) => Promise<void>;
 }
 
 /**
@@ -88,9 +59,6 @@ interface RegisterDialogProps {
 export function RegisterDialog(props: RegisterDialogProps) {
     const { onClose, onSubmit } = props;
 
-    // TODO: Enable autofill for gender
-    // TODO: Enable autofill for date of birth
-
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
 
@@ -98,10 +66,12 @@ export function RegisterDialog(props: RegisterDialogProps) {
         setError(undefined);
         setLoading(true);
 
-        console.log(data);
+        // Separate the |password| from the |rest| of the data given that we want to hash it on the
+        // client side to prevent sending it to the server altogether.
+        const { password, ...rest } = data;
 
         try {
-            await onSubmit('password', data as RegistrationRequest);
+            await onSubmit(password, rest as RegistrationRequest);
         } catch (error) {
             setError(error.message);
         } finally {
