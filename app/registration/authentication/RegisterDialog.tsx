@@ -5,9 +5,11 @@ import { useState } from 'react';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+import {
+    type FieldValues, CheckboxElement, DatePickerElement, FormContainer, SelectElement,
+    TextFieldElement } from 'react-hook-form-mui';
 
+import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import DialogActions from '@mui/material/DialogActions';
@@ -16,9 +18,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Typography from '@mui/material/Typography';
 
 import { type RegistrationRequest } from '../AuthenticationRequest';
 import { PasswordField } from './PasswordField';
+import Link from 'next/link';
 
 /**
  * The options we'll present to users when having to pick their gender.
@@ -79,6 +83,14 @@ export function RegisterDialog(props: RegisterDialogProps) {
         }
     }
 
+    // The user has to accept our GDPR and data sharing policies, which are common across the
+    // different volunteer manager environments.
+    const gdprLabel =
+        <Typography>
+            Yes, I accept the <MuiLink component={Link} target="_blank" href="/privacy">GDPR and
+            data sharing policies</MuiLink>.
+        </Typography>;
+
     return (
         <FormContainer onSuccess={requestRegistration}>
             <DialogTitle>Create an account</DialogTitle>
@@ -128,6 +140,10 @@ export function RegisterDialog(props: RegisterDialogProps) {
                         <PasswordField name="password" label="Password" type="password"
                                        fullWidth size="small" required
                                        autoComplete="new-password" />
+                    </Grid>
+
+                    <Grid xs={12} sx={{ pt: 0 }}>
+                        <CheckboxElement name="gdpr" size="small" label={gdprLabel} required />
                     </Grid>
                 </Grid>
             </DialogContent>

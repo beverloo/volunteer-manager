@@ -39,7 +39,7 @@ export interface Content {
  *
  * @param environment The environment for which to fetch the content.
  * @param event The event with which the content should be associated.
- * @param path The path towards the content, relevant from the /registration/slug/ root.
+ * @param path The path towards the content, relative from the /registration/slug/ root.
  * @return Content object with the content when found, or undefined in all other cases.
  */
 export async function getContent(environment: Environment, event: Event, path: string[])
@@ -70,6 +70,17 @@ export async function getContent(environment: Environment, event: Event, path: s
         return undefined;
 
     return { ...result.rows[0] } as Content;
+}
+
+/**
+ * Fetches the content for the given `path` from the database, which lives there orthogonal to any
+ * particular environment or event.
+ *
+ * @param path The path towards the content, relative from the domain root.
+ * @returns Content object with the content when found, or undefined in all other cases.
+ */
+export async function getStaticContent(path: string[]): Promise<Content | undefined> {
+    return getContent(/* environment= */ 'stewards.team', /* event= */ { eventId: 0 } as any, path);
 }
 
 /**

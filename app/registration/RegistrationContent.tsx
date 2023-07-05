@@ -36,13 +36,18 @@ export interface RegistrationContentProps {
     /**
      * The event for which data is being displayed on this page.
      */
-    event: EventData;
+    event?: EventData;
 
     /**
      * The volunteer's registration information, in case they have applied to participate in this
      * event. Also includes information about their requests and reservations.
      */
     registration?: RegistrationInfo;
+
+    /**
+     * Title of the page. Will be overridden by the event's title when available.
+     */
+    title?: string;
 
     /**
      * Information about the signed in user, as they should be shown in the header.
@@ -55,15 +60,23 @@ export interface RegistrationContentProps {
  * shares information with the user towards their application for an event.
  */
 export function RegistrationContent(props: RegistrationContentProps) {
+    let baseUrl = '/';
+    let title = props.title ?? 'AnimeCon Volunteer Manager';
+
+    if (props.event) {
+        baseUrl = `/registration/${props.event.slug}/`;
+        title = props.event.name;
+    }
+
     const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(false);
     return (
         <>
             <Paper elevation={2}>
                 <RegistrationHeader onUserChipClick={() => setAuthFlowOpen(true)}
-                                    title={props.event.name}
+                                    title={title}
                                     user={props.user} />
 
-                <Markdown baseUrl={`/registration/${props.event.slug}/`} sx={{ p: 2 }}>
+                <Markdown baseUrl={baseUrl} sx={{ p: 2 }}>
                     {props.content.markdown}
                 </Markdown>
                 { props.backUrl &&
