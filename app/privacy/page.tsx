@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
 
     const content = await getStaticContent([ 'privacy' ]);
     if (!content)
-        notFound();  // TODO: Only do this for non-content pages
+        notFound();
 
     return (
         <RegistrationLayout environment={environment}>
