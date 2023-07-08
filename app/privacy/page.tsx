@@ -16,7 +16,7 @@ import { useUser } from '@lib/auth/useUser';
  */
 export default async function PrivacyPage() {
     const environment = getRequestEnvironment();
-    const user = await useUser('ignore');
+    const user = await useUser('ignore');  // eslint-disable-line
 
     const content = await getStaticContent([ 'privacy' ]);
     if (!content)
