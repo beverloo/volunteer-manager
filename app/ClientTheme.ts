@@ -94,5 +94,5 @@ export function createCachedTheme(environment: Environment, paletteMode: Palette
         })));
     }
 
-    return kThemeCache.get(themeCacheKey);
+    return kThemeCache.get(themeCacheKey)!;
 }

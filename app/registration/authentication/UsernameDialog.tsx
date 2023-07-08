@@ -46,7 +46,7 @@ export function UsernameDialog(props: UsernameDialogProps) {
         try {
             await onSubmit(data.username);
         } catch (error) {
-            setError(error.message);
+            setError((error as any)?.message);
         } finally {
             setLoading(false);
         }

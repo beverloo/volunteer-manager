@@ -82,7 +82,7 @@ describe('ServiceLogImpl', () => {
             expect(latestQuery).not.toBeUndefined();
             expect(latestParameters).not.toBeUndefined();
             expect(latestParameters).toHaveLength(/* per current implementation */ 4);
-            expect(latestParameters[2]).toBeLessThan(/* ms= */ 5);
+            expect(latestParameters![2]).toBeLessThan(/* ms= */ 5);
         }
 
         latestQuery = undefined;
@@ -98,7 +98,7 @@ describe('ServiceLogImpl', () => {
             expect(latestQuery).not.toBeUndefined();
             expect(latestParameters).not.toBeUndefined();
             expect(latestParameters).toHaveLength(/* per current implementation */ 4);
-            expect(latestParameters[2]).toBeGreaterThanOrEqual(/* ms= */ 48);
+            expect(latestParameters![2]).toBeGreaterThanOrEqual(/* ms= */ 48);
         }
     });
 
@@ -116,7 +116,7 @@ describe('ServiceLogImpl', () => {
         expect(latestParameters).not.toBeUndefined();
         expect(latestParameters).toHaveLength(/* per current implementation */ 4);
 
-        const messages = JSON.parse(latestParameters[3] as string);
+        const messages = JSON.parse(latestParameters![3] as string);
         expect(messages).toHaveLength(3);
         expect(messages[0].type).toEqual('exception');
         expect(messages[1]).toEqual({ type: 'error', message: '3.1415' });

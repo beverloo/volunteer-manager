@@ -8,7 +8,7 @@ import { seal, unseal } from './Iron';
  * The password through which the session will be sealed. A start-up exception will be thrown when
  * this value is not available, as we would not be able to provide security to our visitors.
  */
-const kSessionPassword = process.env.APP_COOKIE_PASSWORD;
+const kSessionPassword = process.env.APP_COOKIE_PASSWORD!;
 if (!kSessionPassword || !kSessionPassword.length)
     throw new Error('Unable to start the Volunteer Manager without a set APP_COOKIE_PASSWORD');
 

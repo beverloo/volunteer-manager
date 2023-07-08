@@ -56,7 +56,7 @@ export async function useSession(behaviour?: InvalidSessionBehaviour, behaviourP
     // (1) Verify and unseal the session cookie, if it exists, using Iron.
     if (cookieStore.has(kSessionCookieName)) {
         try {
-            session = await unsealSession(cookieStore.get(kSessionCookieName).value);
+            session = await unsealSession(cookieStore.get(kSessionCookieName)!.value);
 
         } catch { /* TODO: remove the cookie once I figure out how to */ }
     }

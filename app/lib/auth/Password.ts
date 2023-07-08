@@ -20,7 +20,7 @@ export function securePasswordHash(sha256Password: string): string {
     if (!Object.hasOwn(process.env, 'APP_PASSWORD_SALT'))
         throw new Error('A salt must be known to the application in order for hashing to work.');
 
-    return securePasswordHashWithSalt(sha256Password, process.env.APP_PASSWORD_SALT);
+    return securePasswordHashWithSalt(sha256Password, process.env.APP_PASSWORD_SALT!);
 }
 
 /**
@@ -97,15 +97,4 @@ export function securePasswordHashWithRequest(request: SecurePasswordHashRequest
 
     const hash = syncScrypt(Buffer.from(sha256Password), Buffer.from(salt), N, r, p, dkLen);
     return Buffer.from(hash).toString('hex');
-}
-
-/**
- * Creates a SHA256 hash of the given |password|. This uses the `simple-sha256` library that is
- * available both for server and client usage.
- *
- * @param password The password that should be hashed.
- * @return A string containing the SHA256 hash of the password.
- */
-export function sha256(password: string): string {
-    return simpleSHA256.sync(password);
 }

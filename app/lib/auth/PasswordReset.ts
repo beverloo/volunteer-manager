@@ -8,7 +8,7 @@ import { seal, unseal } from './Iron';
  * The password through which password reset requests will be sealed. This must be set in the global
  * environment at build time, and is considered sensitive information.
  */
-const kPasswordResetRequestPassword = process.env.APP_PASSRESET_PASSWORD;
+const kPasswordResetRequestPassword = process.env.APP_PASSRESET_PASSWORD!;
 if (!kPasswordResetRequestPassword || !kPasswordResetRequestPassword.length)
     throw new Error('Unable to start the Volunteer Manager without a set APP_PASSRESET_PASSWORD');
 

@@ -78,7 +78,7 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
                 throw new Error('The server was not able to save the new password.');
 
         } catch (error) {
-            setError(error.message);
+            setError((error as any)?.message);
         } finally {
             setLoading(false);
         }

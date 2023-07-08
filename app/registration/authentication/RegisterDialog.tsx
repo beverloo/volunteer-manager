@@ -37,7 +37,8 @@ const kGenderOptions = [
  * Interface describing the information contained within a registration request. Will be shared with
  * the server in order to finalize a user's registration.
  */
-export type PartialRegistrationRequest = Omit<RegistrationRequest, 'username' | 'password'>;
+export type PartialRegistrationRequest =
+    Omit<RegistrationRequest, 'action' | 'username' | 'password'>;
 
 /**
  * Props accepted by the <RegisterDialog> component.
@@ -77,7 +78,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
         try {
             await onSubmit(password, rest as RegistrationRequest);
         } catch (error) {
-            setError(error.message);
+            setError((error as any)?.message);
         } finally {
             setLoading(false);
         }

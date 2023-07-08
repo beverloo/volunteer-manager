@@ -68,7 +68,7 @@ export class ServiceLogMock extends ServiceLog {
     async finishExecution(): Promise<void> {
         globalServiceLogExecutionInfos.push({
             serviceId: this.serviceId,
-            state: this.state,
+            state: this.state!,
             exceptions: this.exceptions,
             errors: this.errors,
             warnings: this.warnings,

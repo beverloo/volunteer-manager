@@ -11,13 +11,13 @@ import { useUser } from '../lib/auth/useUser';
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
  * (signed in) user, although the available options will depend on the user's access level.
  */
-export default async function RootAdminLayout({ children }) {
-    const user = await useUser('ignore');
+export default async function RootAdminLayout(props: any) {
+    const user = await useUser('ignore');  // eslint-disable-line
 
     return (
         <AdminLayout header={ <AdminHeader /> }
-                     sidebar={ <AdminSidebar privileges={user.privileges} /> }>
-            {children}
+                     sidebar={ <AdminSidebar privileges={user!.privileges} /> }>
+            {props.children}
         </AdminLayout>
     );
 }

@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
+import type { PasswordResetRequestRequest, RegistrationRequest,
+    SignInPasswordRequest } from './AuthenticationRequest';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -15,8 +17,8 @@ import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog, type PartialRegistrationRequest } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
-import { validatePassword } from './authentication/PasswordField';
 import { issueAuthenticationRequest } from './AuthenticationRequest';
+import { validatePassword } from './authentication/PasswordField';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -134,7 +136,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'username' state:
     // ---------------------------------------------------------------------------------------------
-    const onSubmitUsername = useCallback(async username => {
+    const onSubmitUsername = useCallback(async (username: string) => {
         const response = await issueAuthenticationRequest({ action: 'confirm-identity', username });
 
         setUsername(username);
@@ -151,12 +153,12 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
-    const onSubmitPassword = useCallback(async password => {
+    const onSubmitPassword = useCallback(async (plaintextPassword: string) => {
         const response = await issueAuthenticationRequest({
             action: 'sign-in-password',
             username,
-            password: await SHA256HashPassword(password),
-        });
+            password: await SHA256HashPassword(plaintextPassword),
+        } as SignInPasswordRequest);
 
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
@@ -170,8 +172,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasswordReset = useCallback(async () => {
-        return (await issueAuthenticationRequest({ action: 'password-reset-request', username }))
-            .success;
+        return (await issueAuthenticationRequest(
+            { action: 'password-reset-request', username } as PasswordResetRequestRequest)).success;
 
     }, [ username ]);
 
@@ -201,7 +203,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
                 username,
                 password: await SHA256HashPassword(plaintextPassword),
-            });
+            } as RegistrationRequest);
 
             switch (response.result) {
                 case 'success':
@@ -228,7 +230,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <Dialog open={open} onClose={onRequestClose} sx={kStyles.root} fullWidth>
+        <Dialog open={!!open} onClose={() => onRequestClose()} sx={kStyles.root} fullWidth>
             { authFlowState === 'username' &&
                 <UsernameDialog onClose={onRequestClose}
                                 onSubmit={onSubmitUsername} /> }

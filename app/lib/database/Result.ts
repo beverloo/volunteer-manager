@@ -30,10 +30,10 @@ export class Result {
             if (Array.isArray(queryResult))
                 return new Result(ResultType.Select, queryResult);
 
-            if (typeof queryResult === 'object' && Object.hasOwn(queryResult, 'affectedRows'))
+            if (typeof queryResult === 'object' && Object.hasOwn(queryResult!, 'affectedRows'))
                 return new Result(ResultType.Update, queryResult);
 
-            throw new Error('Unrecognised result from the MySQL library:', queryResult);
+            throw new Error('Unrecognised result from the MySQL library:', queryResult!);
 
         } catch (error) {
             return new Result(ResultType.Error, error);

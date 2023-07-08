@@ -6,8 +6,8 @@ import { sealPasswordResetRequest, unsealPasswordResetRequest } from './Password
 
 import { TextDecoder, TextEncoder } from 'util';
 
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+global.TextEncoder = TextEncoder as any;
+global.TextDecoder = TextDecoder as any;
 
 describe('PasswordReset', () => {
     it('should be able to seal and unseal password requests', async () => {

@@ -18,7 +18,7 @@ type InvalidUserBehaviour = 'ignore' | 'not-found' | 'redirect' | 'request-login
  * A cache used to cache the results of useUser() for a particular request, as identified by the
  * cookies() instance (which NextJS stores in the RequestAsyncStorage).
  */
-const kUserCache = new WeakMap<ReturnType<typeof cookies>, User>();
+const kUserCache = new WeakMap<ReturnType<typeof cookies>, User | undefined>();
 
 /**
  * Returns the User that is signed in for the current page view, or undefined in case they are not

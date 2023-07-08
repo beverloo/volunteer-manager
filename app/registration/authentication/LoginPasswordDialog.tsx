@@ -53,7 +53,7 @@ export function LoginPasswordDialog(props: LoginPasswordDialogProps) {
         try {
             await onSubmit(data.password);
         } catch (error) {
-            setError(error.message);
+            setError((error as any)?.message);
         } finally {
             setLoading(false);
         }

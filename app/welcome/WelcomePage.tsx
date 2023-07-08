@@ -286,7 +286,7 @@ export function WelcomePage(props: WelcomePageProps) {
             </Grid>
             <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
                                 open={authFlowOpen}
-                                passwordResetRequest={searchParams.get('password-reset-request')}
+                                passwordResetRequest={searchParams.get('password-reset-request')!}
                                 user={props.user} />
         </>
     );

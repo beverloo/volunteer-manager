@@ -1,13 +1,17 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import crypto from 'crypto';
 import {
     securePasswordHash,
     securePasswordHashWithSalt,
-    securePasswordHashWithRequest,
-    sha256 } from './Password';
+    securePasswordHashWithRequest } from './Password';
 
 describe('Password', () => {
+    function sha256(input: string): string {
+        return crypto.createHash('sha256').update(input).digest('hex')
+    }
+
     it('is able to derive the salt from the process environment', () => {
         expect(Object.hasOwn(process.env, 'APP_PASSWORD_SALT')).toBeFalsy();
         expect(() => securePasswordHash(sha256('changeme1234'))).toThrow();

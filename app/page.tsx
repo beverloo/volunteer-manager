@@ -11,7 +11,7 @@ import { kEnvironmentTitle } from './Environment';
 import { useUser } from './lib/auth/useUser';
 
 export default async function RootPage() {
-    const user = await useUser('ignore');
+    const user = await useUser('ignore');  // eslint-disable-line
     const events = await getEventsForUser(user);
     const eventDatas = events.map(event => event.toEventData());
 
@@ -23,7 +23,7 @@ export default async function RootPage() {
             <WelcomePage events={eventDatas}
                          user={user?.toUserData()}
                          title={kEnvironmentTitle[environment]}
-                         description={team.description} />
+                         description={team!.description} />
         </RegistrationLayout>
     );
 }

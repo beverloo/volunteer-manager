@@ -37,13 +37,13 @@ interface EventRegistrationPageProps {
  */
 export default async function EventRegistrationPage(props: EventRegistrationPageProps) {
     const environment = getRequestEnvironment();
-    const user = await useUser('ignore');
+    const user = await useUser('ignore');  // eslint-disable-line
 
     const path = props.params.path ?? [];
 
     // Step 1: Attempt to load the requested event based on the |path|. When no (valid) event has
     // been included, the user should be redirected to the homepage of the latest event.
-    const event: Event | undefined = path.length ? await getEventBySlug(path.shift())
+    const event: Event | undefined = path.length ? await getEventBySlug(path.shift()!)
                                                  : undefined;
 
     if (!event || (!event.enableContent && !can(user, Privilege.EventContentOverride))) {

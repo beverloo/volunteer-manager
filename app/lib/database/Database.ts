@@ -30,7 +30,7 @@ export interface DatabaseTestingDelegate {
      * Intercepts execution of the given |query| with the given |parameters|, if any. When this
      * method exists, it must override all queries that are being fed to the method.
      */
-    query?(query: string, parameters?: DatabasePrimitive[]): Promise<Result>;
+    query(query: string, parameters?: DatabasePrimitive[]): Promise<Result>;
 }
 
 /**
@@ -57,7 +57,7 @@ class Database {
 
             config: {
                 host: process.env.APP_DATABASE_SERVER,
-                port: parseInt(process.env.APP_DATABASE_PORT),
+                port: parseInt(process.env.APP_DATABASE_PORT!),
                 user: process.env.APP_DATEBASE_USERNAME,
                 password: process.env.APP_DATABASE_PASSWORD,
                 database: process.env.APP_DATABASE_NAME
@@ -78,6 +78,8 @@ class Database {
      */
     async query(query: string, parameters?: DatabasePrimitive[]) {
         if (this.#delegate) {
+            const delegateResultPromise = this.#delegate.query(query, parameters);
+
             const delegateResult = await this.#delegate.query(query, parameters);
             if (delegateResult)
                 return delegateResult;

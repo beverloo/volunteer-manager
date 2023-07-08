@@ -66,14 +66,14 @@ export abstract class ServiceLog {
     /**
      * Gets or sets the current state in the service log's state machine. May be undefined.
      */
-    protected get state(): ServiceState { return this.#state; }
+    protected get state(): ServiceState | undefined { return this.#state; }
     protected set state(value: ServiceState) { this.#state = value; }
 
     /**
      * Returns the current state in the service log's state machine. May be undefined. Must only be
      * used for testing purposes, other code should not rely on access to the state.
      */
-    get stateForTesting(): ServiceState { return this.#state; }
+    get stateForTesting(): ServiceState | undefined { return this.#state; }
 
     /**
      * Gets or sets the current phase of the service log's state machine.
@@ -84,7 +84,7 @@ export abstract class ServiceLog {
     /**
      * Returns whether execution of the service has completed without errors or exceptions.
      */
-    get success(): boolean { return ['success', 'warning'].includes(this.#state); }
+    get success(): boolean { return ['success', 'warning'].includes(this.#state!); }
 
     /**
      * Returns the exceptions that were thrown during execution of this service. Only available to

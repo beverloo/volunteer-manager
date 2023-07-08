@@ -129,7 +129,7 @@ export class ServiceManager {
             await instance.execute(log, params);
 
         } catch (error) {
-            log.exception(error);
+            log.exception(error as Error);
         }
 
         await log.finishExecution();
