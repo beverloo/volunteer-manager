@@ -4,11 +4,9 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import { type ActionProps, executeAction, setResponseValidationErrorHandler } from './Action';
+import { type ActionProps, executeAction } from './Action';
 
 describe('Action', () => {
-    afterEach(() => setResponseValidationErrorHandler(/* handler= */ undefined));
-
     /**
      * Creates a NextRequest instance based on the given `body`, which will be stored as the request
      * body in a JSON-serialized representation.
@@ -116,23 +114,15 @@ describe('Action', () => {
             return responseValue;
         }
 
-        let error: Error | undefined;
-
-        setResponseValidationErrorHandler(inboundError => {
-            error = inboundError;
-        });
-
         // Case 1: Valid responses are recognised as such.
         {
             responseValue = { first: 'hello!', second: 42 };
-            error = undefined;
 
             const request = createRequest({ /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
             expect(invocationCounter).toBe(1);
-            expect(error).toBeUndefined();
             expect(responseBody.first).toEqual('hello!');
             expect(responseBody.second).toEqual(42);
         }
@@ -140,14 +130,12 @@ describe('Action', () => {
         // Case 2: Optional parameters can be omitted.
         {
             responseValue = { first: 'world!' };
-            error = undefined;
 
             const request = createRequest({ /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
             expect(invocationCounter).toBe(2);
-            expect(error).toBeUndefined();
             expect(responseBody.first).toEqual('world!');
             expect(responseBody.second).toBeUndefined();
         }
@@ -155,40 +143,43 @@ describe('Action', () => {
         // Case 3: Extra parameters will be seen as an error.
         {
             responseValue = { first: 'foobar!', third: 'baz' };
-            error = undefined;
 
             const request = createRequest({ /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
-            const responseBody = await response.json();  // validate that parsing works
+            const responseBody = await response.json();
+
+            expect(responseBody.success).toBeFalsy();
+            expect(responseBody.error).toContain('Unrecognized key');
 
             expect(invocationCounter).toBe(3);
-            expect(error).toBeInstanceOf(Error);
         }
 
         // Case 4: Missing parameters will be seen as an error.
         {
             responseValue = { second: 42 };
-            error = undefined;
 
             const request = createRequest({ /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
-            const responseBody = await response.json();  // validate that parsing works
+            const responseBody = await response.json();
+
+            expect(responseBody.success).toBeFalsy();
+            expect(responseBody.error).toContain('(response/first): Required');
 
             expect(invocationCounter).toBe(4);
-            expect(error).toBeInstanceOf(Error);
         }
 
         // Case 5: Parameters of an invalid type will be seen as an error.
         {
             responseValue = { first: 42 };
-            error = undefined;
 
             const request = createRequest({ /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
-            const responseBody = await response.json();  // validate that parsing works
+            const responseBody = await response.json();
+
+            expect(responseBody.success).toBeFalsy();
+            expect(responseBody.error).toContain('(response/first): Expected string');
 
             expect(invocationCounter).toBe(5);
-            expect(error).toBeInstanceOf(Error);
         }
     });
 });
