@@ -12,14 +12,16 @@ describe('Action', () => {
      * body in a JSON-serialized representation.
      *
      * @param body The request body that should be included.
+     * @param headers The headers to include with the request, if any.
      * @returns A NextRequest instance representing a POST request containing the given body.
      */
-    function createRequest(body: any): NextRequest {
+    function createRequest(body: any, headers?: Headers): NextRequest {
         return new class extends NextRequest {
             set url(value: string) { /* ignore */ }
         }('https://example.com/api', {
             method: 'POST',
             body: JSON.stringify(body),
+            headers,
         });
     }
 
@@ -181,5 +183,45 @@ describe('Action', () => {
 
             expect(invocationCounter).toBe(5);
         }
+    });
+
+    it('is able to provide access to the request and response headers', async () => {
+        const interfaceDefinition = z.object({
+            request: z.object({ /* no input necessary */ }),
+            response: z.object({ /* no response necessary */ }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        let invocationCounter = 0;
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            ++invocationCounter;
+
+            const { requestHeaders, responseHeaders } = props;
+
+            responseHeaders.set('X-Third', 'header');
+
+            for (const [ name, value ] of requestHeaders.entries())
+                responseHeaders.set(name, 'says ' + value);
+
+            return { /* empty response */ };
+        }
+
+        const requestHeaders = new Headers([
+            [ 'X-First', '1' ],
+            [ 'X-Second', 'banana' ],
+        ]);
+
+        const request = createRequest({ /* no payload */ }, requestHeaders);
+        const response = await executeAction(request, interfaceDefinition, MyAction);
+        const responseBody = await response.json();
+
+        expect(invocationCounter).toEqual(1);
+        expect(responseBody).toEqual({ /* empty response */ });
+        expect(response.headers.get('X-First')).toEqual('says 1');
+        expect(response.headers.get('X-Second')).toEqual('says banana');
+        expect(response.headers.get('X-Third')).toEqual('header');
     });
 });

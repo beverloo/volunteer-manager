@@ -9,7 +9,15 @@ import type { ZodObject, ZodRawShape, z } from 'zod';
  * state, such as understanding who the signed in user is and getting or setting headers.
  */
 export interface ActionProps {
-    // TODO: Additional properties.
+    /**
+     * Provides access to the request headers. Contents are provided by the client, thus unverified.
+     */
+    requestHeaders: Headers;
+
+    /**
+     * Provides access to the response headers. Will be set directly on the resulting NextResponse.
+     */
+    responseHeaders: Headers;
 }
 
 /**
@@ -58,10 +66,20 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             });
         }
 
-        const response = await action(result.data as any, { /* props */ });
+        const responseHeaders = new Headers();
+        const response = await action(result.data as any, {
+            requestHeaders: request.headers,
+            responseHeaders,
+        });
+
         const responseValidation = responseInterfaceDefinition.safeParse({ response });
-        if (responseValidation.success)
-            return createResponse(200, (responseValidation.data as any).response);
+        if (responseValidation.success) {
+            const nextResponse = createResponse(200, (responseValidation.data as any).response);
+            for (const [ name, value ] of responseHeaders)
+                nextResponse.headers.append(name, value);
+
+            return nextResponse;
+        }
 
         const issues = [];
         for (const { message, path } of responseValidation.error.issues)
