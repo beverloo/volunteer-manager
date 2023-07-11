@@ -1,12 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import { type ActionProps, executeAction } from './Action';
+import { type ActionProps, executeAction, setResponseValidationErrorHandler } from './Action';
 
 describe('Action', () => {
+    afterEach(() => setResponseValidationErrorHandler(/* handler= */ undefined));
+
     /**
      * Creates a NextRequest instance based on the given `body`, which will be stored as the request
      * body in a JSON-serialized representation.
@@ -24,18 +26,18 @@ describe('Action', () => {
     }
 
     it('is able to validate properties stored in the incoming request', async () => {
-        let invocationCounter = 0;
-
         const interfaceDefinition = z.object({
             request: z.object({
                 first: z.string(),
                 second: z.number().optional(),
             }),
-            response: z.object({ success: z.boolean() }),
+            response: z.strictObject({ success: z.boolean() }),
         });
 
         type RequestType = z.infer<typeof interfaceDefinition>['request'];
         type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        let invocationCounter = 0;
 
         async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
             ++invocationCounter;
@@ -91,6 +93,102 @@ describe('Action', () => {
 
             expect(invocationCounter).toBe(3);
             expect(responseBody.success).toBeFalsy();
+        }
+    });
+
+    it('validates the action return value prior to sending it to the client', async () => {
+        const interfaceDefinition = z.object({
+            request: z.object({ /* no input necessary */ }),
+            response: z.strictObject({
+                first: z.string(),
+                second: z.number().optional(),
+            }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        let invocationCounter = 0;
+        let responseValue: any;
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            ++invocationCounter;
+            return responseValue;
+        }
+
+        let error: Error | undefined;
+
+        setResponseValidationErrorHandler(inboundError => {
+            error = inboundError;
+        });
+
+        // Case 1: Valid responses are recognised as such.
+        {
+            responseValue = { first: 'hello!', second: 42 };
+            error = undefined;
+
+            const request = createRequest({ /* no payload */ });
+            const response = await executeAction(request, interfaceDefinition, MyAction);
+            const responseBody = await response.json();
+
+            expect(invocationCounter).toBe(1);
+            expect(error).toBeUndefined();
+            expect(responseBody.first).toEqual('hello!');
+            expect(responseBody.second).toEqual(42);
+        }
+
+        // Case 2: Optional parameters can be omitted.
+        {
+            responseValue = { first: 'world!' };
+            error = undefined;
+
+            const request = createRequest({ /* no payload */ });
+            const response = await executeAction(request, interfaceDefinition, MyAction);
+            const responseBody = await response.json();
+
+            expect(invocationCounter).toBe(2);
+            expect(error).toBeUndefined();
+            expect(responseBody.first).toEqual('world!');
+            expect(responseBody.second).toBeUndefined();
+        }
+
+        // Case 3: Extra parameters will be seen as an error.
+        {
+            responseValue = { first: 'foobar!', third: 'baz' };
+            error = undefined;
+
+            const request = createRequest({ /* no payload */ });
+            const response = await executeAction(request, interfaceDefinition, MyAction);
+            const responseBody = await response.json();  // validate that parsing works
+
+            expect(invocationCounter).toBe(3);
+            expect(error).toBeInstanceOf(Error);
+        }
+
+        // Case 4: Missing parameters will be seen as an error.
+        {
+            responseValue = { second: 42 };
+            error = undefined;
+
+            const request = createRequest({ /* no payload */ });
+            const response = await executeAction(request, interfaceDefinition, MyAction);
+            const responseBody = await response.json();  // validate that parsing works
+
+            expect(invocationCounter).toBe(4);
+            expect(error).toBeInstanceOf(Error);
+        }
+
+        // Case 5: Parameters of an invalid type will be seen as an error.
+        {
+            responseValue = { first: 42 };
+            error = undefined;
+
+            const request = createRequest({ /* no payload */ });
+            const response = await executeAction(request, interfaceDefinition, MyAction);
+            const responseBody = await response.json();  // validate that parsing works
+
+            expect(invocationCounter).toBe(5);
+            expect(error).toBeInstanceOf(Error);
         }
     });
 });

@@ -34,6 +34,17 @@ function createResponse(status: number, payload: any): NextResponse {
 }
 
 /**
+ * Type for the handling function of response validation errors.
+ */
+type ResponseValidationErrorHandler = (error: Error) => void;
+
+/**
+ * The global response validation error handler. Will be invoked whenever validation of the response
+ * value from an Action fails. Errors will be thrown instead when this is set to `undefined`.
+ */
+let globalResponseValidationErrorHandler: ResponseValidationErrorHandler | undefined;
+
+/**
  * Executes the given `action` for the given `request`, which should validate according to the given
  * `interfaceDefinition`. Both the input coming from the request and the output coming from the
  * action will be validated according to the defined scheme.
@@ -59,16 +70,33 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         }
 
         const response = await action(result.data as any, { /* props */ });
-        const responseValidation = responseInterfaceDefinition.safeParse(response);
-        if (!responseValidation.success) {
-            // TODO: Capture an error.
-        }
+        const responseValidation = responseInterfaceDefinition.safeParse({ response });
+        if (responseValidation.success)
+            return createResponse(200, (responseValidation.data as any).response);
 
+        const responseValidationError =
+            new Error(`Action response validation failed: ${responseValidation.error}`);
+
+        if (!globalResponseValidationErrorHandler)
+            throw responseValidationError;
+
+        globalResponseValidationErrorHandler(responseValidationError);
         return createResponse(200, response);
+
     } catch (error: any) {
         return createResponse(500, {
             success: false,
             error: `The server was not able to handle the request. (${error.message})`,
         });
     }
+}
+
+/**
+ * Sets the handling function that's responsible for dealing with response validation errors to
+ * the given `handler`. When no handler is set, an exception will be thrown instead.
+ *
+ * @param handler The error handling function that should be executed when response validation fails
+ */
+export function setResponseValidationErrorHandler(handler?: ResponseValidationErrorHandler): void {
+    globalResponseValidationErrorHandler = handler;
 }
