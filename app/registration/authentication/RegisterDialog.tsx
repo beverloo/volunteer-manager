@@ -20,7 +20,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
-import { type RegistrationRequest } from '../AuthenticationRequest';
+import { type RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
 import Link from 'next/link';
 
@@ -38,7 +38,7 @@ const kGenderOptions = [
  * the server in order to finalize a user's registration.
  */
 export type PartialRegistrationRequest =
-    Omit<RegistrationRequest, 'action' | 'username' | 'password'>;
+    Omit<RegisterDefinition['request'], 'username' | 'password'>;
 
 /**
  * Props accepted by the <RegisterDialog> component.
@@ -76,7 +76,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
         const { password, ...rest } = data;
 
         try {
-            await onSubmit(password, rest as RegistrationRequest);
+            await onSubmit(password, rest as PartialRegistrationRequest);
         } catch (error) {
             setError((error as any)?.message);
         } finally {

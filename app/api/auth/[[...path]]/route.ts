@@ -8,6 +8,7 @@ import { confirmIdentity, kConfirmIdentityDefinition } from '../confirmIdentity'
 import { passwordReset, kPasswordResetDefinition } from '../passwordReset';
 import { passwordResetRequest, kPasswordResetRequestDefinition } from '../passwordResetRequest';
 import { passwordResetVerify, kPasswordResetVerifyDefinition } from '../passwordResetVerify';
+import { register, kRegisterDefinition } from '../register';
 import { signInPassword, kSignInPasswordDefinition } from '../signInPassword';
 import { signOut, kSignOutDefinition } from '../signOut';
 
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kPasswordResetRequestDefinition, passwordResetRequest);
         case 'password-reset-verify':
             return executeAction(request, kPasswordResetVerifyDefinition, passwordResetVerify);
+        case 'register':
+            return executeAction(request, kRegisterDefinition, register);
         case 'sign-in-password':
             return executeAction(request, kSignInPasswordDefinition, signInPassword);
         case 'sign-out':

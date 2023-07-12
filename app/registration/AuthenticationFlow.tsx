@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
-import type { RegistrationRequest } from './AuthenticationRequest';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -16,12 +15,12 @@ import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog, type PartialRegistrationRequest } from './authentication/RegisterDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
-import { issueAuthenticationRequest } from './AuthenticationRequest';
 import { validatePassword } from './authentication/PasswordField';
 
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
+import type { RegisterDefinition } from '@app/api/auth/register';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
 
@@ -234,22 +233,15 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         = useCallback(async (plaintextPassword: string, request: PartialRegistrationRequest) =>
         {
             validatePassword(plaintextPassword, /* throwOnFailure= */ true);
-            const response = await issueAuthenticationRequest({
-                action: 'registration',
+            const response = await issueServerAction<RegisterDefinition>('/api/auth/register', {
                 ...request,
 
-                username,
+                username: username!,
                 password: await SHA256HashPassword(plaintextPassword),
-            } as RegistrationRequest);
+            });
 
-            switch (response.result) {
-                case 'success':
-                    // Success - fall through, a confirmation page will be shown.
-                    break;
-
-                default:
-                    throw new Error('The server was not able to create an account.');
-            }
+            if (!response.success)
+                throw new Error('The server was not able to create an account.');
 
         }, [ username ]);
 

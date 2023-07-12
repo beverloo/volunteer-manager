@@ -30,7 +30,7 @@ export function securePasswordHash(sha256Password: string): string {
  * @return A promise that will be returned once the password has been hashed.
  */
 export function securePasswordHashWithSalt(sha256Password: string, salt: string): string {
-    if (sha256Password.length === /* length of a sha256 encoded string= */ 64)
+    if (sha256Password.length !== /* length of a sha256 encoded string= */ 64)
         throw new Error('The given password must be a SHA256 hash already.');
 
     return securePasswordHashWithRequest({ sha256Password, salt });
