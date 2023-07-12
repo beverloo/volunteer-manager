@@ -7,8 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
-import type { PasswordResetRequestRequest, RegistrationRequest,
-    SignInPasswordRequest } from './AuthenticationRequest';
+import type { RegistrationRequest, SignInPasswordRequest } from './AuthenticationRequest';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -21,6 +20,9 @@ import { issueAuthenticationRequest } from './AuthenticationRequest';
 import { validatePassword } from './authentication/PasswordField';
 
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
+import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
+import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
+import type { PasswordResetVerifyDefinition } from '@app/api/auth/passwordResetVerify';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -59,7 +61,7 @@ type ServerCallDefinition = { request: object; response: object; };
  * @param request Request information that should be included in the request.
  * @returns Response from the server, unverified but assumed to be correct for now.
  */
-async function issueServerAction<T extends ServerCallDefinition>(
+export async function issueServerAction<T extends ServerCallDefinition>(
     endpoint: string, request: T['request'])
         : Promise<T['response']>
 {
@@ -204,19 +206,21 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasswordReset = useCallback(async () => {
-        return (await issueAuthenticationRequest(
-            { action: 'password-reset-request', username } as PasswordResetRequestRequest)).success;
+        const response = await issueServerAction<PasswordResetRequestDefinition>(
+            '/api/auth/password-reset-request', { username: username! });
+
+        return response.success;
 
     }, [ username ]);
 
     const onPasswordReset = useCallback(async (request: string, plaintextPassword: string) => {
         validatePassword(plaintextPassword, /* throwOnFailure= */ true);
 
-        const response = await issueAuthenticationRequest({
-            action: 'password-reset',
-            password: await SHA256HashPassword(plaintextPassword),
-            request,
-        });
+        const response = await issueServerAction<PasswordResetDefinition>(
+            '/api/auth/password-reset', {
+                password: await SHA256HashPassword(plaintextPassword),
+                request,
+            });
 
         return response.success;
 

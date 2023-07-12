@@ -2,9 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest, NextResponse } from 'next/server';
+import { executeAction } from '../../Action';
 
 import { confirmIdentity, kConfirmIdentityDefinition } from '../confirmIdentity';
-import { executeAction } from '../../Action';
+import { passwordReset, kPasswordResetDefinition } from '../passwordReset';
+import { passwordResetRequest, kPasswordResetRequestDefinition } from '../passwordResetRequest';
+import { passwordResetVerify, kPasswordResetVerifyDefinition } from '../passwordResetVerify';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -20,6 +23,13 @@ export async function POST(nextRequest: NextRequest, { params }: RouteParams): P
     switch (action) {
         case 'confirm-identity':
             return executeAction(nextRequest, kConfirmIdentityDefinition, confirmIdentity);
+        case 'password-reset':
+            return executeAction(nextRequest, kPasswordResetDefinition, passwordReset);
+        case 'password-reset-request':
+            return executeAction(
+                nextRequest, kPasswordResetRequestDefinition, passwordResetRequest);
+        case 'password-reset-verify':
+            return executeAction(nextRequest, kPasswordResetVerifyDefinition, passwordResetVerify);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });
