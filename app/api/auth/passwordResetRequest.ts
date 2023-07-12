@@ -49,7 +49,7 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
 
         // TODO: Send an actual e-mail. For now we include the link as a response header.
         props.responseHeaders.set(
-            'X-Password-Reset-Link', `${origin}/?password-reset-request=${passwordResetRequest}`);
+            'X-Password-Link', `${props.origin}/?password-reset-request=${passwordResetRequest}`);
 
         return { success: true };
     }

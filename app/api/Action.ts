@@ -13,6 +13,11 @@ import { getUserFromHeaders } from '@app/lib/auth/getUser';
  */
 export interface ActionProps {
     /**
+     * Origin of the server to which the request has been issued. (https://example.com).
+     */
+    origin: string;
+
+    /**
      * Provides access to the request headers. Contents are provided by the client, thus unverified.
      */
     requestHeaders: Headers;
@@ -81,6 +86,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
 
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {
+            origin: request.nextUrl.origin,
             requestHeaders: request.headers,
             responseHeaders,
             user: await getUserFromHeaders(request.headers),

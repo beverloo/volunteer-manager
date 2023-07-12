@@ -7,7 +7,6 @@ import type { ActionProps } from '../Action';
 
 import { authenticateUserFromSession } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
-import { validatePasswordLength } from '@lib/auth/Password';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
@@ -18,7 +17,7 @@ export const kPasswordResetDefinition = z.object({
         /**
          * The new password that the user would like to store. Must already be sha256 hashed.
          */
-        password: z.string().length(65),
+        password: z.string().length(64),
 
         /**
          * The sealed password reset request that the server should consider.
@@ -46,7 +45,7 @@ type Response = PasswordResetDefinition['response'];
  */
 export async function passwordReset(request: Request, props: ActionProps): Promise<Response> {
     const passwordResetRequest = await unsealPasswordResetRequest(request.request);
-    if (passwordResetRequest && validatePasswordLength(request.password)) {
+    if (passwordResetRequest) {
         const user = await authenticateUserFromSession(passwordResetRequest);
 
         if (user) {
