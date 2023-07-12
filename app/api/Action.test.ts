@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 import { serialize } from 'cookie';
 import { z } from 'zod';
 
-import { type ActionProps, executeAction } from './Action';
+import { type ActionProps, executeAction, noAccess } from './Action';
 import { type DatabasePrimitive, DatabaseTestingDelegate, kDatabase } from '@lib/database/Database';
 import { type User, type UserDatabaseRow } from '@lib/auth/User';
 import { Result } from '@lib/database/Result';
@@ -283,4 +283,25 @@ describe('Action', () => {
         expect(user?.firstName).toEqual('Joe');
         expect(user?.lastName).toEqual('Example');
     });
+
+    it('is able to easily issue no access (403) errors', async () => {
+        const interfaceDefinition = z.object({
+            request: z.object({ /* no input necessary */ }),
+            response: z.object({ /* no response necessary */ }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            noAccess();
+        }
+
+        const request = createRequest({ /* no payload */ });
+        const response = await executeAction(request, interfaceDefinition, MyAction);
+
+        expect(response.ok).toBeFalsy();
+        expect(response.status).toBe(403);
+    });
+
 });

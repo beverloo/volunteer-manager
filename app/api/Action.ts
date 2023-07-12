@@ -40,6 +40,11 @@ export type Action<T extends ZodObject<ZodRawShape, any, any>> =
     (request: z.infer<T>['request'], props: ActionProps) => Promise<z.infer<T>['response']>;
 
 /**
+ * Error thrown when an HTTP 403 No Access response should be returned instead.
+ */
+class NoAccessError extends Error {}
+
+/**
  * Creates a response for the given `status` and `payload`. Necessary as the Jest test environment
  * does not provide the latest Response.json() static method yet.
  */
@@ -97,9 +102,20 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         throw new Error(`Action response validation failed (${issues})`);
 
     } catch (error: any) {
+        if (error instanceof NoAccessError)
+            return createResponse(403, { success: false });
+
         return createResponse(500, {
             success: false,
             error: `The server was not able to handle the request: ${error.message}`,
         });
     }
+}
+
+/**
+ * Aborts execution of the rest of the Action, and completes the API call with an HTTP 403 Forbidden
+ * response instead.
+ */
+export function noAccess(): never {
+    throw new NoAccessError;
 }
