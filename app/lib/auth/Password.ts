@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { syncScrypt } from 'scrypt-js';
-import { default as simpleSHA256 } from 'simple-sha256';
 
 /**
  * Securely hashes the given |sha256Password|, considering the application's salt, so that it's
@@ -31,17 +30,10 @@ export function securePasswordHash(sha256Password: string): string {
  * @return A promise that will be returned once the password has been hashed.
  */
 export function securePasswordHashWithSalt(sha256Password: string, salt: string): string {
-    if (!validatePasswordLength(sha256Password))
+    if (sha256Password.length === /* length of a sha256 encoded string= */ 64)
         throw new Error('The given password must be a SHA256 hash already.');
 
     return securePasswordHashWithRequest({ sha256Password, salt });
-}
-
-/**
- * Validates whether the given |sha256Password| has the expected length.
- */
-export function validatePasswordLength(sha256Password: string): boolean {
-    return sha256Password.length === /* length of a sha256 encoded string= */ 64;
 }
 
 /**

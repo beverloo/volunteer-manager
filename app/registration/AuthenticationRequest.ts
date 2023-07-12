@@ -62,59 +62,14 @@ export interface RegistrationResponse {
 }
 
 /**
- * Request format for an API call to the authentication endpoint requesting a sign in.
- */
-export interface SignInPasswordRequest {
-    /**
-     * The "action" must be set to sign-in-password.
-     */
-    action: 'sign-in-password';
-
-    /**
-     * The username whom is attempting to sign in to their account.
-     */
-    username: string;
-
-    /**
-     * The password associated with that account, SHA256 hashed.
-     */
-    password: string;
-}
-
-/**
- * Response format from an API call to the authentication endpoint attempting a sign in.
- */
-export interface SignInPasswordResponse {
-    /**
-     * Whether the sign in attempt was successful.
-     */
-    success: boolean;
-}
-
-/**
- * Request format for an API call to the authentication endpoint requesting a sign out.
- */
-export interface SignOutRequest {
-    /**
-     * The "action" must be set to sign-out.
-     */
-    action: 'sign-out';
-}
-
-/**
- * Response format from an API call to the authentication endpoint attempting a sign out.
- */
-export interface SignOutResponse { /* no values */ }
-
-/**
  * All valid interfaces for requests, used for the `issueAuthenticationRequest` implementation.
  */
-type RequestTypes = RegistrationRequest | SignInPasswordRequest | SignOutRequest;
+type RequestTypes = RegistrationRequest;
 
 /**
  * All valid interfaces for responses, used for the `issueAuthenticationRequest` implementation.
  */
-type ResponseTypes = RegistrationResponse | SignInPasswordResponse | SignOutResponse;
+type ResponseTypes = RegistrationResponse;
 
 /**
  * Requests an account with the given `request` to be created on the server. The response indicates
@@ -126,25 +81,6 @@ type ResponseTypes = RegistrationResponse | SignInPasswordResponse | SignOutResp
  */
 export async function issueAuthenticationRequest(request: RegistrationRequest)
         : Promise<RegistrationResponse>;
-
-/**
- * Issues an authentication request to sign in the username and password in `request`. When this
- * is successful, a response will be returned that carries the identity cookie.
- *
- * @param request The `{ username, password }` for whom a sign in should be attempted.
- * @returns Whether the sign in attempt was successful.
- */
-export async function issueAuthenticationRequest(request: SignInPasswordRequest)
-        : Promise<SignInPasswordResponse>;
-
-/**
- * Issues an authentication request to sign out from the account that's currently signed in. This
- * involves HTTP-only cookies that should be destroyed by the server.
- *
- * @param request The action that the server is requested to take.
- * @response Nothing of use.
- */
-export async function issueAuthenticationRequest(request: SignOutRequest): Promise<SignOutResponse>;
 
 /**
  * Implementation of the various `issueAuthenticationRequest` overloads.

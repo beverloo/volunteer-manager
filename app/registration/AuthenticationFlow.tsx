@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
-import type { RegistrationRequest, SignInPasswordRequest } from './AuthenticationRequest';
+import type { RegistrationRequest } from './AuthenticationRequest';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -22,7 +22,8 @@ import { validatePassword } from './authentication/PasswordField';
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
-import type { PasswordResetVerifyDefinition } from '@app/api/auth/passwordResetVerify';
+import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
+import type { SignOutDefinition } from '@app/api/auth/signOut';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -188,11 +189,11 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
     const onSubmitPassword = useCallback(async (plaintextPassword: string) => {
-        const response = await issueAuthenticationRequest({
-            action: 'sign-in-password',
-            username,
-            password: await SHA256HashPassword(plaintextPassword),
-        } as SignInPasswordRequest);
+        const response = await issueServerAction<SignInPasswordDefinition>(
+            '/api/auth/sign-in-password', {
+                username: username!,
+                password: await SHA256HashPassword(plaintextPassword),
+            });
 
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
@@ -256,7 +257,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
     const onRequestSignOut = useCallback(async () => {
-        await issueAuthenticationRequest({ action: 'sign-out' });
+        await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { /* no parameters */ });
 
         router.refresh();
         onRequestClose(/* forceState= */ 'username');
