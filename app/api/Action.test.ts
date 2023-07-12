@@ -48,9 +48,11 @@ describe('Action', () => {
         type ResponseType = z.infer<typeof interfaceDefinition>['response'];
 
         let invocationCounter = 0;
+        let latestRequest: RequestType | undefined;
 
         async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
-            ++invocationCounter;
+            invocationCounter++;
+            latestRequest = request;
 
             return { success: true };
         }
@@ -63,6 +65,10 @@ describe('Action', () => {
 
             expect(invocationCounter).toBe(1);
             expect(responseBody.success).toBeTruthy();
+
+            expect(latestRequest).not.toBeUndefined();
+            expect(latestRequest?.first).toEqual('foo');
+            expect(latestRequest?.second).toEqual(42);
         }
 
         // Case 2: Optional parameters can be omitted.
@@ -303,5 +309,4 @@ describe('Action', () => {
         expect(response.ok).toBeFalsy();
         expect(response.status).toBe(403);
     });
-
 });

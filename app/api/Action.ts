@@ -80,7 +80,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         }
 
         const responseHeaders = new Headers();
-        const response = await action(result.data as any, {
+        const response = await action((result.data as any).request, {
             requestHeaders: request.headers,
             responseHeaders,
             user: await getUserFromHeaders(request.headers),

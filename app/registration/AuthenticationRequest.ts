@@ -2,33 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
- * Request format for an API call to the authentication endpoint requesting someone's identity.
- */
-export interface ConfirmIdentityRequest {
-    /**
-     * The "action" must be set to confirm-identity.
-     */
-    action: 'confirm-identity';
-
-    /**
-     * The username for whom the associated identity should be found.
-     */
-    username: string;
-}
-
-/**
- * Response format from an API call to the authentication endpoint carrying someone's identity.
- */
-export interface ConfirmIdentityResponse {
-    /**
-     * Whether the identify for the requested user could be found.
-     */
-    success: boolean;
-
-    // TODO: WebAuthn information.
-}
-
-/**
  * API request that should be issued when the user has gone through the password reset flow, clicked
  * on the link in their e-mail and chose a valid new password. Now we only need to store it.
  */
@@ -224,26 +197,15 @@ export interface SignOutResponse { /* no values */ }
  * All valid interfaces for requests, used for the `issueAuthenticationRequest` implementation.
  */
 type RequestTypes =
-    ConfirmIdentityRequest | PasswordResetRequest | PasswordResetRequestRequest |
+    PasswordResetRequest | PasswordResetRequestRequest |
     PasswordResetVerifyRequest | RegistrationRequest | SignInPasswordRequest | SignOutRequest;
 
 /**
  * All valid interfaces for responses, used for the `issueAuthenticationRequest` implementation.
  */
 type ResponseTypes =
-    ConfirmIdentityResponse | PasswordResetResponse | PasswordResetRequestResponse |
+    PasswordResetResponse | PasswordResetRequestResponse |
     PasswordResetVerifyResponse | RegistrationResponse | SignInPasswordResponse | SignOutResponse;
-
-/**
- * Issues an authentication request to validate whether the username in `request` has a known
- * account. If so, the associated credential identity will be returned, allowing the user to sign in
- * using either their passkey or with their password.
- *
- * @param request The `{ username }` for whom the identity should be checked.
- * @returns Whether there is a user with this identity, and if so, their credential identities.
- */
-export async function issueAuthenticationRequest(request: ConfirmIdentityRequest)
-        : Promise<ConfirmIdentityResponse>;
 
 /**
  * Issues an authentication request with the intention to instate a new password for the user. This
