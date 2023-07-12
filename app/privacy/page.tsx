@@ -7,7 +7,7 @@ import { RegistrationContent } from '../registration/RegistrationContent';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { getRequestEnvironment } from '@lib/getRequestEnvironment';
 import { getStaticContent } from '@lib/Content';
-import { useUser } from '@lib/auth/useUser';
+import { getUser } from '@lib/auth/getUser';
 
 /**
  * Root component for the /private page, which lists the GDPR and data collection policies of the
@@ -16,7 +16,7 @@ import { useUser } from '@lib/auth/useUser';
  */
 export default async function PrivacyPage() {
     const environment = getRequestEnvironment();
-    const user = await useUser('ignore');  // eslint-disable-line
+    const user = await getUser();
 
     const content = await getStaticContent([ 'privacy' ]);
     if (!content)

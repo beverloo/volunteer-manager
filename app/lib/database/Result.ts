@@ -55,7 +55,7 @@ export class Result {
      * Creates a new Result instance representing the (successful) results of a SELECT query. Must
      * only be used for testing.
      */
-    static createSelectForTesting(rows: Array<{ [key: string]: any }>) {
+    static createSelectForTesting<T = { [key: string]: any }>(rows: T[]) {
         return new Result(ResultType.Select, rows);
     }
 

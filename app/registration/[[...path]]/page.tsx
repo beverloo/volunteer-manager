@@ -11,7 +11,7 @@ import { RegistrationLayout } from '../RegistrationLayout';
 import { getContent } from '@lib/Content';
 import { getEventBySlug, getEventsForUser } from '@lib/EventLoader';
 import { getRequestEnvironment } from '@lib/getRequestEnvironment';
-import { useUser } from '@lib/auth/useUser';
+import { getUser } from '@lib/auth/getUser';
 
 /**
  * Properties accepted by the <EventRegistrationPage> server component.
@@ -37,7 +37,7 @@ interface EventRegistrationPageProps {
  */
 export default async function EventRegistrationPage(props: EventRegistrationPageProps) {
     const environment = getRequestEnvironment();
-    const user = await useUser('ignore');  // eslint-disable-line
+    const user = await getUser();
 
     const path = props.params.path ?? [];
 

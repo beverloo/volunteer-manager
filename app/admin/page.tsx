@@ -4,10 +4,10 @@
 import { type Metadata } from 'next';
 import { headers } from 'next/headers';
 
-import { useUser } from '../lib/auth/useUser';
+import { requireUser } from '../lib/auth/getUser';
 
 export default async function AdminPage() {
-    const user = await useUser('request-login');
+    const user = await requireUser();
 
     return (
         <p>

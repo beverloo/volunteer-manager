@@ -78,8 +78,6 @@ class Database {
      */
     async query(query: string, parameters?: DatabasePrimitive[]) {
         if (this.#delegate) {
-            const delegateResultPromise = this.#delegate.query(query, parameters);
-
             const delegateResult = await this.#delegate.query(query, parameters);
             if (delegateResult)
                 return delegateResult;

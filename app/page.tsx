@@ -7,11 +7,11 @@ import { RegistrationLayout } from './registration/RegistrationLayout';
 import { getEventsForUser } from './lib/EventLoader';
 import { getRequestEnvironment } from './lib/getRequestEnvironment';
 import { getTeamInformationForEnvironment } from './lib/Content';
+import { getUser } from './lib/auth/getUser';
 import { kEnvironmentTitle } from './Environment';
-import { useUser } from './lib/auth/useUser';
 
 export default async function RootPage() {
-    const user = await useUser('ignore');  // eslint-disable-line
+    const user = await getUser();
     const events = await getEventsForUser(user);
     const eventDatas = events.map(event => event.toEventData());
 

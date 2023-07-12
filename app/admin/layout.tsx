@@ -5,14 +5,14 @@ import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
 import { AdminSidebar } from './AdminSidebar';
 
-import { useUser } from '../lib/auth/useUser';
+import { requireUser } from '../lib/auth/getUser';
 
 /**
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function RootAdminLayout(props: any) {
-    const user = await useUser('ignore');  // eslint-disable-line
+    const user = await requireUser();
 
     return (
         <AdminLayout header={ <AdminHeader /> }
