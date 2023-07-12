@@ -4,6 +4,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { ZodObject, ZodRawShape, z } from 'zod';
 
+import { type User } from '@app/lib/auth/User';
+import { getUserFromHeaders } from '@app/lib/auth/getUser';
+
 /**
  * Additional properties made available to actions that allow actions to use or manipulate lasting
  * state, such as understanding who the signed in user is and getting or setting headers.
@@ -18,6 +21,11 @@ export interface ActionProps {
      * Provides access to the response headers. Will be set directly on the resulting NextResponse.
      */
     responseHeaders: Headers;
+
+    /**
+     * The user for whom the request is being made, if any.
+     */
+    user?: User;
 }
 
 /**
@@ -70,6 +78,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         const response = await action(result.data as any, {
             requestHeaders: request.headers,
             responseHeaders,
+            user: await getUserFromHeaders(request.headers),
         });
 
         const responseValidation = responseInterfaceDefinition.safeParse({ response });

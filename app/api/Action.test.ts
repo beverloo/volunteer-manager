@@ -2,9 +2,19 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { serialize } from 'cookie';
 import { z } from 'zod';
 
 import { type ActionProps, executeAction } from './Action';
+import { type DatabasePrimitive, DatabaseTestingDelegate, kDatabase } from '@lib/database/Database';
+import { type User, type UserDatabaseRow } from '@lib/auth/User';
+import { Result } from '@lib/database/Result';
+import { kSessionCookieName, sealSession } from '@lib/auth/Session';
+
+import { TextDecoder, TextEncoder } from 'util';
+
+global.TextEncoder = TextEncoder as any;
+global.TextDecoder = TextDecoder as any;
 
 describe('Action', () => {
     /**
@@ -223,5 +233,54 @@ describe('Action', () => {
         expect(response.headers.get('X-First')).toEqual('says 1');
         expect(response.headers.get('X-Second')).toEqual('says banana');
         expect(response.headers.get('X-Third')).toEqual('header');
+    });
+
+    it('is able to automatically identify the user from the Action call', async () => {
+        const sealedSession = await sealSession({ id: 42, token: 9001 });
+        const sealedCookie = serialize(kSessionCookieName, sealedSession, { httpOnly: true });
+        const headers = new Headers([ ['Cookie', sealedCookie ] ]);
+
+        // Intercepts the authentication SQL query that will be fired in order to validate the
+        // information contained within the session data.
+        kDatabase.setDelegateForTesting(new class implements DatabaseTestingDelegate {
+            async query(query: string, parameters?: DatabasePrimitive[]): Promise<Result> {
+                return Result.createSelectForTesting<UserDatabaseRow>([{
+                    user_id: 42,
+                    username: 'joe@example.com',
+                    first_name: 'Joe',
+                    last_name: 'Example',
+                    gender: 'Male',
+                    birthdate: '2023-07-12',
+                    phone_number: '+440000000000',
+                    privileges: 0,
+                    session_token: 9001,
+                }]);
+            }
+        });
+
+        const interfaceDefinition = z.object({
+            request: z.object({ /* no input necessary */ }),
+            response: z.object({ /* no response necessary */ }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        let user: User | undefined;
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            user = props.user;
+            return { /* empty response */ };
+        }
+
+        const request = createRequest({ /* no payload */ }, headers);
+        const response = await executeAction(request, interfaceDefinition, MyAction);
+
+        await expect(response.json()).resolves.toEqual({ /* empty response */ });
+
+        expect(user).not.toBeUndefined();
+        expect(user?.username).toEqual('joe@example.com');
+        expect(user?.firstName).toEqual('Joe');
+        expect(user?.lastName).toEqual('Example');
     });
 });
