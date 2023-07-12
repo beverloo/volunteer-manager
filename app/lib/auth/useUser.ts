@@ -7,7 +7,7 @@ import { notFound, redirect } from 'next/navigation';
 import { type User } from './User';
 import { authenticateUserFromSession } from './Authentication';
 import { getRequestPath } from '../getRequestPath';
-import { useSession } from './useSession';
+import { getSessionFromCookieStore } from './getSession';
 
 /**
  * Valid behaviours that can be specified when using useUser().
@@ -70,7 +70,7 @@ export async function useUser(behaviour?: InvalidUserBehaviour, behaviourParam?:
     if (kUserCache.has(requestIdentifier))
         return kUserCache.get(requestIdentifier);
 
-    const session = await useSession(/* behaviour= */ 'ignore');  // eslint-disable-line
+    const session = await getSessionFromCookieStore(cookies());
     if (session) {
         const user = await authenticateUserFromSession(session);
         kUserCache.set(requestIdentifier, user);
