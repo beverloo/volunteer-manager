@@ -10,6 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import type { UserData } from '@lib/auth/UserData';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
+import { LoginPasswordUpdateDialog } from './authentication/LoginPasswordUpdateDialog';
 import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
@@ -22,6 +23,7 @@ import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
 import type { RegisterDefinition } from '@app/api/auth/register';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
+import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
 
 /**
@@ -90,7 +92,7 @@ type AuthenticationFlowState =
     // TODO
 
     // (2b) There exists a user with the given username, but no passkey credentials.
-    'login-password' |
+    'login-password' | 'login-password-update' |
 
     // (2c) There exists a user with the given username, but the user has lost their credentials.
     'lost-password' | 'lost-password-reset' | 'lost-password-complete' |
@@ -150,6 +152,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                                      : 'username');
 
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
+    const [ passwordUpdateToken, setPasswordUpdateToken ] = useState<string>();
     const [ username, setUsername ] = useState<string>();
 
     // ---------------------------------------------------------------------------------------------
@@ -183,7 +186,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, []);
 
     // ---------------------------------------------------------------------------------------------
-    // Supporting callbacks for the 'login-password' state:
+    // Supporting callbacks for the 'login-password' and 'login-password-update' state:
     // ---------------------------------------------------------------------------------------------
     const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
@@ -197,10 +200,34 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
 
+        // The server can require the user to update their password, in which case they will not be
+        // logged in just yet. Advance them to the update page when this is the case.
+        if (response.requiredPasswordUpdateToken) {
+            setAuthFlowState('login-password-update');
+            setPasswordUpdateToken(response.requiredPasswordUpdateToken);
+            return;
+        }
+
         router.refresh();
         onRequestClose(/* forceState= */ 'identity');
 
     }, [ onRequestClose, router, username ]);
+
+    const onSubmitUpdatePassword = useCallback(async (plaintextPassword: string) => {
+        const response = await issueServerAction<SignInPasswordUpdateDefinition>(
+            '/api/auth/sign-in-password-update', {
+                username: username!,
+                password: await SHA256HashPassword(plaintextPassword),
+                passwordResetRequest: passwordResetRequest!,
+            });
+
+        if (!response.success)
+            throw new Error('Your password could not be updated. Try again?');
+
+        router.refresh();
+        onRequestClose(/* forceState= */ 'identity');
+
+    }, [ onRequestClose, passwordResetRequest, router, username ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
@@ -267,6 +294,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 <LoginPasswordDialog onClose={onRequestClose}
                                      onLostPassword={onLostPassword}
                                      onSubmit={onSubmitPassword} /> }
+            { (authFlowState === 'login-password-update' && passwordUpdateToken) &&
+                <LoginPasswordUpdateDialog onClose={onRequestClose}
+                                           onSubmit={onSubmitUpdatePassword} /> }
             { authFlowState === 'lost-password' &&
                 <LostPasswordDialog onClose={onRequestClose}
                                     onRequestPasswordReset={onRequestPasswordReset} /> }

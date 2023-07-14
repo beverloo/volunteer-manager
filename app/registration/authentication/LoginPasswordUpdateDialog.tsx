@@ -1,12 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Link from 'next/link';
 import { useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer } from 'react-hook-form-mui';
 
-import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
@@ -16,19 +14,16 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
 
+import { PasswordField } from './PasswordField';
+
 /**
- * Props accepted by the <LoginPasswordDialog> component.
+ * Props accepted by the <LoginPasswordUpdateDialog> component.
  */
-interface LoginPasswordDialogProps {
+interface LoginPasswordUpdateDialogProps {
     /**
      * To be invoked when the form should be closed, e.g. by being cancelled.
      */
     onClose: () => void;
-
-    /**
-     * To be invoked when the user has lost their password and wants to request a new one.
-     */
-    onLostPassword: () => void;
 
     /**
      * To be invoked when the dialog has been submitted for the given `plaintextPassword`.
@@ -37,11 +32,12 @@ interface LoginPasswordDialogProps {
 }
 
 /**
- * The <LoginPasswordDialog> component allows users to sign in to their account. They will be asked
- * to enter their password, which, when verified by the server, will sign them in to their account.
+ * The <LoginPasswordUpdateDialog> component, where the user ends up after they sign in with their
+ * access code. They will be prompted to set a new password for their account immediately, which
+ * will be stored upon verification.
  */
-export function LoginPasswordDialog(props: LoginPasswordDialogProps) {
-    const { onClose, onLostPassword, onSubmit } = props;
+export function LoginPasswordUpdateDialog(props: LoginPasswordUpdateDialogProps) {
+    const { onClose, onSubmit } = props;
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -61,12 +57,11 @@ export function LoginPasswordDialog(props: LoginPasswordDialogProps) {
 
     return (
         <FormContainer onSuccess={requestSubmit}>
-            <DialogTitle>Sign in</DialogTitle>
+            <DialogTitle>Update your password</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Please enter your password to sign in to your account, or&nbsp;
-                    <MuiLink component={Link} href="#" onClick={onLostPassword}>reset
-                    your password</MuiLink> in case you have lost your password.
+                    You have to choose a new password. Please enter it in the field below in order
+                    to update it. You will be signed in immediately after.
                 </DialogContentText>
                 <Collapse in={!!error}>
                     <DialogContentText sx={{ paddingTop: 1 }} color="error">
@@ -74,9 +69,9 @@ export function LoginPasswordDialog(props: LoginPasswordDialogProps) {
                     </DialogContentText>
                 </Collapse>
                 <Box sx={{ pt: 2 }}>
-                    <TextFieldElement name="password" label="Password" type="password"
-                                      fullWidth size="small" required
-                                      autoFocus autoComplete="current-password" />
+                    <PasswordField name="password" label="New password" type="password"
+                                   fullWidth size="small" required requireNumberSum
+                                   autoFocus autoComplete="new-password" />
                 </Box>
             </DialogContent>
             <DialogActions>

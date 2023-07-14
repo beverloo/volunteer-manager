@@ -28,6 +28,12 @@ export const kSignInPasswordDefinition = z.object({
          * Whether the sign in attempt was successful.
          */
         success: z.boolean(),
+
+        /**
+         * Token that signals that a password update must take place. This will usually be issued
+         * when the user signed in with an access token as opposed to a password.
+         */
+        requiredPasswordUpdateToken: z.string().optional(),
     }),
 });
 
@@ -41,6 +47,8 @@ type Response = SignInPasswordDefinition['response'];
  * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
 export async function signInPassword(request: Request, props: ActionProps): Promise<Response> {
+    // TODO: Support auth tokens, and force an update password request after that.
+
     const user = await authenticateUserFromPassword(request.username, request.password);
     if (user) {
         await writeSealedSessionCookie(
