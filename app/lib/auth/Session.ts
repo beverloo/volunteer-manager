@@ -70,6 +70,7 @@ export async function writeEmptySessionCookie(headers: Headers): Promise<void> {
     headers.append('Set-Cookie', serialize(kSessionCookieName, '', {
         httpOnly: true,
         maxAge: 0,
+        path: '/',
     }));
 }
 
@@ -82,5 +83,6 @@ export async function writeSealedSessionCookie(session: SessionData, headers: He
     headers.append('Set-Cookie', serialize(kSessionCookieName, await sealSession(session), {
         httpOnly: true,
         maxAge: kSessionExpirationTimeSeconds,
+        path: '/',
     }));
 }
