@@ -131,11 +131,19 @@ interface AuthenticationFlowProps {
 
 /**
  * The <AuthenticationFlow> component provides an inline, modal-dialog based flow that allows users
- * to identify themselves in the volunteer manager.
+ * to identify themselves in the volunteer manager. This is a complex component that supports about
+ * a dozen states:
  *
- * TODO: Support identification using access codes
+ * - Identification using access codes, followed by a forced password reset,
+ * - Identification using passwords,
+ * - Recovery of lost passwords, including a password reset,
+ * - Registration of new accounts, including verification of their e-mail address.
+ *
+ * Any passwords entered during the authentication flow will be hashed using SHA-256 prior to being
+ * send to the server. The server will apply an additional hash over the password prior to storing
+ * it, to make sure that the hashes cannot be reversed.
+ *
  * TODO: Support identification using passkeys
- * TODO: Support registration
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const { onClose, open, passwordResetRequest, user } = props;
