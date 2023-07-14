@@ -203,8 +203,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         // The server can require the user to update their password, in which case they will not be
         // logged in just yet. Advance them to the update page when this is the case.
         if (response.requiredPasswordUpdateToken) {
-            setAuthFlowState('login-password-update');
             setPasswordUpdateToken(response.requiredPasswordUpdateToken);
+            setAuthFlowState('login-password-update');
             return;
         }
 
@@ -218,7 +218,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             '/api/auth/sign-in-password-update', {
                 username: username!,
                 password: await SHA256HashPassword(plaintextPassword),
-                passwordResetRequest: passwordResetRequest!,
+                passwordResetRequest: passwordUpdateToken!,
             });
 
         if (!response.success)
@@ -227,7 +227,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         router.refresh();
         onRequestClose(/* forceState= */ 'identity');
 
-    }, [ onRequestClose, passwordResetRequest, router, username ]);
+    }, [ onRequestClose, passwordUpdateToken, router, username ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:

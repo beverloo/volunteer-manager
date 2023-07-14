@@ -140,8 +140,7 @@ export class User implements UserData {
                     users_auth
                 WHERE
                     user_id=${this.#user.user_id} AND
-                    auth_type="password" AND
-                    auth_value<>${securelyHashedPassword}`,
+                    auth_type IN ("code", "password")`,
 
             // (2) Store the new password in the authentication table.
             sql`

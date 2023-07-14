@@ -14,28 +14,36 @@ import { sql } from '../database';
  *
  * @param username The username for the intended account to authenticate against.
  * @param sha256Password The SHA-256 hashed password used to sign in to that account.
- * @returns An instance of the `User` class when successful, `undefined` in all other cases.
+ * @returns Undefined when authentication failed, or a pair of the authentication type and the
+ *          instance of the `User` class representing this person when successful.
  */
 export async function authenticateUserFromPassword(username: string, sha256Password: string)
-        : Promise<User | undefined> {
+        : Promise<[ string, User ] | [ undefined, undefined ]> {
     const securelyHashedPassword = await securePasswordHash(sha256Password);
     const result =
         await sql`
             SELECT
-                users.*
+                users.*,
+                users_auth.auth_type
             FROM
                 users
             LEFT JOIN
-                users_auth ON users_auth.user_id = users.user_id AND
-                                users_auth.auth_type = 'password'
+                users_auth ON users_auth.user_id = users.user_id
             WHERE
                 users.username = ${username} AND
-                users_auth.auth_value = ${securelyHashedPassword}`;
+                (
+                    users_auth.auth_value = ${securelyHashedPassword} AND
+                    users_auth.auth_type = 'password'
+                ) OR
+                (
+                    SHA2(users_auth.auth_value, 256) = ${sha256Password} AND
+                    users_auth.auth_type = 'code'
+                )`;
 
     if (!result.ok || !result.rows.length)
-        return undefined;
+        return [ undefined, undefined ];
 
-    return new User(result.rows[0] as UserDatabaseRow);
+    return [ result.rows[0].auth_type, new User(result.rows[0] as UserDatabaseRow) ];
 }
 
 /**

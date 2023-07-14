@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { authenticateUserFromPassword } from '@lib/auth/Authentication';
+import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
@@ -47,14 +48,26 @@ type Response = SignInPasswordDefinition['response'];
  * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
 export async function signInPassword(request: Request, props: ActionProps): Promise<Response> {
-    // TODO: Support auth tokens, and force an update password request after that.
+    const [ authType, user ] =
+        await authenticateUserFromPassword(request.username, request.password);
 
-    const user = await authenticateUserFromPassword(request.username, request.password);
-    if (user) {
-        await writeSealedSessionCookie(
-            { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+    switch (authType) {
+        case 'code': {  // one-time access code
+            return {
+                success: true,
+                requiredPasswordUpdateToken: await sealPasswordResetRequest({
+                    id: user.userId,
+                    token: user.sessionToken,
+                }),
+            };
+        }
 
-        return { success: true };
+        case 'password': {  // stored password
+            await writeSealedSessionCookie(
+                { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+
+            return { success: true };
+        }
     }
 
     return { success: false };

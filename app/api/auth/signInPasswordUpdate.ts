@@ -4,6 +4,9 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { authenticateUserFromSession } from '@lib/auth/Authentication';
+import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
  * Interface definition for the SignInPasswordUpdate API, exposed through
@@ -47,6 +50,17 @@ type Response = SignInPasswordUpdateDefinition['response'];
 export async function signInPasswordUpdate(request: Request, props: ActionProps)
     : Promise<Response>
 {
-    // TODO: Implement this function.
+    const passwordResetRequest = await unsealPasswordResetRequest(request.passwordResetRequest);
+    if (passwordResetRequest) {
+        const user = await authenticateUserFromSession(passwordResetRequest);
+        if (user) {
+            await user.updatePassword(request.password, /* incrementSessionToken= */ true);
+            await writeSealedSessionCookie(
+                { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+
+            return { success: true };
+        }
+    }
+
     return { success: false };
 }
