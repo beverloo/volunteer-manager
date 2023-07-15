@@ -60,7 +60,7 @@ export function RegisterCompleteDialog(props: RegisterCompleteDialogProps) {
                 setFirstName(response.firstName);
                 setRedirectUrl(response.redirectUrl);
 
-            }, 1500);
+            }, 500);
         });
     }, [ registrationRequest ]);
 

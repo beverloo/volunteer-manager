@@ -69,6 +69,36 @@ interface AccountCreationData {
 }
 
 /**
+ * Activates the account with the given `userId`. The account must not have been activated yet. Will
+ * return an instance of the User class when successful, or undefined when a failure occurred.
+ */
+export async function activateAccount(userId: number): Promise<User | undefined> {
+    const result = await sql`SELECT activated, session_token FROM users WHERE user_id=${userId}`;
+    if (!result.ok || !result.rows.length) {
+        if (!result.ok)
+            console.error('Unable to read account info for activation:', result.error);
+
+        return undefined;
+    }
+
+    if (!!result.rows[0].activated)
+        return undefined;  // the account has already been activated
+
+    const activationResult = await sql`UPDATE users SET activated=1 WHERE user_id=${userId}`;
+    if (!activationResult.ok || !activationResult.affectedRows) {
+        if (!activationResult.ok)
+            console.error('Unable to activate an account:', activationResult.error);
+
+        return undefined;
+    }
+
+    return authenticateUserFromSession({
+        id: userId,
+        token: result.rows[0].session_token,
+    });
+}
+
+/**
  * Attempts to authenticate the user based on the given `username` and `sha256Password`, the latter
  * of which must be a SHA-256 hashed representation of the user's actual password. `undefined` will
  * be returned when no such user exists.
