@@ -111,6 +111,9 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         if (error instanceof NoAccessError)
             return createResponse(403, { success: false });
 
+        if (!process.env.JEST_WORKER_ID)
+            console.error(`Action(${request.nextUrl.pathname}) threw an Exception:`, error);
+
         return createResponse(500, {
             success: false,
             error: `The server was not able to handle the request: ${error.message}`,
