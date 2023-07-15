@@ -286,7 +286,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 password: await SHA256HashPassword(plaintextPassword),
 
                 // The URL the user should be redirected to after confirming their e-mail address.
-                redirect: registrationRedirectUrl!,
+                redirectUrl: registrationRedirectUrl,
             });
 
             if (!response.success)

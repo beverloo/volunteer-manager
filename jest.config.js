@@ -21,4 +21,5 @@ module.exports = createJestConfig({
 process.env = Object.assign(process.env, {
     APP_COOKIE_PASSWORD: '3P72PZv>)v42[GUS%(st[%<(o.^f58Vy',
     APP_PASSRESET_PASSWORD: 'kf205;e8.F*=AS9ItS(aQ$s;z&PM>6u?',
+    APP_REGISTRATION_PASSWORD: 'fK&K4dK6zd7<&AXz$yi>}5Z=uoqbkfFR',
 });

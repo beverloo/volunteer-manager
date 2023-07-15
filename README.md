@@ -17,7 +17,10 @@ $ npm run test
 It is recommended to run the `build`, `lint` and `test` commands prior to committing a change.
 
 The `serve` command spawns a local server that features live reload and advanced debugging
-capabilities. This is the recommended environment for development.
+capabilities. This is the recommended environment for development. In order for this to work well,
+you will need to copy [`.env.development.sample`](.env.development.sample) to `.env.development` and
+fill in the details of a MySQL database, as well as various encryption passwords. Each of those
+passwords needs to be at least 32 characters in length.
 
 ### Production environment
 Deployment of the AnimeCon Volunteer Manager happens using a Docker image. One can be created by
