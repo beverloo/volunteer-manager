@@ -32,7 +32,7 @@ interface LostPasswordResetDialogProps {
      * To be invoked when the password reset request was valid, and the user would like their
      * old password to be replaced by |password|.
      */
-    onPasswordReset: (request: string, password: string) => Promise<boolean>;
+    onPasswordReset: (request: string, password: string) => Promise<void>;
 
     /**
      * The password reset request for which the authentication flow should continue.
@@ -73,10 +73,7 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
         setLoading(true);
 
         try {
-            const result = await onPasswordReset(passwordResetRequest, data.password);
-            if (!result)
-                throw new Error('The server was not able to save the new password.');
-
+            await onPasswordReset(passwordResetRequest, data.password);
         } catch (error) {
             setError((error as any)?.message);
         } finally {

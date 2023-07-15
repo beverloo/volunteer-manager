@@ -291,9 +291,14 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 request,
             });
 
-        return response.success;
+        if (!response.success)
+            throw new Error('The server was not able to save the new password. Try again?');
 
-    }, [ /* no deps */ ]);
+        router.refresh();
+        router.replace('/');
+        onRequestClose(/* forceState= */ 'identity');
+
+    }, [ onRequestClose, router ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'register' state:

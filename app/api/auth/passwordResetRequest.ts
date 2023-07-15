@@ -4,7 +4,10 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { MailClient } from '@lib/MailClient';
+import { MailMessage } from '@app/lib/MailMessage';
 import { User } from '@lib/auth/User';
+import { getStaticContent } from '@lib/Content';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 
 /**
@@ -47,11 +50,27 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
             token: passwordResetData.sessionToken,
         });
 
-        // TODO: Send an actual e-mail. For now we include the link as a response header.
-        props.responseHeaders.set(
-            'X-Password-Link', `${props.origin}/?password-reset-request=${passwordResetRequest}`);
+        const messageContent = await getStaticContent([ 'message', 'lost-password' ]);
+        if (messageContent) {
+            const sender = 'AnimeCon Volunteering Teams';
+            const passwordResetLink =
+                `${props.origin}/?password-reset-request=${passwordResetRequest}`;
 
-        return { success: true };
+            const client = new MailClient(sender);
+            const message = new MailMessage()
+                .setTo(request.username)
+                .setSubject(messageContent.title)
+                .setMarkdown(messageContent.markdown, /* substitutions= */ {
+                    'link': passwordResetLink,
+                    'name': passwordResetData.firstName,
+                    'sender': sender,
+                });
+
+            await client.safeSendMessage(message);
+            return { success: true };
+        }
+
+        console.error('Unable to send a password reset e-mail: cannot find the content.');
     }
 
     return { success: false };

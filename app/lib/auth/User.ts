@@ -26,6 +26,11 @@ interface PasswordResetData {
      * The user's current session token, instrumental to allowing password reset.
      */
     sessionToken: number;
+
+    /**
+     * First name of the person who requested their password to be reset.
+     */
+    firstName: string;
 }
 
 /**
@@ -60,7 +65,8 @@ export class User implements UserData {
                 SELECT
                     users.user_id AS userId,
                     users.username AS emailAddress,
-                    users.session_token AS sessionToken
+                    users.session_token AS sessionToken,
+                    users.first_name AS firstName
                 FROM
                     users
                 WHERE

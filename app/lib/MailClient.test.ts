@@ -60,7 +60,7 @@ describe('MailClient', () => {
     });
 
     it('is able to build messages using markdown', () => {
-        const message = new MailMessage().setMarkdown('**Hello** world!');
+        const message = new MailMessage().setMarkdown('**Hello** {who}!', { who: 'world' });
         expect(message.options).toEqual({
             // Defaults:
             disableFileAccess: true,
