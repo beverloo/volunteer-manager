@@ -40,7 +40,7 @@ export const kRegisterDefinition = z.object({
         /**
          * Date on which the user was born. (YYYY-MM-DD)
          */
-        birthdate: z.string(),
+        birthdate: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/),
 
         /**
          * Phone number of the user, in an undefined format.

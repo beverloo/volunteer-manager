@@ -1,7 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -22,7 +24,6 @@ import Typography from '@mui/material/Typography';
 
 import { type RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
-import Link from 'next/link';
 
 /**
  * The options we'll present to users when having to pick their gender.
@@ -72,11 +73,16 @@ export function RegisterDialog(props: RegisterDialogProps) {
         setLoading(true);
 
         // Separate the |password| from the |rest| of the data given that we want to hash it on the
-        // client side to prevent sending it to the server altogether.
-        const { password, ...rest } = data;
+        // client side to prevent sending it to the server altogether, and the |rawBirthdate|
+        // because we want to make sure that it's shared in a particular format.
+        const { rawBirthdate, password, ...rest } = data;
+
+        // Format the |birthdate| in YYYY-MM-DD format because that's the only sensible format to
+        // write down a date. Also happens to be how we store it in the database.
+        const birthdate = dayjs(rawBirthdate).format('YYYY-MM-DD');
 
         try {
-            await onSubmit(password, rest as PartialRegistrationRequest);
+            await onSubmit(password, { ...rest, birthdate } as PartialRegistrationRequest);
         } catch (error) {
             setError((error as any)?.message);
         } finally {
@@ -124,7 +130,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
 
                     <Grid xs={12} md={6}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePickerElement name="birthdate" label="Date of birth"
+                            <DatePickerElement name="rawBirthdate" label="Date of birth"
                                                disableFuture disableHighlightToday openTo="year"
                                                inputProps={{ fullWidth: true, size: 'small' }}
                                                required />
