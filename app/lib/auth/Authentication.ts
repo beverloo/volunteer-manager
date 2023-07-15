@@ -11,7 +11,7 @@ import { sql } from '../database';
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
  * to sign in to their account, preferably using passkeys.
  */
-export interface AuthenticationData {
+interface AuthenticationData {
     /**
      * Whether the account has been activated already.
      */
@@ -26,6 +26,46 @@ export interface AuthenticationData {
      * Bytes containing the public key using which the user has registered.
      */
     publicKey?: string;
+}
+
+/**
+ * Interface containing all the information that must be known when creating a new account.
+ */
+interface AccountCreationData {
+    /**
+     * The username of the account that should be created.
+     */
+    username: string;
+
+    /**
+     * The password associated with that account, SHA256 hashed.
+     */
+    password: string;
+
+    /**
+     * The user's first name.
+     */
+    firstName: string;
+
+    /**
+     * The user's last name.
+     */
+    lastName: string;
+
+    /**
+     * Gender of the user. A string because we don't care.
+     */
+    gender: string;
+
+    /**
+     * Date on which the user was born. (YYYY-MM-DD)
+     */
+    birthdate: string;
+
+    /**
+     * Phone number of the user, in an undefined format.
+     */
+    phoneNumber: string;
 }
 
 /**
@@ -84,6 +124,44 @@ export async function authenticateUserFromSession(session: SessionData): Promise
         return undefined;
 
     return new User(result.rows[0] as UserDatabaseRow);
+}
+
+/**
+ * Creates an account based on the given `data`. Will return a number indicating user ID when the
+ * account was created successfully, or undefined. Failure only happens when the SQL queries fail.
+ */
+export async function createAccount(data: AccountCreationData): Promise<undefined | number> {
+    const userTableResult =
+        await sql`
+            INSERT INTO
+                users
+                (username, first_name, last_name, gender, birthdate, phone_number)
+            VALUES
+                (${data.username}, ${data.firstName}, ${data.lastName}, ${data.gender},
+                 ${data.birthdate}, ${data.phoneNumber})`;
+
+    if (!userTableResult.ok || !userTableResult.insertId) {
+        console.error('Unable to write into the users table:', userTableResult.error);
+        return undefined;
+    }
+
+    const securelyHashedPassword = await securePasswordHash(data.password);
+    const userId = userTableResult.insertId;
+
+    const authenticationTableResult =
+        await sql`
+            INSERT INTO
+                users_auth
+                (user_id, auth_type, auth_value)
+            VALUES
+                (${userId}, "password", ${securelyHashedPassword})`;
+
+    if (!authenticationTableResult.ok) {
+        console.error('Unable to write in the users_auth table:', authenticationTableResult.error);
+        return undefined;
+    }
+
+    return userId;
 }
 
 /**

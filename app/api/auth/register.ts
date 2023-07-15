@@ -4,7 +4,8 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { isUsernameAvailable } from '@lib/auth/Authentication';
+import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
+import { sealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 
 /**
  * Interface definition for the Register API, exposed through /api/auth/register.
@@ -85,7 +86,30 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     if (!available)
         return { success: false, error: 'There already is an account with that username.' };
 
-    console.log(request);  // TODO: Implement this API
+    if (!request.gdpr)
+        return { success: false, error: 'You must accept our GDPR & privacy policies.' };
 
-    return { success: false, error: 'Not yet implemented' };
+    const userId = await createAccount({
+        username: request.username,
+        password: request.password,
+        firstName: request.firstName,
+        lastName: request.lastName,
+        gender: request.gender,
+        birthdate: request.birthdate,
+        phoneNumber: request.phoneNumber,
+    });
+
+    if (!userId)
+        return { success: false, error: 'The server was unable to create an account.' };
+
+    const registrationRequest = await sealRegistrationRequest({
+        id: userId,
+        redirectUrl: request.redirectUrl,
+    });
+
+    // TODO: Send an e-mail containing the registration verification link.
+    props.responseHeaders.set(
+        'X-Registration-Link', `${props.origin}/?registration-request=${registrationRequest}`);
+
+    return { success: true };
 }

@@ -128,7 +128,7 @@ interface AuthenticationFlowProps {
      */
     passwordResetRequest?: string;
 
-    // TODO: `registrationConfirmationRequest`
+    // TODO: `registrationRequest`
 
     /**
      * Optional URL to which the user should be redirected after they have created and confirmed an
