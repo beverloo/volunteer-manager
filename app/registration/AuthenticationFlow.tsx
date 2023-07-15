@@ -8,6 +8,7 @@ import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
 import type { UserData } from '@lib/auth/UserData';
+import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LoginPasswordUpdateDialog } from './authentication/LoginPasswordUpdateDialog';
@@ -98,7 +99,10 @@ type AuthenticationFlowState =
     // (2c) There exists a user with the given username, but the user has lost their credentials.
     'lost-password' | 'lost-password-reset' | 'lost-password-complete' |
 
-    // (2d) There does not exist a user with the given username.
+    // (2d) There exists a user with the given username, but the account has not been activated yet.
+    'activation-reminder' |
+
+    // (2e) There does not exist a user with the given username.
     'register' | 'register-confirm' |
 
     // (3) The user is signed in to their account already, and can sign out.
@@ -197,8 +201,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
         setUsername(username);
 
-        if (response.success)
+        if (response.success && response.activated)
             setAuthFlowState('login-password');
+        else if (response.success && !response.activated)
+            setAuthFlowState('activation-reminder');
         else
             setAuthFlowState('register');
 
@@ -331,6 +337,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                                          passwordResetRequest={passwordResetRequest} /> }
             { authFlowState === 'lost-password-complete' &&
                 <LostPasswordCompleteDialog /> }
+            { authFlowState === 'activation-reminder' &&
+                <ActivationReminderDialog onClose={onRequestClose} /> }
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose}
                                 onSubmit={onRegistrationRequest} /> }

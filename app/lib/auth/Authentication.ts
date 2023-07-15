@@ -8,6 +8,27 @@ import { securePasswordHash } from './Password';
 import { sql } from '../database';
 
 /**
+ * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
+ * to sign in to their account, preferably using passkeys.
+ */
+export interface AuthenticationData {
+    /**
+     * Whether the account has been activated already.
+     */
+    activated: boolean;
+
+    /**
+     * Bytes containing the credential Id using which the user has registered.
+     */
+    credentialId?: string;
+
+    /**
+     * Bytes containing the public key using which the user has registered.
+     */
+    publicKey?: string;
+}
+
+/**
  * Attempts to authenticate the user based on the given `username` and `sha256Password`, the latter
  * of which must be a SHA-256 hashed representation of the user's actual password. `undefined` will
  * be returned when no such user exists.
@@ -31,6 +52,7 @@ export async function authenticateUserFromPassword(username: string, sha256Passw
                 users_auth ON users_auth.user_id = users.user_id
             WHERE
                 users.username = ${username} AND
+                users.activated = 1 AND
                 (
                     users_auth.auth_value = ${securelyHashedPassword} AND
                     users_auth.auth_type = 'password'
@@ -62,4 +84,23 @@ export async function authenticateUserFromSession(session: SessionData): Promise
         return undefined;
 
     return new User(result.rows[0] as UserDatabaseRow);
+}
+
+/**
+ * Gets the authentication data for the given `username` from the database. A return value of
+ * `undefined` means that the user could not be found, whereas every other return value means
+ * that the user exists, and possibly registered using a passkey.
+ */
+export async function getAuthenticationData(username: string)
+    : Promise<AuthenticationData | undefined>
+{
+    const result = await sql`SELECT activated FROM users WHERE username=${username}`;
+    if (!result.ok || !result.rows.length)
+        return undefined;
+
+    return {
+        activated: result.rows[0].activated,
+        credentialId: undefined,  // TODO: Support WebAuthn
+        publicKey: undefined,  // TODO: Support WebAuthn
+    };
 }

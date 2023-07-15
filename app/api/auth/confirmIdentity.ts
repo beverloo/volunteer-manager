@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { User } from '@lib/auth/User';
+import { getAuthenticationData } from '@lib/auth/Authentication';
 
 /**
  * Interface definition for the ConfirmIdentity API, exposed through /api/auth/confirm-identity.
@@ -23,6 +23,11 @@ export const kConfirmIdentityDefinition = z.object({
          */
         success: z.boolean(),
 
+        /**
+         * Whether the account associated with that identity has been activated already.
+         */
+        activated: z.boolean().optional(),
+
         // TODO: Include WebAuthn data
     }),
 });
@@ -38,7 +43,13 @@ type Response = ConfirmIdentityDefinition['response'];
  * sign in without relying on their password.
  */
 export async function confirmIdentity(request: Request, props: ActionProps): Promise<Response> {
+    const authenticationData = await getAuthenticationData(request.username);
+    if (!authenticationData)
+        return { success: false };
+
     return {
-        success: !!await User.getAuthenticationData(request.username),
-    };
+        success: true,
+        activated: !!authenticationData.activated,
+        // TODO: Include WebAuthn data
+    }
 }
