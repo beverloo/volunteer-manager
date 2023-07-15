@@ -16,6 +16,7 @@ import { LostPasswordCompleteDialog } from './authentication/LostPasswordComplet
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog, type PartialRegistrationRequest } from './authentication/RegisterDialog';
+import { RegisterCompleteDialog } from './authentication/RegisterCompleteDialog';
 import { RegisterConfirmDialog } from './authentication/RegisterConfirmDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { validatePassword } from './authentication/PasswordField';
@@ -103,7 +104,7 @@ type AuthenticationFlowState =
     'activation-reminder' |
 
     // (2e) There does not exist a user with the given username.
-    'register' | 'register-confirm' |
+    'register' | 'register-confirm' | 'register-complete' |
 
     // (3) The user is signed in to their account already, and can sign out.
     'identity';
@@ -128,13 +129,17 @@ interface AuthenticationFlowProps {
      */
     passwordResetRequest?: string;
 
-    // TODO: `registrationRequest`
-
     /**
      * Optional URL to which the user should be redirected after they have created and confirmed an
      * account. Confirmation often happens in a new tab, where we want to continue the flow.
      */
     registrationRedirectUrl?: string;
+
+    /**
+     * The registration request for which the authentication flow should continue. Normally injected
+     * in the page through URL parameters, but we don't really care here either.
+     */
+    registrationRequest?: string;
 
     /**
      * Information about the signed in user, when they already are signed in to an account.
@@ -159,7 +164,8 @@ interface AuthenticationFlowProps {
  * TODO: Support identification using passkeys
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
-    const { onClose, open, passwordResetRequest, registrationRedirectUrl, user } = props;
+    const { onClose, open, passwordResetRequest, registrationRedirectUrl,
+            registrationRequest, user } = props;
 
     // Used to refresh the app context following authentication changes.
     const router = useRouter();
@@ -170,7 +176,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const initialState: AuthenticationFlowState =
         user ? 'identity'
              : (passwordResetRequest ? 'lost-password-reset'
-                                     : 'username');
+                                     : (registrationRequest ? 'register-complete'
+                                                            : 'username'));
 
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
     const [ passwordUpdateToken, setPasswordUpdateToken ] = useState<string>();
@@ -191,6 +198,16 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         onClose();
 
     }, [ onClose, user ]);
+
+    const onRequestCloseWithRedirect = useCallback((redirectUrl?: string) => {
+        router.refresh();  // make sure that cookies are applied
+
+        if (redirectUrl)
+            router.push(redirectUrl);
+
+        onRequestClose(/* forceState= */ 'identity');
+
+    }, [ onRequestClose, router ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'username' state:
@@ -345,6 +362,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { (authFlowState === 'register-confirm' && firstName) &&
                 <RegisterConfirmDialog onClose={onRequestClose}
                                        firstName={firstName} /> }
+            { (authFlowState === 'register-complete' && registrationRequest) &&
+                <RegisterCompleteDialog onClose={onRequestCloseWithRedirect}
+                                        registrationRequest={registrationRequest} /> }
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
                                 onSignOut={onRequestSignOut}

@@ -122,11 +122,11 @@ export function WelcomePage(props: WelcomePageProps) {
             <VisibilityOffIcon fontSize="small" color="disabled" />
         </Tooltip>;
 
-    // The authentication flow should be opened automatically when the `password-reset-request`
-    // parameter is included in the URL's search parameters, in which case the user should be thrown
-    // back into the password reset wizard.
+    // The authentication flow should be opened automatically when the `password-reset-request` or
+    // the `registration-request` parameter is included in the URL's search parameters.
     const searchParams = useSearchParams();
-    const initialAuthFlowOpen = searchParams.has('password-reset-request');
+    const initialAuthFlowOpen = searchParams.has('password-reset-request') ||
+                                searchParams.has('registration-request');
 
     const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(initialAuthFlowOpen);
 
@@ -287,6 +287,7 @@ export function WelcomePage(props: WelcomePageProps) {
             <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
                                 open={authFlowOpen}
                                 passwordResetRequest={searchParams.get('password-reset-request')!}
+                                registrationRequest={searchParams.get('registration-request')!}
                                 user={props.user} />
         </>
     );
