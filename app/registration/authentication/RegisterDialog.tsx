@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import dayjs from 'dayjs';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -24,6 +23,7 @@ import Typography from '@mui/material/Typography';
 
 import { type RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
+import { dayjs } from '@lib/DateTime';
 
 /**
  * The options we'll present to users when having to pick their gender.
