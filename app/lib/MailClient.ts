@@ -58,7 +58,7 @@ export class MailClient {
 
         return this.#transport.sendMail({
             from: this.#sender,
-            // TODO: Further fields.
+            ...message.options,
         });
     }
 
