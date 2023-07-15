@@ -15,6 +15,7 @@ import { LostPasswordCompleteDialog } from './authentication/LostPasswordComplet
 import { LostPasswordDialog } from './authentication/LostPasswordDialog';
 import { LostPasswordResetDialog } from './authentication/LostPasswordResetDialog';
 import { RegisterDialog, type PartialRegistrationRequest } from './authentication/RegisterDialog';
+import { RegisterConfirmDialog } from './authentication/RegisterConfirmDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { validatePassword } from './authentication/PasswordField';
 
@@ -98,7 +99,7 @@ type AuthenticationFlowState =
     'lost-password' | 'lost-password-reset' | 'lost-password-complete' |
 
     // (2d) There does not exist a user with the given username.
-    'register' |
+    'register' | 'register-confirm' |
 
     // (3) The user is signed in to their account already, and can sign out.
     'identity';
@@ -161,6 +162,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
     const [ authFlowState, setAuthFlowState ] = useState<AuthenticationFlowState>(initialState);
     const [ passwordUpdateToken, setPasswordUpdateToken ] = useState<string>();
+
+    const [ firstName, setFirstName ] = useState<string>();
     const [ username, setUsername ] = useState<string>();
 
     // ---------------------------------------------------------------------------------------------
@@ -278,6 +281,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             if (!response.success)
                 throw new Error('The server was not able to create an account.');
 
+            setAuthFlowState('register-confirm');
+            setFirstName(request.firstName);
+
         }, [ username ]);
 
     // ---------------------------------------------------------------------------------------------
@@ -317,6 +323,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { authFlowState === 'register' &&
                 <RegisterDialog onClose={onRequestClose}
                                 onSubmit={onRegistrationRequest} /> }
+            { (authFlowState === 'register-confirm' && firstName) &&
+                <RegisterConfirmDialog onClose={onRequestClose}
+                                       firstName={firstName} /> }
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
                                 onSignOut={onRequestSignOut}
