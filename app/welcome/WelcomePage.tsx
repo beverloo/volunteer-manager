@@ -24,8 +24,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { type EventData } from '@lib/Event';
 import { type UserData } from '@lib/auth/UserData';
-import { AuthenticationFlow } from '../registration/AuthenticationFlow';
 import { DateTime } from '@lib/DateTime';
+import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationHeader } from '../registration/RegistrationHeader';
@@ -284,11 +284,12 @@ export function WelcomePage(props: WelcomePageProps) {
                         </Card>
                     </Grid> )}
             </Grid>
-            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
-                                open={authFlowOpen}
-                                passwordResetRequest={searchParams.get('password-reset-request')!}
-                                registrationRequest={searchParams.get('registration-request')!}
-                                user={props.user} />
+            <LazyAuthenticationFlow onClose={() => setAuthFlowOpen(false)}
+                                    open={authFlowOpen}
+                                    passwordResetRequest={
+                                        searchParams.get('password-reset-request')!}
+                                    registrationRequest={searchParams.get('registration-request')!}
+                                    user={props.user} />
         </>
     );
 }

@@ -112,7 +112,7 @@ type AuthenticationFlowState =
 /**
  * Props accepted by the <AuthenticationFlow> component.
  */
-interface AuthenticationFlowProps {
+export interface AuthenticationFlowProps {
     /**
      * Callback that will be invoked when the authorization flow should be closed.
      */
@@ -372,3 +372,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         </Dialog>
     );
 }
+
+/**
+ * Set the default export to `AuthenticationFlow` to allow <LazyAuthenticationFlow> to work.
+ */
+export default AuthenticationFlow;

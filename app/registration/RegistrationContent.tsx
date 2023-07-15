@@ -15,7 +15,7 @@ import Box from '@mui/material/Box';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 
-import { AuthenticationFlow } from '../registration/AuthenticationFlow';
+import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { Markdown } from '@components/Markdown';
 import { RegistrationHeader } from './RegistrationHeader';
 
@@ -84,9 +84,9 @@ export function RegistrationContent(props: RegistrationContentProps) {
                         <MuiLink component={Link} href={props.backUrl}>« Previous page</MuiLink>
                     </Box> }
             </Paper>
-            <AuthenticationFlow onClose={() => setAuthFlowOpen(false)}
-                                open={authFlowOpen}
-                                user={props.user} />
+            <LazyAuthenticationFlow onClose={() => setAuthFlowOpen(false)}
+                                    open={authFlowOpen}
+                                    user={props.user} />
         </>
     );
 }
