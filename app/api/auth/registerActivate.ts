@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { activateAccount } from '@lib/auth/Authentication';
 import { unsealRegistrationRequest } from '@lib/auth/RegistrationRequest';
+import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
  * Interface definition for the RegisterActivate API, exposed through /api/auth/register-activate.
@@ -54,6 +55,9 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     const user = await activateAccount(registrationRequest.id);
     if (!user)
         return { success: false };  // the account does not exist, or has already been activated
+
+    await writeSealedSessionCookie(
+        { id: user.userId, token: user.sessionToken }, props.responseHeaders);
 
     return {
         success: true,
