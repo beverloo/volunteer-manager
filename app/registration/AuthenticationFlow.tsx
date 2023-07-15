@@ -296,7 +296,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             });
 
             if (!response.success)
-                throw new Error('The server was not able to create an account.');
+                throw new Error(response.error || 'The server was not able to create an account.');
 
             setAuthFlowState('register-confirm');
             setFirstName(request.firstName);

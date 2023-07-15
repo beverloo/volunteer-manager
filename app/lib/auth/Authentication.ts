@@ -104,3 +104,11 @@ export async function getAuthenticationData(username: string)
         publicKey: undefined,  // TODO: Support WebAuthn
     };
 }
+
+/**
+ * Returns whether the given `username` is available.
+ */
+export async function isUsernameAvailable(username: string): Promise<boolean> {
+    const result = await sql`SELECT user_id FROM users WHERE username=${username}`;
+    return !result.ok || result.rows.length === 0;
+}

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { isUsernameAvailable } from '@lib/auth/Authentication';
 
 /**
  * Interface definition for the Register API, exposed through /api/auth/register.
@@ -62,6 +63,11 @@ export const kRegisterDefinition = z.object({
          * Whether the registration attempt was successful.
          */
         success: z.boolean(),
+
+        /**
+         * The error message that occurred when `success` is not set to true.
+         */
+        error: z.string().optional(),
     }),
 });
 
@@ -75,6 +81,11 @@ type Response = RegisterDefinition['response'];
  * whereas the implementation will do the necessary checks to make sure it's valid.
  */
 export async function register(request: Request, props: ActionProps): Promise<Response> {
+    const available = await isUsernameAvailable(request.username);
+    if (!available)
+        return { success: false, error: 'There already is an account with that username.' };
+
     console.log(request);  // TODO: Implement this API
-    return { success: false };
+
+    return { success: false, error: 'Not yet implemented' };
 }
