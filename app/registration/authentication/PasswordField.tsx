@@ -150,7 +150,7 @@ export function PasswordField({ requireNumberSum, ...props }: PasswordFieldProps
     return (
         <Box>
             <TextFieldElement onChange={onChange}
-                              inputProps={{ passwordRules: kPasswordRules, minLength: 8 }}
+                              inputProps={{ passwordrules: kPasswordRules, minLength: 8 }}
                               {...props} />
             <Collapse in={!!password.length}>
                 <List dense disablePadding sx={{ pt: 1 }}>

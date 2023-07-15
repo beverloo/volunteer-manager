@@ -204,6 +204,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
         if (redirectUrl)
             router.push(redirectUrl);
+        else
+            router.replace('/');
 
         onRequestClose(/* forceState= */ 'identity');
 
@@ -361,9 +363,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                 <LostPasswordCompleteDialog /> }
             { authFlowState === 'activation-reminder' &&
                 <ActivationReminderDialog onClose={onRequestClose} /> }
-            { authFlowState === 'register' &&
+            { (authFlowState === 'register' && username) &&
                 <RegisterDialog onClose={onRequestClose}
-                                onSubmit={onRegistrationRequest} /> }
+                                onSubmit={onRegistrationRequest}
+                                username={username} /> }
             { (authFlowState === 'register-confirm' && firstName) &&
                 <RegisterConfirmDialog onClose={onRequestClose}
                                        firstName={firstName} /> }

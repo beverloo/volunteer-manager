@@ -79,7 +79,7 @@ export function RegisterCompleteDialog(props: RegisterCompleteDialogProps) {
                             Your account has been created, <strong>{firstName}</strong>, and you
                             have been signed in to your account.&nbsp;
                             { redirectUrl && 'You can now continue with your application 😊' }
-                            { !redirectUrl && 'You should consider helping us out 😊' }
+                            { !redirectUrl && 'You should consider participating in an event 😊' }
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

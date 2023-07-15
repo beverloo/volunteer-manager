@@ -56,6 +56,11 @@ interface RegisterDialogProps {
      * the registration request went through successfully.
      */
     onSubmit: (plaintextPassword: string, request: PartialRegistrationRequest) => Promise<void>;
+
+    /**
+     * The username for whom the form is being displayed. Aid to autofill implementations.
+     */
+    username: string;
 }
 
 /**
@@ -63,7 +68,7 @@ interface RegisterDialogProps {
  * personal information, after which an account will be created for them.
  */
 export function RegisterDialog(props: RegisterDialogProps) {
-    const { onClose, onSubmit } = props;
+    const { onClose, onSubmit, username } = props;
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -73,9 +78,10 @@ export function RegisterDialog(props: RegisterDialogProps) {
         setLoading(true);
 
         // Separate the |password| from the |rest| of the data given that we want to hash it on the
-        // client side to prevent sending it to the server altogether, and the |rawBirthdate|
-        // because we want to make sure that it's shared in a particular format.
-        const { rawBirthdate, password, ...rest } = data;
+        // client side to prevent sending it to the server altogether, the |rawBirthdate| because
+        // we want to make sure that it's shared in a particular format, and the |username| because
+        // it's only included in the form to help autofill providers in browsers.
+        const { rawBirthdate, username, password, ...rest } = data;
 
         // Format the |birthdate| in YYYY-MM-DD format because that's the only sensible format to
         // write down a date. Also happens to be how we store it in the database.
@@ -100,6 +106,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
 
     return (
         <FormContainer onSuccess={requestRegistration}>
+            <input type="hidden" name="username" value={username} />
             <DialogTitle>Create an account</DialogTitle>
             <DialogContent>
                 <DialogContentText>

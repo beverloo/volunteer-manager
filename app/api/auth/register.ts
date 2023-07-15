@@ -4,7 +4,10 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { MailClient } from '@lib/MailClient';
+import { MailMessage } from '@app/lib/MailMessage';
 import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
+import { getStaticContent } from '@lib/Content';
 import { sealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 
 /**
@@ -89,6 +92,10 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     if (!request.gdpr)
         return { success: false, error: 'You must accept our GDPR & privacy policies.' };
 
+    const messageContent = await getStaticContent([ 'message', 'registration' ]);
+    if (!messageContent)
+        return { success: false, error: 'Unable to accept registrations, no message content.' };
+
     const userId = await createAccount({
         username: request.username,
         password: request.password,
@@ -107,9 +114,22 @@ export async function register(request: Request, props: ActionProps): Promise<Re
         redirectUrl: request.redirectUrl,
     });
 
-    // TODO: Send an e-mail containing the registration verification link.
-    props.responseHeaders.set(
-        'X-Registration-Link', `${props.origin}/?registration-request=${registrationRequest}`);
+    // Send an e-mail to the user containing their registration verification link.
+    {
+        const sender = 'AnimeCon Volunteering Teams';
+
+        const client = new MailClient(sender);
+        const message = new MailMessage()
+            .setTo(request.username)
+            .setSubject(messageContent.title)
+            .setMarkdown(messageContent.markdown, /* substitutions= */ {
+                'link': `${props.origin}/?registration-request=${registrationRequest}`,
+                'name': request.firstName,
+                'sender': sender,
+            });
+
+        await client.safeSendMessage(message);
+    }
 
     return { success: true };
 }
