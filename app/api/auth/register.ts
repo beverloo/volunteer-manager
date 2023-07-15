@@ -49,6 +49,12 @@ export const kRegisterDefinition = z.object({
          * Whether the user has accepted the terms of our privacy policy.
          */
         gdpr: z.boolean(),
+
+        /**
+         * Optional URL to which the user should be redirected after they confirm their e-mail
+         * address. This often happens in a new tab, so we want to kick them back in a flow.
+         */
+        redirectUrl: z.string().optional(),
     }),
 
     response: z.strictObject({

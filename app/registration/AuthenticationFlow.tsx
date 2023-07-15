@@ -124,6 +124,14 @@ interface AuthenticationFlowProps {
      */
     passwordResetRequest?: string;
 
+    // TODO: `registrationConfirmationRequest`
+
+    /**
+     * Optional URL to which the user should be redirected after they have created and confirmed an
+     * account. Confirmation often happens in a new tab, where we want to continue the flow.
+     */
+    registrationRedirectUrl?: string;
+
     /**
      * Information about the signed in user, when they already are signed in to an account.
      */
@@ -147,7 +155,7 @@ interface AuthenticationFlowProps {
  * TODO: Support identification using passkeys
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
-    const { onClose, open, passwordResetRequest, user } = props;
+    const { onClose, open, passwordResetRequest, registrationRedirectUrl, user } = props;
 
     // Used to refresh the app context following authentication changes.
     const router = useRouter();
@@ -276,6 +284,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
                 username: username!,
                 password: await SHA256HashPassword(plaintextPassword),
+
+                // The URL the user should be redirected to after confirming their e-mail address.
+                redirect: registrationRedirectUrl!,
             });
 
             if (!response.success)
@@ -284,7 +295,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             setAuthFlowState('register-confirm');
             setFirstName(request.firstName);
 
-        }, [ username ]);
+        }, [ registrationRedirectUrl, username ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:

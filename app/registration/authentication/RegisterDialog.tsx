@@ -38,7 +38,7 @@ const kGenderOptions = [
  * the server in order to finalize a user's registration.
  */
 export type PartialRegistrationRequest =
-    Omit<RegisterDefinition['request'], 'username' | 'password'>;
+    Omit<RegisterDefinition['request'], 'username' | 'password' | 'redirect'>;
 
 /**
  * Props accepted by the <RegisterDialog> component.
