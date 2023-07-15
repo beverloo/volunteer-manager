@@ -58,4 +58,18 @@ describe('MailClient', () => {
             ...message.options,
         });
     });
+
+    it('is able to build messages using markdown', () => {
+        const message = new MailMessage().setMarkdown('**Hello** world!');
+        expect(message.options).toEqual({
+            // Defaults:
+            disableFileAccess: true,
+            disableUrlAccess: true,
+            headers: [],
+
+            // Configuration:
+            html: '<p><strong>Hello</strong> world!</p>\n',
+            text: '**Hello** world!',
+        });
+    });
 });

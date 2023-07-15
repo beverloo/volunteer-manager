@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type SendMailOptions } from 'nodemailer';
+import { marked } from 'marked';
 
 /**
  * Class that encapsulates an e-mail that should be send to a specific address. The constructor
@@ -88,6 +89,23 @@ export class MailMessage {
      */
     setHtml(html: string): MailMessage {
         this.#options.html = html;
+        return this;
+    }
+
+    /**
+     * Sets the Markdown content of this message to the given `markdown` string. Since Markdown is
+     * human readable, it will also be the text version. Returns this instance of MailMessage.
+     */
+    setMarkdown(markdown: string): MailMessage {
+        this.#options.html = marked.parse(markdown, {
+            headerIds: false,
+            headerPrefix: undefined,
+            mangle: false,
+        });
+
+        if (!Object.hasOwn(this.#options, 'text'))
+            this.#options.text = markdown;
+
         return this;
     }
 

@@ -63,6 +63,25 @@ export class MailClient {
     }
 
     /**
+     * Safe version of `sendMessage` that will not throw an exception, but will rather return a
+     * boolean that indicates thether the given `message` was sent successfully.
+     *
+     * @param message The message that should be send.
+     * @returns A boolean that indicates whether the message was handed off to the SMTP server.
+     */
+    async safeSendMessage(message: MailMessage): Promise<boolean> {
+        try {
+            await this.sendMessage(message);
+            return true;
+
+        } catch (error) {
+            console.error('Unable to send an e-mail:', error);
+        }
+
+        return false;
+    }
+
+    /**
      * Verifies that the given SMTP server configuration is correct and can be used to send e-mail.
      * An exception will be thrown when the configuration is not correct.
      *
