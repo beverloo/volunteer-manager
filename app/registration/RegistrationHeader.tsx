@@ -15,7 +15,7 @@ import { UserData } from '@lib/auth/UserData';
 /**
  * Manual styles that apply to the <RegistrationHeader> client component.
  */
-const kStyles: { [key: string]: SxProps<Theme> } = {
+export const kStyles: { [key: string]: SxProps<Theme> } = {
     avatar: {
         backgroundColor: 'primary.light',
         color: theme => theme.palette.getContrastText(theme.palette.primary.light),
