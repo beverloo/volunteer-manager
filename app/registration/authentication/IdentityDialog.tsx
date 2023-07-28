@@ -12,6 +12,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import type { UserData } from '@lib/auth/UserData';
+import { Avatar } from '@components/Avatar';
 
 /**
  * Styles used by the identity dialog.
@@ -69,7 +70,9 @@ export function IdentityDialog(props: IdentityDialogProps) {
         <>
             <DialogContent>
                 <Container sx={kStyles.avatarContainer}>
-                    { /* TODO: Avatar */ } <em>(avatar)</em>
+                    <Avatar>
+                        {user.firstName} {user.lastName}
+                    </Avatar>
                 </Container>
                 <DialogContentText>
                     Hi {user.firstName}, you're signed in.
