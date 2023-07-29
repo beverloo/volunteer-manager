@@ -6,6 +6,14 @@ import { nanoid } from 'nanoid/async';
 import { sql } from './index';
 
 /**
+ * Returns the avatar Url for the given |hash|. Will return `undefined` when no hash is available.
+ */
+export function getAvatarUrl(hash?: string): string | undefined {
+    return hash ? `/avatars/${hash}.png`
+                : undefined;
+}
+
+/**
  * What is the size limit for avatars we're willing to store in the database?
  */
 const kAvatarSizeLimit = 5 * 1024 * 1024;  // 5MB
@@ -26,7 +34,7 @@ export async function readAvatarDataByHash(hash: string): Promise<string | undef
  * Stores the avatar represented by the given `data` in the database, associated with the user who
  * is uniquely identified by the given `userId`. Returns the avatar ID when successful.
  */
-export async function storeAvatarData(userId: number, data: string): Promise<number | false> {
+export async function storeAvatarData(userId: number, data: Buffer): Promise<number | false> {
     if (data.length > kAvatarSizeLimit) {
         console.error('Unable to store an avatar: request too large');
         return false;

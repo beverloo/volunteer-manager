@@ -9,7 +9,8 @@ import { Result } from './Result';
 /**
  * Primitive types we allow to be used as parameters in database queries.
  */
-export type DatabasePrimitive = string | string[] | number | number[] | boolean | undefined | null;
+export type DatabasePrimitive =
+    Buffer | string | string[] | number | number[] | boolean | undefined | null;
 
 /**
  * The default timeout for a single query to execute, in milliseconds.

@@ -69,10 +69,18 @@ export function IdentityDialog(props: IdentityDialogProps) {
 
     const requestAvatarUpdate = useCallback(async (avatar: Blob) => {
         try {
+            const base64Header = 'data:image/png;base64,';
+            const base64Avatar = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend =
+                    () => resolve((reader.result as string).substring(base64Header.length));
+                reader.readAsDataURL(avatar);
+            });
+
             const response = await issueServerAction<UpdateAvatarDefinition>(
                 '/api/auth/update-avatar',
                 {
-                    avatar: await avatar.text(),
+                    avatar: base64Avatar as string,
                 });
 
             // TODO: Update the user's avatar URL.
@@ -90,7 +98,8 @@ export function IdentityDialog(props: IdentityDialogProps) {
         <>
             <DialogContent>
                 <Container sx={kStyles.avatarContainer}>
-                    <Avatar editable onChange={requestAvatarUpdate} size="large">
+                    <Avatar editable onChange={requestAvatarUpdate} size="large"
+                            src={user.avatarUrl}>
                         {user.firstName} {user.lastName}
                     </Avatar>
                 </Container>

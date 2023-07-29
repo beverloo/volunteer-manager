@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import type { ActionProps } from '../Action';
+import { type ActionProps, noAccess } from '../Action';
 import { Privilege } from '@app/lib/auth/Privileges';
 import { storeAvatarData } from '@lib/database/AvatarStore';
 import { sql } from '@lib/database';
@@ -37,10 +37,10 @@ type Response = UpdateAvatarDefinition['response'];
  */
 export async function updateAvatar(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user || !props.user.can(Privilege.ReplaceOwnAvatar))
-        return { success: false };
+        return noAccess();
 
     const userId = props.user.userId;
-    const avatarId = await storeAvatarData(userId, request.avatar);
+    const avatarId = await storeAvatarData(userId, Buffer.from(request.avatar, 'base64'));
 
     if (avatarId) {
         const result = await sql`UPDATE users SET avatar_id=${avatarId} WHERE user_id=${userId}`;
