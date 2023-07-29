@@ -1,13 +1,16 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import type { Theme } from '@mui/material/styles';
 import type { AvatarProps as MuiAvatarProps } from '@mui/material/Avatar';
 import { default as MuiAvatar } from '@mui/material/Avatar';
 import Badge from '@mui/material/Badge';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+
+import { LazyAvatarEditor } from './LazyAvatarEditor';
 
 /**
  * Sizes in which the avatars can be displayed. Keys will automatically be used for typing.
@@ -103,6 +106,18 @@ export interface AvatarProps {
     color?: string;
 
     /**
+     * Whether the avatar should be editable. This allows the user to select and upload a new image
+     * of their liking. The `onChange` prop should be set to capture changes as well.
+     */
+    editable?: boolean;
+
+    /**
+     * Callback that should be called when the user is requesting the editable avatar to be replaced
+     * with another image, the one contained within the `avatar` blob.
+     */
+    onChange?: (avatar: Blob) => Promise<boolean>;
+
+    /**
      * Size in which the avatar should be displayed. Defaults to "medium".
      */
     size?: keyof typeof kAvatarSizeMap;
@@ -116,8 +131,6 @@ export interface AvatarProps {
      * The variant, determining how the avatar should be displayed. Defaults to "circular".
      */
     variant?: MuiAvatarProps['variant'];
-
-    // TODO: editable
 }
 
 /**
@@ -137,12 +150,14 @@ export function Avatar(props: AvatarProps) {
 
     }, [ props.children, props.color ]);
 
+    const [ editorOpen, setEditorOpen ] = useState<boolean>(false);
+
     const color = (theme: Theme) => theme.palette.getContrastText(backgroundColor);
     const { avatarSize, badgeSize } = kAvatarSizeMap[props.size ?? 'medium'];
 
     // The <MuiAvatar> of the main content. May be wrapped in a <Badge> component when a badge has
     // been specified, or be returned as the JSX from this component.
-    const avatar = (
+    let avatar = (
         <MuiAvatar alt={`Avatar associated with ${name}`}
                     src={props.src}
                     sx={{ backgroundColor, color, width: avatarSize, height: avatarSize }}
@@ -151,14 +166,35 @@ export function Avatar(props: AvatarProps) {
         </MuiAvatar>
     );
 
-    if (props.badge) {
-        return (
+    // If the avatar either is editable or a manual badge has been given, then the `avatar` should
+    // be wrapped with a <StyledBadge> component.
+    if (props.editable || props.badge) {
+        const badge =
+            props.editable ? <CloudUploadIcon onClick={ () => setEditorOpen(true) }
+                                              sx={{ cursor: 'pointer' }} />
+                           : props.badge;
+
+        avatar = (
             <StyledBadge anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                         badgeContent={props.badge}
+                         badgeContent={badge}
                          overlap={ props.variant === 'square' ? 'rectangular' : 'circular' }
                          sx={{ fontSize: badgeSize }}>
                 {avatar}
             </StyledBadge>
+        );
+    }
+
+    // If the avatar is editable, then the avatar editor needs to be made available. A lazy version
+    // is used, but still needs to be added to the resulting JSX.
+    if (props.editable) {
+        avatar = (
+            <>
+                {avatar}
+                <LazyAvatarEditor open={editorOpen}
+                                  src={props.src}
+                                  requestClose={ () => setEditorOpen(false) }
+                                  requestUpload={ props.onChange ?? (async () => false) } />
+            </>
         );
     }
 
