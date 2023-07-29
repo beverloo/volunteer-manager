@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
@@ -53,6 +54,7 @@ interface IdentityDialogProps {
  */
 export function IdentityDialog(props: IdentityDialogProps) {
     const { onClose, onSignOut, user } = props;
+    const router = useRouter();
 
     // TODO: Badges
 
@@ -83,7 +85,9 @@ export function IdentityDialog(props: IdentityDialogProps) {
                     avatar: base64Avatar as string,
                 });
 
-            // TODO: Update the user's avatar URL.
+            if (response.success)
+                router.refresh();
+
             return response.success;
 
         } catch (error) {
@@ -92,7 +96,7 @@ export function IdentityDialog(props: IdentityDialogProps) {
 
         return false;
 
-    }, [ /* no dependencies */ ]);
+    }, [ router ]);
 
     return (
         <>
