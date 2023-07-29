@@ -11,8 +11,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import LoadingButton from '@mui/lab/LoadingButton';
 
+import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UserData } from '@lib/auth/UserData';
 import { Avatar } from '@components/Avatar';
+import { issueServerAction } from '../AuthenticationFlow';
 
 /**
  * Styles used by the identity dialog.
@@ -52,7 +54,6 @@ interface IdentityDialogProps {
 export function IdentityDialog(props: IdentityDialogProps) {
     const { onClose, onSignOut, user } = props;
 
-    // TODO: Avatar
     // TODO: Badges
 
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -66,11 +67,30 @@ export function IdentityDialog(props: IdentityDialogProps) {
         }
     }, [ onSignOut ]);
 
+    const requestAvatarUpdate = useCallback(async (avatar: Blob) => {
+        try {
+            const response = await issueServerAction<UpdateAvatarDefinition>(
+                '/api/auth/update-avatar',
+                {
+                    avatar: await avatar.text(),
+                });
+
+            // TODO: Update the user's avatar URL.
+            return response.success;
+
+        } catch (error) {
+            console.error('Unable to upload a new avatar:', error);
+        }
+
+        return false;
+
+    }, [ /* no dependencies */ ]);
+
     return (
         <>
             <DialogContent>
                 <Container sx={kStyles.avatarContainer}>
-                    <Avatar editable size="large">
+                    <Avatar editable onChange={requestAvatarUpdate} size="large">
                         {user.firstName} {user.lastName}
                     </Avatar>
                 </Container>

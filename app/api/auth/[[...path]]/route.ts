@@ -13,6 +13,7 @@ import { registerActivate, kRegisterActivateDefinition } from '../registerActiva
 import { signInPassword, kSignInPasswordDefinition } from '../signInPassword';
 import { signInPasswordUpdate, kSignInPasswordUpdateDefinition } from '../signInPasswordUpdate';
 import { signOut, kSignOutDefinition } from '../signOut';
+import { updateAvatar, kUpdateAvatarDefinition } from '../updateAvatar';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -44,6 +45,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kSignInPasswordUpdateDefinition, signInPasswordUpdate);
         case 'sign-out':
             return executeAction(request, kSignOutDefinition, signOut);
+        case 'update-avatar':
+            return executeAction(request, kUpdateAvatarDefinition, updateAvatar);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });
