@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Container from '@mui/material/Container';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -70,7 +71,7 @@ export function IdentityDialog(props: IdentityDialogProps) {
         <>
             <DialogContent>
                 <Container sx={kStyles.avatarContainer}>
-                    <Avatar>
+                    <Avatar badge={ <CloudUploadIcon /> } size="large">
                         {user.firstName} {user.lastName}
                     </Avatar>
                 </Container>

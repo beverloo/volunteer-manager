@@ -6,15 +6,34 @@ import { useMemo } from 'react';
 import type { Theme } from '@mui/material/styles';
 import type { AvatarProps as MuiAvatarProps } from '@mui/material/Avatar';
 import { default as MuiAvatar } from '@mui/material/Avatar';
+import Badge from '@mui/material/Badge';
+import { styled } from '@mui/material/styles';
 
 /**
  * Sizes in which the avatars can be displayed. Keys will automatically be used for typing.
  */
 const kAvatarSizeMap = {
-    small: 24,
-    medium: 40,
-    large: 56,
+    small: { avatarSize: 24, badgeSize: 12 },
+    medium: { avatarSize: 40, badgeSize: 20 },
+    large: { avatarSize: 80, badgeSize: 24 },
 };
+
+/**
+ * Variant of the <Badge> component containing styling to make the included badge stand out better
+ * on top of a paper background.
+ */
+const StyledBadge = styled(Badge)(({ theme }) => ({
+    '& .MuiBadge-badge': {
+        fontSize: 'inherit',
+
+        '& svg': { fontSize: 'inherit', overflow: 'visible' },
+        '& svg path': {
+            paintOrder: 'stroke',
+            stroke: theme.palette.background.paper,
+            strokeWidth: '4px',
+        },
+    },
+}));
 
 /**
  * Determines the name based on the given `children`, which can either be omitted, a string or an
@@ -67,6 +86,12 @@ function determineColour(name: string): string {
  */
 export interface AvatarProps {
     /**
+     * The badge that should be displayed on the avatar, if any. It will be displayed in the bottom-
+     * right corner considering the `variant`.
+     */
+    badge?: JSX.Element | null;
+
+    /**
      * Children passed to the <Avatar> component. When given, must be a string based on which the
      * person's initials will be derived in case no valid `src` is given.
      */
@@ -92,7 +117,6 @@ export interface AvatarProps {
      */
     variant?: MuiAvatarProps['variant'];
 
-    // TODO: badge
     // TODO: editable
 }
 
@@ -114,14 +138,29 @@ export function Avatar(props: AvatarProps) {
     }, [ props.children, props.color ]);
 
     const color = (theme: Theme) => theme.palette.getContrastText(backgroundColor);
-    const size = kAvatarSizeMap[props.size ?? 'medium'];
+    const { avatarSize, badgeSize } = kAvatarSizeMap[props.size ?? 'medium'];
 
-    return (
+    // The <MuiAvatar> of the main content. May be wrapped in a <Badge> component when a badge has
+    // been specified, or be returned as the JSX from this component.
+    const avatar = (
         <MuiAvatar alt={`Avatar associated with ${name}`}
-                   src={props.src}
-                   sx={{ backgroundColor, color, width: size, height: size }}
-                   variant={props.variant}>
+                    src={props.src}
+                    sx={{ backgroundColor, color, width: avatarSize, height: avatarSize }}
+                    variant={props.variant}>
             {initials}
         </MuiAvatar>
     );
+
+    if (props.badge) {
+        return (
+            <StyledBadge anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                         badgeContent={props.badge}
+                         overlap={ props.variant === 'square' ? 'rectangular' : 'circular' }
+                         sx={{ fontSize: badgeSize }}>
+                {avatar}
+            </StyledBadge>
+        );
+    }
+
+    return avatar;
 }
