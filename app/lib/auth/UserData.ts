@@ -7,6 +7,11 @@
  */
 export interface UserData {
     /**
+     * URL using which this user's avatar can be retrieved.
+     */
+    avatarUrl?: string;
+
+    /**
      * The first name of this user.
      */
     firstName: string;

@@ -115,11 +115,14 @@ export async function authenticateUserFromPassword(username: string, sha256Passw
         await sql`
             SELECT
                 users.*,
-                users_auth.auth_type
+                users_auth.auth_type,
+                storage.file_hash AS avatar_file_hash
             FROM
                 users
             LEFT JOIN
                 users_auth ON users_auth.user_id = users.user_id
+            LEFT JOIN
+                storage ON storage.file_id = users.avatar_id
             WHERE
                 users.username = ${username} AND
                 users.activated = 1 AND
@@ -148,7 +151,17 @@ export async function authenticateUserFromPassword(username: string, sha256Passw
 export async function authenticateUserFromSession(session: SessionData): Promise<User | undefined> {
     const { id, token } = session;
     const result =
-        await sql`SELECT * FROM users WHERE user_id = ${id} AND session_token = ${token}`;
+        await sql`
+            SELECT
+                users.*,
+                storage.file_hash AS avatar_file_hash
+            FROM
+                users
+            LEFT JOIN
+                storage ON storage.file_id = users.avatar_id
+            WHERE
+                users.user_id = ${id} AND
+                users.session_token = ${token}`;
 
     if (!result.ok || !result.rows.length)
         return undefined;

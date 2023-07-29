@@ -75,7 +75,8 @@ export function RegistrationHeader(props: RegistrationHeaderProps) {
             { props.user &&
                 <AuthenticationHeaderChip clickable
                                           avatar={
-                                              <Avatar sx={kStyles.avatar} src={undefined}>
+                                              <Avatar src={props.user.avatarUrl}
+                                                      sx={kStyles.avatar}>
                                                   PB
                                               </Avatar> }
                                           label={props.user.firstName}

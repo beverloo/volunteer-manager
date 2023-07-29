@@ -4,6 +4,7 @@
 import { Privilege } from './Privileges';
 import { type UserData } from './UserData';
 
+import { getAvatarUrl } from '../database/AvatarStore';
 import { securePasswordHash } from './Password';
 import { sql } from '../database';
 
@@ -44,6 +45,7 @@ export interface UserDatabaseRow {
     gender: string;
     birthdate: string;  // YYYY-MM-DD
     phone_number: string;
+    avatar_file_hash?: string;
     privileges: number;
     session_token: number;
 }
@@ -172,6 +174,7 @@ export class User implements UserData {
 
     get firstName() { return this.#user.first_name; }
     get lastName() { return this.#user.last_name; }
+    get avatarUrl() { return getAvatarUrl(this.#user.avatar_file_hash); }
     get privileges() { return this.#user.privileges; }
     get username() { return this.#user.username; }
 
@@ -186,6 +189,7 @@ export class User implements UserData {
         return {
             firstName: this.firstName,
             lastName: this.lastName,
+            avatarUrl: this.avatarUrl,
             privileges: this.privileges,
             username: this.username,
         };
