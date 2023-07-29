@@ -4,6 +4,9 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { Privilege } from '@app/lib/auth/Privileges';
+import { storeAvatarData } from '@lib/database/AvatarStore';
+import { sql } from '@lib/database';
 
 /**
  * Interface definition for the UpdateAvatar API, exposed through /api/auth/update-avatar.
@@ -33,6 +36,17 @@ type Response = UpdateAvatarDefinition['response'];
  * although select volunteers have the ability to update avatars belonging to other people as well.
  */
 export async function updateAvatar(request: Request, props: ActionProps): Promise<Response> {
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (!props.user || !props.user.can(Privilege.ReplaceOwnAvatar))
+        return { success: false };
+
+    const userId = props.user.userId;
+    const avatarId = await storeAvatarData(userId, request.avatar);
+
+    if (avatarId) {
+        const result = await sql`UPDATE users SET avatar_id=${avatarId} WHERE user_id=${userId}`;
+        if (result.ok && result.affectedRows === 1)
+            return { success: true };
+    }
+
     return { success: false };
 }
