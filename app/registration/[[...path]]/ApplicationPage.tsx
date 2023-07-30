@@ -80,8 +80,11 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
  * these options anyway, and this allows more emphasis on adjusted values.
  */
 const kDefaultValues = {
+    availability: true,
+    credits: true,
     serviceHours: '16',
     serviceTiming: '10-0',
+    socials: true,
 };
 
 /**
@@ -275,11 +278,11 @@ export function ApplicationPage(props: ApplicationPageProps) {
                 </Grid>
 
                 <Typography variant="h6" sx={{ pt: 2 }}>
-                    Some more questions…
+                    Just to check…
                 </Typography>
                 <Stack>
                     <CheckboxElement name="availability" size="small" label={availabilityLabel}
-                                     onChange={ (e) => setAvailabilityWarning(e.target.checked) } />
+                                     onChange={(e) => setAvailabilityWarning(!e.target.checked)} />
 
                     <Collapse in={availabilityWarning}>
                         <Typography color="error" sx={kStyles.availabilityWarning}>
@@ -292,7 +295,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
                 </Stack>
 
                 <Collapse in={!!error}>
-                    <Typography color="error" sx={{ pt: 2 }}>
+                    <Typography color="error" sx={{ py: 2 }}>
                         {error}
                     </Typography>
                 </Collapse>
