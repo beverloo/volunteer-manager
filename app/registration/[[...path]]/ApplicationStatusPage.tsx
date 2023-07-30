@@ -7,11 +7,11 @@ import { type RegistrationInfo } from '../Registration';
 import { type UserData } from '@app/lib/auth/UserData';
 
 /**
- * Props accepted by the <ApplicationReceivedPage> page.
+ * Props accepted by the <ApplicationStatusPage> page.
  */
-export interface ApplicationReceivedPageProps {
+export interface ApplicationStatusPageProps {
     /**
-     * The content that should be displayed on the confirmation page.
+     * The content that should be displayed on the status page.
      */
     content?: Content;
 
@@ -33,9 +33,9 @@ export interface ApplicationReceivedPageProps {
 }
 
 /**
- * The <ApplicationReceivedPage> component confirms to a user that their application has been
- * retrieved by the team's leads and that it will be considered.
+ * The <ApplicationStatusPage> component confirms to a user that their application has been
+ * retrieved by the team's leads and the status of its consideration.
  */
-export function ApplicationReceivedPage(props: ApplicationReceivedPageProps) {
+export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     return <p>Hello, world.</p>
 }

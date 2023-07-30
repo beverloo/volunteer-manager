@@ -4,7 +4,7 @@
 'use client';
 
 import { useCallback, useContext, useState } from 'react';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import {
     type FieldValues, CheckboxElement, FormContainer, SelectElement,
@@ -191,10 +191,8 @@ export function ApplicationPage(props: ApplicationPageProps) {
 
             if (!response.success)
                 setError(response.error || 'The server was not able to accept your application.');
-            else {
+            else
                 router.refresh();
-                redirect(`/registration/${event.slug}/application-received`);
-            }
 
         } catch (error) {
             setError((error as Error).message);
