@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useContext, useState } from 'react';
+import { redirect, useRouter } from 'next/navigation';
 
 import {
     type FieldValues, CheckboxElement, FormContainer, SelectElement,
@@ -20,19 +21,22 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { lighten } from '@mui/system/colorManipulator';
 
+import { type ApplicationDefinition } from '@app/api/event/application';
 import { type Content } from '@lib/Content';
 import { type EventData } from '@lib/Event';
-import { type RegistrationInfo } from '../Registration';
 import { type UserData } from '@app/lib/auth/UserData';
 import { AuthenticationContext } from '../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';
+import { issueServerAction } from '@lib/issueServerAction';
+
+type ApplicationRequest = ApplicationDefinition['request'];
 
 /**
  * Valid options for the number of hours volunteers are willing to work. When updating an ID, make
  * sure that `kDefaultValues` is updated as well.
  */
-const kServiceHoursOptions = [
+const kServiceHoursOptions: { id: ApplicationRequest['serviceHours'], label: string }[] = [
     { id: '12', label: 'Up to 12 hours' },
     { id: '16', label: '12–16 hours' },
     { id: '20', label: '16–20 hours' },
@@ -43,7 +47,7 @@ const kServiceHoursOptions = [
  * Valid options for the timing of shifts a volunteer could be issued. When updating an ID, make
  * sure that `kDefaultValues` is updated as well.
  */
-const kServiceTimingOption = [
+const kServiceTimingOption: { id: ApplicationRequest['serviceTiming'], label: string }[] = [
     { id: '8-20', label: 'Early (08:00–20:00)' },
     { id: '10-0', label: 'Regular (10:00–00:00)' },
     { id: '14-3', label: 'Late (14:00–03:00)' },
@@ -52,7 +56,7 @@ const kServiceTimingOption = [
 /**
  * Valid options for the t-shirt fit select field.
  */
-const kTShirtFitOptions = [
+const kTShirtFitOptions: { id: ApplicationRequest['tshirtFit'], label: string }[] = [
     { id: 'Regular', label: 'Regular' },
     { id: 'Girly', label: 'Girly' },
 ];
@@ -60,7 +64,7 @@ const kTShirtFitOptions = [
 /**
  * Valid options for the t-shirt size select field.
  */
-const kTShirtSizeOptions = [
+const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string }[] = [
     { id: 'XS', label: 'XS' },
     { id: 'S', label: 'Small' },
     { id: 'M', label: 'Medium' },
@@ -124,11 +128,6 @@ export interface ApplicationPageProps {
     event: EventData;
 
     /**
-     * Information about the user's existing registration.
-     */
-    registration?: RegistrationInfo;
-
-    /**
      * The user who is currently signed in. We require someone to be signed in when applying, as
      * it helps carry their participation information across multiple events.
      */
@@ -151,7 +150,10 @@ export function ApplicationPage(props: ApplicationPageProps) {
     }, [ authenticationContext ])
 
     const [ accountError, setAccountError ] = useState<boolean>(false);
+    const [ error, setError ] = useState<string>();
+
     const [ loading, setLoading ] = useState<boolean>(false);
+    const router = useRouter();
 
     const requestRegistration = useCallback(async (data: FieldValues) => {
         if (!user) {
@@ -161,16 +163,37 @@ export function ApplicationPage(props: ApplicationPageProps) {
             setAccountError(false);
         }
 
+        setError(undefined);
         setLoading(true);
 
-        // TODO: Actually submit the registration to the server.
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            const response =
+                await issueServerAction<ApplicationDefinition>('/api/event/application', {
+                    availability: !!data.availability,
+                    credits: !!data.credits,
+                    event: event.slug,
+                    preferences: data.preferences,
+                    serviceHours: data.serviceHours,
+                    serviceTiming: data.serviceTiming,
+                    socials: !!data.socials,
+                    tshirtFit: data.tshirtFit,
+                    tshirtSize: data.tshirtSize,
+                });
 
-        setLoading(false);
+            if (!response.success)
+                setError(response.error || 'The server was not able to accept your application.');
+            else {
+                router.refresh();
+                redirect(`/registration/${event.slug}/application-received`);
+            }
 
-    }, [ user ]);
+        } catch (error) {
+            setError((error as Error).message);
+        } finally {
+            setLoading(false);
+        }
 
-    // TODO: State - signed in and registered
+    }, [ event, router, user ]);
 
     const availabilityLabel = `Yes, I will be fully available during ${event.shortName}`;
     const creditsLabel = `Yes, I'd like to be included in the ${event.shortName} credit reel`;
@@ -213,7 +236,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
 
                 <Collapse in={accountError}>
                     <Typography color="error" sx={{ pb: 2 }}>
-                        You need to omg
+                        You need to sign in or create an account before applying.
                     </Typography>
                 </Collapse>
 
@@ -254,7 +277,13 @@ export function ApplicationPage(props: ApplicationPageProps) {
                     <CheckboxElement name="socials" size="small" label={socialsLabel} />
                 </Stack>
 
-                <LoadingButton loading={loading} type="submit" variant="contained" sx={{ mt: 2 }}>
+                <Collapse in={!!error}>
+                    <Typography color="error" sx={{ pt: 2 }}>
+                        {error}
+                    </Typography>
+                </Collapse>
+
+                <LoadingButton loading={loading} type="submit" variant="contained" sx={{ mt: 1 }}>
                     Submit application
                 </LoadingButton>
 

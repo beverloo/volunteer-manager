@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UserData } from '@lib/auth/UserData';
 import { Avatar } from '@components/Avatar';
-import { issueServerAction } from '../AuthenticationFlow';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <IdentityDialog> component.

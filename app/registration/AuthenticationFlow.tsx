@@ -19,6 +19,7 @@ import { RegisterDialog, type PartialRegistrationRequest } from './authenticatio
 import { RegisterCompleteDialog } from './authentication/RegisterCompleteDialog';
 import { RegisterConfirmDialog } from './authentication/RegisterConfirmDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
+import { issueServerAction } from '@lib/issueServerAction';
 import { validatePassword } from './authentication/PasswordField';
 
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
@@ -53,35 +54,6 @@ async function SHA256HashPassword(password: string): Promise<string> {
     return [ ...new Uint8Array(passwordHashedBuffer) ]
         .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
-}
-
-type ServerCallDefinition = { request: object; response: object; };
-
-/**
- * Issues a call to the server at the given `endpoint` with the given `request` information. When
- * successful, will return an object conforming to the response type, or otherwise throw an Error
- * that should be caught by the user interface.
- *
- * @param endpoint The endpoint to which the call should be made.
- * @param request Request information that should be included in the request.
- * @returns Response from the server, unverified but assumed to be correct for now.
- */
-export async function issueServerAction<T extends ServerCallDefinition>(
-    endpoint: string, request: T['request'])
-        : Promise<T['response']>
-{
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request),
-        });
-
-        return await response.json();
-
-    } catch {
-        throw new Error('The server ran into an issue, please try again later.');
-    }
 }
 
 /**

@@ -18,6 +18,7 @@ import { lighten } from '@mui/material/styles';
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: {
         '&> div >:last-child': { mb: 0 },
+        '&> p:last-child': { mb: 0 },
 
         '& blockquote': {
             backgroundColor: theme => lighten(theme.palette.error.main, .8),

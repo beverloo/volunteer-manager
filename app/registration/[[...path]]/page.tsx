@@ -4,6 +4,7 @@
 import { redirect } from 'next/navigation'
 
 import { ApplicationPage } from './ApplicationPage';
+import { ApplicationReceivedPage } from './ApplicationReceivedPage';
 import { Event } from '@lib/Event';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
@@ -70,6 +71,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     switch (path[0]) {
         case 'application':
+        case 'application-received':
             requestedPage = path[0];
             break;
 
@@ -92,17 +94,22 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     return (
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer title={event.name} user={userData}>
-                { requestedPage === 'application' &&
+                { (requestedPage === 'application' && !registration) &&
                     <ApplicationPage content={content}
-                                        event={event.toEventData()}
-                                        registration={registration}
-                                        user={userData} /> }
+                                     event={event.toEventData()}
+                                     user={userData} /> }
+                { ((requestedPage === 'application-received' && registration) ||
+                        (requestedPage === 'application' && registration)) &&
+                    <ApplicationReceivedPage content={content}
+                                             event={event.toEventData()}
+                                             registration={registration}
+                                             user={userData} /> }
                 { (!requestedPage && content) &&
                     <RegistrationContent backUrl={backUrl}
-                                            content={content}
-                                            event={event.toEventData()}
-                                            showRegistrationButton={!path.length}
-                                            enableRegistrationButton={!registration} /> }
+                                         content={content}
+                                         event={event.toEventData()}
+                                         showRegistrationButton={!path.length}
+                                         enableRegistrationButton={!registration} /> }
             </RegistrationContentContainer>
         </RegistrationLayout>
     );

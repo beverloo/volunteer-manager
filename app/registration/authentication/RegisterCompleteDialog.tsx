@@ -13,7 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Skeleton from '@mui/material/Skeleton';
 
 import type { RegisterActivateDefinition } from '@app/api/auth/registerActivate';
-import { issueServerAction } from '../AuthenticationFlow';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <RegisterCompleteDialog> component.

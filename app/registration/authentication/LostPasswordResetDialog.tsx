@@ -17,7 +17,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import type { PasswordResetVerifyDefinition } from '@app/api/auth/passwordResetVerify';
 import { PasswordField } from './PasswordField';
-import { issueServerAction } from '../AuthenticationFlow';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <LostPasswordResetDialog> component.
