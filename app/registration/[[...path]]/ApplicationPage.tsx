@@ -11,6 +11,7 @@ import {
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 import FaceIcon from '@mui/icons-material/Face';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -137,6 +138,9 @@ export interface ApplicationPageProps {
 /**
  * The <ApplicationPage> component makes it possible for people to apply to join a particular event.
  * A whole bunch of checks will have to be done in order to verify that they can.
+ *
+ * @note A development-mode refresh issue is happening right now, which seems to be related to the
+ *       latest version of NextJS. See https://zenn.dev/hayato94087/articles/41ab9455bac4b8.
  */
 export function ApplicationPage(props: ApplicationPageProps) {
     const { event, user } = props;
@@ -146,10 +150,26 @@ export function ApplicationPage(props: ApplicationPageProps) {
         authenticationContext.requestAuthenticationFlow();
     }, [ authenticationContext ])
 
+    const [ accountError, setAccountError ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    // TODO: State - signed out
-    // TODO: State - signed in but unregistered
+    const requestRegistration = useCallback(async (data: FieldValues) => {
+        if (!user) {
+            setAccountError(true);
+            return;
+        } else {
+            setAccountError(false);
+        }
+
+        setLoading(true);
+
+        // TODO: Actually submit the registration to the server.
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        setLoading(false);
+
+    }, [ user ]);
+
     // TODO: State - signed in and registered
 
     const availabilityLabel = `Yes, I will be fully available during ${event.shortName}`;
@@ -157,7 +177,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
     const socialsLabel = 'Yes, I would like to join the private Discord and WhatsApp groups';
 
     return (
-        <FormContainer defaultValues={kDefaultValues}>
+        <FormContainer defaultValues={kDefaultValues} onSuccess={requestRegistration}>
             <Box sx={{ p: 2 }}>
                 {props.content && <Markdown sx={{ pb: 2 }}>{props.content.markdown}</Markdown> }
 
@@ -191,6 +211,12 @@ export function ApplicationPage(props: ApplicationPageProps) {
                         </Box> }
                 </Box>
 
+                <Collapse in={accountError}>
+                    <Typography color="error" sx={{ pb: 2 }}>
+                        You need to omg
+                    </Typography>
+                </Collapse>
+
                 <Typography variant="h6">
                     Your participation
                 </Typography>
@@ -214,8 +240,8 @@ export function ApplicationPage(props: ApplicationPageProps) {
                     </Grid>
 
                     <Grid xs={12}>
-                        <TextFieldElement name="preferences" label="Do you have any preferences?"
-                                          fullWidth size="small" />
+                        <TextFieldElement name="preferences" fullWidth size="small"
+                                          label="Any preferences we should know about?" />
                     </Grid>
                 </Grid>
 
