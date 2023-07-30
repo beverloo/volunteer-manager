@@ -3,7 +3,7 @@
 
 import { type Environment } from '../Environment';
 import { type EventDatabaseRow, Event } from './Event';
-import { Privilege } from './auth/Privileges';
+import { Privilege, can } from './auth/Privileges';
 import { User } from './auth/User';
 
 import { getRequestEnvironment } from './getRequestEnvironment';
@@ -90,9 +90,9 @@ export async function getEventsForUser(user?: User, environment?: Environment): 
     if (!eventResults.ok)
         return [ /* no events */ ];
 
-    const eventContentOverride = user && user.can(Privilege.EventContentOverride);
-    const eventRegistrationOverride = user && user.can(Privilege.EventRegistrationOverride);
-    const eventScheduleOverride = user && user.can(Privilege.EventScheduleOverride);
+    const eventContentOverride = can(user, Privilege.EventContentOverride);
+    const eventRegistrationOverride = can(user, Privilege.EventRegistrationOverride);
+    const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
 
     const events: Event[] = [];
     for (const untypedEventDatabaseRow of eventResults.rows) {

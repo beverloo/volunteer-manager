@@ -93,14 +93,6 @@ export class User implements UserData {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Returns whether the user is allowed to use the given |privilege|.
-     */
-    can(privilege: Privilege): boolean {
-        return (this.#user.privileges & Privilege.Administrator) !== 0 ||
-               (this.#user.privileges & privilege) !== 0;
-    }
-
-    /**
      * Update the user's password to the given |hashedPassword|, which already should be a SHA-256
      * hashed representation. Optionally the session token can be incremented as well, which will
      * invalidate all other existing sessions.

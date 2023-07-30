@@ -4,7 +4,6 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -17,15 +16,6 @@ import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UserData } from '@lib/auth/UserData';
 import { Avatar } from '@components/Avatar';
 import { issueServerAction } from '../AuthenticationFlow';
-
-/**
- * Styles used by the identity dialog.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    avatarContainer: {
-        textAlign: 'center',
-    },
-};
 
 /**
  * Props accepted by the <IdentityDialog> component.

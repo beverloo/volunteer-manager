@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { Privilege } from '@app/lib/auth/Privileges';
+import { Privilege, can } from '@app/lib/auth/Privileges';
 import { storeAvatarData } from '@lib/database/AvatarStore';
 import { sql } from '@lib/database';
 
@@ -36,7 +36,7 @@ type Response = UpdateAvatarDefinition['response'];
  * although select volunteers have the ability to update avatars belonging to other people as well.
  */
 export async function updateAvatar(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user || !props.user.can(Privilege.ReplaceOwnAvatar))
+    if (!props.user || !can(props.user, Privilege.ReplaceOwnAvatar))
         return noAccess();
 
     const userId = props.user.userId;
