@@ -27,6 +27,12 @@ export interface RegistrationContentContainerProps {
     title?: string;
 
     /**
+     * When passed, will be considered by the authentication flow as the redirect URL in case the
+     * visitor still has to create a new account.
+     */
+    redirectUrl?: string;
+
+    /**
      * Information about the signed in user, as they should be shown in the header.
      */
     user?: UserData;
@@ -70,6 +76,7 @@ export function RegistrationContentContainer(props: RegistrationContentContainer
                                     open={authFlowOpen}
                                     passwordResetRequest={
                                         searchParams.get('password-reset-request')!}
+                                    registrationRedirectUrl={props.redirectUrl}
                                     registrationRequest={
                                         searchParams.get('registration-request')!}
                                     user={props.user} />

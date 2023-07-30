@@ -67,10 +67,12 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     ]);
 
     // Step 3: Defer to more specific sub-components when this is a functional request.
+    let redirectUrl = `/registration/${event.slug}`;
     let requestedPage = null;
 
     switch (path[0]) {
         case 'application':
+            redirectUrl = `/registration/${event.slug}/application`;
             requestedPage = path[0];
             break;
 
@@ -92,7 +94,10 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer title={event.name} user={userData}>
+            <RegistrationContentContainer title={event.name}
+                                          redirectUrl={redirectUrl}
+                                          user={userData}>
+
                 { (requestedPage === 'application' && !registration) &&
                     <ApplicationPage content={content}
                                      event={event.toEventData()}
@@ -108,6 +113,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
                                          event={event.toEventData()}
                                          showRegistrationButton={!path.length}
                                          enableRegistrationButton={!registration} /> }
+
             </RegistrationContentContainer>
         </RegistrationLayout>
     );
