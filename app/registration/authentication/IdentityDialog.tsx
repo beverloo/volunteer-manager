@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Typography from '@mui/material/Typography';
 
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UserData } from '@lib/auth/UserData';
@@ -57,6 +58,7 @@ export function IdentityDialog(props: IdentityDialogProps) {
     const router = useRouter();
 
     // TODO: Badges
+    // TODO: Refer to sign-up for future events?
 
     const [ loading, setLoading ] = useState<boolean>(false);
     const requestSignOut = useCallback(async () => {
@@ -101,16 +103,23 @@ export function IdentityDialog(props: IdentityDialogProps) {
     return (
         <>
             <DialogContent>
-                <Container sx={kStyles.avatarContainer}>
-                    <Avatar editable onChange={requestAvatarUpdate} size="large"
-                            src={user.avatarUrl}>
-                        {user.firstName} {user.lastName}
-                    </Avatar>
-                </Container>
-                <DialogContentText>
-                    Hi {user.firstName}, you're signed in.
-                </DialogContentText>
-                { /* TODO: Badges */ }
+                <Grid container spacing={2}>
+                    <Grid xs={12} md={3} display="flex" justifyContent="center" alignItems="center">
+                        <Avatar editable onChange={requestAvatarUpdate} size="large"
+                                src={user.avatarUrl}>
+                            {user.firstName} {user.lastName}
+                        </Avatar>
+                    </Grid>
+                    <Grid xs={12} md={9}>
+                        <Typography variant="h6">
+                            {user.firstName} {user.lastName}
+                        </Typography>
+                        <Typography>
+                            You are signed in to your account.
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <Divider sx={{ pt: 2, mb: -1 }} />
             </DialogContent>
             <DialogActions>
                 <LoadingButton loading={loading} onClick={requestSignOut}>
