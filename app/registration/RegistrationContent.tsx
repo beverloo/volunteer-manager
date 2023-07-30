@@ -7,7 +7,6 @@ import Link from 'next/link';
 
 import { type Content } from '@lib/Content';
 import { type EventData } from '@lib/Event';
-import { type RegistrationInfo } from './Registration';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';

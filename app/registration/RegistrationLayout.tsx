@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link'
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -12,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
 
 import { type Environment, kEnvironmentColours, kEnvironmentTitle } from '../Environment';
+import { AuthenticationContext, AuthenticationContextManager } from './AuthenticationContext';
 
 /**
  * Styles that are to be applied to the <object> element that hosts our logo. This is an SVG file
@@ -72,6 +74,8 @@ export function RegistrationLayout(props: RegistrationLayoutProps) {
         [ 'title', kEnvironmentTitle[props.environment] ],
     ]);
 
+    const [ authenticationContext ] = useState(new AuthenticationContextManager);
+
     return (
         <>
             <Box sx={generateBackgroundStylesForEnvironment(props.environment)}></Box>
@@ -82,7 +86,9 @@ export function RegistrationLayout(props: RegistrationLayoutProps) {
                                 data={'/images/logo.svg?' + params} />
                     </Link>
                 </Container>
-                {props.children}
+                <AuthenticationContext.Provider value={authenticationContext}>
+                    {props.children}
+                </AuthenticationContext.Provider>
                 <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
                     AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
                 </Typography>

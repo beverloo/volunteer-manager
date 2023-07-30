@@ -3,11 +3,11 @@
 
 'use client';
 
+import { useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 
 import Paper from '@mui/material/Paper';
-
+import { AuthenticationContext } from './AuthenticationContext';
 import { type UserData } from '@lib/auth/UserData';
 import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { RegistrationHeader } from './RegistrationHeader';
@@ -43,7 +43,18 @@ export function RegistrationContentContainer(props: RegistrationContentContainer
     const initialAuthFlowOpen = searchParams.has('password-reset-request') ||
                                 searchParams.has('registration-request');
 
+    const authenticationContext = useContext(AuthenticationContext);
     const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(initialAuthFlowOpen);
+
+    // Observe requests for the authentication context to be opened from within the rendering tree
+    // of the <RegistrationLayout>.
+    useEffect(() => {
+        const listener = () => setAuthFlowOpen(true);
+
+        authenticationContext.attachRequestListener(listener);
+        return () => authenticationContext.detachRequestListener(listener);
+
+    }, [ authenticationContext ]);
 
     return (
         <>

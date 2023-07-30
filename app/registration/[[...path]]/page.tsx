@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 import { ApplicationPage } from './ApplicationPage';
 import { Event } from '@lib/Event';
@@ -87,16 +87,22 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // Step 3: Determine whether to intercept the request for one of the form pages, or to display
     // a pure-content registration page with the information made available above.
     const backUrl = path.length ? `/registration/${event.slug}` : undefined;
+    const userData = user?.toUserData();
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer title={event.name} user={user?.toUserData()}>
+            <RegistrationContentContainer title={event.name} user={userData}>
+                { requestedPage === 'application' &&
+                    <ApplicationPage content={content}
+                                        event={event.toEventData()}
+                                        registration={registration}
+                                        user={userData} /> }
                 { (!requestedPage && content) &&
                     <RegistrationContent backUrl={backUrl}
-                                         content={content}
-                                         event={event.toEventData()}
-                                         showRegistrationButton={!path.length}
-                                         enableRegistrationButton={!registration} /> }
+                                            content={content}
+                                            event={event.toEventData()}
+                                            showRegistrationButton={!path.length}
+                                            enableRegistrationButton={!registration} /> }
             </RegistrationContentContainer>
         </RegistrationLayout>
     );
