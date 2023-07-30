@@ -88,6 +88,11 @@ const kDefaultValues = {
  * Manual styles that apply to the <ApplicationPage> client component.
  */
 export const kStyles: { [key: string]: SxProps<Theme> } = {
+    availabilityWarning: {
+        borderLeft: (theme) => `3px solid ${theme.palette.error.main}`,
+        marginLeft: 3.5,
+        paddingLeft: 2,
+    },
     identity: {
         paddingBottom: 2,
         '& > .MuiBox-root': {
@@ -150,6 +155,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
     }, [ authenticationContext ])
 
     const [ accountError, setAccountError ] = useState<boolean>(false);
+    const [ availabilityWarning, setAvailabilityWarning ] = useState<boolean>(false);
     const [ error, setError ] = useState<string>();
 
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -272,7 +278,15 @@ export function ApplicationPage(props: ApplicationPageProps) {
                     Some more questions…
                 </Typography>
                 <Stack>
-                    <CheckboxElement name="availability" size="small" label={availabilityLabel} />
+                    <CheckboxElement name="availability" size="small" label={availabilityLabel}
+                                     onChange={ (e) => setAvailabilityWarning(e.target.checked) } />
+
+                    <Collapse in={availabilityWarning}>
+                        <Typography color="error" sx={kStyles.availabilityWarning}>
+                            Please indicate your availability in the preferences field.
+                        </Typography>
+                    </Collapse>
+
                     <CheckboxElement name="credits" size="small" label={creditsLabel} />
                     <CheckboxElement name="socials" size="small" label={socialsLabel} />
                 </Stack>
