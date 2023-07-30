@@ -4,7 +4,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
@@ -16,7 +15,6 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Grid from '@mui/material/Unstable_Grid2';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -25,10 +23,9 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { type EventData } from '@lib/Event';
 import { type UserData } from '@lib/auth/UserData';
 import { DateTime } from '@lib/DateTime';
-import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationHeader } from '../registration/RegistrationHeader';
+import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
@@ -122,24 +119,10 @@ export function WelcomePage(props: WelcomePageProps) {
             <VisibilityOffIcon fontSize="small" color="disabled" />
         </Tooltip>;
 
-    // The authentication flow should be opened automatically when the `password-reset-request` or
-    // the `registration-request` parameter is included in the URL's search parameters.
-    const searchParams = useSearchParams();
-    const initialAuthFlowOpen = searchParams.has('password-reset-request') ||
-                                searchParams.has('registration-request');
-
-    const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(initialAuthFlowOpen);
-
     return (
         <>
-            <Paper elevation={2}>
-                { /* Section: Page header */ }
-                <RegistrationHeader onUserChipClick={() => setAuthFlowOpen(true)}
-                                    title={`AnimeCon ${props.title}`}
-                                    user={props.user} />
-
-                { /* Section: Participation status */ }
-                { /* TODO */ }
+            <RegistrationContentContainer title={`AnimeCon ${props.title}`}
+                                          user={props.user}>
 
                 { /* Section: Landing page */ }
                 <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
@@ -196,7 +179,8 @@ export function WelcomePage(props: WelcomePageProps) {
                         { /* TODO: Multiple photos per environment */ }
                     </Grid>
                 </Grid>
-            </Paper>
+
+            </RegistrationContentContainer>
 
             { /* Section: Further content */ }
             <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -284,12 +268,6 @@ export function WelcomePage(props: WelcomePageProps) {
                         </Card>
                     </Grid> )}
             </Grid>
-            <LazyAuthenticationFlow onClose={() => setAuthFlowOpen(false)}
-                                    open={authFlowOpen}
-                                    passwordResetRequest={
-                                        searchParams.get('password-reset-request')!}
-                                    registrationRequest={searchParams.get('registration-request')!}
-                                    user={props.user} />
         </>
     );
 }

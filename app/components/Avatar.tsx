@@ -65,7 +65,7 @@ function determineInitials(name: string): string {
     }
 
     return initials.length ? initials.slice(0, 2).join('')
-                           : name[0].toUpperCase();
+                           : (name[0] || 'X').toUpperCase();
 }
 
 /**

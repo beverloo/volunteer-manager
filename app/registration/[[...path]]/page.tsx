@@ -7,6 +7,7 @@ import { ApplicationPage } from './ApplicationPage';
 import { Event } from '@lib/Event';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
+import { RegistrationContentContainer } from '../RegistrationContentContainer';
 import { RegistrationLayout } from '../RegistrationLayout';
 
 import { getContent } from '@lib/Content';
@@ -89,13 +90,14 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     return (
         <RegistrationLayout environment={environment}>
-            { (!requestedPage && content) &&
-                <RegistrationContent backUrl={backUrl}
-                                     content={content}
-                                     event={event.toEventData()}
-                                     registration={registration}
-                                     showRegistrationButton={!path.length}
-                                     user={user?.toUserData()} /> }
+            <RegistrationContentContainer title={event.name} user={user?.toUserData()}>
+                { (!requestedPage && content) &&
+                    <RegistrationContent backUrl={backUrl}
+                                         content={content}
+                                         event={event.toEventData()}
+                                         showRegistrationButton={!path.length}
+                                         enableRegistrationButton={!registration} /> }
+            </RegistrationContentContainer>
         </RegistrationLayout>
     );
 }

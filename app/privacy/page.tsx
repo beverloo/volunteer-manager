@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation'
 
 import { RegistrationContent } from '../registration/RegistrationContent';
+import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { getRequestEnvironment } from '@lib/getRequestEnvironment';
 import { getStaticContent } from '@lib/Content';
@@ -24,9 +25,12 @@ export default async function PrivacyPage() {
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContent content={content}
-                                 title="GDPR & Data Sharing Policies"
-                                 user={user?.toUserData()} />
+            <RegistrationContentContainer title="GDPR & Data Sharing Policies"
+                                          user={user?.toUserData()}>
+
+                <RegistrationContent content={content}/>
+
+            </RegistrationContentContainer>
         </RegistrationLayout>
     );
 }
