@@ -68,30 +68,16 @@ function Text(props: TypographyProps & { tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' |
 
 /**
  * Markdown replacement for both the native HTML <a> anchor element, as well as the Material UI
- * <Link> element, that (1) employs NextJS routing and (2) enables resolution using a `baseUrl`.
+ * <Link> element, that employs NextJS routing.
  */
-function LinkComponent(props: LinkProps & { baseUrl?: string, children?: React.ReactNode }) {
-    const { baseUrl, ...rest } = props;  // remove the {baseUrl} property
-
-    if (typeof props.href === 'string' && typeof document !== 'undefined' && baseUrl) {
-        const resolvedUrl = new URL(props.href, document.location.origin + baseUrl);
-        const resolvedHref = resolvedUrl.toString();
-
-        return <MuiLink component={Link} href={resolvedHref}>{props.children}</MuiLink>;
-    }
-
-    return <MuiLink component={Link} {...rest} />;
+function LinkComponent(props: LinkProps & { children?: React.ReactNode }) {
+    return <MuiLink component={Link} {...props} />;
 }
 
 /**
  * Properties accepted by the <Markdown> client-side component.
  */
 export interface MarkdownProps extends BoxProps {
-    /**
-     * Base URL for relative links contained on this page.
-     */
-    baseUrl?: string;
-
     /**
      * The content that should be displayed as the content of this component.
      */
@@ -103,14 +89,14 @@ export interface MarkdownProps extends BoxProps {
  * tree that can be used in the display of content.
  */
 export function Markdown(props: MarkdownProps) {
-    const { baseUrl, children, ...boxProps } = props;
+    const { children, ...boxProps } = props;
 
     return (
         <Box {...boxProps}>
             <Box sx={kStyles.root}>
                 <MuiMarkdown overrides={{
                     ...defaultOverrides,
-                    a: { component: LinkComponent, props: { baseUrl } },
+                    a: { component: LinkComponent },
                     h1: { component: Text, props: { tag: 'h1' } },
                     h2: { component: Text, props: { tag: 'h2' } },
                     h3: { component: Text, props: { tag: 'h3' } },

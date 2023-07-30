@@ -60,13 +60,8 @@ export interface RegistrationContentProps {
  * shares information with the user towards their application for an event.
  */
 export function RegistrationContent(props: RegistrationContentProps) {
-    let baseUrl = '/';
-    let title = props.title ?? 'AnimeCon Volunteer Manager';
-
-    if (props.event) {
-        baseUrl = `/registration/${props.event.slug}/`;
-        title = props.event.name;
-    }
+    const title = props.event ? props.event.name
+                              : (props.title ?? 'AnimeCon Volunteer Manager');
 
     const [ authFlowOpen, setAuthFlowOpen ] = useState<boolean>(false);
     return (
@@ -76,7 +71,7 @@ export function RegistrationContent(props: RegistrationContentProps) {
                                     title={title}
                                     user={props.user} />
 
-                <Markdown baseUrl={baseUrl} sx={{ p: 2 }}>
+                <Markdown sx={{ p: 2 }}>
                     {props.content.markdown}
                 </Markdown>
                 { props.backUrl &&
