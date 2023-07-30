@@ -3,6 +3,7 @@
 
 import { notFound, redirect } from 'next/navigation'
 
+import { ApplicationPage } from './ApplicationPage';
 import { Event } from '@lib/Event';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
@@ -63,18 +64,38 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
         undefined,  // TODO: Registration
     ]);
 
-    if (!content)
-        notFound();  // TODO: Only do this for non-content pages
+    // Step 3: Defer to more specific sub-components when this is a functional request.
+    let requestedPage = null;
+
+    switch (path[0]) {
+        case 'application':
+            requestedPage = path[0];
+            break;
+
+        // For all dynamic content pages we require the content to exist. Redirect back to the main
+        // event page when it does not, or back to the Volunteer Manager when it's the main page.
+        default:
+            if (!content) {
+                if (path.length /** leaf page */)
+                    redirect(`/registration/${event.slug}`);
+                else
+                    redirect('/');
+            }
+    }
 
     // Step 3: Determine whether to intercept the request for one of the form pages, or to display
     // a pure-content registration page with the information made available above.
+    const backUrl = path.length ? `/registration/${event.slug}` : undefined;
+
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContent backUrl={path.length ? `/registration/${event.slug}` : undefined}
-                                 content={content}
-                                 event={event.toEventData()}
-                                 registration={registration}
-                                 user={user?.toUserData()} />
+            { (!requestedPage && content) &&
+                <RegistrationContent backUrl={backUrl}
+                                     content={content}
+                                     event={event.toEventData()}
+                                     registration={registration}
+                                     showRegistrationButton={!path.length}
+                                     user={user?.toUserData()} /> }
         </RegistrationLayout>
     );
 }

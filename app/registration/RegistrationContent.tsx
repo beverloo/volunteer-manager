@@ -12,6 +12,7 @@ import { type RegistrationInfo } from './Registration';
 import { type UserData } from '@lib/auth/UserData';
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 
@@ -43,6 +44,11 @@ export interface RegistrationContentProps {
      * event. Also includes information about their requests and reservations.
      */
     registration?: RegistrationInfo;
+
+    /**
+     * Whether the registration button should be shown on an active event page.
+     */
+    showRegistrationButton?: boolean;
 
     /**
      * Title of the page. Will be overridden by the event's title when available.
@@ -77,6 +83,15 @@ export function RegistrationContent(props: RegistrationContentProps) {
                 { props.backUrl &&
                     <Box sx={{ mt: -2, p: 2 }}>
                         <MuiLink component={Link} href={props.backUrl}>« Previous page</MuiLink>
+                    </Box> }
+                {(props.showRegistrationButton && props.event) &&
+                    <Box sx={{ mt: -2, p: 2 }}>
+                        <Button component={Link}
+                                disabled={!!props.registration}
+                                href={`/registration/${props.event.slug}/application`}
+                                variant="contained">
+                            Join the {props.event.shortName} team today!
+                        </Button>
                     </Box> }
             </Paper>
             <LazyAuthenticationFlow onClose={() => setAuthFlowOpen(false)}
