@@ -13,6 +13,7 @@ import { RegistrationLayout } from '../RegistrationLayout';
 
 import { getContent } from '@lib/Content';
 import { getEventBySlug, getEventsForUser } from '@lib/EventLoader';
+import { getRegistration } from '@app/lib/RegistrationLoader';
 import { getRequestEnvironment } from '@lib/getRequestEnvironment';
 import { getUser } from '@lib/auth/getUser';
 
@@ -63,7 +64,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // registration information, and fetch the page that they wish to see on the portal.
     const [ content, registration ] = await Promise.all([
         getContent(environment, event, path),
-        undefined,  // TODO: Registration
+        getRegistration(environment, event, user),
     ]);
 
     // Step 3: Defer to more specific sub-components when this is a functional request.
@@ -105,7 +106,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
                 { (requestedPage === 'application' && registration) &&
                     <ApplicationStatusPage content={content}
                                            event={event.toEventData()}
-                                           registration={registration}
+                                           registration={registration.toRegistrationData()}
                                            user={userData} /> }
                 { (!requestedPage && content) &&
                     <RegistrationContent backUrl={backUrl}

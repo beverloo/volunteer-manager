@@ -3,7 +3,7 @@
 
 import { type Content } from '@lib/Content';
 import { type EventData } from '@lib/Event';
-import { type RegistrationInfo } from '../Registration';
+import { type RegistrationData } from '@lib/Registration';
 import { type UserData } from '@app/lib/auth/UserData';
 
 /**
@@ -23,7 +23,7 @@ export interface ApplicationStatusPageProps {
     /**
      * Information about the user's existing registration.
      */
-    registration: RegistrationInfo;
+    registration: RegistrationData;
 
     /**
      * The user who is currently signed in. We require someone to be signed in when applying, as
