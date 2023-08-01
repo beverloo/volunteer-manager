@@ -26,6 +26,7 @@ import { DateTime } from '@lib/DateTime';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
+import { RegistrationData } from '@app/lib/Registration';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
@@ -76,6 +77,16 @@ export interface WelcomePageProps {
     user?: UserData;
 
     /**
+     * The event for which the signed in volunteer may have registered.
+     */
+    registrationEvent?: EventData;
+
+    /**
+     * The registration the signed in volunteer may have created for the current event.
+     */
+    registration?: RegistrationData;
+
+    /**
      * Title of the page that should be displayed at the top. Dependent on the environment.
      */
     title: string;
@@ -122,6 +133,8 @@ export function WelcomePage(props: WelcomePageProps) {
     return (
         <>
             <RegistrationContentContainer title={`AnimeCon ${props.title}`}
+                                          event={props.registrationEvent}
+                                          registration={props.registration}
                                           user={props.user}>
 
                 { /* Section: Landing page */ }
