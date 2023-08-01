@@ -10,6 +10,7 @@ type RegistrationStatus = 'Registered' | 'Cancelled' | 'Accepted' | 'Rejected';
  * Interface that maps to the database representation of a registration.
  */
 export interface RegistrationDatabaseRow {
+    hotel_eligible: boolean;
     registration_date: string;
     registration_status: RegistrationStatus;
     role_name: string;
@@ -19,6 +20,11 @@ export interface RegistrationDatabaseRow {
  * General information about a volunteer's application to participate in one of the events.
  */
 export interface RegistrationData {
+    /**
+     * Whether the volunteer is eligible to book a hotel room through AnimeCon.
+     */
+    hotelEligible: boolean;
+
     /**
      * Name of the role for which the volunteer has applied. Should only be used when they have been
      * accepted, as other statuses may not reflect this correctly.
@@ -37,7 +43,6 @@ export interface RegistrationData {
  * representation of the same information.
  *
  * TODO: Availability information
- * TODO: Hotel eligibility information
  * TODO: Hotel information
  */
 export class Registration implements RegistrationData {
@@ -57,6 +62,7 @@ export class Registration implements RegistrationData {
     // Functionality also available to client components, i.e. RegistrationData implementation:
     // ---------------------------------------------------------------------------------------------
 
+    get hotelEligible() { return !!this.#registration.hotel_eligible; }
     get role() { return this.#registration.role_name; }
     get status() { return this.#registration.registration_status; }
 
@@ -69,6 +75,7 @@ export class Registration implements RegistrationData {
      */
     toRegistrationData(): RegistrationData {
         return {
+            hotelEligible: this.hotelEligible,
             role: this.role,
             status: this.status,
         };

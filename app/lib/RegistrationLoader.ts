@@ -22,7 +22,8 @@ export async function getRegistration(environment: Environment, event: Event, us
             SELECT
                 users_events.registration_date,
                 users_events.registration_status,
-                roles.role_name
+                roles.role_name,
+                IFNULL(users_events.hotel_eligible, roles.role_hotel_eligible) AS hotel_eligible
             FROM
                 users_events
             LEFT JOIN
