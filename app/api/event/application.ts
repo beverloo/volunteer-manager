@@ -4,6 +4,10 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
+import { getEventBySlug } from '@lib/EventLoader';
+import { getRequestEnvironment } from '@app/lib/getRequestEnvironment';
 
 /**
  * Interface definition for the Application API, exposed through /api/event/application.
@@ -78,5 +82,31 @@ type Response = ApplicationDefinition['response'];
  * be manually approved (or rejected) by senior volunteers.
  */
 export async function application(request: Request, props: ActionProps): Promise<Response> {
-    return { success: false, error: 'Not implemented.' };
+    try {
+        if (!props.user)
+            throw new Error('Sorry, you need to log in to your account first.');
+
+        const environment = getRequestEnvironment();
+
+        const event = await getEventBySlug(request.event, environment);
+        if (!event)
+            throw new Error('Sorry, something went wrong (unable to find the right event)...');
+
+        if (!event.enableRegistration && !can(props.user, Privilege.EventRegistrationOverride))
+            throw new Error('Sorry, this event is not accepting applications right now.');
+
+        const registration = await getRegistration(environment, event, props.user);
+        if (registration)
+            throw new Error('Sorry, you have already applied to participate in this event.');
+
+        await createRegistration(environment, event, props.user, request);
+
+        // TODO: Send an e-mail to the volunteering leads.
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Unable to accept an application:', error);
+        return { success: false, error: (error as Error).message };
+    }
 }
