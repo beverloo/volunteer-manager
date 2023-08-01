@@ -91,27 +91,32 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // Step 3: Determine whether to intercept the request for one of the form pages, or to display
     // a pure-content registration page with the information made available above.
     const backUrl = path.length ? `/registration/${event.slug}` : undefined;
+
+    const eventData = event.toEventData();
+    const registrationData = registration?.toRegistrationData();
     const userData = user?.toUserData();
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer title={event.name}
+            <RegistrationContentContainer event={eventData}
+                                          title={event.name}
                                           redirectUrl={redirectUrl}
+                                          registration={registrationData}
                                           user={userData}>
 
                 { (requestedPage === 'application' && !registration) &&
                     <ApplicationPage content={content}
-                                     event={event.toEventData()}
+                                     event={eventData}
                                      user={userData} /> }
-                { (requestedPage === 'application' && registration) &&
+                { (requestedPage === 'application' && registrationData) &&
                     <ApplicationStatusPage content={content}
-                                           event={event.toEventData()}
-                                           registration={registration.toRegistrationData()}
+                                           event={eventData}
+                                           registration={registrationData}
                                            user={userData} /> }
                 { (!requestedPage && content) &&
                     <RegistrationContent backUrl={backUrl}
                                          content={content}
-                                         event={event.toEventData()}
+                                         event={eventData}
                                          showRegistrationButton={!path.length}
                                          enableRegistrationButton={!registration} /> }
 
