@@ -21,9 +21,24 @@ export interface RegistrationDatabaseRow {
  */
 export interface RegistrationData {
     /**
+     * Whether the volunteer is eligible to indicate their availability during this event.
+     */
+    availabilityEligible: boolean;
+
+    /**
+     * Information about the volunteer's availability.
+     */
+    availability: undefined;
+
+    /**
      * Whether the volunteer is eligible to book a hotel room through AnimeCon.
      */
     hotelEligible: boolean;
+
+    /**
+     * Information about the hotel reservation that the volunteer has entered.
+     */
+    hotel: undefined;
 
     /**
      * Name of the role for which the volunteer has applied. Should only be used when they have been
@@ -62,7 +77,10 @@ export class Registration implements RegistrationData {
     // Functionality also available to client components, i.e. RegistrationData implementation:
     // ---------------------------------------------------------------------------------------------
 
+    get availabilityEligible() { return true; }
+    get availability() { return undefined; }
     get hotelEligible() { return !!this.#registration.hotel_eligible; }
+    get hotel() { return undefined; }
     get role() { return this.#registration.role_name; }
     get status() { return this.#registration.registration_status; }
 
@@ -75,7 +93,10 @@ export class Registration implements RegistrationData {
      */
     toRegistrationData(): RegistrationData {
         return {
+            availabilityEligible: this.availabilityEligible,
+            availability: this.availability,
             hotelEligible: this.hotelEligible,
+            hotel: this.hotel,
             role: this.role,
             status: this.status,
         };
