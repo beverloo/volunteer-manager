@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Accordion from '@mui/material/Accordion';
@@ -30,7 +31,14 @@ import yellow from '@mui/material/colors/yellow';
 import { type EventData } from '@app/lib/Event';
 import { type RegistrationData } from '@app/lib/Registration';
 
-// CSS customizations applied to the <RegistrationProgress> component.
+/**
+ * Name of the state, stored in local storage, indicating whether the progress bar should be open.
+ */
+const kProgressExpansionStateName = 'vm-progress-expanded';
+
+/**
+ * CSS customizations applied to the <RegistrationProgress> component.
+ */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     containerAccepted: { backgroundColor: lightGreen[200] },
     containerRegistered: { backgroundColor: yellow[100] },
@@ -71,34 +79,33 @@ function AcceptedRegistrationProgress(props: { event: EventData, registration: R
 
     let minWidth = 0;
     if (registration.availabilityEligible || registration.availability)
-        minWidth += 48;
+        minWidth += 40;
     if (registration.hotelEligible || registration.hotel)
-        minWidth += 48;
+        minWidth += 40;
 
     let extraDescription = '';
     if (registration.availabilityEligible && !registration.availability) {
-        extraDescription += 'Please share your availability with us';
+        extraDescription += 'Could you please share your availability with us';
         if (registration.hotelEligible && !registration.hotel)
-            extraDescription += ', and whether you would like to book a hotel room.';
+            extraDescription += ', and whether you would like to book a hotel room?';
         else
-            extraDescription += '.';
+            extraDescription += '?';
     } else if (registration.hotelEligible && !registration.hotel) {
-        extraDescription += 'Please share whether you would like to book a hotel room.';
+        extraDescription += 'Could you please share whether you would like to book a hotel room?';
     }
 
     return (
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
             <Typography variant="body2">
-                We're very happy with your application and your participation during
-                <strong> {event.name}</strong> has been confirmed! {extraDescription}
+                Your participation in <strong>{event.name}</strong> has been confirmed. We're
+                looking forward to working with you! {extraDescription}
             </Typography>
             <Box sx={{ minWidth }}>
                 { (registration.availabilityEligible || registration.availability) &&
                     <Tooltip title="Your availability">
                         <IconButton component={Link}
                                     href={`/registration/${event.slug}/application/availability`}
-                                    color={registration.availability ? 'default' : 'error'}
-                                    size="large">
+                                    color={registration.availability ? 'default' : 'error'}>
                             <PlaylistRemoveIcon
                                 htmlColor={ registration.availability ? undefined : red[800] } />
                         </IconButton>
@@ -107,8 +114,7 @@ function AcceptedRegistrationProgress(props: { event: EventData, registration: R
                     <Tooltip title="Hotel booking">
                         <IconButton component={Link}
                                     href={`/registration/${event.slug}/application/hotel`}
-                                    color={registration.hotel ? 'default' : 'error'}
-                                    size="large">
+                                    color={registration.hotel ? 'default' : 'error'}>
                             <HotelIcon
                                 htmlColor={ registration.hotel ? undefined : red[800] } />
                         </IconButton>
@@ -140,10 +146,21 @@ export interface RegistrationProgressProps {
 export function RegistrationProgress(props: RegistrationProgressProps) {
     const { event, registration } = props;
 
+    const defaultOpen =
+        !(typeof window !== 'undefined' && window.sessionStorage &&
+          window.sessionStorage.getItem(kProgressExpansionStateName) === 'false');
+
+    const [ open, setOpen ] = useState<boolean>(defaultOpen);
+
+    function onProgressChange(event: React.SyntheticEvent, expanded: boolean) {
+        try {
+            sessionStorage.setItem(kProgressExpansionStateName, `${expanded}`);
+            setOpen(expanded);
+
+        } catch (e) { /* thanks, Safari */ }
+    }
+
     let containerStyle: SxProps<Theme>;
-
-    // TODO: Session-persistent open/close toggle
-
     let icon: React.ReactNode;
     let title: React.ReactNode;
     let explanation: React.ReactNode;
@@ -200,7 +217,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
     }
 
     return (
-        <Accordion sx={containerStyle} disableGutters>
+        <Accordion onChange={onProgressChange} expanded={open} sx={containerStyle} disableGutters>
             <AccordionSummary sx={kStyles.summary} expandIcon={<ExpandMoreIcon />}>
                 <Box sx={kStyles.summaryIcon}>
                     {icon}
