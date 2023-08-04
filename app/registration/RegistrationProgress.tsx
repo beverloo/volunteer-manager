@@ -3,33 +3,33 @@
 
 'use client';
 
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Button from '@mui/material/Button';
 import DoNotDisturbAltIcon from '@mui/icons-material/DoNotDisturbAlt';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import HotelIcon from '@mui/icons-material/Hotel';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
-import IconButton from '@mui/material/IconButton';
-import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
-import Stack from '@mui/material/Stack';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import Paper from '@mui/material/Paper';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { lighten } from '@mui/material/styles';
+import { deepmerge } from '@mui/utils';
 import lightGreen from '@mui/material/colors/lightGreen'
 import red from '@mui/material/colors/red';
 import yellow from '@mui/material/colors/yellow';
 
 import { type EventData } from '@app/lib/Event';
 import { type RegistrationData } from '@app/lib/Registration';
+
 
 /**
  * Name of the state, stored in local storage, indicating whether the progress bar should be open.
@@ -40,6 +40,8 @@ const kProgressExpansionStateName = 'vm-progress-expanded';
  * CSS customizations applied to the <RegistrationProgress> component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
+    root: { position: 'relative' },
+
     containerAccepted: { backgroundColor: lightGreen[200] },
     containerRegistered: { backgroundColor: yellow[100] },
     containerRejected: { backgroundColor: theme => lighten(theme.palette.error.main, .8) },
@@ -52,6 +54,13 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '& .MuiAccordionSummary-content': {
             marginTop: 1,
             marginBottom: 0.8,
+        },
+    },
+
+    summaryAccepted: {
+        '& .MuiAccordionSummary-content': {
+            alignItems: 'center',
+            justifyContent: 'space-between',
         },
     },
 
@@ -70,61 +79,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Component to display the progress of an accepted registration. The layout of this is a little bit
- * more complicated than the other messages, as the volunteer may have the ability to indicate their
- * hotel and availability preferences.
- */
-function AcceptedRegistrationProgress(props: { event: EventData, registration: RegistrationData }) {
-    const { event, registration } = props;
-
-    let minWidth = 0;
-    if (registration.availabilityEligible || registration.availability)
-        minWidth += 40;
-    if (registration.hotelEligible || registration.hotel)
-        minWidth += 40;
-
-    let extraDescription = '';
-    if (registration.availabilityEligible && !registration.availability) {
-        extraDescription += 'Could you please share your availability with us';
-        if (registration.hotelEligible && !registration.hotel)
-            extraDescription += ', and whether you would like to book a hotel room?';
-        else
-            extraDescription += '?';
-    } else if (registration.hotelEligible && !registration.hotel) {
-        extraDescription += 'Could you please share whether you would like to book a hotel room?';
-    }
-
-    return (
-        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-            <Typography variant="body2">
-                Your participation in <strong>{event.name}</strong> has been confirmed. We're
-                looking forward to working with you! {extraDescription}
-            </Typography>
-            <Box sx={{ minWidth }}>
-                { (registration.availabilityEligible || registration.availability) &&
-                    <Tooltip title="Your availability">
-                        <IconButton component={Link}
-                                    href={`/registration/${event.slug}/application/availability`}
-                                    color={registration.availability ? 'default' : 'error'}>
-                            <PlaylistRemoveIcon
-                                htmlColor={ registration.availability ? undefined : red[800] } />
-                        </IconButton>
-                    </Tooltip> }
-                { (registration.hotelEligible || registration.hotel) &&
-                    <Tooltip title="Hotel booking">
-                        <IconButton component={Link}
-                                    href={`/registration/${event.slug}/application/hotel`}
-                                    color={registration.hotel ? 'default' : 'error'}>
-                            <HotelIcon
-                                htmlColor={ registration.hotel ? undefined : red[800] } />
-                        </IconButton>
-                    </Tooltip> }
-            </Box>
-        </Stack>
-    );
-}
-
-/**
  * Props accepted by the <RegistrationProgress> component.
  */
 export interface RegistrationProgressProps {
@@ -137,6 +91,49 @@ export interface RegistrationProgressProps {
      * The registration of the volunteer who wishes to participate in this event.
      */
     registration: RegistrationData;
+}
+
+/**
+ * Specialization of the <RegistrationProgress> component that will only be used when the
+ * registration has been accepted. Details are shown on a more detailed page instead.
+ */
+export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
+    const { event, registration } = props;
+
+    const router = useRouter();
+    const missingInformation =
+        (registration.availabilityEligible && !registration.availability) ||
+        (registration.hotelEligible && !registration.hotel);
+
+    const navigateToRegistration = useCallback(() => {
+        router.push(`/registration/${event.slug}/application`);
+    }, [ event, router ]);
+
+    return (
+        <Paper sx={deepmerge(kStyles.containerAccepted, kStyles.root)} elevation={1} square={true}
+               onClick={navigateToRegistration}>
+
+            <AccordionSummary sx={deepmerge(kStyles.summary, kStyles.summaryAccepted)}>
+                <Box sx={{ display: 'flex' }}>
+                    <Box sx={kStyles.summaryIcon}>
+                        <ThumbUpIcon style={{ color: lightGreen[900] }} fontSize="inherit" />
+                    </Box>
+                    <Typography variant="body2">
+                        Your participation has been <b>confirmed</b> ({registration.role}).
+                    </Typography>
+                </Box>
+
+                { missingInformation &&
+                    <Button size="small" color="inherit" endIcon={ <NavigateNextIcon /> }>
+                        Complete registration
+                    </Button> }
+
+                { !missingInformation && <NavigateNextIcon fontSize="small" /> }
+
+            </AccordionSummary>
+
+        </Paper>
+    );
 }
 
 /**
@@ -159,6 +156,9 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
 
         } catch (e) { /* thanks, Safari */ }
     }
+
+    if (registration.status === 'Accepted')
+        return <RegistrationProgressAccepted {...props} />;
 
     let containerStyle: SxProps<Theme>;
     let icon: React.ReactNode;
@@ -191,14 +191,6 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
                 </Typography>
             );
 
-            break;
-
-        case 'Accepted':
-            containerStyle = kStyles.containerAccepted;
-            icon = <ThumbUpIcon style={{ color: lightGreen[900] }} fontSize="inherit" />;
-            title = <>Your participation has been <b>confirmed</b> ({registration.role}).</>;
-            explanation =
-                <AcceptedRegistrationProgress event={event} registration={registration} />;
             break;
 
         case 'Rejected':
