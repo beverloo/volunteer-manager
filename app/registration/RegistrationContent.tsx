@@ -60,11 +60,13 @@ export function RegistrationContent(props: RegistrationContentProps) {
                 </Box> }
             {(props.showRegistrationButton && props.event) &&
                 <Box sx={{ mt: -2, p: 2 }}>
-                    <Button component={Link}
-                            disabled={!props.enableRegistrationButton}
+                    <Button color={props.enableRegistrationButton ? 'primary' : 'inherit'}
+                            component={Link}
                             href={`/registration/${props.event.slug}/application`}
                             variant="contained">
-                        Join the {props.event.shortName} team today!
+                        { !props.enableRegistrationButton && 'See the status of your application' }
+                        { props.enableRegistrationButton &&
+                            `Join the ${props.event.shortName} team today!` }
                     </Button>
                 </Box> }
         </>
