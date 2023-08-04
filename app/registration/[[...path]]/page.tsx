@@ -108,9 +108,8 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
                     <ApplicationPage content={content}
                                      event={eventData}
                                      user={userData} /> }
-                { (requestedPage === 'application' && registrationData) &&
-                    <ApplicationStatusPage content={content}
-                                           event={eventData}
+                { (requestedPage === 'application' && registrationData && userData) &&
+                    <ApplicationStatusPage event={eventData}
                                            registration={registrationData}
                                            user={userData} /> }
                 { (!requestedPage && content) &&
