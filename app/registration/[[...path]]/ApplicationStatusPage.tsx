@@ -6,6 +6,7 @@
 import Link from 'next/link';
 
 import Box from '@mui/material/Box';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -19,6 +20,7 @@ import Typography from '@mui/material/Typography';
 import { type EventData } from '@lib/Event';
 import { type RegistrationData } from '@lib/Registration';
 import { type UserData } from '@app/lib/auth/UserData';
+import { Privilege, can } from '@app/lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationStatusPage> page.
@@ -75,6 +77,8 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
             break;
     }
 
+    const scheduleAvailable = event.enableSchedule || can(user, Privilege.EventScheduleOverride);
+
     const showAvailability = registration.availabilityEligible || registration.availability;
     const showHotel = registration.hotelEligible || registration.hotel;
 
@@ -93,10 +97,10 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                     {sp}in case you have any questions.
                 </Typography>
             </Box>
-            { (registration.status === 'Accepted' && (showAvailability || showHotel)) &&
+            { registration.status === 'Accepted' &&
                 <>
                     <Typography variant="body1" sx={{ px: 2 }}>
-                        There are a few things we need to get in order ahead of the festival:
+                        The follow options are available regarding your registration:
                     </Typography>
                     <List>
                         <ListItem sx={{ pl: 4 }}>
@@ -150,6 +154,28 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                         secondary="We'd be happy to reserve one for you" /> }
 
                             </ListItemButton> }
+
+                        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
+                                        disabled={!scheduleAvailable}
+                                        href={`/schedule/${event.slug}`}>
+
+                            <ListItemIcon>
+                                <EventNoteIcon />
+                            </ListItemIcon>
+
+                            { scheduleAvailable &&
+                                <ListItemText
+                                    primary={`${event.shortName} Volunteer Portal`}
+                                    secondary="Check your schedule and the festival's program" /> }
+
+                            { !scheduleAvailable &&
+                                <ListItemText
+                                    primary={`${event.shortName} Volunteer Portal`}
+                                    secondary="The volunteer portal is not yet available" /> }
+
+
+                        </ListItemButton>
+
                     </List>
                 </> }
         </>
