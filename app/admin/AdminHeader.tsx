@@ -18,7 +18,7 @@ import { Avatar } from '@app/components/Avatar';
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     container: {
-        backgroundColor: '#37474F',
+        backgroundColor: 'primary.main',
         borderTopLeftRadius: theme => `${theme.shape.borderRadius}px`,
         borderTopRightRadius: theme => `${theme.shape.borderRadius}px`,
         paddingX: 2,
