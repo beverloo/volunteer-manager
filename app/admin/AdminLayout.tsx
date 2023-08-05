@@ -7,7 +7,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { SxProps, Theme } from '@mui/system';
 
 /**
- *
+ * Custom styles applied to the <AdminLayout> component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: {
@@ -22,32 +22,22 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- *
+ * Props accepted by the <AdminLayout> component.
  */
-export interface AdminLayoutProps {
-    /**
-     *
-     */
-    header?: React.ReactNode;
-
-    /**
-     *
-     */
-    sidebar?: React.ReactNode;
-}
+export interface AdminLayoutProps { /* no props yet */ }
 
 /**
- *
+ * Base layout for the Volunteer Manager administration environment. This is where senior folks can
+ * manage the portal, volunteers and everything related to that.
  */
 export function AdminLayout(props: React.PropsWithChildren<AdminLayoutProps>) {
     return (
         <Grid sx={kStyles.root} container>
             <Grid xs={3}>
-                {props.sidebar}
+                x
             </Grid>
             <Grid sx={kStyles.content} xs={9}>
-                {props.header}
-                {props.children}
+                x
             </Grid>
         </Grid>
     );

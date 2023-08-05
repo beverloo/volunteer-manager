@@ -1,10 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
-import { AdminSidebar } from './AdminSidebar';
-
 import { requireUser } from '../lib/auth/getUser';
 
 /**
@@ -15,8 +12,7 @@ export default async function RootAdminLayout(props: any) {
     const user = await requireUser();
 
     return (
-        <AdminLayout header={ <AdminHeader /> }
-                     sidebar={ <AdminSidebar privileges={user!.privileges} /> }>
+        <AdminLayout>
             {props.children}
         </AdminLayout>
     );
