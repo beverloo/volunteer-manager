@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import { application, kApplicationDefinition } from '../application';
+import { hotels, kHotelsDefinition } from '../hotels';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -20,6 +21,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     switch (action) {
         case 'application':
             return executeAction(request, kApplicationDefinition, application);
+        case 'hotels':
+            return executeAction(request, kHotelsDefinition, hotels);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

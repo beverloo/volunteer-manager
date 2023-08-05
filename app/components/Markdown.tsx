@@ -12,6 +12,9 @@ import { default as MuiLink, LinkProps } from '@mui/material/Link';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import { lighten } from '@mui/material/styles';
 
+import { RemoteContent } from './RemoteContent';
+import { EventData } from '@app/lib/Event';
+
 /**
  * Manual styles that apply to the <Markdown> client component.
  */
@@ -83,6 +86,11 @@ export interface MarkdownProps extends BoxProps {
      * The content that should be displayed as the content of this component.
      */
     children?: string | null;
+
+    /**
+     * Event for which Markdown content is being rendered.
+     */
+    event?: EventData;
 }
 
 /**
@@ -90,7 +98,7 @@ export interface MarkdownProps extends BoxProps {
  * tree that can be used in the display of content.
  */
 export function Markdown(props: MarkdownProps) {
-    const { children, ...boxProps } = props;
+    const { children, event, ...boxProps } = props;
 
     return (
         <Box {...boxProps}>
@@ -104,7 +112,8 @@ export function Markdown(props: MarkdownProps) {
                     h4: { component: Text, props: { tag: 'h4' } },
                     h5: { component: Text, props: { tag: 'h5' } },
                     h6: { component: Text, props: { tag: 'h6' } },
-                    p: { component: Text, props: { tag: 'p' } } }}>
+                    p: { component: Text, props: { tag: 'p' } },
+                    RemoteContent: { component: RemoteContent, props: { event } } } }>
                     {children}
                 </MuiMarkdown>
             </Box>

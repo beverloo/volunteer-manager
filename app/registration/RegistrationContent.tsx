@@ -51,7 +51,7 @@ export interface RegistrationContentProps {
 export function RegistrationContent(props: RegistrationContentProps) {
     return (
         <>
-            <Markdown sx={{ p: 2 }}>
+            <Markdown event={props.event} sx={{ p: 2 }}>
                 {props.content.markdown}
             </Markdown>
             { props.backUrl &&
