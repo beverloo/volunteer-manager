@@ -103,7 +103,7 @@ export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
     const router = useRouter();
     const missingInformation =
         (registration.availabilityEligible && !registration.availability) ||
-        (registration.hotelEligible && !registration.hotel);
+        (registration.hotelEligible && (registration.hotelAvailable && !registration.hotel));
 
     const navigateToRegistration = useCallback(() => {
         router.push(`/registration/${event.slug}/application`);

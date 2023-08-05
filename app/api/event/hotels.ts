@@ -82,7 +82,8 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
         LEFT JOIN
             hotels ON hotels.event_id = events.event_id
         WHERE
-            events.event_slug = ${request.event}
+            events.event_slug = ${request.event} AND
+            hotels.hotel_id IS NOT NULL
         ORDER BY
             hotels.hotel_name ASC,
             hotels.hotel_room_people ASC,
@@ -95,7 +96,7 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
                 hotels.set(row.hotel_name, {
                     name: row.hotel_name,
                     description: row.hotel_description,
-                    rooms: [],
+                    rooms: [ /* to be added */],
                 });
             }
 

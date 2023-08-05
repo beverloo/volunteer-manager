@@ -10,6 +10,7 @@ type RegistrationStatus = 'Registered' | 'Cancelled' | 'Accepted' | 'Rejected';
  * Interface that maps to the database representation of a registration.
  */
 export interface RegistrationDatabaseRow {
+    hotel_available: boolean;
     hotel_eligible: boolean;
     registration_date: string;
     registration_status: RegistrationStatus;
@@ -29,6 +30,11 @@ export interface RegistrationData {
      * Information about the volunteer's availability.
      */
     availability: undefined;
+
+    /**
+     * Whether hotel rooms are available in case the volunteer is eligible.
+     */
+    hotelAvailable: boolean;
 
     /**
      * Whether the volunteer is eligible to book a hotel room through AnimeCon.
@@ -79,6 +85,7 @@ export class Registration implements RegistrationData {
 
     get availabilityEligible() { return true; }
     get availability() { return undefined; }
+    get hotelAvailable() { return !!this.#registration.hotel_available; }
     get hotelEligible() { return !!this.#registration.hotel_eligible; }
     get hotel() { return undefined; }
     get role() { return this.#registration.role_name; }
@@ -95,6 +102,7 @@ export class Registration implements RegistrationData {
         return {
             availabilityEligible: this.availabilityEligible,
             availability: this.availability,
+            hotelAvailable: this.hotelAvailable,
             hotelEligible: this.hotelEligible,
             hotel: this.hotel,
             role: this.role,

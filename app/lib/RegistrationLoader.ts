@@ -26,6 +26,8 @@ export async function getRegistration(environment: Environment, event: Event, us
                 users_events.registration_date,
                 users_events.registration_status,
                 roles.role_name,
+                hotels.hotel_id,
+                IF(hotels.hotel_id IS NULL, FALSE, TRUE) AS hotel_available,
                 IFNULL(users_events.hotel_eligible, roles.role_hotel_eligible) AS hotel_eligible
             FROM
                 users_events
@@ -36,10 +38,14 @@ export async function getRegistration(environment: Environment, event: Event, us
                 teams_roles ON teams_roles.role_id = users_events.role_id
             LEFT JOIN
                 roles ON roles.role_id = teams_roles.role_id
+            LEFT JOIN
+                hotels ON hotels.event_id = users_events.event_id
             WHERE
                 users_events.user_id = ${user.userId} AND
                 users_events.event_id = ${event.eventId} AND
-                teams.team_id IS NOT NULL`;
+                teams.team_id IS NOT NULL
+            GROUP BY
+                users_events.event_id`;
 
     if (!result.ok || !result.rows.length)
         return undefined;

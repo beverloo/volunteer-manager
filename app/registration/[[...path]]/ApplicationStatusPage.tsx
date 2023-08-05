@@ -135,6 +135,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                         { showHotel &&
                             <ListItemButton
                                 LinkComponent={Link} sx={{ pl: 4 }}
+                                disabled={!registration.hotelAvailable}
                                 href={`/registration/${event.slug}/application/hotel`}>
 
                                 <ListItemIcon>
@@ -148,7 +149,12 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                         primary="TODO (requested or booked or declined)"
                                         secondary="TODO (requested or booked or declined)" /> }
 
-                                { !registration.hotel &&
+                                { !registration.hotelAvailable &&
+                                    <ListItemText
+                                        primary="Request (or decline) a hotel room booking"
+                                        secondary="Hotel prices have not been published yet" /> }
+
+                                { (registration.hotelAvailable && !registration.hotel) &&
                                     <ListItemText
                                         primary="Request (or decline) a hotel room booking"
                                         secondary="We'd be happy to reserve one for you" /> }
