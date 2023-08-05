@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
 import { requireUser } from '../lib/auth/getUser';
 
@@ -13,6 +14,7 @@ export default async function RootAdminLayout(props: any) {
 
     return (
         <AdminLayout>
+            <AdminHeader user={user.toUserData()} />
             {props.children}
         </AdminLayout>
     );

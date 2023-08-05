@@ -3,8 +3,10 @@
 
 'use client';
 
-import Grid from '@mui/material/Unstable_Grid2';
-import { SxProps, Theme } from '@mui/system';
+import type { SxProps, Theme } from '@mui/system';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import { Typography } from '@mui/material';
 
 /**
  * Custom styles applied to the <AdminLayout> component.
@@ -12,33 +14,30 @@ import { SxProps, Theme } from '@mui/system';
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: {
         backgroundColor: '#f8faf0',
-        padding: 2,
         minHeight: '100vh',
-    },
-    content: {
-        backgroundColor: '#ffffff',
-        borderRadius: 4,
-    }
-};
+        minWidth: 1280,
+        padding: 2,
 
-/**
- * Props accepted by the <AdminLayout> component.
- */
-export interface AdminLayoutProps { /* no props yet */ }
+        // Uncomment to test at the minimum size:
+        //width: 1280,
+    },
+};
 
 /**
  * Base layout for the Volunteer Manager administration environment. This is where senior folks can
  * manage the portal, volunteers and everything related to that.
  */
-export function AdminLayout(props: React.PropsWithChildren<AdminLayoutProps>) {
+export function AdminLayout(props: React.PropsWithChildren) {
+    const year = (new Date()).getFullYear();
+
     return (
-        <Grid sx={kStyles.root} container>
-            <Grid xs={3}>
-                x
-            </Grid>
-            <Grid sx={kStyles.content} xs={9}>
-                x
-            </Grid>
-        </Grid>
+        <Box sx={kStyles.root}>
+            <Paper>
+                {props.children}
+            </Paper>
+            <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
+                AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
+            </Typography>
+        </Box>
     );
 }
