@@ -5,7 +5,6 @@
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import { ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
@@ -36,9 +35,7 @@ export function AdminLayout(props: React.PropsWithChildren) {
     return (
         <ThemeProvider theme={createAdminTheme(/* mode= */ 'light')}>
             <Box sx={kStyles.root}>
-                <Paper>
-                    {props.children}
-                </Paper>
+                {props.children}
                 <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
                     AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
                 </Typography>

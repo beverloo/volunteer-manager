@@ -7,6 +7,7 @@ import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import GridViewIcon from '@mui/icons-material/GridView';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -78,16 +79,16 @@ export function AdminHeader(props: AdminHeaderProps) {
     const { user } = props;
 
     return (
-        <>
+        <Paper>
             <Stack direction="row" justifyContent="space-between" alignItems="center"
                 spacing={2} sx={kStyles.container}>
 
-                <Typography color="white" variant="h6">
+                <Typography color="primary.contrastText" variant="h6">
                     AnimeCon Volunteer Manager
                 </Typography>
 
                 <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography color="white">
+                    <Typography color="primary.contrastText">
                         {user.firstName}
                     </Typography>
                     <Avatar src={user.avatarUrl}>
@@ -105,6 +106,6 @@ export function AdminHeader(props: AdminHeaderProps) {
                                    label="Volunteers" />
             </Stack>
             <Divider />
-        </>
+        </Paper>
     );
 }
