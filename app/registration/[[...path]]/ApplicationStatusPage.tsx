@@ -79,7 +79,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
 
     const scheduleAvailable = event.enableSchedule || can(user, Privilege.EventScheduleOverride);
 
-    const showAvailability = registration.availabilityEligible || registration.availability;
+    const showAvailability = scheduleAvailable || registration.availability;
     const showHotel = registration.hotelEligible || registration.hotel;
 
     // TODO: Show basic details about their hotel room booking.
@@ -110,28 +110,35 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <ListItemText primary="Your application has been accepted!"
                                           secondary="Nothing more to do there…" />
                         </ListItem>
-                        { showAvailability &&
-                            <ListItemButton
-                                LinkComponent={Link} sx={{ pl: 4 }}
-                                href={`/registration/${event.slug}/application/availability`}>
 
-                                <ListItemIcon>
-                                    { registration.availability && <TaskAltIcon color="success" /> }
-                                    { !registration.availability &&
-                                        <RadioButtonUncheckedIcon color="warning" /> }
-                                </ListItemIcon>
+                        <ListItemButton
+                            LinkComponent={Link} sx={{ pl: 4 }}
+                            disabled={!showAvailability}
+                            href={`/registration/${event.slug}/application/availability`}>
 
-                                { registration.availability &&
-                                    <ListItemText
-                                        primary="You've shared your availability"
-                                        secondary="This will help in creating your schedule" /> }
-
+                            <ListItemIcon>
+                                { registration.availability && <TaskAltIcon color="success" /> }
                                 { !registration.availability &&
-                                    <ListItemText
-                                        primary="Submit your availability information"
-                                        secondary="This will help in creating your schedule" /> }
+                                    <RadioButtonUncheckedIcon color="warning" /> }
+                            </ListItemIcon>
 
-                            </ListItemButton> }
+                            { registration.availability &&
+                                <ListItemText
+                                    primary="You've shared your availability"
+                                    secondary="This will help in creating your schedule" /> }
+
+                            { (!registration.availability && !scheduleAvailable) &&
+                                <ListItemText
+                                    primary="Submit your availability information"
+                                    secondary="The schedule has not been published yet" /> }
+
+                            { (!registration.availability && scheduleAvailable) &&
+                                <ListItemText
+                                    primary="Submit your availability information"
+                                    secondary="This will help in creating your schedule" /> }
+
+                        </ListItemButton>
+
                         { showHotel &&
                             <ListItemButton
                                 LinkComponent={Link} sx={{ pl: 4 }}
@@ -149,12 +156,12 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                         primary="TODO (requested or booked or declined)"
                                         secondary="TODO (requested or booked or declined)" /> }
 
-                                { !registration.hotelAvailable &&
+                                { (!registration.hotel && !registration.hotelAvailable) &&
                                     <ListItemText
                                         primary="Request (or decline) a hotel room booking"
                                         secondary="Hotel prices have not been published yet" /> }
 
-                                { (registration.hotelAvailable && !registration.hotel) &&
+                                { (!registration.hotel && registration.hotelAvailable) &&
                                     <ListItemText
                                         primary="Request (or decline) a hotel room booking"
                                         secondary="We'd be happy to reserve one for you" /> }

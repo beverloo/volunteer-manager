@@ -10,6 +10,7 @@ type RegistrationStatus = 'Registered' | 'Cancelled' | 'Accepted' | 'Rejected';
  * Interface that maps to the database representation of a registration.
  */
 export interface RegistrationDatabaseRow {
+    availability_available: boolean;
     hotel_available: boolean;
     hotel_eligible: boolean;
     registration_date: string;
@@ -22,9 +23,9 @@ export interface RegistrationDatabaseRow {
  */
 export interface RegistrationData {
     /**
-     * Whether the volunteer is eligible to indicate their availability during this event.
+     * Whether the volunteer is able to indicate their availability during this event.
      */
-    availabilityEligible: boolean;
+    availabilityAvailable: boolean;
 
     /**
      * Information about the volunteer's availability.
@@ -83,7 +84,7 @@ export class Registration implements RegistrationData {
     // Functionality also available to client components, i.e. RegistrationData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get availabilityEligible() { return true; }
+    get availabilityAvailable() { return !!this.#registration.availability_available; }
     get availability() { return undefined; }
     get hotelAvailable() { return !!this.#registration.hotel_available; }
     get hotelEligible() { return !!this.#registration.hotel_eligible; }
@@ -100,7 +101,7 @@ export class Registration implements RegistrationData {
      */
     toRegistrationData(): RegistrationData {
         return {
-            availabilityEligible: this.availabilityEligible,
+            availabilityAvailable: this.availabilityAvailable,
             availability: this.availability,
             hotelAvailable: this.hotelAvailable,
             hotelEligible: this.hotelEligible,

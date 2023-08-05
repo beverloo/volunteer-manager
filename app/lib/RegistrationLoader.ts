@@ -26,7 +26,7 @@ export async function getRegistration(environment: Environment, event: Event, us
                 users_events.registration_date,
                 users_events.registration_status,
                 roles.role_name,
-                hotels.hotel_id,
+                events_teams.enable_schedule AS availability_available,
                 IF(hotels.hotel_id IS NULL, FALSE, TRUE) AS hotel_available,
                 IFNULL(users_events.hotel_eligible, roles.role_hotel_eligible) AS hotel_eligible
             FROM
@@ -38,6 +38,9 @@ export async function getRegistration(environment: Environment, event: Event, us
                 teams_roles ON teams_roles.role_id = users_events.role_id
             LEFT JOIN
                 roles ON roles.role_id = teams_roles.role_id
+            LEFT JOIN
+                events_teams ON events_teams.event_id = users_events.event_id AND
+                                events_teams.team_id = users_events.team_id
             LEFT JOIN
                 hotels ON hotels.event_id = users_events.event_id
             WHERE
