@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { nanoid } from 'nanoid/async';
+import { v4 as uuid } from 'uuid';
 
 import { sql } from './index';
 
@@ -12,6 +12,16 @@ export function getAvatarUrl(hash?: string): string | undefined {
     return hash ? `/avatars/${hash}.png`
                 : undefined;
 }
+
+/**
+ * Mimics (synchronous) NanoID behaviour using the UUID library. Returns a string of random numbers
+ * and letters of the given `length`.
+ *
+ * @see https://github.com/ai/nanoid/issues/365
+ * @todo Switch back to `nanoid` when we can depend on it w/o breaking tests, which have issues
+ *       between Jest and ESM modules.
+ */
+const nanoid = (length: number) => uuid().replaceAll('-', '').slice(0, length);
 
 /**
  * What is the size limit for avatars we're willing to store in the database?
@@ -40,7 +50,7 @@ export async function storeAvatarData(userId: number, data: Buffer): Promise<num
         return false;
     }
 
-    const hash = await nanoid(/* size= */ 12);
+    const hash = nanoid(/* size= */ 12);
     const result = await sql`
         INSERT INTO
             storage
