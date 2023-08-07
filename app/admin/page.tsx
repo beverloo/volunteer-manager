@@ -4,18 +4,51 @@
 import { type Metadata } from 'next';
 
 import Box from '@mui/material/Box';
+import DvrIcon from '@mui/icons-material/Dvr';
+import GroupsIcon from '@mui/icons-material/Groups';
+import HomeIcon from '@mui/icons-material/Home';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
-import { AdminSidebar } from './AdminSidebar';
+import { type AdminSidebarMenuEntry, AdminSidebar } from './AdminSidebar';
+import { Privilege } from '@app/lib/auth/Privileges';
 import { requireUser } from '../lib/auth/getUser';
+
+
 
 export default async function AdminPage() {
     const user = await requireUser();
 
+    const dashboardMenu: AdminSidebarMenuEntry[] = [
+        {
+            icon: <HomeIcon />,
+            label: 'Dashboard',
+            url: '/admin',
+        },
+        {
+            icon: <DvrIcon />,
+            label: 'Logs',
+            privilege: Privilege.Administrator,
+            url: '/admin/logs',
+        },
+        {
+            icon: <GroupsIcon />,
+            label: 'Teams & roles',
+            privilege: Privilege.Administrator,
+            url: '/admin/teams',
+        },
+        {
+            icon: <ManageHistoryIcon />,
+            label: 'Services',
+            privilege: Privilege.Administrator,
+            url: '/admin/services',
+        }
+    ];
+
     return (
         <AdminContent>
-            <AdminSidebar title="Dashboard" />
+            <AdminSidebar menu={dashboardMenu} title="Dashboard" user={user.toUserData()} />
             <AdminPageContainer>
                 <Box sx={{ backgroundColor: 'yellow' }}>
                     Yo
