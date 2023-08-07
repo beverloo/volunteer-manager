@@ -3,11 +3,17 @@
 
 'use client';
 
+import Link from 'next/link';
+
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GridViewIcon from '@mui/icons-material/GridView';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import Paper from '@mui/material/Paper';
+import PersonIcon from '@mui/icons-material/Person';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -26,40 +32,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         paddingY: 1,
     },
 };
-
-/**
- * Props accepted by the <AdminHeaderButton> component.
- */
-interface AdminHeaderButtonProps {
-    // TODO: active
-
-    /**
-     * Optional children for the button. Used when menus should be drawn upon activation.
-     */
-    children?: React.ReactNode;
-
-    /**
-     * Icon that should be displayed on the button.
-     */
-    icon: React.ReactNode;
-
-    /**
-     * Label that should be displayed under the button's icon.
-     */
-    label: string;
-}
-
-/**
- * The <AdminHeaderButton> component displays a single button in the administration area's header
- * bar. This is the main means for users to navigate between different sections of the site.
- */
-function AdminHeaderButton(props: AdminHeaderButtonProps) {
-    return (
-        <Box>
-            {props.label}
-        </Box>
-    );
-}
 
 /**
  * Props accepted by the <AdminHeader> component.
@@ -97,13 +69,18 @@ export function AdminHeader(props: AdminHeaderProps) {
                 </Stack>
 
             </Stack>
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <AdminHeaderButton icon={ <GridViewIcon /> }
-                                   label="Dashboard" />
-                <AdminHeaderButton icon={ <GridViewIcon /> }
-                                   label="Events" />
-                <AdminHeaderButton icon={ <GridViewIcon /> }
-                                   label="Volunteers" />
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ p: 1 }}>
+                <Button component={Link} href="/admin" variant="text" color="inherit">
+                    Dashboard
+                </Button>
+
+                <Button endIcon={ <ExpandMoreIcon /> } variant="text" color="inherit">
+                    Events
+                </Button>
+
+                <Button component={Link} href="/admin/volunteers" variant="text" color="inherit">
+                    Volunteers
+                </Button>
             </Stack>
             <Divider />
         </Paper>

@@ -5,8 +5,8 @@ import { type Metadata } from 'next';
 
 import Box from '@mui/material/Box';
 import DvrIcon from '@mui/icons-material/Dvr';
+import GridViewIcon from '@mui/icons-material/GridView';
 import GroupsIcon from '@mui/icons-material/Groups';
-import HomeIcon from '@mui/icons-material/Home';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 
 import { AdminContent } from './AdminContent';
@@ -22,7 +22,7 @@ export default async function AdminPage() {
 
     const dashboardMenu: AdminSidebarMenuEntry[] = [
         {
-            icon: <HomeIcon />,
+            icon: <GridViewIcon />,
             label: 'Dashboard',
             url: '/admin',
         },
