@@ -3,7 +3,8 @@
 
 import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
-import { requireUser } from '../lib/auth/getUser';
+import { getHeaderEventsForUser } from './lib/EventQueries';
+import { requireUser } from '@lib/auth/getUser';
 
 /**
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
@@ -11,10 +12,11 @@ import { requireUser } from '../lib/auth/getUser';
  */
 export default async function RootAdminLayout(props: any) {
     const user = await requireUser();
+    const events = await getHeaderEventsForUser(user);
 
     return (
         <AdminLayout>
-            <AdminHeader user={user.toUserData()} />
+            <AdminHeader events={events} user={user.toUserData()} />
             {props.children}
         </AdminLayout>
     );

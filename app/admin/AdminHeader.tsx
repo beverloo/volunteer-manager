@@ -39,9 +39,34 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
+ * Interface definition for events that should be shown in the administrative header.
+ */
+export interface AdminHeaderEventEntry {
+    /**
+     * Whether the event is in the past.
+     */
+    done: boolean;
+
+    /**
+     * Name of the event as it should be displayed in the menu item.
+     */
+    label: string;
+
+    /**
+     * URL to which the user should be navigated when clicking on the event.
+     */
+    url: string;
+}
+
+/**
  * Props accepted by the <AdminHeader> component.
  */
 export interface AdminHeaderProps {
+    /**
+     * The events to display in the header, if any.
+     */
+    events: AdminHeaderEventEntry[];
+
     /**
      * The user who is currently viewing the administration area.
      */
@@ -53,7 +78,7 @@ export interface AdminHeaderProps {
  * environment, that shows the available sub-sections. Global to the admin environment.
  */
 export function AdminHeader(props: AdminHeaderProps) {
-    const { user } = props;
+    const { events, user } = props;
 
     const [ anchorElement, setAnchorElement ] = useState<HTMLElement | null>(/* closed= */ null);
 
@@ -64,15 +89,6 @@ export function AdminHeader(props: AdminHeaderProps) {
     function requestMenuClose() {
         setAnchorElement(/* closed= */ null);
     }
-
-    // TODO: Select appropriate events for the `user` from the database, and pass them in to the
-    // <AdminHeader> component as a prop.
-    const events = [
-        { label: 'AnimeCon 2024', done: false, url: '/admin/events/2024' },
-        { label: 'AnimeCon 2023', done: true, url: '/admin/events/2023' },
-        { label: 'AnimeCon 2022: Classic', done: true, url: '/admin/events/2022-classic' },
-        { label: 'AnimeCon 2022', done: true, url: '/admin/events/2022' },
-    ];
 
     return (
         <Paper>

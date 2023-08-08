@@ -20,6 +20,9 @@ export enum Privilege {
     // Privileges regarding functionality on the volunteer manager.
     ReplaceOwnAvatar            = 1 << 5,
     ReplaceAnyAvatar            = 1 << 6,
+
+    // Privileges regarding access in the administrative area.
+    AccessPastEvents            = 1 << 7,
 };
 
 /**
@@ -51,6 +54,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
     [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
+    [Privilege.AccessPastEvents]: 'Access historic events',
 };
 
 /**
@@ -60,4 +64,5 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Administrator privilege automatically grants all other privileges',
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
     [Privilege.ReplaceAnyAvatar]: 'Allows them to replace anyone\'s avatar',
+    [Privilege.AccessPastEvents]: 'Allows access to past events regardless of their participation',
 };
