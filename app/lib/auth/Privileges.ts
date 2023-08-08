@@ -23,6 +23,7 @@ export enum Privilege {
 
     // Privileges regarding access in the administrative area.
     AccessPastEvents            = 1 << 7,
+    AccessVolunteers            = 1 << 8,
 };
 
 /**
@@ -55,6 +56,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
     [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
     [Privilege.AccessPastEvents]: 'Access historic events',
+    [Privilege.AccessVolunteers]: 'Access volunteers',
 };
 
 /**
@@ -65,4 +67,5 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
     [Privilege.ReplaceAnyAvatar]: 'Allows them to replace anyone\'s avatar',
     [Privilege.AccessPastEvents]: 'Allows access to past events regardless of their participation',
+    [Privilege.AccessVolunteers]: 'Allows access to all historic AnimeCon volunteers',
 };
