@@ -98,7 +98,7 @@ export function AdminSidebar(props: AdminSidebarProps) {
     const pathname = usePathname();
 
     return (
-        <Paper sx={{ width: '280px', overflow: 'hidden' }}>
+        <Paper sx={{ alignSelf: 'flex-start', width: '280px', overflow: 'hidden' }}>
             <Typography variant="h6" sx={kStyles.header}>
                 {title}
             </Typography>
