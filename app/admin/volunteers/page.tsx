@@ -9,6 +9,10 @@ import Typography from '@mui/material/Typography';
 import { VolunteerDataTable } from './VolunteerDataTable';
 import { sql } from '@lib/database';
 
+/**
+ * Overview page showing all users who volunteered at at least one of the AnimeCon events, displayed
+ * in a <DataTable> component. Provides access to individual user pages.
+ */
 export default async function VolunteersPage() {
     const result = await sql`
         SELECT
@@ -37,9 +41,13 @@ export default async function VolunteersPage() {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 2 }}>
+            <Typography variant="h5">
                 Volunteers
             </Typography>
+            <Typography variant="body2" sx={{ pb: 2 }}>
+                Overview of all everyone who signed up to volunteer at an AnimeCon event since 2010.
+            </Typography>
+
             <VolunteerDataTable enableFilter data={structuredClone(result.rows) as any} />
         </Paper>
     );
