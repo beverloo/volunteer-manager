@@ -44,78 +44,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Definition for a client transform handler that can be applied to the <DataTable> component.
- */
-type ClientTransformHandler = (params: GridRenderCellParams) => React.ReactNode;
-
-/**
- * Icons that can be made available in <DataTable> cells that use the `button` client transform.
- * Included in the TypeScript definition as an enumeration.
- */
-const kButtonClientTransformIcons = {
-    'read-more': () => <ReadMoreIcon color="info" />,
-} as const;
-
-/**
- * Client transform that expects each value to be a URL. The icon will be provided through the
- * volumn definition, which is expected to be a key of `kButtonClientTransformIcons`.
- */
-const ButtonClientTransform: ClientTransformHandler = (params: GridRenderCellParams) => {
-    const { clientTransform } = params.colDef as any;
-    const icon = clientTransform.icon as keyof typeof kButtonClientTransformIcons | undefined;
-
-    return (
-        <MuiLink component={Link} href={params.value} sx={{ pt: '4px' }}>
-            { (kButtonClientTransformIcons[icon ?? 'read-more'])() }
-        </MuiLink>
-    );
-};
-
-/**
- * Client transform that takes a comma-separated list of team names, each of which will be drawn in
- * a separate <Chip> component.
- *
- * @todo Give the <Chip> components a distinctive colour depending on the team.
- */
-const TeamsClientTransform: ClientTransformHandler = (params: GridRenderCellParams) => {
-    const kTeamEnvironmentMapping: { [k: string]: Environment } = {
-        Crew: 'gophers.team',
-        Hosts: 'hosts.team',
-        Stewards: 'stewards.team',
-    };
-
-    const chips = params.value?.split(',');
-    const theme = useTheme();
-
-    if (Array.isArray(chips) && chips.length > 0) {
-        return (
-            <Stack direction="row" spacing={1}>
-                { chips.map((chip: any, index: any) => {
-                    const environment = kTeamEnvironmentMapping[chip] || 'animecon.team';
-                    const colour = kEnvironmentColours[environment][theme.palette.mode];
-
-                    return (
-                        <Chip size="small"
-                              color="primary" variant="outlined"
-                              key={index} label={chip}
-                              sx={{ borderWidth: 0, backgroundColor: colour, color: 'white' }} />
-                    );
-                }) }
-            </Stack>
-        );
-    }
-};
-
-/**
- * The client transform types that are known to the <DataTable> component. Each is defined using a
- * rendering function that overrides the default rendering of the cell.
- */
-const kClientTransformMap = {
-    button: ButtonClientTransform,
-    teams: TeamsClientTransform,
-} as const;
-
-/**
  * Component that displays a quick filter at the top of the <DataTable> component. The user can type
  * whatever they're searching for in this filter, which will automatically search through all data.
  */
@@ -128,43 +56,15 @@ function DataTableFilter() {
 }
 
 /**
- * Additional properties that can be made available to the `DataTableColumn` type for behaviour
- * specific to the <DataTable> component.
- */
-interface DataTableColumnClientTransform {
-    /**
-     * Client transforms are mechanisms that dynamically transform the original data on the client-
-     * side. This allows IDs to be replaced with linkable icons, among other transformations, which
-     * are not possible to do server-side due to the nature of MUI's <DataGrid> type.
-     */
-    clientTransform?: {
-        /**
-         * Type of client transform that should be provided.
-         */
-        type: keyof typeof kClientTransformMap,
-
-        /**
-         * Icon to apply to the client transform. Only considered for `type` = `button`.
-         */
-        icon?: keyof typeof kButtonClientTransformIcons,
-    },
-}
-
-/**
  * Type definition for a column displayed in the <DataTable> component.
  */
 export type DataTableColumn<RowModel extends GridValidRowModel = GridValidRowModel>
-    = GridColDef<RowModel> & DataTableColumnClientTransform;
+    = GridColDef<RowModel>;
 
 /**
- * Props accepted by the <DataTable> component.
+ * Base properties accepted by the <DataTable> component, excluding input data.
  */
-export interface DataTableProps<RowModel extends GridValidRowModel = GridValidRowModel> {
-    /**
-     * Columns that should be shown in the data table.
-     */
-    columns: DataTableColumn<RowModel>[];
-
+export interface DataTableBaseProps {
     /**
      * Whether the table should be displayed in a dense manner. Defaults to comfortable display.
      */
@@ -174,6 +74,17 @@ export interface DataTableProps<RowModel extends GridValidRowModel = GridValidRo
      * Whether the data table should have a quick filter rendered above it.
      */
     enableFilter?: boolean;
+}
+
+/**
+ * Props accepted by the <DataTable> component.
+ */
+export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowModel> =
+        DataTableBaseProps & {
+    /**
+     * Columns that should be shown in the data table.
+     */
+    columns: DataTableColumn<RowModel>[];
 
     /**
      * The rows that should be displayed in the data table. TypeScript will validate these against
@@ -188,14 +99,7 @@ export interface DataTableProps<RowModel extends GridValidRowModel = GridValidRo
  * maintaining the key strenghts of the DataGrid.
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
-    const { dense, enableFilter, rows } = props;
-
-    const columns = props.columns.map(column => {
-        const { clientTransform } = column;
-        return clientTransform
-            ? { ...column, renderCell: kClientTransformMap[clientTransform.type] }
-            : column;
-    });
+    const { columns, dense, enableFilter, rows } = props;
 
     return (
         <DataGrid rows={rows} columns={columns} autoHeight

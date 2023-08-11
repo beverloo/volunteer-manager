@@ -6,66 +6,18 @@ import { type Metadata } from 'next';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, DataTable } from '../DataTable';
+import { VolunteerDataTable } from './VolunteerDataTable';
 import { sql } from '@lib/database';
 
 export default async function VolunteersPage() {
-    const columns: DataTableColumn[] = [
-        {
-            field: 'id',
-            headerName: /* empty= */ '',
-            sortable: false,
-            width: 50,
-
-            clientTransform: {
-                type: 'button',
-                icon: 'read-more',
-            },
-        },
-        {
-            field: 'firstName',
-            headerName: 'First name',
-            sortable: true,
-            flex: 1,
-        },
-        {
-            field: 'lastName',
-            headerName: 'Last name',
-            flex: 1,
-        },
-        {
-            field: 'email',
-            headerName: 'E-mail',
-            sortable: true,
-            flex: 2,
-        },
-        {
-            field: 'events',
-            headerName: 'Events',
-            type: 'number',
-            sortable: true,
-        },
-        {
-            field: 'teams',
-            headerName: 'Teams',
-            sortable: false,
-            flex: 2,
-
-            clientTransform: {
-                type: 'teams',
-            }
-        }
-    ];
-
     const result = await sql`
         SELECT
             users.user_id AS id,
-            users.first_name AS firstName,
-            users.last_name AS lastName,
+            CONCAT(users.first_name, " ", users.last_name) AS name,
             users.username AS email,
-            users.activated AS activated,
-            COUNT(users_events.event_id) AS events,
-            GROUP_CONCAT(DISTINCT teams.team_name ORDER BY teams.team_name ASC) AS teams
+            GROUP_CONCAT(DISTINCT teams.team_name ORDER BY teams.team_name ASC) AS teams,
+            users.activated AS is_activated,
+            users.privileges & 1 = 1 AS is_admin
         FROM
             users
         LEFT JOIN
@@ -83,20 +35,12 @@ export default async function VolunteersPage() {
         return <p>Cannot fetch data</p>
     }
 
-    const rows = [];
-    for (const row of result.rows) {
-        rows.push({
-            ...row,
-            id: `/admin/volunteers/${row.id}`,
-        })
-    }
-
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
                 Volunteers
             </Typography>
-            <DataTable enableFilter rows={rows} columns={columns} />
+            <VolunteerDataTable enableFilter data={structuredClone(result.rows) as any} />
         </Paper>
     );
 }

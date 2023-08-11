@@ -1,0 +1,106 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import Link from 'next/link';
+
+import type { GridRenderCellParams } from '@mui/x-data-grid';
+import { default as MuiLink } from '@mui/material/Link';
+import Chip from '@mui/material/Chip';
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+
+import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
+import { DataTable } from '@app/admin/DataTable';
+import { type Environment, kEnvironmentColours } from '@app/Environment';
+
+/**
+ * Props accepted by the <VolunteerDataTable> component.
+ */
+export type VolunteerDataTableProps = DataTableBaseProps & {
+    /**
+     * The data that should be shown in the volunteer data table.
+     */
+    data: {
+        id: number;
+        name: string;
+        email: string;
+        teams: string;
+    }[];
+}
+
+/**
+ * The <VolunteerDataTable> component wraps the <DataTable> component with a few added client
+ * transformation options specific to this functionality.
+ */
+export function VolunteerDataTable(props: VolunteerDataTableProps) {
+    const kVolunteerBase = '/admin/volunteers/';
+
+    const kTeamEnvironmentMap: { [k: string]: Environment } = {
+        Crew: 'gophers.team',
+        Hosts: 'hosts.team',
+        Stewards: 'stewards.team',
+    };
+
+    const theme = useTheme();
+
+    const columns: DataTableColumn[] = [
+        {
+            field: 'id',
+            headerName: /* empty= */ '',
+            sortable: false,
+            width: 50,
+
+            renderCell: (params: GridRenderCellParams) =>
+                <MuiLink component={Link} href={kVolunteerBase + params.value} sx={{ pt: '4px' }}>
+                    <ReadMoreIcon color="info" />
+                </MuiLink>,
+        },
+        {
+            field: 'name',
+            headerName: 'Name',
+            sortable: true,
+            flex: 2,
+        },
+        {
+            field: 'email',
+            headerName: 'E-mail',
+            sortable: true,
+            flex: 2,
+        },
+        {
+            field: 'teams',
+            headerName: 'Teams',
+            sortable: false,
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) => {
+                const chips = params.value?.split(',');
+
+                if (Array.isArray(chips) && chips.length > 0) {
+                    return (
+                        <Stack direction="row" spacing={1}>
+                            { chips.map((chip: any, index: any) => {
+                                const environment = kTeamEnvironmentMap[chip] || 'animecon.team';
+                                const colour = kEnvironmentColours[environment][theme.palette.mode];
+
+                                return (
+                                    <Chip size="small"
+                                        color="primary" variant="outlined"
+                                        key={index} label={chip}
+                                        sx={{
+                                            borderWidth: 0, backgroundColor: colour, color: 'white'
+                                        }} />
+                                );
+                            }) }
+                        </Stack>
+                    );
+                }
+            },
+        }
+    ];
+
+    return <DataTable columns={columns} rows={props.data} {...props} />
+}
