@@ -16,8 +16,8 @@ export default async function VolunteersPage() {
             CONCAT(users.first_name, " ", users.last_name) AS name,
             users.username AS email,
             GROUP_CONCAT(DISTINCT teams.team_name ORDER BY teams.team_name ASC) AS teams,
-            users.activated AS is_activated,
-            users.privileges & 1 = 1 AS is_admin
+            users.activated AS isActivated,
+            users.privileges & 1 = 1 AS isAdmin
         FROM
             users
         LEFT JOIN

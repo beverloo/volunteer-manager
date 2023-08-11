@@ -8,8 +8,11 @@ import Link from 'next/link';
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
+import LocalPoliceIcon from '@mui/icons-material/LocalPolice';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
@@ -63,6 +66,29 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             headerName: 'Name',
             sortable: true,
             flex: 2,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (params.row.isActivated && !params.row.isAdmin)
+                    return params.value;
+
+                return (
+                    <>
+                        {params.value}
+
+                        { !!params.row.isAdmin &&
+                            <Tooltip title="Administrator">
+                                <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
+                            </Tooltip> }
+
+                        { !params.row.isActivated &&
+                            <Tooltip title="Pending activation">
+                                <ReportGmailerrorredIcon color="error" fontSize="small"
+                                                         sx={{ ml: 1 }} />
+                            </Tooltip>
+                        }
+                    </>
+                );
+            },
         },
         {
             field: 'email',
