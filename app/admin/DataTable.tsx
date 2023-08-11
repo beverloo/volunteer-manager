@@ -15,6 +15,9 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+
+import { type Environment, kEnvironmentColours } from '@app/Environment';
 
 /**
  * Custom styles applied to the <DataTable> & related components.
@@ -75,13 +78,29 @@ const ButtonClientTransform: ClientTransformHandler = (params: GridRenderCellPar
  * @todo Give the <Chip> components a distinctive colour depending on the team.
  */
 const TeamsClientTransform: ClientTransformHandler = (params: GridRenderCellParams) => {
+    const kTeamEnvironmentMapping: { [k: string]: Environment } = {
+        Crew: 'gophers.team',
+        Hosts: 'hosts.team',
+        Stewards: 'stewards.team',
+    };
+
     const chips = params.value?.split(',');
+    const theme = useTheme();
+
     if (Array.isArray(chips) && chips.length > 0) {
         return (
             <Stack direction="row" spacing={1}>
-                { chips.map((chip: any, index: any) =>
-                    <Chip size="small" color="primary" variant="outlined"
-                          key={index} label={chip} /> ) }
+                { chips.map((chip: any, index: any) => {
+                    const environment = kTeamEnvironmentMapping[chip] || 'animecon.team';
+                    const colour = kEnvironmentColours[environment][theme.palette.mode];
+
+                    return (
+                        <Chip size="small"
+                              color="primary" variant="outlined"
+                              key={index} label={chip}
+                              sx={{ borderWidth: 0, backgroundColor: colour, color: 'white' }} />
+                    );
+                }) }
             </Stack>
         );
     }
