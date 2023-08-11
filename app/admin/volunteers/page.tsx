@@ -96,7 +96,7 @@ export default async function VolunteersPage() {
             <Typography variant="h5" sx={{ pb: 2 }}>
                 Volunteers
             </Typography>
-            <DataTable rows={rows} columns={columns} />
+            <DataTable enableFilter rows={rows} columns={columns} />
         </Paper>
     );
 }

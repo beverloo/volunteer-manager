@@ -7,12 +7,38 @@ import Link from 'next/link';
 
 import type { GridColDef, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
 import type { GridRenderCellParams } from '@mui/x-data-grid';
-import { DataGrid } from '@mui/x-data-grid/DataGrid';
+import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 
+import type { SxProps, Theme } from '@mui/system';
 import { default as MuiLink } from '@mui/material/Link';
+import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import Stack from '@mui/material/Stack';
+
+/**
+ * Custom styles applied to the <DataTable> & related components.
+ */
+const kStyles: { [key: string]: SxProps<Theme> } = {
+    filterContainer: {
+        p: 1,
+
+        backgroundColor: theme => theme.palette.mode === 'light' ? 'grey.200'
+                                                                 : 'grey.800',
+    },
+    filterTextField: {
+        width: '100%',
+        pb: 0,
+
+        '& .MuiInputBase-adornedEnd > .MuiSvgIcon-root': {
+            color: 'action.active',
+        },
+
+        '& .MuiInput-underline:before': {
+            borderBottomWidth: 0,
+        },
+    },
+};
 
 /**
  * Definition for a client transform handler that can be applied to the <DataTable> component.
@@ -24,7 +50,7 @@ type ClientTransformHandler = (params: GridRenderCellParams) => React.ReactNode;
  * Included in the TypeScript definition as an enumeration.
  */
 const kButtonClientTransformIcons = {
-    'read-more': () => <ReadMoreIcon color="primary" />,
+    'read-more': () => <ReadMoreIcon color="info" />,
 } as const;
 
 /**
@@ -71,6 +97,18 @@ const kClientTransformMap = {
 } as const;
 
 /**
+ * Component that displays a quick filter at the top of the <DataTable> component. The user can type
+ * whatever they're searching for in this filter, which will automatically search through all data.
+ */
+function DataTableFilter() {
+    return (
+        <Box sx={kStyles.filterContainer}>
+            <GridToolbarQuickFilter debounceMs={200} fullWidth sx={kStyles.filterTextField} />
+        </Box>
+    )
+}
+
+/**
  * Additional properties that can be made available to the `DataTableColumn` type for behaviour
  * specific to the <DataTable> component.
  */
@@ -114,6 +152,11 @@ export interface DataTableProps<RowModel extends GridValidRowModel = GridValidRo
     dense?: boolean;
 
     /**
+     * Whether the data table should have a quick filter rendered above it.
+     */
+    enableFilter?: boolean;
+
+    /**
      * The rows that should be displayed in the data table. TypeScript will validate these against
      * the given column model.
      */
@@ -126,7 +169,7 @@ export interface DataTableProps<RowModel extends GridValidRowModel = GridValidRo
  * maintaining the key strenghts of the DataGrid.
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
-    const { dense, rows } = props;
+    const { dense, enableFilter, rows } = props;
 
     const columns = props.columns.map(column => {
         const { clientTransform } = column;
@@ -140,6 +183,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                   disableColumnMenu hideFooterSelectedRowCount
                   density={ dense ? 'compact' : 'standard' }
                   initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-                  pageSizeOptions={ [ 25, 50, 100 ] } />
+                  pageSizeOptions={ [ 25, 50, 100 ] }
+                  slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
     );
 }
