@@ -17,8 +17,10 @@ export default async function VolunteersPage() {
             sortable: false,
             width: 50,
 
-            clientTransform: 'button',
-            clientTransformUrl: '/admin/volunteers/',
+            clientTransform: {
+                type: 'button',
+                icon: 'read-more',
+            },
         },
         {
             field: 'firstName',
@@ -49,7 +51,9 @@ export default async function VolunteersPage() {
             sortable: false,
             flex: 2,
 
-            clientTransform: 'chips',
+            clientTransform: {
+                type: 'teams',
+            }
         }
     ];
 
@@ -79,7 +83,13 @@ export default async function VolunteersPage() {
         return <p>Cannot fetch data</p>
     }
 
-    const rows = JSON.parse(JSON.stringify(result.rows));
+    const rows = [];
+    for (const row of result.rows) {
+        rows.push({
+            ...row,
+            id: `/admin/volunteers/${row.id}`,
+        })
+    }
 
     return (
         <Paper sx={{ p: 2 }}>
