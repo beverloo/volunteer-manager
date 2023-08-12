@@ -24,9 +24,12 @@ export interface VolunteerInfo {
      */
     account: {
         userId: number;
-        username: string;
+        username?: string | null;
         firstName: string;
         lastName: string;
+        gender: string;
+        birthdate?: string | null;
+        phoneNumber?: string | null;
         privileges: number;
         activated: boolean;
     };
