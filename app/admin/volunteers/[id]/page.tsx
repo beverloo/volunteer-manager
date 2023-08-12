@@ -4,10 +4,8 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { Header } from './Header';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
@@ -18,7 +16,7 @@ import { sql } from '@lib/database';
 /**
  * Information about the volunteer for whom this page is being displayed.
  */
-interface VolunteerInfo {
+export interface VolunteerInfo {
     /**
      * Information about the volunteer's account.
      */
@@ -27,6 +25,7 @@ interface VolunteerInfo {
         firstName: string;
         lastName: string;
         privileges: number;
+        activated: boolean;
     };
 
     /**
@@ -47,7 +46,8 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
                 users.user_id AS userId,
                 users.first_name AS firstName,
                 users.last_name AS lastName,
-                privileges
+                privileges,
+                activated
             FROM
                 users
             WHERE
@@ -83,36 +83,9 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         notFound();
 
     return {
-        account: account.rows[0] as VolunteerInfo['account'],
+        account: account.rowsPod[0] as VolunteerInfo['account'],
         participation: participation.rowsPod as ParticipationInfo[],
     };
-}
-
-/**
- * Props accepted by the <Header> component.
- */
-interface HeaderProps {
-    /**
-     * Information about the account of the volunteer for whom the header is shown.
-     */
-    account: VolunteerInfo['account'];
-}
-
-/**
- * The <Header> component provides access to the volunteer's primary identity and quick access
- * related to the workings of their account, for example to (de)activate them or request a new
- * passport or access code.
- */
-function Header(props: HeaderProps) {
-    const { account } = props;
-
-    return (
-        <Paper sx={{ p: 2 }}>
-            <Typography variant="h5">
-                {account.firstName} {account.lastName}
-            </Typography>
-        </Paper>
-    );
 }
 
 /**
