@@ -82,6 +82,11 @@ export interface DataTableBaseProps {
     dense?: boolean;
 
     /**
+     * Whether the data table's footer should be disabled.
+     */
+    disableFooter?: boolean;
+
+    /**
      * Whether the data table should have a quick filter rendered above it.
      */
     enableFilter?: boolean;
@@ -110,11 +115,11 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
  * maintaining the key strenghts of the DataGrid.
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
-    const { columns, dense, enableFilter, rows } = props;
+    const { columns, dense, disableFooter, enableFilter, rows } = props;
 
     return (
         <DataGrid rows={rows} columns={columns} autoHeight
-                  disableColumnMenu hideFooterSelectedRowCount
+                  disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                   density={ dense ? 'compact' : 'standard' }
                   initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
                   pageSizeOptions={ [ 25, 50, 100 ] }

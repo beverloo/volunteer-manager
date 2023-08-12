@@ -7,17 +7,16 @@ import Link from 'next/link';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-import Chip from '@mui/material/Chip';
 import LocalPoliceIcon from '@mui/icons-material/LocalPolice';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import { useTheme } from '@mui/material/styles';
+
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import { DataTable } from '@app/admin/DataTable';
-import { type Environment, kEnvironmentColours } from '@app/Environment';
+import { TeamChip } from './TeamChip';
 
 /**
  * Props accepted by the <VolunteerDataTable> component.
@@ -40,14 +39,6 @@ export type VolunteerDataTableProps = DataTableBaseProps & {
  */
 export function VolunteerDataTable(props: VolunteerDataTableProps) {
     const kVolunteerBase = '/admin/volunteers/';
-
-    const kTeamEnvironmentMap: { [k: string]: Environment } = {
-        Crew: 'gophers.team',
-        Hosts: 'hosts.team',
-        Stewards: 'stewards.team',
-    };
-
-    const theme = useTheme();
 
     const columns: DataTableColumn[] = [
         {
@@ -108,19 +99,8 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
                 if (Array.isArray(chips) && chips.length > 0) {
                     return (
                         <Stack direction="row" spacing={1}>
-                            { chips.map((chip: any, index: any) => {
-                                const environment = kTeamEnvironmentMap[chip] || 'animecon.team';
-                                const colour = kEnvironmentColours[environment][theme.palette.mode];
-
-                                return (
-                                    <Chip size="small"
-                                        color="primary" variant="outlined"
-                                        key={index} label={chip}
-                                        sx={{
-                                            borderWidth: 0, backgroundColor: colour, color: 'white'
-                                        }} />
-                                );
-                            }) }
+                            { chips.map((chip: any, index: any) =>
+                                <TeamChip key={index} team={chip} /> )}
                         </Stack>
                     );
                 }

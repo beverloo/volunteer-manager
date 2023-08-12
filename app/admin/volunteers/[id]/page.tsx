@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { type ParticipationInfo, Participation } from './Participation';
 import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
@@ -27,28 +28,63 @@ interface VolunteerInfo {
         lastName: string;
         privileges: number;
     };
+
+    /**
+     * Information about the volunteer's participation across AnimeCon events.
+     */
+    participation: ParticipationInfo[];
 }
 
 /**
  * Fetches information about the volunteer identified by the given `unverifiedId` from the database.
  */
 async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo | undefined> {
-    const result = await sql`
-        SELECT
-            users.user_id AS userId,
-            users.first_name AS firstName,
-            users.last_name AS lastName,
-            privileges
-        FROM
-            users
-        WHERE
-            users.user_id = ${unverifiedId}`;
+    const [ account, participation ] = await Promise.all([
+        // -----------------------------------------------------------------------------------------
+        // Account
+        // -----------------------------------------------------------------------------------------
+        sql`SELECT
+                users.user_id AS userId,
+                users.first_name AS firstName,
+                users.last_name AS lastName,
+                privileges
+            FROM
+                users
+            WHERE
+                users.user_id = ${unverifiedId}`,
 
-    if (!result.ok || !result.rows.length)
+        // -----------------------------------------------------------------------------------------
+        // Participation
+        // -----------------------------------------------------------------------------------------
+        sql`SELECT
+                (1000 * users_events.event_id + users_events.team_id) AS id,
+                events.event_short_name AS event,
+                events.event_slug AS eventSlug,
+                users_events.registration_status AS status,
+                teams.team_name AS team,
+                roles.role_name AS role
+            FROM
+                users_events
+            LEFT JOIN
+                events ON events.event_id = users_events.event_id
+            LEFT JOIN
+                teams ON teams.team_id = users_events.team_id
+            LEFT JOIN
+                roles ON roles.role_id = users_events.role_id
+            WHERE
+                users_events.user_id = ${unverifiedId}
+            ORDER BY
+                events.event_start_time DESC`
+    ]);
+
+    if (!account.ok || !account.rows.length)
+        notFound();
+    if (!participation.ok)
         notFound();
 
     return {
-        account: result.rows[0] as VolunteerInfo['account'],
+        account: account.rows[0] as VolunteerInfo['account'],
+        participation: participation.rows as ParticipationInfo[],
     };
 }
 
@@ -99,25 +135,6 @@ function Information(props: InformationProps) {
 }
 
 /**
- * Props accepted by the <Participation> component.
- */
-interface ParticipationProps {
-    // TODO
-}
-
-/**
- * The <Participation> component lists the events in which this volunteer has participated, and in
- * which role. This may include cancelled participation.
- */
-function Participation(props: ParticipationProps) {
-    return (
-        <UnderConstructionPaper>
-            Participation
-        </UnderConstructionPaper>
-    );
-}
-
-/**
  * Displays information about an individual volunteer, uniquely identified by their ID. Data will
  * be fetched from the database prior to being displayed.
  */
@@ -130,13 +147,13 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
     if (!volunteerInfo)
         notFound();
 
-    const { account } = volunteerInfo;
+    const { account, participation } = volunteerInfo;
 
     return (
         <>
             <Header account={volunteerInfo.account} />
             <Information />
-            <Participation />
+            <Participation participation={participation} userId={account.userId} />
 
             { can(user, Privilege.Administrator) &&
                 <Permissions userId={account.userId} privileges={account.privileges} /> }
