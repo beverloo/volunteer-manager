@@ -6,10 +6,12 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Header } from './Header';
+import { Logs } from './Logs';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
+import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
 import { requireUser } from '@lib/auth/getUser';
 import { sql } from '@lib/database';
 
@@ -29,6 +31,11 @@ export interface VolunteerInfo {
     };
 
     /**
+     * Log messages about or issued by this user. Limited to 100 messages.
+     */
+    logs: LogMessage[];
+
+    /**
      * Information about the volunteer's participation across AnimeCon events.
      */
     participation: ParticipationInfo[];
@@ -38,7 +45,7 @@ export interface VolunteerInfo {
  * Fetches information about the volunteer identified by the given `unverifiedId` from the database.
  */
 async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo | undefined> {
-    const [ account, participation ] = await Promise.all([
+    const [ account, logs, participation ] = await Promise.all([
         // -----------------------------------------------------------------------------------------
         // Account
         // -----------------------------------------------------------------------------------------
@@ -52,6 +59,11 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
                 users
             WHERE
                 users.user_id = ${unverifiedId}`,
+
+        // -----------------------------------------------------------------------------------------
+        // Logs
+        // -----------------------------------------------------------------------------------------
+        fetchLogs({ sourceOrTargetUserId: parseInt(unverifiedId, 10) }),
 
         // -----------------------------------------------------------------------------------------
         // Participation
@@ -84,6 +96,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
 
     return {
         account: account.rowsPod[0] as VolunteerInfo['account'],
+        logs,
         participation: participation.rowsPod as ParticipationInfo[],
     };
 }
@@ -120,7 +133,7 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
     if (!volunteerInfo)
         notFound();
 
-    const { account, participation } = volunteerInfo;
+    const { account, logs, participation } = volunteerInfo;
 
     const isAdmin = can(user, Privilege.Administrator);
 
@@ -130,7 +143,8 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
             <Information />
             <Participation participation={participation} userId={account.userId} />
 
-            { can(user, Privilege.Administrator) &&
+            { (can(user, Privilege.Administrator) && logs.length > 0) && <Logs messages={logs} /> }
+            { (can(user, Privilege.Administrator)) &&
                 <Permissions userId={account.userId} privileges={account.privileges} /> }
         </>
     );

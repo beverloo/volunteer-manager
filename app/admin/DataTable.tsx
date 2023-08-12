@@ -90,6 +90,16 @@ export interface DataTableBaseProps {
      * Whether the data table should have a quick filter rendered above it.
      */
     enableFilter?: boolean;
+
+    /**
+     * Number of log items to display per page. Defaults to 25.
+     */
+    pageSize?: number;
+
+    /**
+     * Options that can be selected for page sizes. Defaults to [ 25, 50, 100 ].
+     */
+    pageSizeOptions?: number[];
 }
 
 /**
@@ -117,12 +127,15 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
     const { columns, dense, disableFooter, enableFilter, rows } = props;
 
+    const pageSize = props.pageSize ?? 25;
+    const pageSizeOptions = props.pageSizeOptions ?? [ 25, 50, 100 ];
+
     return (
         <DataGrid rows={rows} columns={columns} autoHeight
                   disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                   density={ dense ? 'compact' : 'standard' }
-                  initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
-                  pageSizeOptions={ [ 25, 50, 100 ] }
+                  initialState={{ pagination: { paginationModel: { pageSize } } }}
+                  pageSizeOptions={ pageSizeOptions }
                   slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
     );
 }
