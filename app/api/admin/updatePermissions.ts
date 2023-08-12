@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { sql } from '@lib/database';
 
@@ -43,6 +44,16 @@ type Response = UpdatePermissionsDefinition['response'];
 export async function updatePermissions(request: Request, props: ActionProps): Promise<Response> {
     if (!can(props.user, Privilege.Administrator))
         noAccess();
+
+    Log({
+        type: LogType.AdminUpdatePermission,
+        severity: 'Info',
+        sourceUser: props.user,
+        targetUser: request.userId,
+        data: {
+            privileges: request.privileges,
+        }
+    });
 
     const result =
         await sql`
