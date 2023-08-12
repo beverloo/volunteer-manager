@@ -8,6 +8,14 @@ import { sql } from '@lib/database';
  * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.
  */
 export enum LogType {
+    AccountActivate = 'account-activate',
+    AccountIdentityAccessCode = 'account-identity-access-code',
+    AccountIdentityPassword = 'account-identity-password',
+    AccountPasswordResetRequest = 'account-password-reset-request',
+    AccountPasswordReset = 'account-password-reset',
+    AccountPasswordUpdate = 'account-password-update',
+    AccountRegister = 'account-register',
+    AccountUpdateAvatar = 'account-update-avatar',
     AdminUpdatePermission = 'admin-update-permission',
 }
 
@@ -22,9 +30,9 @@ export interface LogEntry {
     data?: any;
 
     /**
-     * Severity of the log entry that's being logged.
+     * Severity of the log entry that's being logged. Defaults to "Info".
      */
-    severity: 'Debug' | 'Info' | 'Warning' | 'Error',
+    severity?: 'Debug' | 'Info' | 'Warning' | 'Error',
 
     /**
      * Information about the user who caused this log entry to be created.
@@ -59,11 +67,12 @@ export async function Log(entry: LogEntry) {
         targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
+    const severity = entry.severity ?? 'Info';
 
     return sql`
         INSERT INTO
             logs
             (log_type, log_severity, log_source_user_id, log_target_user_id, log_data)
         VALUES
-            (${entry.type}, ${entry.severity}, ${sourceUserId}, ${targetUserId}, ${data})`;
+            (${entry.type}, ${severity}, ${sourceUserId}, ${targetUserId}, ${data})`;
 }

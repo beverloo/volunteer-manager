@@ -13,6 +13,11 @@ import { getUserFromHeaders } from '@app/lib/auth/getUser';
  */
 export interface ActionProps {
     /**
+     * IP address of the computer who issued this request.
+     */
+    ip?: string;
+
+    /**
      * Origin of the server to which the request has been issued. (https://example.com).
      */
     origin: string;
@@ -86,6 +91,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
 
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {
+            ip: request.ip,
             origin: request.nextUrl.origin,
             requestHeaders: request.headers,
             responseHeaders,

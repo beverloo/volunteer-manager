@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { MailClient } from '@lib/MailClient';
 import { MailMessage } from '@app/lib/MailMessage';
 import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
@@ -130,6 +131,12 @@ export async function register(request: Request, props: ActionProps): Promise<Re
 
         await client.safeSendMessage(message);
     }
+
+    Log({
+        type: LogType.AccountRegister,
+        sourceUser: userId,
+        data: { ip: props.ip },
+    });
 
     return { success: true };
 }

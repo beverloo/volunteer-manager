@@ -47,10 +47,10 @@ export async function updatePermissions(request: Request, props: ActionProps): P
 
     Log({
         type: LogType.AdminUpdatePermission,
-        severity: 'Info',
         sourceUser: props.user,
         targetUser: request.userId,
         data: {
+            ip: props.ip,
             privileges: request.privileges,
         }
     });

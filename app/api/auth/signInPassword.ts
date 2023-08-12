@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { authenticateUserFromPassword } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -53,6 +54,13 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
 
     switch (authType) {
         case 'code': {  // one-time access code
+            Log({
+                type: LogType.AccountIdentityAccessCode,
+                severity: 'Debug',
+                sourceUser: user,
+                data: { ip: props.ip },
+            });
+
             return {
                 success: true,
                 requiredPasswordUpdateToken: await sealPasswordResetRequest({
@@ -63,6 +71,13 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         }
 
         case 'password': {  // stored password
+            Log({
+                type: LogType.AccountIdentityPassword,
+                severity: 'Debug',
+                sourceUser: user,
+                data: { ip: props.ip },
+            });
+
             await writeSealedSessionCookie(
                 { id: user.userId, token: user.sessionToken }, props.responseHeaders);
 

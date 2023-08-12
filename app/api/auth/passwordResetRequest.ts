@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { MailClient } from '@lib/MailClient';
 import { MailMessage } from '@app/lib/MailMessage';
 import { User } from '@lib/auth/User';
@@ -67,6 +68,13 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
                 });
 
             await client.safeSendMessage(message);
+
+            Log({
+                type: LogType.AccountPasswordResetRequest,
+                sourceUser: passwordResetData.userId,
+                data: { ip: props.ip }
+            });
+
             return { success: true };
         }
 

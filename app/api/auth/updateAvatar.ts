@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { storeAvatarData } from '@lib/database/AvatarStore';
 import { sql } from '@lib/database';
@@ -44,8 +45,15 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
 
     if (avatarId) {
         const result = await sql`UPDATE users SET avatar_id=${avatarId} WHERE user_id=${userId}`;
-        if (result.ok && result.affectedRows === 1)
+        if (result.ok && result.affectedRows === 1) {
+            Log({
+                type: LogType.AccountUpdateAvatar,
+                sourceUser: props.user,
+                data: { ip: props.ip },
+            });
+
             return { success: true };
+        }
     }
 
     return { success: false };

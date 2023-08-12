@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { LogType, Log } from '@lib/Log';
 import { activateAccount } from '@lib/auth/Authentication';
 import { unsealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -58,6 +59,12 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
 
     await writeSealedSessionCookie(
         { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+
+    Log({
+        type: LogType.AccountActivate,
+        sourceUser: user,
+        data: { ip: props.ip },
+    });
 
     return {
         success: true,

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { LogType, Log } from '@lib/Log';
 
 import { authenticateUserFromSession } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
@@ -52,6 +53,12 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
             await user.updatePassword(request.password, /* incrementSessionToken= */ true);
             await writeSealedSessionCookie(
                 { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+
+            Log({
+                type: LogType.AccountPasswordReset,
+                sourceUser: user,
+                data: { ip: props.ip },
+            });
 
             return { success: true };
         }
