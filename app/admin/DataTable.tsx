@@ -3,21 +3,13 @@
 
 'use client';
 
-import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 
 import type { GridColDef, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
-import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import Stack from '@mui/material/Stack';
-import { useTheme } from '@mui/material/styles';
-
-import { type Environment, kEnvironmentColours } from '@app/Environment';
 
 /**
  * Custom styles applied to the <DataTable> & related components.
@@ -48,9 +40,28 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  * whatever they're searching for in this filter, which will automatically search through all data.
  */
 function DataTableFilter() {
+    const inputReference = useRef<HTMLInputElement>();
+
+    useEffect(() => {
+        function handleKeyPress(event: KeyboardEvent) {
+            if (!inputReference.current)
+                return;
+
+            if (event.keyCode !== 114 && !(event.ctrlKey && event.keyCode === 70))
+                return;
+
+            event.preventDefault();
+            inputReference.current.focus();
+        }
+
+        document.addEventListener('keydown', handleKeyPress);
+        return () => document.removeEventListener('keydown', handleKeyPress);
+    });
+
     return (
         <Box sx={kStyles.filterContainer}>
-            <GridToolbarQuickFilter debounceMs={200} fullWidth sx={kStyles.filterTextField} />
+            <GridToolbarQuickFilter debounceMs={200} fullWidth sx={kStyles.filterTextField}
+                                    InputProps={{ inputRef: inputReference }} />
         </Box>
     )
 }
