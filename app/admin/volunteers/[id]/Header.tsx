@@ -27,6 +27,7 @@ import Typography from '@mui/material/Typography';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import { green } from '@mui/material/colors';
 
+import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { VolunteerInfo } from './page';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -250,10 +251,17 @@ function PasswordResetDialog(props: DialogProps) {
     const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
     const handleRequest = useCallback(async() => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        setLink('https://example.com/');
+        try {
+            const response = await issueServerAction<ResetPasswordLinkDefinition>(
+                '/api/admin/reset-password-link',
+                { userId: account.userId });
 
+            if (response.link)
+                setLink(response.link);
+
+        } finally {
+            setLoading(false);
+        }
     }, [ account ]);
 
     return (

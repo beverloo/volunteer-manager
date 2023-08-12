@@ -16,6 +16,7 @@ export enum LogType {
     AccountPasswordUpdate = 'account-password-update',
     AccountRegister = 'account-register',
     AccountUpdateAvatar = 'account-update-avatar',
+    AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdatePermission = 'admin-update-permission',
     DatabaseError = 'database-error',

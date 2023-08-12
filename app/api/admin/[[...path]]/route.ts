@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
+import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 
@@ -19,6 +20,8 @@ type RouteParams = { params: { path: string[] } };
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
     const action = Object.hasOwn(params, 'path') ? params.path.join('/') : null;
     switch (action) {
+        case 'reset-password-link':
+            return executeAction(request, kResetPasswordLinkDefinition, resetPasswordLink);
         case 'update-activation':
             return executeAction(request, kUpdateActivationDefinition, updateActivation);
         case 'update-permissions':
