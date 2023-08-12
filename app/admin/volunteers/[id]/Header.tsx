@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
@@ -26,7 +27,9 @@ import Typography from '@mui/material/Typography';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import { green } from '@mui/material/colors';
 
+import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { VolunteerInfo } from './page';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Custom styles applied to the <Header> component.
@@ -128,13 +131,22 @@ function ActivateDialog(props: DialogProps) {
     const [ done, setDone ] = useState(false);
     const [ loading, setLoading ] = useState(false);
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
+    const handleClose = useCallback(() => onClose(/* refresh= */ done), [ done, onClose ]);
     const handleRequest = useCallback(async() => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        setDone(true);
+        try {
+            const response = await issueServerAction<UpdateActivationDefinition>(
+                '/api/admin/update-activation',
+                {
+                    userId: account.userId,
+                    activated: true,
+                });
 
+            if (response.success)
+                setDone(true);
+        } finally {
+            setLoading(false);
+        }
     }, [ account ]);
 
     return (
@@ -157,7 +169,7 @@ function ActivateDialog(props: DialogProps) {
                 </Collapse>
             </DialogContent>
             <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Cancel</Button>
+                <Button onClick={handleClose} variant="text">Close</Button>
                 <LoadingButton disabled={done} loading={loading} onClick={handleRequest}
                                variant="contained">
                     Activate
@@ -177,13 +189,22 @@ function DeactivateDialog(props: DialogProps) {
     const [ done, setDone ] = useState(false);
     const [ loading, setLoading ] = useState(false);
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
+    const handleClose = useCallback(() => onClose(/* refresh= */ done), [ done, onClose ]);
     const handleRequest = useCallback(async() => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        setDone(true);
+        try {
+            const response = await issueServerAction<UpdateActivationDefinition>(
+                '/api/admin/update-activation',
+                {
+                    userId: account.userId,
+                    activated: false,
+                });
 
+            if (response.success)
+                setDone(true);
+        } finally {
+            setLoading(false);
+        }
     }, [ account ]);
 
     return (
@@ -206,7 +227,7 @@ function DeactivateDialog(props: DialogProps) {
                 </Collapse>
             </DialogContent>
             <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Cancel</Button>
+                <Button onClick={handleClose} variant="text">Close</Button>
                 <LoadingButton disabled={done} loading={loading} onClick={handleRequest}
                                variant="contained">
                     Deactivate
@@ -287,8 +308,20 @@ export function Header(props: HeaderProps) {
     const [ deactivateOpen, setDeactivateOpen ] = useState(false);
     const [ resetOpen, setResetOpen ] = useState(false);
 
-    function requestClose(refreshState?: boolean) {
+    const router = useRouter();
 
+    function requestClose(refreshState?: boolean) {
+        if (refreshState)
+            router.refresh();
+
+        if (accessCodeOpen)
+            setAccessCodeOpen(false);
+        if (activateOpen)
+            setActivateOpen(false);
+        if (deactivateOpen)
+            setDeactivateOpen(false);
+        if (resetOpen)
+            setResetOpen(false);
     }
 
     return (
