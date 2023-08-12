@@ -8,6 +8,7 @@ import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode'
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
+import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -29,6 +30,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdateActivationDefinition, updateActivation);
         case 'update-permissions':
             return executeAction(request, kUpdatePermissionsDefinition, updatePermissions);
+        case 'update-volunteer':
+            return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

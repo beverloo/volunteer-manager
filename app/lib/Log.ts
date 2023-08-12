@@ -20,6 +20,7 @@ export enum LogType {
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdatePermission = 'admin-update-permission',
+    AdminUpdateVolunteer = 'admin-update-volunteer',
     DatabaseError = 'database-error',
 }
 

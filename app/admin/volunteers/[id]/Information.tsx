@@ -20,8 +20,10 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 
+import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VolunteerInfo } from './page';
 import { dayjs } from '@lib/DateTime';
+import { issueServerAction } from '@lib/issueServerAction';
 import { kGenderOptions } from '@app/registration/authentication/RegisterDialog';
 
 /**
@@ -53,15 +55,40 @@ export function Information(props: InformationProps) {
     const { account } = props;
 
     const [ invalidated, setInvalidated ] = useState(false);
+
+    const [ error, setError ] = useState<string>();
     const [ loading, setLoading ] = useState(false);
 
     const router = useRouter();
 
     const handleSubmit = useCallback(async (data: FieldValues) => {
+        setError(undefined);
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        setInvalidated(false);
+
+        try {
+            const birthdate = dayjs(data.rawBirthdate);
+            const response = await issueServerAction<UpdateVolunteerDefinition>(
+                '/api/admin/update-volunteer',
+                {
+                    userId: account.userId,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    username: data.username ?? undefined,
+                    gender: data.gender,
+                    birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD')
+                                                   : undefined,
+                    phoneNumber: data.phoneNumber ?? undefined,
+                });
+
+            if (response.success) {
+                setInvalidated(false);
+                router.refresh();
+            } else if (response.error) {
+                setError(response.error);
+            }
+        } finally {
+            setLoading(false);
+        }
     }, [ account, router ]);
 
     const defaultValues = { ...account, rawBirthdate: dayjs(account.birthdate) };
@@ -114,6 +141,10 @@ export function Information(props: InformationProps) {
                                 <LoadingButton loading={loading} variant="contained" type="submit">
                                     Save changes
                                 </LoadingButton>
+                                { error &&
+                                    <Typography sx={{ display: 'inline-block', ml: 2 }}>
+                                        {error}
+                                    </Typography> }
                             </Box>
                         </Collapse>
                     </Grid>

@@ -71,6 +71,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
                               : 'Deactivated their account';
     },
     [LogType.AdminUpdatePermission]: 'Updated their permissions',
+    [LogType.AdminUpdateVolunteer]: 'Updated their user information',
     [LogType.DatabaseError]: 'Database error',
 };
 
