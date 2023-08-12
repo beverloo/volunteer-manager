@@ -84,7 +84,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
 
     return {
         account: account.rows[0] as VolunteerInfo['account'],
-        participation: participation.rows as ParticipationInfo[],
+        participation: participation.rowsPod as ParticipationInfo[],
     };
 }
 

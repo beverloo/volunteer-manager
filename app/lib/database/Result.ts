@@ -122,9 +122,20 @@ export class Result {
      */
     get rows() {
         if (this.resultType !== ResultType.Select)
-            throw new Error('Result::rows is only available for successful SELECT queries.')
+            throw new Error('Result::rows is only available for successful SELECT queries.');
 
         return this.resultValue as Array<{ [key: string]: any }>;
+    }
+
+    /**
+     * Returns an array with the rows of information that have been retrieved from the server as a
+     * Plain Old Data object. This is because serverless-mysql wraps rows in an object.
+     */
+    get rowsPod() {
+        if (this.resultType !== ResultType.Select)
+            throw new Error('Result::rowsPod is only available for successful SELECT queries.');
+
+        return structuredClone(this.resultValue) as Array<{ [key: string]: any }>;
     }
 
     // ---------------------------------------------------------------------------------------------

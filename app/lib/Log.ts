@@ -9,14 +9,15 @@ import { sql } from '@lib/database';
  */
 export enum LogType {
     AccountActivate = 'account-activate',
-    AccountIdentityAccessCode = 'account-identity-access-code',
-    AccountIdentityPassword = 'account-identity-password',
+    AccountIdentifyAccessCode = 'account-identify-access-code',
+    AccountIdentifyPassword = 'account-identify-password',
     AccountPasswordResetRequest = 'account-password-reset-request',
     AccountPasswordReset = 'account-password-reset',
     AccountPasswordUpdate = 'account-password-update',
     AccountRegister = 'account-register',
     AccountUpdateAvatar = 'account-update-avatar',
     AdminUpdatePermission = 'admin-update-permission',
+    DatabaseError = 'database-error',
 }
 
 /**

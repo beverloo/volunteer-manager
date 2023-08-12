@@ -55,7 +55,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
     switch (authType) {
         case 'code': {  // one-time access code
             Log({
-                type: LogType.AccountIdentityAccessCode,
+                type: LogType.AccountIdentifyAccessCode,
                 severity: 'Debug',
                 sourceUser: user,
                 data: { ip: props.ip },
@@ -72,7 +72,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
 
         case 'password': {  // stored password
             Log({
-                type: LogType.AccountIdentityPassword,
+                type: LogType.AccountIdentifyPassword,
                 severity: 'Debug',
                 sourceUser: user,
                 data: { ip: props.ip },
