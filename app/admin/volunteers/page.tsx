@@ -2,11 +2,14 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { Privilege, can } from '@app/lib/auth/Privileges';
 import { VolunteerDataTable } from './VolunteerDataTable';
+import { requireUser } from '@lib/auth/getUser';
 import { sql } from '@lib/database';
 
 /**
@@ -14,6 +17,10 @@ import { sql } from '@lib/database';
  * in a <DataTable> component. Provides access to individual user pages.
  */
 export default async function VolunteersPage() {
+    const user = await requireUser();
+    if (!can(user, Privilege.AccessVolunteers))
+        notFound();
+
     const result = await sql`
         SELECT
             users.user_id AS id,
