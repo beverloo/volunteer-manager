@@ -6,11 +6,11 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Header } from './Header';
+import { Information } from './Information';
 import { Logs } from './Logs';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
-import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
 import { requireUser } from '@lib/auth/getUser';
 import { sql } from '@lib/database';
@@ -24,6 +24,7 @@ export interface VolunteerInfo {
      */
     account: {
         userId: number;
+        username: string;
         firstName: string;
         lastName: string;
         privileges: number;
@@ -51,8 +52,12 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         // -----------------------------------------------------------------------------------------
         sql`SELECT
                 users.user_id AS userId,
+                users.username,
                 users.first_name AS firstName,
                 users.last_name AS lastName,
+                users.gender,
+                users.birthdate,
+                users.phone_number AS phoneNumber,
                 privileges,
                 activated
             FROM
@@ -102,25 +107,6 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
 }
 
 /**
- * Props accepted by the <Information> component.
- */
-interface InformationProps {
-    // TODO
-}
-
-/**
- * The <Information> component lists the volunteer's basic information, which may be amended by the
- * person who has access to this page. Amendments are made using an API call.
- */
-function Information(props: InformationProps) {
-    return (
-        <UnderConstructionPaper>
-            Information
-        </UnderConstructionPaper>
-    );
-}
-
-/**
  * Displays information about an individual volunteer, uniquely identified by their ID. Data will
  * be fetched from the database prior to being displayed.
  */
@@ -139,8 +125,8 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
 
     return (
         <>
-            <Header account={volunteerInfo.account} isAdmin={isAdmin} />
-            <Information />
+            <Header account={account} isAdmin={isAdmin} />
+            <Information account={account} />
             <Participation participation={participation} userId={account.userId} />
 
             { (can(user, Privilege.Administrator) && logs.length > 0) && <Logs messages={logs} /> }

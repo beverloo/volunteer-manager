@@ -49,7 +49,7 @@ export function Logs(props: LogsProps) {
         },
         {
             field: 'source',
-            headerName: 'Source',
+            headerName: 'Source user',
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
@@ -65,7 +65,7 @@ export function Logs(props: LogsProps) {
         },
         {
             field: 'target',
-            headerName: 'Target',
+            headerName: 'Target user',
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {

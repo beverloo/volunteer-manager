@@ -28,7 +28,7 @@ import { dayjs } from '@lib/DateTime';
 /**
  * The options we'll present to users when having to pick their gender.
  */
-const kGenderOptions = [
+export const kGenderOptions = [
     { id: 'Female', label: 'Female' },
     { id: 'Male', label: 'Male' },
     { id: 'Other', label: 'Other' },
