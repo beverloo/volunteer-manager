@@ -45,6 +45,21 @@ export function can(user: User | UserData | undefined, privilege: Privilege): bo
 }
 
 /**
+ * Grouping of the privileges as they should be rendered in the administrative area
+ */
+export const PrivilegeGroups: { [key in Privilege]: string } = {
+    [Privilege.Administrator]: 'Special access',
+    [Privilege.Statistics]: 'Special access',
+    [Privilege.EventContentOverride]: 'Event access',
+    [Privilege.EventRegistrationOverride]: 'Event access',
+    [Privilege.EventScheduleOverride]: 'Event access',
+    [Privilege.ReplaceOwnAvatar]: 'Volunteer access',
+    [Privilege.ReplaceAnyAvatar]: 'Volunteer access',
+    [Privilege.AccessPastEvents]: 'Special access',
+    [Privilege.AccessVolunteers]: 'Special access',
+};
+
+/**
  * Names of each of the privileges.
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
@@ -55,17 +70,17 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
     [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
-    [Privilege.AccessPastEvents]: 'Access historic events',
-    [Privilege.AccessVolunteers]: 'Access volunteers',
+    [Privilege.AccessPastEvents]: 'Universal event access',
+    [Privilege.AccessVolunteers]: 'Universal volunteer access',
 };
 
 /**
  * Warnings associated with each of the Privileges.
  */
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
-    [Privilege.Administrator]: 'Administrator privilege automatically grants all other privileges',
+    [Privilege.Administrator]: 'Automatically grants all other privileges',
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
-    [Privilege.ReplaceAnyAvatar]: 'Allows them to replace anyone\'s avatar',
-    [Privilege.AccessPastEvents]: 'Allows access to past events regardless of their participation',
-    [Privilege.AccessVolunteers]: 'Allows access to all historic AnimeCon volunteers',
+    [Privilege.ReplaceAnyAvatar]: 'That includes your avatar as well…',
+    [Privilege.AccessPastEvents]: 'Access to past and future events regardless of participation',
+    [Privilege.AccessVolunteers]: 'Access to all AnimeCon volunteer information',
 };

@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 import { requireUser } from '@lib/auth/getUser';
@@ -24,6 +25,7 @@ interface VolunteerInfo {
         userId: number;
         firstName: string;
         lastName: string;
+        privileges: number;
     };
 }
 
@@ -35,7 +37,8 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         SELECT
             users.user_id AS userId,
             users.first_name AS firstName,
-            users.last_name AS lastName
+            users.last_name AS lastName,
+            privileges
         FROM
             users
         WHERE
@@ -115,25 +118,6 @@ function Participation(props: ParticipationProps) {
 }
 
 /**
- * Props accepted by the <Permissions> component.
- */
-interface PermissionsProps {
-    // TODO
-}
-
-/**
- * The <Permissions> component lists the permissions granted to this user, and allows for additional
- * permissions to be granted. Permissions are automatically generated. Only administrators get this.
- */
-function Permissions(props: PermissionsProps) {
-    return (
-        <UnderConstructionPaper>
-            Permissions
-        </UnderConstructionPaper>
-    );
-}
-
-/**
  * Displays information about an individual volunteer, uniquely identified by their ID. Data will
  * be fetched from the database prior to being displayed.
  */
@@ -146,6 +130,8 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
     if (!volunteerInfo)
         notFound();
 
+    const { account } = volunteerInfo;
+
     return (
         <>
             <Header account={volunteerInfo.account} />
@@ -153,7 +139,7 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
             <Participation />
 
             { can(user, Privilege.Administrator) &&
-                <Permissions /> }
+                <Permissions userId={account.userId} privileges={account.privileges} /> }
         </>
     );
 }
