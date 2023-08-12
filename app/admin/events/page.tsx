@@ -4,11 +4,14 @@
 import { type Metadata } from 'next';
 
 import { default as TopLevelLayout } from '../TopLevelLayout';
+import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 
 export default async function EventsPage() {
     return (
         <TopLevelLayout>
-            <p>Events</p>
+            <UnderConstructionPaper>
+                Events
+            </UnderConstructionPaper>
         </TopLevelLayout>
     );
 }

@@ -3,8 +3,14 @@
 
 import { type Metadata } from 'next';
 
+import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
+
 export default async function EventPage(props: any) {
-    return <p>Event</p>
+    return (
+        <UnderConstructionPaper>
+            Event
+        </UnderConstructionPaper>
+    );
 }
 
 export const metadata: Metadata = {

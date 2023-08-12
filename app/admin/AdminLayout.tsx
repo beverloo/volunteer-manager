@@ -16,9 +16,12 @@ import { createAdminTheme } from './AdminTheme';
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: {
         backgroundColor: 'background.default',
-        minHeight: '100vh',
+        height: '100vh',
         minWidth: 1280,
         padding: 2,
+
+        // Always show a vertical scroll bar, even when not necessary.
+        overflowY: 'scroll',
 
         // Uncomment to test at the minimum size:
         //width: 1280,

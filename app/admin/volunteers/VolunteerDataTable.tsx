@@ -65,7 +65,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             field: 'name',
             headerName: 'Name',
             sortable: true,
-            flex: 2,
+            flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
                 if (params.row.isActivated && !params.row.isAdmin)
@@ -94,13 +94,13 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             field: 'email',
             headerName: 'E-mail',
             sortable: true,
-            flex: 2,
+            flex: 1,
         },
         {
             field: 'teams',
             headerName: 'Teams',
             sortable: false,
-            flex: 2,
+            flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
                 const chips = params.value?.split(',');
@@ -125,7 +125,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
                     );
                 }
             },
-        }
+        },
     ];
 
     return <DataTable columns={columns} rows={props.data} {...props} />

@@ -3,8 +3,14 @@
 
 import { type Metadata } from 'next';
 
+import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
+
 export default async function ServicesPage() {
-    return <p>Services</p>
+    return (
+        <UnderConstructionPaper>
+            Services
+        </UnderConstructionPaper>
+    );
 }
 
 export const metadata: Metadata = {
