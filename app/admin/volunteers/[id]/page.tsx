@@ -122,9 +122,11 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
 
     const { account, participation } = volunteerInfo;
 
+    const isAdmin = can(user, Privilege.Administrator);
+
     return (
         <>
-            <Header account={volunteerInfo.account} />
+            <Header account={volunteerInfo.account} isAdmin={isAdmin} />
             <Information />
             <Participation participation={participation} userId={account.userId} />
 

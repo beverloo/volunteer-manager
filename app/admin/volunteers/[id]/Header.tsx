@@ -27,6 +27,7 @@ import Typography from '@mui/material/Typography';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import { green } from '@mui/material/colors';
 
+import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
 import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { VolunteerInfo } from './page';
@@ -80,16 +81,25 @@ interface DialogProps {
 function AccessCodeDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
-    const [ accessCode, setAccessCode ] = useState<number>();
+    const [ accessCode, setAccessCode ] = useState<string>();
     const [ loading, setLoading ] = useState(false);
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
+    const handleClose = useCallback(() =>
+        onClose(/* refresh= */ !!accessCode), [ onClose, accessCode ]);
+
     const handleRequest = useCallback(async() => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLoading(false);
-        setAccessCode(1234);
+        try {
+            const response = await issueServerAction<ResetAccessCodeDefinition>(
+                '/api/admin/reset-access-code',
+                { userId: account.userId });
 
+            if (response.accessCode)
+                setAccessCode(response.accessCode);
+
+        } finally {
+            setLoading(false);
+        }
     }, [ account ]);
 
     return (
@@ -106,7 +116,7 @@ function AccessCodeDialog(props: DialogProps) {
                     <Stack direction="row" spacing={2} sx={kStyles.success}>
                         <ThumbUpIcon fontSize="small" />
                         <Typography>
-                            Their new access code is <strong>{accessCode}</strong>
+                            Their access code is <strong>{accessCode}</strong>
                         </Typography>
                     </Stack>
                 </Collapse>
@@ -248,7 +258,7 @@ function PasswordResetDialog(props: DialogProps) {
     const [ link, setLink ] = useState<string>();
     const [ loading, setLoading ] = useState(false);
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
+    const handleClose = useCallback(() => onClose(/* refresh= */ !!link), [ onClose, link ]);
     const handleRequest = useCallback(async() => {
         setLoading(true);
         try {
@@ -301,6 +311,11 @@ export interface HeaderProps {
      * Information about the account of the volunteer for whom the header is shown.
      */
     account: VolunteerInfo['account'];
+
+    /**
+     * Whether the signed in user is an administrator.
+     */
+    isAdmin: boolean;
 }
 
 /**
@@ -309,7 +324,7 @@ export interface HeaderProps {
  * passport or access code.
  */
 export function Header(props: HeaderProps) {
-    const { account } = props;
+    const { account, isAdmin } = props;
 
     const [ accessCodeOpen, setAccessCodeOpen ] = useState(false);
     const [ activateOpen, setActivateOpen ] = useState(false);
@@ -352,10 +367,11 @@ export function Header(props: HeaderProps) {
                         Activate
                     </Button> }
 
-                <Button variant="text" startIcon={ <LockResetIcon /> }
-                        onClick={ () => setResetOpen(true) }>
-                    Reset password
-                </Button>
+                { isAdmin &&
+                    <Button variant="text" startIcon={ <LockResetIcon /> }
+                            onClick={ () => setResetOpen(true) }>
+                        Reset password
+                    </Button> }
 
                 <Button variant="text" startIcon={ <PinIcon /> }
                         onClick={ () => setAccessCodeOpen(true) }>

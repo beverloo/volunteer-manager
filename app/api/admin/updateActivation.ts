@@ -10,7 +10,7 @@ import { sql } from '@lib/database';
 
 /**
  * Interface definition for the Activation API, exposed through /api/admin/update-activation. Only
- * administrators have the ability to call this API.
+ * people with universal volunteer access can use this API.
  */
 export const kUpdateActivationDefinition = z.object({
     request: z.object({
@@ -38,11 +38,11 @@ type Request = UpdateActivationDefinition['request'];
 type Response = UpdateActivationDefinition['response'];
 
 /**
- * API that allows the activation status of a particular account to be updated. Only administrators
- * have the ability to call this API. Disallow administrators from breaking their own account.
+ * API that allows the activation status of a particular account to be updated. Only users with
+ * universal volunteer access can use this API, and they cannot use it on their own account.
  */
 export async function updateActivation(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.Administrator) || request.userId === props.user?.userId)
+    if (!can(props.user, Privilege.AccessVolunteers) || request.userId === props.user?.userId)
         noAccess();
 
     const result = await sql`
