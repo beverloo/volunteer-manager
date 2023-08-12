@@ -4,6 +4,7 @@
 import type { Connection, MysqlError } from 'mysql';
 import ServerlessMySQL from 'serverless-mysql';
 
+import { Log, LogType } from '../Log';
 import { Result } from './Result';
 
 /**
@@ -84,10 +85,22 @@ class Database {
                 return delegateResult;
         }
 
-        return Result.from(this.#connection.query({
+        const result = await Result.from(this.#connection.query({
             sql: query,
             values: parameters,
             timeout: kDefaultTimeoutMs }));
+
+        // Log failures to the database unless one of the parameters is set to `database-error`,
+        // which is the log type through which database errors are being logged. Don't want loops.
+        if (!result.ok && (parameters && !parameters.includes('database-error'))) {
+            Log({
+                type: LogType.DatabaseError,
+                severity: 'Error',
+                data: { query, parameters },
+            });
+        }
+
+        return result;
     }
 
     /**
