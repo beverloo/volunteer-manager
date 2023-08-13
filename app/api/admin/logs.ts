@@ -106,7 +106,7 @@ export async function logs(request: Request, props: ActionProps): Promise<Respon
     });
 
     return {
-        rowCount: 16,
-        rows: response,
+        rowCount: response.messageCount,
+        rows: response.messages,
     };
 }

@@ -101,48 +101,88 @@ export interface FetchLogsParams {
 }
 
 /**
+ * The response that a call to fetchLogs() can expect.
+ */
+export interface FetchLogsResponse {
+    /**
+     * Total number of log messages that could be fetched, ignoring limitations.
+     */
+    messageCount: number;
+
+    /**
+     * All messages that were returned from the query.
+     */
+    messages: LogMessage[];
+}
+
+/**
  * Fetches and formats log messages from the database in accordance with the `params`. Defaults will
  * apply where applicable. Returns zero or more messages.
  */
-export async function fetchLogs(params: FetchLogsParams): Promise<LogMessage[]> {
+export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsResponse> {
     const limit = params.limit ?? 100;
     const severity = params.severity ?? [ 'Info', 'Warning', 'Error' ];
     const sourceOrTargetUserId = params.sourceOrTargetUserId ?? -1;
     const start = params.start ?? 0;
 
-    const result = await sql`
-        SELECT
-            logs.log_id,
-            logs.log_date,
-            logs.log_type,
-            logs.log_severity,
-            logs.log_source_user_id,
-            CONCAT(a.first_name, " ", a.last_name) AS log_source_user_name,
-            logs.log_target_user_id,
-            CONCAT(b.first_name, " ", b.last_name) AS log_target_user_name,
-            logs.log_data
-        FROM
-            logs
-        LEFT JOIN
-            users a ON a.user_id = logs.log_source_user_id
-        LEFT JOIN
-            users b ON b.user_id = logs.log_target_user_id
-        WHERE
-            log_severity IN (${severity}) AND
-            (
-                ${sourceOrTargetUserId} = -1 OR
+    const [ result, totalResult ] = await Promise.all([
+        // -----------------------------------------------------------------------------------------
+        // Primary query to fetch the entries
+        // -----------------------------------------------------------------------------------------
+        sql`SELECT
+                logs.log_id,
+                logs.log_date,
+                logs.log_type,
+                logs.log_severity,
+                logs.log_source_user_id,
+                CONCAT(a.first_name, " ", a.last_name) AS log_source_user_name,
+                logs.log_target_user_id,
+                CONCAT(b.first_name, " ", b.last_name) AS log_target_user_name,
+                logs.log_data
+            FROM
+                logs
+            LEFT JOIN
+                users a ON a.user_id = logs.log_source_user_id
+            LEFT JOIN
+                users b ON b.user_id = logs.log_target_user_id
+            WHERE
+                log_severity IN (${severity}) AND
                 (
-                    logs.log_source_user_id = ${sourceOrTargetUserId} OR
-                    logs.log_target_user_id = ${sourceOrTargetUserId}
+                    ${sourceOrTargetUserId} = -1 OR
+                    (
+                        logs.log_source_user_id = ${sourceOrTargetUserId} OR
+                        logs.log_target_user_id = ${sourceOrTargetUserId}
+                    )
                 )
-            )
-        ORDER BY
-            log_date DESC
-        LIMIT
-            ${start}, ${limit}`;
+            ORDER BY
+                log_date DESC
+            LIMIT
+                ${start}, ${limit}`,
 
-    if (!result.ok || !result.rows.length)
-        return [ /* no logs were found */ ];
+        // -----------------------------------------------------------------------------------------
+        // Secondary query to count the number of entries
+        // -----------------------------------------------------------------------------------------
+        sql`SELECT
+                COUNT(*) AS total
+            FROM
+                logs
+            LEFT JOIN
+                users a ON a.user_id = logs.log_source_user_id
+            LEFT JOIN
+                users b ON b.user_id = logs.log_target_user_id
+            WHERE
+                log_severity IN (${severity}) AND
+                (
+                    ${sourceOrTargetUserId} = -1 OR
+                    (
+                        logs.log_source_user_id = ${sourceOrTargetUserId} OR
+                        logs.log_target_user_id = ${sourceOrTargetUserId}
+                    )
+                )`,
+    ]);
+
+    if (!result.ok || !result.rows.length || !totalResult.ok || !totalResult.rows.length)
+        return { messageCount: 0, messages: [ /* database error */ ] };
 
     const logs: LogMessage[] = [];
     for (const row of result.rows) {
@@ -184,5 +224,8 @@ export async function fetchLogs(params: FetchLogsParams): Promise<LogMessage[]> 
         });
     }
 
-    return logs;
+    return {
+        messageCount: totalResult.rows[0].total,
+        messages: logs,
+    };
 }
