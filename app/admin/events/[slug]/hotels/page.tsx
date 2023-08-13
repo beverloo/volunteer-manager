@@ -52,7 +52,7 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
         <>
             <HotelSelection />
             <HotelPendingAssignment />
-            <HotelConfiguration rooms={rooms.rowsPod as any} />
+            <HotelConfiguration event={props.params.slug} rooms={rooms.rowsPod as any} />
         </>
     );
 }

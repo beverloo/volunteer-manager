@@ -64,6 +64,15 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AccountPasswordUpdate]: 'Updated their password',
     [LogType.AccountRegister]: 'Created their account',
     [LogType.AccountUpdateAvatar]: 'Uploaded a new avatar',
+    [LogType.AdminEventHotelCreate]: (source, target, { eventName }) => {
+        return `Created a new hotel room for ${eventName}`;
+    },
+    [LogType.AdminEventHotelDelete]: (source, target, { eventName }) => {
+        return `Deleted a hotel room for ${eventName}`;
+    },
+    [LogType.AdminEventHotelUpdate]: (source, target, { eventName }) => {
+        return `Update a hotel room for ${eventName}`;
+    },
     [LogType.AdminResetAccessCode]: 'Created a new access code',
     [LogType.AdminResetPasswordLink]: 'Created a new password reset link',
     [LogType.AdminUpdateActivation]: (source, target, data) => {

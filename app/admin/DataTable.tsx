@@ -209,8 +209,6 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     const pageSize = props.pageSize ?? 25;
     const pageSizeOptions = props.pageSizeOptions ?? [ 25, 50, 100 ];
 
-    // TODO: `commitAdd`
-
     // ---------------------------------------------------------------------------------------------
     // Deletion functionality
     // ---------------------------------------------------------------------------------------------
@@ -240,7 +238,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
         } finally {
             setLoading(false);
         }
-    }, [ commitAdd ]);
+    }, [ commitAdd, props.columns, setLoading, setRows, setRowModesModel ]);
 
     const doDelete = useCallback(async () => {
         if (!commitDelete || !deleteCandidate)
@@ -259,6 +257,23 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
             setDeleteLoading(false);
         }
     }, [ commitDelete, deleteCandidate, setDeleteCandidate, setDeleteLoading ]);
+
+    const doEdit = useCallback(async (newRow: RowModel, oldRow: RowModel) => {
+        if (!commitEdit)
+            return oldRow;
+
+        setLoading(true);
+        try {
+            return await commitEdit(newRow, oldRow);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+
+        return oldRow;  // failure condition
+
+    }, [ commitEdit, setLoading ]);
 
     // Automatically translate the columns included in the data table to include a delete button
     // when `columnDelete` is specified. A confirmation message will be provided by <DataTable />.
@@ -342,7 +357,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                         featureMode === 'server' ? setPaginationModel : undefined }
                     disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                     density={ dense ? 'compact' : 'standard' }
-                    editMode={ commitEdit ? 'row' : undefined } processRowUpdate={commitEdit}
+                    editMode={ commitEdit ? 'row' : undefined } processRowUpdate={doEdit}
                     initialState={{ pagination: { paginationModel: { pageSize } } }}
                     pageSizeOptions={ pageSizeOptions }
                     onRowModesModelChange={setRowModesModel} rowModesModel={ rowModesModel }

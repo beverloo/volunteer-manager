@@ -4,6 +4,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
+import { hotelCreate, kHotelCreateDefinition } from '../hotelCreate';
+import { hotelDelete, kHotelDeleteDefinition } from '../hotelDelete';
+import { hotelUpdate, kHotelUpdateDefinition } from '../hotelUpdate';
 import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
@@ -23,6 +26,12 @@ type RouteParams = { params: { path: string[] } };
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
     const action = Object.hasOwn(params, 'path') ? params.path.join('/') : null;
     switch (action) {
+        case 'hotel-create':
+            return executeAction(request, kHotelCreateDefinition, hotelCreate);
+        case 'hotel-delete':
+            return executeAction(request, kHotelDeleteDefinition, hotelDelete);
+        case 'hotel-update':
+            return executeAction(request, kHotelUpdateDefinition, hotelUpdate);
         case 'logs':
             return executeAction(request, kLogsDefinition, logs);
         case 'reset-access-code':

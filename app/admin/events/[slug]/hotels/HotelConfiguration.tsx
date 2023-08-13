@@ -7,7 +7,11 @@ import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import type { HotelCreateDefinition } from '@app/api/admin/hotelCreate';
+import type { HotelDeleteDefinition } from '@app/api/admin/hotelDelete';
+import type { HotelUpdateDefinition } from '@app/api/admin/hotelUpdate';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Helper function for formatting prices in the configuration data table.
@@ -54,6 +58,11 @@ export interface HotelConfigurationEntry {
  */
 export interface HotelConfigurationProps {
     /**
+     * Unique slug of the event that these hotel rooms are owned by.
+     */
+    event: string;
+
+    /**
      * The hotel rooms that can be displayed by this component.
      */
     rooms: HotelConfigurationEntry[];
@@ -65,9 +74,15 @@ export interface HotelConfigurationProps {
  */
 export function HotelConfiguration(props: HotelConfigurationProps) {
     async function commitAdd(): Promise<HotelConfigurationEntry> {
-        // TODO
+        const response = await issueServerAction<HotelCreateDefinition>('/api/admin/hotel-create', {
+            event: props.event,
+        });
+
+        if (!response.id)
+            throw new Error('The server was unable to create a new hotel room.');
+
         return {
-            id: -1,
+            id: response.id,
             hotelDescription: '',
             hotelName: '',
             roomName: '',
@@ -77,12 +92,24 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     }
 
     async function commitDelete(oldRow: GridValidRowModel) {
-        // TODO
+        await issueServerAction<HotelDeleteDefinition>('/api/admin/hotel-delete', {
+            event: props.event,
+            id: oldRow.id,
+        });
     }
 
     async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
-        // TODO
-        return newRow;
+        const response = await issueServerAction<HotelUpdateDefinition>('/api/admin/hotel-update', {
+            event: props.event,
+            id: oldRow.id,
+            hotelDescription: newRow.hotelDescription,
+            hotelName: newRow.hotelName,
+            roomName: newRow.roomName,
+            roomPeople: newRow.roomPeople,
+            roomPrice: newRow.roomPrice,
+        });
+
+        return response.success ? newRow : oldRow;
     }
 
     const columns: DataTableColumn[] = [
