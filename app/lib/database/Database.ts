@@ -4,7 +4,7 @@
 import type { Connection, MysqlError } from 'mysql';
 import ServerlessMySQL from 'serverless-mysql';
 
-import { Log, LogType } from '../Log';
+import { Log, LogSeverity, LogType } from '../Log';
 import { Result } from './Result';
 
 /**
@@ -95,7 +95,7 @@ class Database {
         if (!result.ok && (parameters && !parameters.includes('database-error'))) {
             Log({
                 type: LogType.DatabaseError,
-                severity: 'Error',
+                severity: LogSeverity.Error,
                 data: { query, parameters },
             });
         }

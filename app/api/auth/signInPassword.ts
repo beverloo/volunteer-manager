@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { LogType, Log } from '@lib/Log';
+import { Log, LogType, LogSeverity } from '@lib/Log';
 import { authenticateUserFromPassword } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -56,7 +56,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         case 'code': {  // one-time access code
             Log({
                 type: LogType.AccountIdentifyAccessCode,
-                severity: 'Debug',
+                severity: LogSeverity.Debug,
                 sourceUser: user,
                 data: { ip: props.ip },
             });
@@ -73,7 +73,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         case 'password': {  // stored password
             Log({
                 type: LogType.AccountIdentifyPassword,
-                severity: 'Debug',
+                severity: LogSeverity.Debug,
                 sourceUser: user,
                 data: { ip: props.ip },
             });
