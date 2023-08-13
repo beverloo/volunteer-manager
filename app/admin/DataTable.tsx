@@ -77,7 +77,25 @@ export type DataTableColumn<RowModel extends GridValidRowModel = GridValidRowMod
 /**
  * Base properties accepted by the <DataTable> component, excluding input data.
  */
-export interface DataTableBaseProps {
+export interface DataTableBaseProps<RowModel extends GridValidRowModel = GridValidRowModel> {
+    /**
+     * Callback to be called when a new row has been added. Inclusion of such a callback will
+     * automatically activate the row addition UI in the <DataTable> component.
+     */
+    commitAdd?: (newRow: RowModel) => Promise<RowModel>;
+
+    /**
+     * Callback to be called when a row should be deleted. The user has already acknowledged a
+     * confirmation prompt by the time this happens.
+     */
+    commitDelete?: (oldRow: RowModel) => Promise<void>;
+
+    /**
+     * Callback to be called when a row-level edit has completed and it should be committed. Failure
+     * can be communicated by rejecting the promise.
+     */
+    commitEdit?: (newRow: RowModel, oldRow: RowModel) => Promise<RowModel>;
+
     /**
      * Whether the table should be displayed in a dense manner. Defaults to comfortable display.
      */
@@ -107,8 +125,7 @@ export interface DataTableBaseProps {
 /**
  * The request information shared with a remote source when new information is required.
  */
-export interface DataTableRowRequest<RowModel extends GridValidRowModel = GridValidRowModel>
-    extends GridPaginationModel {}
+export interface DataTableRowRequest extends GridPaginationModel {}
 
 /**
  * The response that has to be shared with the <DataTable> implementation when a remote data source
@@ -145,15 +162,15 @@ type DataTableRemoteData<RowModel extends GridValidRowModel> = {
      * URL to the source API through which row data can be fetched. The MUI <DataGrid> component
      * will automatically load data based on the available data.
      */
-    onRequestRows:
-        (request: DataTableRowRequest<RowModel>) => Promise<DataTableRowResponse<RowModel>>;
+    onRequestRows: (request: DataTableRowRequest) => Promise<DataTableRowResponse<RowModel>>;
 };
 
 /**
  * Props accepted by the <DataTable> component.
  */
 export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowModel> =
-        DataTableBaseProps & (DataTableLocalData<RowModel> | DataTableRemoteData<RowModel>) & {
+    DataTableBaseProps<RowModel> & (DataTableLocalData<RowModel> | DataTableRemoteData<RowModel>) &
+{
     /**
      * Columns that should be shown in the data table.
      */
@@ -166,6 +183,7 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
  * maintaining the key strenghts of the DataGrid.
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
+    const { commitAdd, commitDelete, commitEdit } = props;
     const { columns, dense, disableFooter, enableFilter } = props;
 
     // Determine whether the <DataTable> will use local data, or will talk to an API endpoint in
@@ -209,6 +227,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                       featureMode === 'server' ? setPaginationModel : undefined }
                   disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                   density={ dense ? 'compact' : 'standard' }
+                  editMode={ commitEdit ? 'row' : undefined } processRowUpdate={commitEdit}
                   initialState={{ pagination: { paginationModel: { pageSize } } }}
                   pageSizeOptions={ pageSizeOptions }
                   slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
