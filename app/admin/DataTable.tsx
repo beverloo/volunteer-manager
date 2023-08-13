@@ -3,10 +3,12 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import type { GridColDef, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
+import type {
+    GridCallbackDetails, GridColDef, GridFeatureMode, GridPaginationModel, GridRowsProp,
+    GridValidRowModel } from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
@@ -103,20 +105,59 @@ export interface DataTableBaseProps {
 }
 
 /**
- * Props accepted by the <DataTable> component.
+ * The request information shared with a remote source when new information is required.
  */
-export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowModel> =
-        DataTableBaseProps & {
-    /**
-     * Columns that should be shown in the data table.
-     */
-    columns: DataTableColumn<RowModel>[];
+export interface DataTableRowRequest<RowModel extends GridValidRowModel = GridValidRowModel>
+    extends GridPaginationModel {}
 
+/**
+ * The response that has to be shared with the <DataTable> implementation when a remote data source
+ * is used.
+ */
+export interface DataTableRowResponse<RowModel extends GridValidRowModel = GridValidRowModel> {
+    /**
+     * The total number of rows that are available on the remote source.
+     */
+    rowCount: number;
+
+    /**
+     * The rows that were fetched from the remote source.
+     */
+    rows: RowModel[];
+}
+
+/**
+ * Data definition for <DataTable> users where the data is made locally available.
+ */
+type DataTableLocalData<RowModel extends GridValidRowModel> = {
     /**
      * The rows that should be displayed in the data table. TypeScript will validate these against
      * the given column model.
      */
     rows: GridRowsProp<RowModel>;
+};
+
+/**
+ * Data definition for <DataTable> users where the data should be fetched from an API.
+ */
+type DataTableRemoteData<RowModel extends GridValidRowModel> = {
+    /**
+     * URL to the source API through which row data can be fetched. The MUI <DataGrid> component
+     * will automatically load data based on the available data.
+     */
+    onRequestRows:
+        (request: DataTableRowRequest<RowModel>) => Promise<DataTableRowResponse<RowModel>>;
+};
+
+/**
+ * Props accepted by the <DataTable> component.
+ */
+export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowModel> =
+        DataTableBaseProps & (DataTableLocalData<RowModel> | DataTableRemoteData<RowModel>) & {
+    /**
+     * Columns that should be shown in the data table.
+     */
+    columns: DataTableColumn<RowModel>[];
 }
 
 /**
@@ -125,13 +166,47 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
  * maintaining the key strenghts of the DataGrid.
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
-    const { columns, dense, disableFooter, enableFilter, rows } = props;
+    const { columns, dense, disableFooter, enableFilter } = props;
+
+    // Determine whether the <DataTable> will use local data, or will talk to an API endpoint in
+    // order to fetch the necessary data from a remote source.
+    const featureMode: GridFeatureMode = 'rows' in props ? 'client' : 'server';
+    const onRequestRows = 'onRequestRows' in props ? props.onRequestRows : undefined;
+
+    const [ loading, setLoading ] = useState(false);
+    const [ rowCount, setRowCount ] = useState('rows' in props ? props.rows.length : 0);
+    const [ rows, setRows ] = useState('rows' in props ? props.rows : [ /* remote data */ ]);
 
     const pageSize = props.pageSize ?? 25;
     const pageSizeOptions = props.pageSizeOptions ?? [ 25, 50, 100 ];
 
+    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
+        page: 0, pageSize,
+    });
+
+    // Effect to actually load the necessary data from the server. Only applicable for server-based
+    // data sources, it's a no-op for client-side data sources.
+    useEffect(() => {
+        if (featureMode !== 'server' || !onRequestRows)
+            return;
+
+        setLoading(true);
+        onRequestRows({
+            ...paginationModel,
+        }).then(response => {
+            setLoading(false);
+            setRowCount(response.rowCount);
+            setRows(response.rows);
+        });
+
+    }, [ featureMode, paginationModel, onRequestRows ])
+
     return (
-        <DataGrid rows={rows} columns={columns} autoHeight
+        <DataGrid rows={rows} columns={columns} loading={loading} autoHeight
+                  rowCount={rowCount} paginationMode={featureMode}
+                  paginationModel={ featureMode === 'server' ? paginationModel : undefined }
+                  onPaginationModelChange={
+                      featureMode === 'server' ? setPaginationModel : undefined }
                   disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                   density={ dense ? 'compact' : 'standard' }
                   initialState={{ pagination: { paginationModel: { pageSize } } }}

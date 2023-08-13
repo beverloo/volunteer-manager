@@ -13,7 +13,6 @@ import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
-
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import { DataTable } from '@app/admin/DataTable';
 import { TeamChip } from './TeamChip';

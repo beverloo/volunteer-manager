@@ -93,6 +93,11 @@ export interface FetchLogsParams {
      * The User ID who was either the source or the target of the log message.
      */
     sourceOrTargetUserId?: number;
+
+    /**
+     * Result index at which to start the results. Defaults to 0.
+     */
+    start?: number;
 }
 
 /**
@@ -103,6 +108,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<LogMessage[]> 
     const limit = params.limit ?? 100;
     const severity = params.severity ?? [ 'Info', 'Warning', 'Error' ];
     const sourceOrTargetUserId = params.sourceOrTargetUserId ?? -1;
+    const start = params.start ?? 0;
 
     const result = await sql`
         SELECT
@@ -133,7 +139,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<LogMessage[]> 
         ORDER BY
             log_date DESC
         LIMIT
-            ${limit}`;
+            ${start}, ${limit}`;
 
     if (!result.ok || !result.rows.length)
         return [ /* no logs were found */ ];

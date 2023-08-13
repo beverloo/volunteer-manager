@@ -3,13 +3,24 @@
 
 import { type Metadata } from 'next';
 
-import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
+import { LogsDataTable } from './LogsDataTable';
+
+/**
+ * The logs page provides access to the most recent log entries created by the Volunteer Manager,
+ * with a variety of filtering options available. All log entries are made accessible to the client,
+ * however they will be streamed by the server to deal with ~infinitely large data sets.
+ */
 export default async function LogsPage() {
     return (
-        <UnderConstructionPaper>
-            Logs
-        </UnderConstructionPaper>
+        <Paper sx={{ p: 2 }}>
+            <Typography variant="h5" sx={{ pb: 2 }}>
+                Logs
+            </Typography>
+            <LogsDataTable pageSize={5} pageSizeOptions={[ 5, 10, 15 ]} />
+        </Paper>
     );
 }
 

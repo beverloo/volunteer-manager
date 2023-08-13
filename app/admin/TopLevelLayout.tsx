@@ -23,13 +23,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <DvrIcon />,
             label: 'Logs',
-            privilege: Privilege.Administrator,
+            privilege: Privilege.SystemAdministrator,
             url: '/admin/logs',
         },
         {
             icon: <ManageHistoryIcon />,
             label: 'Services',
-            privilege: Privilege.Administrator,
+            privilege: Privilege.SystemAdministrator,
             url: '/admin/services',
         }
     ];
