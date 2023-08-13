@@ -5,6 +5,16 @@ import type { User } from '@lib/auth/User';
 import { sql } from '@lib/database';
 
 /**
+ * Severities that can be assigned to log entries.
+ */
+export enum LogSeverity {
+    Debug = 'Debug',
+    Info = 'Info',
+    Warning = 'Warning',
+    Error = 'Error',
+}
+
+/**
  * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.
  */
 export enum LogType {
@@ -37,7 +47,7 @@ export interface LogEntry {
     /**
      * Severity of the log entry that's being logged. Defaults to "Info".
      */
-    severity?: 'Debug' | 'Info' | 'Warning' | 'Error',
+    severity?: LogSeverity,
 
     /**
      * Information about the user who caused this log entry to be created.

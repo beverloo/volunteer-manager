@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { fetchLogs } from '@lib/LogLoader';
 
@@ -35,14 +36,45 @@ export const kLogsDefinition = z.object({
          */
         rows: z.array(z.strictObject({
             /**
-             * Unique ID of the log entry. Not presented to the user, but needed by <DataTable />.
+             * Arbitrary data that was included with the log message.
+             */
+            data: z.any().optional(),
+
+            /**
+             * Date at which the log message was stored in the database.
+             */
+            date: z.date(),
+
+            /**
+             * Unique ID of this log entry. No need to show this to the user.
              */
             id: z.number(),
 
             /**
-             * The log message that
+             * Textual representation of what happened during this log message.
              */
             message: z.string(),
+
+            /**
+             * The severity assigned to the log entry.
+             */
+            severity: z.nativeEnum(LogSeverity),
+
+            /**
+             * Source of the person or entity who issued the log message, if any.
+             */
+            source: z.strictObject({
+                userId: z.number(),
+                name: z.string(),
+            }).optional(),
+
+            /**
+             * Target of the person of entity about who the log message was issued, if any.
+             */
+            target: z.strictObject({
+                userId: z.number(),
+                name: z.string(),
+            }).optional(),
 
         })),
     }),
@@ -69,6 +101,6 @@ export async function logs(request: Request, props: ActionProps): Promise<Respon
 
     return {
         rowCount: 16,
-        rows: response.map(entry => ({ id: entry.id, message: entry.message })),
+        rows: response,
     };
 }

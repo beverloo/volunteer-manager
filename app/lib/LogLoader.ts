@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type LogEntry, LogType } from './Log';
+import { type LogEntry, LogSeverity, LogType } from './Log';
 import { sql } from './database';
 
 /**
@@ -31,7 +31,7 @@ export interface LogMessage {
     /**
      * Severity of the log message as it was issued.
      */
-    severity: Exclude<LogEntry['severity'], null | undefined>;
+    severity: LogSeverity;
 
     /**
      * Source of the person or entity who issued the log message, if any.

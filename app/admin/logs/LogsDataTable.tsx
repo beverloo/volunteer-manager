@@ -3,6 +3,11 @@
 
 'use client';
 
+import Link from 'next/link';
+
+import { default as MuiLink } from '@mui/material/Link';
+import { type GridRenderCellParams } from '@mui/x-data-grid';
+
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import type { DataTableRowRequest, DataTableRowResponse } from '@app/admin/DataTable';
 import type { LogsDefinition } from '@app/api/admin/logs';
@@ -21,18 +26,70 @@ export interface LogsDataTableProps extends DataTableBaseProps {}
 export function LogsDataTable(props: LogsDataTableProps) {
     const columns: DataTableColumn[] = [
         {
+            field: 'severity',
+            headerName: 'Severity',
+            width: 100,
+        },
+        {
+            field: 'date',
+            headerName: 'Date',
+            type: 'dateTime',
+            flex: 1,
+        },
+        {
             field: 'message',
             headerName: 'Message',
-            sortable: false,
+            flex: 2,
+        },
+        {
+            field: 'source',
+            headerName: 'Source user',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.value)
+                    return undefined;
+
+                return (
+                    <MuiLink component={Link} href={`/admin/volunteers/${params.value.userId}`}>
+                        {params.value.name}
+                    </MuiLink>
+                );
+            },
+        },
+        {
+            field: 'target',
+            headerName: 'Target user',
+            flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.value)
+                    return undefined;
+
+                return (
+                    <MuiLink component={Link} href={`/admin/volunteers/${params.value.userId}`}>
+                        {params.value.name}
+                    </MuiLink>
+                );
+            },
         },
     ];
 
     async function onRequestRows(request: DataTableRowRequest): Promise<DataTableRowResponse> {
-        return await issueServerAction<LogsDefinition>('/api/admin/logs', {
+        const response = await issueServerAction<LogsDefinition>('/api/admin/logs', {
             page: request.page,
             pageSize: request.pageSize,
         });
+
+        return {
+            rowCount: response.rowCount,
+            rows: response.rows.map(row => {
+                return {
+                    ...row,
+                    date: new Date(row.date),
+                }
+            }),
+        }
     }
 
     return (
