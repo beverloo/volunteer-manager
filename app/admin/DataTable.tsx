@@ -3,15 +3,23 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import type {
-    GridCallbackDetails, GridColDef, GridFeatureMode, GridPaginationModel, GridRowsProp,
+    GridRenderCellParams, GridColDef, GridFeatureMode, GridPaginationModel, GridRowsProp,
     GridValidRowModel } from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import IconButton from '@mui/material/IconButton';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 /**
  * Custom styles applied to the <DataTable> & related components.
@@ -112,6 +120,11 @@ export interface DataTableBaseProps<RowModel extends GridValidRowModel = GridVal
     enableFilter?: boolean;
 
     /**
+     * Subject of the data when included in messages. Defaults to "entry".
+     */
+    messageSubject?: string;
+
+    /**
      * Number of log items to display per page. Defaults to 25.
      */
     pageSize?: number;
@@ -184,7 +197,65 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
  */
 export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
     const { commitAdd, commitDelete, commitEdit } = props;
-    const { columns, dense, disableFooter, enableFilter } = props;
+    const { dense, disableFooter, enableFilter } = props;
+
+    const [ rows, setRows ] = useState('rows' in props ? props.rows : [ /* remote data */ ]);
+
+    const messageSubject = props.messageSubject ?? 'entry';
+    const pageSize = props.pageSize ?? 25;
+    const pageSizeOptions = props.pageSizeOptions ?? [ 25, 50, 100 ];
+
+    // TODO: `commitAdd`
+
+    // ---------------------------------------------------------------------------------------------
+    // Deletion functionality
+    // ---------------------------------------------------------------------------------------------
+
+    const [ deleteCandidate, setDeleteCandidate ] = useState<RowModel>();
+    const [ deleteLoading, setDeleteLoading ] = useState(false);
+
+    const doDelete = useCallback(async () => {
+        if (!commitDelete || !deleteCandidate)
+            return;
+
+        setDeleteLoading(true);
+        try {
+            const candidateId = deleteCandidate.id;
+            await commitDelete(deleteCandidate);
+
+            setDeleteCandidate(undefined);
+            setRows(oldRows => oldRows.filter(row => row.id !== candidateId));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setDeleteLoading(false);
+        }
+    }, [ commitDelete, deleteCandidate, setDeleteCandidate, setDeleteLoading ]);
+
+    // Automatically translate the columns included in the data table to include a delete button
+    // when `columnDelete` is specified. A confirmation message will be provided by <DataTable />.
+    const columns =
+        !commitDelete ? props.columns
+                      : props.columns.map(column => {
+                          if (column.field !== 'id')
+                              return column;
+
+                          return {
+                              ...column,
+                              renderCell: (params: GridRenderCellParams) => {
+                                  return (
+                                      <IconButton size="small"
+                                                  onClick={ () => setDeleteCandidate(params.row) }>
+                                          <DeleteForeverIcon />
+                                      </IconButton>
+                                  );
+                              },
+                          }
+                      });
+
+    // ---------------------------------------------------------------------------------------------
+    // Server-side data fetching functionality
+    // ---------------------------------------------------------------------------------------------
 
     // Determine whether the <DataTable> will use local data, or will talk to an API endpoint in
     // order to fetch the necessary data from a remote source.
@@ -193,10 +264,6 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
 
     const [ loading, setLoading ] = useState(false);
     const [ rowCount, setRowCount ] = useState('rows' in props ? props.rows.length : 0);
-    const [ rows, setRows ] = useState('rows' in props ? props.rows : [ /* remote data */ ]);
-
-    const pageSize = props.pageSize ?? 25;
-    const pageSizeOptions = props.pageSizeOptions ?? [ 25, 50, 100 ];
 
     const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
         page: 0, pageSize,
@@ -219,17 +286,36 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
 
     }, [ featureMode, paginationModel, onRequestRows ])
 
+    // ---------------------------------------------------------------------------------------------
+
     return (
-        <DataGrid rows={rows} columns={columns} loading={loading} autoHeight
-                  rowCount={rowCount} paginationMode={featureMode}
-                  paginationModel={ featureMode === 'server' ? paginationModel : undefined }
-                  onPaginationModelChange={
-                      featureMode === 'server' ? setPaginationModel : undefined }
-                  disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
-                  density={ dense ? 'compact' : 'standard' }
-                  editMode={ commitEdit ? 'row' : undefined } processRowUpdate={commitEdit}
-                  initialState={{ pagination: { paginationModel: { pageSize } } }}
-                  pageSizeOptions={ pageSizeOptions }
-                  slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
+        <>
+            <DataGrid rows={rows} columns={columns} loading={loading} autoHeight
+                    rowCount={rowCount} paginationMode={featureMode}
+                    paginationModel={ featureMode === 'server' ? paginationModel : undefined }
+                    onPaginationModelChange={
+                        featureMode === 'server' ? setPaginationModel : undefined }
+                    disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
+                    density={ dense ? 'compact' : 'standard' }
+                    editMode={ commitEdit ? 'row' : undefined } processRowUpdate={commitEdit}
+                    initialState={{ pagination: { paginationModel: { pageSize } } }}
+                    pageSizeOptions={ pageSizeOptions }
+                    slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
+            <Dialog open={!!deleteCandidate} onClose={ () => setDeleteCandidate(undefined) }>
+                <DialogTitle>
+                    Delete this {messageSubject}?
+                </DialogTitle>
+                <DialogContent>
+                    Are you sure that you want to remove this {messageSubject}? This action can't
+                    be undone once you confirm its deletion. you confirm its deletion.
+                </DialogContent>
+                <DialogActions sx={{ p: 2, pt: 0 }}>
+                    <Button onClick={ () => setDeleteCandidate(undefined) }>Cancel</Button>
+                    <LoadingButton onClick={doDelete} loading={deleteLoading} variant="contained">
+                        Delete
+                    </LoadingButton>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 }

@@ -3,11 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
-
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -138,7 +134,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
                 Room availability
             </Typography>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       rows={props.rooms} columns={columns} />
+                       messageSubject="hotel room" rows={props.rooms} columns={columns} />
         </Paper>
     );
 }
