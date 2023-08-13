@@ -41,18 +41,21 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 name: 'Crew',
                 slug: 'gophers.team',
                 color: kEnvironmentColours['gophers.team'].light,
+                defaultOpen: false,
                 pendingApplications: 12,
             },
             {
                 name: 'Hosts',
                 slug: 'hosts.team',
                 color: kEnvironmentColours['hosts.team'].light,
+                defaultOpen: false,
                 pendingApplications: 0,
             },
             {
                 name: 'Stewards',
                 slug: 'stewards.team',
                 color: kEnvironmentColours['stewards.team'].light,
+                defaultOpen: true,
                 pendingApplications: 1,
             }
         ],
@@ -123,6 +126,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             icon: <PeopleIcon htmlColor={team.color} />,
             label: team.name,
 
+            defaultOpen: team.defaultOpen,
             menu: [
                 {
                     icon: <NewReleasesIcon />,

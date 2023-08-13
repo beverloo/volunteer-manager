@@ -97,6 +97,11 @@ interface AdminSidebarMenuButtonEntry {
  */
 interface AdminSidebarMenuParentEntry {
     /**
+     * Whether the menu should be open by default. Defaults to false.
+     */
+    defaultOpen?: boolean;
+
+    /**
      * Child menu items that should be shown as part of this entry.
      */
     menu: (AdminSidebarMenuEntryBase & AdminSidebarMenuButtonEntry)[];
@@ -158,7 +163,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                     return undefined;
 
                 if (/* AdminSidebarMenuButtonEntry= */ 'menu' in entry) {
-                    const open = !collapsedState.has(index);
+                    const open = collapsedState.has(index) === !entry.defaultOpen;
 
                     return (
                         <>
