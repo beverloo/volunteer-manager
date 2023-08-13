@@ -38,6 +38,7 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
             LEFT JOIN
                 events ON events.event_id = hotels.event_id
             WHERE
+                hotels.hotel_room_visible = 1 AND
                 events.event_slug = ${props.params.slug}
             ORDER BY
                 hotels.hotel_name ASC,

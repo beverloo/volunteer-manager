@@ -5,12 +5,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
+import { DataGrid, GridRowModes, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import type {
     GridRenderCellParams, GridColDef, GridFeatureMode, GridPaginationModel, GridRowsProp,
-    GridValidRowModel } from '@mui/x-data-grid';
+    GridValidRowModel, GridColumnHeaderParams, GridRowModesModel } from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -90,7 +91,7 @@ export interface DataTableBaseProps<RowModel extends GridValidRowModel = GridVal
      * Callback to be called when a new row has been added. Inclusion of such a callback will
      * automatically activate the row addition UI in the <DataTable> component.
      */
-    commitAdd?: (newRow: RowModel) => Promise<RowModel>;
+    commitAdd?: () => Promise<RowModel>;
 
     /**
      * Callback to be called when a row should be deleted. The user has already acknowledged a
@@ -199,7 +200,10 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     const { commitAdd, commitDelete, commitEdit } = props;
     const { dense, disableFooter, enableFilter } = props;
 
+    const [ loading, setLoading ] = useState(false);
+
     const [ rows, setRows ] = useState('rows' in props ? props.rows : [ /* remote data */ ]);
+    const [ rowModesModel, setRowModesModel ] = useState<GridRowModesModel>({ });
 
     const messageSubject = props.messageSubject ?? 'entry';
     const pageSize = props.pageSize ?? 25;
@@ -213,6 +217,30 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
 
     const [ deleteCandidate, setDeleteCandidate ] = useState<RowModel>();
     const [ deleteLoading, setDeleteLoading ] = useState(false);
+
+    const doAdd = useCallback(async () => {
+        if (!commitAdd)
+            return;
+
+        setLoading(true);
+        try {
+            const focusField = props.columns.length > 1 ? props.columns[1].field : undefined;
+            const newRow = await commitAdd();
+
+            setRows(oldRows => [ newRow, ...oldRows ]);
+            setRowModesModel(oldModel => ({
+                ...oldModel,
+                [newRow.id]: {
+                    fieldToFocus: focusField,
+                    mode: GridRowModes.Edit,
+                }
+            }));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [ commitAdd ]);
 
     const doDelete = useCallback(async () => {
         if (!commitDelete || !deleteCandidate)
@@ -235,23 +263,41 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     // Automatically translate the columns included in the data table to include a delete button
     // when `columnDelete` is specified. A confirmation message will be provided by <DataTable />.
     const columns =
-        !commitDelete ? props.columns
-                      : props.columns.map(column => {
-                          if (column.field !== 'id')
-                              return column;
+        (!commitDelete && !commitAdd)
+            ? props.columns
+            : props.columns.map(column => {
+                if (column.field !== 'id')
+                    return column;
 
-                          return {
-                              ...column,
-                              renderCell: (params: GridRenderCellParams) => {
-                                  return (
-                                      <IconButton size="small"
-                                                  onClick={ () => setDeleteCandidate(params.row) }>
-                                          <DeleteForeverIcon />
-                                      </IconButton>
-                                  );
-                              },
-                          }
-                      });
+                let renderCell: GridColDef['renderCell'] = undefined;
+                if (commitDelete) {
+                    renderCell = (params: GridRenderCellParams) => {
+                        return (
+                            <IconButton size="small"
+                                        onClick={ () => setDeleteCandidate(params.row) }>
+                                <DeleteForeverIcon color="error" fontSize="small" />
+                            </IconButton>
+                        );
+                    };
+                }
+
+                let renderHeader: GridColDef['renderHeader'] = undefined;
+                if (commitAdd) {
+                    renderHeader = (params: GridColumnHeaderParams) => {
+                        return (
+                            <IconButton size="small" onClick={doAdd}>
+                                <AddCircleIcon color="success" fontSize="small" />
+                            </IconButton>
+                        );
+                    };
+                }
+
+                return {
+                    ...column,
+                    renderCell,
+                    renderHeader,
+                }
+            });
 
     // ---------------------------------------------------------------------------------------------
     // Server-side data fetching functionality
@@ -262,7 +308,6 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     const featureMode: GridFeatureMode = 'rows' in props ? 'client' : 'server';
     const onRequestRows = 'onRequestRows' in props ? props.onRequestRows : undefined;
 
-    const [ loading, setLoading ] = useState(false);
     const [ rowCount, setRowCount ] = useState('rows' in props ? props.rows.length : 0);
 
     const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
@@ -300,6 +345,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                     editMode={ commitEdit ? 'row' : undefined } processRowUpdate={commitEdit}
                     initialState={{ pagination: { paginationModel: { pageSize } } }}
                     pageSizeOptions={ pageSizeOptions }
+                    onRowModesModelChange={setRowModesModel} rowModesModel={ rowModesModel }
                     slots={{ toolbar: !!enableFilter ? DataTableFilter : undefined }} />
             <Dialog open={!!deleteCandidate} onClose={ () => setDeleteCandidate(undefined) }>
                 <DialogTitle>

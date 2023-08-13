@@ -83,6 +83,7 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
             hotels ON hotels.event_id = events.event_id
         WHERE
             events.event_slug = ${request.event} AND
+            hotels.hotel_room_visible = 1 AND
             hotels.hotel_id IS NOT NULL
         ORDER BY
             hotels.hotel_name ASC,

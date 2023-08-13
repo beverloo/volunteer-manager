@@ -64,9 +64,16 @@ export interface HotelConfigurationProps {
  * rooms to settings. Changes will be reflected on the volunteer portal immediately.
  */
 export function HotelConfiguration(props: HotelConfigurationProps) {
-    async function commitAdd(newRow: GridValidRowModel) {
+    async function commitAdd(): Promise<HotelConfigurationEntry> {
         // TODO
-        return newRow;
+        return {
+            id: -1,
+            hotelDescription: '',
+            hotelName: '',
+            roomName: '',
+            roomPeople: 1,
+            roomPrice: 0,
+        };
     }
 
     async function commitDelete(oldRow: GridValidRowModel) {
@@ -131,7 +138,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
-                Room availability
+                Hotel & room options
             </Typography>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="hotel room" rows={props.rooms} columns={columns} />
