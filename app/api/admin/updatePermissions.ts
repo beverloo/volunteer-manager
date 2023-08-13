@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { LogType, Log } from '@lib/Log';
+import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { sql } from '@lib/database';
 
@@ -47,6 +47,7 @@ export async function updatePermissions(request: Request, props: ActionProps): P
 
     Log({
         type: LogType.AdminUpdatePermission,
+        severity: LogSeverity.Warning,
         sourceUser: props.user,
         targetUser: request.userId,
         data: {

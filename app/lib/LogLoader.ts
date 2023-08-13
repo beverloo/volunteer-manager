@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { normalize } from 'path';
 import { type LogEntry, LogSeverity, LogType } from './Log';
 import { sql } from './database';
 
@@ -73,15 +74,26 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventHotelUpdate]: (source, target, { eventName }) => {
         return `Update a hotel room for ${eventName}`;
     },
-    [LogType.AdminResetAccessCode]: 'Created a new access code',
-    [LogType.AdminResetPasswordLink]: 'Created a new password reset link',
-    [LogType.AdminUpdateActivation]: (source, target, data) => {
-        return data.activated ? 'Activated their account'
-                              : 'Deactivated their account';
+    [LogType.AdminResetAccessCode]: (source, target, data) => {
+        return `Created a new access code for ${target?.name}`;
     },
-    [LogType.AdminUpdatePermission]: 'Updated their permissions',
-    [LogType.AdminUpdateVolunteer]: 'Updated their user information',
-    [LogType.DatabaseError]: 'Database error',
+    [LogType.AdminResetPasswordLink]: (source, target, data) => {
+        return `Created a new password reset link for ${target?.name}`;
+    },
+    [LogType.AdminUpdateActivation]: (source, target, data) => {
+        return data.activated ? `Activated the account of ${target?.name}`
+                              : `Deactivated their account of ${target?.name}`;
+    },
+    [LogType.AdminUpdatePermission]: (source, target, data) => {
+        return `Updated the permissions of ${target?.name}`;
+    },
+    [LogType.AdminUpdateVolunteer]: (source, target, data) => {
+        return `Updated the user information of ${target?.name}`;
+    },
+    [LogType.DatabaseError]: (source, target, { query }) => {
+        const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);
+        return `Database error: "${normalizedQuery}"…`;
+    },
 };
 
 /**

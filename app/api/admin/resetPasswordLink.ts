@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { sql } from '@lib/database';
@@ -60,6 +60,7 @@ export async function resetPasswordLink(request: Request, props: ActionProps): P
 
     Log({
         type: LogType.AdminResetPasswordLink,
+        severity: LogSeverity.Warning,
         sourceUser: props.user,
         targetUser: request.userId,
         data: { ip: props.ip }
