@@ -13,7 +13,7 @@ import { sql } from '@lib/database';
 export async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEventEntry[]> {
     const kUrlPrefix = '/admin/events/';
 
-    const adminAccess = can(user, Privilege.AccessPastEvents);
+    const adminAccess = can(user, Privilege.EventAdministrator);
     const result =
         await sql`
             SELECT

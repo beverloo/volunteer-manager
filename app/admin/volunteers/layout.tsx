@@ -20,7 +20,7 @@ import { requireUser } from '@lib/auth/getUser';
 export default async function VolunteersLayout(props: React.PropsWithChildren) {
     const user = await requireUser();
 
-    if (!can(user, Privilege.AccessVolunteers))
+    if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [

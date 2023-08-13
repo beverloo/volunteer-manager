@@ -72,7 +72,7 @@ type Response = UpdateVolunteerDefinition['response'];
  * have the ability to call into this endpoint.
  */
 export async function updateVolunteer(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.AccessVolunteers))
+    if (!can(props.user, Privilege.VolunteerAdministrator))
         noAccess();
 
     const existingResult = await sql`

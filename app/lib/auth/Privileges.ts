@@ -22,8 +22,8 @@ export enum Privilege {
     ReplaceAnyAvatar            = 1 << 6,
 
     // Privileges regarding access in the administrative area.
-    AccessPastEvents            = 1 << 7,
-    AccessVolunteers            = 1 << 8,
+    EventAdministrator          = 1 << 7,
+    VolunteerAdministrator      = 1 << 8,
 };
 
 /**
@@ -55,8 +55,8 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.ReplaceOwnAvatar]: 'Volunteer access',
     [Privilege.ReplaceAnyAvatar]: 'Volunteer access',
-    [Privilege.AccessPastEvents]: 'Special access',
-    [Privilege.AccessVolunteers]: 'Special access',
+    [Privilege.EventAdministrator]: 'Special access',
+    [Privilege.VolunteerAdministrator]: 'Special access',
 };
 
 /**
@@ -70,8 +70,8 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
     [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
-    [Privilege.AccessPastEvents]: 'Universal event access',
-    [Privilege.AccessVolunteers]: 'Universal volunteer access',
+    [Privilege.EventAdministrator]: 'Event administrator',
+    [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
 };
 
 /**
@@ -81,6 +81,6 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Automatically grants all other privileges',
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
     [Privilege.ReplaceAnyAvatar]: 'That includes your avatar as well…',
-    [Privilege.AccessPastEvents]: 'Access to past and future events regardless of participation',
-    [Privilege.AccessVolunteers]: 'Access to all AnimeCon volunteer information',
+    [Privilege.EventAdministrator]: 'Administrator access to anything related to events',
+    [Privilege.VolunteerAdministrator]: 'Administrator access to anything related to volunteers',
 };

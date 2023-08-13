@@ -42,7 +42,7 @@ type Response = UpdateActivationDefinition['response'];
  * universal volunteer access can use this API, and they cannot use it on their own account.
  */
 export async function updateActivation(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.AccessVolunteers) || request.userId === props.user?.userId)
+    if (!can(props.user, Privilege.VolunteerAdministrator) || request.userId === props.user?.userId)
         noAccess();
 
     const result = await sql`

@@ -18,7 +18,7 @@ import { sql } from '@lib/database';
  */
 export default async function VolunteersPage() {
     const user = await requireUser();
-    if (!can(user, Privilege.AccessVolunteers))
+    if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 
     const result = await sql`

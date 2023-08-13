@@ -36,7 +36,7 @@ type Response = ResetAccessCodeDefinition['response'];
  * volunteers have the ability to request new access codes.
  */
 export async function resetAccessCode(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.AccessVolunteers))
+    if (!can(props.user, Privilege.VolunteerAdministrator))
         noAccess();
 
     Log({

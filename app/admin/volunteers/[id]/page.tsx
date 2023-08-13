@@ -115,7 +115,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
  */
 export default async function VolunteerPage(props: NextRouterParams<'id'>) {
     const user = await requireUser();
-    if (!can(user, Privilege.AccessVolunteers))
+    if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 
     const volunteerInfo = await fetchVolunteerInfo(props.params.id);
