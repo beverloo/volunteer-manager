@@ -8,7 +8,7 @@ import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 export default async function RetentionPage() {
     return (
         <UnderConstructionPaper>
-            Retention
+            Event retention
         </UnderConstructionPaper>
     );
 }

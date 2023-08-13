@@ -5,14 +5,14 @@ import { type Metadata } from 'next';
 
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 
-export default async function VolunteersPage() {
+export default async function EventTeamPage(props: any) {
     return (
         <UnderConstructionPaper>
-            Volunteers
+            Event team
         </UnderConstructionPaper>
     );
 }
 
 export const metadata: Metadata = {
-    title: 'Volunteers',
+    title: 'Event | Team',
 };

@@ -10,6 +10,7 @@ import { useState } from 'react';
 import type { SxProps, Theme } from '@mui/system';
 import Badge from '@mui/material/Badge';
 import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import List from '@mui/material/List';
@@ -42,6 +43,16 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         paddingY: 1,
     },
 };
+
+/**
+ * Interface defining a manually configured divider that is to be added to the menu.
+ */
+interface AdminSIdebarMenuDividerEntry {
+    /**
+     * Set this to `true` to indicate that a divider should be added to the menu.
+     */
+    divider: true;
+}
 
 /**
  * Base interface for an entry to the administration sidebar interface that applies to all kinds of
@@ -95,7 +106,8 @@ interface AdminSidebarMenuParentEntry {
  * Interface that specified menu entries for the <AdminSidebar> component must adhere to.
  */
 export type AdminSidebarMenuEntry =
-    AdminSidebarMenuEntryBase & (AdminSidebarMenuButtonEntry | AdminSidebarMenuParentEntry);
+    AdminSIdebarMenuDividerEntry |
+        (AdminSidebarMenuEntryBase & (AdminSidebarMenuButtonEntry | AdminSidebarMenuParentEntry));
 
 /**
  * Props accepted by the <RenderSidebarMenu> component.
@@ -139,6 +151,9 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
     return (
         <List disablePadding>
             { menu.map((entry, index) => {
+                if ('divider' in entry)
+                    return <Divider />;
+
                 if (entry.privilege && !can(user, entry.privilege))
                     return undefined;
 
@@ -147,7 +162,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
 
                     return (
                         <>
-                            <ListItemButton key={index}
+                            <ListItemButton key={index} divider={true}
                                             sx={ indent ? { pl: 5 } : undefined }
                                             onClick={ () => toggleCollapsedState(index) }>
 
@@ -164,6 +179,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                             </ListItemButton>
                             <Collapse in={open} unmountOnExit>
                                 <RenderSidebarMenu indent menu={entry.menu} user={user} />
+                                <Divider />
                             </Collapse>
                         </>
                     );

@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation';
 
 import DifferenceIcon from '@mui/icons-material/Difference';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
+import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
@@ -97,6 +97,11 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
+            icon: <GridViewIcon />,
+            label: 'Dashboard',
+            url: `/admin/events/${slug}`,
+        },
+        {
             icon: <HotelIcon />,
             label: 'Hotels',
             privilege: Privilege.EventAdministrator,
@@ -108,6 +113,9 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             privilege: Privilege.EventAdministrator,
             url: `/admin/events/${slug}/training`,
         },
+        {
+            divider: true,
+        }
     ];
 
     for (const team of info.teams) {
