@@ -23,7 +23,8 @@ export enum Privilege {
 
     // Privileges regarding access in the administrative area.
     EventAdministrator          = 1 << 7,
-    VolunteerAdministrator      = 1 << 8,
+    SystemAdministrator         = 1 << 8,
+    VolunteerAdministrator      = 1 << 9,
 };
 
 /**
@@ -56,6 +57,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.ReplaceOwnAvatar]: 'Volunteer access',
     [Privilege.ReplaceAnyAvatar]: 'Volunteer access',
     [Privilege.EventAdministrator]: 'Special access',
+    [Privilege.SystemAdministrator]: 'Special access',
     [Privilege.VolunteerAdministrator]: 'Special access',
 };
 
@@ -71,6 +73,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
     [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
     [Privilege.EventAdministrator]: 'Event administrator',
+    [Privilege.SystemAdministrator]: 'System administrator',
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
 };
 
@@ -82,5 +85,6 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
     [Privilege.ReplaceAnyAvatar]: 'That includes your avatar as well…',
     [Privilege.EventAdministrator]: 'Administrator access to anything related to events',
+    [Privilege.SystemAdministrator]: 'Administrator access to anything regarding system internals',
     [Privilege.VolunteerAdministrator]: 'Administrator access to anything related to volunteers',
 };

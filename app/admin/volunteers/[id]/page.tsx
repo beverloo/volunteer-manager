@@ -132,8 +132,10 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
             <Information account={account} />
             <Participation participation={participation} userId={account.userId} />
 
-            { (can(user, Privilege.Administrator) && logs.length > 0) && <Logs messages={logs} /> }
-            { (can(user, Privilege.Administrator)) &&
+            { (can(user, Privilege.SystemAdministrator) && logs.length > 0) &&
+                <Logs messages={logs} /> }
+
+            { can(user, Privilege.Administrator) &&
                 <Permissions userId={account.userId} privileges={account.privileges} /> }
         </>
     );
