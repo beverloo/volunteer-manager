@@ -5,15 +5,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Badge from '@mui/material/Badge';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { deepmerge } from '@mui/utils';
 
 import type { UserData } from '@app/lib/auth/UserData';
 import { type Privilege, can } from '@app/lib/auth/Privileges';
@@ -39,14 +44,10 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Interface that specified menu entries for the <AdminSidebar> component must adhere to.
+ * Base interface for an entry to the administration sidebar interface that applies to all kinds of
+ * entries, which includes rendering properties and privilege checking.
  */
-export interface AdminSidebarMenuEntry {
-    /**
-     * Optional badge that should be displayed on the menu item.
-     */
-    badge?: number;
-
+interface AdminSidebarMenuEntryBase {
     /**
      * The icon that should be displayed with the menu entry. Optional.
      */
@@ -61,6 +62,17 @@ export interface AdminSidebarMenuEntry {
      * The privilege this entry is gated behind. Visibility control, not an access control.
      */
     privilege?: Privilege;
+}
+
+/**
+ * Interface that defines the additional options for menu entries that act as a button, which means
+ * that the user is able to immediately navigate to them.
+ */
+interface AdminSidebarMenuButtonEntry {
+    /**
+     * Optional badge that should be displayed on the menu item. Must be greater than zero.
+     */
+    badge?: number;
 
     /**
      * The URL for this list item entry. Must be absolute from the domain root.
@@ -69,18 +81,35 @@ export interface AdminSidebarMenuEntry {
 }
 
 /**
- * Props accepted by the <AdminSidebar> component.
+ * Interface that defines the additional options for menu entries that are a parent of a sub-menu.
+ * These cannot have a URL (as they are collapsable) and cannot show a badge either.
  */
-export interface AdminSidebarProps {
+interface AdminSidebarMenuParentEntry {
+    /**
+     * Child menu items that should be shown as part of this entry.
+     */
+    menu: (AdminSidebarMenuEntryBase & AdminSidebarMenuButtonEntry)[];
+}
+
+/**
+ * Interface that specified menu entries for the <AdminSidebar> component must adhere to.
+ */
+export type AdminSidebarMenuEntry =
+    AdminSidebarMenuEntryBase & (AdminSidebarMenuButtonEntry | AdminSidebarMenuParentEntry);
+
+/**
+ * Props accepted by the <RenderSidebarMenu> component.
+ */
+interface RenderSidebarMenuProps {
+    /**
+     * Whether the menu should be indented to reflect nesting.
+     */
+    indent?: boolean;
+
     /**
      * The menu entries that should be displayed as part of this sidebar. Required.
      */
     menu: AdminSidebarMenuEntry[];
-
-    /**
-     * Title to display at the top of the sidebar.
-     */
-    title: string;
 
     /**
      * The user for whom the menu is being shown. Included for permission checking.
@@ -89,40 +118,106 @@ export interface AdminSidebarProps {
 }
 
 /**
+ * Recursively renders the given menu, including the sub-menus that may be contained therein. While
+ * this may enable deep recursive situations, TypeScript definitions should "guard" against that.
+ */
+function RenderSidebarMenu(props: RenderSidebarMenuProps) {
+    const { indent, menu, user } = props;
+
+    const [ collapsedState, setCollapsedState ] = useState<Set<number>>(new Set);
+    const pathname = usePathname();
+
+    function toggleCollapsedState(index: number) {
+        setCollapsedState(existing => {
+            existing.has(index) ? existing.delete(index)
+                                : existing.add(index);
+
+            return new Set([ ...existing ]);
+        });
+    }
+
+    return (
+        <List disablePadding>
+            { menu.map((entry, index) => {
+                if (entry.privilege && !can(user, entry.privilege))
+                    return undefined;
+
+                if (/* AdminSidebarMenuButtonEntry= */ 'menu' in entry) {
+                    const open = !collapsedState.has(index);
+
+                    return (
+                        <>
+                            <ListItemButton key={index}
+                                            sx={ indent ? { pl: 5 } : undefined }
+                                            onClick={ () => toggleCollapsedState(index) }>
+
+                                { entry.icon &&
+                                    <ListItemIcon sx={{ minWidth: '40px' }}>
+                                        {entry.icon}
+                                    </ListItemIcon> }
+
+                                <ListItemText primaryTypographyProps={{ noWrap: true }}
+                                              primary={entry.label} />
+
+                                { open ? <ExpandLess /> : <ExpandMore /> }
+
+                            </ListItemButton>
+                            <Collapse in={open} unmountOnExit>
+                                <RenderSidebarMenu indent menu={entry.menu} user={user} />
+                            </Collapse>
+                        </>
+                    );
+                }
+
+                return (
+                    <ListItemButton key={index}
+                                    sx={
+                                        indent ? deepmerge(kStyles.active, { pl: 5 })
+                                               : kStyles.active
+                                    }
+                                    component={Link} href={entry.url}
+                                    selected={entry.url === pathname}>
+
+                        { entry.icon &&
+                            <ListItemIcon sx={{ minWidth: '40px' }}>
+                                {entry.icon}
+                            </ListItemIcon> }
+
+                        <ListItemText primaryTypographyProps={{ noWrap: true }}
+                                        primary={entry.label} />
+
+                        { (typeof entry.badge === 'number' && entry.badge > 0) &&
+                            <Badge badgeContent={entry.badge} color="error" sx={{ mx: 2 }} /> }
+
+                    </ListItemButton>
+                );
+            }) }
+        </List>
+    );
+
+}
+
+/**
+ * Props accepted by the <AdminSidebar> component.
+ */
+export interface AdminSidebarProps extends RenderSidebarMenuProps {
+    /**
+     * Title to display at the top of the sidebar.
+     */
+    title: string;
+}
+
+/**
  * The <AdminSidebar> component displays a navigational menu with the configured menu items passed
  * through its props. Expected to render as a child of the <AdminContent> component.
  */
 export function AdminSidebar(props: AdminSidebarProps) {
-    const { menu, title, user } = props;
-
-    const pathname = usePathname();
-
     return (
         <Paper sx={{ alignSelf: 'flex-start', flexShrink: 0, width: '280px', overflow: 'hidden' }}>
             <Typography variant="h6" sx={kStyles.header}>
-                {title}
+                {props.title}
             </Typography>
-            <List disablePadding>
-                { menu.map((entry, index) => {
-                    if (entry.privilege && !can(user, entry.privilege))
-                        return undefined;
-
-                    return (
-                        <ListItemButton key={index} sx={kStyles.active}
-                                        component={Link} href={entry.url}
-                                        selected={entry.url === pathname}>
-                            { entry.icon &&
-                                <ListItemIcon sx={{ minWidth: '40px' }}>
-                                    {entry.icon}
-                                </ListItemIcon> }
-                            <ListItemText primaryTypographyProps={{ noWrap: true }}
-                                          primary={entry.label} />
-                            { entry.badge &&
-                                <Badge badgeContent={25} color="error" sx={{ ml: 3, mr: 2 }} /> }
-                        </ListItemButton>
-                    );
-                }) }
-            </List>
+            <RenderSidebarMenu menu={props.menu} user={props.user} />
         </Paper>
     );
 }

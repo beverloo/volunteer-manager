@@ -4,13 +4,60 @@
 import { notFound } from 'next/navigation';
 
 import DifferenceIcon from '@mui/icons-material/Difference';
+import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import HotelIcon from '@mui/icons-material/Hotel';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
-import { getEventBySlug } from '@lib/EventLoader';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { User } from '@lib/auth/User';
+import { kEnvironmentColours } from '@app/Environment';
 import { requireUser } from '@lib/auth/getUser';
+
+/**
+ * Fetch the information about the event identified by `eventSlug` that is applicable to the given
+ * `user`, with access checks being in place. The menu will be rendered based on this information.
+ */
+async function fetchEventSidebarInformation(user: User, eventSlug: string) {
+
+    return {
+        event: {
+            name: 'AnimeCon 2024',
+            slug: eventSlug,
+        },
+
+        availabilityAvailable: false,
+        hotelAvailable: false,
+        trainingAvailable: false,
+
+        teams: [
+            {
+                name: 'Crew',
+                slug: 'gophers.team',
+                color: kEnvironmentColours['gophers.team'].light,
+                pendingApplications: 12,
+            },
+            {
+                name: 'Hosts',
+                slug: 'hosts.team',
+                color: kEnvironmentColours['hosts.team'].light,
+                pendingApplications: 0,
+            },
+            {
+                name: 'Stewards',
+                slug: 'stewards.team',
+                color: kEnvironmentColours['stewards.team'].light,
+                pendingApplications: 1,
+            }
+        ],
+    };
+}
 
 /**
  * Props accepted by the <EventLayout> component.
@@ -43,29 +90,60 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     const { slug } = props.params;
 
     const user = await requireUser();
-    const event = await getEventBySlug(slug);
 
-    // TODO: Access checks for the |user| to the |event|
-
-    if (!event)
+    const info = await fetchEventSidebarInformation(user, slug);
+    if (!info)
         notFound();
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
-            icon: <DifferenceIcon />,
-            label: 'Retention',
-            url: `/admin/events/${slug}/retention`,
+            icon: <HotelIcon />,
+            label: 'Hotels',
+            privilege: Privilege.EventAdministrator,
+            url: `/admin/events/${slug}/hotels`,
         },
         {
-            icon: <PersonIcon />,
-            label: 'Volunteers',
-            url: `/admin/events/${slug}/volunteers`,
+            icon: <HistoryEduIcon />,
+            label: 'Training',
+            privilege: Privilege.EventAdministrator,
+            url: `/admin/events/${slug}/training`,
         },
     ];
 
+    for (const team of info.teams) {
+        volunteersMenu.push({
+            icon: <PeopleIcon htmlColor={team.color} />,
+            label: team.name,
+
+            menu: [
+                {
+                    icon: <NewReleasesIcon />,
+                    label: 'Applications',
+                    url: `/admin/events/${slug}/${team.slug}/applications`,
+                    badge: team.pendingApplications,
+                },
+                {
+                    icon: <FeedOutlinedIcon />,
+                    label: 'Content',
+                    url: `/admin/events/${slug}/${team.slug}/content`,
+                },
+                {
+                    icon: <DifferenceIcon />,
+                    label: 'Retention',
+                    url: `/admin/events/${slug}/${team.slug}/retention`,
+                },
+                {
+                    icon: <PersonIcon />,
+                    label: 'Volunteers',
+                    url: `/admin/events/${slug}/${team.slug}/volunteers`,
+                },
+            ],
+        });
+    }
+
     return (
         <AdminContent>
-            <AdminSidebar menu={volunteersMenu} title={event.shortName} user={user.toUserData()} />
+            <AdminSidebar menu={volunteersMenu} title={info.event.name} user={user.toUserData()} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>
