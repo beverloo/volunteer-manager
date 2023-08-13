@@ -96,6 +96,12 @@ export async function logs(request: Request, props: ActionProps): Promise<Respon
 
     const response = await fetchLogs({
         limit: request.pageSize,
+        severity: [
+            LogSeverity.Debug,
+            LogSeverity.Info,
+            LogSeverity.Warning,
+            LogSeverity.Error
+        ],
         start: request.pageSize * request.page,
     });
 

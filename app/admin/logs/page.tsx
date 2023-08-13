@@ -14,12 +14,15 @@ import { LogsDataTable } from './LogsDataTable';
  * however they will be streamed by the server to deal with ~infinitely large data sets.
  */
 export default async function LogsPage() {
+    // TODO: Server-side sorting
+    // TODO: Server-side filtering
+
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
                 Logs
             </Typography>
-            <LogsDataTable pageSize={5} pageSizeOptions={[ 5, 10, 15 ]} />
+            <LogsDataTable dense />
         </Paper>
     );
 }

@@ -8,6 +8,11 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 import { type GridRenderCellParams } from '@mui/x-data-grid';
 
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
+
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import type { DataTableRowRequest, DataTableRowResponse } from '@app/admin/DataTable';
 import type { LogsDefinition } from '@app/api/admin/logs';
@@ -29,6 +34,21 @@ export function LogsDataTable(props: LogsDataTableProps) {
             field: 'severity',
             headerName: 'Severity',
             width: 100,
+
+            renderCell: (params: GridRenderCellParams) => {
+                switch (params.value) {
+                    case 'Debug':
+                        return <CircleOutlinedIcon color="action" />;
+                    case 'Info':
+                        return <InfoOutlinedIcon color="info" />;
+                    case 'Warning':
+                        return <WarningOutlinedIcon color="warning" />;
+                    case 'Error':
+                        return <ErrorOutlinedIcon color="error" />;
+                }
+
+                return params.value;
+            },
         },
         {
             field: 'date',
