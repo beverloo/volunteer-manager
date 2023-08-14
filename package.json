@@ -6,6 +6,7 @@
     "build-prod": "node Docker.build.js",
     "deploy-prod": "TODO",
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
+    "sync-db-prod": "node ts-sql.build.mjs",
     "build": "next build",
     "serve": "next dev",
     "lint": "next lint",
@@ -67,6 +68,7 @@
     "jest-environment-jsdom": "^29.6.2",
     "next-build-id": "^3.0.0",
     "nodemailer-mock": "^2.0.1",
+    "ts-sql-codegen": "^3.16.0",
     "typescript": "^5.1.6",
     "whatwg-fetch": "^3.6.17"
   }

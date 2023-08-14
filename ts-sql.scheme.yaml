@@ -1,0 +1,1163 @@
+name: anime
+desc: ""
+tables:
+- name: content
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: content_id
+    type: int(10) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_path
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_title
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: content
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: revision_author_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: revision_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id, team_id) USING BTREE
+    table: content
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (content_id) USING BTREE
+    table: content
+    columns:
+    - content_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (content_id)
+    table: content
+    referencedTable: null
+    columns:
+    - content_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `content` (
+      `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `content_path` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `content_title` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `revision_author_id` int(4) unsigned NOT NULL,
+      `revision_date` timestamp NOT NULL DEFAULT current_timestamp(),
+      PRIMARY KEY (`content_id`),
+      KEY `event_id` (`event_id`,`team_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(11)
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: username
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: first_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: last_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: gender
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: birthdate
+    type: date
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: phone_number
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: avatar_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: privileges
+    type: bigint(20)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: activated
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: session_token
+    type: int(4) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (user_id) USING BTREE
+    table: users
+    columns:
+    - user_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (user_id)
+    table: users
+    referencedTable: null
+    columns:
+    - user_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users` (
+      `user_id` int(11) NOT NULL AUTO_INCREMENT,
+      `username` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `first_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `last_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `gender` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `birthdate` date DEFAULT NULL,
+      `phone_number` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `avatar_id` int(4) unsigned NOT NULL,
+      `privileges` bigint(20) NOT NULL DEFAULT 0,
+      `activated` tinyint(1) NOT NULL DEFAULT 0,
+      `session_token` int(4) unsigned NOT NULL DEFAULT 0,
+      PRIMARY KEY (`user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_auth
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: auth_type
+    type: enum('code','password','passkey')
+    nullable: false
+    default: null
+    comment: ""
+  - name: auth_value
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: user_id
+    def: KEY user_id (user_id) USING BTREE
+    table: users_auth
+    columns:
+    - user_id
+    comment: ""
+  constraints: []
+  triggers: []
+  def: |-
+    CREATE TABLE `users_auth` (
+      `user_id` int(4) unsigned NOT NULL,
+      `auth_type` enum('code','password','passkey') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `auth_value` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      KEY `user_id` (`user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: hotels
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: hotel_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: hotel_name
+    type: varchar(64)
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: hotel_description
+    type: text
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: hotel_room_name
+    type: varchar(64)
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: hotel_room_people
+    type: int(8)
+    nullable: false
+    default: "1"
+    comment: ""
+  - name: hotel_room_price
+    type: int(8)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: hotel_room_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: hotels
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (hotel_id) USING BTREE
+    table: hotels
+    columns:
+    - hotel_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (hotel_id)
+    table: hotels
+    referencedTable: null
+    columns:
+    - hotel_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `hotels` (
+      `hotel_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `hotel_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+      `hotel_description` text COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+      `hotel_room_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+      `hotel_room_people` int(8) NOT NULL DEFAULT 1,
+      `hotel_room_price` int(8) NOT NULL DEFAULT 0,
+      `hotel_room_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`hotel_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: shifts
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: shift_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: shift_identifier
+    type: varchar(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_program_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_area_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_location_id
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_location_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_excitement
+    type: double
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id, team_id) USING BTREE
+    table: shifts
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (shift_id) USING BTREE
+    table: shifts
+    columns:
+    - shift_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (shift_id)
+    table: shifts
+    referencedTable: null
+    columns:
+    - shift_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `shifts` (
+      `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `shift_identifier` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `shift_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `shift_program_id` int(4) unsigned DEFAULT NULL,
+      `shift_area_id` int(4) unsigned DEFAULT NULL,
+      `shift_location_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `shift_location_name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `shift_excitement` double NOT NULL,
+      PRIMARY KEY (`shift_id`),
+      KEY `event_id` (`event_id`,`team_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: schedule
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: schedule_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: schedule_type
+    type: enum('unavailable','shift')
+    nullable: false
+    default: null
+    comment: ""
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: schedule_time_start
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_time_end
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (schedule_id) USING BTREE
+    table: schedule
+    columns:
+    - schedule_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (schedule_id)
+    table: schedule
+    referencedTable: null
+    columns:
+    - schedule_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `schedule` (
+      `schedule_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `schedule_type` enum('unavailable','shift') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `user_id` int(4) unsigned NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `shift_id` int(4) unsigned DEFAULT NULL,
+      `schedule_time_start` datetime NOT NULL,
+      `schedule_time_end` datetime NOT NULL,
+      PRIMARY KEY (`schedule_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_events
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: registration_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: registration_status
+    type: enum('Registered','Cancelled','Accepted','Rejected')
+    nullable: false
+    default: "'Registered'"
+    comment: ""
+  - name: shirt_fit
+    type: enum('Regular','Girly')
+    nullable: false
+    default: "'Regular'"
+    comment: ""
+  - name: shirt_size
+    type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_eligible
+    type: tinyint(1)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_hours
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_timing_start
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_timing_end
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preferences
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: fully_available
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  - name: include_credits
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  - name: include_socials
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: user_id
+    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
+    table: users_events
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    comment: ""
+  constraints:
+  - name: user_id
+    type: UNIQUE
+    def: UNIQUE KEY user_id (user_id, event_id, team_id)
+    table: users_events
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users_events` (
+      `user_id` int(4) unsigned NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `role_id` int(4) unsigned NOT NULL,
+      `registration_date` datetime NOT NULL,
+      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Registered',
+      `shirt_fit` enum('Regular','Girly') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Regular',
+      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `hotel_eligible` tinyint(1) DEFAULT NULL,
+      `preference_hours` int(4) unsigned DEFAULT NULL,
+      `preference_timing_start` int(4) unsigned DEFAULT NULL,
+      `preference_timing_end` int(4) unsigned DEFAULT NULL,
+      `preferences` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `fully_available` tinyint(1) NOT NULL DEFAULT 1,
+      `include_credits` tinyint(1) NOT NULL DEFAULT 1,
+      `include_socials` tinyint(1) NOT NULL DEFAULT 1,
+      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: storage
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: file_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: file_hash
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_type
+    type: enum('avatar')
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_data
+    type: mediumblob
+    nullable: false
+    default: null
+    comment: ""
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: file_hash
+    def: KEY file_hash (file_hash) USING BTREE
+    table: storage
+    columns:
+    - file_hash
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (file_id) USING BTREE
+    table: storage
+    columns:
+    - file_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (file_id)
+    table: storage
+    referencedTable: null
+    columns:
+    - file_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `storage` (
+      `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `file_hash` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `file_type` enum('avatar') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `file_date` datetime NOT NULL,
+      `file_data` mediumblob NOT NULL,
+      `user_id` int(4) unsigned NOT NULL,
+      PRIMARY KEY (`file_id`),
+      KEY `file_hash` (`file_hash`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: roles
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: role_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_admin_access
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: role_hotel_eligible
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (role_id) USING BTREE
+    table: roles
+    columns:
+    - role_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (role_id)
+    table: roles
+    referencedTable: null
+    columns:
+    - role_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `roles` (
+      `role_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `role_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
+      `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
+      PRIMARY KEY (`role_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: teams
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: team_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_description
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_environment
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (team_id) USING BTREE
+    table: teams
+    columns:
+    - team_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (team_id)
+    table: teams
+    referencedTable: null
+    columns:
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `teams` (
+      `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `team_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `team_description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `team_environment` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      PRIMARY KEY (`team_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: teams_roles
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_default
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: team_id
+    def: KEY team_id (team_id) USING BTREE
+    table: teams_roles
+    columns:
+    - team_id
+    comment: ""
+  constraints: []
+  triggers: []
+  def: |-
+    CREATE TABLE `teams_roles` (
+      `team_id` int(4) unsigned NOT NULL,
+      `role_id` int(4) unsigned NOT NULL,
+      `role_default` tinyint(1) NOT NULL DEFAULT 0,
+      KEY `team_id` (`team_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_short_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_slug
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_hidden
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: event_start_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_end_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (event_id) USING BTREE
+    table: events
+    columns:
+    - event_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (event_id)
+    table: events
+    referencedTable: null
+    columns:
+    - event_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events` (
+      `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `event_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `event_short_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `event_slug` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
+      `event_start_time` datetime NOT NULL,
+      `event_end_time` datetime NOT NULL,
+      PRIMARY KEY (`event_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events_teams
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: enable_content
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: enable_registration
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: enable_schedule
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: events_teams
+    columns:
+    - event_id
+    comment: ""
+  - name: team_id
+    def: KEY team_id (team_id) USING BTREE
+    table: events_teams
+    columns:
+    - team_id
+    comment: ""
+  - name: event_id_2
+    def: UNIQUE KEY event_id_2 (event_id, team_id) USING BTREE
+    table: events_teams
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  constraints:
+  - name: event_id_2
+    type: UNIQUE
+    def: UNIQUE KEY event_id_2 (event_id, team_id)
+    table: events_teams
+    referencedTable: null
+    columns:
+    - event_id
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events_teams` (
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `enable_content` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
+      UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
+      KEY `event_id` (`event_id`),
+      KEY `team_id` (`team_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: log_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: log_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: log_type
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: log_severity
+    type: enum('Debug','Info','Warning','Error')
+    nullable: false
+    default: null
+    comment: ""
+  - name: log_source_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_target_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_data
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: log_source_user_id
+    def: KEY log_source_user_id (log_source_user_id) USING BTREE
+    table: logs
+    columns:
+    - log_source_user_id
+    comment: ""
+  - name: log_target_user_id
+    def: KEY log_target_user_id (log_target_user_id) USING BTREE
+    table: logs
+    columns:
+    - log_target_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (log_id) USING BTREE
+    table: logs
+    columns:
+    - log_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (log_id)
+    table: logs
+    referencedTable: null
+    columns:
+    - log_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `logs` (
+      `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `log_date` timestamp NOT NULL DEFAULT current_timestamp(),
+      `log_type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `log_severity` enum('Debug','Info','Warning','Error') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `log_source_user_id` int(8) unsigned DEFAULT NULL,
+      `log_target_user_id` int(8) unsigned DEFAULT NULL,
+      `log_data` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      PRIMARY KEY (`log_id`),
+      KEY `log_target_user_id` (`log_target_user_id`),
+      KEY `log_source_user_id` (`log_source_user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: services
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: service_id
+    type: int(10) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: service_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_event_id
+    type: int(11)
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_enabled
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_interval
+    type: int(4)
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_driver
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_params
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (service_id) USING BTREE
+    table: services
+    columns:
+    - service_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (service_id)
+    table: services
+    referencedTable: null
+    columns:
+    - service_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `services` (
+      `service_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+      `service_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_event_id` int(11) NOT NULL,
+      `service_enabled` tinyint(1) NOT NULL,
+      `service_interval` int(4) NOT NULL,
+      `service_driver` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_params` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      PRIMARY KEY (`service_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: services_logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: service_log_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: service_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_log_timestamp
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: service_log_result
+    type: set('success','warning','error','exception')
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_log_runtime
+    type: double unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: service_log_data
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: service_id
+    def: KEY service_id (service_id) USING BTREE
+    table: services_logs
+    columns:
+    - service_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (service_log_id) USING BTREE
+    table: services_logs
+    columns:
+    - service_log_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (service_log_id)
+    table: services_logs
+    referencedTable: null
+    columns:
+    - service_log_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `services_logs` (
+      `service_log_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `service_id` int(4) unsigned NOT NULL,
+      `service_log_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+      `service_log_result` set('success','warning','error','exception') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_log_runtime` double unsigned NOT NULL,
+      `service_log_data` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      PRIMARY KEY (`service_log_id`),
+      KEY `service_id` (`service_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+relations: []
+functions: []
+driver:
+  name: mysql
+  databaseVersion: 10.3.27-MariaDB
+  meta:
+    dict: {}
