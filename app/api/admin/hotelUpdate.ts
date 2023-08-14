@@ -8,8 +8,7 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@app/lib/EventLoader';
 
-import { HotelsTable } from '@lib/database/scheme/HotelsTable';
-import { kConnection } from '@lib/database/Connection';
+import db, { tHotels } from '@lib/database';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/admin/hotel-update. Only event
@@ -76,8 +75,7 @@ export async function hotelUpdate(request: Request, props: ActionProps): Promise
     if (!event)
         return { success: false };
 
-    const tHotelsTable = new HotelsTable;
-    const affectedRows = await kConnection.update(tHotelsTable)
+    const affectedRows = await db.update(tHotels)
         .set({
             hotelName: request.hotelName,
             hotelDescription: request.hotelDescription,
@@ -85,8 +83,8 @@ export async function hotelUpdate(request: Request, props: ActionProps): Promise
             hotelRoomPeople: request.roomPeople,
             hotelRoomPrice: request.roomPrice,
         })
-        .where(tHotelsTable.hotelId.equals(request.id))
-        .and(tHotelsTable.eventId.equals(event.eventId))
+        .where(tHotels.hotelId.equals(request.id))
+        .and(tHotels.eventId.equals(event.eventId))
         .executeUpdate(/* min= */ 0, /* max= */ 1);
 
     if (affectedRows > 0) {
