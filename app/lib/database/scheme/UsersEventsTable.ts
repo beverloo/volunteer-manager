@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /**
  * DO NOT EDIT:
  *
@@ -5,7 +6,7 @@
  * Any changes will be overwritten.
  */
 import { Table } from "ts-sql-query/Table";
-import type { DBConnection } from "../Connection.ts";
+import type { DBConnection } from "../Connection";
 
 export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     userId = this.column('user_id', 'int');

@@ -10,7 +10,7 @@ const exec = util.promisify((await import('child_process')).exec);
 /**
  * Input file in which the database connection source is exported.
  */
-const kInputConnectionSource = './app/lib/database/Connection.ts';
+const kInputConnectionSource = './app/lib/database/Connection';
 
 /**
  * Directory in which the generated database schemes for use with `ts-sql-query` should be stored.
@@ -112,6 +112,10 @@ do {
                 generatedField: false,
             }
         ],
+
+        rawContent: {
+            before: '/* eslint-disable quotes */',
+        }
     });
 
     await generator.generate();
