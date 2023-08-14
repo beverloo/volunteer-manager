@@ -60,7 +60,7 @@ class Database {
             config: {
                 host: process.env.APP_DATABASE_SERVER,
                 port: parseInt(process.env.APP_DATABASE_PORT!),
-                user: process.env.APP_DATEBASE_USERNAME,
+                user: process.env.APP_DATABASE_USERNAME,
                 password: process.env.APP_DATABASE_PASSWORD,
                 database: process.env.APP_DATABASE_NAME
             },
