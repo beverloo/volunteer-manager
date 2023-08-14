@@ -75,9 +75,8 @@ do {
     // (3) Run the `tbls` command to output the format in YAML format. This will write the latest
     //     scheme to a file called "ts-sql.scheme.yaml" where it can live until step (4).
     try {
-        const { stdout, stderr } = { stdout: '', stderr: '' };
-        //const { stdout, stderr }
-        //    = await exec(`tbls out ${connection} -t yaml -o ${kOutputScheme}`);
+        const { stdout, stderr }
+            = await exec(`tbls out ${connection} -t yaml -o ${kOutputScheme}`);
 
         if (stdout.length || stderr.length) {
             console.log('Unexpected output from the `tbls` command:');

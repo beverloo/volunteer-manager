@@ -37,6 +37,7 @@
     "cookie": "^0.5.0",
     "dayjs": "^1.11.9",
     "iron-webcrypto": "^0.8.0",
+    "mariadb": "^3.2.0",
     "marked": "^7.0.2",
     "mui-markdown": "^1.1.7",
     "next": "13.4.12",
@@ -48,6 +49,7 @@
     "scrypt-js": "^3.0.1",
     "serverless-mysql": "^1.5.5",
     "simple-sha256": "^1.1.0",
+    "ts-sql-query": "^1.54.0",
     "tss-react": "^4.8.8",
     "uuid": "^9.0.0",
     "zod": "^3.21.4"

@@ -7,7 +7,9 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@app/lib/EventLoader';
-import { sql } from '@lib/database';
+
+import { HotelsTable } from '@lib/database/scheme/HotelsTable';
+import { kConnection } from '@lib/database/Connection';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/admin/hotel-update. Only event
@@ -74,20 +76,20 @@ export async function hotelUpdate(request: Request, props: ActionProps): Promise
     if (!event)
         return { success: false };
 
-    const result = await sql`
-        UPDATE
-            hotels
-        SET
-            hotel_name = ${request.hotelName},
-            hotel_description = ${request.hotelDescription},
-            hotel_room_name = ${request.roomName},
-            hotel_room_people = ${request.roomPeople},
-            hotel_room_price = ${request.roomPrice}
-        WHERE
-            hotels.hotel_id = ${request.id} AND
-            hotels.event_id = ${event.eventId}`;
+    const tHotelsTable = new HotelsTable;
+    const affectedRows = await kConnection.update(tHotelsTable)
+        .set({
+            hotelName: request.hotelName,
+            hotelDescription: request.hotelDescription,
+            hotelRoomName: request.roomName,
+            hotelRoomPeople: request.roomPeople,
+            hotelRoomPrice: request.roomPrice,
+        })
+        .where(tHotelsTable.hotelId.equals(request.id))
+        .and(tHotelsTable.eventId.equals(event.eventId))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
 
-    if (result.ok) {
+    if (affectedRows > 0) {
         Log({
             type: LogType.AdminEventHotelUpdate,
             severity: LogSeverity.Info,
@@ -96,5 +98,5 @@ export async function hotelUpdate(request: Request, props: ActionProps): Promise
         });
     }
 
-    return { success: result.ok };
+    return { success: !!affectedRows };
 }
