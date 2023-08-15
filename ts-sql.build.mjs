@@ -140,7 +140,7 @@ do {
         ],
 
         rawContent: {
-            before: '/* eslint-disable quotes */',
+            before: '/* eslint-disable quotes, max-len */',
         }
     });
 
