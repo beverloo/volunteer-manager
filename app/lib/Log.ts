@@ -4,15 +4,8 @@
 import type { User } from '@lib/auth/User';
 import { sql } from '@lib/database';
 
-/**
- * Severities that can be assigned to log entries.
- */
-export enum LogSeverity {
-    Debug = 'Debug',
-    Info = 'Info',
-    Warning = 'Warning',
-    Error = 'Error',
-}
+import { LogSeverity } from './database/Types';
+export { LogSeverity };
 
 /**
  * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.

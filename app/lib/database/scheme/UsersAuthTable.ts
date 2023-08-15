@@ -7,9 +7,13 @@
  */
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
+import {
+    AuthType,
+} from "../Types";
 
 export class UsersAuthTable extends Table<DBConnection, 'UsersAuthTable'> {
     userId = this.column('user_id', 'int');
+    authType = this.column<AuthType>('auth_type', 'enum', 'AuthType');
     authValue = this.column('auth_value', 'string');
 
     constructor() {
