@@ -31,19 +31,17 @@ describe('Connection', () => {
             expect(result?.hotelName).toBe('Fancy Hotel');
         }
 
-        mockConnection.expect('insert', (query, params) => 42);
+        mockConnection.expect('insertReturningLastInsertedId', (query, params) => 42);
         {
             const result = await db.insertInto(tHotels).values({
-                hotelId: 0,  // TODO: This field should be omitted.
                 eventId: 1,
                 hotelName: 'Fancy Hotel',
                 hotelDescription: 'A super fancy hotel',
                 hotelRoomName: 'Fancy Room',
                 hotelRoomPeople: 2,
                 hotelRoomPrice: 18000,
-            }).executeInsert();
+            }).returningLastInsertedId().executeInsert();
 
-            // TODO: Call returningLastInsertedId() when removing `hotelId` from the above query.
             expect(result).toEqual(42);
         }
     });
