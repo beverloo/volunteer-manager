@@ -41,7 +41,7 @@ export const tUsers = new UsersTable;
 
 // Export the database connection pool as the default export from this file, for convenient access
 // to the database throughout the server-side of the Volunteer Manager.
-export { kConnection as default } from './Connection';
+export { globalConnection as default } from './Connection';
 
 // The implementation of the `sql` string template literal created by Malte for Vercel, modified
 // to work with the |kDatabase| environment we use in this project.
