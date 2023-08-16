@@ -4,9 +4,10 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { AuthType } from '@app/lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { sql } from '@lib/database';
+import db, { tUsersAuth } from '@lib/database';
 
 /**
  * Interface definition for the Access Code API, exposed through /api/admin/reset-access-code.
@@ -47,28 +48,26 @@ export async function resetAccessCode(request: Request, props: ActionProps): Pro
         data: { ip: props.ip }
     })
 
-    const existingResult = await sql`
-        SELECT
-            users_auth.auth_value
-        FROM
-            users_auth
-        WHERE
-            users_auth.user_id = ${request.userId} AND
-            users_auth.auth_type = "code"`;
+    const existingAccessCode = await db.selectFrom(tUsersAuth)
+        .select({ accessCode: tUsersAuth.authValue })
+        .where(tUsersAuth.userId.equals(request.userId))
+        .and(tUsersAuth.authType.equals(AuthType.code))
+        .executeSelectNoneOrOne();
 
-    if (existingResult.ok && existingResult.rows.length > 0)
-        return { accessCode: existingResult.rows[0].auth_value };
+    if (!!existingAccessCode)
+        return { accessCode: `${existingAccessCode.accessCode}` };
 
     const accessCode = Math.floor(Math.random() * (9999 - 1000) + 1000);
-    const newResult = await sql`
-        INSERT INTO
-            users_auth
-            (user_id, auth_type, auth_value)
-        VALUES
-            (${request.userId}, "code", ${accessCode})`;
+    const insertedAccessCode = await db.insertInto(tUsersAuth)
+        .values({
+            userId: request.userId,
+            authType: AuthType.code,
+            authValue: `${accessCode}`,
+        })
+        .executeInsert();
 
-    if (newResult.ok)
-        return { accessCode: '1234' };
+    if (!!insertedAccessCode)
+        return { accessCode: `${accessCode}` };
 
     return { /* error condition */ };
 }

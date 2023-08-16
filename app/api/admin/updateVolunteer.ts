@@ -7,7 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
-import { sql } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/update-volunteer.
@@ -75,23 +75,20 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
     if (!can(props.user, Privilege.VolunteerAdministrator))
         noAccess();
 
-    const existingResult = await sql`
-        SELECT
-            users.username,
-            users.first_name,
-            users.last_name,
-            users.gender,
-            users.birthdate,
-            users.phone_number
-        FROM
-            users
-        WHERE
-            users.user_id = ${request.userId}`;
+    const user = await db.selectFrom(tUsers)
+        .select({
+            username: tUsers.username,
+            firstName: tUsers.firstName,
+            lastName: tUsers.lastName,
+            gender: tUsers.gender,
+            birthdate: tUsers.birthdate,
+            phoneNumber: tUsers.phoneNumber
+        })
+        .where(tUsers.userId.equals(request.userId))
+        .executeSelectNoneOrOne();
 
-    if (!existingResult.ok || !existingResult.rows.length)
+    if (!user)
         return { success: false, error: 'Unable to fetch existing user information' };
-
-    const user = existingResult.rows[0];
 
     if (typeof request.username === 'string' && request.username !== user.username) {
         const available = await isUsernameAvailable(request.username);
@@ -99,22 +96,19 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             return { success: false, error: 'There already is an account with that email address' };
     }
 
-    const updateResult = await sql`
-        UPDATE
-            users
-        SET
-            users.username = ${request.username},
-            users.first_name = ${request.firstName},
-            users.last_name = ${request.lastName},
-            users.gender = ${request.gender},
-            users.birthdate = ${request.birthdate},
-            users.phone_number = ${request.phoneNumber}
-        WHERE
-            users.user_id = ${request.userId}
-        LIMIT
-            1`;
+    const affectedRows = await db.update(tUsers)
+        .set({
+            username: request.username,
+            firstName: request.firstName,
+            lastName: request.lastName,
+            gender: request.gender,
+            birthdate: request.birthdate ? new Date(request.birthdate) : null,
+            phoneNumber: request.phoneNumber,
+        })
+        .where(tUsers.userId.equals(request.userId))
+        .executeUpdate();
 
-    if (!updateResult.ok || !updateResult.affectedRows)
+    if (!affectedRows)
         return { success: false, error: 'Unable to update the existing user information' };
 
     Log({

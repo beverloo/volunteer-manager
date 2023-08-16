@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { sql } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the Activation API, exposed through /api/admin/update-activation. Only
@@ -45,17 +45,12 @@ export async function updateActivation(request: Request, props: ActionProps): Pr
     if (!can(props.user, Privilege.VolunteerAdministrator) || request.userId === props.user?.userId)
         noAccess();
 
-    const result = await sql`
-        UPDATE
-            users
-        SET
-            users.activated = ${request.activated}
-        WHERE
-            users.user_id = ${request.userId}
-        LIMIT
-            1`;
+    const affectedRows = await db.update(tUsers)
+        .set({ activated: request.activated ? 1 : 0 })
+        .where(tUsers.userId.equals(request.userId))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
 
-    if (result.ok && result.affectedRows > 0) {
+    if (!!affectedRows) {
         Log({
             type: LogType.AdminUpdateActivation,
             sourceUser: props.user,
@@ -67,5 +62,5 @@ export async function updateActivation(request: Request, props: ActionProps): Pr
         });
     }
 
-    return { success: result.ok };
+    return { success: !!affectedRows };
 }

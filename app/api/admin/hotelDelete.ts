@@ -7,7 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@app/lib/EventLoader';
-import { sql } from '@lib/database';
+import db, { tHotels } from '@lib/database';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/admin/hotel-delete. Only event
@@ -49,16 +49,13 @@ export async function hotelDelete(request: Request, props: ActionProps): Promise
     if (!event)
         return { success: false };
 
-    const result = await sql`
-        UPDATE
-            hotels
-        SET
-            hotels.hotel_room_visible = 0
-        WHERE
-            hotels.hotel_id = ${request.id} AND
-            hotels.event_id = ${event.eventId}`;
+    const affectedRows =
+        await db.deleteFrom(tHotels)
+            .where(tHotels.hotelId.equals(request.id))
+            .and(tHotels.eventId.equals(event.eventId))
+            .executeDelete(/* min= */ 0, /* max= */ 1);
 
-    if (result.ok) {
+    if (affectedRows > 0) {
         Log({
             type: LogType.AdminEventHotelDelete,
             severity: LogSeverity.Info,
@@ -67,5 +64,5 @@ export async function hotelDelete(request: Request, props: ActionProps): Promise
         });
     }
 
-    return { success: result.ok };
+    return { success: !!affectedRows };
 }

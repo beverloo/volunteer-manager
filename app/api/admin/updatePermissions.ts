@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { sql } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/update-permissions. Only
@@ -56,16 +56,10 @@ export async function updatePermissions(request: Request, props: ActionProps): P
         }
     });
 
-    const result =
-        await sql`
-            UPDATE
-                users
-            SET
-                users.privileges = ${request.privileges}
-            WHERE
-                users.user_id = ${request.userId}
-            LIMIT
-                1`;
+    const affectedRows = await db.update(tUsers)
+        .set({ privileges: BigInt(request.privileges) })
+        .where(tUsers.userId.equals(request.userId))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
 
-    return { success: result.ok };
+    return { success: !!affectedRows };
 }

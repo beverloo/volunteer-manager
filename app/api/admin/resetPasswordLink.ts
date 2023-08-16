@@ -7,7 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
-import { sql } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the Password Link API, exposed through /api/admin/reset-password-link.
@@ -41,21 +41,17 @@ export async function resetPasswordLink(request: Request, props: ActionProps): P
     if (!can(props.user, Privilege.Administrator))
         noAccess();
 
-    const result =
-        await sql`
-            SELECT
-                users.session_token
-            FROM
-                users
-            WHERE
-                users.user_id = ${request.userId}`;
+    const user = await db.selectFrom(tUsers)
+        .select({ sessionToken: tUsers.sessionToken })
+        .where(tUsers.userId.equals(request.userId))
+        .executeSelectNoneOrOne();
 
-    if (!result.ok || !result.rows.length)
+    if (!user)
         return { /* no link could be made available */ };
 
     const passwordResetRequest = await sealPasswordResetRequest({
         id: request.userId,
-        token: result.rows[0].session_token,
+        token: user.sessionToken
     });
 
     Log({

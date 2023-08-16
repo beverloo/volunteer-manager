@@ -7,7 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@app/lib/EventLoader';
-import { sql } from '@lib/database';
+import db, { tHotels } from '@lib/database';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/admin/hotel-create. Only event
@@ -46,9 +46,11 @@ export async function hotelCreate(request: Request, props: ActionProps): Promise
     if (!event)
         return { /* failure response */ };
 
-    const result = await sql`INSERT INTO hotels (event_id) VALUES (${event.eventId})`;
-    if (!result.ok || !result.insertId)
-        return { /* failure response */ };
+    const insertId =
+        await db.insertInto(tHotels)
+            .values({ eventId: event.eventId })
+            .returningLastInsertedId()
+            .executeInsert();
 
     Log({
         type: LogType.AdminEventHotelCreate,
@@ -57,5 +59,5 @@ export async function hotelCreate(request: Request, props: ActionProps): Promise
         data: { eventId: event.eventId, eventName: event.shortName },
     });
 
-    return { id: result.insertId };
+    return { id: insertId };
 }
