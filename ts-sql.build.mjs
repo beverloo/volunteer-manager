@@ -101,12 +101,6 @@ do {
         },
 
         fieldMappings: [
-            // TODO: Figure out how to create proper mappings here.
-            {
-                columnType: /set/,
-                generatedField: false,
-            },
-
             // Blob types will be represented as a Uint8Array, which is the type that the underlying
             // MariaDB library uses on the transport layer anyway. Type adapters are defined in the
             // DBConnection implementation in /app/lib/database/Connection.ts.
@@ -126,6 +120,7 @@ do {
             ...[
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
+                { field: [ 'services_logs', 'service_log_result' ], type: 'ServiceLogResult '},
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
                 { field: [ 'users_auth', 'auth_type' ], type: 'AuthType' },
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },

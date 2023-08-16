@@ -19,10 +19,10 @@ describe('ServiceManager', () => {
     class MockService implements ServiceDriver<MockServiceParams> {
         async execute(log: ServiceLog, params: MockServiceParams): Promise<void> {
             switch (params.case) {
-                case 'exception':
+                case 'Exception':
                     throw new Error(params.case);
 
-                case 'error':
+                case 'Error':
                     log.error(params.case);
                     break;
 
@@ -62,7 +62,7 @@ describe('ServiceManager', () => {
         const logs = ServiceLogMock.TakeLogs();
         expect(logs).toHaveLength(2);
 
-        expect(logs[0].state).toEqual('warning');
+        expect(logs[0].state).toEqual('Warning');
         expect(logs[0].exceptions).toHaveLength(0);
         expect(logs[0].errors).toHaveLength(0);
         expect(logs[0].warnings).toHaveLength(1);
@@ -70,7 +70,7 @@ describe('ServiceManager', () => {
         expect(logs[0].warnings[0].data).toHaveLength(1);
         expect(logs[0].warnings[0].data[0]).toEqual('test1');
 
-        expect(logs[1].state).toEqual('warning');
+        expect(logs[1].state).toEqual('Warning');
         expect(logs[1].exceptions).toHaveLength(0);
         expect(logs[1].errors).toHaveLength(0);
         expect(logs[1].warnings).toHaveLength(1);
@@ -142,7 +142,7 @@ describe('ServiceManager', () => {
                 enabled: true,
                 interval: 3600,
                 driver: MockService,
-                params: '{"case":"exception"}',
+                params: '{"case":"Exception"}',
                 secondsSinceLastExecution: 3601,
             },
         ], ServiceLogMock);
@@ -152,12 +152,12 @@ describe('ServiceManager', () => {
             const logs = ServiceLogMock.TakeLogs();
             expect(logs).toHaveLength(1);
 
-            expect(logs[0].state).toEqual('exception');
+            expect(logs[0].state).toEqual('Exception');
             expect(logs[0].exceptions).toHaveLength(1);
             expect(logs[0].errors).toHaveLength(0);
             expect(logs[0].warnings).toHaveLength(0);
 
-            expect(logs[0].exceptions[0].error.message).toEqual('exception');
+            expect(logs[0].exceptions[0].error.message).toEqual('Exception');
         }
     });
 
@@ -170,7 +170,7 @@ describe('ServiceManager', () => {
                 enabled: true,
                 interval: 3600,
                 driver: MockService,
-                params: '{"case":"error"}',
+                params: '{"case":"Error"}',
                 secondsSinceLastExecution: 3601,
             },
         ], ServiceLogMock);
@@ -180,13 +180,13 @@ describe('ServiceManager', () => {
             const logs = ServiceLogMock.TakeLogs();
             expect(logs).toHaveLength(1);
 
-            expect(logs[0].state).toEqual('error');
+            expect(logs[0].state).toEqual('Error');
             expect(logs[0].exceptions).toHaveLength(0);
             expect(logs[0].errors).toHaveLength(1);
             expect(logs[0].warnings).toHaveLength(0);
 
             expect(logs[0].errors[0].data).toHaveLength(1);
-            expect(logs[0].errors[0].data[0]).toEqual('error');
+            expect(logs[0].errors[0].data[0]).toEqual('Error');
         }
     });
 });

@@ -1105,7 +1105,7 @@ tables:
     default: current_timestamp()
     comment: ""
   - name: service_log_result
-    type: set('success','warning','error','exception')
+    type: enum('Success','Warning','Error','Exception')
     nullable: false
     default: null
     comment: ""
@@ -1148,7 +1148,7 @@ tables:
       `service_log_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
       `service_id` int(4) unsigned NOT NULL,
       `service_log_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-      `service_log_result` set('success','warning','error','exception') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_log_result` enum('Success','Warning','Error','Exception') COLLATE utf8mb4_unicode_ci NOT NULL,
       `service_log_runtime` double unsigned NOT NULL,
       `service_log_data` text COLLATE utf8mb4_unicode_ci NOT NULL,
       PRIMARY KEY (`service_log_id`),

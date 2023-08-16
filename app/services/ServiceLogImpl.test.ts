@@ -30,20 +30,20 @@ describe('ServiceLogImpl', () => {
         expect(log.stateForTesting).toBeUndefined();
 
         log.beginExecution();
-        expect(log.stateForTesting).toBe('success');
+        expect(log.stateForTesting).toBe('Success');
         expect(log.success).toBeTruthy();
 
         log.warning();
-        expect(log.stateForTesting).toBe('warning');
+        expect(log.stateForTesting).toBe('Warning');
         expect(log.success).toBeTruthy();
 
         log.error();
         log.warning();
-        expect(log.stateForTesting).toBe('error');
+        expect(log.stateForTesting).toBe('Error');
         expect(log.success).toBeFalsy();
 
         log.exception(new Error);
-        expect(log.stateForTesting).toBe('exception');
+        expect(log.stateForTesting).toBe('Exception');
         expect(log.success).toBeFalsy();
     });
 
@@ -61,7 +61,7 @@ describe('ServiceLogImpl', () => {
 
         expect(() => log.warning()).not.toThrowError();
         expect(() => log.error()).not.toThrowError();
-        expect(() => log.exception(new Error)).not.toThrowError();  // state === 'exception'
+        expect(() => log.exception(new Error)).not.toThrowError();  // state === 'Exception'
 
         expect(() => log.warning()).toThrowError();
         expect(() => log.error()).toThrowError();
@@ -118,8 +118,8 @@ describe('ServiceLogImpl', () => {
 
         const messages = JSON.parse(latestParameters![3] as string);
         expect(messages).toHaveLength(3);
-        expect(messages[0].type).toEqual('exception');
-        expect(messages[1]).toEqual({ type: 'error', message: '3.1415' });
-        expect(messages[2]).toEqual({ type: 'warning', message: 'Hello, world!' });
+        expect(messages[0].type).toEqual('Exception');
+        expect(messages[1]).toEqual({ type: 'Error', message: '3.1415' });
+        expect(messages[2]).toEqual({ type: 'Warning', message: 'Hello, world!' });
     });
 });

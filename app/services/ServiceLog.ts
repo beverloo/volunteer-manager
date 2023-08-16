@@ -4,12 +4,12 @@
 /**
  * Phase of the ServiceLog in the execution cycle of the service.
  */
-export type ServicePhase = 'pending' | 'active' | 'finished';
+export type ServicePhase = 'Pending' | 'Active' | 'Finished';
 
 /**
  * State of the service. This maps to the states that can be stored in the database.
  */
-export type ServiceState = 'success' | 'warning' | 'error' | 'exception';
+export type ServiceState = 'Success' | 'Warning' | 'Error' | 'Exception';
 
 /**
  * Information stored for each exception thrown during the execution of a service.
@@ -53,7 +53,7 @@ export abstract class ServiceLog {
         this.#errors = [];
         this.#warnings = [];
 
-        this.#phase = 'pending';
+        this.#phase = 'Pending';
         this.#state = undefined;
         this.#startTime = 0n;
     }
@@ -84,7 +84,7 @@ export abstract class ServiceLog {
     /**
      * Returns whether execution of the service has completed without errors or exceptions.
      */
-    get success(): boolean { return ['success', 'warning'].includes(this.#state!); }
+    get success(): boolean { return ['Success', 'Warning'].includes(this.#state!); }
 
     /**
      * Returns the exceptions that were thrown during execution of this service. Only available to
@@ -113,13 +113,13 @@ export abstract class ServiceLog {
      * To be called when execution is about to begin.
      */
     beginExecution() {
-        if (this.#phase !== 'pending')
+        if (this.#phase !== 'Pending')
             throw new Error('The service has already begun execution, unable to restart');
 
-        this.#phase = 'active';
+        this.#phase = 'Active';
         this.#startTime = process.hrtime.bigint();
 
-        this.state = 'success';
+        this.state = 'Success';
     }
 
     /**
@@ -132,13 +132,13 @@ export abstract class ServiceLog {
             case undefined:
                 throw new Error('The service has not begun execution yet, cannot yield results');
 
-            case 'exception':
+            case 'Exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
-            case 'success':
-            case 'warning':
-            case 'error':
-                this.#state = 'exception';  // escalate
+            case 'Success':
+            case 'Warning':
+            case 'Error':
+                this.#state = 'Exception';  // escalate
                 break;
         }
 
@@ -154,15 +154,15 @@ export abstract class ServiceLog {
             case undefined:
                 throw new Error('The service has not begun execution yet, cannot yield results');
 
-            case 'exception':
+            case 'Exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
-            case 'success':
-            case 'warning':
-                this.#state = 'error';  // escalate
+            case 'Success':
+            case 'Warning':
+                this.#state = 'Error';  // escalate
                 break;
 
-            case 'error':
+            case 'Error':
                 break;
         }
 
@@ -178,15 +178,15 @@ export abstract class ServiceLog {
             case undefined:
                 throw new Error('The service has not begun execution yet, cannot yield results');
 
-            case 'exception':
+            case 'Exception':
                 throw new Error('Illegal state: the service has already thrown an exception');
 
-            case 'success':
-                this.#state = 'warning';  // escalate
+            case 'Success':
+                this.#state = 'Warning';  // escalate
                 break;
 
-            case 'error':
-            case 'warning':
+            case 'Error':
+            case 'Warning':
                 break;
         }
 

@@ -9,21 +9,21 @@ import { sql } from '../lib/database';
  */
 export class ServiceLogImpl extends ServiceLog {
     async finishExecution(): Promise<void> {
-        if (this.phase !== 'active')
+        if (this.phase !== 'Active')
             throw new Error('The service can only be marked as finished when execution is active');
 
-        this.phase = 'finished';
+        this.phase = 'Finished';
 
         const runtimeNanoseconds = process.hrtime.bigint() - this.startTime;
         const runtimeMilliseconds = Number(runtimeNanoseconds) / 1000 / 1000;
 
         const messages = JSON.stringify([
             ...this.exceptions.map(({ error }) =>
-                ({ type: 'exception', message: [ error.message, error.stack ] })),
+                ({ type: 'Exception', message: [ error.message, error.stack ] })),
             ...this.errors.map(({ data }) =>
-                ({ type: 'error', message: data.map(String).join(', ') })),
+                ({ type: 'Error', message: data.map(String).join(', ') })),
             ...this.warnings.map(({ data }) =>
-                ({ type: 'warning', message: data.map(String).join(', ') })),
+                ({ type: 'Warning', message: data.map(String).join(', ') })),
         ]);
 
         await sql`
