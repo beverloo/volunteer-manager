@@ -7,7 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { storeAvatarData } from '@lib/database/AvatarStore';
-import { sql } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the UpdateAvatar API, exposed through /api/auth/update-avatar.
@@ -44,8 +44,12 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     const avatarId = await storeAvatarData(userId, Buffer.from(request.avatar, 'base64'));
 
     if (avatarId) {
-        const result = await sql`UPDATE users SET avatar_id=${avatarId} WHERE user_id=${userId}`;
-        if (result.ok && result.affectedRows === 1) {
+        const affectedRows = await db.update(tUsers)
+            .set({ avatarId })
+            .where(tUsers.userId.equals(userId))
+            .executeUpdate();
+
+        if (!!affectedRows) {
             await Log({
                 type: LogType.AccountUpdateAvatar,
                 sourceUser: props.user,

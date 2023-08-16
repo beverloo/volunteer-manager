@@ -3,7 +3,7 @@
 
 import type { Metadata } from 'next';
 import { NextRouterParams } from '@lib/NextRouterParams';
-import { sql } from '@lib/database';
+import db, { tEvents } from '@lib/database';
 
 /**
  * Cache event titles for the duration of this instance.
@@ -18,9 +18,13 @@ async function generateMetadata(title: string, props: NextRouterParams<'slug'>):
     const { slug } = props.params;
 
     if (slug && slug.length > 0 && !kTitleCache.has(slug)) {
-        const result = await sql`SELECT event_short_name FROM events WHERE event_slug = ${slug}`;
-        if (result.ok && result.rows.length > 0)
-            kTitleCache.set(slug, result.rows[0].event_short_name);
+        const event = await db.selectFrom(tEvents)
+            .select({ shortName: tEvents.eventShortName })
+            .where(tEvents.eventSlug.equals(slug))
+            .executeSelectNoneOrOne();
+
+        if (event)
+            kTitleCache.set(slug, event.shortName);
     }
 
     if (!kTitleCache.has(slug))

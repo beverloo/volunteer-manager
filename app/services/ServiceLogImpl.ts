@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { ServiceLog } from './ServiceLog';
-import { sql } from '../lib/database';
+import db, { tServicesLogs } from '../lib/database';
 
 /**
  * Production implementation of the ServiceLog interface.
@@ -26,11 +26,11 @@ export class ServiceLogImpl extends ServiceLog {
                 ({ type: 'Warning', message: data.map(String).join(', ') })),
         ]);
 
-        await sql`
-            INSERT INTO
-                services_logs
-                (service_id, service_log_result, service_log_runtime, service_log_data)
-            VALUES
-                (${this.serviceId}, ${this.state}, ${runtimeMilliseconds}, ${messages})`;
+        await db.insertInto(tServicesLogs).values({
+            serviceId: this.serviceId,
+            serviceLogResult: this.state as any,
+            serviceLogRuntime: runtimeMilliseconds,
+            serviceLogData: messages
+        }).executeInsert();
     }
 }

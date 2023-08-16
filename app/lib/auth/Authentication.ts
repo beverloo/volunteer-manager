@@ -5,7 +5,7 @@ import { type SessionData } from './Session';
 import { type UserDatabaseRow, User } from './User';
 
 import { securePasswordHash } from './Password';
-import { sql } from '../database';
+import db, { sql, tUsers } from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
@@ -215,12 +215,16 @@ export async function createAccount(data: AccountCreationData): Promise<undefine
 export async function getAuthenticationData(username: string)
     : Promise<AuthenticationData | undefined>
 {
-    const result = await sql`SELECT activated FROM users WHERE username=${username}`;
-    if (!result.ok || !result.rows.length)
+    const user = await db.selectFrom(tUsers)
+        .select({ activated: tUsers.activated })
+        .where(tUsers.username.equals(username))
+        .executeSelectNoneOrOne();
+
+    if (!user)
         return undefined;
 
     return {
-        activated: result.rows[0].activated,
+        activated: !!user.activated,
         credentialId: undefined,  // TODO: Support WebAuthn
         publicKey: undefined,  // TODO: Support WebAuthn
     };
@@ -230,6 +234,10 @@ export async function getAuthenticationData(username: string)
  * Returns whether the given `username` is available.
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
-    const result = await sql`SELECT user_id FROM users WHERE username=${username}`;
-    return !result.ok || result.rows.length === 0;
+    const user = await db.selectFrom(tUsers)
+        .select({ userId: tUsers.userId })
+        .where(tUsers.username.equals(username))
+        .executeSelectNoneOrOne();
+
+    return !user;
 }

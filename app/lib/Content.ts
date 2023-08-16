@@ -3,7 +3,7 @@
 
 import { type Environment } from '../Environment';
 import { Event } from './Event';
-import { sql } from './database';
+import db, { sql, tTeams } from './database';
 
 /**
  * Interface defining the information that will be made available for a particular piece of content
@@ -105,21 +105,11 @@ export interface TeamInformation {
  */
 export async function getTeamInformationForEnvironment(environment: Environment)
         : Promise<TeamInformation | undefined> {
-    const result =
-        await sql`
-            SELECT
-                team_name,
-                team_description
-            FROM
-                teams
-            WHERE
-                team_environment=${environment}`;
-
-    if (!result.ok || !result.rows.length)
-        return undefined;
-
-    return {
-        name: result.rows[0].team_name,
-        description: result.rows[0].team_description,
-    };
+    return await db.selectFrom(tTeams)
+        .select({
+            name: tTeams.teamName,
+            description: tTeams.teamDescription,
+        })
+        .where(tTeams.teamEnvironment.equals(environment))
+        .executeSelectNoneOrOne() || undefined;
 }
