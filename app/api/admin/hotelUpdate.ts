@@ -88,7 +88,7 @@ export async function hotelUpdate(request: Request, props: ActionProps): Promise
         .executeUpdate(/* min= */ 0, /* max= */ 1);
 
     if (affectedRows > 0) {
-        Log({
+        await Log({
             type: LogType.AdminEventHotelUpdate,
             severity: LogSeverity.Info,
             sourceUser: props.user,

@@ -111,7 +111,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
     if (!affectedRows)
         return { success: false, error: 'Unable to update the existing user information' };
 
-    Log({
+    await Log({
         type: LogType.AdminUpdateVolunteer,
         severity: LogSeverity.Warning,
         sourceUser: props.user,

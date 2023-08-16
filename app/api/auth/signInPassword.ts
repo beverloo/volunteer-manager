@@ -54,7 +54,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
 
     switch (authType) {
         case 'code': {  // one-time access code
-            Log({
+            await Log({
                 type: LogType.AccountIdentifyAccessCode,
                 severity: LogSeverity.Debug,
                 sourceUser: user,
@@ -71,7 +71,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         }
 
         case 'password': {  // stored password
-            Log({
+            await Log({
                 type: LogType.AccountIdentifyPassword,
                 severity: LogSeverity.Debug,
                 sourceUser: user,

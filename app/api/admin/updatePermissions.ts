@@ -45,7 +45,7 @@ export async function updatePermissions(request: Request, props: ActionProps): P
     if (!can(props.user, Privilege.Administrator))
         noAccess();
 
-    Log({
+    await Log({
         type: LogType.AdminUpdatePermission,
         severity: LogSeverity.Warning,
         sourceUser: props.user,

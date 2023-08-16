@@ -51,7 +51,7 @@ export async function updateActivation(request: Request, props: ActionProps): Pr
         .executeUpdate(/* min= */ 0, /* max= */ 1);
 
     if (!!affectedRows) {
-        Log({
+        await Log({
             type: LogType.AdminUpdateActivation,
             sourceUser: props.user,
             targetUser: request.userId,

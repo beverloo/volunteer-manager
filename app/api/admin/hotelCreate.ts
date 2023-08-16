@@ -52,7 +52,7 @@ export async function hotelCreate(request: Request, props: ActionProps): Promise
             .returningLastInsertedId()
             .executeInsert();
 
-    Log({
+    await Log({
         type: LogType.AdminEventHotelCreate,
         severity: LogSeverity.Info,
         sourceUser: props.user,

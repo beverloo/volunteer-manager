@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { User } from '@lib/auth/User';
-import { sql } from '@lib/database';
+import db, { tLogs } from '@lib/database';
 
 import { LogSeverity } from './database/Types';
 export { LogSeverity };
@@ -62,28 +62,29 @@ export interface LogEntry {
 }
 
 /**
- * Logs the given `entry` to the database. Callers to this method may choose to wait for the log
- * operation to complete, however, that's not required as NextJS will happily process it after the
- * response has been returned to the user.
+ * Logs the given `entry` to the database. Callers to this method must wait for this call to
+ * complete in order to avoid concurrent queries running on the database.
  */
-export async function Log(entry: LogEntry) {
+export async function Log(entry: LogEntry): Promise<void> {
     const { sourceUser, targetUser } = entry;
 
-    let sourceUserId = null;
+    let sourceUserId: number | null = null;
     if (sourceUser)
         sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.userId;
 
-    let targetUserId = null;
+    let targetUserId: number | null = null;
     if (targetUser)
         targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
-    const severity = entry.severity ?? 'Info';
+    const severity = entry.severity ?? LogSeverity.Info;
 
-    return sql`
-        INSERT INTO
-            logs
-            (log_type, log_severity, log_source_user_id, log_target_user_id, log_data)
-        VALUES
-            (${entry.type}, ${severity}, ${sourceUserId}, ${targetUserId}, ${data})`;
+    await db.insertInto(tLogs)
+        .values({
+            logType: entry.type,
+            logSeverity: severity,
+            logSourceUserId: sourceUserId,
+            logTargetUserId: targetUserId,
+            logData: data,
+        }).executeInsert();
 }

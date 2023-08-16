@@ -46,7 +46,7 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     if (avatarId) {
         const result = await sql`UPDATE users SET avatar_id=${avatarId} WHERE user_id=${userId}`;
         if (result.ok && result.affectedRows === 1) {
-            Log({
+            await Log({
                 type: LogType.AccountUpdateAvatar,
                 sourceUser: props.user,
                 data: { ip: props.ip },

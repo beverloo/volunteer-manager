@@ -54,7 +54,7 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
             await writeSealedSessionCookie(
                 { id: user.userId, token: user.sessionToken }, props.responseHeaders);
 
-            Log({
+            await Log({
                 type: LogType.AccountPasswordReset,
                 sourceUser: user,
                 data: { ip: props.ip },

@@ -60,7 +60,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     await writeSealedSessionCookie(
         { id: user.userId, token: user.sessionToken }, props.responseHeaders);
 
-    Log({
+    await Log({
         type: LogType.AccountActivate,
         sourceUser: user,
         data: { ip: props.ip },

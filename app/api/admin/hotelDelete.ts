@@ -56,7 +56,7 @@ export async function hotelDelete(request: Request, props: ActionProps): Promise
             .executeDelete(/* min= */ 0, /* max= */ 1);
 
     if (affectedRows > 0) {
-        Log({
+        await Log({
             type: LogType.AdminEventHotelDelete,
             severity: LogSeverity.Info,
             sourceUser: props.user,

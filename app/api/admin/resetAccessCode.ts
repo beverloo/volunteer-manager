@@ -40,7 +40,7 @@ export async function resetAccessCode(request: Request, props: ActionProps): Pro
     if (!can(props.user, Privilege.VolunteerAdministrator))
         noAccess();
 
-    Log({
+    await Log({
         type: LogType.AdminResetAccessCode,
         severity: LogSeverity.Warning,
         sourceUser: props.user,

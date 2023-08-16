@@ -132,7 +132,7 @@ export async function register(request: Request, props: ActionProps): Promise<Re
         await client.safeSendMessage(message);
     }
 
-    Log({
+    await Log({
         type: LogType.AccountRegister,
         sourceUser: userId,
         data: { ip: props.ip },

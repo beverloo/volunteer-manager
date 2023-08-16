@@ -54,7 +54,7 @@ export async function resetPasswordLink(request: Request, props: ActionProps): P
         token: user.sessionToken
     });
 
-    Log({
+    await Log({
         type: LogType.AdminResetPasswordLink,
         severity: LogSeverity.Warning,
         sourceUser: props.user,

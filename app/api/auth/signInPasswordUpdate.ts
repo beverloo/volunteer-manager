@@ -59,7 +59,7 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
             await writeSealedSessionCookie(
                 { id: user.userId, token: user.sessionToken }, props.responseHeaders);
 
-            Log({
+            await Log({
                 type: LogType.AccountPasswordUpdate,
                 sourceUser: user,
                 data: { ip: props.ip },

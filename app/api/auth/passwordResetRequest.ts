@@ -69,7 +69,7 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
 
             await client.safeSendMessage(message);
 
-            Log({
+            await Log({
                 type: LogType.AccountPasswordResetRequest,
                 sourceUser: passwordResetData.userId,
                 data: { ip: props.ip }

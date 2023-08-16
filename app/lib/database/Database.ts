@@ -93,7 +93,7 @@ class Database {
         // Log failures to the database unless one of the parameters is set to `database-error`,
         // which is the log type through which database errors are being logged. Don't want loops.
         if (!result.ok && (parameters && !parameters.includes('database-error'))) {
-            Log({
+            await Log({
                 type: LogType.DatabaseError,
                 severity: LogSeverity.Error,
                 data: { query, parameters },
