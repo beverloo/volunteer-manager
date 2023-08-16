@@ -103,12 +103,22 @@ do {
         fieldMappings: [
             // TODO: Figure out how to create proper mappings here.
             {
-                columnType: /(medium)?blob/,
-                generatedField: false,
-            },
-            {
                 columnType: /set/,
                 generatedField: false,
+            },
+
+            // Blob types will be represented as a Uint8Array, which is the type that the underlying
+            // MariaDB library uses on the transport layer anyway. Type adapters are defined in the
+            // DBConnection implementation in /app/lib/database/Connection.ts.
+            {
+                columnType: /(tiny|medium|long)?blob/,
+                generatedField: {
+                    type: {
+                        kind: 'custom',
+                        dbType: { name: 'Blob' },
+                        tsType: { name: 'Uint8Array' },
+                    },
+                },
             },
 
             // Enumerations are all defined in `app/lib/database/types.ts`, and are manually added
@@ -125,7 +135,6 @@ do {
             ].map(({ field, type }) => ({
                 tableName: field[0],
                 columnName: field[1],
-
                 generatedField: {
                     type: {
                         kind: 'enum',

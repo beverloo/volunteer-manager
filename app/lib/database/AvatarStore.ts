@@ -3,7 +3,8 @@
 
 import { v4 as uuid } from 'uuid';
 
-import { sql } from './index';
+import db, { tStorage } from './index';
+import { FileType } from './Types';
 
 /**
  * Returns the avatar Url for the given |hash|. Will return `undefined` when no hash is available.
@@ -32,12 +33,13 @@ const kAvatarSizeLimit = 5 * 1024 * 1024;  // 5MB
  * Reads the avatar associated with the given `hash` from the database. Hashes are used because user
  * IDs are sequential, making avatar URLs guessable which is not desirable.
  */
-export async function readAvatarDataByHash(hash: string): Promise<string | undefined> {
-    const result = await sql`SELECT file_data FROM storage WHERE file_hash=${hash}`;
-    if (result.ok && result.rows.length)
-        return result.rows[0].file_data;
+export async function readAvatarDataByHash(hash: string): Promise<Uint8Array | undefined> {
+    const bucket = await db.selectFrom(tStorage)
+        .select({ fileData: tStorage.fileData })
+        .where(tStorage.fileHash.equals(hash))
+        .executeSelectNoneOrOne();
 
-    return undefined;  // avatar cannot be found
+    return bucket ? bucket.fileData : undefined;
 }
 
 /**
@@ -51,15 +53,19 @@ export async function storeAvatarData(userId: number, data: Buffer): Promise<num
     }
 
     const hash = nanoid(/* size= */ 12);
-    const result = await sql`
-        INSERT INTO
-            storage
-            (file_hash, file_type, file_date, file_data, user_id)
-        VALUES
-            (${hash}, "avatar", NOW(), ${data}, ${userId})`;
+    const insertId = await db.insertInto(tStorage)
+        .values({
+            fileHash: hash,
+            fileType: FileType.Avatar,
+            fileDate: db.currentDateTime(),
+            fileData: data,
+            userId: userId,
+        })
+        .returningLastInsertedId()
+        .executeInsert();
 
-    if (!result.ok)
-        console.error('Unable to storage an avatar:', result.error);
+    if (!insertId)
+        console.error('Unable to storage an avatar');
 
-    return result.insertId;
+    return insertId;
 }

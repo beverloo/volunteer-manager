@@ -16,6 +16,7 @@ export class StorageTable extends Table<DBConnection, 'StorageTable'> {
     fileHash = this.column('file_hash', 'string');
     fileType = this.column<FileType>('file_type', 'enum', 'FileType');
     fileDate = this.column('file_date', 'localDateTime');
+    fileData = this.column<Uint8Array>('file_data', 'custom', 'Blob');
     userId = this.column('user_id', 'int');
 
     constructor() {
