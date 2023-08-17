@@ -88,12 +88,18 @@ export async function application(request: Request, props: ActionProps): Promise
 
         const environment = getRequestEnvironment();
 
-        const event = await getEventBySlug(request.event, environment);
+        const event = await getEventBySlug(request.event);
         if (!event)
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
-        if (!event.enableRegistration && !can(props.user, Privilege.EventRegistrationOverride))
+        const environmentData = event.getEnvironmentData(environment);
+        if (!environmentData)
+            throw new Error('Sorry, something went wrong (unable to find the environment)...');
+
+        if (!environmentData.enableRegistration &&
+                !can(props.user, Privilege.EventRegistrationOverride)) {
             throw new Error('Sorry, this event is not accepting applications right now.');
+        }
 
         const registration = await getRegistration(environment, event, props.user);
         if (registration)

@@ -20,7 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { type EventData } from '@lib/Event';
+import { type EventDataWithEnvironment } from '@lib/Event';
 import { type UserData } from '@lib/auth/UserData';
 import { DateTime } from '@lib/DateTime';
 import { Markdown } from '@components/Markdown';
@@ -69,7 +69,7 @@ export interface WelcomePageProps {
      * The events (zero or more) the current visitor has access to. The events should be sorted in
      * descending order based on the dates during which they will take place.
      */
-    events: EventData[];
+    events: EventDataWithEnvironment[];
 
     /**
      * The User the current visitor is signed in as, if any.
@@ -79,7 +79,7 @@ export interface WelcomePageProps {
     /**
      * The event for which the signed in volunteer may have registered.
      */
-    registrationEvent?: EventData;
+    registrationEvent?: EventDataWithEnvironment;
 
     /**
      * The registration the signed in volunteer may have created for the current event.
@@ -104,14 +104,14 @@ export interface WelcomePageProps {
  * towards the Admin and Statistics apps.
  */
 export function WelcomePage(props: WelcomePageProps) {
-    const additionalEvents: EventData[] = [];
+    const additionalEvents: EventDataWithEnvironment[] = [];
 
     const eventContentOverride = can(props.user, Privilege.EventContentOverride);
     const eventScheduleOverride = can(props.user, Privilege.EventScheduleOverride);
     const currentTime = DateTime.Now();
 
-    let upcomingEvent: EventData | undefined;
-    let currentEvent: EventData | undefined;
+    let upcomingEvent: EventDataWithEnvironment | undefined;
+    let currentEvent: EventDataWithEnvironment | undefined;
 
     for (const event of props.events) {
         const eventTime = DateTime.From(event.endTime);

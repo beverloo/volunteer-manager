@@ -22,10 +22,8 @@ export default async function RootPage() {
     const environment = getRequestEnvironment();
     const user = await getUser();
 
-    const [ events, team ] = await Promise.all([
-        getEventsForUser(user),
-        getTeamInformationForEnvironment(environment),
-    ]);
+    const events = await getEventsForUser(environment, user);
+    const team = await getTeamInformationForEnvironment(environment);
 
     // Identify the most recent team for which applications are being accepted, then fetch whether
     // the `user`, if they are signed in, has applied to that event.
@@ -34,7 +32,8 @@ export default async function RootPage() {
 
     if (user) {
         for (const event of events) {
-            if (!event.enableRegistration)
+            const eventEnvironmentData = event.getEnvironmentData(environment);
+            if (!eventEnvironmentData || !eventEnvironmentData.enableRegistration)
                 continue;
 
             registrationEvent = event;
@@ -45,9 +44,9 @@ export default async function RootPage() {
 
     return (
         <RegistrationLayout environment={environment}>
-            <WelcomePage events={events.map(event => event.toEventData())}
+            <WelcomePage events={events.map(event => event.toEventData(environment))}
                          user={user?.toUserData()}
-                         registrationEvent={registrationEvent?.toEventData()}
+                         registrationEvent={registrationEvent?.toEventData(environment)}
                          registration={registration?.toRegistrationData()}
                          title={kEnvironmentTitle[environment]}
                          description={team!.description} />

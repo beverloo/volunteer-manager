@@ -23,7 +23,7 @@ import { lighten } from '@mui/system/colorManipulator';
 
 import { type ApplicationDefinition } from '@app/api/event/application';
 import { type Content } from '@lib/Content';
-import { type EventData } from '@lib/Event';
+import { type EventDataWithEnvironment } from '@lib/Event';
 import { type UserData } from '@app/lib/auth/UserData';
 import { AuthenticationContext } from '../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
@@ -133,7 +133,7 @@ export interface ApplicationPageProps {
     /**
      * The event for which data is being displayed on this page.
      */
-    event: EventData;
+    event: EventDataWithEnvironment;
 
     /**
      * The user who is currently signed in. We require someone to be signed in when applying, as

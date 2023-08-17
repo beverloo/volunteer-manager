@@ -17,7 +17,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Typography from '@mui/material/Typography';
 
-import { type EventData } from '@lib/Event';
+import { type EventDataWithEnvironment } from '@lib/Event';
 import { type RegistrationData } from '@lib/Registration';
 import { type UserData } from '@app/lib/auth/UserData';
 import { Privilege, can } from '@app/lib/auth/Privileges';
@@ -29,7 +29,7 @@ export interface ApplicationStatusPageProps {
     /**
      * The event for which data is being displayed on this page.
      */
-    event: EventData;
+    event: EventDataWithEnvironment;
 
     /**
      * Information about the user's existing registration.

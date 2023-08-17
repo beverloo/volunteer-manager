@@ -50,10 +50,15 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     const event: Event | undefined = path.length ? await getEventBySlug(path.shift()!)
                                                  : undefined;
 
-    if (!event || (!event.enableContent && !can(user, Privilege.EventContentOverride))) {
-        const events = await getEventsForUser(user, environment);
+    const environmentData = event?.getEnvironmentData(environment);
+
+    if (!event || !environmentData ||
+        (!environmentData.enableContent && !can(user, Privilege.EventContentOverride)))
+    {
+        const events = await getEventsForUser(environment, user);
         for (const potentialEvent of events) {
-            if (potentialEvent.enableContent)
+            const potentialEventEnvironmentData = potentialEvent.getEnvironmentData(environment);
+            if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableContent)
                 redirect(`/registration/${potentialEvent.slug}/`);
         }
 
@@ -62,10 +67,8 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     // Step 2: The |user| has access to the |event|. Two more things we need to do: fetch all their
     // registration information, and fetch the page that they wish to see on the portal.
-    const [ content, registration ] = await Promise.all([
-        getContent(environment, event, path),
-        getRegistration(environment, event, user),
-    ]);
+    const content = await getContent(environment, event, path);
+    const registration = await getRegistration(environment, event, user);
 
     // Step 3: Defer to more specific sub-components when this is a functional request.
     let redirectUrl = `/registration/${event.slug}`;
@@ -92,7 +95,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // a pure-content registration page with the information made available above.
     const backUrl = path.length ? `/registration/${event.slug}` : undefined;
 
-    const eventData = event.toEventData();
+    const eventData = event.toEventData(environment);
     const registrationData = registration?.toRegistrationData();
     const userData = user?.toUserData();
 

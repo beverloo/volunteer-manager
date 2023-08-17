@@ -2,106 +2,110 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type Environment } from '../Environment';
-import { type EventDatabaseRow, Event } from './Event';
+import { Event } from './Event';
 import { Privilege, can } from './auth/Privileges';
 import { User } from './auth/User';
 
-import { getRequestEnvironment } from './getRequestEnvironment';
-import { sql } from './database';
+import db, { tEvents, tEventsTeams, tTeams } from './database';
 
 /**
- * Returns a single event identified by the given |id|, or undefined when it does not exist. This
- * function issues a database query specific to the current environment.
+ * Returns a single event identified by the given |slug|, or undefined when it does not exist.
  */
-export async function getEventById(id: number, environment?: Environment) {
-    return getEventInternal(environment, id, /* slug= */ undefined);
-}
+export async function getEventBySlug(slug: string)
+    : Promise<Event | undefined>
+{
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+    const teamsJoin = tTeams.forUseInLeftJoin();
 
-/**
- * Returns a single event identified by the given |slug|, or undefined when it does not exist. This
- * function issues a database query specific to the current environment.
- */
-export async function getEventBySlug(slug: string, environment?: Environment) {
-    return getEventInternal(environment, /* id= */ undefined, slug);
-}
+    const eventInfo = await db.selectFrom(tEvents)
+        .leftJoin(eventsTeamsJoin).on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+        .leftJoin(teamsJoin).on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
+        .where(tEvents.eventSlug.equals(slug))
+        .select({
+            eventId: tEvents.eventId,
+            eventName: tEvents.eventName,
+            eventShortName: tEvents.eventShortName,
+            eventSlug: tEvents.eventSlug,
+            eventStartTime: tEvents.eventStartTime,
+            eventEndTime: tEvents.eventEndTime,
+            environments: db.aggregateAsArray({
+                environment: teamsJoin.teamEnvironment,
 
-/**
- * Returns a single event identified by either its unique numeric ID, or by the URL-safe slug.
- */
-async function getEventInternal(environment?: Environment, id?: number, slug?: string)
-        : Promise<Event | undefined> {
-    const eventResults = await sql`
-        SELECT
-            events.event_id,
-            events.event_name,
-            events.event_short_name,
-            events.event_slug,
-            events.event_start_time,
-            events.event_end_time,
-            events_teams.enable_content,
-            events_teams.enable_registration,
-            events_teams.enable_schedule
-        FROM
-            events
-        LEFT JOIN
-            events_teams ON events_teams.event_id = events.event_id
-        LEFT JOIN
-            teams ON teams.team_id = events_teams.team_id
-        WHERE
-            (events.event_id = ${id ?? -1} OR events.event_slug = ${slug ?? 'h4ck3rz'}) AND
-            teams.team_environment = ${environment ?? getRequestEnvironment()}
-        ORDER BY
-            event_start_time DESC`;
+                enableContent: eventsTeamsJoin.enableContent,
+                enableRegistration: eventsTeamsJoin.enableRegistration,
+                enableSchedule: eventsTeamsJoin.enableSchedule,
+            }),
+        })
+        .groupBy(tEvents.eventId)
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectNoneOrOne();
 
-    if (!eventResults.ok || !eventResults.rows.length)
-        return undefined;  // invalid event
-
-    return new Event(eventResults.rows[0] as EventDatabaseRow);
+    return eventInfo ? new Event(eventInfo)
+                     : undefined;
 }
 
 /**
  * Returns all events that are publicly visible, limited to the |user| when they are signed in to
  * their account. This function issues a database query specific to the current environment.
  */
-export async function getEventsForUser(user?: User, environment?: Environment): Promise<Event[]> {
-    const eventResults = await sql`
-        SELECT
-            events.event_id,
-            events.event_name,
-            events.event_short_name,
-            events.event_slug,
-            events.event_start_time,
-            events.event_end_time,
-            events_teams.enable_content,
-            events_teams.enable_registration,
-            events_teams.enable_schedule
-        FROM
-            events
-        LEFT JOIN
-            events_teams ON events_teams.event_id = events.event_id
-        LEFT JOIN
-            teams ON teams.team_id = events_teams.team_id
-        WHERE
-            events.event_hidden = 0 AND
-            teams.team_environment = ${environment ?? getRequestEnvironment()}
-        ORDER BY
-            event_start_time DESC`;
+export async function getEventsForUser(environment: Environment, user?: User): Promise<Event[]> {
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+    const teamsJoin = tTeams.forUseInLeftJoin();
 
-    if (!eventResults.ok)
+    const eventInfos = await db.selectFrom(tEvents)
+        .leftJoin(eventsTeamsJoin).on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+        .leftJoin(teamsJoin).on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
+        .where(tEvents.eventHidden.equals(0))
+        .select({
+            eventId: tEvents.eventId,
+            eventName: tEvents.eventName,
+            eventShortName: tEvents.eventShortName,
+            eventSlug: tEvents.eventSlug,
+            eventStartTime: tEvents.eventStartTime,
+            eventEndTime: tEvents.eventEndTime,
+            environments: db.aggregateAsArray({
+                environment: teamsJoin.teamEnvironment,
+
+                enableContent: eventsTeamsJoin.enableContent,
+                enableRegistration: eventsTeamsJoin.enableRegistration,
+                enableSchedule: eventsTeamsJoin.enableSchedule,
+            }),
+        })
+        .groupBy(tEvents.eventId)
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectMany();
+
+    if (!eventInfos.length)
         return [ /* no events */ ];
 
-    const eventContentOverride = can(user, Privilege.EventContentOverride);
-    const eventRegistrationOverride = can(user, Privilege.EventRegistrationOverride);
-    const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
+    const eventAvailabilityOverride =
+        can(user, Privilege.EventContentOverride) ||
+        can(user, Privilege.EventRegistrationOverride) ||
+        can(user, Privilege.EventScheduleOverride);
 
     const events: Event[] = [];
-    for (const untypedEventDatabaseRow of eventResults.rows) {
-        const eventDatabaseRow = untypedEventDatabaseRow as EventDatabaseRow;
-        if ((eventDatabaseRow.enable_content || eventContentOverride) ||
-                (eventDatabaseRow.enable_registration || eventRegistrationOverride) ||
-                (eventDatabaseRow.enable_schedule || eventScheduleOverride)) {
-            events.push(new Event(eventDatabaseRow));
+    for (const eventInfo of eventInfos) {
+        let environmentAccessible = false;
+        let environmentFound = false;
+
+        for (const eventEnvironmentInfo of eventInfo.environments) {
+            if (eventEnvironmentInfo.environment !== environment)
+                continue;
+
+            environmentFound = true;
+            environmentAccessible =
+                eventEnvironmentInfo.enableContent === 1 ||
+                eventEnvironmentInfo.enableRegistration === 1 ||
+                eventEnvironmentInfo.enableSchedule === 1;
         }
+
+        if (!environmentFound)
+            continue;  // this |eventInfo| does not exist for the given |environment|
+
+        if (!environmentAccessible && !eventAvailabilityOverride)
+            continue;  // this |eventInfo| is not yet available to the |user|
+
+        events.push(new Event(eventInfo));
     }
 
     return events;

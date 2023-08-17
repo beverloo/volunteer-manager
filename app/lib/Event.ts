@@ -1,19 +1,24 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Environment } from '@app/Environment';
+
 /**
  * Interface that maps to the database representation of an event.
  */
 export interface EventDatabaseRow {
-    event_id: number;
-    event_name: string;
-    event_short_name: string;
-    event_slug: string;
-    event_start_time: string;
-    event_end_time: string;
-    enable_content: boolean;
-    enable_registration: boolean;
-    enable_schedule: boolean;
+    eventId: number;
+    eventName: string;
+    eventShortName: string;
+    eventSlug: string;
+    eventStartTime: Date;
+    eventEndTime: Date;
+    environments: {
+        environment?: string,
+        enableContent?: number;
+        enableRegistration?: number;
+        enableSchedule?: number;
+    }[];
 }
 
 /**
@@ -45,7 +50,13 @@ export interface EventData {
      * End time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
      */
     endTime: string;
+}
 
+/**
+ * Represents the data associated with an event for a particular environment. Events can have
+ * multiple environments associated with them.
+ */
+export interface EventEnvironmentData {
     /**
      * Whether access to the event's content portal is unrestricted.
      */
@@ -63,13 +74,31 @@ export interface EventData {
 }
 
 /**
+ * Data associated with an event specific to a particular environment.
+ */
+export type EventDataWithEnvironment = EventData & EventEnvironmentData;
+
+/**
  * Represents one of the AnimeCon festivals.
  */
 export class Event implements EventData {
+    #environments: Map<Environment, EventEnvironmentData>;
     #event: EventDatabaseRow;
 
     constructor(event: EventDatabaseRow) {
+        this.#environments = new Map;
         this.#event = event;
+
+        for (const environmentInfo of event.environments) {
+            if (!environmentInfo.environment)
+                continue;  // partial information, this should never happen
+
+            this.#environments.set(environmentInfo.environment as Environment, {
+                enableContent: !!environmentInfo.enableContent,
+                enableRegistration: !!environmentInfo.enableRegistration,
+                enableSchedule: !!environmentInfo.enableSchedule,
+            });
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -79,20 +108,32 @@ export class Event implements EventData {
     /**
      * Numeric unique ID of the event, as it's represented in the database.
      */
-    get eventId() { return this.#event.event_id; }
+    get eventId() { return this.#event.eventId; }
+
+    /**
+     * Returns the environment information for the given |environment| when it exists, or undefined
+     * in all other cases.
+     */
+    getEnvironmentData(environment: Environment): EventEnvironmentData | undefined {
+        return this.#environments.get(environment);
+    }
+
+    /**
+     * Whether this event has environment information for the given |environment|.
+     */
+    hasEnvironmentData(environment: Environment): boolean {
+        return this.#environments.has(environment);
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality also available to client components, i.e. EventData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get name() { return this.#event.event_name; }
-    get shortName() { return this.#event.event_short_name; }
-    get slug() { return this.#event.event_slug; }
-    get startTime() { return this.#event.event_start_time; }
-    get endTime() { return this.#event.event_end_time; }
-    get enableContent() { return this.#event.enable_content; }
-    get enableRegistration() { return this.#event.enable_registration; }
-    get enableSchedule() { return this.#event.enable_schedule; }
+    get name() { return this.#event.eventName; }
+    get shortName() { return this.#event.eventShortName; }
+    get slug() { return this.#event.eventSlug; }
+    get startTime() { return this.#event.eventStartTime.toISOString(); }
+    get endTime() { return this.#event.eventEndTime.toISOString(); }
 
 
     // ---------------------------------------------------------------------------------------------
@@ -102,16 +143,30 @@ export class Event implements EventData {
     /**
      * Returns a plain JavaScript object that conforms to the EventData interface.
      */
-    toEventData(): EventData {
-        return {
+    toEventData(): EventData;
+    toEventData(environment: Environment): EventDataWithEnvironment;
+    toEventData(environment?: Environment) {
+        const eventData = {
             name: this.name,
             shortName: this.shortName,
             slug: this.slug,
             startTime: this.startTime,
             endTime: this.endTime,
-            enableContent: this.enableContent,
-            enableRegistration: this.enableRegistration,
-            enableSchedule: this.enableSchedule,
+        };
+
+        if (!environment)
+            return eventData;
+
+        const environmentData = this.getEnvironmentData(environment);
+        if (!environmentData)
+            throw new Error(`This event does not have the requested environment: ${environment}`);
+
+        return {
+            ...eventData,
+
+            enableContent: environmentData.enableContent,
+            enableRegistration: environmentData.enableRegistration,
+            enableSchedule: environmentData.enableSchedule,
         };
     }
 }
