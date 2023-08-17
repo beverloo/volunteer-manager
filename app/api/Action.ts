@@ -72,10 +72,12 @@ function createResponse(status: number, payload: any): NextResponse {
  * @param request The NextRequest that was issued
  * @param interfaceDefinition The zod-based definition of the interface, both request and response.
  * @param action The action that is to be executed on the validated request.
+ * @param userForTesting The user for whom this request is issued, only valid for testing.
  * @returns A NextResponse populated with the resulting information.
  */
 export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
-    request: NextRequest, interfaceDefinition: T, action: Action<T>): Promise<NextResponse>
+    request: NextRequest, interfaceDefinition: T, action: Action<T>, userForTesting?: User)
+        : Promise<NextResponse>
 {
     const requestInterfaceDefinition = interfaceDefinition.pick({ request: true });
     const responseInterfaceDefinition = interfaceDefinition.pick({ response: true });
@@ -95,7 +97,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             origin: request.nextUrl.origin,
             requestHeaders: request.headers,
             responseHeaders,
-            user: await getUserFromHeaders(request.headers),
+            user: userForTesting ?? await getUserFromHeaders(request.headers),
         });
 
         const responseValidation = responseInterfaceDefinition.safeParse({ response });
