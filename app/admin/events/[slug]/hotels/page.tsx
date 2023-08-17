@@ -10,7 +10,7 @@ import { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { requireUser } from '@lib/auth/getUser';
-import { sql } from '@lib/database';
+import db, { tEvents, tHotels } from '@lib/database';
 
 /**
  * The <EventHotelsPage> page allows event administrators to see and make changes to the hotel room
@@ -22,37 +22,34 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
     if (!can(user, Privilege.EventAdministrator))
         notFound();
 
+    const eventsTable = tEvents.forUseInLeftJoin();
+
     const [ rooms ] = await Promise.all([
         // -----------------------------------------------------------------------------------------
         // Hotel room configuration
         // -----------------------------------------------------------------------------------------
-        sql`SELECT
-                hotels.hotel_id AS id,
-                hotels.hotel_description AS hotelDescription,
-                hotels.hotel_name AS hotelName,
-                hotels.hotel_room_name AS roomName,
-                hotels.hotel_room_people AS roomPeople,
-                hotels.hotel_room_price AS roomPrice
-            FROM
-                hotels
-            LEFT JOIN
-                events ON events.event_id = hotels.event_id
-            WHERE
-                hotels.hotel_room_visible = 1 AND
-                events.event_slug = ${props.params.slug}
-            ORDER BY
-                hotels.hotel_name ASC,
-                hotels.hotel_room_name ASC`,
+        db.selectFrom(tHotels)
+            .leftJoin(eventsTable).on(eventsTable.eventId.equals(tHotels.eventId))
+            .select({
+                id: tHotels.hotelId,
+                hotelDescription: tHotels.hotelDescription,
+                hotelName: tHotels.hotelName,
+                roomName: tHotels.hotelRoomName,
+                roomPeople: tHotels.hotelRoomPeople,
+                roomPrice: tHotels.hotelRoomPrice,
+            })
+            .where(tHotels.hotelRoomVisible.equals(/* true= */ 1))
+            .and(eventsTable.eventSlug.equals(props.params.slug))
+            .orderBy(tHotels.hotelName, 'asc')
+            .orderBy(tHotels.hotelRoomName, 'asc')
+            .executeSelectMany(),
     ]);
-
-    if (!rooms.ok)
-        notFound();
 
     return (
         <>
             <HotelSelection />
             <HotelPendingAssignment />
-            <HotelConfiguration event={props.params.slug} rooms={rooms.rowsPod as any} />
+            <HotelConfiguration event={props.params.slug} rooms={rooms} />
         </>
     );
 }

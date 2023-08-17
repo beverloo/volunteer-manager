@@ -53,7 +53,7 @@ export interface PermissionsProps {
      * The privileges that have been assigned to this user. Does not include privileges granted by
      * default or through participation in a particular event.
      */
-    privileges: number;
+    privileges: bigint;
 }
 
 /**
@@ -68,7 +68,7 @@ export function Permissions(props: PermissionsProps) {
     const [ privileges, setPrivileges ] = useState(props.privileges);
 
     const updatePrivilege = useCallback((input: HTMLInputElement) => {
-        const numericPrivilege = parseInt(input.value, 10);
+        const numericPrivilege = BigInt(input.value);
         if (input.checked)
             setPrivileges(privileges | numericPrivilege);
         else
@@ -85,7 +85,7 @@ export function Permissions(props: PermissionsProps) {
                 '/api/admin/update-permissions',
                 {
                     userId: props.userId,
-                    privileges,
+                    privileges: privileges.toString(),
                 });
 
             if (!response.success) {
@@ -123,7 +123,7 @@ export function Permissions(props: PermissionsProps) {
                             if (PrivilegeGroups[typedPrivilege] !== group)
                                 return undefined;
 
-                            const numericPrivilege = parseInt(privilege, 10);
+                            const numericPrivilege = BigInt(privilege);
                             const checked = (privileges & numericPrivilege) === numericPrivilege;
                             const control =
                                 <Checkbox size="small" checked={checked} value={privilege}

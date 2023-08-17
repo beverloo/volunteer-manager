@@ -1,9 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { normalize } from 'path';
 import { type LogEntry, LogSeverity, LogType } from './Log';
-import { sql } from './database';
+import db, { tLogs, tUsers } from './database';
 
 /**
  * Interface that defines the format for log messages as it can be presented in the user interface.
@@ -141,84 +140,58 @@ export interface FetchLogsResponse {
  * apply where applicable. Returns zero or more messages.
  */
 export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsResponse> {
-    const limit = params.limit ?? 100;
-    const severity = params.severity ?? [ 'Info', 'Warning', 'Error' ];
-    const sourceOrTargetUserId = params.sourceOrTargetUserId ?? -1;
-    const start = params.start ?? 0;
+    const sourceUserJoin = tUsers.forUseInLeftJoinAs('source');
+    const targetUserJoin = tUsers.forUseInLeftJoinAs('target');
 
-    const [ result, totalResult ] = await Promise.all([
-        // -----------------------------------------------------------------------------------------
-        // Primary query to fetch the entries
-        // -----------------------------------------------------------------------------------------
-        sql`SELECT
-                logs.log_id,
-                logs.log_date,
-                logs.log_type,
-                logs.log_severity,
-                logs.log_source_user_id,
-                CONCAT(a.first_name, " ", a.last_name) AS log_source_user_name,
-                logs.log_target_user_id,
-                CONCAT(b.first_name, " ", b.last_name) AS log_target_user_name,
-                logs.log_data
-            FROM
-                logs
-            LEFT JOIN
-                users a ON a.user_id = logs.log_source_user_id
-            LEFT JOIN
-                users b ON b.user_id = logs.log_target_user_id
-            WHERE
-                log_severity IN (${severity}) AND
-                (
-                    ${sourceOrTargetUserId} = -1 OR
-                    (
-                        logs.log_source_user_id = ${sourceOrTargetUserId} OR
-                        logs.log_target_user_id = ${sourceOrTargetUserId}
-                    )
-                )
-            ORDER BY
-                log_date DESC
-            LIMIT
-                ${start}, ${limit}`,
+    let selectQueryBuilder = db.selectFrom(tLogs)
+        .leftJoin(sourceUserJoin).on(sourceUserJoin.userId.equals(tLogs.logSourceUserId))
+        .leftJoin(targetUserJoin).on(targetUserJoin.userId.equals(tLogs.logTargetUserId))
+        .select({
+            // Columns that will be passed through:
+            date: tLogs.logDate,
+            id: tLogs.logId,
+            severity: tLogs.logSeverity,
 
-        // -----------------------------------------------------------------------------------------
-        // Secondary query to count the number of entries
-        // -----------------------------------------------------------------------------------------
-        sql`SELECT
-                COUNT(*) AS total
-            FROM
-                logs
-            LEFT JOIN
-                users a ON a.user_id = logs.log_source_user_id
-            LEFT JOIN
-                users b ON b.user_id = logs.log_target_user_id
-            WHERE
-                log_severity IN (${severity}) AND
-                (
-                    ${sourceOrTargetUserId} = -1 OR
-                    (
-                        logs.log_source_user_id = ${sourceOrTargetUserId} OR
-                        logs.log_target_user_id = ${sourceOrTargetUserId}
-                    )
-                )`,
-    ]);
+            // Columns that will be processed:
+            logData: tLogs.logData,
+            logType: tLogs.logType,
 
-    if (!result.ok || !result.rows.length || !totalResult.ok || !totalResult.rows.length)
+            // Source user:
+            sourceUserId: tLogs.logSourceUserId,
+            sourceUserName: sourceUserJoin.firstName.concat(' ').concat(sourceUserJoin.lastName),
+
+            // Target user:
+            targetUserId: tLogs.logTargetUserId,
+            targetUserName: targetUserJoin.firstName.concat(' ').concat(targetUserJoin.lastName),
+        })
+        .orderBy(tLogs.logDate, 'desc')
+        .limit(params.limit ?? 100)
+        .offsetIfValue(params.start)
+        .where(tLogs.logSeverity.in(
+            params.severity ?? [ LogSeverity.Info, LogSeverity.Warning, LogSeverity.Error ]));
+
+    if (params.sourceOrTargetUserId) {
+        selectQueryBuilder = selectQueryBuilder
+            .and(tLogs.logSourceUserId.equals(params.sourceOrTargetUserId)
+                .or(tLogs.logTargetUserId.equals(params.sourceOrTargetUserId)));
+    }
+
+    const { count, data } = await selectQueryBuilder.executeSelectPage();
+    if (!count)
         return { messageCount: 0, messages: [ /* database error */ ] };
 
     const logs: LogMessage[] = [];
-    for (const row of result.rows) {
-        const data = row.log_data ? JSON.parse(row.log_data) : undefined;
-
-        // @ts-ignore
-        const formatter = kLogMessageFormatter[row.log_type];
+    for (const row of data) {
+        const formatter = kLogMessageFormatter[row.logType as keyof typeof kLogMessageFormatter];
+        const data = row.logData ? JSON.parse(row.logData) : undefined;
 
         let source = undefined;
-        if (row.log_source_user_name)
-            source = { userId: row.log_source_user_id, name: row.log_source_user_name };
+        if (row.sourceUserId && row.sourceUserName)
+            source = { userId: row.sourceUserId, name: row.sourceUserName };
 
         let target = undefined;
-        if (row.log_target_user_name)
-            target = { userId: row.log_target_user_id, name: row.log_target_user_name };
+        if (row.targetUserId && row.targetUserName)
+            target = { userId: row.targetUserId, name: row.targetUserName };
 
         let message: string;
         switch (typeof formatter) {
@@ -231,22 +204,22 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
                 break;
 
             default:
-                message = row.log_type;
+                message = row.logType;
                 break;
         }
 
         logs.push({
             data,
-            date: row.log_date,
-            id: row.log_id,
+            date: row.date,
+            id: row.id,
             message,
-            severity: row.log_severity,
+            severity: row.severity,
             source, target,
         });
     }
 
     return {
-        messageCount: totalResult.rows[0].total,
+        messageCount: count,
         messages: logs,
     };
 }

@@ -13,7 +13,7 @@ import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
 import { requireUser } from '@lib/auth/getUser';
-import { sql } from '@lib/database';
+import db, { tUsers, sql } from '@lib/database';
 
 /**
  * Information about the volunteer for whom this page is being displayed.
@@ -24,14 +24,14 @@ export interface VolunteerInfo {
      */
     account: {
         userId: number;
-        username?: string | null;
+        username?: string;
         firstName: string;
         lastName: string;
         gender: string;
-        birthdate?: string | null;
-        phoneNumber?: string | null;
-        privileges: number;
-        activated: boolean;
+        birthdate?: Date;
+        phoneNumber?: string;
+        privileges: bigint;
+        activated: number;
     };
 
     /**
@@ -49,61 +49,50 @@ export interface VolunteerInfo {
  * Fetches information about the volunteer identified by the given `unverifiedId` from the database.
  */
 async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo | undefined> {
-    const [ account, logs, participation ] = await Promise.all([
-        // -----------------------------------------------------------------------------------------
-        // Account
-        // -----------------------------------------------------------------------------------------
-        sql`SELECT
-                users.user_id AS userId,
-                users.username,
-                users.first_name AS firstName,
-                users.last_name AS lastName,
-                users.gender,
-                users.birthdate,
-                users.phone_number AS phoneNumber,
-                privileges,
-                activated
-            FROM
-                users
-            WHERE
-                users.user_id = ${unverifiedId}`,
+    const account = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(parseInt(unverifiedId, 10)))
+        .select({
+            userId: tUsers.userId,
+            username: tUsers.username,
+            firstName: tUsers.firstName,
+            lastName: tUsers.lastName,
+            gender: tUsers.gender,
+            birthdate: tUsers.birthdate,
+            phoneNumber: tUsers.phoneNumber,
+            privileges: tUsers.privileges,
+            activated: tUsers.activated,
+        })
+        .executeSelectNoneOrOne();
 
-        // -----------------------------------------------------------------------------------------
-        // Logs
-        // -----------------------------------------------------------------------------------------
-        fetchLogs({ sourceOrTargetUserId: parseInt(unverifiedId, 10) }),
+    const logs = await fetchLogs({ sourceOrTargetUserId: parseInt(unverifiedId, 10) });
+    const participation = await sql`
+        SELECT
+            (1000 * users_events.event_id + users_events.team_id) AS id,
+            events.event_short_name AS event,
+            events.event_slug AS eventSlug,
+            users_events.registration_status AS status,
+            teams.team_name AS team,
+            roles.role_name AS role
+        FROM
+            users_events
+        LEFT JOIN
+            events ON events.event_id = users_events.event_id
+        LEFT JOIN
+            teams ON teams.team_id = users_events.team_id
+        LEFT JOIN
+            roles ON roles.role_id = users_events.role_id
+        WHERE
+            users_events.user_id = ${unverifiedId}
+        ORDER BY
+            events.event_start_time DESC`;
 
-        // -----------------------------------------------------------------------------------------
-        // Participation
-        // -----------------------------------------------------------------------------------------
-        sql`SELECT
-                (1000 * users_events.event_id + users_events.team_id) AS id,
-                events.event_short_name AS event,
-                events.event_slug AS eventSlug,
-                users_events.registration_status AS status,
-                teams.team_name AS team,
-                roles.role_name AS role
-            FROM
-                users_events
-            LEFT JOIN
-                events ON events.event_id = users_events.event_id
-            LEFT JOIN
-                teams ON teams.team_id = users_events.team_id
-            LEFT JOIN
-                roles ON roles.role_id = users_events.role_id
-            WHERE
-                users_events.user_id = ${unverifiedId}
-            ORDER BY
-                events.event_start_time DESC`
-    ]);
-
-    if (!account.ok || !account.rows.length)
+    if (!account)
         notFound();
     if (!participation.ok)
         notFound();
 
     return {
-        account: account.rowsPod[0] as VolunteerInfo['account'],
+        account,
         logs: logs.messages,
         participation: participation.rowsPod as ParticipationInfo[],
     };

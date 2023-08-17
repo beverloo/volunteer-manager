@@ -20,9 +20,10 @@ export const kUpdatePermissionsDefinition = z.object({
         userId: z.number(),
 
         /**
-         * Privileges that should be stored for this number.
+         * Privileges that should be stored for this number. Actually communicated as a BigInt, but
+         * those are serialized as a string during transport.
          */
-        privileges: z.number(),
+        privileges: z.string().regex(/^\d*$/),
     }),
     response: z.strictObject({
         /**

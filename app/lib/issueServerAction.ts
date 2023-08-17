@@ -25,7 +25,7 @@ export async function issueServerAction<T extends ServerCallDefinition>(
 
         return await response.json();
 
-    } catch {
-        throw new Error('The server ran into an issue, please try again later.');
+    } catch (cause) {
+        throw new Error(`The server ran into an issue, please try again later (${cause}).`);
     }
 }
