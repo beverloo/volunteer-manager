@@ -63,3 +63,47 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
 
     return await executeAction(request, api, action, userForTesting);
 }
+
+/**
+ * Parameters accepted by the `injectPermissionTestsForAction` function.
+ */
+export interface InjectPermissionTestsForActionParams<T extends ZodObject<ZodRawShape, any, any>> {
+    /**
+     * The request that should be issued when executing the action.
+     */
+    request: z.infer<T>['request'];
+
+    /**
+     * Privileges to be assigned to a user that are considered insufficient to call the API.
+     */
+    insufficientPrivileges: number;
+}
+
+/**
+ * Injects a permission test for the given action. Two assertions will be made:
+ *     1. Invoking the |action| without authentication yields a 403 Forbidden,
+ *     2. Invoking the |action| with the insufficient privileges yields a 403 Forbidden.
+ */
+export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawShape, any, any>>(
+    api: T, action: Action<T>, params: InjectPermissionTestsForActionParams<T>): Promise<void>
+{
+    it(`requires sufficient privileges (${action.name})`, async () => {
+        const guestResponse = await executeActionForTests(api, action, {
+            request: params.request,
+            user: /* guest= */ undefined,
+        });
+
+        expect(guestResponse.ok).toBeFalsy();
+        expect(guestResponse.status).toBe(/* Forbidden= */ 403);
+
+        const userResponse = await executeActionForTests(api, action, {
+            request: params.request,
+            user: {
+                privileges: params.insufficientPrivileges
+            },
+        });
+
+        expect(userResponse.ok).toBeFalsy();
+        expect(userResponse.status).toBe(/* Forbidden= */ 403);
+    });
+}
