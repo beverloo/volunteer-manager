@@ -4,8 +4,8 @@
 'use client';
 
 import Link from 'next/link';
+import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Badge from '@mui/material/Badge';
@@ -157,7 +157,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
         <List disablePadding>
             { menu.map((entry, index) => {
                 if ('divider' in entry)
-                    return <Divider />;
+                    return <Divider key={index} />;
 
                 if (entry.privilege && !can(user, entry.privilege))
                     return undefined;
@@ -166,9 +166,8 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                     const open = collapsedState.has(index) === !entry.defaultOpen;
 
                     return (
-                        <>
-                            <ListItemButton key={index} divider={true}
-                                            sx={ indent ? { pl: 5 } : undefined }
+                        <React.Fragment key={index}>
+                            <ListItemButton divider={true} sx={ indent ? { pl: 5 } : undefined }
                                             onClick={ () => toggleCollapsedState(index) }>
 
                                 { entry.icon &&
@@ -186,7 +185,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                                 <RenderSidebarMenu indent menu={entry.menu} user={user} />
                                 <Divider />
                             </Collapse>
-                        </>
+                        </React.Fragment>
                     );
                 }
 

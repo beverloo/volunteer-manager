@@ -124,7 +124,8 @@ export function AdminHeader(props: AdminHeaderProps) {
                       onClose={requestMenuClose}>
 
                     { events.map((event, index) =>
-                        <MenuItem key={index} component={Link} href={event.url}>
+                        <MenuItem key={index} component={Link} href={event.url}
+                                  onClick={requestMenuClose}>
                             <ListItemIcon>
                                 { event.done && <TaskAltIcon color="disabled" fontSize="small" /> }
                                 { !event.done &&
@@ -137,7 +138,7 @@ export function AdminHeader(props: AdminHeaderProps) {
 
                     { can(user, Privilege.Administrator) && <Divider /> }
                     { can(user, Privilege.Administrator) &&
-                        <MenuItem component={Link} href="/admin/events">
+                        <MenuItem component={Link} href="/admin/events" onClick={requestMenuClose}>
                             <ListItemIcon>
                                 <SettingsIcon fontSize="small" />
                             </ListItemIcon>
