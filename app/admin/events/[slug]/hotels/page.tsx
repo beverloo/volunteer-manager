@@ -9,7 +9,7 @@ import { HotelSelection } from './HotelSelection';
 import { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
-import { requireUser } from '@lib/auth/getUser';
+import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotels } from '@lib/database';
 
 /**
@@ -17,8 +17,9 @@ import db, { tEvents, tHotels } from '@lib/database';
  * situation for a particular event, including assigning rooms (and roommates!) to volunteers.
  */
 export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
-    const user = await requireUser();
+    const { user, event } = await verifyAccessAndFetchPageInfo(props.params);
 
+    // Hotel management is more restricted than the general event administration.
     if (!can(user, Privilege.EventAdministrator))
         notFound();
 
@@ -49,7 +50,7 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
         <>
             <HotelSelection />
             <HotelPendingAssignment />
-            <HotelConfiguration event={props.params.slug} rooms={rooms} />
+            <HotelConfiguration event={event} rooms={rooms} />
         </>
     );
 }

@@ -14,7 +14,9 @@ const kTitleCache = new Map();
  * Generates metadata for one of the sub-pages of a particular event based on the given `title`,
  * and the `props` which include the event's slug. Will cause a database query.
  */
-async function generateMetadata(title: string, props: NextRouterParams<'slug'>): Promise<Metadata> {
+async function generateMetadata(props: NextRouterParams<'slug'>, title?: string)
+    : Promise<Metadata>
+{
     const { slug } = props.params;
 
     if (slug && slug.length > 0 && !kTitleCache.has(slug)) {
@@ -27,15 +29,19 @@ async function generateMetadata(title: string, props: NextRouterParams<'slug'>):
             kTitleCache.set(slug, event.shortName);
     }
 
-    if (!kTitleCache.has(slug))
-        return { title: `${title} | AnimeCon Volunteer Manager` };
+    return {
+        title: [
+            title,
+            kTitleCache.get(slug),
+            'AnimeCon Volunteer Manager',
 
-    return { title: `${title} | ${kTitleCache.get(slug)} | AnimeCon Volunteer Manager` };
+        ].filter(Boolean).join(' | '),
+    };
 }
 
 /**
  * Generates a `generateMetadata` compatible-function for an event with the given `title`.
  */
-export function generateEventMetadataFn(title: string) {
-    return (props: NextRouterParams<'slug'>) => generateMetadata(title, props);
+export function generateEventMetadataFn(title?: string) {
+    return (props: NextRouterParams<'slug'>) => generateMetadata(props, title);
 }

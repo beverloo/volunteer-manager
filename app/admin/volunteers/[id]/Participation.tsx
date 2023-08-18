@@ -28,7 +28,7 @@ export interface ParticipationInfo {
     event: string;
 
     /**
-     * Slug of the event, to enabme deep-linking to their participation.
+     * Slug of the event, to enable deep linking to their participation.
      */
     eventSlug: string;
 
@@ -41,6 +41,11 @@ export interface ParticipationInfo {
      * Name of the team in which they participated.
      */
     team: string;
+
+    /**
+     * Slug of the team in which they participated, also to enable deep linking.
+     */
+    teamSlug: string;
 
     /**
      * Name of the role in which they participated.
@@ -77,7 +82,9 @@ export function Participation(props: ParticipationProps) {
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
-                const href = `/admin/events/${params.row.eventSlug}/volunteers/${userId}`;
+                const { eventSlug, teamSlug } = params.row;
+
+                const href = `/admin/events/${eventSlug}/${teamSlug}/volunteers/${userId}`;
                 return (
                     <MuiLink component={Link} href={href}>
                         {params.value}

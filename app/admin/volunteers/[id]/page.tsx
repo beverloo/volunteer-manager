@@ -72,6 +72,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             events.event_slug AS eventSlug,
             users_events.registration_status AS status,
             teams.team_name AS team,
+            teams.team_environment as teamSlug,
             roles.role_name AS role
         FROM
             users_events

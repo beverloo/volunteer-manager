@@ -1,14 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
-
 import { NextRouterParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@app/lib/database/Types';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerImport } from './VolunteerImport';
 import { VolunteerTable } from './VolunteerTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
-import db, { tEvents, tRoles, tSchedule, tUsersEvents, tUsers, tTeams } from '@lib/database';
+import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tRoles, tSchedule, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * The volunteers page for a particular event lists the volunteers who have signed up and have been
@@ -16,36 +16,7 @@ import db, { tEvents, tRoles, tSchedule, tUsersEvents, tUsers, tTeams } from '@l
  * who have event administrator permission can "import" any volunteer into this event.
  */
 export default async function VolunteersPage(props: NextRouterParams<'slug' | 'team'>) {
-    const { params } = props;
-
-    // TODO: Access check
-
-    const [ event, team ] = await Promise.all([
-        // -----------------------------------------------------------------------------------------
-        // Event information
-        // -----------------------------------------------------------------------------------------
-        db.selectFrom(tEvents)
-            .where(tEvents.eventSlug.equals(params.slug))
-            .select({
-                eventId: tEvents.eventId,
-                eventShortName: tEvents.eventShortName,
-            })
-            .executeSelectNoneOrOne(),
-
-        // -----------------------------------------------------------------------------------------
-        // Team information
-        // -----------------------------------------------------------------------------------------
-        db.selectFrom(tTeams)
-            .where(tTeams.teamEnvironment.equals(params.team))
-            .select({
-                teamId: tTeams.teamId,
-                teamName: tTeams.teamName,
-            })
-            .executeSelectNoneOrOne(),
-    ]);
-
-    if (!event || !team)
-        notFound();
+    const { user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;
     const scheduleJoin = tSchedule.forUseInLeftJoin();
@@ -56,12 +27,12 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .leftJoin(scheduleJoin)
-            .on(scheduleJoin.eventId.equals(event.eventId)
+            .on(scheduleJoin.eventId.equals(event.id)
                 .and(scheduleJoin.userId.equals(tUsersEvents.userId))
                 .and(scheduleJoin.shiftId.isNotNull()))
         .groupBy(tUsersEvents.userId)
-        .where(tUsersEvents.eventId.equals(event.eventId))
-            .and(tUsersEvents.teamId.equals(team.teamId))
+        .where(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
             .and(tUsersEvents.registrationStatus.in(
                 [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
         .select({
@@ -80,10 +51,11 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
 
     return (
         <>
-            <VolunteerTable title={`${event.eventShortName} ${team.teamName}`}
+            <VolunteerTable title={`${event.shortName} ${team.name}`}
                             volunteers={volunteers} {...props} />
 
-            <VolunteerImport />
+            { can(user, Privilege.EventAdministrator) &&
+                <VolunteerImport /> }
         </>
     );
 }

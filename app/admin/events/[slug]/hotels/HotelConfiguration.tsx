@@ -58,9 +58,19 @@ export interface HotelConfigurationEntry {
  */
 export interface HotelConfigurationProps {
     /**
-     * Unique slug of the event that these hotel rooms are owned by.
+     * Information about the event for which hotel rooms are being shown.
      */
-    event: string;
+    event: {
+        /**
+         * Short name of the event for which hotel rooms are being displayed.
+         */
+        shortName: string;
+
+        /**
+         * Unique slug of the event that these hotel rooms are owned by.
+         */
+        slug: string;
+    };
 
     /**
      * The hotel rooms that can be displayed by this component.
@@ -73,9 +83,11 @@ export interface HotelConfigurationProps {
  * rooms to settings. Changes will be reflected on the volunteer portal immediately.
  */
 export function HotelConfiguration(props: HotelConfigurationProps) {
+    const { event } = props;
+
     async function commitAdd(): Promise<HotelConfigurationEntry> {
         const response = await issueServerAction<HotelCreateDefinition>('/api/admin/hotel-create', {
-            event: props.event,
+            event: event.slug,
         });
 
         if (!response.id)
@@ -93,14 +105,14 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
 
     async function commitDelete(oldRow: GridValidRowModel) {
         await issueServerAction<HotelDeleteDefinition>('/api/admin/hotel-delete', {
-            event: props.event,
+            event: event.slug,
             id: oldRow.id,
         });
     }
 
     async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
         const response = await issueServerAction<HotelUpdateDefinition>('/api/admin/hotel-update', {
-            event: props.event,
+            event: event.slug,
             id: oldRow.id,
             hotelDescription: newRow.hotelDescription,
             hotelName: newRow.hotelName,
@@ -165,7 +177,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
-                Hotel & room options
+                {event.shortName} hotel & room options
             </Typography>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="hotel room" rows={props.rooms} columns={columns} />
