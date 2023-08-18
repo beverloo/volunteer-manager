@@ -17,7 +17,8 @@ const kConnectionPoolConfig: PoolConfig = {
     database: process.env.APP_DATABASE_NAME,
 
     connectionLimit: 5,
-    idleTimeout: /* minutes= */ 15,
+    idleTimeout: /* seconds= */ 15,
+    minimumIdle: 1,
 };
 
 /**
