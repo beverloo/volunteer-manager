@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { sql } from '@lib/database';
+import db, { tEvents, tHotels } from '@lib/database';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/event/hotels.
@@ -69,48 +69,41 @@ type Response = HotelsDefinition['response'];
  * These are the same regardless of volunteering team, but may not be available to everybody.
  */
 export async function hotels(request: Request, props: ActionProps): Promise<Response> {
-    const result = await sql`
-        SELECT
-            hotels.hotel_id,
-            hotels.hotel_name,
-            hotels.hotel_description,
-            hotels.hotel_room_name,
-            hotels.hotel_room_people,
-            hotels.hotel_room_price
-        FROM
-            events
-        LEFT JOIN
-            hotels ON hotels.event_id = events.event_id
-        WHERE
-            events.event_slug = ${request.event} AND
-            hotels.hotel_room_visible = 1 AND
-            hotels.hotel_id IS NOT NULL
-        ORDER BY
-            hotels.hotel_name ASC,
-            hotels.hotel_room_people ASC,
-            hotels.hotel_room_name ASC`;
+    const configuration = await db.selectFrom(tEvents)
+        .innerJoin(tHotels)
+            .on(tHotels.eventId.equals(tEvents.eventId))
+        .where(tEvents.eventSlug.equals(request.event))
+            .and(tHotels.hotelRoomVisible.equals(/* visible= */ 1))
+        .select({
+            hotelId: tHotels.hotelId,
+            hotelName: tHotels.hotelName,
+            hotelDescription: tHotels.hotelDescription,
+            roomName: tHotels.hotelRoomName,
+            roomPeople: tHotels.hotelRoomPeople,
+            roomPrice: tHotels.hotelRoomPrice,
+        })
+        .orderBy(tHotels.hotelName, 'asc')
+        .orderBy(tHotels.hotelRoomPeople, 'asc')
+        .orderBy(tHotels.hotelRoomName, 'asc')
+        .executeSelectMany();
 
-    if (result.ok && result.rows.length > 0) {
-        const hotels = new Map<string, Response['hotels'][number]>();
-        for (const row of result.rows) {
-            if (!hotels.has(row.hotel_name)) {
-                hotels.set(row.hotel_name, {
-                    name: row.hotel_name,
-                    description: row.hotel_description,
-                    rooms: [ /* to be added */],
-                });
-            }
-
-            hotels.get(row.hotel_name)!.rooms.push({
-                id: row.hotel_id,
-                name: row.hotel_room_name,
-                people: row.hotel_room_people,
-                price: row.hotel_room_price,
+    const hotels = new Map<string, Response['hotels'][number]>();
+    for (const row of configuration) {
+        if (!hotels.has(row.hotelName)) {
+            hotels.set(row.hotelName, {
+                name: row.hotelName,
+                description: row.hotelDescription,
+                rooms: [ /* to be added */],
             });
         }
 
-        return { hotels: [ ...hotels.values() ] };
+        hotels.get(row.hotelName)!.rooms.push({
+            id: row.hotelId,
+            name: row.roomName,
+            people: row.roomPeople,
+            price: row.roomPrice,
+        });
     }
 
-    return { hotels: [ /* no data */ ] };
+    return { hotels: [ ...hotels.values() ] };
 }

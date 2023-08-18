@@ -5,6 +5,7 @@
         "eqeqeq": [ "error", "always" ],
         "indent": [ "error", 4, {
             "ArrayExpression": "first",
+            "MemberExpression": "off",
             "ObjectExpression": "first",
             "SwitchCase": 1,
             "VariableDeclarator": "first",

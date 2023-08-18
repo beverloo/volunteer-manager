@@ -3,7 +3,7 @@
 
 import { type Environment } from '../Environment';
 import { Event } from './Event';
-import db, { sql, tTeams } from './database';
+import db, { tContent, tTeams, tUsers } from './database';
 
 /**
  * Interface defining the information that will be made available for a particular piece of content
@@ -24,7 +24,7 @@ export interface Content {
     /**
      * First name of the author who authored the latest revision of the content.
      */
-    authoredBy: string;
+    authoredBy?: string;
 
     /**
      * Date on which this revision was published by the author.
@@ -44,32 +44,27 @@ export interface Content {
  */
 export async function getContent(environment: Environment, event: Event, path: string[])
         : Promise<Content | undefined> {
-    const result =
-        await sql`
-            SELECT
-                content.content_title AS title,
-                content.content AS markdown,
-                users.first_name AS authoredBy,
-                DATE_FORMAT(content.revision_date, "%Y-%m-%d %T") AS authoredDate
-            FROM
-                content
-            LEFT JOIN
-                users ON users.user_id = content.revision_author_id
-            LEFT JOIN
-                teams ON teams.team_id = content.team_id
-            WHERE
-                content.event_id = ${event.eventId} AND
-                content.content_path = ${path.join('/')} AND
-                teams.team_environment = ${environment}
-            ORDER BY
-                content.revision_date DESC
-            LIMIT
-                1`;
+    const teamsJoin = tTeams.forUseInLeftJoin();
+    const usersJoin = tUsers.forUseInLeftJoin();
 
-    if (!result.ok || !result.rows.length)
-        return undefined;
-
-    return { ...result.rows[0] } as Content;
+    return await db.selectFrom(tContent)
+        .leftJoin(usersJoin)
+            .on(usersJoin.userId.equals(tContent.revisionAuthorId))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(tContent.teamId))
+        .where(tContent.eventId.equals(event.eventId))
+            .and(tContent.contentPath.equals(path.join('/')))
+            .and(teamsJoin.teamEnvironment.equals(environment))
+        .select({
+            title: tContent.contentTitle,
+            markdown: tContent.content,
+            authoredBy: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
+            authoredDate: db.fragmentWithType('string', 'required')
+                .sql`DATE_FORMAT(${tContent.revisionDate}, "%Y-%m-%d %T")`
+        })
+        .orderBy(tContent.revisionDate, 'desc')
+        .limit(1)
+        .executeSelectNoneOrOne() ?? undefined;
 }
 
 /**

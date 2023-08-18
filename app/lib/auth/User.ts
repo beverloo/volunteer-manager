@@ -1,12 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Privilege } from './Privileges';
 import { type UserData } from './UserData';
 
 import { getAvatarUrl } from '../database/AvatarStore';
 import { securePasswordHash } from './Password';
-import { sql } from '../database';
+import db, { sql, tUsers } from '../database';
 
 /**
  * Data that needs to be made available for a password reset request for a particular user. This
@@ -17,11 +16,6 @@ interface PasswordResetData {
      * The user's unique Id as stored in the database.
      */
     userId: number;
-
-    /**
-     * The user's e-mail address with which this information can be shared.
-     */
-    emailAddress: string;
 
     /**
      * The user's current session token, instrumental to allowing password reset.
@@ -62,22 +56,14 @@ export class User implements UserData {
      * method does not require further authentication, and should be considered sensitive.
      */
     static async getPasswordResetData(username: string): Promise<PasswordResetData | undefined> {
-        const result =
-            await sql`
-                SELECT
-                    users.user_id AS userId,
-                    users.username AS emailAddress,
-                    users.session_token AS sessionToken,
-                    users.first_name AS firstName
-                FROM
-                    users
-                WHERE
-                    users.username = ${username}`;
-
-        if (!result.ok || !result.rows.length)
-            return undefined;
-
-        return result.rows[0] as PasswordResetData;
+        return await db.selectFrom(tUsers)
+            .where(tUsers.username.equals(username))
+            .select({
+                userId: tUsers.userId,
+                sessionToken: tUsers.sessionToken,
+                firstName: tUsers.firstName,
+            })
+            .executeSelectNoneOrOne() ?? undefined;
     }
 
     // ---------------------------------------------------------------------------------------------

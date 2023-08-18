@@ -73,28 +73,28 @@ interface AccountCreationData {
  * return an instance of the User class when successful, or undefined when a failure occurred.
  */
 export async function activateAccount(userId: number): Promise<User | undefined> {
-    const result = await sql`SELECT activated, session_token FROM users WHERE user_id=${userId}`;
-    if (!result.ok || !result.rows.length) {
-        if (!result.ok)
-            console.error('Unable to read account info for activation:', result.error);
+    const confirmation = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(userId))
+        .select({
+            activated: tUsers.activated,
+            sessionToken: tUsers.sessionToken,
+        })
+        .executeSelectNoneOrOne();
 
-        return undefined;
-    }
+    if (!confirmation || !!confirmation.activated)
+        return undefined;  // unknown user, or the account is already activated
 
-    if (!!result.rows[0].activated)
-        return undefined;  // the account has already been activated
+    const affectedRows = await db.update(tUsers)
+        .set({ activated: 1 })
+        .where(tUsers.userId.equals(userId))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
 
-    const activationResult = await sql`UPDATE users SET activated=1 WHERE user_id=${userId}`;
-    if (!activationResult.ok || !activationResult.affectedRows) {
-        if (!activationResult.ok)
-            console.error('Unable to activate an account:', activationResult.error);
-
-        return undefined;
-    }
+    if (!affectedRows)
+        return undefined;  // the account could not be activated
 
     return authenticateUserFromSession({
         id: userId,
-        token: result.rows[0].session_token,
+        token: confirmation.sessionToken,
     });
 }
 
