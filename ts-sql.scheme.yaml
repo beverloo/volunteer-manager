@@ -76,9 +76,9 @@ tables:
       `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
-      `content_path` text COLLATE utf8mb4_unicode_ci NOT NULL,
-      `content_title` text COLLATE utf8mb4_unicode_ci NOT NULL,
-      `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `content_path` text NOT NULL,
+      `content_title` text NOT NULL,
+      `content` text NOT NULL,
       `revision_author_id` int(4) unsigned NOT NULL,
       `revision_date` timestamp NOT NULL DEFAULT current_timestamp(),
       PRIMARY KEY (`content_id`),
@@ -165,12 +165,12 @@ tables:
   def: |-
     CREATE TABLE `users` (
       `user_id` int(11) NOT NULL AUTO_INCREMENT,
-      `username` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-      `first_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `last_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `gender` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `username` varchar(64) DEFAULT NULL,
+      `first_name` varchar(64) NOT NULL,
+      `last_name` varchar(64) NOT NULL,
+      `gender` varchar(32) NOT NULL,
       `birthdate` date DEFAULT NULL,
-      `phone_number` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `phone_number` varchar(32) DEFAULT NULL,
       `avatar_id` int(4) unsigned NOT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
@@ -208,8 +208,8 @@ tables:
   def: |-
     CREATE TABLE `users_auth` (
       `user_id` int(4) unsigned NOT NULL,
-      `auth_type` enum('code','password','passkey') COLLATE utf8mb4_unicode_ci NOT NULL,
-      `auth_value` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `auth_type` enum('code','password','passkey') NOT NULL,
+      `auth_value` text NOT NULL,
       KEY `user_id` (`user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels
@@ -285,9 +285,9 @@ tables:
     CREATE TABLE `hotels` (
       `hotel_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `event_id` int(8) unsigned NOT NULL,
-      `hotel_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-      `hotel_description` text COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-      `hotel_room_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+      `hotel_name` varchar(64) NOT NULL DEFAULT '',
+      `hotel_description` text NOT NULL DEFAULT '',
+      `hotel_room_name` varchar(64) NOT NULL DEFAULT '',
       `hotel_room_people` int(8) NOT NULL DEFAULT 1,
       `hotel_room_price` int(8) NOT NULL DEFAULT 0,
       `hotel_room_visible` tinyint(1) NOT NULL DEFAULT 1,
@@ -377,14 +377,14 @@ tables:
   def: |-
     CREATE TABLE `shifts` (
       `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `shift_identifier` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `shift_identifier` varchar(8) NOT NULL,
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
-      `shift_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `shift_name` varchar(64) NOT NULL,
       `shift_program_id` int(4) unsigned DEFAULT NULL,
       `shift_area_id` int(4) unsigned DEFAULT NULL,
-      `shift_location_id` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-      `shift_location_name` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `shift_location_id` varchar(32) DEFAULT NULL,
+      `shift_location_name` varchar(32) DEFAULT NULL,
       `shift_excitement` double NOT NULL,
       PRIMARY KEY (`shift_id`),
       KEY `event_id` (`event_id`,`team_id`)
@@ -450,7 +450,7 @@ tables:
   def: |-
     CREATE TABLE `schedule` (
       `schedule_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `schedule_type` enum('unavailable','shift') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `schedule_type` enum('unavailable','shift') NOT NULL,
       `user_id` int(4) unsigned NOT NULL,
       `event_id` int(4) unsigned NOT NULL,
       `shift_id` int(4) unsigned DEFAULT NULL,
@@ -571,14 +571,14 @@ tables:
       `team_id` int(4) unsigned NOT NULL,
       `role_id` int(4) unsigned NOT NULL,
       `registration_date` datetime NOT NULL,
-      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Registered',
-      `shirt_fit` enum('Regular','Girly') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Regular',
-      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
+      `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
+      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
       `hotel_eligible` tinyint(1) DEFAULT NULL,
       `preference_hours` int(4) unsigned DEFAULT NULL,
       `preference_timing_start` int(4) unsigned DEFAULT NULL,
       `preference_timing_end` int(4) unsigned DEFAULT NULL,
-      `preferences` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `preferences` text DEFAULT NULL,
       `fully_available` tinyint(1) NOT NULL DEFAULT 1,
       `include_credits` tinyint(1) NOT NULL DEFAULT 1,
       `include_socials` tinyint(1) NOT NULL DEFAULT 1,
@@ -646,8 +646,8 @@ tables:
   def: |-
     CREATE TABLE `storage` (
       `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `file_hash` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `file_type` enum('avatar') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `file_hash` varchar(16) NOT NULL,
+      `file_type` enum('avatar') NOT NULL,
       `file_date` datetime NOT NULL,
       `file_data` mediumblob NOT NULL,
       `user_id` int(4) unsigned NOT NULL,
@@ -668,6 +668,11 @@ tables:
     type: varchar(32)
     nullable: false
     default: null
+    comment: ""
+  - name: role_order
+    type: int(4)
+    nullable: false
+    default: "0"
     comment: ""
   - name: role_admin_access
     type: tinyint(1)
@@ -700,7 +705,8 @@ tables:
   def: |-
     CREATE TABLE `roles` (
       `role_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `role_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `role_name` varchar(32) NOT NULL,
+      `role_order` int(4) NOT NULL DEFAULT 0,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
@@ -751,9 +757,9 @@ tables:
   def: |-
     CREATE TABLE `teams` (
       `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `team_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `team_description` text COLLATE utf8mb4_unicode_ci NOT NULL,
-      `team_environment` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `team_name` varchar(32) NOT NULL,
+      `team_description` text NOT NULL,
+      `team_environment` varchar(32) NOT NULL,
       PRIMARY KEY (`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles
@@ -852,9 +858,9 @@ tables:
   def: |-
     CREATE TABLE `events` (
       `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `event_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `event_short_name` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `event_slug` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `event_name` varchar(64) NOT NULL,
+      `event_short_name` varchar(32) NOT NULL,
+      `event_slug` varchar(16) NOT NULL,
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
@@ -1006,11 +1012,11 @@ tables:
     CREATE TABLE `logs` (
       `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `log_date` timestamp NOT NULL DEFAULT current_timestamp(),
-      `log_type` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `log_severity` enum('Debug','Info','Warning','Error') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `log_type` varchar(32) NOT NULL,
+      `log_severity` enum('Debug','Info','Warning','Error') NOT NULL,
       `log_source_user_id` int(8) unsigned DEFAULT NULL,
       `log_target_user_id` int(8) unsigned DEFAULT NULL,
-      `log_data` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `log_data` text DEFAULT NULL,
       PRIMARY KEY (`log_id`),
       KEY `log_target_user_id` (`log_target_user_id`),
       KEY `log_source_user_id` (`log_source_user_id`)
@@ -1076,12 +1082,12 @@ tables:
   def: |-
     CREATE TABLE `services` (
       `service_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-      `service_name` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_name` varchar(64) NOT NULL,
       `service_event_id` int(11) NOT NULL,
       `service_enabled` tinyint(1) NOT NULL,
       `service_interval` int(4) NOT NULL,
-      `service_driver` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-      `service_params` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_driver` varchar(32) NOT NULL,
+      `service_params` text NOT NULL,
       PRIMARY KEY (`service_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: services_logs
@@ -1148,9 +1154,9 @@ tables:
       `service_log_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
       `service_id` int(4) unsigned NOT NULL,
       `service_log_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-      `service_log_result` enum('Success','Warning','Error','Exception') COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_log_result` enum('Success','Warning','Error','Exception') NOT NULL,
       `service_log_runtime` double unsigned NOT NULL,
-      `service_log_data` text COLLATE utf8mb4_unicode_ci NOT NULL,
+      `service_log_data` text NOT NULL,
       PRIMARY KEY (`service_log_id`),
       KEY `service_id` (`service_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -1158,6 +1164,6 @@ relations: []
 functions: []
 driver:
   name: mysql
-  databaseVersion: 10.3.27-MariaDB
+  databaseVersion: 10.6.14-MariaDB
   meta:
     dict: {}

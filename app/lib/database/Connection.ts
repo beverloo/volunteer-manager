@@ -4,12 +4,12 @@
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { type QueryType, MockQueryRunner } from 'ts-sql-query/queryRunners/MockQueryRunner';
-import { type PoolConfig, createPool } from 'mariadb';
+import { type PoolConfig, Pool, createPool } from 'mariadb';
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
  */
-const kConnectionPoolConfiguration: PoolConfig = {
+const kConnectionPoolConfig: PoolConfig = {
     host: process.env.APP_DATABASE_SERVER,
     port: parseInt(process.env.APP_DATABASE_PORT!),
     user: process.env.APP_DATABASE_USERNAME,
@@ -64,14 +64,21 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
 }
 
 /**
+ * The query runner that powers connection coming from the Volunteer Manager. Lazily initialized the
+ * first time a connection is requested.
+ */
+let globalConnectionPool: Pool | undefined;
+
+/**
  * Global mock connection that can be created (& destroyed) using the `useMockConnection` function
  * in tests. The `db` global will seamlessly be overridden when this machinery is in place.
  */
 let globalMockConnection: DBConnection | undefined;
 
 /**
- * The global connection that should be used by the Volunteer Manager. Lazily initialised on first
- * access to avoid creating unmocked `DBConnection` in tests.
+ * The global connection that should be used by the Volunteer Manager. The connection pool is lazily
+ * initialized on first use, whereas a new `DBConnection` instance will be returned for each query
+ * that is being executed. This allows us to run multiple queries in parallel, pool limits allowing.
  */
 export const globalConnection = new Proxy<DBConnection>({ /* unused */ } as any, new class {
     #instance?: DBConnection = undefined;
@@ -79,14 +86,11 @@ export const globalConnection = new Proxy<DBConnection>({ /* unused */ } as any,
         if (globalMockConnection)
             return Reflect.get(globalMockConnection, property);
 
-        if (!this.#instance) {
-            const connectionPool = createPool(kConnectionPoolConfiguration);
-            const queryRunner = new MariaDBPoolQueryRunner(connectionPool);
+        if (!globalConnectionPool)
+            globalConnectionPool = createPool(kConnectionPoolConfig);
 
-            this.#instance = new DBConnection(queryRunner);
-        }
-
-        return Reflect.get(this.#instance, property);
+        const localConnection = new DBConnection(new MariaDBPoolQueryRunner(globalConnectionPool));
+        return Reflect.get(localConnection, property);
     }
 });
 
