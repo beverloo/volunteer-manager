@@ -119,6 +119,7 @@ do {
             // to the field mappings to this effect. Each column needs to be specified separately.
             ...[
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
+                { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
                 { field: [ 'services_logs', 'service_log_result' ], type: 'ServiceLogResult '},
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },

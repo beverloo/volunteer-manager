@@ -42,6 +42,16 @@ export enum RegistrationStatus {
 }
 
 /**
+ * The badges that can be assigned to individual roles.
+ * @see Table `roles`
+ */
+export enum RoleBadge {
+    Staff = 'Staff',
+    Senior = 'Senior',
+    Host = 'Host',
+}
+
+/**
  * Types of shift that can be stored in the database.
  * @see Table `schedule`
  */
