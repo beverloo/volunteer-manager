@@ -65,31 +65,20 @@ export interface PageInfoWithTeam extends PageInfo {
     };
 }
 
-/**
- * Extension on the team page info that also includes information about the volunteer.
- */
-export interface PageInfoWithTeamAndVolunteer {
-
-}
-
 type PageInfoParams = { slug: string; };
 type PageInfoWithTeamParams = { slug: string; team: string; };
-type PageInfoWithTeamAndVolunteerParams = { slug: string; team: string; volunteer: string; };
 
 /**
  * Verifies that the current user has access to the current page, and returns information about the
  * user and page appropriate to the amount of information passed in the `params` argument.
  */
-export async function verifyAccessAndFetchPageInfo(params: PageInfoWithTeamAndVolunteerParams)
-    : Promise<PageInfoWithTeamAndVolunteer | never>;
 export async function verifyAccessAndFetchPageInfo(params: PageInfoWithTeamParams)
     : Promise<PageInfoWithTeam | never>;
 export async function verifyAccessAndFetchPageInfo(params: PageInfoParams)
     : Promise<PageInfo | never>;
 
-export async function verifyAccessAndFetchPageInfo(
-    params: { slug: string, team?: string, volunteer?: string })
-        : Promise<PageInfoWithTeamAndVolunteer | never>
+export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?: string })
+    : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
     const user = await requireUser();
 
@@ -154,12 +143,5 @@ export async function verifyAccessAndFetchPageInfo(
             notFound();  // the |user| is not part of the |team|
     }
 
-    if (!Object.hasOwn(params, 'volunteer'))
-        return { user, event, team };
-
-    // ---------------------------------------------------------------------------------------------
-    // Volunteer information
-    // ---------------------------------------------------------------------------------------------
-
-    throw new Error('Not yet implemented.');
+    return { user, event, team };
 }
