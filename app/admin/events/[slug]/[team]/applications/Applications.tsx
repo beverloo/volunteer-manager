@@ -4,11 +4,37 @@
 'use client';
 
 import type { SxProps, Theme } from '@mui/system';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import InfoIcon from '@mui/icons-material/Info';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
+
+import { Avatar } from '@app/components/Avatar';
+import { RegistrationStatus } from '@app/lib/database/Types';
+
+/**
+ * Formatter for displaying the date on which the application was received.
+ */
+const kApplicationDateFormatter = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'full',
+    timeStyle: undefined,
+});
 
 /**
  * Custom styles applied to the <Applications> component & friends.
@@ -45,7 +71,66 @@ function NoApplications() {
  * will be shown displaying this in a structured manner.
  */
 export interface ApplicationInfo {
+    /**
+     * Unique ID of the user about whom this application is being displayed.
+     */
+    userId: number;
 
+    /**
+     * Age of the volunteer at the time when the event is due to start.
+     */
+    age: number;
+
+    /**
+     * Whether the volunteer is fully available during the event.
+     */
+    fullyAvailable: boolean;
+
+    /**
+     * Date at which the registration was submitted.
+     */
+    date: Date;
+
+    /**
+     * First name of the volunteer who made this application.
+     */
+    firstName: string;
+
+    /**
+     * Last name of the volunteer who made this application.
+     */
+    lastName: string;
+
+    /**
+     * Hash of the avatar file that this volunteer has uploaded for themselves.
+     */
+    avatar?: string;
+
+    /**
+     * The preferences that the volunteer has indicated for their participation.
+     */
+    preferences?: string;
+
+    /**
+     * Their preferred upper bound on the maximum number of hours to help out with.
+     */
+    preferenceHours?: number;
+
+    /**
+     * Their preference on when their shifts should start during the day.
+     */
+    preferenceTimingStart?: number;
+
+    /**
+     * Their preference on when their shifts should end during the day.
+     */
+    preferenceTimingEnd?: number;
+
+    /**
+     * History of their participation in AnimeCon events. Only the number of events are conveyed,
+     * for more information an administrator can look at their profile.
+     */
+    history: number;
 }
 
 /**
@@ -63,11 +148,106 @@ interface ApplicationProps {
  * either approved or rejected. Not all volunteers are allowed to manage applications.
  */
 function Application(props: ApplicationProps) {
+    const { application } = props;
+
+    const avatarUrl = application.avatar ? `/avatars/${application.avatar}.png` : undefined;
+    const avatar = (
+        <Avatar src={avatarUrl}>
+            {application.firstName} {application.lastName}
+        </Avatar>
+    );
+
+    const information = [
+        ...(
+            application.history ?
+            [
+                {
+                    icon: <InfoIcon fontSize="small" color="info" />,
+                    message:
+                        <>
+                            {application.firstName} has volunteered
+                            <strong>{ application.history === 1 ? ' once' :
+                                ` ${application.history} times`}</strong> before.
+                        </>
+                }
+            ] : [
+                {
+                    icon: <InfoIcon fontSize="small" color="info" />,
+                    message: <>{application.firstName} has not helped out at AnimeCon before.</>,
+                }
+            ] ),
+        {
+            icon: <InfoIcon fontSize="small" color="info" />,
+            message:
+                <>
+                    They're happy to volunteer for up to <strong>{application.preferenceHours} hours
+                    </strong>, preferrably between the hours of
+                    <strong> {`0${application.preferenceTimingStart}`.substr(-2)}:00
+                    </strong> – <strong>
+                        {`0${application.preferenceTimingEnd}`.substr(-2)}:00</strong>.
+                </>
+        },
+        ...(
+            application.preferences ?
+            [
+                {
+                    icon: <InfoIcon fontSize="small" color="info" />,
+                    message:
+                        <>
+                            They shared some preferences:
+                            "<strong><em>{application.preferences}</em></strong>"
+                        </>
+                }
+            ] : [ /* skip this row */ ] ),
+        {
+            icon: application.fullyAvailable ? <CheckCircleIcon fontSize="small" color="success" />
+                                             : <HelpOutlineIcon fontSize="small" color="warning" />,
+            message:
+                <>
+                    They indicated that they
+                    <strong> {application.fullyAvailable ? 'will be' : 'will not be'} </strong>
+                    fully available.
+                </>
+        },
+        {
+            icon: application.age >= 18 ? <CheckCircleIcon fontSize="small" color="success" />
+                                        : <HelpOutlineIcon fontSize="small" color="warning" />,
+            message:
+                <>
+                    {application.firstName} will be {application.age} years old during the event.
+                </>
+        },
+    ];
+
     return (
-        <Paper>
-            Hi
-        </Paper>
-    )
+        <Card>
+            <CardHeader avatar={avatar}
+                        titleTypographyProps={{ variant: 'subtitle1' }}
+                        title={`${application.firstName} ${application.lastName}`}
+                        subheader={kApplicationDateFormatter.format(application.date)} />
+            <Divider />
+            <CardContent sx={{ py: 0 }}>
+                <List dense>
+                    { information.map(({ icon, message }, index) =>
+                        <ListItem key={index}>
+                            <ListItemIcon>
+                                {icon}
+                            </ListItemIcon>
+                            <ListItemText primary={message} />
+                        </ListItem> )}
+                </List>
+            </CardContent>
+            <Divider />
+            <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
+                <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }>
+                    Reject
+                </Button>
+                <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }>
+                    Approve
+                </Button>
+            </CardActions>
+        </Card>
+    );
 }
 
 /**
@@ -92,7 +272,7 @@ export function Applications(props: ApplicationsProps) {
         return <NoApplications />;
 
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}>
             { applications.map((application, index) =>
                 <Grid key={index} xs={6}>
                     <Application application={application} />
