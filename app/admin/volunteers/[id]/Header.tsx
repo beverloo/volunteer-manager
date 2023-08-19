@@ -36,7 +36,7 @@ import { issueServerAction } from '@lib/issueServerAction';
 /**
  * Custom styles applied to the <Header> component.
  */
-const kStyles: { [key: string]: SxProps<Theme> } = {
+export const kStyles: { [key: string]: SxProps<Theme> } = {
     options: {
         borderRadius: 1,
         paddingX: 2,
