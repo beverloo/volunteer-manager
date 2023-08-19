@@ -74,7 +74,7 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
     return (
         <>
             <Header event={event} team={team} user={user.toUserData()} />
-            <Applications applications={applications} />
+            <Applications event={event} team={team} applications={applications} />
             { !!rejections.length &&
                 <Rejections applications={rejections} /> }
         </>

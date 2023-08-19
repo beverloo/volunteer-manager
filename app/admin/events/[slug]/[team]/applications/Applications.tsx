@@ -3,6 +3,8 @@
 
 'use client';
 
+import { useCallback, useState } from 'react';
+
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -25,8 +27,9 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 
+import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import { ApplicationResponseDialog } from './ApplicationResponseDialog';
 import { Avatar } from '@app/components/Avatar';
-import { RegistrationStatus } from '@app/lib/database/Types';
 
 /**
  * Formatter for displaying the date on which the application was received.
@@ -141,6 +144,11 @@ interface ApplicationProps {
      * The application that's being displayed by this component.
      */
     application: ApplicationInfo;
+
+    /**
+     * Requests for the application to be approved or rejected.
+     */
+    requestResponse: (application: ApplicationInfo, action: 'approve' | 'reject') => void;
 }
 
 /**
@@ -148,7 +156,7 @@ interface ApplicationProps {
  * either approved or rejected. Not all volunteers are allowed to manage applications.
  */
 function Application(props: ApplicationProps) {
-    const { application } = props;
+    const { application, requestResponse } = props;
 
     const avatarUrl = application.avatar ? `/avatars/${application.avatar}.png` : undefined;
     const avatar = (
@@ -239,10 +247,12 @@ function Application(props: ApplicationProps) {
             </CardContent>
             <Divider />
             <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
-                <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }>
+                <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
+                        onClick={ () => requestResponse(application, 'reject') }>
                     Reject
                 </Button>
-                <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }>
+                <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }
+                        onClick={ () => requestResponse(application, 'approve') }>
                     Approve
                 </Button>
             </CardActions>
@@ -258,6 +268,16 @@ export interface ApplicationsProps {
      * The applications that are currently pending a response.
      */
     applications: ApplicationInfo[];
+
+    /**
+     * Information about the event for which applications are being shown.
+     */
+    event: PageInfoWithTeam['event'];
+
+    /**
+     * Information about the team for which applications are being shown.
+     */
+    team: PageInfoWithTeam['team'];
 }
 
 /**
@@ -266,17 +286,47 @@ export interface ApplicationsProps {
  * event administrators and folks with the application management permissions.
  */
 export function Applications(props: ApplicationsProps) {
-    const { applications } = props;
+    const { applications, event, team } = props;
+
+    const [ action, setAction ] = useState<'approve' | 'reject'>();
+    const [ open, setOpen ] = useState<boolean>(false);
+
+    const [ application, setApplication ] = useState<{
+        firstName: string,
+        userId: number,
+        eventId: number,
+        teamId: number
+    }>();
+
+    const requestResponse = useCallback(
+        async (application: ApplicationInfo, action: 'approve' | 'reject') =>
+        {
+            setAction(action);
+            setOpen(true);
+
+            setApplication({
+                firstName: application.firstName,
+
+                userId: application.userId,
+                eventId: event.id,
+                teamId: team.id,
+            });
+
+        }, [ event, setAction, setApplication, setOpen, team ]);
 
     if (!applications.length)
         return <NoApplications />;
 
     return (
-        <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}>
-            { applications.map((application, index) =>
-                <Grid key={index} xs={6}>
-                    <Application application={application} />
-                </Grid> )}
-        </Grid>
+        <>
+            <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}>
+                { applications.map((application, index) =>
+                    <Grid key={index} xs={6}>
+                        <Application application={application} requestResponse={requestResponse} />
+                    </Grid> )}
+            </Grid>
+            <ApplicationResponseDialog open={open} action={action} application={application}
+                                       onClose={ () => setOpen(false) } />
+        </>
     );
 }
