@@ -7,18 +7,18 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 /**
- * Props accepted by the <VolunteerImport> component.
+ * Props accepted by the <ApplicationImport> component.
  */
-export interface VolunteerImportProps {
+export interface ApplicationImportProps {
 
 }
 
 /**
- * The <VolunteerImport> component allows certain users to immediately "import" users to this team
+ * The <ApplicationImport> component allows certain users to immediately "import" users to this team
  * by adding them directly, without going through the normal application process. The person who is
  * being added to the team still needs to have created an account with the Volunteer Manager.
  */
-export function VolunteerImport(props: VolunteerImportProps) {
+export function ApplicationImport(props: ApplicationImportProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>

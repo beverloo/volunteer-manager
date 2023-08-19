@@ -2,9 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRouterParams } from '@lib/NextRouterParams';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
-import { VolunteerImport } from './VolunteerImport';
 import { VolunteerTable } from './VolunteerTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -16,7 +14,7 @@ import db, { tRoles, tSchedule, tUsersEvents, tUsers } from '@lib/database';
  * who have event administrator permission can "import" any volunteer into this event.
  */
 export default async function VolunteersPage(props: NextRouterParams<'slug' | 'team'>) {
-    const { user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;
     const scheduleJoin = tSchedule.forUseInLeftJoin();
@@ -50,13 +48,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
         .executeSelectMany();
 
     return (
-        <>
-            <VolunteerTable title={`${event.shortName} ${team.name}`}
-                            volunteers={volunteers} {...props} />
-
-            { can(user, Privilege.EventAdministrator) &&
-                <VolunteerImport /> }
-        </>
+        <VolunteerTable title={`${event.shortName} ${team.name}`}
+                        volunteers={volunteers} {...props} />
     );
 }
 

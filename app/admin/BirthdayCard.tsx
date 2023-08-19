@@ -74,7 +74,7 @@ export function BirthdayCard(props: BirthdayCardProps) {
             <CardMedia sx={{ aspectRatio: 2, backgroundPositionY: '75%' }}
                        image={image} title="Birthdays" />
             <CardContent sx={{ pb: '8px !important' }}>
-                <Typography variant="h5">
+                <Typography variant="h5" sx={{ pb: 1 }}>
                     {kMonthFormatter.format(props.birthdays[0].birthdate)}
                 </Typography>
                 <List dense disablePadding>
