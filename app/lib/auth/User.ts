@@ -3,9 +3,10 @@
 
 import { type UserData } from './UserData';
 
+import { AuthType } from '../database/Types';
 import { getAvatarUrl } from '../database/AvatarStore';
 import { securePasswordHash } from './Password';
-import db, { sql, tUsers } from '../database';
+import db, { tUsers, tUsersAuth } from '../database';
 
 /**
  * Data that needs to be made available for a password reset request for a particular user. This
@@ -88,37 +89,30 @@ export class User implements UserData {
      */
     async updatePassword(hashedPassword: string, incrementSessionToken?: boolean): Promise<void> {
         const securelyHashedPassword = await securePasswordHash(hashedPassword);
-        const queries = [
+
+        const dbInstance = db;
+        await dbInstance.transaction(async () => {
             // (1) Delete all old passwords, which should no longer be valid.
-            sql`
-                DELETE FROM
-                    users_auth
-                WHERE
-                    user_id=${this.#user.user_id} AND
-                    auth_type IN ("code", "password")`,
+            await dbInstance.deleteFrom(tUsersAuth)
+                .where(tUsersAuth.userId.equals(this.#user.user_id))
+                    .and(tUsersAuth.authType.in([ AuthType.code, AuthType.password ]))
+                .executeDelete();
 
             // (2) Store the new password in the authentication table.
-            sql`
-                INSERT INTO
-                    users_auth
-                    (user_id, auth_type, auth_value)
-                VALUES
-                    (${this.#user.user_id}, "password", ${securelyHashedPassword})`,
-        ];
+            await dbInstance.insertInto(tUsersAuth)
+                .values({
+                    userId: this.#user.user_id,
+                    authType: AuthType.password,
+                    authValue: securelyHashedPassword
+                })
+                .executeInsert(/* min= */ 0, /* max= */ 1);
 
-        if (incrementSessionToken) {
-            queries.push(
-                // (3) Increment the user's session token, invalidating all other sessions.
-                sql`
-                    UPDATE
-                        users
-                    SET
-                        session_token=${++this.#user.session_token}
-                    WHERE
-                        user_id=${this.#user.user_id}`);
-        }
-
-        await Promise.all(queries);
+            // (3) Increment the user's session token, invalidating all other sessions.
+            await dbInstance.update(tUsers)
+                .set({ sessionToken: this.#user.session_token + 1 })
+                .where(tUsers.userId.equals(this.#user.user_id))
+                .executeUpdate(/* min= */ 0, /* max= */ 1);
+        });
     }
 
     /**
