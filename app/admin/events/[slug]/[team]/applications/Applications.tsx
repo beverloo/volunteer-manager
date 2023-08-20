@@ -5,7 +5,6 @@
 
 import { useCallback, useState } from 'react';
 
-import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -20,7 +19,6 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -30,6 +28,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { ApplicationResponseDialog } from './ApplicationResponseDialog';
 import { Avatar } from '@app/components/Avatar';
+import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 
 /**
  * Formatter for displaying the date on which the application was received.
@@ -40,33 +39,20 @@ const kApplicationDateFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 /**
- * Custom styles applied to the <Applications> component & friends.
- */
-export const kStyles: { [key: string]: SxProps<Theme> } = {
-    noApplicationsContainer: {
-        backgroundColor: theme => theme.palette.mode === 'light' ? 'rgba(0, 0, 0, .05)'
-                                                                 : 'rgba(255, 255, 255, .05)',
-
-        border: '2px dashed rgba(0, 0, 0, .1)',
-        padding: 2,
-    }
-};
-
-/**
  * The <NoApplications> component will be shown when there are no pending applications. This is a
  * good state because it means that nobody is waiting for an answer.
  */
 function NoApplications() {
     return (
-        <Paper elevation={0} sx={kStyles.noApplicationsContainer}>
+        <PlaceholderPaper sx={{ p: 2 }}>
             <Stack direction="row" spacing={2} justifyContent="flex-start">
                 <TaskAltIcon color="disabled" />
                 <Typography sx={{ color: 'text.disabled' }}>
                     There are no pending applications
                 </Typography>
             </Stack>
-        </Paper>
-    )
+        </PlaceholderPaper>
+    );
 }
 
 /**

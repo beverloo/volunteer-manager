@@ -4,6 +4,7 @@
 import DvrIcon from '@mui/icons-material/Dvr';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import WebhookIcon from '@mui/icons-material/Webhook';
 
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
@@ -19,6 +20,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <GridViewIcon />,
             label: 'Dashboard',
             url: '/admin',
+        },
+        {
+            icon: <WebhookIcon />,
+            label: 'Integrations',
+            privilege: Privilege.SystemAdministrator,
+            url: '/admin/integrations',
         },
         {
             icon: <DvrIcon />,
