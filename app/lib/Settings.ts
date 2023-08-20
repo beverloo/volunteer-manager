@@ -88,9 +88,6 @@ export async function writeSettings<T extends keyof SettingsMap>(
                 keysToInsert.push({ settingName: setting, settingValue: JSON.stringify(value) });
         }
 
-        console.log(keysToDelete);
-        console.log(keysToInsert);
-
         // Delete stored settings that no longer should have a value.
         if (keysToDelete.length) {
             await dbInstance.deleteFrom(tSettings)
