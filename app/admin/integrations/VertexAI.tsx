@@ -16,12 +16,16 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
+import Skeleton from '@mui/material/Skeleton';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 
+import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
+import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Example prompt that can be submitted from the integration page to test this API.
@@ -33,7 +37,7 @@ const kExamplePrompt = `
     that were submitted on Wednesday or Friday. Encourage them to try again next year.`;
 
 /**
- * Custom styles applied to the <Information> component.
+ * Custom styles applied to the <VertexAI> component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     unsavedWarning: {
@@ -116,16 +120,16 @@ function ServiceSettings(props: ServiceSettingsProps) {
                 <Grid xs={6}>
                     <SliderElement name="temperature" label="Temperature" size="small"
                                    min={0} max={1} step={0.05}
-                                   onChangeCommitted={onTemperatureChange}/>
+                                   onChangeCommitted={onTemperatureChange} />
                 </Grid>
                 <Grid xs={6}>
                     <SliderElement name="tokenLimit" label="Token limit" size="small"
                                    min={1} max={1024} step={1}
-                                   onChangeCommitted={onTokenLimitChange}/>
+                                   onChangeCommitted={onTokenLimitChange} />
                 </Grid>
                 <Grid xs={6}>
                     <SliderElement name="topK" label="Top K" size="small"
-                                   min={1} max={40} onChangeCommitted={onTopKChange}/>
+                                   min={1} max={40} onChangeCommitted={onTopKChange} />
                 </Grid>
                 <Grid xs={6}>
                     <SliderElement name="topP" label="Top P" size="small"
@@ -191,13 +195,37 @@ function InteractivePanel(props: InteractivePanelProps) {
 }
 
 /**
+ * Props accepted by the <InteractiveResponsePanel> component.
+ */
+interface InteractiveResponsePanelProps {
+    /**
+     * The response to display in the panel. Undefined means that it's still loading, and should not
+     * be displayed as is yet.
+     */
+    response?: string;
+}
+
+/**
  * Panel that displays the response to the interactive panel's queries. This version of the panel
  * assumes that a response is (at least) being loaded, and thus supports a suspended state.
  */
-function InteractiveResponsePanel() {
+function InteractiveResponsePanel(props: InteractiveResponsePanelProps) {
+    const { response } = props;
     return (
         <Paper sx={{ flexBasis: '100%', p: 2 }}>
-            (2)
+            { (!response) &&
+                <>
+                    <Skeleton variant="text" animation="wave" width="80%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="60%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="70%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="70%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="40%" height={16} />
+                </> }
+            <Collapse in={!!response}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    {props.response}
+                </Typography>
+            </Collapse>
         </Paper>
     );
 }
@@ -291,19 +319,37 @@ export interface VertexAIProps {
 export function VertexAI(props: VertexAIProps) {
     const [ settings, setSettings ] = useState<VertexAISettings>(props.settings);
 
+    const [ loading, setLoading ] = useState<boolean>(false);
+    const [ response, setResponse ] = useState<string>();
+
     const generateResponse = useCallback(async (prompt: string) => {
-        // TODO: Issue a call to the server to generate a message.
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        setLoading(true);
+        setResponse(undefined);
+
+        try {
+            const response = await issueServerAction<VertexAiDefinition>('/api/admin/vertex-ai', {
+                prompt,
+                settings,
+            });
+
+            if (response.result)
+                setResponse(response.result);
+
+        } finally {
+            setLoading(false);
+        }
+
     }, [ settings ]);
 
     const updateSettings = useCallback((settings: VertexAISettings) => {
         setSettings(settings);
     }, [ setSettings ]);
 
-    const saveSettings = useCallback(async (settings: VertexAISettings) => {
-        // TODO: Issue a call to the server to save the settings.
-        await new Promise(resolve => setTimeout(resolve, 1500));
-    }, [ setSettings ]);
+    const saveSettings = useCallback(async () => {
+        await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+            vertexAi: settings,
+        });
+    }, [ settings ]);
 
     return (
         <>
@@ -322,7 +368,8 @@ export function VertexAI(props: VertexAIProps) {
             </Paper>
             <Stack direction="row" spacing={2} alignItems="stretch">
                 <InteractivePanel onRequest={generateResponse} />
-                <InteractiveResponseIdlePanel />
+                { (!loading && !response) && <InteractiveResponseIdlePanel /> }
+                { (loading || response) && <InteractiveResponsePanel response={response} /> }
             </Stack>
         </>
     );

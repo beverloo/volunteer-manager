@@ -11,8 +11,10 @@ import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
+import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
+import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -40,10 +42,14 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kResetPasswordLinkDefinition, resetPasswordLink);
         case 'update-activation':
             return executeAction(request, kUpdateActivationDefinition, updateActivation);
+        case 'update-integration':
+            return executeAction(request, kUpdateIntegrationDefinition, updateIntegration);
         case 'update-permissions':
             return executeAction(request, kUpdatePermissionsDefinition, updatePermissions);
         case 'update-volunteer':
             return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
+        case 'vertex-ai':
+            return executeAction(request, kVertexAiDefinition, vertexAi);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });
