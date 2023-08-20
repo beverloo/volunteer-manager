@@ -25,7 +25,9 @@ export enum LogType {
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
+    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
     AdminUpdatePermission = 'admin-update-permission',
+    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     DatabaseError = 'database-error',
 }

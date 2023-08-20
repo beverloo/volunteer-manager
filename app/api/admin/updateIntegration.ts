@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { LogType, Log } from '@lib/Log';
+import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { writeSettings } from '@lib/Settings';
 
@@ -58,6 +58,12 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-google-location': request.google.location,
             'integration-google-project-id': request.google.projectId,
         });
+
+        await Log({
+            type: LogType.AdminUpdateGoogleIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+        });
     }
 
     if (request.vertexAi) {
@@ -67,6 +73,12 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-vertex-token-limit': request.vertexAi.tokenLimit,
             'integration-vertex-top-k': request.vertexAi.topK,
             'integration-vertex-top-p': request.vertexAi.topP,
+        });
+
+        await Log({
+            type: LogType.AdminUpdateVertexIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
         });
     }
 
