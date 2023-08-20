@@ -8,30 +8,14 @@ import { useCallback, useState } from 'react';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
-import type { SxProps, Theme } from '@mui/system';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
+import { SubmitCollapse } from '../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
-
-/**
- * Custom styles applied to the <Google> component.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    unsavedWarning: {
-        backgroundColor: theme => theme.palette.mode === 'light' ? red[50] : red[900],
-        borderRadius: 1,
-        padding: 1,
-        marginTop: 2,
-    },
-};
 
 /**
  * Google endpoint locations that are available in the Volunteer Manager.
@@ -131,17 +115,7 @@ export function Google(props: GoogleProps) {
                                           size="small" onChange={doInvalidate} />
                     </Grid>
                 </Grid>
-                <Collapse in={invalidated}>
-                    <Box sx={kStyles.unsavedWarning}>
-                        <LoadingButton loading={loading} variant="contained" type="submit">
-                            Save changes
-                        </LoadingButton>
-                        { error &&
-                            <Typography sx={{ display: 'inline-block', ml: 2 }}>
-                                {error}
-                            </Typography> }
-                    </Box>
-                </Collapse>
+                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
             </FormContainer>
         </Paper>
     );

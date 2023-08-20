@@ -8,9 +8,7 @@ import { useCallback, useState } from 'react';
 import { type FieldValues, FormContainer, TextareaAutosizeElement,
     SliderElement } from 'react-hook-form-mui';
 
-import type { SxProps, Theme } from '@mui/system';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -20,11 +18,11 @@ import Skeleton from '@mui/material/Skeleton';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
-import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
+import { PlaceholderPaper } from '../components/PlaceholderPaper';
+import { SubmitCollapse } from '../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -35,18 +33,6 @@ const kExamplePrompt = `
     email to tell your friend Fred, who applied to help out, that they unfortunately won't be able
     to help out this year because they applied on a Tuesday whereas we only accept applications
     that were submitted on Wednesday or Friday. Encourage them to try again next year.`;
-
-/**
- * Custom styles applied to the <VertexAI> component.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    unsavedWarning: {
-        backgroundColor: theme => theme.palette.mode === 'light' ? red[50] : red[900],
-        borderRadius: 1,
-        padding: 1,
-        marginTop: 1,
-    },
-};
 
 /**
  * Props accepted by the <ServiceSettings> component.
@@ -136,17 +122,7 @@ function ServiceSettings(props: ServiceSettingsProps) {
                                    min={0} max={1} step={0.05} onChangeCommitted={onTopPChange} />
                 </Grid>
             </Grid>
-            <Collapse in={invalidated}>
-                <Box sx={kStyles.unsavedWarning}>
-                    <LoadingButton loading={loading} variant="contained" type="submit">
-                        Save changes
-                    </LoadingButton>
-                    { error &&
-                        <Typography sx={{ display: 'inline-block', ml: 2 }}>
-                            {error}
-                        </Typography> }
-                </Box>
-            </Collapse>
+            <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 1 }} />
         </FormContainer>
     );
 }

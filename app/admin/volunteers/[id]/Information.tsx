@@ -6,36 +6,21 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { dayjs } from '@lib/DateTime';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
-import type { SxProps, Theme } from '@mui/system';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 
 import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VolunteerInfo } from './page';
-import { dayjs } from '@lib/DateTime';
+import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 import { kGenderOptions } from '@app/registration/authentication/RegisterDialog';
-
-/**
- * Custom styles applied to the <Information> component.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    unsavedWarning: {
-        backgroundColor: theme => theme.palette.mode === 'light' ? red[50] : red[900],
-        borderRadius: 1,
-        padding: 1,
-    },
-};
 
 /**
  * Props accepted by the <Information> component.
@@ -136,17 +121,7 @@ export function Information(props: InformationProps) {
                     </Grid>
 
                     <Grid xs={12}>
-                        <Collapse in={invalidated}>
-                            <Box sx={kStyles.unsavedWarning}>
-                                <LoadingButton loading={loading} variant="contained" type="submit">
-                                    Save changes
-                                </LoadingButton>
-                                { error &&
-                                    <Typography sx={{ display: 'inline-block', ml: 2 }}>
-                                        {error}
-                                    </Typography> }
-                            </Box>
-                        </Collapse>
+                        <SubmitCollapse error={error} loading={loading} open={invalidated} />
                     </Grid>
                 </Grid>
             </Paper>
