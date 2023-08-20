@@ -17,6 +17,15 @@ import { kVertexAiSettings } from './vertexAi';
 export const kUpdateIntegrationDefinition = z.object({
     request: z.object({
         /**
+         * Google settings that should be updated.
+         */
+        google: z.object({
+            credential: z.string(),
+            location: z.string(),
+            projectId: z.string(),
+        }).optional(),
+
+        /**
          * Vertex AI settings that should be updated.
          */
         vertexAi: kVertexAiSettings.optional(),
@@ -40,8 +49,16 @@ type Response = UpdateIntegrationDefinition['response'];
  * different permission levels if need be.
  */
 export async function updateIntegration(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.Administrator))
+    if (!can(props.user, Privilege.SystemAdministrator))
         noAccess();
+
+    if (request.google) {
+        await writeSettings({
+            'integration-google-credentials': request.google.credential,
+            'integration-google-location': request.google.location,
+            'integration-google-project-id': request.google.projectId,
+        });
+    }
 
     if (request.vertexAi) {
         await writeSettings({
