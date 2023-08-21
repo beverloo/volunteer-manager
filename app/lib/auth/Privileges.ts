@@ -7,12 +7,15 @@ import { type UserData } from './UserData';
 /**
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
+ *
+ * Next setting: 1 << 11
  */
 export enum Privilege {
     Administrator               = 1 << 0,
     Statistics                  = 1 << 1,
 
     // Privileges regarding the visibility and accessibility of events.
+    EventApplicationManagement  = 1 << 10,
     EventContentOverride        = 1 << 2,
     EventRegistrationOverride   = 1 << 3,
     EventScheduleOverride       = 1 << 4,
@@ -51,6 +54,7 @@ export function can(user: User | UserData | undefined, privilege: Privilege): bo
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
     [Privilege.Statistics]: 'Special access',
+    [Privilege.EventApplicationManagement]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
@@ -67,6 +71,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
     [Privilege.Statistics]: 'Statistics',
+    [Privilege.EventApplicationManagement]: 'Manage applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',

@@ -71,10 +71,12 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
             rejections.push(application);
     }
 
+    const userData = user.toUserData();
+
     return (
         <>
-            <Header event={event} team={team} user={user.toUserData()} />
-            <Applications event={event} team={team} applications={applications} />
+            <Header event={event} team={team} user={userData} />
+            <Applications event={event} team={team} user={userData} applications={applications} />
             { !!rejections.length &&
                 <Rejections applications={rejections} /> }
         </>

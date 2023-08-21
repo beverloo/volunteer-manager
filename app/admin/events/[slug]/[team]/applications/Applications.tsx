@@ -29,6 +29,8 @@ import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPag
 import { ApplicationResponseDialog } from './ApplicationResponseDialog';
 import { Avatar } from '@app/components/Avatar';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
+import { Privilege, can  } from '@lib/auth/Privileges';
+import { UserData } from '@lib/auth/UserData';
 
 /**
  * Formatter for displaying the date on which the application was received.
@@ -132,9 +134,10 @@ interface ApplicationProps {
     application: ApplicationInfo;
 
     /**
-     * Requests for the application to be approved or rejected.
+     * Requests for the application to be approved or rejected. The volunteer won't be offered the
+     * option to respond to this application if this prop is missing.
      */
-    requestResponse: (application: ApplicationInfo, action: 'approve' | 'reject') => void;
+    requestResponse?: (application: ApplicationInfo, action: 'approve' | 'reject') => void;
 }
 
 /**
@@ -220,7 +223,7 @@ function Application(props: ApplicationProps) {
                         title={`${application.firstName} ${application.lastName}`}
                         subheader={kApplicationDateFormatter.format(application.date)} />
             <Divider />
-            <CardContent sx={{ py: 0 }}>
+            <CardContent sx={{ py: '0 !important' }}>
                 <List dense>
                     { information.map(({ icon, message }, index) =>
                         <ListItem key={index}>
@@ -231,17 +234,20 @@ function Application(props: ApplicationProps) {
                         </ListItem> )}
                 </List>
             </CardContent>
-            <Divider />
-            <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
-                <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
-                        onClick={ () => requestResponse(application, 'reject') }>
-                    Reject
-                </Button>
-                <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }
-                        onClick={ () => requestResponse(application, 'approve') }>
-                    Approve
-                </Button>
-            </CardActions>
+            { !!requestResponse &&
+                <>
+                    <Divider />
+                    <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
+                        <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
+                                onClick={ () => requestResponse(application, 'reject') }>
+                            Reject
+                        </Button>
+                        <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }
+                                onClick={ () => requestResponse(application, 'approve') }>
+                            Approve
+                        </Button>
+                    </CardActions>
+                </> }
         </Card>
     );
 }
@@ -264,6 +270,11 @@ export interface ApplicationsProps {
      * Information about the team for which applications are being shown.
      */
     team: PageInfoWithTeam['team'];
+
+    /**
+     * The user for whom this page is being shown.
+     */
+    user: UserData;
 }
 
 /**
@@ -272,7 +283,7 @@ export interface ApplicationsProps {
  * event administrators and folks with the application management permissions.
  */
 export function Applications(props: ApplicationsProps) {
-    const { applications, event, team } = props;
+    const { applications, event, team, user } = props;
 
     const [ action, setAction ] = useState<'approve' | 'reject'>();
     const [ open, setOpen ] = useState<boolean>(false);
@@ -284,7 +295,7 @@ export function Applications(props: ApplicationsProps) {
         teamId: number
     }>();
 
-    const requestResponse = useCallback(
+    const doRequestResponse = useCallback(
         async (application: ApplicationInfo, action: 'approve' | 'reject') =>
         {
             setAction(action);
@@ -299,6 +310,12 @@ export function Applications(props: ApplicationsProps) {
             });
 
         }, [ event, setAction, setApplication, setOpen, team ]);
+
+    // Whether the volunteer can respond to applications depends on their permissions. Those who
+    // are either an event administrator or have application management rights can.
+    const requestResponse =
+        (can(user, Privilege.EventAdministrator) ||
+         can(user, Privilege.EventApplicationManagement)) ? doRequestResponse : undefined;
 
     if (!applications.length)
         return <NoApplications />;
