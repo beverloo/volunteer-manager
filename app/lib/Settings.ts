@@ -17,6 +17,10 @@ type SettingsMap = {
     'integration-google-location': string;
     'integration-google-project-id': string;
 
+    // Prompts:
+    'integration-prompt-approve-volunteer': string;
+    'integration-prompt-reject-volunteer': string;
+
     // Google Vertex AI:
     'integration-vertex-model': 'text-bison' | 'text-bison@001';
     'integration-vertex-temperature': number;

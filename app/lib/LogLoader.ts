@@ -87,6 +87,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdatePermission]: (source, target, data) => {
         return `Updated the permissions of ${target?.name}`;
     },
+    [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [LogType.AdminUpdateVertexIntegration]: 'Updated the integration settings for Vertex AI',
     [LogType.AdminUpdateVolunteer]: (source, target, data) => {
         return `Updated the user information of ${target?.name}`;

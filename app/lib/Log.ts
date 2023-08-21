@@ -27,6 +27,7 @@ export enum LogType {
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdateGoogleIntegration = 'admin-update-google-integration',
     AdminUpdatePermission = 'admin-update-permission',
+    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
     AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     DatabaseError = 'database-error',

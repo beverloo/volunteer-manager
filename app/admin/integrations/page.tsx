@@ -3,10 +3,9 @@
 
 import { type Metadata } from 'next';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import { Google, GoogleSettings } from './Google';
+import { StatusHeader } from './StatusHeader';
+import { Prompts, type PromptSettings } from './Prompts';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { readSettings } from '@lib/Settings';
 
@@ -20,6 +19,10 @@ export default async function IntegrationsPage() {
         'integration-google-credentials',
         'integration-google-location',
         'integration-google-project-id',
+
+        // Prompts:
+        'integration-prompt-approve-volunteer',
+        'integration-prompt-reject-volunteer',
 
         // Google Vertex AI:
         'integration-vertex-model',
@@ -35,6 +38,11 @@ export default async function IntegrationsPage() {
         projectId: settings['integration-google-project-id'] ?? '',
     };
 
+    const promptSettings: PromptSettings = {
+        approveVolunteer: settings['integration-prompt-approve-volunteer'] ?? '',
+        rejectVolunteer: settings['integration-prompt-reject-volunteer'] ?? '',
+    };
+
     const vertexSettings: VertexAISettings = {
         model: settings['integration-vertex-model'] ?? 'text-bison@001',
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
@@ -45,13 +53,10 @@ export default async function IntegrationsPage() {
 
     return (
         <>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5">
-                    Integrations
-                </Typography>
-            </Paper>
+            <StatusHeader />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
+            <Prompts settings={promptSettings} />
         </>
     );
 }
