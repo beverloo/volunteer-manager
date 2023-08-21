@@ -15,6 +15,7 @@ import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegr
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { vertexAi, kVertexAiDefinition } from '../vertexAi';
+import { volunteerList, kVolunteerListDefinition } from '../volunteerList';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -50,6 +51,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
         case 'vertex-ai':
             return executeAction(request, kVertexAiDefinition, vertexAi);
+        case 'volunteer-list':
+            return executeAction(request, kVolunteerListDefinition, volunteerList);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

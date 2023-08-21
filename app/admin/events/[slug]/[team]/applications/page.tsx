@@ -2,12 +2,14 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRouterParams } from '@lib/NextRouterParams';
+import { Privilege, can  } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@app/lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { Applications } from './Applications';
+import { CreateApplication } from './CreateApplication';
 import { Header } from './Header';
 import { Rejections } from './Rejections';
 
@@ -73,12 +75,21 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
 
     const userData = user.toUserData();
 
+    // Whether the volunteer can respond to applications depends on their permissions. Those who
+    // are either an event administrator or have application management rights can.
+    const canManageApplications =
+        can(user, Privilege.EventAdministrator) ||
+        can(user, Privilege.EventApplicationManagement);
+
     return (
         <>
             <Header event={event} team={team} user={userData} />
-            <Applications event={event} team={team} user={userData} applications={applications} />
+            <Applications event={event} team={team} applications={applications}
+                          canManageApplications={canManageApplications} />
             { !!rejections.length &&
                 <Rejections applications={rejections} /> }
+            { canManageApplications &&
+                <CreateApplication event={event} team={team} user={userData} /> }
         </>
     );
 }

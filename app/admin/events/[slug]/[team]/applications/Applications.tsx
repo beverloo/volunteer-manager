@@ -29,8 +29,6 @@ import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPag
 import { ApplicationResponseDialog } from './ApplicationResponseDialog';
 import { Avatar } from '@app/components/Avatar';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
-import { Privilege, can  } from '@lib/auth/Privileges';
-import { UserData } from '@lib/auth/UserData';
 
 /**
  * Formatter for displaying the date on which the application was received.
@@ -262,6 +260,11 @@ export interface ApplicationsProps {
     applications: ApplicationInfo[];
 
     /**
+     * Whether the signed in volunteer has the ability to manage applications.
+     */
+    canManageApplications?: boolean;
+
+    /**
      * Information about the event for which applications are being shown.
      */
     event: PageInfoWithTeam['event'];
@@ -270,11 +273,6 @@ export interface ApplicationsProps {
      * Information about the team for which applications are being shown.
      */
     team: PageInfoWithTeam['team'];
-
-    /**
-     * The user for whom this page is being shown.
-     */
-    user: UserData;
 }
 
 /**
@@ -283,7 +281,7 @@ export interface ApplicationsProps {
  * event administrators and folks with the application management permissions.
  */
 export function Applications(props: ApplicationsProps) {
-    const { applications, event, team, user } = props;
+    const { applications, canManageApplications, event, team } = props;
 
     const [ action, setAction ] = useState<'approve' | 'reject'>();
     const [ open, setOpen ] = useState<boolean>(false);
@@ -311,11 +309,7 @@ export function Applications(props: ApplicationsProps) {
 
         }, [ event, setAction, setApplication, setOpen, team ]);
 
-    // Whether the volunteer can respond to applications depends on their permissions. Those who
-    // are either an event administrator or have application management rights can.
-    const requestResponse =
-        (can(user, Privilege.EventAdministrator) ||
-         can(user, Privilege.EventApplicationManagement)) ? doRequestResponse : undefined;
+    const requestResponse = canManageApplications ? doRequestResponse : undefined;
 
     if (!applications.length)
         return <NoApplications />;
