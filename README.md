@@ -30,7 +30,10 @@ running the following command, instructed by our [Dockerfile](Dockerfile):
 $ npm run build-prod
 ```
 
-Once the image has been created, you can run it locally through `npm run serve-prod`, or directly
-push it to production by using `npm run deploy-prod`. An external MySQL server for data storage
-will continue to be required in both of these scenarios, configuration for which can be obtained
-from the project maintainers if required.
+Once the image has been created, you can run it locally through `npm run serve-prod`, providing
+Docker has been installed on your system. The production environment will need a completed
+`.env.production` file based on [`.env.production.sample`](.env.production.sample).
+
+Deployment to the actual server is done through a [GitHub Action](.github/workflows/deploy.yml) that
+mimics these steps remotely. This action is accessible through the GitHub user interface as well, at
+least for people with the necessary permissions.

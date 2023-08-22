@@ -4,7 +4,6 @@
   "description": "Volunteer Management environment for AnimeCon",
   "scripts": {
     "build-prod": "node Docker.build.js",
-    "deploy-prod": "TODO",
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
     "sync-db-prod": "node ts-sql.build.mjs",
     "build": "next build",
