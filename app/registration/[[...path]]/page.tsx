@@ -68,7 +68,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // Step 2: The |user| has access to the |event|. Two more things we need to do: fetch all their
     // registration information, and fetch the page that they wish to see on the portal.
     const content = await getContent(environment, event, path);
-    const registration = await getRegistration(environment, event, user);
+    const registration = await getRegistration(environment, event, user?.userId);
 
     // Step 3: Defer to more specific sub-components when this is a functional request.
     let redirectUrl = `/registration/${event.slug}`;

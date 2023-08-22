@@ -4,20 +4,26 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Autocomplete, { type AutocompleteProps } from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
+import SaveIcon from '@mui/icons-material/Save';
+import Stack from '@mui/material/Stack';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
+import type { ApplicationDefinition } from '@app/api/event/application';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UserData } from '@lib/auth/UserData';
 import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
+import { ApplicationParticipation } from '@app/registration/[[...path]]/ApplicationParticipation';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -112,6 +118,14 @@ function VolunteerAutocompleteTextField(props: VolunteerAutocompleteTextFieldPro
 }
 
 /**
+ * Default values to initialize the application form with.
+ */
+const kDefaultApplicationValues = {
+    serviceHours: '16',
+    serviceTiming: '10-0',
+};
+
+/**
  * Props accepted by the <CreateApplication> component.
  */
 export interface CreateApplicationProps {
@@ -143,9 +157,51 @@ export function CreateApplication(props: CreateApplicationProps) {
         setSelectedUserId(userId);
     }, [ setSelectedUserId ]);
 
+    const formContext = useForm({ defaultValues: kDefaultApplicationValues });
+    const { reset } = formContext;
+
+    const router = useRouter();
+
+    const [ error, setError ] = useState<string>();
+    const [ loading, setLoading ] = useState<boolean>(false);
+
     const requestSubmit = useCallback(async (data: FieldValues) => {
-        // TODO: Implement this function.
-    }, [ selectedUserId ]);
+        if (!selectedUserId)
+            return;  // this should not happen
+
+        setLoading(true);
+        try {
+            const response = await issueServerAction<ApplicationDefinition>(
+                '/api/event/application', {
+                    availability: true,
+                    credits: true,
+                    event: props.event.slug,
+                    preferences: data.preferences,
+                    serviceHours: data.serviceHours,
+                    serviceTiming: data.serviceTiming,
+                    socials: true,
+                    tshirtFit: data.tshirtFit,
+                    tshirtSize: data.tshirtSize,
+                    adminOverride: {
+                        environment: props.team.slug,
+                        userId: selectedUserId,
+                    },
+                });
+
+            if (!response.success) {
+                setError(response.error);
+            } else {
+                setSelectedUserId(/* none= */ undefined);
+                reset(kDefaultApplicationValues);
+
+                router.refresh();
+            }
+        } catch (error: any) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [ props, reset, router, selectedUserId, setError, setSelectedUserId ]);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -158,13 +214,22 @@ export function CreateApplication(props: CreateApplicationProps) {
                 correctness of the information. The application will still have to be accepted,
                 which will automatically inform them.
             </Alert>
-            <FormContainer>
+            <FormContainer formContext={formContext} onSuccess={requestSubmit}>
                 <VolunteerAutocompleteTextField variant="outlined" name="volunteerId"
                                                 label="Volunteer" size="small" autoComplete="off"
                                                 excludeEventId={props.event?.id}
                                                 onVolunteerSelected={onVolunteerSelected} />
                 <Collapse in={!!selectedUserId}>
-                    userId: {selectedUserId}
+                    <ApplicationParticipation sx={{ pt: 2 }} />
+                    <Stack direction="row" spacing={2} sx={{ mt: 1, py: 1 }} alignItems="center">
+                        <LoadingButton loading={loading} startIcon={ <SaveIcon /> } type="submit"
+                                       variant="contained">
+                            Create application
+                        </LoadingButton>
+                        <Typography variant="body2" color="error.main">
+                            {error}
+                        </Typography>
+                    </Stack>
                 </Collapse>
             </FormContainer>
         </Paper>

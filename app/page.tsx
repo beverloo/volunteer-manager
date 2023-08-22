@@ -37,7 +37,7 @@ export default async function RootPage() {
                 continue;
 
             registrationEvent = event;
-            registration = await getRegistration(environment, event, user);
+            registration = await getRegistration(environment, event, user.userId);
             break;
         }
     }

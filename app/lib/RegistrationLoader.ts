@@ -4,7 +4,6 @@
 import { type ApplicationDefinition } from '@app/api/event/application';
 import { type Event } from './Event';
 import { type RegistrationDatabaseRow, Registration } from './Registration';
-import { type User } from './auth/User';
 import { Environment } from '@app/Environment';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
 import db, { sql, tTeams, tTeamsRoles, tUsersEvents } from './database';
@@ -12,13 +11,13 @@ import db, { sql, tTeams, tTeamsRoles, tUsersEvents } from './database';
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
 /**
- * Retrieves the registration associated with the given `user` at the given `event`. When no such
+ * Retrieves the registration associated with the given `userId` at the given `event`. When no such
  * registration exists, `undefined` will be returned instead.
  */
-export async function getRegistration(environment: Environment, event: Event, user?: User)
+export async function getRegistration(environment: Environment, event: Event, userId?: number)
     : Promise<Registration | undefined>
 {
-    if (!user)
+    if (!userId)
         return undefined;
 
     const result =
@@ -45,7 +44,7 @@ export async function getRegistration(environment: Environment, event: Event, us
             LEFT JOIN
                 hotels ON hotels.event_id = users_events.event_id
             WHERE
-                users_events.user_id = ${user.userId} AND
+                users_events.user_id = ${userId} AND
                 users_events.event_id = ${event.eventId} AND
                 teams.team_id IS NOT NULL
             GROUP BY
@@ -58,11 +57,12 @@ export async function getRegistration(environment: Environment, event: Event, us
 }
 
 /**
- * Creates a new registration on behalf of the `user`, based on the given `application` information
+ * Creates a new registration on behalf of the `userId`, based on the given `application` info
  * that they added through the registration portal. Throws an exception when an error occurs.
  */
 export async function createRegistration(
-    environment: Environment, event: Event, user: User, application: ApplicationData): Promise<void>
+    environment: Environment, event: Event, userId: number,
+    application: ApplicationData): Promise<void>
 {
     const teamDefaultRole = await db.selectFrom(tTeams)
         .innerJoin(tTeamsRoles)
@@ -84,7 +84,7 @@ export async function createRegistration(
     const dbInstance = db;
     const affectedRows = await dbInstance.insertInto(tUsersEvents)
         .set({
-            userId: user.userId,
+            userId: userId,
             eventId: event.eventId,
             teamId: teamDefaultRole.teamId,
             roleId: teamDefaultRole.roleId,

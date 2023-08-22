@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { Environment } from '@app/Environment';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -58,6 +59,22 @@ export const kApplicationDefinition = z.object({
          * Size of the t-shirt that the volunteer would like to receive as a thank you.
          */
         tshirtSize: z.enum([ 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL' ]),
+
+        /**
+         * Override configuration that can be provided when an application is being created through
+         * the administration panel. Only people with application management permission can do this.
+         */
+        adminOverride: z.strictObject({
+            /**
+             * The environment that this request is being submitted as.
+             */
+            environment: z.string(),
+
+            /**
+             * The user Id for whom the application is being created.
+             */
+            userId: z.number(),
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -86,28 +103,41 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!props.user)
             throw new Error('Sorry, you need to log in to your account first.');
 
-        const environment = getRequestEnvironment();
-
         const event = await getEventBySlug(request.event);
         if (!event)
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
-        const environmentData = event.getEnvironmentData(environment);
-        if (!environmentData)
-            throw new Error('Sorry, something went wrong (unable to find the environment)...');
+        let environment = getRequestEnvironment();
+        let userId: number = props.user.userId;
 
-        if (!environmentData.enableRegistration &&
-                !can(props.user, Privilege.EventRegistrationOverride)) {
-            throw new Error('Sorry, this event is not accepting applications right now.');
+        if (request.adminOverride) {
+            if (!can(props.user, Privilege.EventApplicationManagement) &&
+                !can(props.user, Privilege.EventAdministrator))
+            {
+                throw new Error('Sorry, you do not have permission to impersonate users.');
+            }
+
+            environment = request.adminOverride.environment as Environment;
+            userId = request.adminOverride.userId;
+        } else {
+            const environmentData = event.getEnvironmentData(environment);
+            if (!environmentData)
+                throw new Error('Sorry, something went wrong (unable to find the environment)...');
+
+            if (!environmentData.enableRegistration &&
+                    !can(props.user, Privilege.EventRegistrationOverride)) {
+                throw new Error('Sorry, this event is not accepting applications right now.');
+            }
         }
 
-        const registration = await getRegistration(environment, event, props.user);
+        const registration = await getRegistration(environment, event, userId);
         if (registration)
             throw new Error('Sorry, you have already applied to participate in this event.');
 
-        await createRegistration(environment, event, props.user, request);
+        await createRegistration(environment, event, userId, request);
 
         // TODO: Send an e-mail to the volunteering leads.
+        // TODO: Send an e-mail to the applicant.
 
         return { success: true };
 
