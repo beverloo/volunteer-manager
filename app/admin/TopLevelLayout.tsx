@@ -30,7 +30,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <DvrIcon />,
             label: 'Logs',
-            privilege: Privilege.SystemAdministrator,
+            privilege: Privilege.SystemLogsAccess,
             url: '/admin/logs',
         },
         {

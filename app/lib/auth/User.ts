@@ -4,6 +4,7 @@
 import { type UserData } from './UserData';
 
 import { AuthType } from '../database/Types';
+import { expand } from './Privileges';
 import { getAvatarUrl } from '../database/AvatarStore';
 import { securePasswordHash } from './Password';
 import db, { tUsers, tUsersAuth } from '../database';
@@ -69,9 +70,11 @@ export class User implements UserData {
 
     // ---------------------------------------------------------------------------------------------
 
+    #privileges: bigint;
     #user: UserDatabaseRow;
 
     constructor(user: UserDatabaseRow) {
+        this.#privileges = expand(BigInt(user.privileges));
         this.#user = user;
     }
 
@@ -147,7 +150,7 @@ export class User implements UserData {
     get firstName() { return this.#user.first_name; }
     get lastName() { return this.#user.last_name; }
     get avatarUrl() { return getAvatarUrl(this.#user.avatar_file_hash); }
-    get privileges() { return this.#user.privileges; }
+    get privileges() { return this.#privileges; }
     get username() { return this.#user.username; }
 
     // ---------------------------------------------------------------------------------------------

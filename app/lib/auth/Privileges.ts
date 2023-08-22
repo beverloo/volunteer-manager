@@ -14,38 +14,87 @@ export enum Privilege {
     Administrator               = 1 << 0,
     Statistics                  = 1 << 1,
 
-    // Privileges regarding the visibility and accessibility of events.
+    // Privileges regarding access in the administrative area.
+    EventAdministrator          = 1 << 7,
+    SystemAdministrator         = 1 << 8,
+    VolunteerAdministrator      = 1 << 9,
+
+    // Privileges captured by EventAdministrator:
     EventApplicationManagement  = 1 << 10,
     EventContentOverride        = 1 << 2,
     EventRegistrationOverride   = 1 << 3,
     EventScheduleOverride       = 1 << 4,
 
-    // Privileges regarding functionality on the volunteer manager.
-    ReplaceOwnAvatar            = 1 << 5,
-    ReplaceAnyAvatar            = 1 << 6,
+    // Privileges captured by SystemAdministrator:
+    SystemLogsAccess            = 1 << 5,
 
-    // Privileges regarding access in the administrative area.
-    EventAdministrator          = 1 << 7,
-    SystemAdministrator         = 1 << 8,
-    VolunteerAdministrator      = 1 << 9,
+    // Privileges captured by VolunteerAdministrator:
+    VolunteerAvatarManagement   = 1 << 6,
 };
 
 /**
  * Type definition for multiple privileges. They are stored as a singular integer in which each of
  * the privileges is represented by a singular bit.
  */
-export type Privileges = number;
+export type Privileges = bigint;
 
 /**
  * Returns whether the given |user| has been granted the given |privilege|. No need for null-checks
  * as the |user| argument can be considered optional, any falsy value will fall back to defaults.
  */
 export function can(user: User | UserData | undefined, privilege: Privilege): boolean {
-    if (!user)
-        return false;  // TODO: Default, non-zero privileges?
+    return !!user && (user.privileges & BigInt(privilege)) !== 0n;
+}
 
-    return (user.privileges & Privilege.Administrator) !== 0 ||
-           (user.privileges & privilege) !== 0;
+/**
+ * The privilege expansion rules. Certain privileges implicitly grant other privileges, which will
+ * be propagated according to the following rules.
+ */
+const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
+    [Privilege.Administrator]: [
+        Privilege.EventAdministrator,
+        Privilege.SystemAdministrator,
+        Privilege.VolunteerAdministrator,
+        Privilege.Statistics,
+    ],
+
+    [Privilege.EventAdministrator]: [
+        Privilege.EventApplicationManagement,
+        Privilege.EventContentOverride,
+        Privilege.EventRegistrationOverride,
+        Privilege.EventScheduleOverride,
+    ],
+
+    [Privilege.SystemAdministrator]: [
+        Privilege.SystemLogsAccess,
+    ],
+
+    [Privilege.VolunteerAdministrator]: [
+        Privilege.VolunteerAvatarManagement,
+    ],
+};
+
+/**
+ * Maximum depth of privilege expansion rules. I.e. Administrator -> EventAdministrator ->
+ * EventApplicationManagement makes for two necessary iterations.
+ */
+const kPrivilegeExpansionMaxIterations = 2;
+
+/**
+ * Expands the `privileges` according to the privilege expansion rules.
+ */
+export function expand(privileges: Privileges): Privileges {
+    for (let iteration = 0; iteration < kPrivilegeExpansionMaxIterations; ++iteration) {
+        for (const [ privilege, expandedPrivileges ] of Object.entries(PrivilegeExpansion)) {
+            if ((privileges & BigInt(privilege)) === 0n)
+                continue;  // the |privilege| has not been granted
+
+            for (const expandedPrivilege of expandedPrivileges)
+                privileges |= BigInt(expandedPrivilege);
+        }
+    }
+
+    return privileges;
 }
 
 /**
@@ -54,15 +103,18 @@ export function can(user: User | UserData | undefined, privilege: Privilege): bo
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
     [Privilege.Statistics]: 'Special access',
+
+    [Privilege.EventAdministrator]: 'Special access',
     [Privilege.EventApplicationManagement]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
-    [Privilege.ReplaceOwnAvatar]: 'Volunteer access',
-    [Privilege.ReplaceAnyAvatar]: 'Volunteer access',
-    [Privilege.EventAdministrator]: 'Special access',
+
     [Privilege.SystemAdministrator]: 'Special access',
+    [Privilege.SystemLogsAccess]: 'System access',
+
     [Privilege.VolunteerAdministrator]: 'Special access',
+    [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
 };
 
 /**
@@ -71,15 +123,18 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
     [Privilege.Statistics]: 'Statistics',
+
+    [Privilege.EventAdministrator]: 'Event administrator',
     [Privilege.EventApplicationManagement]: 'Manage applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
-    [Privilege.ReplaceOwnAvatar]: 'Replace own avatar',
-    [Privilege.ReplaceAnyAvatar]: 'Replace anyone\'s avatar',
-    [Privilege.EventAdministrator]: 'Event administrator',
+
     [Privilege.SystemAdministrator]: 'System administrator',
+    [Privilege.SystemLogsAccess]: 'Logs access',
+
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
+    [Privilege.VolunteerAvatarManagement]: 'Avatar management',
 };
 
 /**
@@ -88,7 +143,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Automatically grants all other privileges',
     [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
-    [Privilege.ReplaceAnyAvatar]: 'That includes your avatar as well…',
+
     [Privilege.EventAdministrator]: 'Administrator access to anything related to events',
     [Privilege.SystemAdministrator]: 'Administrator access to anything regarding system internals',
     [Privilege.VolunteerAdministrator]: 'Administrator access to anything related to volunteers',

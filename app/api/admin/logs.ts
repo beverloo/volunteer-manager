@@ -91,7 +91,7 @@ type Response = LogsDefinition['response'];
  * ones, while MUI <DataGrid> provides powerful filtering capabilities.
  */
 export async function logs(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemAdministrator))
+    if (!can(props.user, Privilege.SystemLogsAccess))
         noAccess();
 
     const response = await fetchLogs({

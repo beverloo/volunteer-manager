@@ -24,7 +24,7 @@ export interface UserData {
     /**
      * The privileges the user has access to, fresh from the database for the current request.
      */
-    privileges: number;
+    privileges: bigint;
 
     /**
      * The username of this user, generally their e-mail address.
