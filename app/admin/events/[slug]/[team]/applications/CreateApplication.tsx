@@ -47,7 +47,7 @@ function VolunteerAutocompleteTextField(props: VolunteerAutocompleteTextFieldPro
         disabled?: boolean;
     }
 
-    const { excludeEventId, onVolunteerSelected } = props;
+    const { excludeEventId, onVolunteerSelected, ...rest } = props;
 
     const [ fetching, setFetching ] = useState<boolean>(false);
     const [ open, setOpen ] = useState<boolean>(false);
@@ -64,6 +64,21 @@ function VolunteerAutocompleteTextField(props: VolunteerAutocompleteTextFieldPro
         issueServerAction<VolunteerListDefinition>('/api/admin/volunteer-list', {
             excludeEventId
         }).then(({ volunteers }) => {
+            const removeDuplicateMap = new Map<string, number>();
+
+            // The <Autocomplete> component trips over items with duplicate labels as they're used
+            // for the @key attribute, so add suffices to duplicated names.
+            for (const volunteer of volunteers) {
+                const duplicate = removeDuplicateMap.get(volunteer.name);
+                if (!duplicate) {
+                    removeDuplicateMap.set(volunteer.name, 1);
+                    continue;
+                }
+
+                removeDuplicateMap.set(volunteer.name, duplicate + 1);
+                volunteer.name += ` (${duplicate + 1 })`;
+            }
+
             setVolunteers(volunteers);
         });
 
@@ -77,11 +92,11 @@ function VolunteerAutocompleteTextField(props: VolunteerAutocompleteTextFieldPro
     return (
         <Autocomplete open={open} onOpen={ () => setOpen(true) } onClose={ () => setOpen(false) }
                       isOptionEqualToValue={ (option, value) => option.userId === value.userId }
-                      getOptionDisabled={ (option) => !!option.disabled }
+                      getOptionDisabled={ (option) => !!option.disabled } clearOnEscape
                       getOptionLabel={ (option) => option.name }
                       options={volunteers} loading={loading} onChange={onChange}
                       renderInput={ (params) => (
-                          <TextField {...params} {...props}
+                          <TextField {...params} {...rest}
                                      InputProps={{
                                          ...params.InputProps,
                                          endAdornment: (
