@@ -15,5 +15,10 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         script: |
-          whoami
-          ls -al
+          cd ~/volunteer-manager
+          git pull --rebase
+          npm install
+          npm run-script build-prod
+          docker stop volunteer-manager-docker
+          docker rm volunteer-manager-docker
+          docker run -d --name volunteer-manager-docker --restart always -p 3001:3001 volunteer-manager-docker:latest

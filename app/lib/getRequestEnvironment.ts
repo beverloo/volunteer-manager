@@ -11,15 +11,15 @@ import { getRequestOrigin } from './getRequestOrigin';
 export function getRequestEnvironment(): Environment {
     const hostname = getRequestOrigin();
 
-    switch (hostname) {
-        case 'animecon.team':
-        case 'gophers.team':
-        case 'hosts.team':
-        case 'stewards.team':
-            return hostname;
+    if (hostname.endsWith('animecon.team'))
+        return 'animecon.team';
+    if (hostname.endsWith('gophers.team'))
+        return 'gophers.team';
+    if (hostname.endsWith('hosts.team'))
+        return 'hosts.team';
+    if (hostname.endsWith('stewards.team'))
+        return 'stewards.team';
 
-        default:
-            // FIXME: Default to animecon.team?
-            return 'stewards.team';
-    }
+    // FIXME: Default to animecon.team?
+    return 'stewards.team';
 }

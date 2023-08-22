@@ -9,5 +9,6 @@ import { headers } from 'next/headers';
  * setting an internal HTTP header in our middleware.
  */
 export function getRequestOrigin() {
-    return headers().get('X-Request-Origin') || 'animecon.team';
+    const localHeaders = headers();
+    return localHeaders.get('Host') || localHeaders.get('X-Request-Origin') || 'animecon.team';
 }
