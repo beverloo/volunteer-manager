@@ -7,7 +7,7 @@ import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
 
 import Grid, { type Grid2Props } from '@mui/material/Unstable_Grid2';
 
-import { type ApplicationDefinition } from '@app/api/event/application';
+import type { ApplicationDefinition } from '@app/api/event/application';
 
 type ApplicationRequest = ApplicationDefinition['request'];
 

@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';

@@ -17,9 +17,9 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Typography from '@mui/material/Typography';
 
-import { type EventDataWithEnvironment } from '@lib/Event';
-import { type RegistrationData } from '@lib/Registration';
-import { type UserData } from '@app/lib/auth/UserData';
+import type { EventDataWithEnvironment } from '@lib/Event';
+import type { RegistrationData } from '@lib/Registration';
+import type { UserData } from '@app/lib/auth/UserData';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 
 /**

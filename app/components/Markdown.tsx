@@ -7,13 +7,13 @@ import Link from 'next/link';
 import { MuiMarkdown, defaultOverrides } from 'mui-markdown';
 
 import type { SxProps, Theme } from '@mui/system';
-import Box, { BoxProps } from '@mui/material/Box';
-import { default as MuiLink, LinkProps } from '@mui/material/Link';
-import Typography, { TypographyProps } from '@mui/material/Typography';
+import Box, { type BoxProps } from '@mui/material/Box';
+import { default as MuiLink, type LinkProps } from '@mui/material/Link';
+import Typography, { type TypographyProps } from '@mui/material/Typography';
 import { lighten } from '@mui/material/styles';
 
+import type { EventData } from '@lib/Event';
 import { RemoteContent } from './RemoteContent';
-import { EventData } from '@app/lib/Event';
 
 /**
  * Manual styles that apply to the <Markdown> client component.

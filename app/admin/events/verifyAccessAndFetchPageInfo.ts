@@ -3,11 +3,11 @@
 
 import { notFound } from 'next/navigation';
 
+import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { User } from '@lib/auth/User';
+import { RegistrationStatus } from '@app/lib/database/Types';
 import { requireUser } from '@lib/auth/getUser';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/database';
-import { RegistrationStatus } from '@app/lib/database/Types';
 
 /**
  * Basic information that will always be made available. Includes the user who is signed in and key

@@ -145,7 +145,7 @@ do {
         ],
 
         rawContent: {
-            before: '/* eslint-disable quotes, max-len */',
+            before: '// @ts-nocheck\n/* eslint-disable quotes, max-len */',
         }
     });
 

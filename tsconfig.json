@@ -18,6 +18,9 @@
     "target": "ES2022",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
     "jsx": "preserve",
     "paths": {
       "@app/*": [ "*" ],

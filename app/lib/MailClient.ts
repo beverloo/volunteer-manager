@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { Transporter, default as nodemailer } from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { default as nodemailer, type Transporter } from 'nodemailer';
 
-import { MailMessage } from './MailMessage';
+import type { MailMessage } from './MailMessage';
 
 /**
  * Confirm that global configuration is available when loading this file.

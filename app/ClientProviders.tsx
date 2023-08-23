@@ -3,13 +3,13 @@
 
 'use client';
 
+import type { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { NextAppDirEmotionCacheProvider } from 'tss-react/next/appDir';
-import { type PaletteMode } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { type Environment } from './Environment';
+import type { Environment } from './Environment';
 import { createCachedTheme } from './ClientTheme';
 
 /**

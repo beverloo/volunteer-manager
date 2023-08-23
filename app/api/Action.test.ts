@@ -5,9 +5,9 @@ import { NextRequest } from 'next/server';
 import { serialize } from 'cookie';
 import { z } from 'zod';
 
+import type { User, UserDatabaseRow } from '@lib/auth/User';
 import { type ActionProps, executeAction, noAccess } from './Action';
 import { type DatabasePrimitive, DatabaseTestingDelegate, kDatabase } from '@lib/database/Database';
-import { type User, type UserDatabaseRow } from '@lib/auth/User';
 import { Result } from '@lib/database/Result';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
 
@@ -27,7 +27,7 @@ describe('Action', () => {
      */
     function createRequest(body: any, headers?: Headers): NextRequest {
         return new class extends NextRequest {
-            set url(value: string) { /* ignore */ }
+            override set url(value: string) { /* ignore */ }
         }('https://example.com/api', {
             method: 'POST',
             body: JSON.stringify(body),

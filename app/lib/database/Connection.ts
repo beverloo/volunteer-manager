@@ -4,7 +4,7 @@
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { type QueryType, MockQueryRunner } from 'ts-sql-query/queryRunners/MockQueryRunner';
-import { type PoolConfig, Pool, createPool } from 'mariadb';
+import { type PoolConfig, type Pool, createPool } from 'mariadb';
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -31,12 +31,12 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     /**
      * Allow empty strings to be passed. Without this setting `ts-sql-query` will use NULL instead.
      */
-    allowEmptyString = true;
+    override allowEmptyString = true;
 
     /**
      * Global type adapter (MariaDB -> TypeScript) for the custom types that we use.
      */
-    protected transformValueFromDB(value: unknown, type: string) {
+    protected override transformValueFromDB(value: unknown, type: string) {
         switch (type) {
             case 'Blob':
                 if (value || value instanceof Uint8Array)
@@ -51,7 +51,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     /**
      * Global type adapter (TypeScript -> MariaDB) for the custom types that we use.
      */
-    protected transformValueToDB(value: unknown, type: string) {
+    protected override transformValueToDB(value: unknown, type: string) {
         switch (type) {
             case 'Blob':
                 if (value && !(value instanceof Uint8Array))

@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { ZodObject, ZodRawShape, z } from 'zod';
 
-import { type User } from '@app/lib/auth/User';
+import type { User } from '@app/lib/auth/User';
 import { getUserFromHeaders } from '@app/lib/auth/getUser';
 
 /**

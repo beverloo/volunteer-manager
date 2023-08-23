@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type ApplicationDefinition } from '@app/api/event/application';
-import { type Event } from './Event';
+import type { ApplicationDefinition } from '@app/api/event/application';
+import type { Environment } from '@app/Environment';
+import type { Event } from './Event';
 import { type RegistrationDatabaseRow, Registration } from './Registration';
-import { Environment } from '@app/Environment';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
 import db, { sql, tTeams, tTeamsRoles, tUsersEvents } from './database';
 

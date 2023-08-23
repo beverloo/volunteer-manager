@@ -1,13 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type Metadata } from 'next';
+import type { Metadata } from 'next';
 
+import type { Birthday } from './BirthdayCard';
+import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
-import { type Birthday } from './BirthdayCard';
 import { Dashboard } from './Dashboard';
 import { RegistrationStatus } from '@lib/database/Types';
-import { User } from '@lib/auth/User';
 import { requireUser } from '@lib/auth/getUser';
 import db, { tEvents, tUsers, tUsersEvents } from '@lib/database';
 

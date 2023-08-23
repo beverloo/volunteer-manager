@@ -1,12 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type Constructor } from '../lib/TypeUtilities';
-import { type ServiceDriver, kServiceDriverConstructors } from './ServiceDriver';
-import { type ServiceLog } from './ServiceLog';
-import { type Service } from './Service';
+import type { Constructor } from '../lib/TypeUtilities';
+import type { ServiceDriver } from './ServiceDriver';
+import type { ServiceLog } from './ServiceLog';
+import type { Service } from './Service';
 
 import { ServiceLogImpl } from './ServiceLogImpl';
+import { kServiceDriverConstructors } from './ServiceDriver';
 import { sql } from '../lib/database';
 
 /**

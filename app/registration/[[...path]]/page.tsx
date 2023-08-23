@@ -3,9 +3,9 @@
 
 import { redirect } from 'next/navigation'
 
+import type { Event } from '@lib/Event';
 import { ApplicationPage } from './ApplicationPage';
 import { ApplicationStatusPage } from './ApplicationStatusPage';
-import { Event } from '@lib/Event';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
 import { RegistrationContentContainer } from '../RegistrationContentContainer';

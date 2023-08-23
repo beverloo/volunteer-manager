@@ -3,8 +3,8 @@
 
 import { WelcomePage } from './welcome/WelcomePage';
 
-import { type Registration } from '@lib/Registration';
-import { type Event } from '@lib/Event';
+import type { Event } from '@lib/Event';
+import type { Registration } from '@lib/Registration';
 
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { getEventsForUser } from './lib/EventLoader';

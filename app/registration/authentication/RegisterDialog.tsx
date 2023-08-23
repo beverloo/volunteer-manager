@@ -21,7 +21,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
-import { type RegisterDefinition } from '@app/api/auth/register';
+import type { RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
 import { dayjs } from '@lib/DateTime';
 

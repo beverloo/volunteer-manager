@@ -4,7 +4,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
 import Button from '@mui/material/Button';
@@ -20,13 +19,13 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { type EventDataWithEnvironment } from '@lib/Event';
-import { type UserData } from '@lib/auth/UserData';
+import type { EventDataWithEnvironment } from '@lib/Event';
+import type { RegistrationData } from '@lib/Registration';
+import type { UserData } from '@lib/auth/UserData';
 import { DateTime } from '@lib/DateTime';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
-import { RegistrationData } from '@app/lib/Registration';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.

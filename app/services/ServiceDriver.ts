@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type Constructor } from '../lib/TypeUtilities';
-import { type ServiceLog } from './ServiceLog';
+import type { Constructor } from '../lib/TypeUtilities';
+import type { ServiceLog } from './ServiceLog';
 
 import { DummyService } from './DummyService';
 

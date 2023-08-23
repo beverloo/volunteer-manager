@@ -3,10 +3,10 @@
 
 import { notFound } from 'next/navigation';
 
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import { HotelConfiguration } from './HotelConfiguration';
 import { HotelPendingAssignment } from './HotelPendingAssignment';
 import { HotelSelection } from './HotelSelection';
-import { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';

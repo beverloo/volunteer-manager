@@ -9,8 +9,8 @@ import FaceIcon from '@mui/icons-material/Face';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import type { UserData } from '@lib/auth/UserData';
 import { AuthenticationHeaderChip } from './AuthenticationHeaderChip';
-import { UserData } from '@lib/auth/UserData';
 
 /**
  * Manual styles that apply to the <RegistrationHeader> client component.

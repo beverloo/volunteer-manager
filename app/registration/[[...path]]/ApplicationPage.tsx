@@ -18,10 +18,10 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { lighten } from '@mui/system/colorManipulator';
 
-import { type ApplicationDefinition } from '@app/api/event/application';
-import { type Content } from '@lib/Content';
-import { type EventDataWithEnvironment } from '@lib/Event';
-import { type UserData } from '@app/lib/auth/UserData';
+import type { ApplicationDefinition } from '@app/api/event/application';
+import type { Content } from '@lib/Content';
+import type { EventDataWithEnvironment } from '@lib/Event';
+import type { UserData } from '@app/lib/auth/UserData';
 import { AuthenticationContext } from '../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';

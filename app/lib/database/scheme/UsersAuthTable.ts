@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable quotes, max-len */
 /**
  * DO NOT EDIT:

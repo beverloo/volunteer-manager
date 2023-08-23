@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
-import { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RoleBadge } from '@app/lib/database/Types';
 
 /**

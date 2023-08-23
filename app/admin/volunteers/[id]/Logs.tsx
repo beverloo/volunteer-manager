@@ -5,8 +5,8 @@
 
 import Link from 'next/link';
 
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-import { type GridRenderCellParams } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 

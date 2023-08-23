@@ -5,8 +5,8 @@
 
 import Link from 'next/link';
 
-import { type Content } from '@lib/Content';
-import { type EventData } from '@lib/Event';
+import type { Content } from '@lib/Content';
+import type { EventData } from '@lib/Event';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';

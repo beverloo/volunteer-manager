@@ -3,7 +3,7 @@
 
 'use client';
 
-import { type PaletteMode } from '@mui/material';
+import type { PaletteMode } from '@mui/material';
 import { Roboto } from 'next/font/google';
 import { type Theme, type ThemeOptions, createTheme, lighten } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';

@@ -1,9 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type AdminHeaderEventEntry } from '../AdminHeader';
+import type { AdminHeaderEventEntry } from '../AdminHeader';
+import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@app/lib/auth/Privileges';
-import { User } from '@lib/auth/User';
 import db, { tEvents, tRoles, tUsersEvents } from '@lib/database';
 
 /**

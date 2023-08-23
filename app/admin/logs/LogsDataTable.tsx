@@ -5,8 +5,8 @@
 
 import Link from 'next/link';
 
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-import { type GridRenderCellParams } from '@mui/x-data-grid';
 
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';

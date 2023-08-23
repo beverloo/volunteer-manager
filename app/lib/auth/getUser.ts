@@ -3,8 +3,8 @@
 
 import { notFound } from 'next/navigation';
 
-import { type SessionData } from './Session';
-import { type User } from './User';
+import type { SessionData } from './Session';
+import type { User } from './User';
 import { authenticateUserFromSession } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 

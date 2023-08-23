@@ -1,9 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { UserDatabaseRow } from './User';
 import { type DatabasePrimitive, DatabaseTestingDelegate, kDatabase } from '../database/Database';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
-import { type UserDatabaseRow } from './User';
 import { Result } from '../database/Result';
 import { getUserFromHeaders } from './getUser';
 import { serialize } from 'cookie';

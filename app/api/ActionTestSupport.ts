@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import type { ZodObject, ZodRawShape } from 'zod';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 import type { Action } from './Action';
 import { User, type UserDatabaseRow } from '@app/lib/auth/User';
@@ -50,7 +50,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
     }
 
     const request = new class extends NextRequest {
-        set url(value: any) {
+        override set url(value: any) {
             // "TypeError: Cannot set property url of #<NextRequest> which has only a getter"
         }
     }('https://animecon.team/api/unit-test', {

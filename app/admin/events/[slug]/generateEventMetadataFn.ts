@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import db, { tEvents } from '@lib/database';
 
 /**

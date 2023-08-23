@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type User } from './User';
-import { type UserData } from './UserData';
+import type { User } from './User';
+import type { UserData } from './UserData';
 
 /**
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change

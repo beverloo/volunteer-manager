@@ -27,8 +27,8 @@ import lightGreen from '@mui/material/colors/lightGreen'
 import red from '@mui/material/colors/red';
 import yellow from '@mui/material/colors/yellow';
 
-import { type EventData } from '@app/lib/Event';
-import { type RegistrationData } from '@app/lib/Registration';
+import type { EventData } from '@app/lib/Event';
+import type { RegistrationData } from '@app/lib/Registration';
 
 
 /**

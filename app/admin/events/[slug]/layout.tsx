@@ -12,11 +12,11 @@ import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
 
+import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
-import { Privilege, can } from '@lib/auth/Privileges';
-import { User } from '@lib/auth/User';
+import { Privilege } from '@lib/auth/Privileges';
 import { kEnvironmentColours } from '@app/Environment';
 import { requireUser } from '@lib/auth/getUser';
 
