@@ -14,6 +14,7 @@ import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswor
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
+import { volunteerRoles, kVolunteerRolesDefinition } from '../volunteerRoles';
 
 describe('API Endpoints: /api/admin', () => {
     const mockConnection = useMockConnection();
@@ -33,7 +34,7 @@ describe('API Endpoints: /api/admin', () => {
 
         const response = await executeActionForTests(kHotelCreateDefinition, hotelCreate, {
             request: { event: 'invalid-event' },
-            user: { privileges: Privilege.Administrator },
+            user: { privileges: BigInt(Privilege.Administrator) },
         });
 
         expect(response.ok).toBeTruthy();
@@ -127,5 +128,16 @@ describe('API Endpoints: /api/admin', () => {
             lastName: 'Bar',
         },
         insufficientPrivileges: Privilege.SystemAdministrator,
+    });
+
+    // ---------------------------------------------------------------------------------------------
+    // volunteerRoles
+    // ---------------------------------------------------------------------------------------------
+
+    injectPermissionTestsForAction(kVolunteerRolesDefinition, volunteerRoles, {
+        request: {
+            teamId: 0,
+        },
+        insufficientPrivileges: Privilege.EventApplicationManagement,
     });
 });

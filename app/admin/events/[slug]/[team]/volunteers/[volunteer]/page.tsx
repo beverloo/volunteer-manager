@@ -38,6 +38,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             userId: tUsersEvents.userId,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            roleId: tUsersEvents.roleId,
             registrationStatus: tUsersEvents.registrationStatus,
         })
         .executeSelectNoneOrOne();

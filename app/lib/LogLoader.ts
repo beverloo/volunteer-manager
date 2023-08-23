@@ -73,6 +73,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventHotelUpdate]: (source, target, { eventName }) => {
         return `Update a hotel room for ${eventName}`;
     },
+    [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
+        return `Updated their role to ${role} for an event`;
+    },
     [LogType.AdminResetAccessCode]: (source, target, data) => {
         return `Created a new access code for ${target?.name}`;
     },

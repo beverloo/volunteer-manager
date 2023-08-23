@@ -22,6 +22,7 @@ export enum LogType {
     AdminEventHotelCreate = 'admin-event-hotel-create',
     AdminEventHotelDelete = 'admin-event-hotel-delete',
     AdminEventHotelUpdate = 'admin-event-hotel-update',
+    AdminEventRoleUpdate = 'admin-event-role-update',
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
