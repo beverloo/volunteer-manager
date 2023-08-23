@@ -4,8 +4,9 @@
 import type { SessionData } from './Session';
 import { type UserDatabaseRow, User } from './User';
 
+import { AuthType } from '../database/Types';
 import { securePasswordHash } from './Password';
-import db, { sql, tUsers } from '../database';
+import db, { sql, tStorage, tUsers, tUsersAuth } from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
@@ -92,81 +93,95 @@ export async function activateAccount(userId: number): Promise<User | undefined>
     if (!affectedRows)
         return undefined;  // the account could not be activated
 
-    return authenticateUserFromSession({
-        id: userId,
-        token: confirmation.sessionToken,
-    });
+    return authenticateUser({ type: 'userId', userId });
 }
 
 /**
- * Attempts to authenticate the user based on the given `username` and `sha256Password`, the latter
- * of which must be a SHA-256 hashed representation of the user's actual password. `undefined` will
- * be returned when no such user exists.
- *
- * @param username The username for the intended account to authenticate against.
- * @param sha256Password The SHA-256 hashed password used to sign in to that account.
- * @returns Undefined when authentication failed, or a pair of the authentication type and the
- *          instance of the `User` class representing this person when successful.
+ * Type of input that can be used to authenticate users. Used by `authenticateUser()`.
  */
-export async function authenticateUserFromPassword(username: string, sha256Password: string)
-        : Promise<[ string, User ] | [ undefined, undefined ]> {
-    const securelyHashedPassword = await securePasswordHash(sha256Password);
-    const result =
-        await sql`
-            SELECT
-                users.*,
-                users_auth.auth_type,
-                storage.file_hash AS avatar_file_hash
-            FROM
-                users
-            LEFT JOIN
-                users_auth ON users_auth.user_id = users.user_id
-            LEFT JOIN
-                storage ON storage.file_id = users.avatar_id
-            WHERE
-                users.username = ${username} AND
-                users.activated = 1 AND
-                (
-                    users_auth.auth_value = ${securelyHashedPassword} AND
-                    users_auth.auth_type = 'password'
-                ) OR
-                (
-                    SHA2(users_auth.auth_value, 256) = ${sha256Password} AND
-                    users_auth.auth_type = 'code'
-                )`;
-
-    if (!result.ok || !result.rows.length)
-        return [ undefined, undefined ];
-
-    return [ result.rows[0].auth_type, new User(result.rows[0] as UserDatabaseRow) ];
-}
+export type AuthenticateUserParams =
+    { type: 'password', username: string, sha256Password: string } |
+    { type: 'session' } & SessionData |
+    { type: 'userId', userId: number };
 
 /**
- * Attempts to authenticate the user based on the given `session`. The data contained within the
- * session is assumed to be trustworthy. `undefined` will be returned when no such user exists.
- *
- * @param session The unsealed session information containing the user's information.
- * @returns An instance of the `User` class when successful, `undefined` in all other cases.
+ * Attempts to authenticate the user based on the given authentication `type` and `params`. An
+ * instance of the `User` class will be returned when the given information was correct, whereas
+ * `undefined` will be returned when something went wrong.
  */
-export async function authenticateUserFromSession(session: SessionData): Promise<User | undefined> {
-    const { id, token } = session;
-    const result =
-        await sql`
-            SELECT
-                users.*,
-                storage.file_hash AS avatar_file_hash
-            FROM
-                users
-            LEFT JOIN
-                storage ON storage.file_id = users.avatar_id
-            WHERE
-                users.user_id = ${id} AND
-                users.session_token = ${token}`;
+export async function authenticateUser(params: AuthenticateUserParams): Promise<User | undefined> {
+    const storageJoin = tStorage.forUseInLeftJoin();
 
-    if (!result.ok || !result.rows.length)
+    const dbInstance = db;
+    const authenticationBaseSelect = db.selectFrom(tUsers)
+        .innerJoin(tUsersAuth)
+            .on(tUsersAuth.userId.equals(tUsers.userId))
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
+        .groupBy(tUsers.userId)
+        .select({
+            userId: tUsers.userId,
+            username: tUsers.username,
+            firstName: tUsers.firstName,
+            lastName: tUsers.lastName,
+            gender: tUsers.gender,
+            birthdate: tUsers.birthdate,
+            phoneNumber: tUsers.phoneNumber,
+            avatarFileHash: storageJoin.fileHash,
+            privileges: tUsers.privileges,
+            activated: tUsers.activated,
+            sessionToken: tUsers.sessionToken,
+
+            // For internal use only, as behaviour for access code differs from passwords.
+            authType: tUsersAuth.authType,
+        });
+
+    let authenticationQuery: ReturnType<typeof authenticationBaseSelect['executeSelectNoneOrOne']>;
+    let includeAuthType = false;
+
+    switch (params.type) {
+        case 'password':
+            const securelyHashedPassword = await securePasswordHash(params.sha256Password);
+
+            includeAuthType = true;
+            authenticationQuery = authenticationBaseSelect
+                .where(tUsers.username.equals(params.username))
+                    .and(tUsers.activated.equals(/* true= */ 1))
+                    .and(tUsersAuth.authType.equals(AuthType.password)
+                        .and(tUsersAuth.authValue.equals(securelyHashedPassword)))
+                    .or(tUsersAuth.authType.equals(AuthType.code)
+                    .and(dbInstance.fragmentWithType('boolean', 'required').sql`
+                        SHA2(${tUsersAuth.authValue}, 256) =
+                            ${dbInstance.const(securelyHashedPassword, 'string')}`))
+                .executeSelectNoneOrOne();
+
+            break;
+
+        case 'session':
+            authenticationQuery = authenticationBaseSelect
+                .where(tUsers.userId.equals(params.id))
+                    .and(tUsers.sessionToken.equals(params.token))
+                .executeSelectNoneOrOne();
+
+            break;
+
+        case 'userId':
+            authenticationQuery = authenticationBaseSelect
+                .where(tUsers.userId.equals(params.userId))
+                .executeSelectNoneOrOne();
+
+            break;
+
+        default:
+            throw new Error('Invalid authentication type was provided');
+    }
+
+    const authenticationResult = await authenticationQuery;
+    if (!authenticationResult)
         return undefined;
 
-    return new User(result.rows[0] as UserDatabaseRow);
+    return new User(authenticationResult, includeAuthType ? authenticationResult.authType
+                                                          : undefined);
 }
 
 /**

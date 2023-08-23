@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
 
-import { authenticateUserFromSession } from '@lib/auth/Authentication';
+import { authenticateUser } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
@@ -47,7 +47,7 @@ type Response = PasswordResetDefinition['response'];
 export async function passwordReset(request: Request, props: ActionProps): Promise<Response> {
     const passwordResetRequest = await unsealPasswordResetRequest(request.request);
     if (passwordResetRequest) {
-        const user = await authenticateUserFromSession(passwordResetRequest);
+        const user = await authenticateUser({ type: 'session', ... passwordResetRequest });
 
         if (user) {
             await user.updatePassword(request.password, /* incrementSessionToken= */ true);

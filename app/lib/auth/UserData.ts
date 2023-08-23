@@ -27,7 +27,8 @@ export interface UserData {
     privileges: bigint;
 
     /**
-     * The username of this user, generally their e-mail address.
+     * The username of this user, generally their e-mail address. There exist users in the system
+     * for whom no e-mail address (& thus username) is on record.
      */
-    username: string;
+    username?: string;
 }

@@ -34,16 +34,18 @@ interface PasswordResetData {
  * Describes the fields that exist in the `users` table in the database.
  */
 export interface UserDatabaseRow {
-    user_id: number;
-    username: string;
-    first_name: string;
-    last_name: string;
+    userId: number;
+    username?: string;
+    firstName: string;
+    lastName: string;
     gender: string;
-    birthdate: string;  // YYYY-MM-DD
-    phone_number: string;
-    avatar_file_hash?: string;
-    privileges: number;
-    session_token: number;
+    birthdate?: Date;
+    phoneNumber?: string;
+    avatarFileHash?: string;
+    privileges: bigint;
+    activated: number;
+    sessionToken: number;
+    authType: AuthType;
 }
 
 /**
@@ -70,11 +72,13 @@ export class User implements UserData {
 
     // ---------------------------------------------------------------------------------------------
 
+    #authType?: AuthType;
     #privileges: bigint;
     #user: UserDatabaseRow;
 
-    constructor(user: UserDatabaseRow) {
-        this.#privileges = expand(BigInt(user.privileges));
+    constructor(user: UserDatabaseRow, authType?: AuthType) {
+        this.#authType = authType;
+        this.#privileges = expand(user.privileges);
         this.#user = user;
     }
 
@@ -97,14 +101,14 @@ export class User implements UserData {
         await dbInstance.transaction(async () => {
             // (1) Delete all old passwords, which should no longer be valid.
             await dbInstance.deleteFrom(tUsersAuth)
-                .where(tUsersAuth.userId.equals(this.#user.user_id))
+                .where(tUsersAuth.userId.equals(this.#user.userId))
                     .and(tUsersAuth.authType.in([ AuthType.code, AuthType.password ]))
                 .executeDelete();
 
             // (2) Store the new password in the authentication table.
             await dbInstance.insertInto(tUsersAuth)
                 .values({
-                    userId: this.#user.user_id,
+                    userId: this.#user.userId,
                     authType: AuthType.password,
                     authValue: securelyHashedPassword
                 })
@@ -112,8 +116,8 @@ export class User implements UserData {
 
             // (3) Increment the user's session token, invalidating all other sessions.
             await dbInstance.update(tUsers)
-                .set({ sessionToken: this.#user.session_token + 1 })
-                .where(tUsers.userId.equals(this.#user.user_id))
+                .set({ sessionToken: this.#user.sessionToken + 1 })
+                .where(tUsers.userId.equals(this.#user.userId))
                 .executeUpdate(/* min= */ 0, /* max= */ 1);
         });
     }
@@ -121,7 +125,7 @@ export class User implements UserData {
     /**
      * Unique, automatically incrementing user ID assigned to this user.
      */
-    get userId() { return this.#user.user_id; }
+    get userId() { return this.#user.userId; }
 
     /**
      * Returns the user's gender, which is a string with arbitrary value.
@@ -136,20 +140,26 @@ export class User implements UserData {
     /**
      * Returns the user's phone number, including their country code.
      */
-    get phoneNumber() { return this.#user.phone_number; }
+    get phoneNumber() { return this.#user.phoneNumber; }
 
     /**
      * The user's current session token. Must match the token given in the Iron Session.
      */
-    get sessionToken() { return this.#user.session_token; }
+    get sessionToken() { return this.#user.sessionToken; }
+
+    /**
+     * Returns the type of authentication mechanism that was used to sign this user in. Only
+     * available when the instance was created from a access code, password or passkey credential.
+     */
+    get authTypeForCredentialBasedAuthentication() { return this.#authType; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality also available to client components, i.e. UserData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get firstName() { return this.#user.first_name; }
-    get lastName() { return this.#user.last_name; }
-    get avatarUrl() { return getAvatarUrl(this.#user.avatar_file_hash); }
+    get firstName() { return this.#user.firstName; }
+    get lastName() { return this.#user.lastName; }
+    get avatarUrl() { return getAvatarUrl(this.#user.avatarFileHash); }
     get privileges() { return this.#privileges; }
     get username() { return this.#user.username; }
 

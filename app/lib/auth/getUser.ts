@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { SessionData } from './Session';
 import type { User } from './User';
-import { authenticateUserFromSession } from './Authentication';
+import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
 // https://github.com/vercel/next.js/discussions/44270
@@ -62,5 +62,5 @@ export async function getUserFromHeaders(headers: Headers): Promise<User | undef
  * @returns The signed in user when they have been validated, or undefined.
  */
 async function getUserFromSession(sessionData: SessionData): Promise<User | undefined> {
-    return authenticateUserFromSession(sessionData);
+    return authenticateUser({ type: 'session', ...sessionData });
 }

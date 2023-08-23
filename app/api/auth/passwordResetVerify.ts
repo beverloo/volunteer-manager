@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { authenticateUserFromSession } from '@lib/auth/Authentication';
+import { authenticateUser } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 
 /**
@@ -47,7 +47,7 @@ export async function passwordResetVerify({ request }: Request, props: ActionPro
 {
     const passwordResetRequest = await unsealPasswordResetRequest(request);
     if (passwordResetRequest) {
-        const user = await authenticateUserFromSession(passwordResetRequest);
+        const user = await authenticateUser({ type: 'session', ...passwordResetRequest });
         if (user) {
             return {
                 success: true,
