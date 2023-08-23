@@ -34,16 +34,17 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
     let userForTesting: User | undefined;
     if (typeof params.user !== 'undefined') {
         userForTesting = new User({
-            user_id: 1,
+            userId: 1,
             username: 'foo@bar.com',
-            first_name: 'Foo',
-            last_name: 'Bar',
+            firstName: 'Foo',
+            lastName: 'Bar',
             gender: 'Other',
-            birthdate: '2023-08-17',
-            phone_number: '',
-            avatar_file_hash: undefined,
-            privileges: 0,
-            session_token: 0,
+            birthdate: new Date('2023-08-17'),
+            phoneNumber: '',
+            avatarFileHash: undefined,
+            privileges: 0n,
+            activated: 1,
+            sessionToken: 0,
 
             ...params.user,
         });
@@ -99,7 +100,7 @@ export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawS
         const userResponse = await executeActionForTests(api, action, {
             request: params.request,
             user: {
-                privileges: params.insufficientPrivileges
+                privileges: BigInt(params.insufficientPrivileges)
             },
         });
 

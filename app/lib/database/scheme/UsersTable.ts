@@ -17,7 +17,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     gender = this.column('gender', 'string');
     birthdate = this.optionalColumnWithDefaultValue('birthdate', 'localDate');
     phoneNumber = this.optionalColumnWithDefaultValue('phone_number', 'string');
-    avatarId = this.column('avatar_id', 'int');
+    avatarId = this.optionalColumnWithDefaultValue('avatar_id', 'int');
     privileges = this.columnWithDefaultValue('privileges', 'bigint');
     activated = this.columnWithDefaultValue('activated', 'int');
     sessionToken = this.columnWithDefaultValue('session_token', 'int');

@@ -126,8 +126,8 @@ tables:
     comment: ""
   - name: avatar_id
     type: int(4) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: privileges
     type: bigint(20)
@@ -171,7 +171,7 @@ tables:
       `gender` varchar(32) NOT NULL,
       `birthdate` date DEFAULT NULL,
       `phone_number` varchar(32) DEFAULT NULL,
-      `avatar_id` int(4) unsigned NOT NULL,
+      `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
       `session_token` int(4) unsigned NOT NULL DEFAULT 0,

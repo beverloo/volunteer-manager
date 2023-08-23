@@ -136,16 +136,13 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
  * database, and using this as the page title. MysQL connections are pooled.
  */
 export async function generateMetadata(props: NextRouterParams<'id'>): Promise<Metadata> {
-    const result = await sql`
-        SELECT
-            CONCAT(users.first_name, " ", users.last_name) AS name
-        FROM
-            users
-        WHERE
-            users.user_id = ${props.params.id}`;
+    const user = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(parseInt(props.params.id, 10)))
+        .select({ name: tUsers.firstName.concat(' ').concat(tUsers.lastName) })
+        .executeSelectNoneOrOne();
 
-    if (result.ok && result.rows.length >= 1)
-        return { title: `${result.rows[0].name} | AnimeCon Volunteer Manager` };
+    if (user)
+        return { title: `${user.name} | AnimeCon Volunteer Manager` };
 
     return { /* no updates */ };
 }

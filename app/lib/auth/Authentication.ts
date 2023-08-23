@@ -188,36 +188,33 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
  * Creates an account based on the given `data`. Will return a number indicating user ID when the
  * account was created successfully, or undefined. Failure only happens when the SQL queries fail.
  */
-export async function createAccount(data: AccountCreationData): Promise<undefined | number> {
-    const userTableResult =
-        await sql`
-            INSERT INTO
-                users
-                (username, first_name, last_name, gender, birthdate, phone_number)
-            VALUES
-                (${data.username}, ${data.firstName}, ${data.lastName}, ${data.gender},
-                 ${data.birthdate}, ${data.phoneNumber})`;
+export async function createAccount(data: AccountCreationData): Promise<number | undefined> {
+    let userId: number | undefined;
 
-    if (!userTableResult.ok || !userTableResult.insertId) {
-        console.error('Unable to write into the users table:', userTableResult.error);
-        return undefined;
-    }
+    const dbInstance = db;
+    await dbInstance.transaction(async () => {
+        const securelyHashedPassword = await securePasswordHash(data.password);
 
-    const securelyHashedPassword = await securePasswordHash(data.password);
-    const userId = userTableResult.insertId;
+        userId = await dbInstance.insertInto(tUsers)
+            .set({
+                username: data.username,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                gender: data.gender,
+                birthdate: new Date(data.birthdate),
+                phoneNumber: data.phoneNumber,
+            })
+            .returningLastInsertedId()
+            .executeInsert(/* min= */ 0, /* max= */ 1);
 
-    const authenticationTableResult =
-        await sql`
-            INSERT INTO
-                users_auth
-                (user_id, auth_type, auth_value)
-            VALUES
-                (${userId}, "password", ${securelyHashedPassword})`;
-
-    if (!authenticationTableResult.ok) {
-        console.error('Unable to write in the users_auth table:', authenticationTableResult.error);
-        return undefined;
-    }
+        await dbInstance.insertInto(tUsersAuth)
+            .set({
+                userId: userId,
+                authType: AuthType.password,
+                authValue: securelyHashedPassword,
+            })
+            .executeInsert();
+    });
 
     return userId;
 }

@@ -45,7 +45,6 @@ export interface UserDatabaseRow {
     privileges: bigint;
     activated: number;
     sessionToken: number;
-    authType: AuthType;
 }
 
 /**
