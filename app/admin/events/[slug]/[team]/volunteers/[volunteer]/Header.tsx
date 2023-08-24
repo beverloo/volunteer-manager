@@ -31,6 +31,7 @@ import type { UserData } from '@lib/auth/UserData';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@app/lib/issueServerAction';
 import { kStyles } from '@app/admin/volunteers/[id]/Header';
 
@@ -81,78 +82,66 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
         return roles ? roles.map(role => ({ id: role.roleId, label: role.roleName })) : [];
     }, [ roles ]);
 
-    const [ loading, setLoading ] = useState<boolean>(false);
-    const [ success, setSuccess ] = useState<boolean>(false);
-
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ selectedRole, setSelectedRole ] = useState<number>(volunteer.roleId);
-    const [ adminWarning, setAdminWarning ] = useState<boolean>(false);
+    const [ warning, setWarning ] = useState<boolean>(false);
 
     const handleChange = useCallback((value: any) => setSelectedRole(value), [ setSelectedRole ]);
-    const handleClose = useCallback(() => onClose(/* refresh= */ false), [ onClose ]);
-    const handleUpdate = useCallback(async (data: FieldValues) => {
-        setLoading(true);
-        try {
-            const response = await issueServerAction<VolunteerRolesDefinition>(
-                '/api/admin/volunteer-roles', {
-                    eventId,
-                    roleId: data.role,
-                    teamId,
-                    userId: volunteer.userId,
-                });
+    const handleClose = useCallback(() => onClose(invalidated), [ invalidated, onClose ]);
+    const handleSubmit = useCallback(async (data: FieldValues) => {
+        setInvalidated(true);  // refresh the parent page on submit
 
-            setSuccess(!!response.success);
-        } finally {
-            setLoading(false);
-        }
-    }, [ eventId, setLoading, setSuccess, teamId, volunteer ]);
+        const response = await issueServerAction<VolunteerRolesDefinition>(
+            '/api/admin/volunteer-roles', {
+                eventId,
+                roleId: data.role,
+                teamId,
+                userId: volunteer.userId,
+            });
+
+        if (response.success)
+            return { success: `${volunteer.firstName}'s role has been successfully updated.` };
+        else
+            return { error: `${volunteer.firstName}'s role could not be updated right now.` };
+
+    }, [ eventId, setInvalidated, teamId, volunteer ]);
+
+    useEffect(() => {
+        setSelectedRole(volunteer.roleId);
+    }, [ open, setSelectedRole, volunteer ]);
 
     useEffect(() => {
         for (const { roleId, roleAdminAccess } of roles ?? []) {
             if (roleId !== selectedRole)
                 continue;
 
-            setAdminWarning(roleAdminAccess);
+            setWarning(roleAdminAccess);
             return;
         }
-        setAdminWarning(false);
-    }, [ roles, selectedRole, setAdminWarning ])
+        setWarning(false);
+    }, [ roles, selectedRole, setWarning ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <FormContainer defaultValues={{ role: volunteer.roleId }} onSuccess={handleUpdate}>
-                <DialogTitle>
-                    Change role
-                </DialogTitle>
-                <DialogContent>
-                    <Typography sx={{ pb: 2 }}>
-                        You can change the role that <strong>{volunteer.firstName}</strong> has been
-                        assigned, which defines our expectations for them during the event.
-                    </Typography>
-                    <SelectElement name="role" label="Role" size="small" fullWidth
-                                   options={options} onChange={handleChange} />
+        <SettingDialog defaultValues={{ role: volunteer.roleId }}
+                       description={
+                           <>
+                               You can change the role that <strong>{volunteer.firstName}</strong>
+                               has been assigned, defining what they will do during the event.
+                           </> }
+                        onClose={handleClose} onSubmit={handleSubmit} open={open}
+                        title="Change role">
 
-                    <Collapse in={!!adminWarning}>
-                        <Alert severity="warning" sx={{ mt: 2 }}>
-                            This role will grant administration access to
-                            <strong> {volunteer.firstName}</strong> for this event.
-                        </Alert>
-                    </Collapse>
+            <SelectElement name="role" label="Role" size="small" fullWidth
+                           options={options} onChange={handleChange} />
 
-                    <Collapse in={!!success}>
-                        <Alert severity="success" sx={{ mt: 2 }}>
-                            The role for <strong>{volunteer.firstName}</strong> has been updated.
-                        </Alert>
-                    </Collapse>
-                </DialogContent>
-                <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                    <Button onClick={handleClose} variant="text">Close</Button>
-                    <LoadingButton disabled={!!success} loading={loading} type="submit"
-                                   variant="contained">
-                        Update
-                    </LoadingButton>
-                </DialogActions>
-            </FormContainer>
-        </Dialog>
+            <Collapse in={!!warning}>
+                <Alert severity="warning" sx={{ mt: 2 }}>
+                    This role will grant administration access to
+                    <strong> {volunteer.firstName}</strong> for this event.
+                </Alert>
+            </Collapse>
+
+        </SettingDialog>
     );
 }
 
