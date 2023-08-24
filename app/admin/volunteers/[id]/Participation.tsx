@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '../TeamChip';
+import type { RegistrationStatus } from '@app/lib/database/Types';
 
 /**
  * Information about a volunteer's participation in a singular event.
@@ -82,9 +83,21 @@ export function Participation(props: ParticipationProps) {
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
-                const { eventSlug, teamSlug } = params.row;
+                const { eventSlug, status, teamSlug } = params.row;
 
-                const href = `/admin/events/${eventSlug}/${teamSlug}/volunteers/${userId}`;
+                let href: string = '#';
+                switch (status as RegistrationStatus) {
+                    case 'Registered':
+                    case 'Rejected':
+                        href = `/admin/events/${eventSlug}/${teamSlug}/applications`;
+                        break;
+
+                    case 'Accepted':
+                    case 'Cancelled':
+                        href = `/admin/events/${eventSlug}/${teamSlug}/volunteers/${userId}`;
+                        break;
+                }
+
                 return (
                     <MuiLink component={Link} href={href}>
                         {params.value}
