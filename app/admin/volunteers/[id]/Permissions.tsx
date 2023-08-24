@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
@@ -112,7 +112,7 @@ export function Permissions(props: PermissionsProps) {
             </Typography>
             <Grid container spacing={1}>
                 { groups.map(group =>
-                    <>
+                    <React.Fragment key={group}>
                         <Grid xs={12}>
                             <Typography variant="h6">
                                 {group}
@@ -147,7 +147,7 @@ export function Permissions(props: PermissionsProps) {
                                 </Grid>
                             );
                         }) }
-                    </>
+                    </React.Fragment>
                 ) }
                 <Grid xs={12}>
                     <Collapse in={privileges !== savedPrivileges}>
