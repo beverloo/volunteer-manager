@@ -19,6 +19,11 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
 /**
+ * Types of content that can be rendered in the <SettingDialog> slots.
+ */
+type Content = string | React.ReactNode | React.ReactNode[];
+
+/**
  * Props accepted by the <SettingDialog> component. May optionally be typed by TFieldValues, which
  * will propagate to the form container and settings contained herein.
  */
@@ -36,20 +41,21 @@ export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValu
     /**
      * Description of the dialog. May either be a string or a ReactNode. Optional.
      */
-    description?: string | React.ReactNode;
+    description?: Content;
 
     /**
      * To be called when the dialog is supposed to close. The `reason` indicates why the dialog has
      * been closed, in case behaviour should depend on those options.
      */
-    onClose?: (reason?: 'backdropClick' | 'button' | 'escapeKeyDown') => Promise<void> | void;
+    onClose?: (invalidated: boolean, reason?: 'backdropClick' | 'button' | 'escapeKeyDown')
+        => Promise<void> | void;
 
     /**
      * To be called when the form in the dialog is being submitted. The `data` contains the values
      * of the form values contained within the dialog. The handler should throw an exception when
      * an error occurs, or populate either (but not both) of the response values.
      */
-    onSubmit?: (data: TFieldValues) => Promise<{ success: string } | { error: string }>;
+    onSubmit?: (data: TFieldValues) => Promise<{ success: Content } | { error: Content }>;
 
     /**
      * Whether the dialog should be open.
@@ -64,7 +70,7 @@ export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValu
     /**
      * Title of the dialog that should be displayed.
      */
-    title: string | React.ReactNode;
+    title: Content;
 }
 
 /**
@@ -88,9 +94,10 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     // ---------------------------------------------------------------------------------------------
     // Internal handling for user interactions within the dialog.
     // ---------------------------------------------------------------------------------------------
-    const [ errorMessage, setErrorMessage ] = useState<string>();
-    const [ successMessage, setSuccessMessage ] = useState<string>();
+    const [ errorMessage, setErrorMessage ] = useState<Content>();
+    const [ successMessage, setSuccessMessage ] = useState<Content>();
 
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClose = useCallback(async (
@@ -98,7 +105,7 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     {
         try {
             if (onClose)
-                await onClose(reason ?? 'button');
+                await onClose(invalidated, reason ?? 'button');
         } finally {
             await new Promise(resolve => setTimeout(resolve, /* duration.standard= */ 300));
 
@@ -106,13 +113,15 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
 
             setErrorMessage(undefined);
             setSuccessMessage(undefined);
+            setInvalidated(false);
             setLoading(false);
         }
-    }, [ onClose, reset ]);
+    }, [ invalidated, onClose, reset ]);
 
     const handleSubmit = useCallback(async (data: TFieldValues) => {
         setErrorMessage(undefined);
         setSuccessMessage(undefined);
+        setInvalidated(true);
         setLoading(true);
 
         try {
@@ -142,7 +151,7 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
                 </DialogTitle>
                 <DialogContent>
                     { description &&
-                        <Typography sx={{ pb: 2 }}>
+                        <Typography>
                             {description}
                         </Typography> }
                     {children}

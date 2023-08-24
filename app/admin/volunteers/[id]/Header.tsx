@@ -3,56 +3,28 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
+import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Collapse from '@mui/material/Collapse';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
-import LoadingButton from '@mui/lab/LoadingButton';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import Paper from '@mui/material/Paper';
 import PinIcon from '@mui/icons-material/Pin';
-import SecurityIcon from '@mui/icons-material/Security';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
-import { green } from '@mui/material/colors';
 
 import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
 import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { VolunteerInfo } from './page';
+import { ContrastBox } from '@app/admin/components/ContrastBox';
+import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@lib/issueServerAction';
-
-/**
- * Custom styles applied to the <Header> component.
- */
-export const kStyles: { [key: string]: SxProps<Theme> } = {
-    options: {
-        borderRadius: 1,
-        paddingX: 2,
-        paddingY: 1,
-        marginTop: 1,
-        backgroundColor: theme => theme.palette.mode === 'light' ? theme.palette.grey[200]
-                                                                 : theme.palette.grey[800],
-    },
-    success: {
-        borderRadius: 1,
-        marginTop: 2,
-        paddingX: 2,
-        paddingY: 1,
-        backgroundColor: theme => theme.palette.mode === 'light' ? green[100] : green[800],
-    }
-};
 
 /**
  * Props passed to the various dialog properties.
@@ -81,54 +53,29 @@ interface DialogProps {
 function AccessCodeDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
-    const [ accessCode, setAccessCode ] = useState<string>();
-    const [ loading, setLoading ] = useState(false);
+    const handleSubmit = useCallback(async() => {
+        const response = await issueServerAction<ResetAccessCodeDefinition>(
+            '/api/admin/reset-access-code', {
+                userId: account.userId
+            });
 
-    const handleClose = useCallback(() =>
-        onClose(/* refresh= */ !!accessCode), [ onClose, accessCode ]);
+        if (!response.accessCode)
+            return { error: `Unable to retrieve ${account.firstName}'s access code right now` };
 
-    const handleRequest = useCallback(async() => {
-        setLoading(true);
-        try {
-            const response = await issueServerAction<ResetAccessCodeDefinition>(
-                '/api/admin/reset-access-code',
-                { userId: account.userId });
-
-            if (response.accessCode)
-                setAccessCode(response.accessCode);
-
-        } finally {
-            setLoading(false);
-        }
+        return {
+            success:
+                <>{account.firstName}'s access code is <strong>{response.accessCode}</strong></>
+        };
     }, [ account ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <DialogTitle>
-                Request an access code
-            </DialogTitle>
-            <DialogContent>
-                <Typography>
-                    You can request an access code for <strong>{account.firstName}</strong> using
-                    which they can sign in to their account once and reset their password.
-                </Typography>
-                <Collapse in={!!accessCode}>
-                    <Stack direction="row" spacing={2} sx={kStyles.success}>
-                        <ThumbUpIcon fontSize="small" />
-                        <Typography>
-                            Their access code is <strong>{accessCode}</strong>
-                        </Typography>
-                    </Stack>
-                </Collapse>
-            </DialogContent>
-            <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Cancel</Button>
-                <LoadingButton disabled={!!accessCode} loading={loading} onClick={handleRequest}
-                               variant="contained">
-                    Continue
-                </LoadingButton>
-            </DialogActions>
-        </Dialog>
+        <SettingDialog onClose={onClose} onSubmit={handleSubmit} open={open}
+                       description={
+                           <>
+                               Request an access code for <strong>{account.firstName}</strong> using
+                               which they can sign in to their account once to reset their password.
+                           </> }
+                       submitLabel="Request" title="Request an access code" />
     );
 }
 
@@ -139,54 +86,30 @@ function AccessCodeDialog(props: DialogProps) {
 function ActivateDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
-    const [ done, setDone ] = useState(false);
-    const [ loading, setLoading ] = useState(false);
+    const handleSubmit = useCallback(async() => {
+        const response = await issueServerAction<UpdateActivationDefinition>(
+            '/api/admin/update-activation',
+            {
+                userId: account.userId,
+                activated: true,
+            });
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ done), [ done, onClose ]);
-    const handleRequest = useCallback(async() => {
-        setLoading(true);
-        try {
-            const response = await issueServerAction<UpdateActivationDefinition>(
-                '/api/admin/update-activation',
-                {
-                    userId: account.userId,
-                    activated: true,
-                });
+        if (response.success)
+            return { success: `${account.firstName}'s account has been activated` };
 
-            if (response.success)
-                setDone(true);
-        } finally {
-            setLoading(false);
-        }
+        return {  error: `${account.firstName}'s account could not be activated right now` };
+
     }, [ account ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <DialogTitle>
-                Activate the account
-            </DialogTitle>
-            <DialogContent>
-                <Typography>
-                    You can activate <strong>{account.firstName}</strong>'s account on their behalf,
-                    which may be useful in case they aren't receiving our e-mail message.
-                </Typography>
-                <Collapse in={done}>
-                    <Stack direction="row" spacing={2} sx={kStyles.success}>
-                        <ThumbUpIcon fontSize="small" />
-                        <Typography>
-                            Their account has been activated.
-                        </Typography>
-                    </Stack>
-                </Collapse>
-            </DialogContent>
-            <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Close</Button>
-                <LoadingButton disabled={done} loading={loading} onClick={handleRequest}
-                               variant="contained">
-                    Activate
-                </LoadingButton>
-            </DialogActions>
-        </Dialog>
+        <SettingDialog onClose={onClose} onSubmit={handleSubmit} open={open}
+                       description={
+                           <>
+                               You can activate <strong>{account.firstName}</strong>'s account on
+                               their behalf, which may be useful in case they aren't receiving our
+                               e-mail messages.
+                           </> }
+                       submitLabel="Activate" title="Activate the account" />
     );
 }
 
@@ -197,54 +120,30 @@ function ActivateDialog(props: DialogProps) {
 function DeactivateDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
-    const [ done, setDone ] = useState(false);
-    const [ loading, setLoading ] = useState(false);
+    const handleSubmit = useCallback(async() => {
+        const response = await issueServerAction<UpdateActivationDefinition>(
+            '/api/admin/update-activation',
+            {
+                userId: account.userId,
+                activated: false,
+            });
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ done), [ done, onClose ]);
-    const handleRequest = useCallback(async() => {
-        setLoading(true);
-        try {
-            const response = await issueServerAction<UpdateActivationDefinition>(
-                '/api/admin/update-activation',
-                {
-                    userId: account.userId,
-                    activated: false,
-                });
+        if (response.success)
+            return { success: `${account.firstName}'s account has been deactivated` };
 
-            if (response.success)
-                setDone(true);
-        } finally {
-            setLoading(false);
-        }
+        return {  error: `${account.firstName}'s account could not be deactivated right now` };
+
     }, [ account ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <DialogTitle>
-                Deactivate the account
-            </DialogTitle>
-            <DialogContent>
-                <Typography>
-                    You can deactivate the account owned by <strong>{account.firstName}</strong>,
-                    which will sign them out and stop them from signing in again.
-                </Typography>
-                <Collapse in={done}>
-                    <Stack direction="row" spacing={2} sx={kStyles.success}>
-                        <ThumbUpIcon fontSize="small" />
-                        <Typography>
-                            Their account has been deactivated.
-                        </Typography>
-                    </Stack>
-                </Collapse>
-            </DialogContent>
-            <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Close</Button>
-                <LoadingButton disabled={done} loading={loading} onClick={handleRequest}
-                               variant="contained">
-                    Deactivate
-                </LoadingButton>
-            </DialogActions>
-        </Dialog>
+        <SettingDialog onClose={onClose} onSubmit={handleSubmit} open={open}
+                       description={
+                           <>
+                               You can deactivate the account owned by
+                               <strong> {account.firstName}</strong>, which will sign them out and
+                               stop them from signing in again.
+                           </> }
+                       submitLabel="Deactivate" title="Deactivate the account" />
     );
 }
 
@@ -255,51 +154,32 @@ function DeactivateDialog(props: DialogProps) {
 function PasswordResetDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
-    const [ link, setLink ] = useState<string>();
-    const [ loading, setLoading ] = useState(false);
+    const handleSubmit = useCallback(async() => {
+        const response = await issueServerAction<ResetPasswordLinkDefinition>(
+            '/api/admin/reset-password-link',
+            {
+                userId: account.userId
+            });
 
-    const handleClose = useCallback(() => onClose(/* refresh= */ !!link), [ onClose, link ]);
-    const handleRequest = useCallback(async() => {
-        setLoading(true);
-        try {
-            const response = await issueServerAction<ResetPasswordLinkDefinition>(
-                '/api/admin/reset-password-link',
-                { userId: account.userId });
+        if (!response.link)
+            return { error: 'The password reset link could not be created just now' };
 
-            if (response.link)
-                setLink(response.link);
+        return {
+            success: <MuiLink component={Link} href={response.link}>{response.link}</MuiLink>
+        };
 
-        } finally {
-            setLoading(false);
-        }
     }, [ account ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <DialogTitle>
-                Request a password reset
-            </DialogTitle>
-            <DialogContent>
-                <Typography>
-                    You can request a password reset link for <strong>{account.firstName} </strong>
-                    using which they can immediately reset their password. The link is yours to
-                    share with them.
-                </Typography>
-                <Collapse in={!!link}>
-                    <Stack direction="row" spacing={2} sx={kStyles.success} alignItems="center">
-                        <SecurityIcon fontSize="small" />
-                        <TextField variant="standard" margin="dense" fullWidth value={link} />
-                    </Stack>
-                </Collapse>
-            </DialogContent>
-            <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
-                <Button onClick={handleClose} variant="text">Cancel</Button>
-                <LoadingButton disabled={!!link} loading={loading} onClick={handleRequest}
-                               variant="contained">
-                    Continue
-                </LoadingButton>
-            </DialogActions>
-        </Dialog>
+        <SettingDialog onClose={onClose} onSubmit={handleSubmit} open={open}
+                       description={
+                           <>
+                               You can request a password reset link for
+                               <strong> {account.firstName} </strong> using which they can
+                               immediately reset their password. The link is yours to share
+                               with them.
+                           </> }
+                       submitLabel="Request" title="Request a password reset" />
     );
 }
 
@@ -352,33 +232,35 @@ export function Header(props: HeaderProps) {
             <Typography variant="h5">
                 {account.firstName} {account.lastName}
             </Typography>
-            <Stack sx={kStyles.options} divider={ <Divider orientation="vertical" flexItem /> }
-                   direction="row" spacing={1}>
+            <ContrastBox sx={{ mt: 1, px: 2, py: 1 }}>
+                <Stack divider={ <Divider orientation="vertical" flexItem /> }
+                       direction="row" spacing={1}>
 
-                { account.activated &&
-                    <Button variant="text" startIcon={ <UnpublishedIcon /> }
-                            onClick={ () => setDeactivateOpen(true) }>
-                        Deactivate
-                    </Button> }
+                    { account.activated &&
+                        <Button variant="text" startIcon={ <UnpublishedIcon /> }
+                                onClick={ () => setDeactivateOpen(true) }>
+                            Deactivate
+                        </Button> }
 
-                { !account.activated &&
-                    <Button variant="text" startIcon={ <CheckCircleIcon /> }
-                            onClick={ () => setActivateOpen(true) }>
-                        Activate
-                    </Button> }
+                    { !account.activated &&
+                        <Button variant="text" startIcon={ <CheckCircleIcon /> }
+                                onClick={ () => setActivateOpen(true) }>
+                            Activate
+                        </Button> }
 
-                { isAdmin &&
-                    <Button variant="text" startIcon={ <LockResetIcon /> }
-                            onClick={ () => setResetOpen(true) }>
-                        Reset password
-                    </Button> }
+                    { isAdmin &&
+                        <Button variant="text" startIcon={ <LockResetIcon /> }
+                                onClick={ () => setResetOpen(true) }>
+                            Reset password
+                        </Button> }
 
-                <Button variant="text" startIcon={ <PinIcon /> }
-                        onClick={ () => setAccessCodeOpen(true) }>
-                    Access code
-                </Button>
+                    <Button variant="text" startIcon={ <PinIcon /> }
+                            onClick={ () => setAccessCodeOpen(true) }>
+                        Access code
+                    </Button>
 
-            </Stack>
+                </Stack>
+            </ContrastBox>
 
             <AccessCodeDialog account={account} open={accessCodeOpen} onClose={requestClose} />
             <ActivateDialog account={account} open={activateOpen} onClose={requestClose} />

@@ -6,16 +6,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, SelectElement } from 'react-hook-form-mui';
+import { type FieldValues, SelectElement } from 'react-hook-form-mui';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -29,12 +25,11 @@ import Typography from '@mui/material/Typography';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UserData } from '@lib/auth/UserData';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
+import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@app/lib/issueServerAction';
-import { kStyles } from '@app/admin/volunteers/[id]/Header';
-
 
 /**
  * Props accepted by the <ChangeRoleDialog> dialog.
@@ -82,15 +77,11 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
         return roles ? roles.map(role => ({ id: role.roleId, label: role.roleName })) : [];
     }, [ roles ]);
 
-    const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ selectedRole, setSelectedRole ] = useState<number>(volunteer.roleId);
     const [ warning, setWarning ] = useState<boolean>(false);
 
     const handleChange = useCallback((value: any) => setSelectedRole(value), [ setSelectedRole ]);
-    const handleClose = useCallback(() => onClose(invalidated), [ invalidated, onClose ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
-        setInvalidated(true);  // refresh the parent page on submit
-
         const response = await issueServerAction<VolunteerRolesDefinition>(
             '/api/admin/volunteer-roles', {
                 eventId,
@@ -104,7 +95,7 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
         else
             return { error: `${volunteer.firstName}'s role could not be updated right now.` };
 
-    }, [ eventId, setInvalidated, teamId, volunteer ]);
+    }, [ eventId, teamId, volunteer ]);
 
     useEffect(() => {
         setSelectedRole(volunteer.roleId);
@@ -125,14 +116,15 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
         <SettingDialog defaultValues={{ role: volunteer.roleId }}
                        description={
                            <>
-                               You can change the role that <strong>{volunteer.firstName}</strong>
-                               has been assigned, defining what they will do during the event.
+                               You can change the role that <strong>{volunteer.firstName} </strong>
+                               has been assigned, defining what our expectations are for them
+                               during the event.
                            </> }
-                        onClose={handleClose} onSubmit={handleSubmit} open={open}
+                        onClose={onClose} onSubmit={handleSubmit} open={open}
                         title="Change role">
 
             <SelectElement name="role" label="Role" size="small" fullWidth
-                           options={options} onChange={handleChange} />
+                           options={options} onChange={handleChange} sx={{ mt: 2 }} />
 
             <Collapse in={!!warning}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
@@ -242,36 +234,38 @@ export function Header(props: HeaderProps) {
                     ({event.shortName} {team.name})
                 </Typography>
             </Typography>
-            <Stack sx={kStyles.options} divider={ <Divider orientation="vertical" flexItem /> }
-                   direction="row" spacing={1}>
+            <ContrastBox sx={{ mt: 1, px: 2, py: 1 }}>
+                <Stack divider={ <Divider orientation="vertical" flexItem /> }
+                       direction="row" spacing={1}>
 
-                { can(user, Privilege.VolunteerAdministrator) &&
-                    <Button onClick={navigateToAccount} startIcon={ <AccountCircleIcon /> }>
-                        Account
-                    </Button> }
+                    { can(user, Privilege.VolunteerAdministrator) &&
+                        <Button onClick={navigateToAccount} startIcon={ <AccountCircleIcon /> }>
+                            Account
+                        </Button> }
 
-                { volunteer.registrationStatus === RegistrationStatus.Accepted &&
-                    <Button startIcon={ <DoNotDisturbIcon /> }>
-                        Cancel participation
-                    </Button> }
+                    { volunteer.registrationStatus === RegistrationStatus.Accepted &&
+                        <Button startIcon={ <DoNotDisturbIcon /> }>
+                            Cancel participation
+                        </Button> }
 
-                { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
-                    <Button startIcon={ <SettingsBackupRestoreIcon /> }>
-                        Reinstate volunteer
-                    </Button> }
+                    { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
+                        <Button startIcon={ <SettingsBackupRestoreIcon /> }>
+                            Reinstate volunteer
+                        </Button> }
 
-                { can(user, Privilege.EventAdministrator) &&
-                    <Button startIcon={ <MoveUpIcon /> }>
-                        Change team
-                    </Button> }
+                    { can(user, Privilege.EventAdministrator) &&
+                        <Button startIcon={ <MoveUpIcon /> }>
+                            Change team
+                        </Button> }
 
-                { can(user, Privilege.EventAdministrator) &&
-                    <LoadingButton startIcon={ <ManageAccountsIcon /> } onClick={handleRolesOpen}
-                                   loading={rolesLoading}>
-                        Change role
-                    </LoadingButton> }
+                    { can(user, Privilege.EventAdministrator) &&
+                        <LoadingButton startIcon={ <ManageAccountsIcon /> }
+                                       onClick={handleRolesOpen} loading={rolesLoading}>
+                            Change role
+                        </LoadingButton> }
 
-            </Stack>
+                </Stack>
+            </ContrastBox>
             <ChangeRoleDialog onClose={handleRolesClose} open={roles && rolesOpen}
                               roles={roles!} volunteer={volunteer} eventId={event.id}
                               teamId={team.id} />
