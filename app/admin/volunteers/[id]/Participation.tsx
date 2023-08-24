@@ -26,7 +26,7 @@ export interface ParticipationInfo {
     /**
      * Name of the event during which they participated.
      */
-    event: string;
+    eventShortName: string;
 
     /**
      * Slug of the event, to enable deep linking to their participation.
@@ -78,7 +78,7 @@ export function Participation(props: ParticipationProps) {
 
     const columns: DataTableColumn[] = [
         {
-            field: 'event',
+            field: 'eventShortName',
             headerName: 'Event',
             flex: 2,
 

@@ -7,10 +7,11 @@ import { notFound } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { Privilege, can } from '@app/lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerDataTable } from './VolunteerDataTable';
 import { requireUser } from '@lib/auth/getUser';
-import { sql } from '@lib/database';
+import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Overview page showing all users who volunteered at at least one of the AnimeCon events, displayed
@@ -21,30 +22,28 @@ export default async function VolunteersPage() {
     if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 
-    const result = await sql`
-        SELECT
-            users.user_id AS id,
-            CONCAT(users.first_name, " ", users.last_name) AS name,
-            users.username AS email,
-            GROUP_CONCAT(DISTINCT teams.team_name ORDER BY teams.team_name ASC) AS teams,
-            users.activated AS isActivated,
-            users.privileges & 1 = 1 AS isAdmin
-        FROM
-            users
-        LEFT JOIN
-            users_events ON (users_events.user_id = users.user_id AND
-                             users_events.registration_status = "Accepted")
-        LEFT JOIN
-            teams ON teams.team_id = users_events.team_id
-        GROUP BY
-            users.user_id
-        ORDER BY
-            users.last_name ASC,
-            users.first_name ASC`;
+    const teamsJoin = tTeams.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
-    if (!result.ok) {
-        return <p>Cannot fetch data</p>
-    }
+    const dbInstance = db;
+    const volunteers = await dbInstance.selectFrom(tUsers)
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(tUsers.userId)
+                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted)))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
+        .select({
+            id: tUsers.userId,  // `id` is required by <DataTable>
+            username: tUsers.username,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
+            activated: tUsers.activated.equals(/* true= */ 1),
+            admin: tUsers.privileges.modulo(2n).equals(/* true= */ 1n),
+        })
+        .groupBy(tUsers.userId)
+        .orderBy(tUsers.lastName, 'asc')
+        .orderBy(tUsers.firstName, 'asc')
+        .executeSelectMany();
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -55,7 +54,7 @@ export default async function VolunteersPage() {
                 Overview of all everyone who signed up to volunteer at an AnimeCon event since 2010.
             </Typography>
 
-            <VolunteerDataTable enableFilter data={structuredClone(result.rows) as any} />
+            <VolunteerDataTable enableFilter volunteers={volunteers} />
         </Paper>
     );
 }

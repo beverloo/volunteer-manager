@@ -13,7 +13,8 @@ import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
 import { requireUser } from '@lib/auth/getUser';
-import db, { tUsers, sql } from '@lib/database';
+
+import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Information about the volunteer for whom this page is being displayed.
@@ -49,8 +50,10 @@ export interface VolunteerInfo {
  * Fetches information about the volunteer identified by the given `unverifiedId` from the database.
  */
 async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo | undefined> {
+    const numericUnverifiedId = parseInt(unverifiedId, 10);
+
     const account = await db.selectFrom(tUsers)
-        .where(tUsers.userId.equals(parseInt(unverifiedId, 10)))
+        .where(tUsers.userId.equals(numericUnverifiedId))
         .select({
             userId: tUsers.userId,
             username: tUsers.username,
@@ -64,38 +67,35 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         })
         .executeSelectNoneOrOne();
 
-    const logs = await fetchLogs({ sourceOrTargetUserId: parseInt(unverifiedId, 10) });
-    const participation = await sql`
-        SELECT
-            (1000 * users_events.event_id + users_events.team_id) AS id,
-            events.event_short_name AS event,
-            events.event_slug AS eventSlug,
-            users_events.registration_status AS status,
-            teams.team_name AS team,
-            teams.team_environment as teamSlug,
-            roles.role_name AS role
-        FROM
-            users_events
-        LEFT JOIN
-            events ON events.event_id = users_events.event_id
-        LEFT JOIN
-            teams ON teams.team_id = users_events.team_id
-        LEFT JOIN
-            roles ON roles.role_id = users_events.role_id
-        WHERE
-            users_events.user_id = ${unverifiedId}
-        ORDER BY
-            events.event_start_time DESC`;
+    const logs = await fetchLogs({ sourceOrTargetUserId: numericUnverifiedId });
 
-    if (!account)
-        notFound();
-    if (!participation.ok)
+    const participation = await db.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .where(tUsersEvents.userId.equals(numericUnverifiedId))
+        .select({
+            id: tUsersEvents.eventId.multiply(1000).add(tUsersEvents.teamId),
+            eventShortName: tEvents.eventShortName,
+            eventSlug: tEvents.eventSlug,
+            status: tUsersEvents.registrationStatus,
+            role: tRoles.roleName,
+            team: tTeams.teamName,
+            teamSlug: tTeams.teamEnvironment,
+        })
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectMany();
+
+    if (!account || !participation)
         notFound();
 
     return {
         account,
         logs: logs.messages,
-        participation: participation.rowsPod as ParticipationInfo[],
+        participation: participation,
     };
 }
 

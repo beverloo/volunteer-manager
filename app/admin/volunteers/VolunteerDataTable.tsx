@@ -24,11 +24,13 @@ export type VolunteerDataTableProps = DataTableBaseProps & {
     /**
      * The data that should be shown in the volunteer data table.
      */
-    data: {
+    volunteers: {
         id: number;
+        username?: string;
         name: string;
-        email: string;
-        teams: string;
+        teams?: string;
+        activated: boolean;
+        admin: boolean;
     }[];
 }
 
@@ -58,19 +60,19 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
-                if (params.row.isActivated && !params.row.isAdmin)
+                if (params.row.activated && !params.row.admin)
                     return params.value;
 
                 return (
                     <>
                         {params.value}
 
-                        { !!params.row.isAdmin &&
+                        { !!params.row.admin &&
                             <Tooltip title="Administrator">
                                 <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
                             </Tooltip> }
 
-                        { !params.row.isActivated &&
+                        { !params.row.activated &&
                             <Tooltip title="Pending activation">
                                 <ReportGmailerrorredIcon color="error" fontSize="small"
                                                          sx={{ ml: 1 }} />
@@ -81,7 +83,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             },
         },
         {
-            field: 'email',
+            field: 'username',
             headerName: 'E-mail',
             sortable: true,
             flex: 1,
@@ -93,7 +95,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
-                const chips = params.value?.split(',');
+                const chips = params.value?.split(',').sort();
 
                 if (Array.isArray(chips) && chips.length > 0) {
                     return (
@@ -107,5 +109,5 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
-    return <DataTable columns={columns} rows={props.data} {...props} />
+    return <DataTable columns={columns} rows={props.volunteers} {...props} />
 }
