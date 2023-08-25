@@ -42,6 +42,11 @@ export interface TeamProps {
         teamName: string;
 
         /**
+         * Title of the team as it should be presented to users.
+         */
+        teamTitle: string;
+
+        /**
          * Description of the team. Will be displayed on the homepage. Supports Markdown.
          */
         teamDescription: string;
@@ -100,8 +105,8 @@ export function Team(props: TeamProps) {
                                           onChange={handleChange} />
                     </Grid>
                     <Grid xs={6}>
-                        <TextFieldElement name="teamEnvironment" label="Domain" disabled
-                                          fullWidth size="small" onChange={handleChange} />
+                        <TextFieldElement name="teamTitle" label="Title" fullWidth size="small"
+                                          onChange={handleChange} />
                     </Grid>
                     <Grid xs={12}>
                         <TextareaAutosizeElement name="teamDescription" label="Description"

@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import { ClientProviders } from './ClientProviders';
 import { getRequestEnvironment } from './lib/getRequestEnvironment';
-import { kDefaultPageTitle, kDefaultPageDescription } from './config';
 
 /**
  * Default metadata for the application. Any server-side page can override these values, and they
@@ -13,23 +12,16 @@ import { kDefaultPageTitle, kDefaultPageDescription } from './config';
  */
 export const metadata: Metadata = {
     colorScheme: 'only light',
-    description: kDefaultPageDescription,
+    description: 'Volunteer Manager for the AnimeCon conventions',
     robots: 'noindex, nofollow',
-    title: kDefaultPageTitle,
+    title: 'AnimeCon Volunteer Manager',
 };
-
-/**
- * Props accepted by the <RootLayout> component. Will be called by NextJS.
- */
-interface RootLayoutProps {
-    children: React.ReactElement;
-}
 
 /**
  * The root layout of the Volunteer Manager application. Content will be rendered in here based on
  * the path that has been requested by the client, allowing for middleware routing.
  */
-export default function RootLayout(props: RootLayoutProps) {
+export default function RootLayout(props: React.PropsWithChildren) {
     return (
         <html lang="en">
             <head></head>

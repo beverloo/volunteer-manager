@@ -776,6 +776,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_title
+    type: varchar(128)
+    nullable: false
+    default: null
+    comment: ""
   - name: team_description
     type: text
     nullable: false
@@ -808,6 +813,7 @@ tables:
     CREATE TABLE `teams` (
       `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
       `team_name` varchar(32) NOT NULL,
+      `team_title` varchar(128) NOT NULL,
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
       PRIMARY KEY (`team_id`)

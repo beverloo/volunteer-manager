@@ -35,6 +35,7 @@ export default async function VolunteersTeamsPage() {
         .select({
             id: tTeams.teamId,
             teamName: tTeams.teamName,
+            teamTitle: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
             teamEnvironment: tTeams.teamEnvironment,
         })

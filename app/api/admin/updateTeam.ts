@@ -24,6 +24,11 @@ export const kUpdateTeamDefinition = z.object({
         teamName: z.string(),
 
         /**
+         * Title of the team's volunteer portal.
+         */
+        teamTitle: z.string(),
+
+        /**
          * Description of the team. May contain Markdown.
          */
         teamDescription: z.string(),
@@ -52,6 +57,7 @@ export async function updateTeam(request: Request, props: ActionProps): Promise<
     await db.update(tTeams)
         .set({
             teamName: request.teamName,
+            teamTitle: request.teamTitle,
             teamDescription: request.teamDescription,
         })
         .where(tTeams.teamId.equals(request.id))

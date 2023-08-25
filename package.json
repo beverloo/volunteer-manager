@@ -5,7 +5,7 @@
   "scripts": {
     "build-prod": "node Docker.build.js",
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
-    "sync-db-prod": "node ts-sql.build.mjs",
+    "sync-db": "node ts-sql.build.mjs",
     "build": "next build",
     "serve": "next dev",
     "lint": "next lint",

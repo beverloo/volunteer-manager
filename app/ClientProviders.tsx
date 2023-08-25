@@ -3,9 +3,10 @@
 
 'use client';
 
+import { NextAppDirEmotionCacheProvider } from 'tss-react/next/appDir';
+
 import type { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import { NextAppDirEmotionCacheProvider } from 'tss-react/next/appDir';
 import { ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -13,14 +14,9 @@ import type { Environment } from './Environment';
 import { createCachedTheme } from './ClientTheme';
 
 /**
- * Props accepted by the <ClientProviders /> React component.
+ * Props accepted by the <ClientProviders> component.
  */
 export interface ClientProvidersProps {
-    /**
-     * Children that should be rendered. Can be both server and client components.
-     */
-    children: React.ReactElement;
-
     /**
      * Whether dark mode should be enabled on the page. Defaults to `auto`.
      */
@@ -38,7 +34,7 @@ export interface ClientProvidersProps {
  *
  * https://nextjs.org/docs/getting-started/react-essentials#rendering-third-party-context-providers-in-server-components
  */
-export function ClientProviders(props: ClientProvidersProps) {
+export function ClientProviders(props: React.PropsWithChildren<ClientProvidersProps>) {
     const darkMode = props.darkMode ?? 'auto';
     const environment = props.environment;
 
