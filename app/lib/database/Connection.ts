@@ -68,7 +68,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
  * The query runner that powers connection coming from the Volunteer Manager. Lazily initialized the
  * first time a connection is requested.
  */
-let globalConnectionPool: Pool | undefined;
+export let globalConnectionPool: Pool | undefined;
 
 /**
  * Global mock connection that can be created (& destroyed) using the `useMockConnection` function

@@ -5,7 +5,9 @@
 
 import Masonry from '@mui/lab/Masonry';
 
+import type { DatabaseStatus } from './DatabaseCard';
 import { type Birthday, BirthdayCard } from './BirthdayCard';
+import { DatabaseCard } from './DatabaseCard';
 
 /**
  * Props accepted by the <Dashboard> component.
@@ -15,6 +17,11 @@ export interface DashboardProps {
      * The birthdays that happen in the current month.
      */
     currentBirthdays: Birthday[];
+
+    /**
+     * Status of the database connection during the current load. Optional.
+     */
+    databaseStatus?: DatabaseStatus;
 
     /**
      * The birthdays that happen in the upcoming month.
@@ -33,6 +40,7 @@ export function Dashboard(props: DashboardProps) {
                 <BirthdayCard birthdays={props.currentBirthdays} /> }
             { !!props.upcomingBirthdays.length &&
                 <BirthdayCard upcoming birthdays={props.upcomingBirthdays} /> }
+            { props.databaseStatus && <DatabaseCard status={props.databaseStatus} /> }
         </Masonry>
     );
 }

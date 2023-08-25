@@ -4,13 +4,16 @@
 import type { Metadata } from 'next';
 
 import type { Birthday } from './BirthdayCard';
+import type { DatabaseStatus } from './DatabaseCard';
 import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './Dashboard';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireUser } from '@lib/auth/getUser';
 import db, { tEvents, tUsers, tUsersEvents } from '@lib/database';
 
+import { globalConnectionPool } from '@lib/database/Connection';
 
 /**
  * Fetches the upcoming birthdays from the database for the given `user`. The considered volunteers
@@ -72,9 +75,22 @@ export default async function AdminPage() {
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);
 
+    let databaseStatus: DatabaseStatus | undefined;
+    if (can(user, Privilege.SystemAdministrator) && globalConnectionPool) {
+        databaseStatus = {
+            connections: {
+                active: globalConnectionPool.activeConnections(),
+                idle: globalConnectionPool.idleConnections(),
+                total: globalConnectionPool.totalConnections(),
+            },
+            taskQueueSize: globalConnectionPool.taskQueueSize(),
+        };
+    }
+
     return (
         <TopLevelLayout>
-            <Dashboard currentBirthdays={currentBirthdays} upcomingBirthdays={upcomingBirthdays} />
+            <Dashboard currentBirthdays={currentBirthdays} upcomingBirthdays={upcomingBirthdays}
+                       databaseStatus={databaseStatus} />
         </TopLevelLayout>
     );
 }
