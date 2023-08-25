@@ -45,6 +45,14 @@ export default async function VolunteersPage() {
         .orderBy(tUsers.firstName, 'asc')
         .executeSelectMany();
 
+    const teamColours = await dbInstance.selectFrom(tTeams)
+        .select({
+            name: tTeams.teamName,
+            darkThemeColour: tTeams.teamColourDarkTheme,
+            lightThemeColour: tTeams.teamColourLightTheme,
+        })
+        .executeSelectMany();
+
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5">
@@ -53,8 +61,7 @@ export default async function VolunteersPage() {
             <Typography variant="body2" sx={{ pb: 2 }}>
                 Overview of all everyone who signed up to volunteer at an AnimeCon event since 2010.
             </Typography>
-
-            <VolunteerDataTable enableFilter volunteers={volunteers} />
+            <VolunteerDataTable enableFilter teamColours={teamColours} volunteers={volunteers} />
         </Paper>
     );
 }

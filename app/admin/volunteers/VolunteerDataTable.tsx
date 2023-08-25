@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
@@ -21,6 +22,15 @@ import { TeamChip } from './TeamChip';
  * Props accepted by the <VolunteerDataTable> component.
  */
 export type VolunteerDataTableProps = DataTableBaseProps & {
+    /**
+     * Information about the teams and their theme colours.
+     */
+    teamColours: {
+        name: string;
+        darkThemeColour: string;
+        lightThemeColour: string;
+    }[];
+
     /**
      * The data that should be shown in the volunteer data table.
      */
@@ -40,6 +50,12 @@ export type VolunteerDataTableProps = DataTableBaseProps & {
  */
 export function VolunteerDataTable(props: VolunteerDataTableProps) {
     const kVolunteerBase = '/admin/volunteers/';
+
+    const teamColours = useMemo(() => {
+        return new Map(props.teamColours.map(({ name, darkThemeColour, lightThemeColour }) =>
+            ([ name, { dark: darkThemeColour, light: lightThemeColour } ])));
+
+    }, [ props.teamColours ]);
 
     const columns: DataTableColumn[] = [
         {
@@ -96,15 +112,16 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
 
             renderCell: (params: GridRenderCellParams) => {
                 const chips = params.value?.split(',').sort();
+                if (!Array.isArray(chips))
+                    return undefined;
 
-                if (Array.isArray(chips) && chips.length > 0) {
-                    return (
-                        <Stack direction="row" spacing={1}>
-                            { chips.map((chip: any, index: any) =>
-                                <TeamChip key={index} team={chip} /> )}
-                        </Stack>
-                    );
-                }
+                return (
+                    <Stack direction="row" spacing={1}>
+                        { chips.map((team: any, index: number) =>
+                            <TeamChip key={index} label={team}
+                                      colours={teamColours.get(team)!} /> ) }
+                    </Stack>
+                );
             },
         },
     ];

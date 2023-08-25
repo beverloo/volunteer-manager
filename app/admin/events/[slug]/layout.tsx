@@ -17,7 +17,6 @@ import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
-import { kEnvironmentColours } from '@app/Environment';
 import { requireUser } from '@lib/auth/getUser';
 
 /**
@@ -40,21 +39,21 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
             {
                 name: 'Crew',
                 slug: 'gophers.team',
-                color: kEnvironmentColours['gophers.team'].light,
+                color: '#5d4037',
                 defaultOpen: false,
                 pendingApplications: 12,
             },
             {
                 name: 'Hosts',
                 slug: 'hosts.team',
-                color: kEnvironmentColours['hosts.team'].light,
+                color: '#880e4f',
                 defaultOpen: false,
                 pendingApplications: 0,
             },
             {
                 name: 'Stewards',
                 slug: 'stewards.team',
-                color: kEnvironmentColours['stewards.team'].light,
+                color: '#303f9f',
                 defaultOpen: true,
                 pendingApplications: 1,
             }
