@@ -14,6 +14,7 @@ import { updateActivation, kUpdateActivationDefinition } from '../updateActivati
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 import { updateRole, kUpdateRoleDefinition } from '../updateRole';
+import { updateTeam, kUpdateTeamDefinition } from '../updateTeam';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 import { volunteerList, kVolunteerListDefinition } from '../volunteerList';
@@ -51,6 +52,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdatePermissionsDefinition, updatePermissions);
         case 'update-role':
             return executeAction(request, kUpdateRoleDefinition, updateRole);
+        case 'update-team':
+            return executeAction(request, kUpdateTeamDefinition, updateTeam);
         case 'update-volunteer':
             return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
         case 'vertex-ai':

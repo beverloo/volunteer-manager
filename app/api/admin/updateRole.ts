@@ -63,7 +63,8 @@ type Request = UpdateRoleDefinition['request'];
 type Response = UpdateRoleDefinition['response'];
 
 /**
- * API that allows
+ * API that allows information about particular roles to be updated. This includes whether they get
+ * admin access, hotel and training eligibility and of course the role's name.
  */
 export async function updateRole(request: Request, props: ActionProps): Promise<Response> {
     if (!can(props.user, Privilege.VolunteerAdministrator))
