@@ -23,9 +23,9 @@ export interface ClientProvidersProps {
     darkMode?: 'auto' | 'dark' | 'light';
 
     /**
-     * The environment for which the page is being displayed.
+     * Theme colours for the environment that's being displayed. Other colours will be computed.
      */
-    environment: Environment;
+    themeColours?: { [key in PaletteMode]: string };
 }
 
 /**
@@ -36,7 +36,10 @@ export interface ClientProvidersProps {
  */
 export function ClientProviders(props: React.PropsWithChildren<ClientProvidersProps>) {
     const darkMode = props.darkMode ?? 'auto';
-    const environment = props.environment;
+    const themeColours = props.themeColours ?? {
+        dark: '#b2dfdb',
+        light: '#00796b',
+    };
 
     // If |darkMode| is set to `auto`, we need to resolve the actual state to preferences of the
     // operating system. This is done by observing a media query.
@@ -49,7 +52,7 @@ export function ClientProviders(props: React.PropsWithChildren<ClientProvidersPr
         <>
             <CssBaseline />
             <NextAppDirEmotionCacheProvider options={{ key: 'css' }}>
-                <ThemeProvider theme={createCachedTheme(environment, effectiveDarkModeState)}>
+                <ThemeProvider theme={createCachedTheme(themeColours, effectiveDarkModeState)}>
                     {props.children}
                 </ThemeProvider>
             </NextAppDirEmotionCacheProvider>

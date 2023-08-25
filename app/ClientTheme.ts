@@ -9,8 +9,6 @@ import { type Theme, type ThemeOptions, createTheme, lighten } from '@mui/materi
 import { deepmerge } from '@mui/utils';
 import grey from '@mui/material/colors/grey'
 
-import { type Environment, kEnvironmentColours } from './Environment';
-
 /**
  * Add our own style, "hidden", which mimics disabled buttons while still allowing interaction. It
  * is used to highlight options that are only available through additional granted privileges.
@@ -62,13 +60,18 @@ const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
 };
 
 /**
- * Creates a theme for the given |environment| in the given |paletteMode|. The result of this call
+ * Representation of the theme colours for each of the valid Palette modes.
+ */
+type ThemeColour = { [key in PaletteMode]: string };
+
+/**
+ * Creates a theme for the given |themeColors| in the given |paletteMode|. The result of this call
  * will be cached for the lifetime of the global environment.
  */
-export function createCachedTheme(environment: Environment, paletteMode: PaletteMode): Theme {
-    const themeCacheKey = `${environment}#${paletteMode}`;
-    if (!kThemeCache.has(themeCacheKey)) {
-        kThemeCache.set(themeCacheKey, createTheme(deepmerge(kThemePaletteModeMixins[paletteMode], {
+export function createCachedTheme(themeColors: ThemeColour, paletteMode: PaletteMode): Theme {
+    const themeColour = themeColors[paletteMode];
+    if (!kThemeCache.has(themeColour)) {
+        kThemeCache.set(themeColour, createTheme(deepmerge(kThemePaletteModeMixins[paletteMode], {
             breakpoints: {
                 values: {
                     xs: 0,
@@ -81,7 +84,7 @@ export function createCachedTheme(environment: Environment, paletteMode: Palette
             palette: {
                 mode: paletteMode,
                 primary: {
-                    main: kEnvironmentColours[environment][paletteMode],
+                    main: themeColour,
                 },
                 hidden: {
                     main: grey[500],
@@ -94,5 +97,5 @@ export function createCachedTheme(environment: Environment, paletteMode: Palette
         })));
     }
 
-    return kThemeCache.get(themeCacheKey)!;
+    return kThemeCache.get(themeColour)!;
 }

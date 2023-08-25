@@ -4,6 +4,7 @@
 import type { Metadata } from 'next';
 
 import { ClientProviders } from './ClientProviders';
+import { determineEnvironment } from '@lib/Environment';
 import { getRequestEnvironment } from './lib/getRequestEnvironment';
 
 /**
@@ -21,12 +22,14 @@ export const metadata: Metadata = {
  * The root layout of the Volunteer Manager application. Content will be rendered in here based on
  * the path that has been requested by the client, allowing for middleware routing.
  */
-export default function RootLayout(props: React.PropsWithChildren) {
+export default async function RootLayout(props: React.PropsWithChildren) {
+    const environment = await determineEnvironment();
+
     return (
         <html lang="en">
             <head></head>
             <body>
-                <ClientProviders darkMode="auto" environment={getRequestEnvironment()}>
+                <ClientProviders darkMode="auto" themeColours={environment?.themeColours}>
                     {props.children}
                 </ClientProviders>
             </body>

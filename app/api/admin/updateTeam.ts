@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { clearEnvironmentCache } from '@lib/Environment';
 import db, { tTeams, tTeamsRoles } from '@lib/database';
 
 /**
@@ -112,6 +113,8 @@ export async function updateTeam(request: Request, props: ActionProps): Promise<
             team: request.teamName,
         },
     });
+
+    clearEnvironmentCache();
 
     return { success: true };
 }
