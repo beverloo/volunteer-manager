@@ -3,14 +3,16 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { FieldValues, TextFieldElementProps } from 'react-hook-form-mui';
-import { FormContainer, TextareaAutosizeElement, TextFieldElement, useFormContext }
-    from 'react-hook-form-mui';
+import {
+    AutocompleteElement, FormContainer, SelectElement, TextFieldElement, TextareaAutosizeElement,
+    useFormContext } from 'react-hook-form-mui';
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -61,13 +63,26 @@ export interface TeamProps {
      * Information about the team that this component is representing.
      */
     team: {
-
         /**
          * Name of the environment (domain name) that this team represents.
          */
         teamEnvironment: string;
 
-    } & UpdateTeamDefinition['request'];
+        /**
+         * The roles that exist for this team.
+         */
+        roles: {
+            /**
+             * ID of the role, must exist in the `TeamProps['roles']` property.
+             */
+            roleId: number;
+
+            /**
+             * Whether this role is the default assignment for new registrations.
+             */
+            roleDefault: boolean;
+        }[];
+    } & Omit<UpdateTeamDefinition['request'], 'teamDefaultRole' | 'teamRoles'>;
 }
 
 /**
@@ -77,21 +92,42 @@ export interface TeamProps {
 export function Team(props: TeamProps) {
     const { team } = props;
 
-    // TODO: Roles
+    // `roles` - a Map<> between the ID of a role and its name
+    // `roleOptions` - an array with the numeric IDs of valid roles that can be chosen
+    // `teamRoleSelection` - an array with the numeric IDs of roles selected for this team
+    const [ roles, roleOptions, teamRoleSelection ] = useMemo(() => ([
+        new Map<number, string>(props.roles.map(({ id, roleName }) => [ id, roleName ])),
+        props.roles.map(({ id }) => ({ id })),
+        props.team.roles.map(({ roleId }) => ({ id: roleId })),
+    ]), [ props.roles, props.team.roles ]);
+
+    // Default values that apply to the form ahead of any user mutations.
+    const defaultValues = useMemo(() => ({
+        teamDefaultRole: props.team.roles.find(({ roleDefault }) => roleDefault)?.roleId,
+        teamRoles: teamRoleSelection,
+        ...team,
+    }), [ props.team.roles, team, teamRoleSelection ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Basic form behaviour
+    // ---------------------------------------------------------------------------------------------
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    const handleChange = useCallback(() => setInvalidated(true), [ setInvalidated ]);
+    const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
             const result = await issueServerAction<UpdateTeamDefinition>('/api/admin/update-team', {
                 ...data as UpdateTeamDefinition['request'],
+
+                teamDefaultRole: data.teamDefaultRole,
+                teamRoles: data.teamRoles.map(({ id }: any) => id),
+
                 id: team.id,
             });
-
             if (result.success)
                 setInvalidated(false);
         } catch (error: any) {
@@ -101,6 +137,30 @@ export function Team(props: TeamProps) {
         }
     }, [ team ]);
 
+    // ---------------------------------------------------------------------------------------------
+    // Roles & Default role behaviour
+    // ---------------------------------------------------------------------------------------------
+
+    const [ roleSelection, setRoleSelection ] = useState(teamRoleSelection);
+    const [ defaultRoleOptions, setDefaultRoleOptions ] = useState(teamRoleSelection);
+
+    const handleTeamRolesChange = useCallback((event: unknown, value: any) => {
+        setRoleSelection(value);
+        setInvalidated(true);
+    }, [ /* no deps */ ]);
+
+    useEffect(() => {
+        setDefaultRoleOptions(roleSelection.map(({ id }) => ({
+            label: roles.get(id),
+            id,
+        })));
+    }, [ roleSelection, roles ]);
+
+    const getOptionLabel =
+        useCallback((option: any) => roles.get(option.id) ?? `Unknown (#${option.id})`, [ roles ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -109,7 +169,7 @@ export function Team(props: TeamProps) {
                     ({team.teamEnvironment})
                 </Typography>
             </Typography>
-            <FormContainer defaultValues={team} onSuccess={handleSubmit}>
+            <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <Grid xs={6}>
                         <TextFieldElement name="teamName" label="Name" fullWidth size="small"
@@ -122,6 +182,21 @@ export function Team(props: TeamProps) {
                     <Grid xs={12}>
                         <TextareaAutosizeElement name="teamDescription" label="Description"
                                                  fullWidth onChange={handleChange} required />
+                    </Grid>
+                    <Grid xs={6}>
+                        <AutocompleteElement name="teamRoles" label="Roles" options={roleOptions}
+                                             multiple required
+                                             autocompleteProps={{
+                                                 fullWidth: true,
+                                                 getOptionLabel,
+                                                 onChange: handleTeamRolesChange,
+                                                 size: 'small'
+                                             }} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <SelectElement name="teamDefaultRole" label="Default role" size="small"
+                                       required fullWidth options={defaultRoleOptions}
+                                       onChange={handleChange} />
                     </Grid>
                     <Grid xs={6}>
                         <ColorFieldElement name="teamColourLightTheme" label="Light theme color"

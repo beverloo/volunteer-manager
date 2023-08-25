@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import db, { tTeams } from '@lib/database';
+import db, { tTeams, tTeamsRoles } from '@lib/database';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/update-team.
@@ -42,6 +42,16 @@ export const kUpdateTeamDefinition = z.object({
          * Theme colour for this team in light mode.
          */
         teamColourLightTheme: z.string(),
+
+        /**
+         * The default role that people in this team should be assigned.
+         */
+        teamDefaultRole: z.number(),
+
+        /**
+         * The valid roles that people in this team can be assigned to.
+         */
+        teamRoles: z.array(z.number()).nonempty(),
     }),
     response: z.strictObject({
         /**
@@ -64,16 +74,35 @@ export async function updateTeam(request: Request, props: ActionProps): Promise<
     if (!can(props.user, Privilege.VolunteerAdministrator))
         noAccess();
 
-    await db.update(tTeams)
-        .set({
-            teamName: request.teamName,
-            teamTitle: request.teamTitle,
-            teamDescription: request.teamDescription,
-            teamColourDarkTheme: request.teamColourDarkTheme,
-            teamColourLightTheme: request.teamColourLightTheme,
-        })
-        .where(tTeams.teamId.equals(request.id))
-        .executeUpdate(/* min= */ 0, /* max= */ 1);
+    // Verify that the `request` contains at least one role, and a valid default role.
+    if (!request.teamRoles.length || !request.teamRoles.includes(request.teamDefaultRole))
+        return { success: false };
+
+    const dbInstance = db;
+    await dbInstance.transaction(async () => {
+        await dbInstance.update(tTeams)
+            .set({
+                teamName: request.teamName,
+                teamTitle: request.teamTitle,
+                teamDescription: request.teamDescription,
+                teamColourDarkTheme: request.teamColourDarkTheme,
+                teamColourLightTheme: request.teamColourLightTheme,
+            })
+            .where(tTeams.teamId.equals(request.id))
+            .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+        await dbInstance.deleteFrom(tTeamsRoles)
+            .where(tTeamsRoles.teamId.equals(request.id))
+            .executeDelete();
+
+        await dbInstance.insertInto(tTeamsRoles)
+            .values(request.teamRoles.map(id => ({
+                teamId: request.id,
+                roleId: id,
+                roleDefault: request.teamDefaultRole === id ? 1 : 0,
+            })))
+            .executeInsert();
+    });
 
     await Log({
         type: LogType.AdminUpdateTeam,

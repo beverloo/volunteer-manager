@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 
 import { Roles } from './Roles';
 import { Team } from './Team';
-import db, { tRoles, tTeams } from '@lib/database';
+import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
 
 /**
  * This page allows a volunteer administrator to manage settings of the volunteering teams that have
@@ -17,7 +17,8 @@ import db, { tRoles, tTeams } from '@lib/database';
  * should be fairly rare. Creating and removing teams is restricted to the database.
  */
 export default async function VolunteersTeamsPage() {
-    const roles = await db.selectFrom(tRoles)
+    const dbInstance = db;
+    const roles = await dbInstance.selectFrom(tRoles)
         .select({
             id: tRoles.roleId,
             roleName: tRoles.roleName,
@@ -31,7 +32,10 @@ export default async function VolunteersTeamsPage() {
         .orderBy(tRoles.roleName, 'asc')
         .executeSelectMany();
 
-    const teams = await db.selectFrom(tTeams)
+    const teamsRolesJoin = tTeamsRoles.forUseInLeftJoin();
+    const teams = await dbInstance.selectFrom(tTeams)
+        .leftJoin(teamsRolesJoin)
+            .on(teamsRolesJoin.teamId.equals(tTeams.teamId))
         .select({
             id: tTeams.teamId,
             teamName: tTeams.teamName,
@@ -40,7 +44,12 @@ export default async function VolunteersTeamsPage() {
             teamEnvironment: tTeams.teamEnvironment,
             teamColourDarkTheme: tTeams.teamColourDarkTheme,
             teamColourLightTheme: tTeams.teamColourLightTheme,
+            roles: dbInstance.aggregateAsArray({
+                roleId: teamsRolesJoin.roleId,
+                roleDefault: teamsRolesJoin.roleDefault.equals(/* true= */ 1)
+            }),
         })
+        .groupBy(tTeams.teamId)
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
 
