@@ -14,7 +14,7 @@ type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
  * Retrieves the registration associated with the given `userId` at the given `event`. When no such
  * registration exists, `undefined` will be returned instead.
  */
-export async function getRegistration(environment: Environment, event: Event, userId?: number)
+export async function getRegistration(environmentName: string, event: Event, userId?: number)
     : Promise<Registration | undefined>
 {
     if (!userId)
@@ -33,7 +33,7 @@ export async function getRegistration(environment: Environment, event: Event, us
                 users_events
             LEFT JOIN
                 teams ON teams.team_id = users_events.team_id AND
-                         teams.team_environment = ${environment}
+                         teams.team_environment = ${environmentName}
             LEFT JOIN
                 teams_roles ON teams_roles.role_id = users_events.role_id
             LEFT JOIN

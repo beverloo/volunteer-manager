@@ -48,7 +48,7 @@ export async function getEventBySlug(slug: string)
  * Returns all events that are publicly visible, limited to the |user| when they are signed in to
  * their account. This function issues a database query specific to the current environment.
  */
-export async function getEventsForUser(environment: Environment, user?: User): Promise<Event[]> {
+export async function getEventsForUser(environmentName: string, user?: User): Promise<Event[]> {
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
 
@@ -89,7 +89,7 @@ export async function getEventsForUser(environment: Environment, user?: User): P
         let environmentFound = false;
 
         for (const eventEnvironmentInfo of eventInfo.environments) {
-            if (eventEnvironmentInfo.environment !== environment)
+            if (eventEnvironmentInfo.environment !== environmentName)
                 continue;
 
             environmentFound = true;
@@ -100,7 +100,7 @@ export async function getEventsForUser(environment: Environment, user?: User): P
         }
 
         if (!environmentFound)
-            continue;  // this |eventInfo| does not exist for the given |environment|
+            continue;  // this |eventInfo| does not exist for the given |environmentName|
 
         if (!environmentAccessible && !eventAvailabilityOverride)
             continue;  // this |eventInfo| is not yet available to the |user|

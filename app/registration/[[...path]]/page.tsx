@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation';
 
 import type { Event } from '@lib/Event';
 import { ApplicationPage } from './ApplicationPage';
@@ -10,11 +10,10 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
 import { RegistrationContentContainer } from '../RegistrationContentContainer';
 import { RegistrationLayout } from '../RegistrationLayout';
-
+import { determineEnvironment } from '@lib/Environment';
 import { getContent } from '@lib/Content';
 import { getEventBySlug, getEventsForUser } from '@lib/EventLoader';
 import { getRegistration } from '@app/lib/RegistrationLoader';
-import { getRequestEnvironment } from '@lib/getRequestEnvironment';
 import { getUser } from '@lib/auth/getUser';
 
 /**
@@ -40,7 +39,10 @@ interface EventRegistrationPageProps {
  * made available will depend on the environment the volunteer is participating in.
  */
 export default async function EventRegistrationPage(props: EventRegistrationPageProps) {
-    const environment = getRequestEnvironment();
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
+
     const user = await getUser();
 
     const path = props.params.path ?? [];
@@ -50,14 +52,16 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     const event: Event | undefined = path.length ? await getEventBySlug(path.shift()!)
                                                  : undefined;
 
-    const environmentData = event?.getEnvironmentData(environment);
+    const environmentData = event?.getEnvironmentData(environment.environmentName);
 
     if (!event || !environmentData ||
         (!environmentData.enableContent && !can(user, Privilege.EventContentOverride)))
     {
-        const events = await getEventsForUser(environment, user);
+        const events = await getEventsForUser(environment.environmentName, user);
         for (const potentialEvent of events) {
-            const potentialEventEnvironmentData = potentialEvent.getEnvironmentData(environment);
+            const potentialEventEnvironmentData =
+                potentialEvent.getEnvironmentData(environment.environmentName);
+
             if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableContent)
                 redirect(`/registration/${potentialEvent.slug}/`);
         }
@@ -67,8 +71,8 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     // Step 2: The |user| has access to the |event|. Two more things we need to do: fetch all their
     // registration information, and fetch the page that they wish to see on the portal.
-    const content = await getContent(environment, event, path);
-    const registration = await getRegistration(environment, event, user?.userId);
+    const content = await getContent(environment.environmentName, event, path);
+    const registration = await getRegistration(environment.environmentName, event, user?.userId);
 
     // Step 3: Defer to more specific sub-components when this is a functional request.
     let redirectUrl = `/registration/${event.slug}`;
@@ -95,7 +99,7 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     // a pure-content registration page with the information made available above.
     const backUrl = path.length ? `/registration/${event.slug}` : undefined;
 
-    const eventData = event.toEventData(environment);
+    const eventData = event.toEventData(environment.environmentName);
     const registrationData = registration?.toRegistrationData();
     const userData = user?.toUserData();
 

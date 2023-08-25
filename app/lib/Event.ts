@@ -82,7 +82,7 @@ export type EventDataWithEnvironment = EventData & EventEnvironmentData;
  * Represents one of the AnimeCon festivals.
  */
 export class Event implements EventData {
-    #environments: Map<Environment, EventEnvironmentData>;
+    #environments: Map<string, EventEnvironmentData>;
     #event: EventDatabaseRow;
 
     constructor(event: EventDatabaseRow) {
@@ -93,7 +93,7 @@ export class Event implements EventData {
             if (!environmentInfo.environment)
                 continue;  // partial information, this should never happen
 
-            this.#environments.set(environmentInfo.environment as Environment, {
+            this.#environments.set(environmentInfo.environment, {
                 enableContent: !!environmentInfo.enableContent,
                 enableRegistration: !!environmentInfo.enableRegistration,
                 enableSchedule: !!environmentInfo.enableSchedule,
@@ -111,18 +111,18 @@ export class Event implements EventData {
     get eventId() { return this.#event.eventId; }
 
     /**
-     * Returns the environment information for the given |environment| when it exists, or undefined
-     * in all other cases.
+     * Returns the environment information for the given |environmentName| when it exists, or
+     * `undefined` in all other cases.
      */
-    getEnvironmentData(environment: Environment): EventEnvironmentData | undefined {
-        return this.#environments.get(environment);
+    getEnvironmentData(environmentName: string): EventEnvironmentData | undefined {
+        return this.#environments.get(environmentName);
     }
 
     /**
-     * Whether this event has environment information for the given |environment|.
+     * Whether this event has environment information for the given |environmentName|.
      */
-    hasEnvironmentData(environment: Environment): boolean {
-        return this.#environments.has(environment);
+    hasEnvironmentData(environmentName: string): boolean {
+        return this.#environments.has(environmentName);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -144,8 +144,8 @@ export class Event implements EventData {
      * Returns a plain JavaScript object that conforms to the EventData interface.
      */
     toEventData(): EventData;
-    toEventData(environment: Environment): EventDataWithEnvironment;
-    toEventData(environment?: Environment) {
+    toEventData(environmentName: string): EventDataWithEnvironment;
+    toEventData(environmentName?: string) {
         const eventData = {
             name: this.name,
             shortName: this.shortName,
@@ -154,12 +154,12 @@ export class Event implements EventData {
             endTime: this.endTime,
         };
 
-        if (!environment)
+        if (!environmentName)
             return eventData;
 
-        const environmentData = this.getEnvironmentData(environment);
+        const environmentData = this.getEnvironmentData(environmentName);
         if (!environmentData)
-            throw new Error(`This event does not have the requested environment: ${environment}`);
+            throw new Error(`This event does not have this environment: ${environmentName}`);
 
         return {
             ...eventData,

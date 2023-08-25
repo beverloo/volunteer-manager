@@ -37,13 +37,3 @@ export const kEnvironmentColours: { [key in Environment]: EnvironmentMainColourF
         light: '#303f9f',
     },
 };
-
-/**
- * Titles for each of the environments the Volunteer Manager is able to serve for.
- */
-export const kEnvironmentTitle: { [key in Environment]: string } = {
-    'animecon.team': 'Volunteering Teams',
-    'gophers.team': 'Volunteering Crew',
-    'hosts.team': 'Festival Hosts',
-    'stewards.team': 'Steward Team',
-};

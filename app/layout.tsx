@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import { ClientProviders } from './ClientProviders';
 import { determineEnvironment } from '@lib/Environment';
-import { getRequestEnvironment } from './lib/getRequestEnvironment';
 
 /**
  * Default metadata for the application. Any server-side page can override these values, and they

@@ -12,7 +12,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
 
-import { type Environment, kEnvironmentColours, kEnvironmentTitle } from '../Environment';
+import type { Environment } from '@lib/Environment';
 import { AuthenticationContext, AuthenticationContextManager } from './AuthenticationContext';
 
 /**
@@ -28,10 +28,10 @@ const kLogoContainerStyles: React.CSSProperties = {
 };
 
 /**
- * Generates the background styles for the given |environment|, which determines the resources that
- * will be used for the background images across both mobile and desktop.
+ * Generates the background styles for the given |environmentName|, which determines the resources
+ * that will be used for the background images across both mobile and desktop.
  */
-const generateBackgroundStylesForEnvironment = (environment: Environment): SxProps<Theme> => ({
+const generateBackgroundStylesForEnvironment = (environmentName: string): SxProps<Theme> => ({
     position: 'fixed',
     zIndex: -1,
 
@@ -42,8 +42,8 @@ const generateBackgroundStylesForEnvironment = (environment: Environment): SxPro
     backgroundPosition: 'bottom right',
     backgroundSize: 'cover',
     backgroundImage: {
-        xs: `url(/images/${environment}/background-mobile.jpg?v2)`,
-        sm: `url(/images/${environment}/background-desktop.jpg?v2)`,
+        xs: `url(/images/${environmentName}/background-mobile.jpg?v2)`,
+        sm: `url(/images/${environmentName}/background-desktop.jpg?v2)`,
     },
 });
 
@@ -68,17 +68,19 @@ interface RegistrationLayoutProps {
  * Registration apps, which welcome volunteers and invite them to join our teams.
  */
 export function RegistrationLayout(props: RegistrationLayoutProps) {
+    const { environment } = props;
+
     const year = (new Date()).getFullYear();
     const params = new URLSearchParams([
-        [ 'color', darken(kEnvironmentColours[props.environment].light, .3) ],
-        [ 'title', kEnvironmentTitle[props.environment] ],
+        [ 'color', darken(environment.themeColours.light, .3) ],
+        [ 'title', environment.environmentName ],
     ]);
 
     const [ authenticationContext ] = useState(new AuthenticationContextManager);
 
     return (
         <>
-            <Box sx={generateBackgroundStylesForEnvironment(props.environment)}></Box>
+            <Box sx={generateBackgroundStylesForEnvironment(environment.environmentName)}></Box>
             <Container component="main" sx={{ pb: 2 }}>
                 <Container component="header" sx={{ py: 2, textAlign: 'center' }}>
                     <Link href="/" style={{ display: 'inline-block' }}>

@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Environment } from '../Environment';
 import type { Event } from './Event';
 import db, { tContent, tTeams, tUsers } from './database';
 
@@ -33,16 +32,16 @@ export interface Content {
 }
 
 /**
- * Fetches content from the database for the given `path`, `event` and `environment` tuple. Will
+ * Fetches content from the database for the given `path`, `event` and `environmentName` tuple. Will
  * run a database query to do so. Only the latest revision of a page will be included, all else will
  * be ignored as they are no longer deemed relevant.
  *
- * @param environment The environment for which to fetch the content.
+ * @param environmentName The environment for which to fetch the content.
  * @param event The event with which the content should be associated.
  * @param path The path towards the content, relative from the /registration/slug/ root.
  * @return Content object with the content when found, or undefined in all other cases.
  */
-export async function getContent(environment: Environment, event: Event, path: string[])
+export async function getContent(environmentName: string, event: Event, path: string[])
         : Promise<Content | undefined> {
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersJoin = tUsers.forUseInLeftJoin();
@@ -54,7 +53,7 @@ export async function getContent(environment: Environment, event: Event, path: s
             .on(teamsJoin.teamId.equals(tContent.teamId))
         .where(tContent.eventId.equals(event.eventId))
             .and(tContent.contentPath.equals(path.join('/')))
-            .and(teamsJoin.teamEnvironment.equals(environment))
+            .and(teamsJoin.teamEnvironment.equals(environmentName))
         .select({
             title: tContent.contentTitle,
             markdown: tContent.content,
@@ -76,35 +75,4 @@ export async function getContent(environment: Environment, event: Event, path: s
  */
 export async function getStaticContent(path: string[]): Promise<Content | undefined> {
     return getContent(/* environment= */ 'stewards.team', /* event= */ { eventId: 0 } as any, path);
-}
-
-/**
- * Interface defining the information that will be made available about an individual volunteering
- * team, as fetched from the database so that it can be altered in the CMS.
- */
-export interface TeamInformation {
-    /**
-     * Name briefly describing the team's identity.
-     */
-    name: string;
-
-    /**
-     * Description of the team's responsibilities.
-     */
-    description: string;
-}
-
-/**
- * Fetches information about the team that the given |environment| represents from the database.
- * Calling this function will issue a database query.
- */
-export async function getTeamInformationForEnvironment(environment: Environment)
-        : Promise<TeamInformation | undefined> {
-    return await db.selectFrom(tTeams)
-        .select({
-            name: tTeams.teamName,
-            description: tTeams.teamDescription,
-        })
-        .where(tTeams.teamEnvironment.equals(environment))
-        .executeSelectNoneOrOne() || undefined;
 }

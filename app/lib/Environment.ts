@@ -18,9 +18,14 @@ export interface Environment {
     id: number;
 
     /**
-     * Name of the environment that this instance represents. (E.g. "Volunteering Crew".)
+     * Name of the environment that this instance represents. (E.g. "gophers.team".)
      */
     environmentName: string;
+
+    /**
+     * Title of the environment that this instance represents. (E.g. "Volunteering Crew".)
+     */
+    environmentTitle: string;
 
     /**
      * Name of the team that the environment represents. (E.g. "Crew".)
@@ -54,6 +59,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             teamName: tTeams.teamName,
             teamDescription: tTeams.teamDescription,
             teamEnvironment: tTeams.teamEnvironment,
+            teamTitle: tTeams.teamTitle,
             themeColourDark: tTeams.teamColourDarkTheme,
             themeColourLight: tTeams.teamColourLightTheme,
         })
@@ -64,6 +70,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
         globalEnvironmentCache.set(environment.teamEnvironment, {
             id: environment.id,
             environmentName: environment.teamEnvironment,
+            environmentTitle: environment.teamTitle,
             teamName: environment.teamName,
             teamDescription: environment.teamDescription,
             themeColours: {

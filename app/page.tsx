@@ -1,17 +1,15 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { WelcomePage } from './welcome/WelcomePage';
+import { notFound } from 'next/navigation';
 
 import type { Event } from '@lib/Event';
 import type { Registration } from '@lib/Registration';
-
 import { RegistrationLayout } from './registration/RegistrationLayout';
+import { WelcomePage } from './welcome/WelcomePage';
+import { determineEnvironment } from '@lib/Environment';
 import { getEventsForUser } from './lib/EventLoader';
-import { getRequestEnvironment } from './lib/getRequestEnvironment';
-import { getTeamInformationForEnvironment } from './lib/Content';
 import { getUser } from './lib/auth/getUser';
-import { kEnvironmentTitle } from './Environment';
 import { getRegistration } from './lib/RegistrationLoader';
 
 /**
@@ -19,11 +17,12 @@ import { getRegistration } from './lib/RegistrationLoader';
  * our volunteering teams, or send existing volunteers to one of various destinations.
  */
 export default async function RootPage() {
-    const environment = getRequestEnvironment();
-    const user = await getUser();
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
 
-    const events = await getEventsForUser(environment, user);
-    const team = await getTeamInformationForEnvironment(environment);
+    const user = await getUser();
+    const events = await getEventsForUser(environment.environmentName, user);
 
     // Identify the most recent team for which applications are being accepted, then fetch whether
     // the `user`, if they are signed in, has applied to that event.
@@ -32,24 +31,29 @@ export default async function RootPage() {
 
     if (user) {
         for (const event of events) {
-            const eventEnvironmentData = event.getEnvironmentData(environment);
+            const eventEnvironmentData = event.getEnvironmentData(environment.environmentName);
             if (!eventEnvironmentData || !eventEnvironmentData.enableRegistration)
                 continue;
 
             registrationEvent = event;
-            registration = await getRegistration(environment, event, user.userId);
+            registration = await getRegistration(environment.environmentName, event, user.userId);
             break;
         }
     }
 
+    const eventDatas = events.map(event => event.toEventData(environment.environmentName));
+    const registrationEventData = registrationEvent?.toEventData(environment.environmentName);
+    const registrationData = registration?.toRegistrationData();
+    const userData = user?.toUserData();
+
     return (
         <RegistrationLayout environment={environment}>
-            <WelcomePage events={events.map(event => event.toEventData(environment))}
-                         user={user?.toUserData()}
-                         registrationEvent={registrationEvent?.toEventData(environment)}
-                         registration={registration?.toRegistrationData()}
-                         title={kEnvironmentTitle[environment]}
-                         description={team!.description} />
+            <WelcomePage events={eventDatas}
+                         user={userData}
+                         registrationEvent={registrationEventData}
+                         registration={registrationData}
+                         title={environment.environmentName}
+                         description={environment.teamDescription} />
         </RegistrationLayout>
     );
 }

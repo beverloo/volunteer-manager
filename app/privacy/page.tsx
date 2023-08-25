@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import { RegistrationContent } from '../registration/RegistrationContent';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
-import { getRequestEnvironment } from '@lib/getRequestEnvironment';
+import { determineEnvironment } from '@lib/Environment';
 import { getStaticContent } from '@lib/Content';
 import { getUser } from '@lib/auth/getUser';
 
@@ -16,7 +16,10 @@ import { getUser } from '@lib/auth/getUser';
  * to make updating them - where needed - easier.
  */
 export default async function PrivacyPage() {
-    const environment = getRequestEnvironment();
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
+
     const user = await getUser();
 
     const content = await getStaticContent([ 'privacy' ]);
