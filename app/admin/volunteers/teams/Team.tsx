@@ -5,17 +5,47 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextareaAutosizeElement, TextFieldElement }
+import type { FieldValues, TextFieldElementProps } from 'react-hook-form-mui';
+import { FormContainer, TextareaAutosizeElement, TextFieldElement, useFormContext }
     from 'react-hook-form-mui';
 
+import type { SxProps, Theme } from '@mui/system';
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { deepmerge } from '@mui/utils';
 
 import type { Role } from './Roles';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@app/lib/issueServerAction';
+
+/**
+ * Custom styles applied to the <Team> & related components.
+ */
+const kStyles: { [key: string]: SxProps<Theme> } = {
+    colorPreview: {
+        borderRadius: 1,
+        width: '40px',
+    },
+};
+
+/**
+ * The <ColorFieldElement> component is a regular text field element, but with a previous of the
+ * configured color displayed right next to it.
+ */
+function ColorFieldElement(props: TextFieldElementProps) {
+    const { watch } = useFormContext();
+
+    return (
+        <Stack direction="row" spacing={2}>
+            <TextFieldElement {...props} sx={{ flexBasis: '100%' }} />
+            <Box sx={deepmerge({ backgroundColor: watch(props.name) }, kStyles.colorPreview)} />
+        </Stack>
+    );
+}
 
 /**
  * Props accepted by the <Team> component.
@@ -31,31 +61,13 @@ export interface TeamProps {
      * Information about the team that this component is representing.
      */
     team: {
-        /**
-         * Unique ID of the team as it is represented in the database.
-         */
-        id: number;
-
-        /**
-         * Name of the team. Should be nice and short.
-         */
-        teamName: string;
-
-        /**
-         * Title of the team as it should be presented to users.
-         */
-        teamTitle: string;
-
-        /**
-         * Description of the team. Will be displayed on the homepage. Supports Markdown.
-         */
-        teamDescription: string;
 
         /**
          * Name of the environment (domain name) that this team represents.
          */
         teamEnvironment: string;
-    };
+
+    } & UpdateTeamDefinition['request'];
 }
 
 /**
@@ -66,7 +78,6 @@ export function Team(props: TeamProps) {
     const { team } = props;
 
     // TODO: Roles
-    // TODO: Colour scheme
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
@@ -102,15 +113,23 @@ export function Team(props: TeamProps) {
                 <Grid container spacing={2}>
                     <Grid xs={6}>
                         <TextFieldElement name="teamName" label="Name" fullWidth size="small"
-                                          onChange={handleChange} />
+                                          onChange={handleChange} required />
                     </Grid>
                     <Grid xs={6}>
                         <TextFieldElement name="teamTitle" label="Title" fullWidth size="small"
-                                          onChange={handleChange} />
+                                          onChange={handleChange} required />
                     </Grid>
                     <Grid xs={12}>
                         <TextareaAutosizeElement name="teamDescription" label="Description"
-                                                 fullWidth onChange={handleChange} />
+                                                 fullWidth onChange={handleChange} required />
+                    </Grid>
+                    <Grid xs={6}>
+                        <ColorFieldElement name="teamColourLightTheme" label="Light theme color"
+                                           size="small" onChange={handleChange} required />
+                    </Grid>
+                    <Grid xs={6}>
+                        <ColorFieldElement name="teamColourDarkTheme" label="Dark theme color"
+                                           size="small" onChange={handleChange} required />
                     </Grid>
                 </Grid>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />

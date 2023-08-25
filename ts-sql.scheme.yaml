@@ -791,6 +791,16 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_colour_dark_theme
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_colour_light_theme
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (team_id) USING BTREE
@@ -816,6 +826,8 @@ tables:
       `team_title` varchar(128) NOT NULL,
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
+      `team_colour_dark_theme` varchar(16) NOT NULL,
+      `team_colour_light_theme` varchar(16) NOT NULL,
       PRIMARY KEY (`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles

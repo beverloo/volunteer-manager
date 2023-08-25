@@ -32,6 +32,16 @@ export const kUpdateTeamDefinition = z.object({
          * Description of the team. May contain Markdown.
          */
         teamDescription: z.string(),
+
+        /**
+         * Theme colour for this team in dark mode.
+         */
+        teamColourDarkTheme: z.string(),
+
+        /**
+         * Theme colour for this team in light mode.
+         */
+        teamColourLightTheme: z.string(),
     }),
     response: z.strictObject({
         /**
@@ -59,6 +69,8 @@ export async function updateTeam(request: Request, props: ActionProps): Promise<
             teamName: request.teamName,
             teamTitle: request.teamTitle,
             teamDescription: request.teamDescription,
+            teamColourDarkTheme: request.teamColourDarkTheme,
+            teamColourLightTheme: request.teamColourLightTheme,
         })
         .where(tTeams.teamId.equals(request.id))
         .executeUpdate(/* min= */ 0, /* max= */ 1);

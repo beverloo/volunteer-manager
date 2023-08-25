@@ -38,6 +38,8 @@ export default async function VolunteersTeamsPage() {
             teamTitle: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
             teamEnvironment: tTeams.teamEnvironment,
+            teamColourDarkTheme: tTeams.teamColourDarkTheme,
+            teamColourLightTheme: tTeams.teamColourLightTheme,
         })
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
