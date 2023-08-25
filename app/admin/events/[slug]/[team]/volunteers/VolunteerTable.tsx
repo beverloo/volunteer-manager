@@ -7,8 +7,6 @@ import Link from 'next/link';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import Tooltip from '@mui/material/Tooltip';
@@ -17,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RoleBadge } from '@app/lib/database/Types';
+import { VolunteerBadge } from '@app/components/VolunteerBadge';
 
 /**
  * Formats the given number of `milliseconds` to a HH:MM string.
@@ -81,22 +80,16 @@ export function VolunteerTable(props: VolunteerTableProps) {
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
-                if (![ RoleBadge.Staff, RoleBadge.Senior ].includes(params.row.roleBadge))
+                if (!params.row.roleBadge)
                     return params.value;
 
                 return (
                     <>
                         {params.value}
-                        { params.row.roleBadge === RoleBadge.Staff &&
-                            <Tooltip title={params.row.role}>
-                                <KeyboardDoubleArrowUpIcon color="error" fontSize="small"
-                                                           sx={{ pl: .5 }} />
-                            </Tooltip> }
-                        { params.row.roleBadge === RoleBadge.Senior &&
-                            <Tooltip title={params.row.role}>
-                                <KeyboardArrowUpIcon color="error" fontSize="small"
-                                                     sx={{ pl: .5 }} />
-                            </Tooltip> }
+                        <Tooltip title={params.row.role}>
+                            <VolunteerBadge variant={params.row.roleBadge} color="error"
+                                            fontSize="small" sx={{ pl: .5 }} />
+                        </Tooltip>
                     </>
                 );
             },

@@ -13,6 +13,7 @@ import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswor
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
+import { updateRole, kUpdateRoleDefinition } from '../updateRole';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 import { volunteerList, kVolunteerListDefinition } from '../volunteerList';
@@ -48,6 +49,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdateIntegrationDefinition, updateIntegration);
         case 'update-permissions':
             return executeAction(request, kUpdatePermissionsDefinition, updatePermissions);
+        case 'update-role':
+            return executeAction(request, kUpdateRoleDefinition, updateRole);
         case 'update-volunteer':
             return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
         case 'vertex-ai':

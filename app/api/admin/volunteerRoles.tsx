@@ -8,7 +8,6 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tRoles, tTeamsRoles, tUsersEvents } from '@lib/database';
 
-
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-roles.
  */

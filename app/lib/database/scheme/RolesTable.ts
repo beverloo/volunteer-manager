@@ -19,6 +19,7 @@ export class RolesTable extends Table<DBConnection, 'RolesTable'> {
     roleOrder = this.columnWithDefaultValue('role_order', 'int');
     roleAdminAccess = this.columnWithDefaultValue('role_admin_access', 'int');
     roleHotelEligible = this.columnWithDefaultValue('role_hotel_eligible', 'int');
+    roleTrainingEligible = this.columnWithDefaultValue('role_training_eligible', 'int');
 
     constructor() {
         super('roles');

@@ -13,6 +13,7 @@ import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode'
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
+import { updateRole, kUpdateRoleDefinition } from '../updateRole';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { volunteerRoles, kVolunteerRolesDefinition } from '../volunteerRoles';
 
@@ -114,6 +115,23 @@ describe('API Endpoints: /api/admin', () => {
     injectPermissionTestsForAction(kUpdatePermissionsDefinition, updatePermissions, {
         request: { userId: 1, privileges: '13' },
         insufficientPrivileges: Privilege.VolunteerAdministrator,
+    });
+
+    // ---------------------------------------------------------------------------------------------
+    // updateRole
+    // ---------------------------------------------------------------------------------------------
+
+    injectPermissionTestsForAction(kUpdateRoleDefinition, updateRole, {
+        request: {
+            id: 1,
+            roleName: 'foo',
+            roleBadge: undefined,
+            roleOrder: 1,
+            adminAccess: false,
+            hotelEligible: false,
+            trainingEligible: true,
+        },
+        insufficientPrivileges: Privilege.VolunteerAvatarManagement,
     });
 
     // ---------------------------------------------------------------------------------------------

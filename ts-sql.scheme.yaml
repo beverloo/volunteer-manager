@@ -689,6 +689,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: role_training_eligible
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (role_id) USING BTREE
@@ -715,6 +720,7 @@ tables:
       `role_order` int(4) NOT NULL DEFAULT 0,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
+      `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: settings
