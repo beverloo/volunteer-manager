@@ -1,21 +1,23 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-/**
- * Valid statuses for a received registration.
- */
-type RegistrationStatus = 'Registered' | 'Cancelled' | 'Accepted' | 'Rejected';
+import { RegistrationStatus } from './database/Types';
 
 /**
  * Interface that maps to the database representation of a registration.
  */
 export interface RegistrationDatabaseRow {
-    availability_available: boolean;
-    hotel_available: boolean;
-    hotel_eligible: boolean;
-    registration_date: string;
-    registration_status: RegistrationStatus;
-    role_name: string;
+    registrationDate: Date;
+    registrationStatus: RegistrationStatus;
+
+    roleName: string;
+
+    availabilityAvailable?: number;
+    // TODO: `availability`
+
+    hotelEligible?: number;
+    hotelAvailable: boolean;
+    // TODO: `hotel`
 }
 
 /**
@@ -84,13 +86,13 @@ export class Registration implements RegistrationData {
     // Functionality also available to client components, i.e. RegistrationData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get availabilityAvailable() { return !!this.#registration.availability_available; }
+    get availabilityAvailable() { return !!this.#registration.availabilityAvailable; }
     get availability() { return undefined; }
-    get hotelAvailable() { return !!this.#registration.hotel_available; }
-    get hotelEligible() { return !!this.#registration.hotel_eligible; }
+    get hotelAvailable() { return !!this.#registration.hotelAvailable; }
+    get hotelEligible() { return !!this.#registration.hotelEligible; }
     get hotel() { return undefined; }
-    get role() { return this.#registration.role_name; }
-    get status() { return this.#registration.registration_status; }
+    get role() { return this.#registration.roleName; }
+    get status() { return this.#registration.registrationStatus; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain RegistrationData object:

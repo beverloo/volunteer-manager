@@ -27,8 +27,9 @@ import lightGreen from '@mui/material/colors/lightGreen'
 import red from '@mui/material/colors/red';
 import yellow from '@mui/material/colors/yellow';
 
-import type { EventData } from '@app/lib/Event';
-import type { RegistrationData } from '@app/lib/Registration';
+import type { EventData } from '@lib/Event';
+import type { RegistrationData } from '@lib/Registration';
+import { RegistrationStatus } from '@lib/database/Types';
 
 
 /**
@@ -157,7 +158,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
         } catch (e) { /* thanks, Safari */ }
     }
 
-    if (registration.status === 'Accepted')
+    if (registration.status === RegistrationStatus.Accepted)
         return <RegistrationProgressAccepted {...props} />;
 
     let containerStyle: SxProps<Theme>;
@@ -166,7 +167,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
     let explanation: React.ReactNode;
 
     switch (registration.status) {
-        case 'Registered':
+        case RegistrationStatus.Registered:
             containerStyle = kStyles.containerRegistered;
             icon = <HowToVoteIcon style={{ color: yellow[900] }} fontSize="inherit" />;
             title = <>Your application is <b>being considered</b>.</>;
@@ -180,7 +181,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
 
             break;
 
-        case 'Cancelled':
+        case RegistrationStatus.Cancelled:
             containerStyle = kStyles.containerRejected;
             icon = <DoNotDisturbAltIcon style={{ color: red[800] }} fontSize="inherit" />;
             title = <>Your participation has been <b>cancelled</b>.</>;
@@ -193,7 +194,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
 
             break;
 
-        case 'Rejected':
+        case RegistrationStatus.Rejected:
             containerStyle = kStyles.containerRejected;
             icon = <DoNotDisturbAltIcon style={{ color: red[800] }} fontSize="inherit" />;
             title = <>Your participation has been <b>declined</b>.</>;

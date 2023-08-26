@@ -3,9 +3,9 @@
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
-import { type RegistrationDatabaseRow, Registration } from './Registration';
+import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { sql, tTeams, tTeamsRoles, tUsersEvents } from './database';
+import db, { tEventsTeams, tHotels, tRoles, tTeams, tTeamsRoles, tUsersEvents } from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -19,40 +19,39 @@ export async function getRegistration(environmentName: string, event: Event, use
     if (!userId)
         return undefined;
 
-    const result =
-        await sql`
-            SELECT
-                users_events.registration_date,
-                users_events.registration_status,
-                roles.role_name,
-                events_teams.enable_schedule AS availability_available,
-                IF(hotels.hotel_id IS NULL, FALSE, TRUE) AS hotel_available,
-                IFNULL(users_events.hotel_eligible, roles.role_hotel_eligible) AS hotel_eligible
-            FROM
-                users_events
-            LEFT JOIN
-                teams ON teams.team_id = users_events.team_id AND
-                         teams.team_environment = ${environmentName}
-            LEFT JOIN
-                teams_roles ON teams_roles.role_id = users_events.role_id
-            LEFT JOIN
-                roles ON roles.role_id = teams_roles.role_id
-            LEFT JOIN
-                events_teams ON events_teams.event_id = users_events.event_id AND
-                                events_teams.team_id = users_events.team_id
-            LEFT JOIN
-                hotels ON hotels.event_id = users_events.event_id
-            WHERE
-                users_events.user_id = ${userId} AND
-                users_events.event_id = ${event.eventId} AND
-                teams.team_id IS NOT NULL
-            GROUP BY
-                users_events.event_id`;
+    const hotelsJoin = tHotels.forUseInLeftJoin();
+    const registration = await db.selectFrom(tUsersEvents)
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .and(tTeams.teamEnvironment.equals(environmentName))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .innerJoin(tEventsTeams)
+            .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
+            .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
+        .leftJoin(hotelsJoin)
+            .on(hotelsJoin.eventId.equals(tUsersEvents.eventId))
+        .where(tUsersEvents.userId.equals(userId))
+            .and(tUsersEvents.eventId.equals(event.eventId))
+        .select({
+            registrationDate: tUsersEvents.registrationDate,
+            registrationStatus: tUsersEvents.registrationStatus,
+            roleName: tRoles.roleName,
 
-    if (!result.ok || !result.rows.length)
+            availabilityAvailable: tEventsTeams.enableSchedule,
+            // TODO: `availability`
+
+            hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+            hotelAvailable: hotelsJoin.hotelId.isNotNull(),
+            // TODO: `hotel`
+        })
+        .groupBy(tUsersEvents.eventId)
+        .executeSelectNoneOrOne();
+
+    if (!registration)
         return undefined;
 
-    return new Registration(result.rows[0] as RegistrationDatabaseRow);
+    return new Registration(registration);
 }
 
 /**

@@ -21,6 +21,7 @@ import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
 import type { UserData } from '@app/lib/auth/UserData';
 import { Privilege, can } from '@app/lib/auth/Privileges';
+import { RegistrationStatus } from '@app/lib/database/Types';
 
 /**
  * Props accepted by the <ApplicationStatusPage> page.
@@ -54,22 +55,22 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     let explanation: string;
 
     switch (registration.status) {
-        case 'Registered':
+        case RegistrationStatus.Registered:
             label = 'received';
             explanation =
                 'The leads are considering it and will confirm your participation as soon as ' +
                 'possible.';
             break;
 
-        case 'Accepted':
+        case RegistrationStatus.Accepted:
             label = 'accepted';
             explanation =
                 'We\'ve confirmed your participation and are really excited to get to work ' +
                 `with you during ${event.shortName}!`;
             break;
 
-        case 'Cancelled':
-        case 'Rejected':
+        case RegistrationStatus.Cancelled:
+        case RegistrationStatus.Rejected:
             label = registration.status === 'Cancelled' ? 'cancelled' : 'declined';
             explanation =
                 'We\'re sorry that you won\'t be participating in this team during ' +
