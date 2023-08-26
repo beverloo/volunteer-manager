@@ -3,9 +3,11 @@
 
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
-import { MariaDBQueryRunner } from 'ts-sql-query/queryRunners/MariaDBQueryRunner';
 import { type Pool, type PoolConfig, type SqlError, createPool } from 'mariadb';
-import { type QueryType, MockQueryRunner } from 'ts-sql-query/queryRunners/MockQueryRunner';
+import { type QueryType, InterceptorQueryRunner }
+    from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
+import { type QueryType as MockQueryType, MockQueryRunner }
+    from 'ts-sql-query/queryRunners/MockQueryRunner';
 
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
@@ -68,51 +70,25 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
 }
 
 /**
- * Extended implementation of `MariaDBQueryRunner` that overrides the three methods directly
- * executing queries on the underlying MariaDB connection. We then capture errors on those.
- *
- * @see https://github.com/juanluispaz/ts-sql-query/blob/master/src/queryRunners/MariaDBQueryRunner.ts
+ * Intercepts execution of queries to capture when errors occur, then logs those separately. The
+ * actual queries will continue to be executed using a MariaDBQueryRunner.
  */
-class QueryRunner extends MariaDBQueryRunner {
-    private handleErrorAndRethrowException(error: SqlError): never {
-        if (!error.message.includes('database-error')) {
-            Log({
-                type: LogType.DatabaseError,
-                severity: LogSeverity.Error,
-                data: {
-                    message: error.message,
-                    query: error.sql,
-                },
-            });
-        }
+class ErrorReportingQueryRunner extends InterceptorQueryRunner<undefined> {
+    override onQuery() { return undefined; }
+    override onQueryResult() {}
 
-        throw error;
-    }
+    override onQueryError(queryType: QueryType, query: string, params: any[], error: Error) {
+        if (query.includes('database-error') || params.includes('database-error'))
+            return;  // prevent recursion
 
-    protected override executeQueryReturning(query: string, params: any[]): Promise<any[]> {
-        return super.executeQueryReturning(query, params).catch(error =>
-            this.handleErrorAndRethrowException(error));
-    }
-
-    protected override executeMutation(query: string, params: any[]): Promise<number> {
-        return super.executeMutation(query, params).catch(error =>
-            this.handleErrorAndRethrowException(error));
-    }
-
-    override executeInsertReturningLastInsertedId(query: string, params: any[] = []): Promise<any> {
-        return super.executeInsertReturningLastInsertedId(query, params).catch(error =>
-            this.handleErrorAndRethrowException(error));
-    }
-}
-
-/**
- * Extended implementation of `MariaDBPoolQueryRunner` that returns our own query runner as opposed
- * to the default `MariaDBQueryRunner`, to add instrumentation towards holistically logging errors.
- */
-class PoolQueryRunner extends MariaDBPoolQueryRunner {
-    protected override createQueryRunner(): Promise<QueryRunner> {
-        return this.pool.getConnection().then(mariaDBConnection =>
-            new QueryRunner(mariaDBConnection, this.database as any));
+        Log({
+            type: LogType.DatabaseError,
+            severity: LogSeverity.Error,
+            data: {
+                message: error.message,
+                query, params,
+            },
+        });
     }
 }
 
@@ -142,8 +118,10 @@ export const globalConnection = new Proxy<DBConnection>({ /* unused */ } as any,
         if (!globalConnectionPool)
             globalConnectionPool = createPool(kConnectionPoolConfig);
 
-        const localConnection = new DBConnection(new PoolQueryRunner(globalConnectionPool));
-        return Reflect.get(localConnection, property);
+        const queryRunner =
+            new ErrorReportingQueryRunner(new MariaDBPoolQueryRunner(globalConnectionPool));
+
+        return Reflect.get(new DBConnection(queryRunner), property);
     }
 });
 
@@ -193,7 +171,7 @@ export function useMockConnection() {
     beforeEach(() => {
         mockConnectionQueue.splice(0, mockConnectionQueue.length);
         globalMockConnection = new DBConnection(new MockQueryRunner(
-            (queryType: QueryType, query: string, params: any[], index: number) => {
+            (queryType: MockQueryType, query: string, params: any[], index: number) => {
                 expect(mockConnectionQueue.length).toBeGreaterThan(0);
 
                 const { type, callback } = mockConnectionQueue.shift()!;
