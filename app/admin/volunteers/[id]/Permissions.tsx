@@ -7,6 +7,7 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import Collapse from '@mui/material/Collapse';
@@ -103,13 +104,13 @@ export function Permissions(props: PermissionsProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5">
+            <Typography variant="h5" sx={{ pb: 1 }}>
                 Global permissions
             </Typography>
-            <Typography variant="body2" sx={{ pb: 1 }}>
+            <Alert severity="warning" sx={{ mb: 1 }}>
                 Permissions that will be granted to this volunteer regardless of their participation
                 in an event. Only administrators have the ability to amend permissions.
-            </Typography>
+            </Alert>
             <Grid container spacing={1}>
                 { groups.map(group =>
                     <React.Fragment key={group}>

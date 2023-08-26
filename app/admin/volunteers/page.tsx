@@ -4,6 +4,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -55,12 +56,13 @@ export default async function VolunteersPage() {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5">
+            <Typography variant="h5" sx={{ pb: 1 }}>
                 Volunteers
             </Typography>
-            <Typography variant="body2" sx={{ pb: 2 }}>
-                Overview of all everyone who signed up to volunteer at an AnimeCon event since 2010.
-            </Typography>
+            <Alert severity="info" sx={{ mb: 2 }}>
+                This table lists all volunteers who helped us out since 2010. Not all e-mail
+                addresses and phone numbers are known.
+            </Alert>
             <VolunteerDataTable enableFilter teamColours={teamColours} volunteers={volunteers} />
         </Paper>
     );

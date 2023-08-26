@@ -128,7 +128,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 2 }}>
+            <Typography variant="h5" sx={{ pb: 1 }}>
                 {props.title} ({props.volunteers.length} people)
             </Typography>
             <DataTable columns={columns} rows={props.volunteers}
