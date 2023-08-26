@@ -1,10 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
+import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
+import { MariaDBQueryRunner } from 'ts-sql-query/queryRunners/MariaDBQueryRunner';
+import { type Pool, type PoolConfig, type SqlError, createPool } from 'mariadb';
 import { type QueryType, MockQueryRunner } from 'ts-sql-query/queryRunners/MockQueryRunner';
-import { type PoolConfig, type Pool, createPool } from 'mariadb';
+
+import { Log, LogType, LogSeverity } from '@lib/Log';
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -65,6 +68,57 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
 }
 
 /**
+ * Extended implementation of `MariaDBQueryRunner` that overrides the three methods directly
+ * executing queries on the underlying MariaDB connection. We then capture errors on those.
+ *
+ * @see https://github.com/juanluispaz/ts-sql-query/blob/master/src/queryRunners/MariaDBQueryRunner.ts
+ */
+class QueryRunner extends MariaDBQueryRunner {
+    private handleErrorWithReturnValue(error: SqlError, returnValue: any) {
+        if (!error.message.includes('database-error')) {
+            Log({
+                type: LogType.DatabaseError,
+                severity: LogSeverity.Error,
+                data: {
+                    message: error.message,
+                    query: error.sql,
+                },
+            });
+        }
+
+        // TODO: Decide whether to return `returnValue` or re-throw `error`. Since most of the code
+        // already deals with failed inserts and (unexpectedly) empty results, let's try this.
+        return returnValue;
+    }
+
+    protected override executeQueryReturning(query: string, params: any[]): Promise<any[]> {
+        return super.executeQueryReturning(query, params).catch(error =>
+            this.handleErrorWithReturnValue(error, [ /* empty result set */ ]));
+    }
+
+    protected override executeMutation(query: string, params: any[]): Promise<number> {
+        return super.executeMutation(query, params).catch(error =>
+            this.handleErrorWithReturnValue(error, /* affectedRows= */ 0));
+    }
+
+    override executeInsertReturningLastInsertedId(query: string, params: any[] = []): Promise<any> {
+        return super.executeInsertReturningLastInsertedId(query, params).catch(error =>
+            this.handleErrorWithReturnValue(error, /* insertId= */ null));
+    }
+}
+
+/**
+ * Extended implementation of `MariaDBPoolQueryRunner` that returns our own query runner as opposed
+ * to the default `MariaDBQueryRunner`, to add instrumentation towards holistically logging errors.
+ */
+class PoolQueryRunner extends MariaDBPoolQueryRunner {
+    protected override createQueryRunner(): Promise<QueryRunner> {
+        return this.pool.getConnection().then(mariaDBConnection =>
+            new QueryRunner(mariaDBConnection, this.database as any));
+    }
+}
+
+/**
  * The query runner that powers connection coming from the Volunteer Manager. Lazily initialized the
  * first time a connection is requested.
  */
@@ -90,7 +144,7 @@ export const globalConnection = new Proxy<DBConnection>({ /* unused */ } as any,
         if (!globalConnectionPool)
             globalConnectionPool = createPool(kConnectionPoolConfig);
 
-        const localConnection = new DBConnection(new MariaDBPoolQueryRunner(globalConnectionPool));
+        const localConnection = new DBConnection(new PoolQueryRunner(globalConnectionPool));
         return Reflect.get(localConnection, property);
     }
 });
