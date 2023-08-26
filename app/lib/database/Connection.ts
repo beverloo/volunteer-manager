@@ -3,7 +3,7 @@
 
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
-import { type Pool, type PoolConfig, type SqlError, createPool } from 'mariadb';
+import { type Pool, type PoolConfig, createPool } from 'mariadb';
 import { type QueryType, InterceptorQueryRunner }
     from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
 import { type QueryType as MockQueryType, MockQueryRunner }
