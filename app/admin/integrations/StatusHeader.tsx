@@ -103,15 +103,10 @@ export function StatusHeader() {
 
     const handleHealthCheck = useCallback(async () => {
         setLoading(true);
-
-        const [ googleResult, vertexAiResult ] = await Promise.all([
-            determineServiceStatus('Google'),
-            determineServiceStatus('VertexAI'),
+        await Promise.all([
+            determineServiceStatus('Google').then(result => setGoogleStatus(result)),
+            determineServiceStatus('VertexAI').then(result => setVertexAiStatus(result)),
         ]);
-
-        setGoogleStatus(googleResult);
-        setVertexAiStatus(vertexAiResult);
-
         setLoading(false);
     }, [ /* no deps */ ]);
 

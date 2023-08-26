@@ -55,13 +55,12 @@ type Response = VertexAiDefinition['response'];
 const kPublisher = 'google';
 
 /**
- * API that allows the administrative section to communicate with the Google Vertex AI APIs. Will
- * use the settings stored in the database when they are not set in the request.
+ * Executes the given `prompt` using the VertexAI implementation. Optionally the `settings` can be
+ * given to customise the response that should be requested.
  */
-export async function vertexAi(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.Administrator))
-        noAccess();
-
+export async function executePrompt(prompt: string, settings?: z.infer<typeof kVertexAiSettings>)
+    : Promise<string | undefined>
+{
     const defaultSettings = await readSettings([
         // Google:
         'integration-google-credentials',
@@ -93,18 +92,17 @@ export async function vertexAi(request: Request, props: ActionProps): Promise<Re
         'publishers',
         kPublisher,
         'models',
-        request.settings?.model ?? defaultSettings['integration-vertex-model'] ?? 'text-bison@001',
+        settings?.model ?? defaultSettings['integration-vertex-model'] ?? 'text-bison@001',
     ];
 
-    const instance = { prompt: request.prompt };
+    const instance = { prompt };
     const parameters = {
         temperature:
-            request.settings?.temperature ??
-                defaultSettings['integration-vertex-temperature'] ?? 0.2,
-        maxOutputTokens: request.settings?.tokenLimit ??
+            settings?.temperature ?? defaultSettings['integration-vertex-temperature'] ?? 0.2,
+        maxOutputTokens: settings?.tokenLimit ??
             defaultSettings['integration-vertex-token-limit'] ?? 256,
-        topK: request.settings?.topK ?? defaultSettings['integration-vertex-top-k'] ?? 40,
-        topP: request.settings?.topP ?? defaultSettings['integration-vertex-top-p'] ?? 0.95,
+        topK: settings?.topK ?? defaultSettings['integration-vertex-top-k'] ?? 40,
+        topP: settings?.topP ?? defaultSettings['integration-vertex-top-p'] ?? 0.95,
     };
 
     // (3) Issue the actual request to the Vertex AI APIs. This uses Google's APIs.
@@ -122,12 +120,21 @@ export async function vertexAi(request: Request, props: ActionProps): Promise<Re
             const prediction = predictions[0];
             if (prediction.structValue && prediction.structValue.fields) {
                 const { content } = prediction.structValue.fields;
-                return {
-                    result: content.stringValue ?? undefined,
-                };
+                return content.stringValue ?? undefined;
             }
         }
     }
 
-    return { /* failure response */ };
+    return undefined;  // no response
+}
+
+/**
+ * API that allows the administrative section to communicate with the Google Vertex AI APIs. Will
+ * use the settings stored in the database when they are not set in the request.
+ */
+export async function vertexAi(request: Request, props: ActionProps): Promise<Response> {
+    if (!can(props.user, Privilege.SystemAdministrator))
+        noAccess();
+
+    return { result: await executePrompt(request.prompt, request.settings) };
 }
