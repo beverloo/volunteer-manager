@@ -1,6 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { VertexPromptHumour, VertexPromptIdentity, VertexPromptTone }
+    from './VertexPromptBuilder';
+
 import db, { tSettings } from '@lib/database';
 
 /**
@@ -27,6 +30,15 @@ type SettingsMap = {
     'integration-vertex-token-limit': number;
     'integration-vertex-top-k': number;
     'integration-vertex-top-p': number;
+
+    // ---------------------------------------------------------------------------------------------
+    // UserSettings defaults
+    // ---------------------------------------------------------------------------------------------
+
+    // Google Vertex AI settings:
+    'vertex-personality-humour': VertexPromptHumour,
+    'vertex-personality-identity': VertexPromptIdentity,
+    'vertex-personality-tone': VertexPromptTone,
 };
 
 /**

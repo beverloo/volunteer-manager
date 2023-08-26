@@ -17,6 +17,7 @@ import { TeamsRolesTable } from './scheme/TeamsRolesTable';
 import { TeamsTable } from './scheme/TeamsTable';
 import { UsersAuthTable } from './scheme/UsersAuthTable';
 import { UsersEventsTable } from './scheme/UsersEventsTable';
+import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
 
 // Export instances of each of the above table types that are for the app to use. Naming convention
@@ -37,6 +38,7 @@ export const tTeamsRoles = new TeamsRolesTable;
 export const tTeams = new TeamsTable;
 export const tUsersAuth = new UsersAuthTable;
 export const tUsersEvents = new UsersEventsTable;
+export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new UsersTable;
 
 // Export the database connection pool as the default export from this file, for convenient access

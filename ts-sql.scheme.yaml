@@ -1228,6 +1228,52 @@ tables:
       PRIMARY KEY (`service_log_id`),
       KEY `service_id` (`service_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_settings
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: setting_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: setting_value
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: user_id
+    def: UNIQUE KEY user_id (user_id, setting_name) USING BTREE
+    table: users_settings
+    columns:
+    - user_id
+    - setting_name
+    comment: ""
+  constraints:
+  - name: user_id
+    type: UNIQUE
+    def: UNIQUE KEY user_id (user_id, setting_name)
+    table: users_settings
+    referencedTable: null
+    columns:
+    - user_id
+    - setting_name
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users_settings` (
+      `user_id` int(8) unsigned NOT NULL,
+      `setting_name` varchar(64) NOT NULL,
+      `setting_value` text NOT NULL,
+      UNIQUE KEY `user_id` (`user_id`,`setting_name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations: []
 functions: []
 driver:
