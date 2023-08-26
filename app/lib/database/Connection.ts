@@ -74,7 +74,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
  * @see https://github.com/juanluispaz/ts-sql-query/blob/master/src/queryRunners/MariaDBQueryRunner.ts
  */
 class QueryRunner extends MariaDBQueryRunner {
-    private handleErrorWithReturnValue(error: SqlError, returnValue: any) {
+    private handleErrorAndRethrowException(error: SqlError): never {
         if (!error.message.includes('database-error')) {
             Log({
                 type: LogType.DatabaseError,
@@ -86,24 +86,22 @@ class QueryRunner extends MariaDBQueryRunner {
             });
         }
 
-        // TODO: Decide whether to return `returnValue` or re-throw `error`. Since most of the code
-        // already deals with failed inserts and (unexpectedly) empty results, let's try this.
-        return returnValue;
+        throw error;
     }
 
     protected override executeQueryReturning(query: string, params: any[]): Promise<any[]> {
         return super.executeQueryReturning(query, params).catch(error =>
-            this.handleErrorWithReturnValue(error, [ /* empty result set */ ]));
+            this.handleErrorAndRethrowException(error));
     }
 
     protected override executeMutation(query: string, params: any[]): Promise<number> {
         return super.executeMutation(query, params).catch(error =>
-            this.handleErrorWithReturnValue(error, /* affectedRows= */ 0));
+            this.handleErrorAndRethrowException(error));
     }
 
     override executeInsertReturningLastInsertedId(query: string, params: any[] = []): Promise<any> {
         return super.executeInsertReturningLastInsertedId(query, params).catch(error =>
-            this.handleErrorWithReturnValue(error, /* insertId= */ null));
+            this.handleErrorAndRethrowException(error));
     }
 }
 
