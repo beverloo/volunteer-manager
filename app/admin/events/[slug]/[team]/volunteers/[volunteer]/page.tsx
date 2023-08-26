@@ -58,10 +58,13 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!volunteer)
         notFound();
 
+    const contactAccess =
+        can(user, Privilege.EventVolunteerContactInfo) ||
+        can(user, Privilege.VolunteerAdministrator);
+
     const contactInfo =
-        can(user, Privilege.EventVolunteerContactInfo)
-            ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
-            : undefined;
+        contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
+                      : undefined;
 
     return (
         <>

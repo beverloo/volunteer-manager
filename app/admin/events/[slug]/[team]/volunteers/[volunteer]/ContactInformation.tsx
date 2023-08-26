@@ -9,9 +9,11 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
-import Paper from '@mui/material/Paper';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LoadingButton from '@mui/lab/LoadingButton/LoadingButton';
+import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
@@ -69,6 +71,11 @@ export function ContactInformation(props: ContactInformationProps) {
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ mb: 1 }}>
                 Contact information
+                { props.contactInfo &&
+                    <Tooltip title="Revealed automatically">
+                        <InfoOutlinedIcon color="warning" fontSize="small"
+                                          sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
+                    </Tooltip> }
             </Typography>
             <Collapse in={!visible}>
                 <Alert severity="warning" icon={false} sx={{ '&>div': { p: 0 } }}>
