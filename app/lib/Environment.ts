@@ -110,8 +110,7 @@ export async function determineEnvironment(): Promise<Environment | undefined> {
 
     const requestOrigin =
         /* dev environment= */   process.env.APP_ENVIRONMENT_OVERRIDE ??
-        /* production server= */ headers().get('Host') ??
-        /* middleware backup= */ headers().get('X-Request-Origin');
+        /* production server= */ headers().get('Host');
 
     for (const [ environmentName, environment ] of globalEnvironmentCache!.entries()) {
         if (requestOrigin?.endsWith(environmentName))
