@@ -10,6 +10,7 @@ import { hotelUpdate, kHotelUpdateDefinition } from '../hotelUpdate';
 import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
+import { serviceHealth, kServiceHealthDefinition } from '../serviceHealth';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
 import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
@@ -42,6 +43,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kLogsDefinition, logs);
         case 'reset-access-code':
             return executeAction(request, kResetAccessCodeDefinition, resetAccessCode);
+        case 'service-health':
+            return executeAction(request, kServiceHealthDefinition, serviceHealth);
         case 'reset-password-link':
             return executeAction(request, kResetPasswordLinkDefinition, resetPasswordLink);
         case 'update-activation':
