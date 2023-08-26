@@ -58,7 +58,10 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
  * Props accepted by the <ApplicationParticipation> component.
  */
 export interface ApplicationParticipationProps extends Omit<Grid2Props, 'container' | 'spacing'> {
-    /* no self-owned props */
+    /**
+     * Callback to be invoked when the value of one of the form fields has changed.
+     */
+    onChange?: () => void;
 }
 
 /**
@@ -67,29 +70,35 @@ export interface ApplicationParticipationProps extends Omit<Grid2Props, 'contain
  * registration front-end and the application management section for admins.
  */
 export function ApplicationParticipation(props: ApplicationParticipationProps) {
+    const { onChange, ...rest } = props;
+
     return (
-        <Grid container spacing={2} {...props}>
+        <Grid container spacing={2} {...rest}>
             <Grid xs={6}>
                 <SelectElement name="tshirtSize" label="T-shirt size" required
-                                options={kTShirtSizeOptions} fullWidth size="small" />
+                               options={kTShirtSizeOptions} fullWidth size="small"
+                               onChange={onChange} />
             </Grid>
             <Grid xs={6}>
                 <SelectElement name="tshirtFit" label="T-shirt fit" required
-                                options={kTShirtFitOptions} fullWidth size="small" />
+                               options={kTShirtFitOptions} fullWidth size="small"
+                               onChange={onChange} />
             </Grid>
 
             <Grid xs={6}>
                 <SelectElement name="serviceHours" label="Number of shifts" required
-                                options={kServiceHoursOptions} fullWidth size="small" />
+                               options={kServiceHoursOptions} fullWidth size="small"
+                               onChange={onChange} />
             </Grid>
             <Grid xs={6}>
                 <SelectElement name="serviceTiming" label="Timing of shifts" required
-                                options={kServiceTimingOption} fullWidth size="small" />
+                               options={kServiceTimingOption} fullWidth size="small"
+                               onChange={onChange} />
             </Grid>
 
             <Grid xs={12}>
-                <TextFieldElement name="preferences" fullWidth size="small"
-                                    label="Any preferences we should know about?" />
+                <TextFieldElement name="preferences" fullWidth size="small" onChange={onChange}
+                                  label="Any preferences we should know about?" />
             </Grid>
         </Grid>
     );

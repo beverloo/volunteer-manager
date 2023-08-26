@@ -9,19 +9,56 @@ import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { getEventBySlug } from '@lib/EventLoader';
 
 /**
+ * Common properties that can be set or updated as part of applications.
+ */
+export const kApplicationProperties = {
+    /**
+     * Whether the volunteer would like their name to be included in the credit reel.
+     */
+    credits: z.boolean(),
+
+    /**
+     * Preferences the volunteer has indicated for during their participation.
+     */
+    preferences: z.string().optional(),
+
+    /**
+     * Number of hours that the volunteer would like to help us out with.
+     */
+    serviceHours: z.enum([ '12', '16', '20', '24' ]),
+
+    /**
+     * Timing of the shifts the volunteer would like to fulfill.
+     */
+    serviceTiming: z.enum([ '8-20', '10-0', '14-3' ]),
+
+    /**
+     * Whether the volunteer would like to join our social media channels.
+     */
+    socials: z.boolean(),
+
+    /**
+     * Fit for the t-shirt that the volunteer would like to receive as a thank you.
+     */
+    tshirtFit: z.enum([ 'Regular', 'Girly' ]),
+
+    /**
+     * Size of the t-shirt that the volunteer would like to receive as a thank you.
+     */
+    tshirtSize: z.enum([ 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL' ]),
+};
+
+/**
  * Interface definition for the Application API, exposed through /api/event/application.
  */
 export const kApplicationDefinition = z.object({
     request: z.object({
+        ...kApplicationProperties,
+
         /**
          * Whether the volunteer is fully available during the event.
          */
         availability: z.boolean(),
-
-        /**
-         * Whether the volunteer would like their name to be included in the credit reel.
-         */
-        credits: z.boolean(),
 
         /**
          * The environment for which the application is being submitted.
@@ -32,36 +69,6 @@ export const kApplicationDefinition = z.object({
          * Unique slug of the event in which the volunteer would like to participate.
          */
         event: z.string(),
-
-        /**
-         * Preferences the volunteer has indicated for during their participation.
-         */
-        preferences: z.string().optional(),
-
-        /**
-         * Number of hours that the volunteer would like to help us out with.
-         */
-        serviceHours: z.enum([ '12', '16', '20', '24' ]),
-
-        /**
-         * Timing of the shifts the volunteer would like to fulfill.
-         */
-        serviceTiming: z.enum([ '8-20', '10-0', '14-3' ]),
-
-        /**
-         * Whether the volunteer would like to join our social media channels.
-         */
-        socials: z.boolean(),
-
-        /**
-         * Fit for the t-shirt that the volunteer would like to receive as a thank you.
-         */
-        tshirtFit: z.enum([ 'Regular', 'Girly' ]),
-
-        /**
-         * Size of the t-shirt that the volunteer would like to receive as a thank you.
-         */
-        tshirtSize: z.enum([ 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL' ]),
 
         /**
          * Override configuration that can be provided when an application is being created through

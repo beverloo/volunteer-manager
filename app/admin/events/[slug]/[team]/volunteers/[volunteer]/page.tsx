@@ -40,6 +40,15 @@ export default async function EventVolunteerPage(props: RouterParams) {
             lastName: tUsers.lastName,
             roleId: tUsersEvents.roleId,
             registrationStatus: tUsersEvents.registrationStatus,
+
+            credits: tUsersEvents.includeCredits,
+            preferences: tUsersEvents.preferences,
+            serviceHours: tUsersEvents.preferenceHours,
+            preferenceTimingStart: tUsersEvents.preferenceTimingStart,
+            preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
+            socials: tUsersEvents.includeSocials,
+            tshirtFit: tUsersEvents.shirtFit,
+            tshirtSize: tUsersEvents.shirtSize,
         })
         .executeSelectNoneOrOne();
 
@@ -49,7 +58,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     return (
         <>
             <Header event={event} team={team} volunteer={volunteer} user={user.toUserData()} />
-            <Information />
+            <Information event={event} team={team} volunteer={volunteer} />
             <Availability />
             { can(user, Privilege.EventAdministrator) &&
                 <HotelInformation /> }
