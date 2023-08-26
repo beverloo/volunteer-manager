@@ -52,7 +52,7 @@ async function runGoogleHealthCheck(): Promise<Response> {
     return {
         status: 'success',
         service: 'Google',
-        message: 'Not yet implemented.',
+        message: 'Not yet implemented, auth failures are captured by Vertex AI',
     }
 }
 
