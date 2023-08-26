@@ -8,7 +8,7 @@ import type { UserData } from './UserData';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 11
+ * Next setting: 1 << 12
  */
 export enum Privilege {
     Administrator               = 1 << 0,
@@ -24,6 +24,7 @@ export enum Privilege {
     EventContentOverride        = 1 << 2,
     EventRegistrationOverride   = 1 << 3,
     EventScheduleOverride       = 1 << 4,
+    EventVolunteerContactInfo   = 1 << 11,
 
     // Privileges captured by SystemAdministrator:
     SystemLogsAccess            = 1 << 5,
@@ -63,6 +64,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventContentOverride,
         Privilege.EventRegistrationOverride,
         Privilege.EventScheduleOverride,
+        Privilege.EventVolunteerContactInfo,
     ],
 
     [Privilege.SystemAdministrator]: [
@@ -109,6 +111,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
+    [Privilege.EventVolunteerContactInfo]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
     [Privilege.SystemLogsAccess]: 'System access',
@@ -129,6 +132,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
+    [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',
 
     [Privilege.SystemAdministrator]: 'System administrator',
     [Privilege.SystemLogsAccess]: 'Logs access',

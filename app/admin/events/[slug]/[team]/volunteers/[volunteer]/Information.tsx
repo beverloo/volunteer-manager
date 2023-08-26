@@ -100,13 +100,12 @@ export function Information(props: InformationProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
+            <Typography variant="h5" sx={{ pb: 2 }}>
                 Preferences
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <ApplicationParticipation onChange={handleChange} />
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    { /* TODO: Phone number & e-mail address */ }
                     <Grid xs={6}>
                         <SelectElement name="credits" label="Include on the credit reel?"
                                        options={kSelectOptions} size="small" fullWidth

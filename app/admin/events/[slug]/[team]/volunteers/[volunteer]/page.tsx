@@ -10,6 +10,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tUsers, tUsersEvents } from '@lib/database';
 
 import { Availability } from './Availability';
+import { ContactInformation } from './ContactInformation';
 import { Header } from './Header';
 import { HotelInformation } from './HotelInformation';
 import { Information } from './Information';
@@ -36,8 +37,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
         .select({
             userId: tUsersEvents.userId,
+            username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
             registrationStatus: tUsersEvents.registrationStatus,
 
@@ -55,10 +58,17 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!volunteer)
         notFound();
 
+    const contactInfo =
+        can(user, Privilege.EventVolunteerContactInfo)
+            ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
+            : undefined;
+
     return (
         <>
             <Header event={event} team={team} volunteer={volunteer} user={user.toUserData()} />
             <Information event={event} team={team} volunteer={volunteer} />
+            <ContactInformation eventId={event.id} teamId={team.id} userId={volunteer.userId}
+                                contactInfo={contactInfo} />
             <Availability />
             { can(user, Privilege.EventAdministrator) &&
                 <HotelInformation /> }
