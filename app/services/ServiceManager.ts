@@ -1,14 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Constructor } from '../lib/TypeUtilities';
+import type { Constructor } from '@lib/TypeUtilities';
 import type { ServiceDriver } from './ServiceDriver';
 import type { ServiceLog } from './ServiceLog';
 import type { Service } from './Service';
 
 import { ServiceLogImpl } from './ServiceLogImpl';
 import { kServiceDriverConstructors } from './ServiceDriver';
-import { sql } from '../lib/database';
+import db, { tServices, tServicesLogs } from '@lib/database';
 
 /**
  * The ServiceManager has to be initialized using the static CreateInstance() method, as its
@@ -27,41 +27,46 @@ export class ServiceManager {
      * from the database prior to creating the instance.
      */
     static async CreateInstance() {
-        const servicesWithState = await sql`
-            SELECT
-                services.service_id AS id,
-                services.service_name AS name,
-                services.service_event_id AS eventId,
-                services.service_enabled AS enabled,
-                services.service_interval AS 'interval',
-                services.service_driver AS driver,
-                services.service_params AS params,
-                TIMESTAMPDIFF(
-                    SECOND,
-                    IFNULL(
-                        MAX(services_logs.service_log_timestamp),
-                        TIMESTAMPADD(SECOND, 0 - services.service_interval - 1, CURRENT_TIMESTAMP)),
-                    CURRENT_TIMESTAMP) AS secondsSinceLastExecution
-            FROM
-                services
-            LEFT JOIN
-                services_logs ON services_logs.service_id = services.service_id
-            GROUP BY
-                services.service_id
-            ORDER BY
-                RAND()`;
+        const servicesLogsJoin = tServicesLogs.forUseInLeftJoin();
 
-        if (!servicesWithState.ok)
+        const dbInstance = db;
+        const servicesWithState = await dbInstance.selectFrom(tServices)
+            .leftJoin(servicesLogsJoin)
+                .on(servicesLogsJoin.serviceId.equals(tServices.serviceId))
+            .select({
+                id: tServices.serviceId,
+                name: tServices.serviceName,
+                eventId: tServices.serviceEventId,
+                enabled: tServices.serviceEnabled.equals(/* true= */ 1),
+                interval: tServices.serviceInterval,
+                driver: tServices.serviceDriver,
+                params: tServices.serviceParams,
+                lastExecutionTime: dbInstance.max(servicesLogsJoin.serviceLogTimestamp),
+            })
+            .groupBy(tServices.serviceId)
+            .orderBy(dbInstance.rawFragment`RAND()`)
+            .executeSelectMany();
+
+        if (!servicesWithState)
             return undefined;
 
+        const currentTime = new Date();
         const services: Service<Constructor<ServiceDriver>>[] = [];
-        for (const serviceWithState of servicesWithState.rows) {
+
+        for (const serviceWithState of servicesWithState) {
             if (!Object.hasOwn(kServiceDriverConstructors, serviceWithState.driver))
                 continue;
 
+            const secondsSinceLastExecution =
+                serviceWithState.lastExecutionTime
+                    ? (currentTime.getTime() - serviceWithState.lastExecutionTime.getTime()) / 1000
+                    : (currentTime.getTime() - serviceWithState.interval * 1000);
+
             services.push({
-                ...serviceWithState as Service,
+                ...serviceWithState as Omit<Service, 'driver' | 'secondsSinceLastExecution'>,
+
                 driver: kServiceDriverConstructors[serviceWithState.driver],
+                secondsSinceLastExecution,
             });
         }
 

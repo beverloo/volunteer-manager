@@ -6,10 +6,10 @@ import { serialize } from 'cookie';
 import { z } from 'zod';
 
 import type { User, UserDatabaseRow } from '@lib/auth/User';
+import { AuthType } from '@app/lib/database/Types';
 import { type ActionProps, executeAction, noAccess } from './Action';
-import { type DatabasePrimitive, DatabaseTestingDelegate, kDatabase } from '@lib/database/Database';
-import { Result } from '@lib/database/Result';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
+import { useMockConnection } from '@lib/database/Connection';
 
 import { TextDecoder, TextEncoder } from 'util';
 
@@ -17,6 +17,8 @@ global.TextEncoder = TextEncoder as any;
 global.TextDecoder = TextDecoder as any;
 
 describe('Action', () => {
+    const mockConnection = useMockConnection();
+
     /**
      * Creates a NextRequest instance based on the given `body`, which will be stored as the request
      * body in a JSON-serialized representation.
@@ -246,22 +248,23 @@ describe('Action', () => {
         const sealedCookie = serialize(kSessionCookieName, sealedSession, { httpOnly: true });
         const headers = new Headers([ ['Cookie', sealedCookie ] ]);
 
-        // Intercepts the authentication SQL query that will be fired in order to validate the
-        // information contained within the session data.
-        kDatabase.setDelegateForTesting(new class implements DatabaseTestingDelegate {
-            async query(query: string, parameters?: DatabasePrimitive[]): Promise<Result> {
-                return Result.createSelectForTesting<UserDatabaseRow>([{
-                    user_id: 42,
-                    username: 'joe@example.com',
-                    first_name: 'Joe',
-                    last_name: 'Example',
-                    gender: 'Male',
-                    birthdate: '2023-07-12',
-                    phone_number: '+440000000000',
-                    privileges: 0,
-                    session_token: 9001,
-                }]);
-            }
+        mockConnection.expect('selectOneRow', (query: string, params: any[]): UserDatabaseRow => {
+            return {
+                userId: 42,
+                username: 'joe@example.com',
+                firstName: 'Joe',
+                lastName: 'Example',
+                gender: 'Male',
+                birthdate: new Date('2023-07-12'),
+                phoneNumber: '+440000000000',
+                avatarFileHash: undefined,
+                privileges: 0n,
+                activated: 1,
+                sessionToken: 9001,
+
+                // Internal use in `authenticateUser`:
+                authType: AuthType.password,
+            };
         });
 
         const interfaceDefinition = z.object({

@@ -3,7 +3,7 @@
 
 import { LogSeverity } from './Types';
 import { useMockConnection } from './Connection';
-import db, { sql, tLogs, tHotels } from './index';
+import db, { tLogs, tHotels } from './index';
 
 describe('Connection', () => {
     const mockConnection = useMockConnection();
@@ -63,7 +63,5 @@ describe('Connection', () => {
         }).executeSelectOne();
 
         expect(selectResult.severity).toEqual(LogSeverity.Warning);
-
-
     });
 });

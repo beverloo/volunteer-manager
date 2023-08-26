@@ -45,6 +45,9 @@ export interface UserDatabaseRow {
     privileges: bigint;
     activated: number;
     sessionToken: number;
+
+    // Internal use in `authenticateUser`:
+    authType: AuthType,
 }
 
 /**
@@ -73,9 +76,9 @@ export class User implements UserData {
 
     #authType?: AuthType;
     #privileges: bigint;
-    #user: UserDatabaseRow;
+    #user: Omit<UserDatabaseRow, 'authType'>;
 
-    constructor(user: UserDatabaseRow, authType?: AuthType) {
+    constructor(user: Omit<UserDatabaseRow, 'authType'>, authType?: AuthType) {
         this.#authType = authType;
         this.#privileges = expand(user.privileges);
         this.#user = user;

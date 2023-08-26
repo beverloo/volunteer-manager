@@ -2,11 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { SessionData } from './Session';
-import { type UserDatabaseRow, User } from './User';
-
 import { AuthType } from '../database/Types';
+import { User } from './User';
 import { securePasswordHash } from './Password';
-import db, { sql, tStorage, tUsers, tUsersAuth } from '../database';
+import db, { tStorage, tUsers, tUsersAuth } from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
