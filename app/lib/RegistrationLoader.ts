@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
-import type { Environment } from '@app/Environment';
 import type { Event } from './Event';
 import { type RegistrationDatabaseRow, Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
@@ -61,14 +60,14 @@ export async function getRegistration(environmentName: string, event: Event, use
  * that they added through the registration portal. Throws an exception when an error occurs.
  */
 export async function createRegistration(
-    environment: Environment, event: Event, userId: number,
+    environmentName: string, event: Event, userId: number,
     application: ApplicationData): Promise<void>
 {
     const teamDefaultRole = await db.selectFrom(tTeams)
         .innerJoin(tTeamsRoles)
             .on(tTeamsRoles.teamId.equals(tTeams.teamId))
             .and(tTeamsRoles.roleDefault.equals(/* true= */ 1))
-        .where(tTeams.teamEnvironment.equals(environment))
+        .where(tTeams.teamEnvironment.equals(environmentName))
         .select({
             teamId: tTeams.teamId,
             roleId: tTeamsRoles.roleId,

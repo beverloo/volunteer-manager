@@ -51,6 +51,14 @@ let globalEnvironmentCache: Map<string, Environment> | undefined;
 /**
  * Loads the environment configuration from the database, which will then be stored in the cache
  * (`kEnvironmentCache`) so that it can be quickly accessed thereafter.
+ *
+ * Environment configuration exists exclusively in the database. Adding a new environment is as easy
+ * as creating a new row in the `teams` table and ensuring that the domain in the `team_environment`
+ * column ends up with the Volunteer Manager.
+ *
+ * The cache will have to be cleared after changing team configuration or colour settings. This will
+ * be done automatically in the applicable API calls (e.g. //api/admin/update-team), but may have
+ * to be triggered manually when changing the database directly.
  */
 async function loadEnvironmentsFromDatabase(): Promise<void> {
     const environments = await db.selectFrom(tTeams)

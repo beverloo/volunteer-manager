@@ -175,6 +175,7 @@ export function CreateApplication(props: CreateApplicationProps) {
                 '/api/event/application', {
                     availability: true,
                     credits: true,
+                    environment: props.team.slug,
                     event: props.event.slug,
                     preferences: data.preferences,
                     serviceHours: data.serviceHours,
@@ -183,7 +184,6 @@ export function CreateApplication(props: CreateApplicationProps) {
                     tshirtFit: data.tshirtFit,
                     tshirtSize: data.tshirtSize,
                     adminOverride: {
-                        environment: props.team.slug,
                         userId: selectedUserId,
                     },
                 });

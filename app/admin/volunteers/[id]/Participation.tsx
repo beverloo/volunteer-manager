@@ -49,6 +49,16 @@ export interface ParticipationInfo {
     teamSlug: string;
 
     /**
+     * Dark theme colour that applies to this team.
+     */
+    teamDarkThemeColour: string;
+
+    /**
+     * Light theme colour that applies to this team.
+     */
+    teamLightThemeColour: string;
+
+    /**
      * Name of the role in which they participated.
      */
     role: string;
@@ -115,7 +125,12 @@ export function Participation(props: ParticipationProps) {
             headerName: 'Team',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => <TeamChip team={params.value} />,
+            renderCell: (params: GridRenderCellParams) =>
+                <TeamChip label={params.value}
+                          colours={{
+                              dark: params.row.teamDarkThemeColour,
+                              light: params.row.teamLightThemeColour,
+                          }} />,
         },
         {
             field: 'role',

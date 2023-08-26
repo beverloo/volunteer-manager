@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Environment } from '../Environment';
 import type { User } from './auth/User';
 import { Event } from './Event';
 import { Privilege, can } from './auth/Privileges';

@@ -1,8 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Environment } from '@app/Environment';
-
 /**
  * Interface that maps to the database representation of an event.
  */
@@ -71,6 +69,11 @@ export interface EventEnvironmentData {
      * Whether visitors have access to the event's volunteer portal.
      */
     enableSchedule: boolean;
+
+    /**
+     * Name of the environment that is currently being considered.
+     */
+    environmentName: string;
 }
 
 /**
@@ -97,6 +100,7 @@ export class Event implements EventData {
                 enableContent: !!environmentInfo.enableContent,
                 enableRegistration: !!environmentInfo.enableRegistration,
                 enableSchedule: !!environmentInfo.enableSchedule,
+                environmentName: environmentInfo.environment,
             });
         }
     }
@@ -167,6 +171,7 @@ export class Event implements EventData {
             enableContent: environmentData.enableContent,
             enableRegistration: environmentData.enableRegistration,
             enableSchedule: environmentData.enableSchedule,
+            environmentName: environmentData.environmentName,
         };
     }
 }

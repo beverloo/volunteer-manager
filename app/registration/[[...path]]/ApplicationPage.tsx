@@ -133,6 +133,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
                 await issueServerAction<ApplicationDefinition>('/api/event/application', {
                     availability: !!data.availability,
                     credits: !!data.credits,
+                    environment: event.environmentName,
                     event: event.slug,
                     preferences: data.preferences,
                     serviceHours: data.serviceHours,

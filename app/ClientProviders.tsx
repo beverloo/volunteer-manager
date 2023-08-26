@@ -10,7 +10,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import type { Environment } from './Environment';
 import { createCachedTheme } from './ClientTheme';
 
 /**

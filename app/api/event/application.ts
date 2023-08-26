@@ -4,11 +4,9 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import type { Environment } from '@app/Environment';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { getEventBySlug } from '@lib/EventLoader';
-import { getRequestEnvironment } from '@app/lib/getRequestEnvironment';
 
 /**
  * Interface definition for the Application API, exposed through /api/event/application.
@@ -24,6 +22,11 @@ export const kApplicationDefinition = z.object({
          * Whether the volunteer would like their name to be included in the credit reel.
          */
         credits: z.boolean(),
+
+        /**
+         * The environment for which the application is being submitted.
+         */
+        environment: z.string(),
 
         /**
          * Unique slug of the event in which the volunteer would like to participate.
@@ -66,11 +69,6 @@ export const kApplicationDefinition = z.object({
          */
         adminOverride: z.strictObject({
             /**
-             * The environment that this request is being submitted as.
-             */
-            environment: z.string(),
-
-            /**
              * The user Id for whom the application is being created.
              */
             userId: z.number(),
@@ -107,20 +105,15 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!event)
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
-        let environment = getRequestEnvironment();
         let userId: number = props.user.userId;
-
         if (request.adminOverride) {
-            if (!can(props.user, Privilege.EventApplicationManagement) &&
-                !can(props.user, Privilege.EventAdministrator))
-            {
+            if (!can(props.user, Privilege.EventApplicationManagement))
                 throw new Error('Sorry, you do not have permission to impersonate users.');
-            }
 
-            environment = request.adminOverride.environment as Environment;
             userId = request.adminOverride.userId;
+
         } else {
-            const environmentData = event.getEnvironmentData(environment);
+            const environmentData = event.getEnvironmentData(request.environment);
             if (!environmentData)
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 
@@ -130,11 +123,11 @@ export async function application(request: Request, props: ActionProps): Promise
             }
         }
 
-        const registration = await getRegistration(environment, event, userId);
+        const registration = await getRegistration(request.environment, event, userId);
         if (registration)
             throw new Error('Sorry, you have already applied to participate in this event.');
 
-        await createRegistration(environment, event, userId, request);
+        await createRegistration(request.environment, event, userId, request);
 
         // TODO: Send an e-mail to the volunteering leads.
         // TODO: Send an e-mail to the applicant.
