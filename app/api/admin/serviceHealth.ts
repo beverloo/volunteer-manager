@@ -10,7 +10,7 @@ import { executePrompt } from './vertexAi';
 /**
  * The services for which health check can be carried out.
  */
-const ServiceEnumeration = z.enum([ 'Google', 'VertexAI' ]);
+const ServiceEnumeration = z.enum([ 'AnimeCon', 'Google', 'VertexAI' ]);
 
 /**
  * Interface definition for the Integration API, exposed through /api/admin/service-health.
@@ -46,14 +46,25 @@ type Request = ServiceHealthDefinition['request'];
 type Response = ServiceHealthDefinition['response'];
 
 /**
+ * Runs a health check for the AnimeCon integration.
+ */
+async function runAnimeConHealthCheck(): Promise<Response> {
+    return {
+        status: 'warning',
+        service: 'AnimeCon',
+        message: 'Health check has not been implemented yet',
+    };
+}
+
+/**
  * Runs a health check for the Google integration.
  */
 async function runGoogleHealthCheck(): Promise<Response> {
     return {
-        status: 'success',
+        status: 'warning',
         service: 'Google',
-        message: 'Not yet implemented, auth failures are captured by Vertex AI',
-    }
+        message: 'Health check has not been implemented yet',
+    };
 }
 
 /**
@@ -90,15 +101,11 @@ export async function serviceHealth(request: Request, props: ActionProps): Promi
         noAccess();
 
     switch (request.service) {
+        case 'AnimeCon':
+            return runAnimeConHealthCheck();
         case 'Google':
             return runGoogleHealthCheck();
         case 'VertexAI':
             return runVertexAIHealthCheck();
     }
-
-    return {
-        status: 'warning',
-        service: request.service,
-        message: 'No health check has been implemented for this service.'
-    };
 }

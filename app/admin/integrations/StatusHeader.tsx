@@ -6,6 +6,7 @@
 import { useCallback, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
+import AttractionsIcon from '@mui/icons-material/Attractions';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
@@ -98,12 +99,14 @@ function ServiceStatus(props: ServiceStatusProps) {
 export function StatusHeader() {
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    const [ animeConStatus, setAnimeConStatus ] = useState<ServiceHealthResponse>();
     const [ googleStatus, setGoogleStatus ] = useState<ServiceHealthResponse>();
     const [ vertexAiStatus, setVertexAiStatus ] = useState<ServiceHealthResponse>();
 
     const handleHealthCheck = useCallback(async () => {
         setLoading(true);
         await Promise.all([
+            determineServiceStatus('AnimeCon').then(result => setAnimeConStatus(result)),
             determineServiceStatus('Google').then(result => setGoogleStatus(result)),
             determineServiceStatus('VertexAI').then(result => setVertexAiStatus(result)),
         ]);
@@ -129,6 +132,9 @@ export function StatusHeader() {
                     <Stack direction="row" spacing={2}
                            divider={ <Divider orientation="vertical" flexItem /> }>
 
+                        <ServiceStatus icon={ <AttractionsIcon /> }
+                                       label="AnimeCon" status={animeConStatus?.status} />
+
                         <ServiceStatus icon={ <GoogleIcon /> }
                                        label="Google" status={googleStatus?.status} />
 
@@ -138,7 +144,7 @@ export function StatusHeader() {
                     </Stack>
                 </ContrastBox>
             </Stack>
-            { [ googleStatus, vertexAiStatus ].map((status, index) =>
+            { [ animeConStatus, googleStatus, vertexAiStatus ].map((status, index) =>
                 <Collapse in={ [ 'error', 'warning' ].includes(status?.status!) } key={index}>
                     <Alert sx={{ mt: 2 }} severity={ (status?.status ?? 'info') as any }>
                         <strong>{status?.service}</strong>: {status?.message}

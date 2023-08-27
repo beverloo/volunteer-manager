@@ -17,6 +17,18 @@ import { kVertexAiSettings } from './vertexAi';
 export const kUpdateIntegrationDefinition = z.object({
     request: z.object({
         /**
+         * AnimeCon API settings that should be updated.
+         */
+        animecon: z.object({
+            apiEndpoint: z.string(),
+            authEndpoint: z.string(),
+            clientId: z.string(),
+            clientSecret: z.string(),
+            username: z.string(),
+            password: z.string(),
+        }).optional(),
+
+        /**
          * Google settings that should be updated.
          */
         google: z.object({
@@ -59,6 +71,23 @@ type Response = UpdateIntegrationDefinition['response'];
 export async function updateIntegration(request: Request, props: ActionProps): Promise<Response> {
     if (!can(props.user, Privilege.SystemAdministrator))
         noAccess();
+
+    if (request.animecon) {
+        await writeSettings({
+            'integration-animecon-api-endpoint': request.animecon.apiEndpoint,
+            'integration-animecon-auth-endpoint': request.animecon.authEndpoint,
+            'integration-animecon-client-id': request.animecon.clientId,
+            'integration-animecon-client-secret': request.animecon.clientSecret,
+            'integration-animecon-username': request.animecon.username,
+            'integration-animecon-password': request.animecon.password,
+        });
+
+        await Log({
+            type: LogType.AdminUpdateAnimeConIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+        });
+    }
 
     if (request.google) {
         await writeSettings({

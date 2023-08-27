@@ -3,6 +3,7 @@
 
 import type { Metadata } from 'next';
 
+import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Prompts, type PromptSettings } from './Prompts';
@@ -15,6 +16,14 @@ import { readSettings } from '@lib/Settings';
  */
 export default async function IntegrationsPage() {
     const settings = await readSettings([
+        // AnimeCon:
+        'integration-animecon-api-endpoint',
+        'integration-animecon-auth-endpoint',
+        'integration-animecon-client-id',
+        'integration-animecon-client-secret',
+        'integration-animecon-username',
+        'integration-animecon-password',
+
         // Google:
         'integration-google-credentials',
         'integration-google-location',
@@ -31,6 +40,15 @@ export default async function IntegrationsPage() {
         'integration-vertex-top-k',
         'integration-vertex-top-p',
     ]);
+
+    const animeConSettings: AnimeConSettings = {
+        apiEndpoint: settings['integration-animecon-api-endpoint'] ?? '',
+        authEndpoint: settings['integration-animecon-auth-endpoint'] ?? '',
+        clientId: settings['integration-animecon-client-id'] ?? '',
+        clientSecret: settings['integration-animecon-client-secret'] ?? '',
+        username: settings['integration-animecon-username'] ?? '',
+        password: settings['integration-animecon-password'] ?? '',
+    };
 
     const googleSettings: GoogleSettings = {
         credential: settings['integration-google-credentials'] ?? '',
@@ -54,6 +72,7 @@ export default async function IntegrationsPage() {
     return (
         <>
             <StatusHeader />
+            <AnimeCon settings={animeConSettings} />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
             <Prompts settings={promptSettings} />

@@ -1,0 +1,136 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import Link from 'next/link';
+import { useCallback, useState } from 'react';
+
+import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+
+import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
+import Grid from '@mui/material/Unstable_Grid2';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+
+import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
+import { SubmitCollapse } from '../components/SubmitCollapse';
+import { issueServerAction } from '@lib/issueServerAction';
+
+/**
+ * Settings applicable to the <AnimeCon> component that can be edited through this component.
+ */
+export interface AnimeConSettings {
+    /**
+     * Endpoint for the AnimeCon API that the Volunteer Portal communicates with.
+     */
+    apiEndpoint: string;
+
+    /**
+     * Endpoint at which we can authenticate our client usage.
+     */
+    authEndpoint: string;
+
+    /**
+     * ID of our client with the AnimeCon API.
+     */
+    clientId: string;
+
+    /**
+     * Secret of our client with the AnimeCon API.
+     */
+    clientSecret: string;
+
+    /**
+     * Username through which we identify with the AnimeCon API.
+     */
+    username: string;
+
+    /**
+     * Password through which we identify with the AnimeCon API.
+     */
+    password: string;
+}
+
+/**
+ * Props accepted by the <AnimeCon> component.
+ */
+export interface GoogleProps {
+    /**
+     * The settings for which this integration should be displayed.
+     */
+    settings: AnimeConSettings;
+}
+
+/**
+ * The <AnimeCon> component allows the settings for our integration with the AnimeCon API to be
+ * configured. We use a service account to gain access to the information contained therein.
+ */
+export function AnimeCon(props: GoogleProps) {
+    const { settings } = props;
+
+    const [ error, setError ] = useState<string>();
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
+    const [ loading, setLoading ] = useState<boolean>(false);
+
+    const doInvalidate = useCallback(() => setInvalidated(true), [ setInvalidated ]);
+    const requestSubmit = useCallback(async (data: FieldValues) => {
+        setLoading(true);
+        setError(undefined);
+        try {
+            await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+                animecon: { ...data as any },
+            });
+            setInvalidated(false);
+        } catch (error: any) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [ setError, setInvalidated, setLoading ]);
+
+    return (
+        <Paper sx={{ p: 2 }}>
+            <Typography variant="h5" sx={{ pb: 1 }}>
+                AnimeCon
+            </Typography>
+            <Alert severity="info" sx={{ mb: 2 }}>
+                Event and program information is obtained through the AnimeCon API (
+                <MuiLink component={Link} href="https://github.com/AnimeNL/rest-api">source</MuiLink>),
+                for which we identify using a service account.
+            </Alert>
+            <FormContainer defaultValues={settings} onSuccess={requestSubmit}>
+                <Grid container spacing={2}>
+                    <Grid xs={6}>
+                        <TextFieldElement name="apiEndpoint" label="API endpoint" fullWidth
+                                          size="small" onChange={doInvalidate} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="authEndpoint" label="Authentication endpoint"
+                                          fullWidth size="small" onChange={doInvalidate} />
+                    </Grid>
+
+                    <Grid xs={6}>
+                        <TextFieldElement name="clientId" label="Client ID" fullWidth
+                                          size="small" onChange={doInvalidate} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="clientSecret" label="Client Secret" fullWidth
+                                          size="small" onChange={doInvalidate} />
+                    </Grid>
+
+                    <Grid xs={6}>
+                        <TextFieldElement name="username" label="Username" fullWidth
+                                          size="small" onChange={doInvalidate} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="password" label="Password" type="password" fullWidth
+                                          size="small" onChange={doInvalidate} />
+                    </Grid>
+                </Grid>
+                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
+            </FormContainer>
+        </Paper>
+    );
+}

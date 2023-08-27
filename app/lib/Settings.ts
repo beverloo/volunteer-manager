@@ -15,6 +15,14 @@ type SettingsMap = {
     // Integration settings
     // ---------------------------------------------------------------------------------------------
 
+    // AnimeCon:
+    'integration-animecon-api-endpoint': string;
+    'integration-animecon-auth-endpoint': string;
+    'integration-animecon-client-id': string;
+    'integration-animecon-client-secret': string;
+    'integration-animecon-username': string;
+    'integration-animecon-password': string;
+
     // Google:
     'integration-google-credentials': string;
     'integration-google-location': string;
