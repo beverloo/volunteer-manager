@@ -22,6 +22,7 @@ type SettingsMap = {
     'integration-animecon-client-secret': string;
     'integration-animecon-username': string;
     'integration-animecon-password': string;
+    'integration-animecon-scopes': string;
 
     // Google:
     'integration-google-credentials': string;

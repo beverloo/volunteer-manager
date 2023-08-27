@@ -130,14 +130,3 @@ export const kActivityDefinition = z.object({
  * Export of the Activity type, derived from the definition.
  */
 export type Activity = z.infer<typeof kActivityDefinition>;
-
-/**
- * Type definition for an array of activities, which is the response that we can expect from the
- * AnimeCon API endpoints when querying for a particular event.
- */
-export const kActivitiesDefinition = z.array(kActivityDefinition);
-
-/**
- * Export of the Activities type, derived from the definition.
- */
-export type Activities = z.infer<typeof kActivitiesDefinition>;

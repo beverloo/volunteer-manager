@@ -23,6 +23,7 @@ export default async function IntegrationsPage() {
         'integration-animecon-client-secret',
         'integration-animecon-username',
         'integration-animecon-password',
+        'integration-animecon-scopes',
 
         // Google:
         'integration-google-credentials',
@@ -48,6 +49,7 @@ export default async function IntegrationsPage() {
         clientSecret: settings['integration-animecon-client-secret'] ?? '',
         username: settings['integration-animecon-username'] ?? '',
         password: settings['integration-animecon-password'] ?? '',
+        scopes: settings['integration-animecon-scopes'] ?? '',
     };
 
     const googleSettings: GoogleSettings = {

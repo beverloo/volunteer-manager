@@ -26,6 +26,7 @@ export const kUpdateIntegrationDefinition = z.object({
             clientSecret: z.string(),
             username: z.string(),
             password: z.string(),
+            scopes: z.string(),
         }).optional(),
 
         /**
@@ -80,6 +81,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-animecon-client-secret': request.animecon.clientSecret,
             'integration-animecon-username': request.animecon.username,
             'integration-animecon-password': request.animecon.password,
+            'integration-animecon-scopes': request.animecon.scopes,
         });
 
         await Log({
