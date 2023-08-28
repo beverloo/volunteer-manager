@@ -46,6 +46,13 @@ export interface UserDatabaseRow {
     activated: number;
     sessionToken: number;
 
+    events: {
+        eventId?: number;
+        teamId?: number;
+        adminAccess?: boolean;
+        hidden?: boolean;
+    }[],
+
     // Internal use in `authenticateUser`:
     authType: AuthType,
 }
@@ -159,9 +166,10 @@ export class User implements UserData {
     // Functionality also available to client components, i.e. UserData implementation:
     // ---------------------------------------------------------------------------------------------
 
+    get avatarUrl() { return getAvatarUrl(this.#user.avatarFileHash); }
+    get events() { return this.#user.events as NonNullable<UserData['events']>; }
     get firstName() { return this.#user.firstName; }
     get lastName() { return this.#user.lastName; }
-    get avatarUrl() { return getAvatarUrl(this.#user.avatarFileHash); }
     get privileges() { return this.#privileges; }
     get username() { return this.#user.username; }
 
@@ -174,9 +182,10 @@ export class User implements UserData {
      */
     toUserData(): UserData {
         return {
+            avatarUrl: this.avatarUrl,
+            events: this.events,
             firstName: this.firstName,
             lastName: this.lastName,
-            avatarUrl: this.avatarUrl,
             privileges: this.privileges,
             username: this.username,
         };

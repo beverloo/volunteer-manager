@@ -2,10 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { SessionData } from './Session';
-import { AuthType } from '../database/Types';
+import { AuthType, RegistrationStatus } from '../database/Types';
 import { User } from './User';
 import { securePasswordHash } from './Password';
-import db, { tStorage, tUsers, tUsersAuth } from '../database';
+
+import db, { tEvents, tRoles, tStorage, tTeams, tUsers, tUsersAuth, tUsersEvents }
+    from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
@@ -109,14 +111,24 @@ export type AuthenticateUserParams =
  * `undefined` will be returned when something went wrong.
  */
 export async function authenticateUser(params: AuthenticateUserParams): Promise<User | undefined> {
+    const eventsJoin = tEvents.forUseInLeftJoin();
+    const rolesJoin = tRoles.forUseInLeftJoin();
     const storageJoin = tStorage.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const dbInstance = db;
-    const authenticationBaseSelect = db.selectFrom(tUsers)
+    const authenticationBaseSelect = dbInstance.selectFrom(tUsers)
         .innerJoin(tUsersAuth)
             .on(tUsersAuth.userId.equals(tUsers.userId))
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tUsers.avatarId))
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(tUsers.userId))
+            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(eventsJoin)
+            .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
+        .leftJoin(rolesJoin)
+            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .groupBy(tUsers.userId)
         .select({
             userId: tUsers.userId,
@@ -130,6 +142,13 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
             privileges: tUsers.privileges,
             activated: tUsers.activated,
             sessionToken: tUsers.sessionToken,
+
+            events: dbInstance.aggregateAsArray({
+                eventId: usersEventsJoin.eventId,
+                teamId: usersEventsJoin.teamId,
+                adminAccess: rolesJoin.roleAdminAccess.equals(/* true= */ 1),
+                hidden: eventsJoin.eventHidden.equals(/* true= */ 1),
+            }),
 
             // For internal use only, as behaviour for access code differs from passwords.
             authType: tUsersAuth.authType,
@@ -147,11 +166,12 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
                 .where(tUsers.username.equals(params.username))
                     .and(tUsers.activated.equals(/* true= */ 1))
                     .and(tUsersAuth.authType.equals(AuthType.password)
-                        .and(tUsersAuth.authValue.equals(securelyHashedPassword)))
-                    .or(tUsersAuth.authType.equals(AuthType.code)
-                    .and(dbInstance.fragmentWithType('boolean', 'required').sql`
-                        SHA2(${tUsersAuth.authValue}, 256) =
-                            ${dbInstance.const(securelyHashedPassword, 'string')}`))
+                             .and(tUsersAuth.authValue.equals(securelyHashedPassword))
+                        .or(tUsersAuth.authType.equals(AuthType.code)
+                                .and(dbInstance.fragmentWithType('boolean', 'required').sql`
+                                    SHA2(${tUsersAuth.authValue}, 256) =
+                                         ${dbInstance.const(params.sha256Password, 'string')}`))
+                    )
                 .executeSelectNoneOrOne();
 
             break;

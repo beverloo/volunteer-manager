@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 
 import type { UserData } from '@lib/auth/UserData';
 import { AuthenticationHeaderChip } from './AuthenticationHeaderChip';
+import { determineInitials } from '@components/Avatar';
 
 /**
  * Manual styles that apply to the <RegistrationHeader> client component.
@@ -65,7 +66,10 @@ export interface RegistrationHeaderProps {
  * well as the ability for them to sign out.
  */
 export function RegistrationHeader(props: RegistrationHeaderProps) {
-    // TODO: Include the user's avatar.
+    const { user } = props;
+
+    const initials =
+        user ? determineInitials(`${user.firstName} ${user.lastName}`) : undefined;
 
     return (
         <Stack direction="row" justifyContent="space-between" sx={kStyles.header}>
@@ -77,7 +81,7 @@ export function RegistrationHeader(props: RegistrationHeaderProps) {
                                           avatar={
                                               <Avatar src={props.user.avatarUrl}
                                                       sx={kStyles.avatar}>
-                                                  PB
+                                                  {initials}
                                               </Avatar> }
                                           label={props.user.firstName}
                                           onClick={props.onUserChipClick} /> }

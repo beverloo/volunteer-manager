@@ -5,7 +5,8 @@ import type { User } from './auth/User';
 import { Event } from './Event';
 import { Privilege, can } from './auth/Privileges';
 
-import db, { tEvents, tEventsTeams, tTeams } from './database';
+import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
+import { RegistrationStatus } from './database/Types';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -17,8 +18,10 @@ export async function getEventBySlug(slug: string)
     const teamsJoin = tTeams.forUseInLeftJoin();
 
     const eventInfo = await db.selectFrom(tEvents)
-        .leftJoin(eventsTeamsJoin).on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
-        .leftJoin(teamsJoin).on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
         .where(tEvents.eventSlug.equals(slug))
         .select({
             eventId: tEvents.eventId,
@@ -49,11 +52,21 @@ export async function getEventBySlug(slug: string)
  */
 export async function getEventsForUser(environmentName: string, user?: User): Promise<Event[]> {
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+    const rolesJoin = tRoles.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const eventInfos = await db.selectFrom(tEvents)
-        .leftJoin(eventsTeamsJoin).on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
-        .leftJoin(teamsJoin).on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.eventId.equals(tEvents.eventId))
+            .and(usersEventsJoin.userId.equals(user?.userId ?? -1))
+            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(rolesJoin)
+            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
         .where(tEvents.eventHidden.equals(0))
         .select({
             eventId: tEvents.eventId,
@@ -69,6 +82,9 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
                 enableRegistration: eventsTeamsJoin.enableRegistration,
                 enableSchedule: eventsTeamsJoin.enableSchedule,
             }),
+
+            // Internal use:
+            adminAccess: rolesJoin.roleAdminAccess,
         })
         .groupBy(tEvents.eventId)
         .orderBy(tEvents.eventStartTime, 'desc')
@@ -101,7 +117,7 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
         if (!environmentFound)
             continue;  // this |eventInfo| does not exist for the given |environmentName|
 
-        if (!environmentAccessible && !eventAvailabilityOverride)
+        if (!environmentAccessible && !eventInfo.adminAccess && !eventAvailabilityOverride)
             continue;  // this |eventInfo| is not yet available to the |user|
 
         events.push(new Event(eventInfo));

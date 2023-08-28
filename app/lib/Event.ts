@@ -25,6 +25,11 @@ export interface EventDatabaseRow {
  */
 export interface EventData {
     /**
+     * Unique ID of the event, as it exists in the database.
+     */
+    id: number;
+
+    /**
      * Full name of this event, including the theme.
      */
     name: string;
@@ -133,6 +138,7 @@ export class Event implements EventData {
     // Functionality also available to client components, i.e. EventData implementation:
     // ---------------------------------------------------------------------------------------------
 
+    get id() { return this.#event.eventId; }
     get name() { return this.#event.eventName; }
     get shortName() { return this.#event.eventShortName; }
     get slug() { return this.#event.eventSlug; }
@@ -151,6 +157,7 @@ export class Event implements EventData {
     toEventData(environmentName: string): EventDataWithEnvironment;
     toEventData(environmentName?: string) {
         const eventData = {
+            id: this.id,
             name: this.name,
             shortName: this.shortName,
             slug: this.slug,

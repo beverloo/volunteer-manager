@@ -55,7 +55,7 @@ function determineName(children?: string | string[]): string {
  * Determines the initials based on the given `name`, which is a string derived from contents passed
  * to <Avatar>. An empty string will be returned when the initials cannot be determined.
  */
-function determineInitials(name: string): string {
+export function determineInitials(name: string): string {
     const initials = [];
     for (let index = 0; index < name.length; ++index) {
         if (name.charCodeAt(index) < 65 || name.charCodeAt(index) > 90)
@@ -159,9 +159,9 @@ export function Avatar(props: AvatarProps) {
     // been specified, or be returned as the JSX from this component.
     let avatar = (
         <MuiAvatar alt={`Avatar associated with ${name}`}
-                    src={props.src}
-                    sx={{ backgroundColor, color, width: avatarSize, height: avatarSize }}
-                    variant={props.variant}>
+                   src={props.src}
+                   sx={{ backgroundColor, color, width: avatarSize, height: avatarSize }}
+                   variant={props.variant}>
             {initials}
         </MuiAvatar>
     );

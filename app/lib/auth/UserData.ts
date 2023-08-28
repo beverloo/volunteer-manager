@@ -12,6 +12,31 @@ export interface UserData {
     avatarUrl?: string;
 
     /**
+     * Events that the user has been accepted in to, and some metainformation about these events.
+     */
+    events: {
+        /**
+         * ID of the event that they participated in.
+         */
+        eventId: number;
+
+        /**
+         * ID of the team that the user is part of.
+         */
+        teamId: number;
+
+        /**
+         * Whether the user has admin access to this event, granted by their role.
+         */
+        adminAccess: boolean;
+
+        /**
+         * Whether the event is hidden from display, for example because it's too old.
+         */
+        hidden: boolean;
+    }[],
+
+    /**
      * The first name of this user.
      */
     firstName: string;

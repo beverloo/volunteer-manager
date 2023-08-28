@@ -103,10 +103,18 @@ export interface WelcomePageProps {
  * towards the Admin and Statistics apps.
  */
 export function WelcomePage(props: WelcomePageProps) {
+    const { user } = props;
+
     const additionalEvents: EventDataWithEnvironment[] = [];
 
-    const eventContentOverride = can(props.user, Privilege.EventContentOverride);
-    const eventScheduleOverride = can(props.user, Privilege.EventScheduleOverride);
+    const adminAccess = new Set<number>();
+    for (const eventInfo of user?.events ?? [ /* no events */ ]) {
+        if (eventInfo.adminAccess)
+            adminAccess.add(eventInfo.eventId);
+    }
+
+    const eventContentOverride = can(user, Privilege.EventContentOverride);
+    const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
     const currentTime = DateTime.Now();
 
     let upcomingEvent: EventDataWithEnvironment | undefined;
@@ -125,7 +133,7 @@ export function WelcomePage(props: WelcomePageProps) {
     const shouldHighlight = (value: boolean) => value ? 'contained' : 'outlined';
 
     const hiddenIcon =
-        <Tooltip title="Access is limited to Senior+ volunteers">
+        <Tooltip title="Access is limited to certain volunteers">
             <VisibilityOffIcon fontSize="small" color="disabled" />
         </Tooltip>;
 
@@ -134,7 +142,7 @@ export function WelcomePage(props: WelcomePageProps) {
             <RegistrationContentContainer title={`AnimeCon ${props.title}`}
                                           event={props.registrationEvent}
                                           registration={props.registration}
-                                          user={props.user}>
+                                          user={user}>
 
                 { /* Section: Landing page */ }
                 <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
@@ -146,7 +154,8 @@ export function WelcomePage(props: WelcomePageProps) {
                             { /* TODO: Participating volunteers should see "access" first */ }
 
                             { (upcomingEvent &&
-                                    (upcomingEvent.enableContent || eventContentOverride)) &&
+                                    (upcomingEvent.enableContent || eventContentOverride ||
+                                        adminAccess.has(upcomingEvent.id))) &&
                                 <Button component={Link}
                                         href={`/registration/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableContent ? 'primary' : 'hidden'}
@@ -156,7 +165,8 @@ export function WelcomePage(props: WelcomePageProps) {
                                 </Button> }
 
                             { (upcomingEvent &&
-                                    (upcomingEvent.enableSchedule || eventScheduleOverride)) &&
+                                    (upcomingEvent.enableSchedule || eventScheduleOverride ||
+                                        adminAccess.has(upcomingEvent.id))) &&
                                 <Button component={Link}
                                         href={`/schedule/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableSchedule ? 'primary' : 'hidden'}
@@ -166,7 +176,8 @@ export function WelcomePage(props: WelcomePageProps) {
                                 </Button> }
 
                             { (currentEvent &&
-                                    (currentEvent.enableContent || eventContentOverride)) &&
+                                    (currentEvent.enableContent || eventContentOverride ||
+                                        adminAccess.has(currentEvent.id))) &&
                                 <Button component={Link}
                                         href={`/registration/${currentEvent.slug}/`}
                                         color={currentEvent.enableContent ? 'primary' : 'hidden'}
@@ -176,7 +187,8 @@ export function WelcomePage(props: WelcomePageProps) {
                                 </Button> }
 
                             { (currentEvent &&
-                                    (currentEvent.enableSchedule || eventScheduleOverride)) &&
+                                    (currentEvent.enableSchedule || eventScheduleOverride ||
+                                        adminAccess.has(currentEvent.id))) &&
                                 <Button component={Link}
                                         href={`/schedule/${currentEvent.slug}/`}
                                         color={currentEvent.enableSchedule ? 'primary' : 'hidden'}
@@ -196,7 +208,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
             { /* Section: Further content */ }
             <Grid container spacing={2} sx={{ mt: 2 }}>
-                { can(props.user, Privilege.Administrator) &&
+                { !!adminAccess.size &&
                     <Grid xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
@@ -204,9 +216,7 @@ export function WelcomePage(props: WelcomePageProps) {
                                     <Typography variant="h5" component="p">
                                         Administration
                                     </Typography>
-                                    <Tooltip title="Access is limited to Senior+ volunteers">
-                                        <VisibilityOffIcon fontSize="small" color="disabled" />
-                                    </Tooltip>
+                                    {hiddenIcon}
                                 </Stack>
                                 <Typography variant="body2">
                                     Access to the administration area where we manage the events,
@@ -223,7 +233,7 @@ export function WelcomePage(props: WelcomePageProps) {
                         </Card>
                     </Grid> }
 
-                { can(props.user, Privilege.Statistics) &&
+                { can(user, Privilege.Statistics) &&
                     <Grid xs={12} md={4}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: 0 }}>
@@ -231,9 +241,7 @@ export function WelcomePage(props: WelcomePageProps) {
                                     <Typography variant="h5" component="p">
                                         Statistics
                                     </Typography>
-                                    <Tooltip title="Access is limited to selected volunteers">
-                                        <VisibilityOffIcon fontSize="small" color="disabled" />
-                                    </Tooltip>
+                                    {hiddenIcon}
                                 </Stack>
                                 <Typography variant="body2">
                                     Multi-year statistics about the demographics, scope and
@@ -264,13 +272,15 @@ export function WelcomePage(props: WelcomePageProps) {
                                 </Stack>
                             </CardContent>
                             <CardActions sx={kStyles.eventCardActions}>
-                                { (event.enableContent || eventContentOverride) &&
+                                { (event.enableContent || adminAccess.has(event.id) ||
+                                       eventContentOverride) &&
                                     <Link href={`/registration/${event.slug}/`} passHref>
                                         <Button size="small" startIcon={ <HowToRegIcon />}>
                                             Registration
                                         </Button>
                                     </Link> }
-                                { (event.enableSchedule || eventScheduleOverride) &&
+                                { (event.enableSchedule || adminAccess.has(event.id) ||
+                                       eventScheduleOverride) &&
                                     <Link href={`/schedule/${event.slug}/`} passHref>
                                         <Button size="small" startIcon={ <EventNoteIcon />}>
                                             Volunteer Portal
