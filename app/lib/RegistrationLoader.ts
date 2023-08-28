@@ -5,7 +5,7 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { tEventsTeams, tHotels, tRoles, tTeams, tTeamsRoles, tUsersEvents } from './database';
+import db, { tEvents, tHotels, tRoles, tTeams, tTeamsRoles, tUsersEvents } from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -19,31 +19,32 @@ export async function getRegistration(environmentName: string, event: Event, use
     if (!userId)
         return undefined;
 
-    const hotelsJoin = tHotels.forUseInLeftJoin();
-    const registration = await db.selectFrom(tUsersEvents)
+    const dbInstance = db;
+    const registration = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .and(tTeams.teamEnvironment.equals(environmentName))
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
-        .innerJoin(tEventsTeams)
-            .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
-            .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
-        .leftJoin(hotelsJoin)
-            .on(hotelsJoin.eventId.equals(tUsersEvents.eventId))
         .where(tUsersEvents.userId.equals(userId))
             .and(tUsersEvents.eventId.equals(event.eventId))
         .select({
-            registrationDate: tUsersEvents.registrationDate,
-            registrationStatus: tUsersEvents.registrationStatus,
-            roleName: tRoles.roleName,
+            role: tRoles.roleName,
+            status: tUsersEvents.registrationStatus,
 
-            availabilityAvailable: tEventsTeams.enableSchedule,
+            availabilityAvailable: tEvents.publishAvailability.equals(/* true= */ 1),
+            availabilityEligible: dbInstance.true(),
             // TODO: `availability`
 
-            hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
-            hotelAvailable: hotelsJoin.hotelId.isNotNull(),
+            hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
+            hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
             // TODO: `hotel`
+
+            trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
+            trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),
+            // TODO: `training`
         })
         .groupBy(tUsersEvents.eventId)
         .executeSelectNoneOrOne();

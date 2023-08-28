@@ -89,7 +89,7 @@ tables:
   comment: ""
   columns:
   - name: user_id
-    type: int(11)
+    type: int(8) unsigned
     nullable: false
     default: null
     extraDef: auto_increment
@@ -164,7 +164,7 @@ tables:
   triggers: []
   def: |-
     CREATE TABLE `users` (
-      `user_id` int(11) NOT NULL AUTO_INCREMENT,
+      `user_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `username` varchar(64) DEFAULT NULL,
       `first_name` varchar(64) NOT NULL,
       `last_name` varchar(64) NOT NULL,
@@ -182,7 +182,7 @@ tables:
   comment: ""
   columns:
   - name: user_id
-    type: int(4) unsigned
+    type: int(8) unsigned
     nullable: false
     default: null
     comment: ""
@@ -203,14 +203,89 @@ tables:
     columns:
     - user_id
     comment: ""
-  constraints: []
+  constraints:
+  - name: users_auth_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: users_auth
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
   triggers: []
   def: |-
     CREATE TABLE `users_auth` (
-      `user_id` int(4) unsigned NOT NULL,
+      `user_id` int(8) unsigned NOT NULL,
       `auth_type` enum('code','password','passkey') NOT NULL,
       `auth_value` text NOT NULL,
-      KEY `user_id` (`user_id`)
+      KEY `user_id` (`user_id`),
+      CONSTRAINT `users_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: teams_roles
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_default
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: teams_roles_role_id
+    def: KEY teams_roles_role_id (role_id) USING BTREE
+    table: teams_roles
+    columns:
+    - role_id
+    comment: ""
+  - name: team_id
+    def: KEY team_id (team_id) USING BTREE
+    table: teams_roles
+    columns:
+    - team_id
+    comment: ""
+  constraints:
+  - name: teams_roles_role_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+    table: teams_roles
+    referencedTable: roles
+    columns:
+    - role_id
+    referencedColumns:
+    - role_id
+    comment: ""
+  - name: teams_roles_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: teams_roles
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `teams_roles` (
+      `team_id` int(4) unsigned NOT NULL,
+      `role_id` int(4) unsigned NOT NULL,
+      `role_default` tinyint(1) NOT NULL DEFAULT 0,
+      KEY `team_id` (`team_id`),
+      KEY `teams_roles_role_id` (`role_id`),
+      CONSTRAINT `teams_roles_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE,
+      CONSTRAINT `teams_roles_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels
   type: BASE TABLE
@@ -271,6 +346,16 @@ tables:
     - hotel_id
     comment: ""
   constraints:
+  - name: hotels_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: hotels
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (hotel_id)
@@ -292,23 +377,13 @@ tables:
       `hotel_room_price` int(8) NOT NULL DEFAULT 0,
       `hotel_room_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`hotel_id`),
-      KEY `event_id` (`event_id`)
+      KEY `event_id` (`event_id`),
+      CONSTRAINT `hotels_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: shifts
+- name: events_teams
   type: BASE TABLE
   comment: ""
   columns:
-  - name: shift_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: shift_identifier
-    type: varchar(8)
-    nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
@@ -319,76 +394,86 @@ tables:
     nullable: false
     default: null
     comment: ""
-  - name: shift_name
-    type: varchar(64)
+  - name: enable_content
+    type: tinyint(1)
     nullable: false
-    default: null
+    default: "0"
     comment: ""
-  - name: shift_program_id
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_area_id
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_location_id
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_location_name
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_excitement
-    type: double
+  - name: enable_registration
+    type: tinyint(1)
     nullable: false
-    default: null
+    default: "0"
+    comment: ""
+  - name: enable_schedule
+    type: tinyint(1)
+    nullable: false
+    default: "0"
     comment: ""
   indexes:
   - name: event_id
-    def: KEY event_id (event_id, team_id) USING BTREE
-    table: shifts
+    def: KEY event_id (event_id) USING BTREE
+    table: events_teams
+    columns:
+    - event_id
+    comment: ""
+  - name: team_id
+    def: KEY team_id (team_id) USING BTREE
+    table: events_teams
+    columns:
+    - team_id
+    comment: ""
+  - name: event_id_2
+    def: UNIQUE KEY event_id_2 (event_id, team_id) USING BTREE
+    table: events_teams
     columns:
     - event_id
     - team_id
     comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (shift_id) USING BTREE
-    table: shifts
-    columns:
-    - shift_id
-    comment: ""
   constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (shift_id)
-    table: shifts
+  - name: events_teams_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: events_teams
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: events_teams_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: events_teams
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+    comment: ""
+  - name: event_id_2
+    type: UNIQUE
+    def: UNIQUE KEY event_id_2 (event_id, team_id)
+    table: events_teams
     referencedTable: null
     columns:
-    - shift_id
+    - event_id
+    - team_id
     referencedColumns: []
     comment: ""
   triggers: []
   def: |-
-    CREATE TABLE `shifts` (
-      `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `shift_identifier` varchar(8) NOT NULL,
+    CREATE TABLE `events_teams` (
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
-      `shift_name` varchar(64) NOT NULL,
-      `shift_program_id` int(4) unsigned DEFAULT NULL,
-      `shift_area_id` int(4) unsigned DEFAULT NULL,
-      `shift_location_id` varchar(32) DEFAULT NULL,
-      `shift_location_name` varchar(32) DEFAULT NULL,
-      `shift_excitement` double NOT NULL,
-      PRIMARY KEY (`shift_id`),
-      KEY `event_id` (`event_id`,`team_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `enable_content` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
+      UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
+      KEY `event_id` (`event_id`),
+      KEY `team_id` (`team_id`),
+      CONSTRAINT `events_teams_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `events_teams_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
   comment: ""
@@ -430,6 +515,24 @@ tables:
     default: null
     comment: ""
   indexes:
+  - name: schedule_event_id
+    def: KEY schedule_event_id (event_id) USING BTREE
+    table: schedule
+    columns:
+    - event_id
+    comment: ""
+  - name: schedule_shift_id
+    def: KEY schedule_shift_id (shift_id) USING BTREE
+    table: schedule
+    columns:
+    - shift_id
+    comment: ""
+  - name: schedule_user_id
+    def: KEY schedule_user_id (user_id) USING BTREE
+    table: schedule
+    columns:
+    - user_id
+    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (schedule_id) USING BTREE
     table: schedule
@@ -446,6 +549,36 @@ tables:
     - schedule_id
     referencedColumns: []
     comment: ""
+  - name: schedule_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: schedule
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: schedule_shift_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
+    table: schedule
+    referencedTable: shifts
+    columns:
+    - shift_id
+    referencedColumns:
+    - shift_id
+    comment: ""
+  - name: schedule_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: schedule
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
   triggers: []
   def: |-
     CREATE TABLE `schedule` (
@@ -456,203 +589,13 @@ tables:
       `shift_id` int(4) unsigned DEFAULT NULL,
       `schedule_time_start` datetime NOT NULL,
       `schedule_time_end` datetime NOT NULL,
-      PRIMARY KEY (`schedule_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: users_events
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: user_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: role_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: registration_date
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: registration_status
-    type: enum('Registered','Cancelled','Accepted','Rejected')
-    nullable: false
-    default: "'Registered'"
-    comment: ""
-  - name: shirt_fit
-    type: enum('Regular','Girly')
-    nullable: false
-    default: "'Regular'"
-    comment: ""
-  - name: shirt_size
-    type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_eligible
-    type: tinyint(1)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: preference_hours
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: preference_timing_start
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: preference_timing_end
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: preferences
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: fully_available
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-    comment: ""
-  - name: include_credits
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-    comment: ""
-  - name: include_socials
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-    comment: ""
-  indexes:
-  - name: user_id
-    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
-    table: users_events
-    columns:
-    - user_id
-    - event_id
-    - team_id
-    comment: ""
-  constraints:
-  - name: user_id
-    type: UNIQUE
-    def: UNIQUE KEY user_id (user_id, event_id, team_id)
-    table: users_events
-    referencedTable: null
-    columns:
-    - user_id
-    - event_id
-    - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `users_events` (
-      `user_id` int(4) unsigned NOT NULL,
-      `event_id` int(4) unsigned NOT NULL,
-      `team_id` int(4) unsigned NOT NULL,
-      `role_id` int(4) unsigned NOT NULL,
-      `registration_date` datetime NOT NULL,
-      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
-      `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
-      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
-      `hotel_eligible` tinyint(1) DEFAULT NULL,
-      `preference_hours` int(4) unsigned DEFAULT NULL,
-      `preference_timing_start` int(4) unsigned DEFAULT NULL,
-      `preference_timing_end` int(4) unsigned DEFAULT NULL,
-      `preferences` text DEFAULT NULL,
-      `fully_available` tinyint(1) NOT NULL DEFAULT 1,
-      `include_credits` tinyint(1) NOT NULL DEFAULT 1,
-      `include_socials` tinyint(1) NOT NULL DEFAULT 1,
-      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: storage
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: file_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: file_hash
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: file_type
-    type: enum('avatar')
-    nullable: false
-    default: null
-    comment: ""
-  - name: file_date
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: file_data
-    type: mediumblob
-    nullable: false
-    default: null
-    comment: ""
-  - name: user_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: file_hash
-    def: KEY file_hash (file_hash) USING BTREE
-    table: storage
-    columns:
-    - file_hash
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (file_id) USING BTREE
-    table: storage
-    columns:
-    - file_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (file_id)
-    table: storage
-    referencedTable: null
-    columns:
-    - file_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `storage` (
-      `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `file_hash` varchar(16) NOT NULL,
-      `file_type` enum('avatar') NOT NULL,
-      `file_date` datetime NOT NULL,
-      `file_data` mediumblob NOT NULL,
-      `user_id` int(4) unsigned NOT NULL,
-      PRIMARY KEY (`file_id`),
-      KEY `file_hash` (`file_hash`)
+      PRIMARY KEY (`schedule_id`),
+      KEY `schedule_event_id` (`event_id`),
+      KEY `schedule_shift_id` (`shift_id`),
+      KEY `schedule_user_id` (`user_id`),
+      CONSTRAINT `schedule_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `schedule_shift_id` FOREIGN KEY (`shift_id`) REFERENCES `shifts` (`shift_id`) ON DELETE CASCADE,
+      CONSTRAINT `schedule_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: roles
   type: BASE TABLE
@@ -830,182 +773,6 @@ tables:
       `team_colour_light_theme` varchar(16) NOT NULL,
       PRIMARY KEY (`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: teams_roles
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: role_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: role_default
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  indexes:
-  - name: team_id
-    def: KEY team_id (team_id) USING BTREE
-    table: teams_roles
-    columns:
-    - team_id
-    comment: ""
-  constraints: []
-  triggers: []
-  def: |-
-    CREATE TABLE `teams_roles` (
-      `team_id` int(4) unsigned NOT NULL,
-      `role_id` int(4) unsigned NOT NULL,
-      `role_default` tinyint(1) NOT NULL DEFAULT 0,
-      KEY `team_id` (`team_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: events
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: event_name
-    type: varchar(64)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_short_name
-    type: varchar(32)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_slug
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_hidden
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: event_start_time
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_end_time
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (event_id) USING BTREE
-    table: events
-    columns:
-    - event_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (event_id)
-    table: events
-    referencedTable: null
-    columns:
-    - event_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `events` (
-      `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `event_name` varchar(64) NOT NULL,
-      `event_short_name` varchar(32) NOT NULL,
-      `event_slug` varchar(16) NOT NULL,
-      `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
-      `event_start_time` datetime NOT NULL,
-      `event_end_time` datetime NOT NULL,
-      PRIMARY KEY (`event_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: events_teams
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: enable_content
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: enable_registration
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: enable_schedule
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  indexes:
-  - name: event_id
-    def: KEY event_id (event_id) USING BTREE
-    table: events_teams
-    columns:
-    - event_id
-    comment: ""
-  - name: team_id
-    def: KEY team_id (team_id) USING BTREE
-    table: events_teams
-    columns:
-    - team_id
-    comment: ""
-  - name: event_id_2
-    def: UNIQUE KEY event_id_2 (event_id, team_id) USING BTREE
-    table: events_teams
-    columns:
-    - event_id
-    - team_id
-    comment: ""
-  constraints:
-  - name: event_id_2
-    type: UNIQUE
-    def: UNIQUE KEY event_id_2 (event_id, team_id)
-    table: events_teams
-    referencedTable: null
-    columns:
-    - event_id
-    - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `events_teams` (
-      `event_id` int(4) unsigned NOT NULL,
-      `team_id` int(4) unsigned NOT NULL,
-      `enable_content` tinyint(1) NOT NULL DEFAULT 0,
-      `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
-      `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
-      UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
-      KEY `event_id` (`event_id`),
-      KEY `team_id` (`team_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: logs
   type: BASE TABLE
   comment: ""
@@ -1022,7 +789,7 @@ tables:
     default: current_timestamp()
     comment: ""
   - name: log_type
-    type: varchar(32)
+    type: varchar(48)
     nullable: false
     default: null
     comment: ""
@@ -1066,6 +833,26 @@ tables:
     - log_id
     comment: ""
   constraints:
+  - name: logs_log_source_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
+    table: logs
+    referencedTable: users
+    columns:
+    - log_source_user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  - name: logs_log_target_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
+    table: logs
+    referencedTable: users
+    columns:
+    - log_target_user_id
+    referencedColumns:
+    - user_id
+    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (log_id)
@@ -1080,14 +867,103 @@ tables:
     CREATE TABLE `logs` (
       `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `log_date` timestamp NOT NULL DEFAULT current_timestamp(),
-      `log_type` varchar(32) NOT NULL,
+      `log_type` varchar(48) NOT NULL,
       `log_severity` enum('Debug','Info','Warning','Error') NOT NULL,
       `log_source_user_id` int(8) unsigned DEFAULT NULL,
       `log_target_user_id` int(8) unsigned DEFAULT NULL,
       `log_data` text DEFAULT NULL,
       PRIMARY KEY (`log_id`),
       KEY `log_target_user_id` (`log_target_user_id`),
-      KEY `log_source_user_id` (`log_source_user_id`)
+      KEY `log_source_user_id` (`log_source_user_id`),
+      CONSTRAINT `logs_log_source_user_id` FOREIGN KEY (`log_source_user_id`) REFERENCES `users` (`user_id`),
+      CONSTRAINT `logs_log_target_user_id` FOREIGN KEY (`log_target_user_id`) REFERENCES `users` (`user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_short_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_slug
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_hidden
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: event_start_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_end_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: publish_availability
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: publish_hotels
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: publish_trainings
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (event_id) USING BTREE
+    table: events
+    columns:
+    - event_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (event_id)
+    table: events
+    referencedTable: null
+    columns:
+    - event_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events` (
+      `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `event_name` varchar(64) NOT NULL,
+      `event_short_name` varchar(32) NOT NULL,
+      `event_slug` varchar(16) NOT NULL,
+      `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
+      `event_start_time` datetime NOT NULL,
+      `event_end_time` datetime NOT NULL,
+      `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
+      `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
+      `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
+      PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: services
   type: BASE TABLE
@@ -1256,6 +1132,16 @@ tables:
     - setting_name
     comment: ""
   constraints:
+  - name: users_settings_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: users_settings
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
   - name: user_id
     type: UNIQUE
     def: UNIQUE KEY user_id (user_id, setting_name)
@@ -1272,9 +1158,603 @@ tables:
       `user_id` int(8) unsigned NOT NULL,
       `setting_name` varchar(64) NOT NULL,
       `setting_value` text NOT NULL,
-      UNIQUE KEY `user_id` (`user_id`,`setting_name`)
+      UNIQUE KEY `user_id` (`user_id`,`setting_name`),
+      CONSTRAINT `users_settings_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-relations: []
+- name: shifts
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: shift_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: shift_identifier
+    type: varchar(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_program_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_area_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_location_id
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_location_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_excitement
+    type: double
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id, team_id) USING BTREE
+    table: shifts
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  - name: shifts_team_id
+    def: KEY shifts_team_id (team_id) USING BTREE
+    table: shifts
+    columns:
+    - team_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (shift_id) USING BTREE
+    table: shifts
+    columns:
+    - shift_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (shift_id)
+    table: shifts
+    referencedTable: null
+    columns:
+    - shift_id
+    referencedColumns: []
+    comment: ""
+  - name: shifts_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: shifts
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: shifts_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: shifts
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `shifts` (
+      `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `shift_identifier` varchar(8) NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `shift_name` varchar(64) NOT NULL,
+      `shift_program_id` int(4) unsigned DEFAULT NULL,
+      `shift_area_id` int(4) unsigned DEFAULT NULL,
+      `shift_location_id` varchar(32) DEFAULT NULL,
+      `shift_location_name` varchar(32) DEFAULT NULL,
+      `shift_excitement` double NOT NULL,
+      PRIMARY KEY (`shift_id`),
+      KEY `event_id` (`event_id`,`team_id`),
+      KEY `shifts_team_id` (`team_id`),
+      CONSTRAINT `shifts_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `shifts_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_events
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: registration_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: registration_status
+    type: enum('Registered','Cancelled','Accepted','Rejected')
+    nullable: false
+    default: "'Registered'"
+    comment: ""
+  - name: shirt_fit
+    type: enum('Regular','Girly')
+    nullable: false
+    default: "'Regular'"
+    comment: ""
+  - name: shirt_size
+    type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_eligible
+    type: tinyint(1)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_hours
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_timing_start
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_timing_end
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preferences
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: fully_available
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  - name: include_credits
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  - name: include_socials
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: users_events_event_id
+    def: KEY users_events_event_id (event_id) USING BTREE
+    table: users_events
+    columns:
+    - event_id
+    comment: ""
+  - name: users_events_role_id
+    def: KEY users_events_role_id (role_id) USING BTREE
+    table: users_events
+    columns:
+    - role_id
+    comment: ""
+  - name: users_events_team_id
+    def: KEY users_events_team_id (team_id) USING BTREE
+    table: users_events
+    columns:
+    - team_id
+    comment: ""
+  - name: user_id
+    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
+    table: users_events
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    comment: ""
+  constraints:
+  - name: users_events_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: users_events
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: users_events_role_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+    table: users_events
+    referencedTable: roles
+    columns:
+    - role_id
+    referencedColumns:
+    - role_id
+    comment: ""
+  - name: users_events_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: users_events
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+    comment: ""
+  - name: users_events_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: users_events
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  - name: user_id
+    type: UNIQUE
+    def: UNIQUE KEY user_id (user_id, event_id, team_id)
+    table: users_events
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users_events` (
+      `user_id` int(4) unsigned NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `role_id` int(4) unsigned NOT NULL,
+      `registration_date` datetime NOT NULL,
+      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
+      `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
+      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
+      `hotel_eligible` tinyint(1) DEFAULT NULL,
+      `preference_hours` int(4) unsigned DEFAULT NULL,
+      `preference_timing_start` int(4) unsigned DEFAULT NULL,
+      `preference_timing_end` int(4) unsigned DEFAULT NULL,
+      `preferences` text DEFAULT NULL,
+      `fully_available` tinyint(1) NOT NULL DEFAULT 1,
+      `include_credits` tinyint(1) NOT NULL DEFAULT 1,
+      `include_socials` tinyint(1) NOT NULL DEFAULT 1,
+      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`),
+      KEY `users_events_event_id` (`event_id`),
+      KEY `users_events_team_id` (`team_id`),
+      KEY `users_events_role_id` (`role_id`),
+      CONSTRAINT `users_events_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`),
+      CONSTRAINT `users_events_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+      CONSTRAINT `users_events_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`),
+      CONSTRAINT `users_events_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: storage
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: file_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: file_hash
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_type
+    type: enum('avatar')
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_data
+    type: mediumblob
+    nullable: false
+    default: null
+    comment: ""
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: file_hash
+    def: KEY file_hash (file_hash) USING BTREE
+    table: storage
+    columns:
+    - file_hash
+    comment: ""
+  - name: storage_user_id
+    def: KEY storage_user_id (user_id) USING BTREE
+    table: storage
+    columns:
+    - user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (file_id) USING BTREE
+    table: storage
+    columns:
+    - file_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (file_id)
+    table: storage
+    referencedTable: null
+    columns:
+    - file_id
+    referencedColumns: []
+    comment: ""
+  - name: storage_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: storage
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `storage` (
+      `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `file_hash` varchar(16) NOT NULL,
+      `file_type` enum('avatar') NOT NULL,
+      `file_date` datetime NOT NULL,
+      `file_data` mediumblob NOT NULL,
+      `user_id` int(4) unsigned NOT NULL,
+      PRIMARY KEY (`file_id`),
+      KEY `file_hash` (`file_hash`),
+      KEY `storage_user_id` (`user_id`),
+      CONSTRAINT `storage_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+relations:
+- table: users_auth
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
+- table: teams_roles
+  columns:
+  - role_id
+  cardinality: Zero or more
+  parentTable: roles
+  parentColumns:
+  - role_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+  virtual: false
+- table: teams_roles
+  columns:
+  - team_id
+  cardinality: Zero or more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: hotels
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: events_teams
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: events_teams
+  columns:
+  - team_id
+  cardinality: Zero or more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: schedule
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: schedule
+  columns:
+  - shift_id
+  cardinality: Zero or more
+  parentTable: shifts
+  parentColumns:
+  - shift_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
+  virtual: false
+- table: schedule
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
+- table: logs
+  columns:
+  - log_source_user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
+  virtual: false
+- table: logs
+  columns:
+  - log_target_user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
+  virtual: false
+- table: users_settings
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
+- table: shifts
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: shifts
+  columns:
+  - team_id
+  cardinality: Zero or more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: users_events
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: users_events
+  columns:
+  - role_id
+  cardinality: Zero or more
+  parentTable: roles
+  parentColumns:
+  - role_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+  virtual: false
+- table: users_events
+  columns:
+  - team_id
+  cardinality: Zero or more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: users_events
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
+- table: storage
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
 functions: []
 driver:
   name: mysql

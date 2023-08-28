@@ -7,58 +7,97 @@ import { RegistrationStatus } from './database/Types';
  * Interface that maps to the database representation of a registration.
  */
 export interface RegistrationDatabaseRow {
-    registrationDate: Date;
-    registrationStatus: RegistrationStatus;
+    role: string;
+    status: RegistrationStatus;
 
-    roleName: string;
-
-    availabilityAvailable?: number;
+    availabilityAvailable: boolean;
+    availabilityEligible: boolean;
     // TODO: `availability`
 
-    hotelEligible?: number;
     hotelAvailable: boolean;
+    hotelEligible: boolean;
     // TODO: `hotel`
+
+    trainingAvailable: boolean;
+    trainingEligible: boolean;
+    // TODO: `training`
 }
 
 /**
  * General information about a volunteer's application to participate in one of the events.
+ *
+ * Various pieces of registration data exist of three separate toggles: is the data available, is
+ * the volunteer eligible to express their preferences, and has the volunteer expressed their
+ * preferences. It's possible for senior+ volunteers to express preferences on behalf of others.
  */
 export interface RegistrationData {
-    /**
-     * Whether the volunteer is able to indicate their availability during this event.
-     */
-    availabilityAvailable: boolean;
-
-    /**
-     * Information about the volunteer's availability.
-     */
-    availability: undefined;
-
-    /**
-     * Whether hotel rooms are available in case the volunteer is eligible.
-     */
-    hotelAvailable: boolean;
-
-    /**
-     * Whether the volunteer is eligible to book a hotel room through AnimeCon.
-     */
-    hotelEligible: boolean;
-
-    /**
-     * Information about the hotel reservation that the volunteer has entered.
-     */
-    hotel: undefined;
-
     /**
      * Name of the role for which the volunteer has applied. Should only be used when they have been
      * accepted, as other statuses may not reflect this correctly.
      */
-    role?: string;
+    role: string;
 
     /**
      * Status of the registration. Can be changed by senior volunteers.
      */
     status: RegistrationStatus;
+
+    // ---------------------------------------------------------------------------------------------
+    // Availability
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Whether the necessary data to indicate availability during the event exists.
+     */
+    availabilityAvailable: boolean;
+
+    /**
+     * Whether the volunteer is eligible to indicate their availablity, not accounting overrides.
+     */
+    availabilityEligible: boolean;
+
+    /**
+     * The preferences the volunteer has provided regarding their availability.
+     */
+    availability: undefined;
+
+    // ---------------------------------------------------------------------------------------------
+    // Hotel reservations
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Whether the necessary data to indicate hotel bookings during the event exists.
+     */
+    hotelAvailable: boolean;
+
+    /**
+     * Whether the volunteer is eligible to indicate hotel preferences, not accounting overrides.
+     */
+    hotelEligible: boolean;
+
+    /**
+     * The preferences the volunteer has provided regarding their hotel bookings.
+     */
+    hotel: undefined;
+
+    // ---------------------------------------------------------------------------------------------
+    // Trainings
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Whether the necessary data to indicate training preferences during the event exists.
+     */
+    trainingAvailable: boolean;
+
+    /**
+     * Whether the volunteer is eligible to indicate training preferences, not accounting overrides.
+     */
+    trainingEligible: boolean;
+
+    /**
+     * The preferences the volunteer has provided regarding their participation in trainings.
+     */
+    training: undefined;
 }
 
 /**
@@ -77,22 +116,23 @@ export class Registration implements RegistrationData {
     }
 
     // ---------------------------------------------------------------------------------------------
-    // Functionality limited to server components:
-    // ---------------------------------------------------------------------------------------------
-
-    // None yet.
-
-    // ---------------------------------------------------------------------------------------------
     // Functionality also available to client components, i.e. RegistrationData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get availabilityAvailable() { return !!this.#registration.availabilityAvailable; }
+    get role() { return this.#registration.role; }
+    get status() { return this.#registration.status; }
+
+    get availabilityAvailable() { return this.#registration.availabilityAvailable; }
+    get availabilityEligible() { return this.#registration.availabilityEligible; }
     get availability() { return undefined; }
-    get hotelAvailable() { return !!this.#registration.hotelAvailable; }
-    get hotelEligible() { return !!this.#registration.hotelEligible; }
+
+    get hotelAvailable() { return this.#registration.hotelAvailable; }
+    get hotelEligible() { return this.#registration.hotelEligible; }
     get hotel() { return undefined; }
-    get role() { return this.#registration.roleName; }
-    get status() { return this.#registration.registrationStatus; }
+
+    get trainingAvailable() { return this.#registration.trainingAvailable; }
+    get trainingEligible() { return this.#registration.trainingEligible; }
+    get training() { return undefined; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain RegistrationData object:
@@ -103,13 +143,20 @@ export class Registration implements RegistrationData {
      */
     toRegistrationData(): RegistrationData {
         return {
+            role: this.role,
+            status: this.status,
+
             availabilityAvailable: this.availabilityAvailable,
+            availabilityEligible: this.availabilityEligible,
             availability: this.availability,
+
             hotelAvailable: this.hotelAvailable,
             hotelEligible: this.hotelEligible,
             hotel: this.hotel,
-            role: this.role,
-            status: this.status,
+
+            trainingAvailable: this.trainingAvailable,
+            trainingEligible: this.trainingEligible,
+            training: this.training,
         };
     }
 }
