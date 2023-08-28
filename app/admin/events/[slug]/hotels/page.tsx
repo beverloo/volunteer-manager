@@ -55,4 +55,4 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
     );
 }
 
-export const generateMetadata = generateEventMetadataFn('Hotel');
+export const generateMetadata = generateEventMetadataFn('Hotels');

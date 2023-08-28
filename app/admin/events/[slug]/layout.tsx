@@ -119,7 +119,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
         },
         {
             icon: <HistoryEduIcon />,
-            label: 'Training',
+            label: 'Trainings',
             privilege: Privilege.EventTrainingManagement,
             url: `/admin/events/${slug}/training`,
         },
