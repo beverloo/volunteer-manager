@@ -84,7 +84,7 @@ export const kTimeslotDefinition = z.object({
     dateStartsAt: z.string(),
     dateEndsAt: z.string(),
     //activity: kActivityDefinition.nullable(),
-    location: kLocationDefinition.nullable(),
+    location: kLocationDefinition,
 });
 
 /**

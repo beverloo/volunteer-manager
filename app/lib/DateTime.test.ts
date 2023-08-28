@@ -159,4 +159,17 @@ describe('DateTime', () => {
             }
         }
     });
+
+    it('should be able to roundtrip JSON serialization', () => {
+        const dateTime = DateTime.From('2023-08-28 01:25:00', 'Europe/London');
+
+        const serializedDateTime = JSON.stringify({ dateTime });
+        expect(serializedDateTime).toEqual('{\"dateTime\":1693182300000}');
+
+        const deserializedDateTime = JSON.parse(serializedDateTime, (key, value) => {
+            return DateTime.From(value, 'Europe/London');
+        });
+
+        expect(dateTime).toEqual(deserializedDateTime);
+    });
 });

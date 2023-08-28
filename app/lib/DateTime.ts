@@ -211,6 +211,12 @@ export class DateTime {
     }
 
     /**
+     * Returns a string representation of the stored date that will be used when this object is
+     * serialized using `JSON.stringify`. Note that a reviver is necessary to re-instantiate |this|.
+     */
+    toJSON(): number { return this.#value.unix() * 1000; }
+
+    /**
      * Returns a string representation of the stored date analogous to how JavaScript stringifies
      * other types of objects. Additional detail is added to enable debugging.
      */
