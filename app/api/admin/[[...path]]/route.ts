@@ -9,7 +9,7 @@ import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { serviceHealth, kServiceHealthDefinition } from '../serviceHealth';
-import { trainingExtra, kTrainingExtraDefinition,  } from '../training-extra';
+import { trainingExtra, kTrainingExtraDefinition } from '../trainingExtra';
 import { training, kTrainingDefinition } from '../training';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';

@@ -11,6 +11,7 @@ import { TrainingPendingAssignment } from './TrainingPendingAssignment';
 import { TrainingSelection } from './TrainingSelection';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tTrainings, tTrainingsExtra } from '@lib/database';
 
 export default async function EventTrainingPage(props: NextRouterParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
@@ -19,12 +20,36 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     if (!can(user, Privilege.EventTrainingManagement))
         notFound();
 
+    const extraParticipants = await db.selectFrom(tTrainingsExtra)
+        .where(tTrainingsExtra.eventId.equals(event.id))
+            .and(tTrainingsExtra.trainingExtraVisible.equals(/* true= */ 1))
+        .select({
+            id: tTrainingsExtra.trainingExtraId,
+            trainingExtraName: tTrainingsExtra.trainingExtraName,
+            trainingExtraEmail: tTrainingsExtra.trainingExtraEmail,
+            trainingExtraBirthdate: tTrainingsExtra.trainingExtraBirthdate,
+        })
+        .orderBy(tTrainingsExtra.trainingExtraName, 'asc')
+        .executeSelectMany();
+
+    const trainings = await db.selectFrom(tTrainings)
+        .where(tTrainings.eventId.equals(event.id))
+            .and(tTrainings.trainingVisible.equals(/* true= */ 1))
+        .select({
+            id: tTrainings.trainingId,
+            trainingCapacity: tTrainings.trainingCapacity,
+            trainingDate: tTrainings.trainingDate,
+            trainingLeadUserId: tTrainings.trainingLeadUserId,
+        })
+        .orderBy(tTrainings.trainingDate, 'asc')
+        .executeSelectMany();
+
     return (
         <>
             <TrainingSelection />
             <TrainingPendingAssignment />
-            <TrainingExternal />
-            <TrainingConfiguration />
+            <TrainingExternal event={event} participants={extraParticipants} />
+            <TrainingConfiguration event={event} trainings={trainings} />
         </>
     );
 }
