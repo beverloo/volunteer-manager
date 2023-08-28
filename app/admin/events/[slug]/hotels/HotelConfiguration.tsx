@@ -3,6 +3,9 @@
 
 'use client';
 
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -10,7 +13,10 @@ import Typography from '@mui/material/Typography';
 import type { HotelCreateDefinition } from '@app/api/admin/hotelCreate';
 import type { HotelDeleteDefinition } from '@app/api/admin/hotelDelete';
 import type { HotelUpdateDefinition } from '@app/api/admin/hotelUpdate';
+import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -60,17 +66,7 @@ export interface HotelConfigurationProps {
     /**
      * Information about the event for which hotel rooms are being shown.
      */
-    event: {
-        /**
-         * Short name of the event for which hotel rooms are being displayed.
-         */
-        shortName: string;
-
-        /**
-         * Unique slug of the event that these hotel rooms are owned by.
-         */
-        slug: string;
-    };
+    event: PageInfo['event'];
 
     /**
      * The hotel rooms that can be displayed by this component.
@@ -124,6 +120,20 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
         return response.success ? newRow : oldRow;
     }
 
+    const router = useRouter();
+
+    const onPublish = useCallback(async (domEvent: unknown, publish: boolean) => {
+        const response = await issueServerAction<UpdatePublicationDefinition>(
+            '/api/admin/update-publication', {
+                event: event.slug,
+                publishHotels: !!publish,
+            });
+
+        if (response.success)
+            router.refresh();
+
+    }, [ event, router ]);
+
     const columns: DataTableColumn[] = [
         {
             field: 'id',
@@ -176,9 +186,14 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 2 }}>
+            <Typography variant="h5" sx={{ pb: 1 }}>
                 {event.shortName} hotel & room options
             </Typography>
+            <PublishAlert published={event.publishHotels} sx={{ mb: 2 }} onClick={onPublish}>
+                { event.publishHotels
+                    ? 'Hotel room information has been published to volunteers.'
+                    : 'Hotel room information has not yet been published to volunteers.' }
+            </PublishAlert>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="hotel room" rows={props.rooms} columns={columns} />
         </Paper>

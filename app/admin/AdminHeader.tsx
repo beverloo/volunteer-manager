@@ -149,9 +149,11 @@ export function AdminHeader(props: AdminHeaderProps) {
 
                 </Menu>
 
-                <Button component={Link} href="/admin/volunteers" variant="text" color="inherit">
-                    Volunteers
-                </Button>
+                { can(user, Privilege.VolunteerAdministrator) &&
+                    <Button component={Link} href="/admin/volunteers" variant="text"
+                            color="inherit">
+                        Volunteers
+                    </Button> }
             </Stack>
             <Divider />
         </Paper>

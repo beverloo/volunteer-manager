@@ -20,7 +20,7 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
     const { user, event } = await verifyAccessAndFetchPageInfo(props.params);
 
     // Hotel management is more restricted than the general event administration.
-    if (!can(user, Privilege.EventAdministrator))
+    if (!can(user, Privilege.EventTrainingManagement))
         notFound();
 
     const eventsTable = tEvents.forUseInLeftJoin();

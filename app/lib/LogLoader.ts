@@ -76,6 +76,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventHotelUpdate]: (source, target, { eventName }) => {
         return `Update a hotel room for ${eventName}`;
     },
+    [LogType.AdminEventPublishInfo]: (source, target, { event, published, type }) => {
+        return `${published ? 'Published' : 'Unpublished'} ${type} information for ${event}`;
+    },
     [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
         return `Updated their role to ${role} for an event`;
     },

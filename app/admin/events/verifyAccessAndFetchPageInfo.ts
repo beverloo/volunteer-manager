@@ -24,6 +24,21 @@ export interface PageInfo {
         id: number;
 
         /**
+         * Whether information about schedule availability has been published to volunteers.
+         */
+        publishAvailability: boolean;
+
+        /**
+         * Whether information about the trainings has been published to volunteers.
+         */
+        publishHotels: boolean;
+
+        /**
+         * Whether information about the trainings has been published to volunteers.
+         */
+        publishTrainings: boolean;
+
+        /**
          * Short name of the event, as it should be presented in user interface.
          */
         shortName: string;
@@ -98,6 +113,9 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
         .where(tEvents.eventSlug.equals(params.slug))
         .select({
             id: tEvents.eventId,
+            publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
+            publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
+            publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),
             shortName: tEvents.eventShortName,
             slug: tEvents.eventSlug,
 

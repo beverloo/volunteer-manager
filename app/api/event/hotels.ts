@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tEvents, tHotels } from '@lib/database';
 
 /**
@@ -75,6 +76,7 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
         .where(tEvents.eventSlug.equals(request.event))
             .and(tHotels.hotelRoomVisible.equals(/* visible= */ 1))
         .select({
+            published: tEvents.publishHotels.equals(/* true= */ 1),
             hotelId: tHotels.hotelId,
             hotelName: tHotels.hotelName,
             hotelDescription: tHotels.hotelDescription,
@@ -89,6 +91,9 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
 
     const hotels = new Map<string, Response['hotels'][number]>();
     for (const row of configuration) {
+        if (!row.published && !can(props.user, Privilege.EventHotelManagement))
+            continue;  // this `row` has not yet been published
+
         if (!hotels.has(row.hotelName)) {
             hotels.set(row.hotelName, {
                 name: row.hotelName,
