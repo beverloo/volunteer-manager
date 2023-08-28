@@ -10,9 +10,7 @@ import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { HotelCreateDefinition } from '@app/api/admin/hotelCreate';
-import type { HotelDeleteDefinition } from '@app/api/admin/hotelDelete';
-import type { HotelUpdateDefinition } from '@app/api/admin/hotelUpdate';
+import type { HotelDefinition } from '@app/api/admin/hotel';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
@@ -82,8 +80,9 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     const { event } = props;
 
     async function commitAdd(): Promise<HotelConfigurationEntry> {
-        const response = await issueServerAction<HotelCreateDefinition>('/api/admin/hotel-create', {
+        const response = await issueServerAction<HotelDefinition>('/api/admin/hotel', {
             event: event.slug,
+            create: { /* empty payload */ }
         });
 
         if (!response.id)
@@ -100,21 +99,25 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     }
 
     async function commitDelete(oldRow: GridValidRowModel) {
-        await issueServerAction<HotelDeleteDefinition>('/api/admin/hotel-delete', {
+        await issueServerAction<HotelDefinition>('/api/admin/hotel', {
             event: event.slug,
-            id: oldRow.id,
+            delete: {
+                id: oldRow.id,
+            },
         });
     }
 
     async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
-        const response = await issueServerAction<HotelUpdateDefinition>('/api/admin/hotel-update', {
+        const response = await issueServerAction<HotelDefinition>('/api/admin/hotel', {
             event: event.slug,
-            id: oldRow.id,
-            hotelDescription: newRow.hotelDescription,
-            hotelName: newRow.hotelName,
-            roomName: newRow.roomName,
-            roomPeople: newRow.roomPeople,
-            roomPrice: newRow.roomPrice,
+            update: {
+                id: oldRow.id,
+                hotelDescription: newRow.hotelDescription,
+                hotelName: newRow.hotelName,
+                roomName: newRow.roomName,
+                roomPeople: newRow.roomPeople,
+                roomPrice: newRow.roomPrice,
+            }
         });
 
         return response.success ? newRow : oldRow;

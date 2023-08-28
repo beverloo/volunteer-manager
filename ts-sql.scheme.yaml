@@ -597,6 +597,76 @@ tables:
       CONSTRAINT `schedule_shift_id` FOREIGN KEY (`shift_id`) REFERENCES `shifts` (`shift_id`) ON DELETE CASCADE,
       CONSTRAINT `schedule_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: trainings_extra
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: training_extra_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: training_extra_name
+    type: varchar(128)
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: training_extra_email
+    type: varchar(128)
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: training_extra_birthdate
+    type: date
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: training_extra_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: trainings_extra
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (training_extra_id) USING BTREE
+    table: trainings_extra
+    columns:
+    - training_extra_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (training_extra_id)
+    table: trainings_extra
+    referencedTable: null
+    columns:
+    - training_extra_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `trainings_extra` (
+      `training_extra_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `training_extra_name` varchar(128) NOT NULL DEFAULT '',
+      `training_extra_email` varchar(128) NOT NULL DEFAULT '',
+      `training_extra_birthdate` date DEFAULT NULL,
+      `training_extra_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`training_extra_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: roles
   type: BASE TABLE
   comment: ""
@@ -965,6 +1035,105 @@ tables:
       `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: trainings
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: training_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: training_date
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: training_capacity
+    type: int(4)
+    nullable: false
+    default: "10"
+    comment: ""
+  - name: training_lead_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: training_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: trainings
+    columns:
+    - event_id
+    comment: ""
+  - name: trainings_lead_user_id
+    def: KEY trainings_lead_user_id (training_lead_user_id) USING BTREE
+    table: trainings
+    columns:
+    - training_lead_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (training_id) USING BTREE
+    table: trainings
+    columns:
+    - training_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (training_id)
+    table: trainings
+    referencedTable: null
+    columns:
+    - training_id
+    referencedColumns: []
+    comment: ""
+  - name: trainings_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: trainings
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: trainings_lead_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (training_lead_user_id) REFERENCES users (user_id)
+    table: trainings
+    referencedTable: users
+    columns:
+    - training_lead_user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `trainings` (
+      `training_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `training_date` datetime NOT NULL DEFAULT current_timestamp(),
+      `training_capacity` int(4) NOT NULL DEFAULT 10,
+      `training_lead_user_id` int(8) unsigned DEFAULT NULL,
+      `training_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`training_id`),
+      KEY `event_id` (`event_id`),
+      KEY `trainings_lead_user_id` (`training_lead_user_id`),
+      CONSTRAINT `trainings_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `trainings_lead_user_id` FOREIGN KEY (`training_lead_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: services
   type: BASE TABLE
   comment: ""
@@ -1674,6 +1843,26 @@ relations:
   - user_id
   parentCardinality: Zero or one
   def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
+  virtual: false
+- table: trainings
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: trainings
+  columns:
+  - training_lead_user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (training_lead_user_id) REFERENCES users (user_id)
   virtual: false
 - table: users_settings
   columns:
