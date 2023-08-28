@@ -45,6 +45,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
             privileges: 0n,
             activated: 1,
             sessionToken: 0,
+            events: [],
 
             ...params.user,
         });

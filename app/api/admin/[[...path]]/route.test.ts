@@ -5,9 +5,7 @@ import { Privilege } from '@app/lib/auth/Privileges';
 import { executeActionForTests, injectPermissionTestsForAction } from '../../ActionTestSupport';
 import { useMockConnection } from '@app/lib/database/Connection';
 
-import { hotelCreate, kHotelCreateDefinition } from '../hotelCreate';
-import { hotelDelete, kHotelDeleteDefinition } from '../hotelDelete';
-import { hotelUpdate, kHotelUpdateDefinition } from '../hotelUpdate';
+import { hotel, kHotelDefinition } from '../hotel';
 import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
@@ -24,7 +22,7 @@ describe('API Endpoints: /api/admin', () => {
     // hotelCreate
     // ---------------------------------------------------------------------------------------------
 
-    injectPermissionTestsForAction(kHotelCreateDefinition, hotelCreate, {
+    injectPermissionTestsForAction(kHotelDefinition, hotel, {
         request: { event: '2024' },
         insufficientPrivileges: Privilege.EventContentOverride |
                                 Privilege.VolunteerAdministrator
@@ -33,43 +31,15 @@ describe('API Endpoints: /api/admin', () => {
     it('requires a valid event', async () => {
         mockConnection.expect('selectOneRow');
 
-        const response = await executeActionForTests(kHotelCreateDefinition, hotelCreate, {
+        const response = await executeActionForTests(kHotelDefinition, hotel, {
             request: { event: 'invalid-event' },
             user: { privileges: BigInt(Privilege.Administrator) },
         });
 
         expect(response.ok).toBeTruthy();
         expect(await response.json()).toEqual({
-            /* failure response */
+            success: false,
         });
-    });
-
-    // ---------------------------------------------------------------------------------------------
-    // hotelDelete
-    // ---------------------------------------------------------------------------------------------
-
-    injectPermissionTestsForAction(kHotelDeleteDefinition, hotelDelete, {
-        request: { event: '2024', id: 42 },
-        insufficientPrivileges: Privilege.EventContentOverride |
-                                Privilege.VolunteerAdministrator
-    });
-
-    // ---------------------------------------------------------------------------------------------
-    // hotelUpdate
-    // ---------------------------------------------------------------------------------------------
-
-    injectPermissionTestsForAction(kHotelUpdateDefinition, hotelUpdate, {
-        request: {
-            event: '2024',
-            id: 42,
-            hotelDescription: 'Example description',
-            hotelName: 'Example name',
-            roomName: 'Example room',
-            roomPeople: 2,
-            roomPrice: 18000,
-        },
-        insufficientPrivileges: Privilege.EventContentOverride |
-                                Privilege.VolunteerAdministrator
     });
 
     // ---------------------------------------------------------------------------------------------
