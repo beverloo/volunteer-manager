@@ -28,22 +28,24 @@ describe('Program', () => {
 
         const program = Program.fromClient(activities, floors);
 
-        const serializedProgram = await serializeProgram(program);
-        const deserializedProgram = await deserializeProgram(serializedProgram);
+        for (const useCompression of [ true, false ]) {
+            const serializedProgram = await serializeProgram(program, useCompression);
+            const deserializedProgram = await deserializeProgram(serializedProgram, useCompression);
 
-        expect([ ...program.activities ]).toEqual([ ...deserializedProgram.activities ]);
-        expect([ ...program.floors ]).toEqual([ ...deserializedProgram.floors ]);
-        expect([ ...program.locations ]).toEqual([ ...deserializedProgram.locations ]);
-        expect([ ...program.timeslots ]).toEqual([ ...deserializedProgram.timeslots ]);
+            expect([ ...program.activities ]).toEqual([ ...deserializedProgram.activities ]);
+            expect([ ...program.floors ]).toEqual([ ...deserializedProgram.floors ]);
+            expect([ ...program.locations ]).toEqual([ ...deserializedProgram.locations ]);
+            expect([ ...program.timeslots ]).toEqual([ ...deserializedProgram.timeslots ]);
 
-        const firstTimeslot = [ ...program.timeslots ][0];
+            const firstTimeslot = [ ...program.timeslots ][0];
 
-        expect(program.getTimeslot(firstTimeslot.id)).not.toBeUndefined();
-        expect(deserializedProgram.getTimeslot(firstTimeslot.id)).not.toBeUndefined();
+            expect(program.getTimeslot(firstTimeslot.id)).not.toBeUndefined();
+            expect(deserializedProgram.getTimeslot(firstTimeslot.id)).not.toBeUndefined();
 
-        const left = program.getTimeslot(firstTimeslot.id)!.startDate;
-        const right = deserializedProgram.getTimeslot(firstTimeslot.id)!.startDate;
+            const left = program.getTimeslot(firstTimeslot.id)!.startDate;
+            const right = deserializedProgram.getTimeslot(firstTimeslot.id)!.startDate;
 
-        expect(left.isSame(right)).toBeTruthy();
+            expect(left.isSame(right)).toBeTruthy();
+        }
     });
 });

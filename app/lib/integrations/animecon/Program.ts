@@ -1,6 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import util from 'util';
+import zlib from 'zlib';
+
 import type { Activity, Floor } from './ClientTypes';
 import { DateTime } from '@lib/DateTime';
 
@@ -12,6 +15,26 @@ export interface ProgramActivity {
      * Unique ID of this activity which it can be safely referenced by.
      */
     id: number;
+
+    /**
+     * Name of this activity, as it can be presented in a user interface.
+     */
+    name: string;
+
+    /**
+     * Brief description of the activity, to give a quick ~few sentence overview of its goal.
+     */
+    description?: string;
+
+    /**
+     * URL of the activity, only when it has been specified in AnPlan.
+     */
+    url?: string;
+
+    /**
+     * Whether the activity is visible to the general public.
+     */
+    visible: boolean;
 }
 
 /**
@@ -129,6 +152,10 @@ export class Program {
 
             activities.push({
                 id: clientActivity.id,
+                name: clientActivity.title,
+                description: clientActivity.description ?? undefined,
+                url: clientActivity.url ?? undefined,
+                visible: clientActivity.visible,
             });
         }
 
@@ -213,10 +240,17 @@ export class Program {
 }
 
 /**
+ * Promisified version of the zlib deflate and inflate methods, which we use to compress the
+ * serialized program formats to make them cheaper to store.
+ */
+const zlibDeflate = util.promisify(zlib.deflate);
+const zlibInflate = util.promisify(zlib.inflate);
+
+/**
  * Serializes the given `program` to a `Uint8Array` containing an undefined, serialized variant of
  * that program. The serialized program can later be deserialized using `deserializeProgram()`.
  */
-export async function serializeProgram(program: Program): Promise<Uint8Array> {
+export async function serializeProgram(program: Program, compress?: boolean): Promise<Uint8Array> {
     const serializedJson = JSON.stringify({
         activities: [ ...program.activities ],
         floors: [ ...program.floors ],
@@ -226,15 +260,21 @@ export async function serializeProgram(program: Program): Promise<Uint8Array> {
         version: 1,  // in case we ever want to add stability
     });
 
-    return (new TextEncoder).encode(serializedJson);
+    return compress ? await zlibDeflate(serializedJson, { level: 7 })
+                    : (new TextEncoder).encode(serializedJson);
 }
 
 /**
  * Deserializes the given `programData` to a new instance of a Program. The stored variant is
  * expected to have been created by `serializeProgram`, and various data checks are done.
  */
-export async function deserializeProgram(programData: Uint8Array): Promise<Program> {
-    const serializedJson = (new TextDecoder).decode(programData);
+export async function deserializeProgram(programData: Uint8Array, uncompress?: boolean)
+    : Promise<Program>
+{
+    const serializedJson =
+        uncompress ? (await zlibInflate(programData)).toString()
+                   : (new TextDecoder).decode(programData);
+
     const deserializedData = JSON.parse(serializedJson, (key: string, value: any) => {
         switch (key) {
             case 'startDate':
