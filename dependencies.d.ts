@@ -6,3 +6,7 @@ declare module 'simple-sha256' {
     // browser environments, which would set us up for quite a vulnerable situation.
     export default function(input: string | Uint8Array): Promise<string>;
 }
+
+declare module 'set.prototype.symmetricdifference' {
+    export default function(set: Set, otherSet: Set): Set;
+}

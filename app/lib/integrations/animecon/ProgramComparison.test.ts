@@ -87,6 +87,8 @@ describe('ProgramComparison', () => {
 
         expect(comparison.additions[0].type).toEqual('activity');
         expect(comparison.additions[0].id).toEqual(2);
+
+        expect(comparison.removals).toHaveLength(0);
     });
 
     it('has the ability to recognise new floors in a program', () => {
@@ -122,6 +124,8 @@ describe('ProgramComparison', () => {
 
         expect(comparison.additions[0].type).toEqual('location');
         expect(comparison.additions[0].id).toEqual(101);
+
+        expect(comparison.removals).toHaveLength(0);
     });
 
     it('has the ability to recognise new timeslots in activities', () => {
@@ -149,10 +153,27 @@ describe('ProgramComparison', () => {
 
         expect(comparison.additions[0].type).toEqual('timeslot');
         expect(comparison.additions[0].id).toEqual(11);
+
+        expect(comparison.removals).toHaveLength(0);
     });
 
     it('has the ability to recognise removed activities', () => {
-        // TODO
+        const currentProgram = Program.fromClient([
+            createSimpleActivity({ id: 1, title: 'Example activity' }),
+            createSimpleActivity({ id: 2, title: 'A not so interesting activity' }),
+        ], [ /* floors */ ]);
+
+        const updatedProgram = Program.fromClient([
+            createSimpleActivity({ id: 1, title: 'Example activity' }),
+        ], [ /* floors */ ]);
+
+        const comparison = comparePrograms(currentProgram, updatedProgram);
+        expect(comparison.removals).toHaveLength(1);
+
+        expect(comparison.removals[0].type).toEqual('activity');
+        expect(comparison.removals[0].id).toEqual(2);
+
+        expect(comparison.additions).toHaveLength(0);
     });
 
     it('has the ability to recognise removed floors', () => {
@@ -160,11 +181,74 @@ describe('ProgramComparison', () => {
     });
 
     it('has the ability to recognise removed locations', () => {
-        // TODO
+        const currentProgram = Program.fromClient([
+            createSimpleActivity({
+                id: 1,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 11,
+                        location: createSimpleLocation({ id: 100 }),
+                    }),
+                    createSimpleTimeslot({
+                        id: 11,
+                        location: createSimpleLocation({ id: 101 }),
+                    }),
+                ],
+            }),
+        ], [ /* floors */ ]);
+
+        const updatedProgram = Program.fromClient([
+            createSimpleActivity({
+                id: 1,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 11,
+                        location: createSimpleLocation({ id: 100 }),
+                    }),
+                    createSimpleTimeslot({
+                        id: 11,
+                        location: createSimpleLocation({ id: 100 }),  // <-- moved
+                    }),
+                ],
+            }),
+        ], [ /* floors */ ]);
+
+        const comparison = comparePrograms(currentProgram, updatedProgram);
+        expect(comparison.removals).toHaveLength(1);
+
+        expect(comparison.removals[0].type).toEqual('location');
+        expect(comparison.removals[0].id).toEqual(101);
+
+        expect(comparison.additions).toHaveLength(0);
     });
 
     it('has the ability to recognise removed timeslots', () => {
-        // TODO
+        const currentProgram = Program.fromClient([
+            createSimpleActivity({
+                id: 1,
+                timeslots: [
+                    createSimpleTimeslot({ id: 10 }),
+                    createSimpleTimeslot({ id: 11 }),
+                ],
+            }),
+        ], [ /* floors */ ]);
+
+        const updatedProgram = Program.fromClient([
+            createSimpleActivity({
+                id: 1,
+                timeslots: [
+                    createSimpleTimeslot({ id: 10 }),
+                ],
+            }),
+        ], [ /* floors */ ]);
+
+        const comparison = comparePrograms(currentProgram, updatedProgram);
+        expect(comparison.removals).toHaveLength(1);
+
+        expect(comparison.removals[0].type).toEqual('timeslot');
+        expect(comparison.removals[0].id).toEqual(11);
+
+        expect(comparison.additions).toHaveLength(0);
     });
 
     it('has the ability to recognise updated activities', () => {

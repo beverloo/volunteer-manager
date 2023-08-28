@@ -47,6 +47,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form-mui": "^6.5.1",
     "scrypt-js": "^3.0.1",
+    "set.prototype.symmetricdifference": "^1.1.0",
     "simple-sha256": "^1.1.0",
     "ts-sql-query": "^1.54.0",
     "tss-react": "^4.9.0",
