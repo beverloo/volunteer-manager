@@ -17,48 +17,52 @@ import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { requireUser } from '@lib/auth/getUser';
+
+import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
+
 
 /**
  * Fetch the information about the event identified by `eventSlug` that is applicable to the given
  * `user`, with access checks being in place. The menu will be rendered based on this information.
  */
 async function fetchEventSidebarInformation(user: User, eventSlug: string) {
+    const dbInstance = db;
+    const pendingApplicationsJoin = dbInstance.selectFrom(tUsersEvents)
+        .where(tUsersEvents.registrationStatus.equals(RegistrationStatus.Registered))
+        .select({
+            eventId: tUsersEvents.eventId,
+            teamId: tUsersEvents.teamId,
+            applications: dbInstance.count(tUsersEvents.userId),
+        })
+        .forUseInQueryAs('PendingApplications')
+        .forUseInLeftJoinAs('PendingApplications');
 
-    return {
-        event: {
-            name: 'AnimeCon 2024',
-            slug: eventSlug,
-        },
-
-        availabilityAvailable: false,
-        hotelAvailable: false,
-        trainingAvailable: false,
-
-        teams: [
-            {
-                name: 'Crew',
-                slug: 'gophers.team',
-                color: '#5d4037',
-                defaultOpen: false,
-                pendingApplications: 12,
+    return await dbInstance.selectFrom(tEvents)
+        .innerJoin(tEventsTeams)
+            .on(tEventsTeams.eventId.equals(tEvents.eventId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tEventsTeams.teamId))
+        .leftJoin(pendingApplicationsJoin)
+            .on(pendingApplicationsJoin.eventId.equals(tEvents.eventId))
+            .and(pendingApplicationsJoin.teamId.equals(tTeams.teamId))
+        .where(tEvents.eventSlug.equals(eventSlug))
+        .select({
+            event: {
+                name: tEvents.eventShortName,
+                slug: tEvents.eventSlug,
             },
-            {
-                name: 'Hosts',
-                slug: 'hosts.team',
-                color: '#880e4f',
-                defaultOpen: false,
-                pendingApplications: 0,
-            },
-            {
-                name: 'Stewards',
-                slug: 'stewards.team',
-                color: '#303f9f',
-                defaultOpen: true,
-                pendingApplications: 1,
-            }
-        ],
-    };
+            teams: dbInstance.aggregateAsArray({
+                id: tTeams.teamId,
+                name: tTeams.teamName,
+                slug: tTeams.teamEnvironment,
+                color: tTeams.teamColourLightTheme,
+                pendingApplications: pendingApplicationsJoin.applications,
+            }),
+        })
+        .groupBy(tEvents.eventId)
+        .executeSelectNoneOrOne();
 }
 
 /**
@@ -97,6 +101,10 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     if (!info)
         notFound();
 
+    // Sort the teams included in the |info|. While JSON_ARRAYAGG accepts its own ORDER BY clause,
+    // this is not yet supported by `ts-sql-query`. This'll do in the mean time.
+    info.teams.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
             icon: <GridViewIcon />,
@@ -125,7 +133,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             icon: <PeopleIcon htmlColor={team.color} />,
             label: team.name,
 
-            defaultOpen: team.defaultOpen,
+            defaultOpen: false,  // FIXME
             menu: [
                 {
                     icon: <NewReleasesIcon />,

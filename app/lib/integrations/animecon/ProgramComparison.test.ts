@@ -7,11 +7,6 @@ import { ProgramUpdateSeverity, comparePrograms } from './ProgramComparison';
 
 type PartialWithRequiredId<T> = Partial<T> & { id: number};
 
-/**
- * Multiplier for IDs across generated programs, to maintain uniqueness without pushing complexity.
- */
-const kNestedIdMultiplier = 1;
-
 describe('ProgramComparison', () => {
     function createSimpleFloor(floor: PartialWithRequiredId<Floor>): Floor {
         return {
