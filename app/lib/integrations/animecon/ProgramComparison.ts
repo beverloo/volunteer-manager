@@ -3,16 +3,9 @@
 
 import symmetricDifference from 'set.prototype.symmetricdifference';
 
-import type { Program } from './Program';
-
-/**
- * The severity of a detected change in the program.
- */
-export enum ProgramChangeSeverity {
-    Major = 'Major',
-    Minor = 'Minor',
-    Low = 'Low',
-}
+import { DateTime } from '@lib/DateTime';
+import type { ProgramActivity, ProgramFloor, ProgramLocation, ProgramTimeslot, Program }
+    from './Program';
 
 /**
  * Describes an addition to the program, of any kind.
@@ -27,6 +20,41 @@ export interface ProgramAddition {
      * ID of the {type} that was added, which should be checked in the `updated` program.
      */
     id: number;
+}
+
+/**
+ * The severity of a detected change in the program.
+ */
+export enum ProgramUpdateSeverity {
+    Major = 2,
+    Minor = 1,
+    Low = 0,
+}
+
+/**
+ * Describes an update that happened in the program, of any kind.
+ */
+export interface ProgramUpdate {
+    /**
+     * The type of update that has taken place in the program.
+     */
+    type: 'activity' | 'location' | 'timeslot';
+
+    /**
+     * ID of the {type} that was updated, which can be compared between the `current` and the
+     * `updated` programs.
+     */
+    id: number;
+
+    /**
+     * Array containing each field in the {type} that have been updated.
+     */
+    fields: string[];
+
+    /**
+     * Severity of the change, based on the affected `fields`.
+     */
+    severity: ProgramUpdateSeverity;
 }
 
 /**
@@ -54,18 +82,95 @@ export interface ProgramComparison {
     additions: ProgramAddition[];
 
     /**
+     * Updates that were made across various entities in the program. Different severities.
+     */
+    updates: ProgramUpdate[];
+
+    /**
      * Removals that were made from the program. These are all considered as major severity.
      */
     removals: ProgramRemoval[];
 }
 
 /**
+ * Defines the type of signature of a record containing the update severities of fields of <T>.
+ */
+type SeverityRecord<T> = { [k in keyof T]: ProgramUpdateSeverity };
+
+/**
+ * Associated severities of updates made to program activities.
+ */
+const kActivityUpdateSeverities: SeverityRecord<Omit<ProgramActivity, 'id'>> = {
+    name: ProgramUpdateSeverity.Low,
+    description: ProgramUpdateSeverity.Low,
+    url: ProgramUpdateSeverity.Low,
+    visible: ProgramUpdateSeverity.Minor,
+};
+
+/**
+ * Associated severities of updates made to program locations.
+ */
+const kLocationUpdateSeverities: SeverityRecord<Omit<ProgramLocation, 'id'>> = {
+    name: ProgramUpdateSeverity.Low,
+    floorId: ProgramUpdateSeverity.Low,
+};
+
+/**
+ * Associated severities of updates made to program timeslots.
+ */
+const kTimeslotUpdateSeverities: SeverityRecord<Omit<ProgramTimeslot, 'id'>> = {
+    activityId: ProgramUpdateSeverity.Low,
+    locationId: ProgramUpdateSeverity.Minor,
+    startDate: ProgramUpdateSeverity.Major,
+    endDate: ProgramUpdateSeverity.Major,
+};
+
+/**
+ * Compares `current` to `updated`, where detected changes will be flagged with a severity of the
+ * associated entry in the `fieldSeverities` record.
+ */
+function compare<T>(current: T, updated: T, fieldSeverities: SeverityRecord<T>)
+    : Omit<ProgramUpdate, 'type' | 'id'> | undefined
+{
+    let highestSeverity = ProgramUpdateSeverity.Low;
+    const fields = [];
+
+    for (const [ field, severity ] of Object.entries(fieldSeverities)) {
+        let equal: boolean;
+
+        switch (field) {
+            case 'startDate':
+            case 'endDate':
+                equal = (current[field as keyof T] as DateTime).isSame(
+                    updated[field as keyof T] as DateTime);
+                break;
+
+            default:
+                equal = current[field as keyof T] === updated[field as keyof T];
+                break;
+        }
+
+        if (!equal) {
+            highestSeverity = Math.max(highestSeverity, severity as ProgramUpdateSeverity);
+            fields.push(field);
+        }
+    }
+
+    return fields.length ? { fields, severity: highestSeverity } : undefined;
+}
+
+/**
  * Compares the `current` program against the `updated` one, and returns the changes that were made
  * between them. Additions are considered to be low severity, removals major severity, whereas
  * program updates have different severity levels based on what changed.
+ *
+ * This comparison carefully uses set and set operations to minimise programmatic complexity of
+ * running the comparison, resulting in an amortized time complexity of O(n+k) plus the cost of
+ * comparisons on individual fields - which will generally end up doing string comparisons.
  */
 export function comparePrograms(current: Program, updated: Program): ProgramComparison {
     const additions: ProgramAddition[] = [];
+    const updates: ProgramUpdate[] = [];
     const removals: ProgramRemoval[] = [];
 
     // ---------------------------------------------------------------------------------------------
@@ -91,19 +196,40 @@ export function comparePrograms(current: Program, updated: Program): ProgramComp
     const seenActivitiesInUpdatedProgram = new Set();
     for (const updatedActivity of updated.activities) {
         seenActivitiesInUpdatedProgram.add(updatedActivity.id);
-        // TODO: Process activity update
+
+        const currentActivity = current.getActivity(updatedActivity.id);
+        if (!currentActivity)
+            continue;  // the |updatedActivity| did not exist in the |current| program
+
+        const partialUpdate = compare(currentActivity, updatedActivity, kActivityUpdateSeverities);
+        if (partialUpdate)
+            updates.push({ type: 'activity', id: updatedActivity.id, ...partialUpdate });
     }
 
     const seenLocationsInUpdatedProgram = new Set();
     for (const updatedLocation of updated.locations) {
         seenLocationsInUpdatedProgram.add(updatedLocation.id);
-        // TODO: Process location update
+
+        const currentLocation = current.getLocation(updatedLocation.id);
+        if (!currentLocation)
+            continue;  // the |updatedLocation| did not exist in the |current| program
+
+        const partialUpdate = compare(currentLocation, updatedLocation, kLocationUpdateSeverities);
+        if (partialUpdate)
+            updates.push({ type: 'location', id: updatedLocation.id, ...partialUpdate });
     }
 
     const seenTimeslotsInUpdatedProgram = new Set();
     for (const updatedTimeslot of updated.timeslots) {
         seenTimeslotsInUpdatedProgram.add(updatedTimeslot.id);
-        // TODO: Process timeslot update
+
+        const currentTimeslot = current.getTimeslot(updatedTimeslot.id);
+        if (!currentTimeslot)
+            continue;  // the |updatedTimeslot| did not exist in the |current| program
+
+        const partialUpdate = compare(currentTimeslot, updatedTimeslot, kTimeslotUpdateSeverities);
+        if (partialUpdate)
+            updates.push({ type: 'timeslot', id: updatedTimeslot.id, ...partialUpdate });
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -144,5 +270,5 @@ export function comparePrograms(current: Program, updated: Program): ProgramComp
             removals.push({ type: 'timeslot', id });
     }
 
-    return { additions, removals };
+    return { additions, updates, removals };
 }
