@@ -21,6 +21,7 @@ jobs:
           git pull --rebase
           npm install
           npm run-script build-prod
+          docker system prune -f
           docker stop volunteer-manager-docker
           docker rm volunteer-manager-docker
           docker run -d --name volunteer-manager-docker --restart always -p 3001:3001 volunteer-manager-docker:latest
