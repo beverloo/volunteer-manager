@@ -3,8 +3,8 @@
 
 import { z } from 'zod';
 
-import type { Activity, ActivityType, Floor, Timeslot } from './ClientTypes';
-import { kActivityDefinition, kActivityTypeDefinition, kFloorDefinition, kTimeslotDefinition }
+import type { Activity, ActivityType, FloorApi, Timeslot } from './ClientTypes';
+import { kActivityDefinition, kActivityTypeDefinition, kFloorApiDefinition, kTimeslotDefinition }
     from './ClientTypes';
 
 import { ClientAuth, type ClientAuthSettings } from './ClientAuth';
@@ -51,7 +51,8 @@ type GetTimeslotsFilters = {
 };
 
 /**
- * Client for the AnimeCon Integration, loosely based on the official REST API Client.
+ * Client for the AnimeCon Integration, loosely based on the official REST API Client. Tests can
+ * inject an alternative to `globalThis.fetch()` to the constructor in order to mock network access.
  *
  * @see https://github.com/AnimeNL/php-rest-api-client
  * @see https://github.com/AnimeNL/php-rest-api-client/blob/master/src/AnimeConClient.php
@@ -59,12 +60,15 @@ type GetTimeslotsFilters = {
 export class Client {
     #apiEndpoint: string;
     #auth: ClientAuth;
+    #fetch: typeof globalThis.fetch;
 
-    constructor(settings: ClientSettings) {
+    constructor(settings: ClientSettings, injectedFetch?: typeof globalThis.fetch) {
         const { apiEndpoint, ...authSettings } = settings;
 
+        this.#fetch = injectedFetch ?? globalThis.fetch;
+
         this.#apiEndpoint = apiEndpoint;
-        this.#auth = new ClientAuth(authSettings);
+        this.#auth = new ClientAuth(this.#fetch, authSettings);
     }
 
     /**
@@ -89,9 +93,9 @@ export class Client {
      * Returns the floors, for which no filters are available. This will issue an authenticated API
      * call to the AnimeCon API endpoint.
      */
-    async getFloors(): Promise<Floor[]> {
+    async getFloors(): Promise<FloorApi[]> {
         const response = await this.issueRequest('floors.json');
-        return await z.array(kFloorDefinition).parseAsync(response);
+        return await z.array(kFloorApiDefinition).parseAsync(response);
     }
 
     /**
@@ -109,8 +113,30 @@ export class Client {
      * valid JWT token is available, and then issue the request to obtain the response.
      */
     private async issueRequest(relativePath: string, filters?: Filters): Promise<any[]> {
-        // TODO: Authenticate (w/ cache)
-        // TODO: Compose the API request (`filters` in a query)
-        return [];
+        const authenticationToken = await this.#auth.authenticate();
+        if (!authenticationToken)
+            throw new Error('Unable to obtain an authentication token from the AnimeCon server.');
+
+        const urlParameters = new URLSearchParams();
+        if (filters !== undefined) {
+            for (const [ key, value ] of Object.entries(filters))
+                urlParameters.set(key, `${value}`);
+        }
+
+        const url = `${this.#apiEndpoint}/${relativePath}?${urlParameters.toString()}`;
+        const response = await this.#fetch(url, {
+            method: 'GET',
+            headers: [
+                [ 'Authorization', `Bearer ${authenticationToken.token}`],
+            ],
+            next: {
+                revalidate: /* seconds= */ 300,
+            }
+        });
+
+        if (!response.ok)
+            throw new Error(`Unable to call into the AnimeCon API (${response.statusText})`);
+
+        return await response.json();
     }
 }

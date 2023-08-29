@@ -54,6 +54,21 @@ export const kFloorDefinition = z.object({
 export type Floor = z.infer<typeof kFloorDefinition>;
 
 /**
+ * Type definition for a floor as it will be returned by the `floors.json` API. This seems
+ * especially useless, but at least this sets our expectations straight.
+ *
+ * @see https://github.com/AnimeNL/rest-api/blob/master/src/Entity/Anplan/Floor.php (maybe?)
+ */
+export const kFloorApiDefinition = z.object({
+    name: z.string(),
+});
+
+/**
+ * Export of the FloorApi type, derived from the definition.
+ */
+export type FloorApi = z.infer<typeof kFloorApiDefinition>;
+
+/**
  * Type definition for a location, which is one of the locations in which activities can be hosted
  * during an event. Locations are identified by a unique ID and happen on a set floor.
  *

@@ -4,8 +4,10 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { Client as AnimeConClient } from '@lib/integrations/animecon/Client';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executePrompt } from './vertexAi';
+import { readSettings } from '@lib/Settings';
 
 /**
  * The services for which health check can be carried out.
@@ -49,11 +51,43 @@ type Response = ServiceHealthDefinition['response'];
  * Runs a health check for the AnimeCon integration.
  */
 async function runAnimeConHealthCheck(): Promise<Response> {
-    return {
-        status: 'warning',
-        service: 'AnimeCon',
-        message: 'Health check has not been implemented yet',
-    };
+    try {
+        const settings = await readSettings([
+            'integration-animecon-api-endpoint',
+            'integration-animecon-auth-endpoint',
+            'integration-animecon-client-id',
+            'integration-animecon-client-secret',
+            'integration-animecon-username',
+            'integration-animecon-password',
+            'integration-animecon-scopes',
+        ]);
+
+        const client = new AnimeConClient({
+            apiEndpoint: settings['integration-animecon-api-endpoint']!,
+            authEndpoint: settings['integration-animecon-auth-endpoint']!,
+            clientId: settings['integration-animecon-client-id']!,
+            clientSecret: settings['integration-animecon-client-secret']!,
+            username: settings['integration-animecon-username']!,
+            password: settings['integration-animecon-password']!,
+            scopes: settings['integration-animecon-scopes']!,
+        });
+
+        const activityTypes = await client.getActivityTypes();
+        if (!activityTypes.length)
+            throw new Error('No activity types were returned.');
+
+        return {
+            status: 'success',
+            service: 'AnimeCon',
+            message: `The integration is functional (${activityTypes.length} activity types)`,
+        };
+    } catch (error: any) {
+        return {
+            status: 'error',
+            service: 'AnimeCon',
+            message: error.message,
+        };
+    }
 }
 
 /**
