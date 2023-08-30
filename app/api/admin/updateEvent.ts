@@ -8,7 +8,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tEvents } from '@lib/database';
+import db, { tEvents, tEventsTeams } from '@lib/database';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/update-event.
@@ -29,32 +29,29 @@ export const kUpdateEventDefinition = z.object({
          * Event settings that should be updated, if any.
          */
         eventSettings: z.object({
-            /**
-             * Full name of the event as it should be presented to visitors.
-             */
             name: z.string(),
-
-            /**
-             * Short name of the event as it should be presented to visitors.
-             */
             shortName: z.string(),
-
-            /**
-             * ISO date and time at which the event should start.
-             */
             startTime: z.string(),
-
-            /**
-             * ISO date and time at which the event should finish.
-             */
             endTime: z.string(),
-
         }).optional(),
 
         /**
          * The updated event slug that this event should be changed to.
          */
         eventSlug: z.string().optional(),
+
+        /**
+         * The team that should be updated as part of this event's settings.
+         */
+        team: z.object({
+            id: z.number(),
+
+            enableTeam: z.boolean(),
+            enableContent: z.boolean(),
+            enableRegistration: z.boolean(),
+            enableSchedule: z.boolean(),
+            targetSize: z.number(),
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -160,6 +157,42 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         }
 
         return { success: !!affectedRows, slug: request.eventSlug };
+    }
+
+    if (request.team !== undefined) {
+        const affectedRows = await db.insertInto(tEventsTeams)
+            .set({
+                eventId: event.eventId,
+                teamId: request.team.id,
+                teamTargetSize: request.team.targetSize,
+                enableTeam: request.team.enableTeam ? 1 : 0,
+                enableContent: request.team.enableContent ? 1 : 0,
+                enableRegistration: request.team.enableRegistration ? 1 : 0,
+                enableSchedule: request.team.enableSchedule ? 1 : 0,
+            })
+            .onConflictDoUpdateSet({
+                teamTargetSize: request.team.targetSize,
+                enableTeam: request.team.enableTeam ? 1 : 0,
+                enableContent: request.team.enableContent ? 1 : 0,
+                enableRegistration: request.team.enableRegistration ? 1 : 0,
+                enableSchedule: request.team.enableSchedule ? 1 : 0,
+            })
+            .executeInsert(/* min= */ 0, /* max= */ 1);
+
+        if (affectedRows > 0) {
+            await Log({
+                type: LogType.AdminUpdateEvent,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                data: {
+                    action: 'team settings',
+                    event: event.shortName,
+                    team: request.team.id,
+                }
+            });
+        }
+
+        return { success: !!affectedRows };
     }
 
     return { success: false };

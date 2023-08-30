@@ -12,6 +12,8 @@ import type { DBConnection } from "../Connection";
 export class EventsTeamsTable extends Table<DBConnection, 'EventsTeamsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
+    teamTargetSize = this.column('team_target_size', 'int');
+    enableTeam = this.columnWithDefaultValue('enable_team', 'int');
     enableContent = this.columnWithDefaultValue('enable_content', 'int');
     enableRegistration = this.columnWithDefaultValue('enable_registration', 'int');
     enableSchedule = this.columnWithDefaultValue('enable_schedule', 'int');

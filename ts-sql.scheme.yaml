@@ -394,6 +394,16 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_target_size
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: enable_team
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
   - name: enable_content
     type: tinyint(1)
     nullable: false
@@ -465,6 +475,8 @@ tables:
     CREATE TABLE `events_teams` (
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
+      `team_target_size` int(4) unsigned NOT NULL,
+      `enable_team` tinyint(1) NOT NULL DEFAULT 0,
       `enable_content` tinyint(1) NOT NULL DEFAULT 0,
       `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
       `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
@@ -666,7 +678,7 @@ tables:
       `training_extra_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`training_extra_id`),
       KEY `event_id` (`event_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: roles
   type: BASE TABLE
   comment: ""
@@ -1133,7 +1145,7 @@ tables:
       KEY `trainings_lead_user_id` (`training_lead_user_id`),
       CONSTRAINT `trainings_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
       CONSTRAINT `trainings_lead_user_id` FOREIGN KEY (`training_lead_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: services
   type: BASE TABLE
   comment: ""

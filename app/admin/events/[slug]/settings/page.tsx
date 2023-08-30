@@ -10,6 +10,7 @@ import { SettingsHeader } from './SettingsHeader';
 import { TeamSettings } from './TeamSettings';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tTeams, tEventsTeams } from '@lib/database';
 
 /**
  * The <EventSettingsPage> page allows event administrators to make changes to an event, such as its
@@ -22,11 +23,29 @@ export default async function EventSettingsPage(props: NextRouterParams<'slug'>)
     if (!can(user, Privilege.EventAdministrator))
         notFound();
 
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+
+    const teams = await db.selectFrom(tTeams)
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(event.id))
+            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
+        .select({
+            id: tTeams.teamId,
+            name: tTeams.teamName,
+            targetSize: eventsTeamsJoin.teamTargetSize,
+            enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
+            enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
+            enableRegistration: eventsTeamsJoin.enableRegistration.equals(/* true= */ 1),
+            enableSchedule: eventsTeamsJoin.enableSchedule.equals(/* true= */ 1),
+        })
+        .orderBy(tTeams.teamName, 'asc')
+        .executeSelectMany();
+
     return (
         <>
             <SettingsHeader event={event} />
             <EventSettings event={event} />
-            <TeamSettings event={event} />
+            <TeamSettings event={event} teams={teams} />
         </>
     );
 }
