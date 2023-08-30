@@ -93,7 +93,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
                               : `Deactivated their account of ${target?.name}`;
     },
     [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
-    [LogType.AdminUpdateEvent]: (source, target, { event }) => `Updated settings for ${event}`,
+    [LogType.AdminUpdateEvent]: (source, target, { action, event }) => {
+        return `Updated ${action ?? 'settings'} for ${event}`;
+    },
     [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
     [LogType.AdminUpdatePermission]: (source, target, data) => {
         return `Updated the permissions of ${target?.name}`;

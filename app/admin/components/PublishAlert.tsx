@@ -5,16 +5,20 @@
 
 import { useCallback, useState } from 'react';
 
-import Alert, { type AlertProps, alertClasses } from '@mui/material/Alert';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack, { stackClasses } from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { alertClasses } from '@mui/material/Alert';
 import { styled } from '@mui/material/styles';
+
+import { TransitionAlert, type TransitionAlertProps } from './TransitionAlert';
 
 /**
  * Props accepted by the <PublishAlert> component.
  */
-export interface PublishAlertProps extends Omit<AlertProps, 'elevation' | 'onClick' | 'severity'> {
+export interface PublishAlertProps
+    extends Omit<TransitionAlertProps, 'elevation' | 'onClick' | 'severity'>
+{
     /**
      * Callback that should be invoked when the publication state should change.
      */
@@ -45,7 +49,7 @@ export const PublishAlert = styled((props: React.PropsWithChildren<PublishAlertP
     }, [ onClick, published ]);
 
     return (
-        <Alert {...rest} severity={ !!published ? 'success' : 'error' }>
+        <TransitionAlert {...rest} severity={ !!published ? 'success' : 'error' }>
             <Stack direction="row">
                 <Typography variant="body2">
                     {children}
@@ -56,11 +60,10 @@ export const PublishAlert = styled((props: React.PropsWithChildren<PublishAlertP
                         { !!published ? 'Unpublish' : 'Publish' }
                     </LoadingButton> }
             </Stack>
-        </Alert>
+        </TransitionAlert>
     );
 })(({ theme }) => ({
     [`&.${alertClasses.root}`]: {
-        transition: theme.transitions.create('background-color'),
         alignItems: 'center',
     },
     [`& .${alertClasses.message}`]: {

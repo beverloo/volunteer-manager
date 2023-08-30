@@ -21,6 +21,11 @@ export const kUpdateEventDefinition = z.object({
         event: z.string(),
 
         /**
+         * Whether the event should be hidden. Will be updated when set to a value.
+         */
+        eventHidden: z.boolean().optional(),
+
+        /**
          * Event settings that should be updated, if any.
          */
         eventSettings: z.object({
@@ -72,7 +77,30 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
     if (!event)
         notFound();
 
-    if (request.eventSettings) {
+    if (request.eventHidden !== undefined) {
+        const affectedRows = await db.update(tEvents)
+            .set({
+                eventHidden: request.eventHidden ? 1 : 0,
+            })
+            .where(tEvents.eventId.equals(event.eventId))
+            .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+        if (affectedRows > 0) {
+            await Log({
+                type: LogType.AdminUpdateEvent,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                data: {
+                    action: 'the publication status',
+                    event: event.shortName,
+                }
+            });
+        }
+
+        return { success: !!affectedRows };
+    }
+
+    if (request.eventSettings !== undefined) {
         const affectedRows = await db.update(tEvents)
             .set({
                 eventName: request.eventSettings.name,
@@ -89,9 +117,10 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 data: {
+                    action: 'event settings',
                     event: event.shortName,
                 }
-            })
+            });
         }
 
         return { success: !!affectedRows };
