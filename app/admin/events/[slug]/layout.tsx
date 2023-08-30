@@ -3,7 +3,6 @@
 
 import { notFound } from 'next/navigation';
 
-import DifferenceIcon from '@mui/icons-material/Difference';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -11,6 +10,7 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
@@ -124,6 +124,12 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             url: `/admin/events/${slug}/training`,
         },
         {
+            icon: <SettingsIcon />,
+            label: 'Settings',
+            privilege: Privilege.EventAdministrator,
+            url: `/admin/events/${slug}/settings`,
+        },
+        {
             divider: true,
         }
     ];
@@ -145,11 +151,6 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     icon: <FeedOutlinedIcon />,
                     label: 'Content',
                     url: `/admin/events/${slug}/${team.slug}/content`,
-                },
-                {
-                    icon: <DifferenceIcon />,
-                    label: 'Retention',
-                    url: `/admin/events/${slug}/${team.slug}/retention`,
                 },
                 {
                     icon: <PersonIcon />,

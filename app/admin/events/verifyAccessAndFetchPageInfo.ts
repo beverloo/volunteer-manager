@@ -24,6 +24,12 @@ export interface PageInfo {
         id: number;
 
         /**
+         * Whether the event is hidden from the public, and all existing admin access should be
+         * revoked from senior+ level volunteers.
+         */
+        hidden: boolean;
+
+        /**
          * Whether information about schedule availability has been published to volunteers.
          */
         publishAvailability: boolean;
@@ -44,9 +50,24 @@ export interface PageInfo {
         shortName: string;
 
         /**
+         * Full name of the event, including its theme.
+         */
+        name: string;
+
+        /**
          * Slug of the event, through which it can be identified in the URL.
          */
         slug: string;
+
+        /**
+         * Time at which the first shifts of the event will commence.
+         */
+        startTime: Date;
+
+        /**
+         * Time at which the final shifts of the event will finish.
+         */
+        endTime: Date;
     };
 
     /**
@@ -113,11 +134,15 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
         .where(tEvents.eventSlug.equals(params.slug))
         .select({
             id: tEvents.eventId,
+            hidden: tEvents.eventHidden.equals(/* true= */ 1),
+            name: tEvents.eventName,
+            shortName: tEvents.eventShortName,
+            slug: tEvents.eventSlug,
+            startTime: tEvents.eventStartTime,
+            endTime: tEvents.eventEndTime,
             publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
             publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),
-            shortName: tEvents.eventShortName,
-            slug: tEvents.eventSlug,
 
             // For internal use:
             userAdminAccess: rolesJoin.roleAdminAccess,
