@@ -3,6 +3,7 @@
 
 'use client';
 
+import deepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { DataGrid, GridRowModes, GridToolbarQuickFilter } from '@mui/x-data-grid';
@@ -259,7 +260,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     }, [ commitDelete, deleteCandidate, setDeleteCandidate, setDeleteLoading ]);
 
     const doEdit = useCallback(async (newRow: RowModel, oldRow: RowModel) => {
-        if (!commitEdit)
+        if (!commitEdit || deepEqual(newRow, oldRow))
             return oldRow;
 
         setLoading(true);

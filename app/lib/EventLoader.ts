@@ -5,8 +5,8 @@ import type { User } from './auth/User';
 import { Event } from './Event';
 import { Privilege, can } from './auth/Privileges';
 
-import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
 import { RegistrationStatus } from './database/Types';
+import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
