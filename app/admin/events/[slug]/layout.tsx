@@ -42,6 +42,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
     return await dbInstance.selectFrom(tEvents)
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tEvents.eventId))
+            .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
         .leftJoin(pendingApplicationsJoin)

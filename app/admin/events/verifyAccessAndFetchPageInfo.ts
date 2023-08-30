@@ -170,6 +170,7 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(event.id))
             .and(tEventsTeams.teamId.equals(tTeams.teamId))
+            .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
         .where(tTeams.teamEnvironment.equals(params.team!))
         .select({
             id: tTeams.teamId,

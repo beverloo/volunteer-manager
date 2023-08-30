@@ -59,6 +59,7 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
     const eventInfos = await db.selectFrom(tEvents)
         .leftJoin(eventsTeamsJoin)
             .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+            .and(eventsTeamsJoin.enableTeam.equals(/* true= */ 1))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.userId.equals(user?.userId ?? -1))
