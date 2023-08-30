@@ -14,7 +14,6 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
-import { Privilege, can } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <SettingsHeader> component.
@@ -27,7 +26,8 @@ export interface SettingsHeaderProps {
 }
 
 /**
- * The <SettingsHeader> component
+ * The <SettingsHeader> component displays the header for the settings page, as well as some of the
+ * more powerful options that we display separately from regular page content.
  */
 export function SettingsHeader(props: SettingsHeaderProps) {
     const { event } = props;
