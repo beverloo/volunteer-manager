@@ -51,12 +51,21 @@ export const kUpdateEventDefinition = z.object({
 
         }).optional(),
 
+        /**
+         * The updated event slug that this event should be changed to.
+         */
+        eventSlug: z.string().optional(),
     }),
     response: z.strictObject({
         /**
          * Whether the event could be updated successfully.
          */
         success: z.boolean(),
+
+        /**
+         * The new slug, if it were successfully updated in the database.
+         */
+        slug: z.string().optional(),
     }),
 });
 
@@ -126,5 +135,32 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         return { success: !!affectedRows };
     }
 
-    return { success: true };
+    if (request.eventSlug !== undefined) {
+        const otherEvent = await getEventBySlug(request.eventSlug);
+        if (otherEvent)
+            return { success: false };  // the new slug is already taken
+
+        const affectedRows = await db.update(tEvents)
+            .set({
+                eventSlug: request.eventSlug,
+            })
+            .where(tEvents.eventId.equals(event.eventId))
+            .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+        if (affectedRows > 0) {
+            await Log({
+                type: LogType.AdminUpdateEvent,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                data: {
+                    action: 'the URL slug',
+                    event: event.shortName,
+                }
+            });
+        }
+
+        return { success: !!affectedRows, slug: request.eventSlug };
+    }
+
+    return { success: false };
 }

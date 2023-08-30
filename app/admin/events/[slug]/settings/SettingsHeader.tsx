@@ -6,6 +6,8 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { TextFieldElement } from 'react-hook-form-mui';
+
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import LinkIcon from '@mui/icons-material/Link';
@@ -37,6 +39,13 @@ const kSuspendDescription =
     'senior volunteers who participate in it.';
 
 /**
+ * Description to use for the slug update dialog.
+ */
+const kSlugDescription =
+    'Updating the slug will change the URLs through which this event\'s content and settings can ' +
+    'be reached. This will invalidate all existing links!'
+
+/**
  * Props accepted by the <SettingsHeader> component.
  */
 export interface SettingsHeaderProps {
@@ -57,6 +66,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
     const [ publishOpen, setPublishOpen ] = useState<boolean>(false);
     const [ suspendOpen, setSuspendOpen ] = useState<boolean>(false);
+    const [ slugOpen, setSlugOpen ] = useState<boolean>(false);
 
     const handleClose = useCallback((invalidated: boolean) => {
         if (invalidated)
@@ -88,6 +98,30 @@ export function SettingsHeader(props: SettingsHeaderProps) {
                                 : { error: `${event.shortName} could not be suspended.` };
     }, [ event ]);
 
+    const [ updatedSlug, setUpdatedSlug ] = useState<string | undefined>();
+
+    const openSlug = useCallback(() => setSlugOpen(true), [ /* no deps */ ]);
+    const handleSlug = useCallback(async (data: any) => {
+        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+            event: event.slug,
+            eventSlug: data.slug,
+        });
+
+        if (!response.success || !response.slug)
+            return { error: 'The slug could not be updated. Does such an event already exist?' };
+
+        setUpdatedSlug(response.slug);
+
+        return { success: `${event.shortName}'s slug has been updated.` };
+    }, [ event ]);
+
+    const handleCloseSlug = useCallback((invalidated: boolean) => {
+        setSlugOpen(false);
+        if (invalidated && updatedSlug && updatedSlug !== event.slug)
+            router.push(`/admin/events/${updatedSlug}/settings`);
+
+    }, [ event, router, updatedSlug ])
+
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5">
@@ -110,7 +144,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
                             Suspend
                         </Button> }
 
-                    <Button startIcon={ <LinkIcon /> }>Change slug</Button>
+                    <Button startIcon={ <LinkIcon /> } onClick={openSlug}>Change slug</Button>
 
                 </Stack>
             </ContrastBox>
@@ -135,6 +169,13 @@ export function SettingsHeader(props: SettingsHeaderProps) {
             <SettingDialog title={`Suspend ${event.shortName}`} open={suspendOpen}
                            description={kSuspendDescription} submitLabel="Suspend"
                            onClose={handleClose} onSubmit={handleSuspend} />
+
+            <SettingDialog title={`${event.shortName} slug`} open={slugOpen}
+                           description={kSlugDescription} onClose={handleCloseSlug}
+                           onSubmit={handleSlug} defaultValues={event}>
+                <TextFieldElement name="slug" label="Slug" required fullWidth size="small"
+                                  sx={{ mt: 2 }} />
+            </SettingDialog>
         </Paper>
     );
 }
