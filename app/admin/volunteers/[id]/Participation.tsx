@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
-import { TeamChip } from '../TeamChip';
+import { TeamChip } from '@app/admin/components/TeamChip';
 import type { RegistrationStatus } from '@app/lib/database/Types';
 
 /**

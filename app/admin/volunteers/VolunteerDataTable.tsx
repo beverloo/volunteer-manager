@@ -16,7 +16,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import { DataTable } from '@app/admin/DataTable';
-import { TeamChip } from './TeamChip';
+import { TeamChip } from '@app/admin/components/TeamChip';
 
 /**
  * Props accepted by the <VolunteerDataTable> component.
