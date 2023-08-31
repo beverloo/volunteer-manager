@@ -28,5 +28,5 @@ export default async function LogsPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Logs',
+    title: 'Logs | AnimeCon Volunteer Manager',
 };

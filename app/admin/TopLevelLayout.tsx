@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import DvrIcon from '@mui/icons-material/Dvr';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import WebhookIcon from '@mui/icons-material/Webhook';
@@ -20,6 +21,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <GridViewIcon />,
             label: 'Dashboard',
             url: '/admin',
+        },
+        {
+            icon: <EventNoteIcon />,
+            label: 'Events',
+            privilege: Privilege.EventAdministrator,
+            url: '/admin/events',
         },
         {
             icon: <WebhookIcon />,

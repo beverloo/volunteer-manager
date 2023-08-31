@@ -96,5 +96,5 @@ export default async function AdminPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Volunteer Administration',
+    title: 'AnimeCon Volunteer Manager',
 };

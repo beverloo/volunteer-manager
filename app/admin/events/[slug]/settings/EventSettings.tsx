@@ -6,17 +6,14 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { type FieldValues, DateTimePickerElement, FormContainer, TextFieldElement }
-    from 'react-hook-form-mui';
+import { type FieldValues, FormContainer } from 'react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
+import { EventSettingsForm } from './EventSettingsForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 import { dayjs } from '@lib/DateTime';
@@ -83,34 +80,7 @@ export function EventSettings(props: EventSettingsProps) {
                 Event settings
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-                <Grid container spacing={2}>
-                    <Grid xs={12}>
-                        <TextFieldElement name="name" label="Full event name" required fullWidth
-                                          size="small" onChange={handleChange} />
-                    </Grid>
-
-                    <Grid xs={6}>
-                        <TextFieldElement name="shortName" label="Full short name" required
-                                          fullWidth size="small" onChange={handleChange} />
-                    </Grid>
-                    <Grid xs={6}>
-                        <TextFieldElement name="slug" label="Event slug" required fullWidth
-                                          size="small" InputProps={{ readOnly: true }} />
-                    </Grid>
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <Grid xs={6}>
-                            <DateTimePickerElement name="startTime" label="Start time" required
-                                                   inputProps={{ fullWidth: true, size: 'small' }}
-                                                   onChange={handleChange} textReadOnly />
-                        </Grid>
-                        <Grid xs={6}>
-                            <DateTimePickerElement name="endTime" label="End time" required
-                                                   inputProps={{ fullWidth: true, size: 'small' }}
-                                                   onChange={handleChange} textReadOnly />
-                        </Grid>
-                    </LocalizationProvider>
-                </Grid>
+                <EventSettingsForm onChange={handleChange} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }}/>
             </FormContainer>
         </Paper>

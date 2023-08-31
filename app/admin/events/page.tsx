@@ -70,5 +70,5 @@ export default async function EventsPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Manage events',
+    title: 'Events | AnimeCon Volunteer Manager',
 };

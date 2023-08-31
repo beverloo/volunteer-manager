@@ -83,5 +83,5 @@ export default async function IntegrationsPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Integrations',
+    title: 'Integrations | AnimeCon Volunteer Manager',
 };

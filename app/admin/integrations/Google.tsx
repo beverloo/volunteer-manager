@@ -70,8 +70,8 @@ export function Google(props: GoogleProps) {
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    const doInvalidate = useCallback(() => setInvalidated(true), [ setInvalidated ]);
-    const requestSubmit = useCallback(async (data: FieldValues) => {
+    const handleInvalidate = useCallback(() => setInvalidated(true), [ setInvalidated ]);
+    const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         setError(undefined);
         try {
@@ -99,20 +99,20 @@ export function Google(props: GoogleProps) {
                 The service account provides access to both data on Drive and to Google's API
                 offering, such as the Vertex AI APIs.
             </Alert>
-            <FormContainer defaultValues={settings} onSuccess={requestSubmit}>
+            <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <Grid xs={12}>
                         <TextFieldElement name="credential" label="Credential" fullWidth
-                                          size="small" onChange={doInvalidate} />
+                                          size="small" onChange={handleInvalidate} />
                     </Grid>
                     <Grid xs={6}>
                         <SelectElement name="location" label="Location" fullWidth
                                        options={kLocationOptions} size="small"
-                                       onChange={doInvalidate} />
+                                       onChange={handleInvalidate} />
                     </Grid>
                     <Grid xs={6}>
                         <TextFieldElement name="projectId" label="Project ID" fullWidth
-                                          size="small" onChange={doInvalidate} />
+                                          size="small" onChange={handleInvalidate} />
                     </Grid>
                 </Grid>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />

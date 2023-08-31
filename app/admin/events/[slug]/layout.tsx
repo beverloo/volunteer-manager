@@ -39,15 +39,18 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
         .forUseInQueryAs('PendingApplications')
         .forUseInLeftJoinAs('PendingApplications');
 
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+    const teamsJoin = tTeams.forUseInLeftJoin();
+
     return await dbInstance.selectFrom(tEvents)
-        .innerJoin(tEventsTeams)
-            .on(tEventsTeams.eventId.equals(tEvents.eventId))
-            .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
-        .innerJoin(tTeams)
-            .on(tTeams.teamId.equals(tEventsTeams.teamId))
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+            .and(eventsTeamsJoin.enableTeam.equals(/* true= */ 1))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
         .leftJoin(pendingApplicationsJoin)
             .on(pendingApplicationsJoin.eventId.equals(tEvents.eventId))
-            .and(pendingApplicationsJoin.teamId.equals(tTeams.teamId))
+            .and(pendingApplicationsJoin.teamId.equals(teamsJoin.teamId))
         .where(tEvents.eventSlug.equals(eventSlug))
         .select({
             event: {
@@ -55,10 +58,10 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 slug: tEvents.eventSlug,
             },
             teams: dbInstance.aggregateAsArray({
-                id: tTeams.teamId,
-                name: tTeams.teamName,
-                slug: tTeams.teamEnvironment,
-                color: tTeams.teamColourLightTheme,
+                id: teamsJoin.teamId,
+                name: teamsJoin.teamName,
+                slug: teamsJoin.teamEnvironment,
+                color: teamsJoin.teamColourLightTheme,
                 pendingApplications: pendingApplicationsJoin.applications,
             }),
         })
@@ -104,7 +107,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
 
     // Sort the teams included in the |info|. While JSON_ARRAYAGG accepts its own ORDER BY clause,
     // this is not yet supported by `ts-sql-query`. This'll do in the mean time.
-    info.teams.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+    info.teams.sort((lhs, rhs) => lhs.name!.localeCompare(rhs.name!));
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
@@ -138,7 +141,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     for (const team of info.teams) {
         volunteersMenu.push({
             icon: <PeopleIcon htmlColor={team.color} />,
-            label: team.name,
+            label: team.name!,
 
             defaultOpen: false,  // FIXME
             menu: [

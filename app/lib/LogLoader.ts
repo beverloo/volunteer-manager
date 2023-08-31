@@ -67,6 +67,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminAccessVolunteerInfo]: (source, target) => {
         return `Accessed contact information for ${target?.name}`;
     },
+    [LogType.AdminEventCreate]: (source, target, { event }) => `Created the ${event} event`,
     [LogType.AdminEventHotelMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} a new hotel room for ${eventName}`;
     },
