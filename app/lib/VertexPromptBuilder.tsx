@@ -4,7 +4,7 @@
 /**
  * The humour that can be included in the prompt. This will be considered on top of tone.
  */
-const kHumourOptions = {
+export const kHumourOptions = {
     Never: undefined,
     Sometimes: 'Consider adding a minor joke or pun, but only if it is appropriate.',
     Often: 'Consider adding a joke or pun when there is an opportunity, and it is appropriate.',
@@ -19,7 +19,7 @@ export type VertexPromptHumour = keyof typeof kHumourOptions;
  * The types of identification that the writer of the message may consider for the prompt. Not
  * everyone wants to sign messages in exactly the same way.
  */
-const kIdentityOptions = {
+export const kIdentityOptions = {
     Individual: 'Your name is {name}.',
     Team: 'Your name is {name}, and you write on behalf of the {team} team.',
     Organisation: 'Your name is {name}, and you write on behalf of the AnimeCon volunteering teams',
@@ -33,7 +33,7 @@ export type VertexPromptIdentity = keyof typeof kIdentityOptions;
 /**
  * The tones available to the prompt builder, including the prompt that it leads to.
  */
-const kToneOptions = {
+export const kToneOptions = {
     Formal: 'Be formal and direct, yet realistic and carefully empathetic.',
     Informal: 'Be informal and conversational as if you were talking to a friend, yet empathetic.',
     Optimistic: 'Be optimistic in tone, empathetic and realistic.',

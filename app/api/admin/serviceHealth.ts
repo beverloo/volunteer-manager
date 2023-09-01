@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Client as AnimeConClient } from '@lib/integrations/animecon/Client';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { executePrompt } from './vertexAi';
+import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { readSettings } from '@lib/Settings';
 
 /**
@@ -107,16 +107,18 @@ async function runGoogleHealthCheck(): Promise<Response> {
  */
 async function runVertexAIHealthCheck(): Promise<Response> {
     try {
-        const response = await executePrompt('Who is your favourite artist?');
-        if (typeof response === 'string') {
+        const client = await createVertexAIClient();
+        const prediction = await client.predictText('Who is your favourite artist?');
+
+        if (typeof prediction === 'string') {
             return {
                 status: 'success',
                 service: 'VertexAI',
-                message: `The integration is functional ("${response}")`
+                message: `The integration is functional ("${prediction}")`
             };
         }
 
-        throw new Error('The Vertex AI API did not return a response...');
+        throw new Error('The Vertex AI API did not return a response.');
     } catch (error: any) {
         return {
             status: 'error',

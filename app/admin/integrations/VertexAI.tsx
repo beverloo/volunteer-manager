@@ -21,6 +21,7 @@ import Typography from '@mui/material/Typography';
 
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
+import type { VertexAISettings } from '@lib/integrations/vertexai/VertexAIClient';
 import { PlaceholderPaper } from '../components/PlaceholderPaper';
 import { SubmitCollapse } from '../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -222,58 +223,6 @@ function InteractiveResponseIdlePanel() {
             </Stack>
         </PlaceholderPaper>
     );
-}
-
-/**
- * Settings available to the Vertex AI integration. Descriptions and values are copied from the
- * Google Cloud Console page on generating e-mail examples.
- */
-export interface VertexAISettings {
-    /**
-     * The model that should be used for generating responses.
-     *
-     * @see https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models
-     */
-    model: 'text-bison' | 'text-bison@001';
-
-    /**
-     * Temperature controls the degree of randomness in token selection. Lower temperatures are good
-     * for prompts that expect a true or correct response, while higher temperatures can lead to
-     * more diverse or unexpected results.
-     *
-     * @range Must be in range of [0, 1)
-     * @example 0.5
-     */
-    temperature: number;
-
-    /**
-     * Token limit determines the maximum amount of text output from one prompt. A token is
-     * approximately four characters.
-     *
-     * @range Must be in range of [1, 1024)
-     * @example 256
-     */
-    tokenLimit: number;
-
-    /**
-     * Top-k changes how the model selects tokens for output. A top-k of 1 means the selected token
-     * is the most probable among all tokens in the model’s vocabulary (also called greedy decoding)
-     * while a top-k of 3 means that the next token is selected from among the 3 most probable
-     * tokens (using temperature).
-     *
-     * @range Must be in range of [1, 40)
-     * @example 40
-     */
-    topK: number;
-
-    /**
-     * Top-p changes how the model selects tokens for output. Tokens are selected from most probable
-     * to least until the sum of their probabilities equals the top-p value.
-     *
-     * @range Must be in range of [0, 1)
-     * @example 0.8
-     */
-    topP: number;
 }
 
 /**
