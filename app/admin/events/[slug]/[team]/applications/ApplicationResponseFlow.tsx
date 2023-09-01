@@ -9,9 +9,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
 /**
- * Props accepted by the <ApplicationResponseDialog> component.
+ * Props accepted by the <ApplicationResponseFlow> component.
  */
-export interface ApplicationResponseDialogProps {
+export interface ApplicationResponseFlowProps {
     /**
      * Whether the represented application should be approved or rejected.
      */
@@ -43,10 +43,11 @@ export interface ApplicationResponseDialogProps {
 }
 
 /**
- * The <ApplicationResponseDialog> component represents a dialog that can be used to approve or
- * reject applications. The necessary information will be fetched from the server.
+ * The <ApplicationResponseFlow> component represents the ability to reject or accept an incoming
+ * application. Accepting an application involves sending out an e-mail to the applicant to inform
+ * them of this, whereas rejecting an application also involves collecting a reason.
  */
-export function ApplicationResponseDialog(props: ApplicationResponseDialogProps) {
+export function ApplicationResponseFlow(props: ApplicationResponseFlowProps) {
     const { action, application, onClose, open } = props;
 
     return (

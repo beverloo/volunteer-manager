@@ -26,7 +26,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { ApplicationResponseDialog } from './ApplicationResponseDialog';
+import { ApplicationResponseFlow } from './ApplicationResponseFlow';
 import { Avatar } from '@app/components/Avatar';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 
@@ -322,8 +322,8 @@ export function Applications(props: ApplicationsProps) {
                         <Application application={application} requestResponse={requestResponse} />
                     </Grid> )}
             </Grid>
-            <ApplicationResponseDialog open={open} action={action} application={application}
-                                       onClose={ () => setOpen(false) } />
+            <ApplicationResponseFlow open={open} action={action} application={application}
+                                     onClose={ () => setOpen(false) } />
         </>
     );
 }

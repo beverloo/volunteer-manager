@@ -3,10 +3,12 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
 
+import { default as MuiLink } from '@mui/material/Link';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -79,12 +81,14 @@ export function Prompts(props: PromptsProps) {
                 <Grid container spacing={2}>
                     <Grid xs={3} display="flex" flexDirection="column" justifyContent="center"
                           alignItems="flex-start">
-                        <Typography variant="button">
+                        <Typography variant="subtitle2">
                             Approval prompt
                         </Typography>
                         <Typography variant="body2">
-                            Base prompt to feed into Vertex AI when generating a volunteer
-                            approval message.
+                            <MuiLink component={Link}
+                                     href="/admin/integrations/prompt/approve-volunteer">
+                                Personalities
+                            </MuiLink>
                         </Typography>
                     </Grid>
                     <Grid xs={9}>
@@ -95,12 +99,14 @@ export function Prompts(props: PromptsProps) {
                 <Grid container spacing={2}>
                     <Grid xs={3} display="flex" flexDirection="column" justifyContent="center"
                           alignItems="flex-start">
-                        <Typography variant="button">
+                        <Typography variant="subtitle2">
                             Rejection prompt
                         </Typography>
                         <Typography variant="body2">
-                            Base prompt to feed into Vertex AI when generating a volunteer
-                            rejection message.
+                            <MuiLink component={Link}
+                                     href="/admin/integrations/prompt/reject-volunteer">
+                                Personalities
+                            </MuiLink>
                         </Typography>
                     </Grid>
                     <Grid xs={9}>
