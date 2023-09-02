@@ -5,7 +5,7 @@ import type { UserData } from './UserData';
 
 import { AuthType } from '../database/Types';
 import { expand } from './Privileges';
-import { getAvatarUrl } from '../database/AvatarStore';
+import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
 import db, { tUsers, tUsersAuth } from '../database';
 
@@ -166,7 +166,7 @@ export class User implements UserData {
     // Functionality also available to client components, i.e. UserData implementation:
     // ---------------------------------------------------------------------------------------------
 
-    get avatarUrl() { return getAvatarUrl(this.#user.avatarFileHash); }
+    get avatarUrl() { return getBlobUrl(this.#user.avatarFileHash); }
     get events() { return this.#user.events as NonNullable<UserData['events']>; }
     get firstName() { return this.#user.firstName; }
     get lastName() { return this.#user.lastName; }

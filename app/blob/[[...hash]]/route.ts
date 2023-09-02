@@ -4,7 +4,7 @@
 import type { NextRequest } from 'next/server';
 import { notFound } from 'next/navigation';
 
-import { readAvatarDataByHash } from '@app/lib/database/AvatarStore';
+import { readBlobDataByHash } from '@app/lib/database/BlobStore';
 
 /**
  * Params accepted by this route implementation. Only the hash exists, using NextJS dynamic routing.
@@ -12,12 +12,12 @@ import { readAvatarDataByHash } from '@app/lib/database/AvatarStore';
 type RouteParams = { params: { hash: string[] } };
 
 /**
- * The /avatars endpoint exposes access to avatars based on their file hashes.
+ * The /blob/ endpoint exposes access to blob based on their file hashes.
  */
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (Array.isArray(params.hash) && params.hash.length && params.hash[0].endsWith('.png')) {
         const hash = params.hash[0].substring(0, params.hash[0].length - 4);
-        const data = await readAvatarDataByHash(hash);
+        const data = await readBlobDataByHash(hash);
 
         if (data) {
             return new Response(data, {

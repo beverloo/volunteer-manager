@@ -5,8 +5,9 @@ import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { storeAvatarData } from '@lib/database/AvatarStore';
+import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';
+import { FileType } from '@app/lib/database/Types';
 
 /**
  * Interface definition for the UpdateAvatar API, exposed through /api/auth/update-avatar.
@@ -40,7 +41,8 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
         return noAccess();
 
     const userId = props.user.userId;
-    const avatarId = await storeAvatarData(userId, Buffer.from(request.avatar, 'base64'));
+    const avatarId = await storeBlobData(
+        Buffer.from(request.avatar, 'base64'), FileType.Avatar, userId);
 
     if (avatarId) {
         const affectedRows = await db.update(tUsers)

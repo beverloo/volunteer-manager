@@ -1689,8 +1689,8 @@ tables:
     comment: ""
   - name: user_id
     type: int(4) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   indexes:
   - name: file_hash
@@ -1739,7 +1739,7 @@ tables:
       `file_type` enum('avatar') NOT NULL,
       `file_date` datetime NOT NULL,
       `file_data` mediumblob NOT NULL,
-      `user_id` int(4) unsigned NOT NULL,
+      `user_id` int(4) unsigned DEFAULT NULL,
       PRIMARY KEY (`file_id`),
       KEY `file_hash` (`file_hash`),
       KEY `storage_user_id` (`user_id`),
@@ -1953,7 +1953,7 @@ relations:
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: Zero or one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 functions: []
