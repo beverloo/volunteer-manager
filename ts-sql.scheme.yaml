@@ -1673,7 +1673,12 @@ tables:
     default: null
     comment: ""
   - name: file_type
-    type: enum('avatar')
+    type: enum('Avatar','EventIdentity')
+    nullable: false
+    default: null
+    comment: ""
+  - name: file_mime_type
+    type: varchar(64)
     nullable: false
     default: null
     comment: ""
@@ -1736,7 +1741,8 @@ tables:
     CREATE TABLE `storage` (
       `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
       `file_hash` varchar(16) NOT NULL,
-      `file_type` enum('avatar') NOT NULL,
+      `file_type` enum('Avatar','EventIdentity') NOT NULL,
+      `file_mime_type` varchar(64) NOT NULL,
       `file_date` datetime NOT NULL,
       `file_data` mediumblob NOT NULL,
       `user_id` int(4) unsigned DEFAULT NULL,

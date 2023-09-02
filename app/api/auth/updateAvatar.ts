@@ -40,9 +40,14 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     if (!props.user)
         return noAccess();
 
-    const userId = props.user.userId;
-    const avatarId = await storeBlobData(
-        Buffer.from(request.avatar, 'base64'), FileType.Avatar, userId);
+    const { userId } = props.user;
+
+    const avatarId = await storeBlobData({
+        bytes: Buffer.from(request.avatar, 'base64'),
+        mimeType: 'image/png',
+        type: FileType.Avatar,
+        userId,
+    });
 
     if (avatarId) {
         const affectedRows = await db.update(tUsers)

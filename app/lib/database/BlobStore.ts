@@ -33,23 +33,52 @@ const kBlobSizeLimit = 5 * 1024 * 1024;  // 5MB
  * Reads the blob associated with the given `hash` from the database. Hashes are used many other
  * identifiers are sequential, and we don't want to accidentally leak information.
  */
-export async function readBlobDataByHash(hash: string): Promise<Uint8Array | undefined> {
+export async function readBlobDataByHash(hash: string)
+    : Promise<{ bytes: Uint8Array, mimeType: string } | undefined>
+{
     const bucket = await db.selectFrom(tStorage)
-        .select({ fileData: tStorage.fileData })
+        .select({
+            bytes: tStorage.fileData,
+            mimeType: tStorage.fileMimeType,
+        })
         .where(tStorage.fileHash.equals(hash))
         .executeSelectNoneOrOne();
 
-    return bucket ? bucket.fileData : undefined;
+    return bucket ?? undefined;
+}
+
+/**
+ * Parameters required when storing blobs in the database.
+ */
+export interface BlobInfo {
+    /**
+     * The bytes that should be stored in the database.
+     */
+    bytes: Uint8Array;
+
+    /**
+     * Mime type of the information that's being stored. (E.g. "image/png")
+     */
+    mimeType: string;
+
+    /**
+     * Type of data that's being stored, for categorisation purposes.
+     */
+    type: FileType;
+
+    /**
+     * Unique ID of the user with whom this data should be associated.
+     */
+    userId?: number;
 }
 
 /**
  * Stores the blob represented by the given `data` in the database, optionally associated with the
  * given `user` to whom the data belongs. Returns the file ID when successful.
  */
-export async function storeBlobData(data: Buffer, type: FileType, userId?: number)
-    : Promise<number | false>
+export async function storeBlobData(info: BlobInfo): Promise<number | false>
 {
-    if (data.length > kBlobSizeLimit) {
+    if (info.bytes.length > kBlobSizeLimit) {
         console.error('Unable to store an blob: request too large');
         return false;
     }
@@ -58,10 +87,11 @@ export async function storeBlobData(data: Buffer, type: FileType, userId?: numbe
     const insertId = await db.insertInto(tStorage)
         .values({
             fileHash: hash,
-            fileType: type,
+            fileType: info.type,
+            fileMimeType: info.mimeType,
             fileDate: db.currentDateTime(),
-            fileData: data,
-            userId: userId,
+            fileData: info.bytes,
+            userId: info.userId,
         })
         .returningLastInsertedId()
         .executeInsert();
