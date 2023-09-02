@@ -19,11 +19,11 @@ import Stack from '@mui/material/Stack';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import type { ApplicationDefinition } from '@app/api/event/application';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UserData } from '@lib/auth/UserData';
 import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
 import { ApplicationParticipation } from '@app/registration/[[...path]]/ApplicationParticipation';
+import { callApi } from '@lib/callApi';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -171,22 +171,21 @@ export function CreateApplication(props: CreateApplicationProps) {
 
         setLoading(true);
         try {
-            const response = await issueServerAction<ApplicationDefinition>(
-                '/api/event/application', {
-                    availability: true,
-                    credits: true,
-                    environment: props.team.slug,
-                    event: props.event.slug,
-                    preferences: data.preferences,
-                    serviceHours: data.serviceHours,
-                    serviceTiming: data.serviceTiming,
-                    socials: true,
-                    tshirtFit: data.tshirtFit,
-                    tshirtSize: data.tshirtSize,
-                    adminOverride: {
-                        userId: selectedUserId,
-                    },
-                });
+            const response = await callApi('post', '/api/events/application', {
+                availability: true,
+                credits: true,
+                environment: props.team.slug,
+                event: props.event.slug,
+                preferences: data.preferences,
+                serviceHours: data.serviceHours,
+                serviceTiming: data.serviceTiming,
+                socials: true,
+                tshirtFit: data.tshirtFit,
+                tshirtSize: data.tshirtSize,
+                adminOverride: {
+                    userId: selectedUserId,
+                },
+            });
 
             if (!response.success) {
                 setError(response.error);

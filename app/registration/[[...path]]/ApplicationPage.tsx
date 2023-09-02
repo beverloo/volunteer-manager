@@ -18,14 +18,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { lighten } from '@mui/system/colorManipulator';
 
-import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { UserData } from '@app/lib/auth/UserData';
 import { AuthenticationContext } from '../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 import { ApplicationParticipation } from './ApplicationParticipation';
 
 /**
@@ -129,19 +128,18 @@ export function ApplicationPage(props: ApplicationPageProps) {
         setLoading(true);
 
         try {
-            const response =
-                await issueServerAction<ApplicationDefinition>('/api/event/application', {
-                    availability: !!data.availability,
-                    credits: !!data.credits,
-                    environment: event.environmentName,
-                    event: event.slug,
-                    preferences: data.preferences,
-                    serviceHours: data.serviceHours,
-                    serviceTiming: data.serviceTiming,
-                    socials: !!data.socials,
-                    tshirtFit: data.tshirtFit,
-                    tshirtSize: data.tshirtSize,
-                });
+            const response = await callApi('post', '/api/events/application', {
+                availability: !!data.availability,
+                credits: !!data.credits,
+                environment: event.environmentName,
+                event: event.slug,
+                preferences: data.preferences,
+                serviceHours: data.serviceHours,
+                serviceTiming: data.serviceTiming,
+                socials: !!data.socials,
+                tshirtFit: data.tshirtFit,
+                tshirtSize: data.tshirtSize,
+            });
 
             if (!response.success)
                 setError(response.error || 'The server was not able to accept your application.');
