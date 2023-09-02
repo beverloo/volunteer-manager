@@ -203,8 +203,9 @@ export function SettingsHeader(props: SettingsHeaderProps) {
                            description={kSuspendDescription} submitLabel="Suspend"
                            onClose={handleClose} onSubmit={handleSuspend} />
 
-            <LazyAvatarEditor open={imageOpen} square requestClose={closeImage} src={imageSrc}
-                              requestUpload={handleImage} title="Upload a new image" />
+            <LazyAvatarEditor open={imageOpen} requestClose={closeImage} src={imageSrc}
+                              requestUpload={handleImage} title="Upload a new image"
+                              width={300} height={240} border={[ 0, 0 ]} borderRadius={0} />
 
             <SettingDialog title={`${event.shortName} slug`} open={slugOpen}
                            description={kSlugDescription} onClose={handleCloseSlug}

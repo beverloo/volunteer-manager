@@ -68,9 +68,24 @@ export interface AvatarEditorProps {
     title: string;
 
     /**
-     * Whether the selection overlay should be square, otherwise it will be rounded.
+     * Height of the image that can be selected. Defaults to 250.
      */
-    square?: boolean;
+    height?: number;
+
+    /**
+     * Width of the image that can be selected. Defaults to 250.
+     */
+    width?: number;
+
+    /**
+     * Radius of the overlay border to display. Defaults to half the height. (I.e. a circle)
+     */
+    borderRadius?: number;
+
+    /**
+     * Borders ([ x, y ]; in pixels) to display on top of the overlay.
+     */
+    border?: [ number, number ];
 }
 
 /**
@@ -79,7 +94,7 @@ export interface AvatarEditorProps {
  * sure that the updated information is visible to all other users as well.
  */
 export default function AvatarEditor(props: AvatarEditorProps) {
-    const { open, src, requestClose, requestUpload, title, square } = props;
+    const { open, src, requestClose, requestUpload, title } = props;
 
     // Reference to the editor that's being used for the avatar. May be NULL.
     const editorRef = createRef<ReactAvatarEditor>();
@@ -166,6 +181,11 @@ export default function AvatarEditor(props: AvatarEditorProps) {
         setZoomLevel(1);
     }
 
+    const height = props.height ?? 250;
+    const width = props.width ?? 250;
+    const borderRadius = props.borderRadius ?? height / 2;
+    const border = props.border ?? [ 32, 0 ];
+
     // The <ReactAvatarEditor>'s background should either be lit up (for light mode) or be further
     // darkened (for dark mode). We use the theme's mode to detect that.
     const theme = useTheme();
@@ -174,11 +194,10 @@ export default function AvatarEditor(props: AvatarEditorProps) {
 
     return (
         <Dialog onClose={handleDialogClose} open={!!open}>
-
             <DialogTitle>{title}</DialogTitle>
             <DialogContent dividers sx={{ padding: 0, paddingTop: 2, paddingBottom: 1 }}>
-                <ReactAvatarEditor width={250} height={250} scale={zoomLevel}
-                                   border={[ 32, 0 ]} borderRadius={!!square ? 0 : 125}
+                <ReactAvatarEditor width={width} height={height} scale={zoomLevel}
+                                   border={border} borderRadius={borderRadius}
                                    color={themedBackground}
                                    image={image}
                                    /** @ts-ignore */
@@ -217,7 +236,6 @@ export default function AvatarEditor(props: AvatarEditorProps) {
                     Upload
                 </LoadingButton>
             </DialogActions>
-
         </Dialog>
     );
 }
