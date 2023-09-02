@@ -39,11 +39,13 @@ export async function getRegistration(environmentName: string, event: Event, use
             // TODO: `availability`
 
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
-            hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
+            hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(
+                tRoles.roleHotelEligible).equals(/* true= */ 1),
             // TODO: `hotel`
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
-            trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),
+            trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
+                tRoles.roleTrainingEligible).equals(/* true= */ 1),
             // TODO: `training`
         })
         .groupBy(tUsersEvents.eventId)
