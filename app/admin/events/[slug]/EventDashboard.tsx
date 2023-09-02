@@ -10,7 +10,6 @@ import { EventIdentityCard } from './EventIdentityCard';
 import { EventRecentVolunteers, type EventRecentVolunteersProps } from './EventRecentVolunteers';
 import { EventSeniors, type EventSeniorsProps } from './EventSeniors';
 import { EventTeamCard, type EventTeamCardProps } from './EventTeamCard';
-import { EventTimeline } from './EventTimeline';
 
 /**
  * Props accepted by the <EventDashboard> component.
@@ -54,10 +53,6 @@ export function EventDashboard(props: EventDashboardProps) {
                 <Grid key={`team-${index}`} xs={3}>
                     <EventTeamCard {...team} />
                 </Grid> ) }
-
-            <Grid xs={12}>
-                <EventTimeline />
-            </Grid>
 
             { props.recentVolunteers.length &&
                 <Grid xs={6}>

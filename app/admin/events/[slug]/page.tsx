@@ -64,7 +64,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         })
         .orderBy(tUsersEvents.registrationDate, 'desc')
         .orderBy(/* fallback for older events= */ tUsers.username, 'asc')
-        .limit(/* based on width of the component= */ 5)
+        .limit(/* based on width of the component= */ 9)
         .executeSelectMany();
 
     const rolesJoin = tRoles.forUseInLeftJoin();
