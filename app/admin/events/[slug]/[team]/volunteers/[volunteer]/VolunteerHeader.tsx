@@ -63,7 +63,7 @@ interface ChangeRoleDialogProps {
     /**
      * The volunteer for whom this dialog is being displayed.
      */
-    volunteer: HeaderProps['volunteer'];
+    volunteer: VolunteerHeaderProps['volunteer'];
 }
 
 /**
@@ -138,9 +138,9 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
 }
 
 /**
- * Props accepted by the <Header> component.
+ * Props accepted by the <VolunteerHeader> component.
  */
-export interface HeaderProps {
+export interface VolunteerHeaderProps {
     /**
      * Information about the event this volunteer will participate in.
      */
@@ -188,10 +188,10 @@ export interface HeaderProps {
 }
 
 /**
- * The <Header> component indicates which volunteer is being shown, and provides a series of actions
+ * The <VolunteerHeader> component indicates which volunteer is being shown, and provides actions
  * to change their participation. The exact actions depend on the access level of the user.
  */
-export function Header(props: HeaderProps) {
+export function VolunteerHeader(props: VolunteerHeaderProps) {
     const { event, team, volunteer, user } = props;
 
     const router = useRouter();

@@ -8,31 +8,32 @@ import type { UserData } from './UserData';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 14
+ * Next setting: 1 << 15
  */
 export enum Privilege {
-    Administrator               = 1 << 0,
-    Statistics                  = 1 << 1,
+    Administrator                       = 1 << 0,
+    Statistics                          = 1 << 1,
 
     // Privileges regarding access in the administrative area.
-    EventAdministrator          = 1 << 7,
-    SystemAdministrator         = 1 << 8,
-    VolunteerAdministrator      = 1 << 9,
+    EventAdministrator                  = 1 << 7,
+    SystemAdministrator                 = 1 << 8,
+    VolunteerAdministrator              = 1 << 9,
 
     // Privileges captured by EventAdministrator:
-    EventApplicationManagement  = 1 << 10,
-    EventContentOverride        = 1 << 2,
-    EventHotelManagement        = 1 << 12,
-    EventRegistrationOverride   = 1 << 3,
-    EventScheduleOverride       = 1 << 4,
-    EventTrainingManagement     = 1 << 13,
-    EventVolunteerContactInfo   = 1 << 11,
+    EventApplicationManagement          = 1 << 10,
+    EventContentOverride                = 1 << 2,
+    EventHotelManagement                = 1 << 12,
+    EventRegistrationOverride           = 1 << 3,
+    EventScheduleOverride               = 1 << 4,
+    EventTrainingManagement             = 1 << 13,
+    EventVolunteerApplicationOverrides  = 1 << 14,
+    EventVolunteerContactInfo           = 1 << 11,
 
     // Privileges captured by SystemAdministrator:
-    SystemLogsAccess            = 1 << 5,
+    SystemLogsAccess                    = 1 << 5,
 
     // Privileges captured by VolunteerAdministrator:
-    VolunteerAvatarManagement   = 1 << 6,
+    VolunteerAvatarManagement           = 1 << 6,
 };
 
 /**
@@ -68,6 +69,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventRegistrationOverride,
         Privilege.EventScheduleOverride,
         Privilege.EventTrainingManagement,
+        Privilege.EventVolunteerApplicationOverrides,
         Privilege.EventVolunteerContactInfo,
     ],
 
@@ -117,6 +119,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
+    [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
     [Privilege.EventVolunteerContactInfo]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
@@ -140,6 +143,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
+    [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
     [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',
 
     [Privilege.SystemAdministrator]: 'System administrator',

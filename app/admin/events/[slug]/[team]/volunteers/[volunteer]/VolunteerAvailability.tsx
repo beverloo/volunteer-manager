@@ -6,17 +6,17 @@
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 
 /**
- * Props accepted by the <Availability> component.
+ * Props accepted by the <VolunteerAvailability> component.
  */
-export interface AvailabilityProps {
+export interface VolunteerAvailabilityProps {
     // TODO
 }
 
 /**
- * The <Availability> component displays the indicated availability from this volunteer. It will be
- * incorporated in the schedule tool as well. Entries can be added and removed from here.
+ * The <VolunteerAvailability> component displays the indicated availability from this volunteer. It
+ * will be incorporated in the schedule tool as well. Entries can be added and removed from here.
  */
-export function Availability(props: AvailabilityProps) {
+export function VolunteerAvailability(props: VolunteerAvailabilityProps) {
     return (
         <UnderConstructionPaper>
             Availability

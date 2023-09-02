@@ -16,11 +16,6 @@ import { kApplicationProperties } from '../event/application';
 export const kUpdateTeamVolunteerDefinition = z.object({
     request: z.object({
         /**
-         * Import the canonical application properties.
-         */
-        ...kApplicationProperties,
-
-        /**
          * ID of the user for whom information is being updated.
          */
         userId: z.number(),
@@ -34,6 +29,32 @@ export const kUpdateTeamVolunteerDefinition = z.object({
          * ID of the team that information is to be updated for.
          */
         teamId: z.number(),
+
+        /**
+         * Information about the user's application that has to be updated.
+         */
+        application: z.object(kApplicationProperties).optional(),
+
+        /**
+         * Information about the user's application metadata that has to be updated.
+         */
+        metadata: z.object({
+            /**
+             * The date on which this volunteer created their application. May be NULL.
+             */
+            registrationDate: z.string().optional(),
+
+            /**
+             * Whether this volunteer is eligible for a hotel room beyond conventional rules.
+             */
+            hotelEligible: z.number().optional(),
+
+            /**
+             * Whether this volunteer is eligible to join the training beyond conventional rules.
+             */
+            trainingEligible: z.number().optional(),
+
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -56,37 +77,58 @@ export async function updateTeamVolunteer(request: Request, props: ActionProps):
     if (!can(props.user, Privilege.EventAdministrator))
         noAccess();
 
-    const [ preferenceTimingStart, preferenceTimingEnd ] =
-        request.serviceTiming.split('-').map(v => parseInt(v, 10));
+    let affectedRows: number = 0;
 
-    const affectedRows = await db.update(tUsersEvents)
-        .set({
-            shirtFit: request.tshirtFit as any,
-            shirtSize: request.tshirtSize as any,
-            preferences: request.preferences,
-            preferenceHours: parseInt(request.serviceHours, 10),
-            preferenceTimingStart, preferenceTimingEnd,
-            includeCredits: request.credits ? 1 : 0,
-            includeSocials: request.socials ? 1 : 0,
-        })
-        .where(tUsersEvents.userId.equals(request.userId))
-            .and(tUsersEvents.eventId.equals(request.eventId))
-            .and(tUsersEvents.teamId.equals(request.teamId))
-        .executeUpdate(/* min= */ 0, /* max= */ 1);
+    const { application, metadata } = request;
+    if (application !== undefined) {
+        const [ preferenceTimingStart, preferenceTimingEnd ] =
+            application.serviceTiming.split('-').map(v => parseInt(v, 10));
 
-    if (!affectedRows)
-        return { success: false };
+        affectedRows = await db.update(tUsersEvents)
+            .set({
+                shirtFit: application.tshirtFit as any,
+                shirtSize: application.tshirtSize as any,
+                preferences: application.preferences,
+                preferenceHours: parseInt(application.serviceHours, 10),
+                preferenceTimingStart, preferenceTimingEnd,
+                includeCredits: application.credits ? 1 : 0,
+                includeSocials: application.socials ? 1 : 0,
+            })
+            .where(tUsersEvents.userId.equals(request.userId))
+                .and(tUsersEvents.eventId.equals(request.eventId))
+                .and(tUsersEvents.teamId.equals(request.teamId))
+            .executeUpdate(/* min= */ 0, /* max= */ 1);
+    }
 
-    await Log({
-        type: LogType.AdminUpdateTeamVolunteer,
-        severity: LogSeverity.Info,
-        sourceUser: props.user,
-        targetUser: request.userId,
-        data: {
-            eventId: request.eventId,
-            teamId: request.teamId,
-        },
-    });
+    if (metadata !== undefined) {
+        if (!can(props.user, Privilege.EventVolunteerApplicationOverrides))
+            noAccess();
 
-    return { success: true };
+        affectedRows = await db.update(tUsersEvents)
+            .set({
+                registrationDate:
+                    metadata.registrationDate ? new Date(metadata.registrationDate) : null,
+                hotelEligible: metadata.hotelEligible ?? null,
+                trainingEligible: metadata.trainingEligible ?? null,
+            })
+            .where(tUsersEvents.userId.equals(request.userId))
+                .and(tUsersEvents.eventId.equals(request.eventId))
+                .and(tUsersEvents.teamId.equals(request.teamId))
+            .executeUpdate(/* min= */ 0, /* max= */ 1);
+    }
+
+    if (!!affectedRows) {
+        await Log({
+            type: LogType.AdminUpdateTeamVolunteer,
+            severity: LogSeverity.Info,
+            sourceUser: props.user,
+            targetUser: request.userId,
+            data: {
+                eventId: request.eventId,
+                teamId: request.teamId,
+            },
+        });
+    }
+
+    return { success: !!affectedRows };
 }

@@ -19,11 +19,12 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     roleId = this.column('role_id', 'int');
-    registrationDate = this.column('registration_date', 'localDateTime');
+    registrationDate = this.optionalColumnWithDefaultValue('registration_date', 'localDateTime');
     registrationStatus = this.columnWithDefaultValue<RegistrationStatus>('registration_status', 'enum', 'RegistrationStatus');
     shirtFit = this.columnWithDefaultValue<ShirtFit>('shirt_fit', 'enum', 'ShirtFit');
     shirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('shirt_size', 'enum', 'ShirtSize');
     hotelEligible = this.optionalColumnWithDefaultValue('hotel_eligible', 'int');
+    trainingEligible = this.optionalColumnWithDefaultValue('training_eligible', 'int');
     preferenceHours = this.optionalColumnWithDefaultValue('preference_hours', 'int');
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');
     preferenceTimingEnd = this.optionalColumnWithDefaultValue('preference_timing_end', 'int');

@@ -78,7 +78,7 @@ export interface ApplicationInfo {
     /**
      * Date at which the registration was submitted.
      */
-    date: Date;
+    date?: Date;
 
     /**
      * First name of the volunteer who made this application.

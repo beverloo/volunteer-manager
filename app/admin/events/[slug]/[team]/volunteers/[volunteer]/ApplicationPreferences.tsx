@@ -26,9 +26,9 @@ const kSelectOptions = [
 ];
 
 /**
- * Props accepted by the <Information> component.
+ * Props accepted by the <ApplicationPreferences> component.
  */
-export interface InformationProps {
+export interface ApplicationPreferencesProps {
     /**
      * Information about the event this volunteer will participate in.
      */
@@ -56,10 +56,10 @@ export interface InformationProps {
 }
 
 /**
- * The <Information> component displays the application information the user entered when they
- * requested to join the team, which can be editted by volunteers with access to this page.
+ * The <ApplicationPreferences> component displays the application information the user entered when
+ * they requested to join the team, which can be editted by volunteers with access to this page.
  */
-export function Information(props: InformationProps) {
+export function ApplicationPreferences(props: ApplicationPreferencesProps) {
     const { event, team, volunteer } = props;
 
     const [ error, setError ] = useState<string>();
@@ -77,13 +77,15 @@ export function Information(props: InformationProps) {
                     eventId: event.id,
                     teamId: team.id,
 
-                    credits: !!data.credits,
-                    preferences: data.preferences,
-                    serviceHours: `${data.serviceHours}` as any,
-                    serviceTiming: data.serviceTiming,
-                    socials: !!data.socials,
-                    tshirtFit: data.tshirtFit,
-                    tshirtSize: data.tshirtSize,
+                    application: {
+                        credits: !!data.credits,
+                        preferences: data.preferences,
+                        serviceHours: `${data.serviceHours}` as any,
+                        serviceTiming: data.serviceTiming,
+                        socials: !!data.socials,
+                        tshirtFit: data.tshirtFit,
+                        tshirtSize: data.tshirtSize,
+                    },
                 });
 
             if (response.success)

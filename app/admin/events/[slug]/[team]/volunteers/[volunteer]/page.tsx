@@ -9,13 +9,14 @@ import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tUsers, tUsersEvents } from '@lib/database';
 
-import { Availability } from './Availability';
-import { ContactInformation } from './ContactInformation';
-import { Header } from './Header';
-import { HotelInformation } from './HotelInformation';
-import { Information } from './Information';
+import { ApplicationHotelInfo } from './ApplicationHotelInfo';
+import { ApplicationMetadata } from './ApplicationMetadata';
+import { ApplicationPreferences } from './ApplicationPreferences';
+import { ApplicationTrainingInfo } from './ApplicationTrainingInfo';
 import { RegistrationStatus } from '@lib/database/Types';
-import { TrainingInformation } from './TrainingInformation';
+import { VolunteerAvailability } from './VolunteerAvailability';
+import { VolunteerContactInfo } from './VolunteerContactInfo';
+import { VolunteerHeader } from './VolunteerHeader';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -42,8 +43,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
             lastName: tUsers.lastName,
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
+            registrationDate: tUsersEvents.registrationDate,
             registrationStatus: tUsersEvents.registrationStatus,
-
+            hotelEligible: tUsersEvents.hotelEligible,
+            trainingEligible: tUsersEvents.trainingEligible,
             credits: tUsersEvents.includeCredits,
             preferences: tUsersEvents.preferences,
             serviceHours: tUsersEvents.preferenceHours,
@@ -68,15 +71,18 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     return (
         <>
-            <Header event={event} team={team} volunteer={volunteer} user={user.toUserData()} />
-            <Information event={event} team={team} volunteer={volunteer} />
-            <ContactInformation eventId={event.id} teamId={team.id} userId={volunteer.userId}
-                                contactInfo={contactInfo} />
-            <Availability />
+            <VolunteerHeader event={event} team={team} volunteer={volunteer}
+                             user={user.toUserData()} />
+            <ApplicationPreferences event={event} team={team} volunteer={volunteer} />
+            <VolunteerContactInfo eventId={event.id} teamId={team.id} userId={volunteer.userId}
+                                  contactInfo={contactInfo} />
+            { can(user, Privilege.EventVolunteerApplicationOverrides) &&
+                <ApplicationMetadata eventId={event.id} teamId={team.id} volunteer={volunteer} /> }
+            <VolunteerAvailability />
             { can(user, Privilege.EventAdministrator) &&
-                <HotelInformation /> }
+                <ApplicationHotelInfo /> }
             { can(user, Privilege.EventAdministrator) &&
-                <TrainingInformation /> }
+                <ApplicationTrainingInfo /> }
         </>
     );
 }

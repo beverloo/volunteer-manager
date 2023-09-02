@@ -6,17 +6,17 @@
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 
 /**
- * Props accepted by the <HotelInformation> component.
+ * Props accepted by the <ApplicationHotelInfo> component.
  */
-export interface HotelInformationProps {
+export interface ApplicationHotelInfoProps {
     // TODO
 }
 
 /**
- * The <HotelInformation> component displays information about this volunteer's hotel preferences.
- * Room allocation can be managed through the Hotel tool, available to event administrators.
+ * The <ApplicationHotelInfo> component displays information about this volunteer's hotel
+ * preferences. Allocation can be managed through the Hotel tool, available to event administrators.
  */
-export function HotelInformation(props: HotelInformationProps) {
+export function ApplicationHotelInfo(props: ApplicationHotelInfoProps) {
     return (
         <UnderConstructionPaper>
             Hotel information

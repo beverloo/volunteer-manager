@@ -6,17 +6,17 @@
 import { UnderConstructionPaper } from '@app/admin/UnderConstructionPaper';
 
 /**
- * Props accepted by the <TrainingInformation> component.
+ * Props accepted by the <ApplicationTrainingInfo> component.
  */
-export interface TrainingInformationProps {
+export interface ApplicationTrainingInfoProps {
     // TODO
 }
 
 /**
- * The <TrainingInformation> component displays information about this volunteer's training
+ * The <ApplicationTrainingInfo> component displays information about this volunteer's training
  * preferences. Not all volunteers have to do the training, but everyone can be invited.
  */
-export function TrainingInformation(props: TrainingInformationProps) {
+export function ApplicationTrainingInfo(props: ApplicationTrainingInfoProps) {
     return (
         <UnderConstructionPaper>
             Training information

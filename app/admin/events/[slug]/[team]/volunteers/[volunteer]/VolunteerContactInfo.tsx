@@ -9,8 +9,8 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LoadingButton from '@mui/lab/LoadingButton/LoadingButton';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -20,9 +20,9 @@ import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerCon
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
- * Props accepted by the <ContactInformation> component.
+ * Props accepted by the <VolunteerContactInfo> component.
  */
-export interface ContactInformationProps {
+export interface VolunteerContactInfoProps {
     /**
      * ID of the event, team and user for whom this box is being displayed.
      */
@@ -40,10 +40,10 @@ export interface ContactInformationProps {
 }
 
 /**
- * The <ContactInformation> panel displays contact information when it's available, or allows a
+ * The <VolunteerContactInfo> panel displays contact information when it's available, or allows a
  * volunteer to request it when it's not. Access to personal information will be recorded.
  */
-export function ContactInformation(props: ContactInformationProps) {
+export function VolunteerContactInfo(props: VolunteerContactInfoProps) {
     const { contactInfo, eventId, teamId, userId } = props;
 
     const [ username, setUsername ] = useState<string | undefined>(contactInfo?.username);
@@ -72,9 +72,9 @@ export function ContactInformation(props: ContactInformationProps) {
             <Typography variant="h5" sx={{ mb: 1 }}>
                 Contact information
                 { props.contactInfo &&
-                    <Tooltip title="Revealed automatically">
-                        <InfoOutlinedIcon color="warning" fontSize="small"
-                                          sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
+                    <Tooltip title="Revealed by the contact info permission">
+                        <LockOpenIcon color="warning" fontSize="small"
+                                      sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
                     </Tooltip> }
             </Typography>
             <Collapse in={!visible}>
