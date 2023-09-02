@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Activity, Floor, Location, Timeslot } from './ClientTypes';
+import type { Activity, Floor, Location, Timeslot } from './AnimeConTypes';
 import { Program } from './Program';
 import { ProgramUpdateSeverity, comparePrograms } from './ProgramComparison';
 

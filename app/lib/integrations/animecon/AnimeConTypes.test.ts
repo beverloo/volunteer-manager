@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { z } from 'zod';
 
-import { kActivityDefinition } from './ClientTypes';
+import { kActivityDefinition } from './AnimeConTypes';
 
 /**
  * Type definition for an array of activities, which is what we're expecting from the API calls.

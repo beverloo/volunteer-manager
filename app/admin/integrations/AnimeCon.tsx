@@ -14,7 +14,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { ClientSettings } from '@lib/integrations/animecon/Client';
+import type { AnimeConClientSettings } from '@lib/integrations/animecon/AnimeConClient';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import { SubmitCollapse } from '../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -23,7 +23,7 @@ import { issueServerAction } from '@lib/issueServerAction';
  * Settings applicable to the <AnimeCon> component that can be edited through this component. We
  * simply map this as an alias to the AnimeCon Client settings.
  */
-export type AnimeConSettings = ClientSettings;
+export type AnimeConSettings = AnimeConClientSettings;
 
 /**
  * Props accepted by the <AnimeCon> component.

@@ -4,8 +4,7 @@
 import symmetricDifference from 'set.prototype.symmetricdifference';
 
 import { DateTime } from '@lib/DateTime';
-import type { ProgramActivity, ProgramFloor, ProgramLocation, ProgramTimeslot, Program }
-    from './Program';
+import type { ProgramActivity, ProgramLocation, ProgramTimeslot, Program } from './Program';
 
 /**
  * Describes an addition to the program, of any kind.

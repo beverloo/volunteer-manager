@@ -4,7 +4,7 @@
 import util from 'util';
 import zlib from 'zlib';
 
-import type { Activity, Floor } from './ClientTypes';
+import type { Activity, Floor } from './AnimeConTypes';
 import { DateTime } from '@lib/DateTime';
 
 /**

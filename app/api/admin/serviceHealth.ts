@@ -4,8 +4,8 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { Client as AnimeConClient } from '@lib/integrations/animecon/Client';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { createAnimeConClient } from '@lib/integrations/animecon';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { readSettings } from '@lib/Settings';
 
@@ -52,25 +52,7 @@ type Response = ServiceHealthDefinition['response'];
  */
 async function runAnimeConHealthCheck(): Promise<Response> {
     try {
-        const settings = await readSettings([
-            'integration-animecon-api-endpoint',
-            'integration-animecon-auth-endpoint',
-            'integration-animecon-client-id',
-            'integration-animecon-client-secret',
-            'integration-animecon-username',
-            'integration-animecon-password',
-            'integration-animecon-scopes',
-        ]);
-
-        const client = new AnimeConClient({
-            apiEndpoint: settings['integration-animecon-api-endpoint']!,
-            authEndpoint: settings['integration-animecon-auth-endpoint']!,
-            clientId: settings['integration-animecon-client-id']!,
-            clientSecret: settings['integration-animecon-client-secret']!,
-            username: settings['integration-animecon-username']!,
-            password: settings['integration-animecon-password']!,
-            scopes: settings['integration-animecon-scopes']!,
-        });
+        const client = await createAnimeConClient();
 
         const activityTypes = await client.getActivityTypes();
         if (!activityTypes.length)

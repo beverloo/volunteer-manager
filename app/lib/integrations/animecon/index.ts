@@ -1,22 +1,24 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Client, type ClientSettings } from './Client';
+import { AnimeConClient, type AnimeConClientSettings } from './AnimeConClient';
 import { readSettings } from '@lib/Settings';
 
 /**
  * Re-export the primary types that consumers of this integration would interact with.
  */
-export { Client };
+export { AnimeConClient };
 export { Program } from './Program';
 export { comparePrograms } from './ProgramComparison';
-export * from './ClientTypes';
+export * from './AnimeConTypes';
 
 /**
  * Gets an instance of the AnimeCon client with either the `settings` when given, or default
  * configuration loaded from the database when omitted.
  */
-export async function createClient(settings?: ClientSettings): Promise<Client> {
+export async function createAnimeConClient(settings?: AnimeConClientSettings)
+    : Promise<AnimeConClient>
+{
     if (!settings) {
         const configuration = await readSettings([
             'integration-animecon-api-endpoint',
@@ -46,5 +48,5 @@ export async function createClient(settings?: ClientSettings): Promise<Client> {
         };
     }
 
-    return new Client(settings);
+    return new AnimeConClient(settings);
 }

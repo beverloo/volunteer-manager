@@ -4,7 +4,7 @@
 /**
  * Settings required for authenticating with the AnimeCon API.
  */
-export interface ClientAuthSettings {
+export interface AnimeConAuthSettings {
     /**
      * Endpoint at which we can authenticate our client usage.
      */
@@ -69,7 +69,7 @@ export interface ClientAuthToken {
  * Authentication driver for the AnimeCon API. Will make an OAuth2 request to the indicated endpoint
  * to obtain a JWT token, which in turn can be used to authenticate further requests.
  */
-export class ClientAuth {
+export class AnimeConAuth {
     #fetch: typeof globalThis.fetch;
 
     #authEndpoint: string;
@@ -79,7 +79,7 @@ export class ClientAuth {
     #password: string;
     #scopes: string;
 
-    constructor(fetch: typeof globalThis.fetch, settings: ClientAuthSettings) {
+    constructor(fetch: typeof globalThis.fetch, settings: AnimeConAuthSettings) {
         this.#fetch = fetch;
 
         this.#authEndpoint = settings.authEndpoint;

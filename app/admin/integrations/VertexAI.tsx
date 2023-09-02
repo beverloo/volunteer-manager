@@ -26,6 +26,8 @@ import { PlaceholderPaper } from '../components/PlaceholderPaper';
 import { SubmitCollapse } from '../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 
+export type { VertexAISettings };
+
 /**
  * Example prompt that can be submitted from the integration page to test this API.
  */

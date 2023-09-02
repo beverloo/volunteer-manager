@@ -3,17 +3,17 @@
 
 import { z } from 'zod';
 
-import type { Activity, ActivityType, FloorApi, Timeslot } from './ClientTypes';
+import type { Activity, ActivityType, FloorApi, Timeslot } from './AnimeConTypes';
 import { kActivityDefinition, kActivityTypeDefinition, kFloorApiDefinition, kTimeslotDefinition }
-    from './ClientTypes';
+    from './AnimeConTypes';
 
-import { ClientAuth, type ClientAuthSettings } from './ClientAuth';
+import { AnimeConAuth, type AnimeConAuthSettings } from './AnimeConAuth';
 
 /**
  * Settings that must be provided to the AnimeCon Client. These are required towards making any
  * API call, regardless of event or parameters.
  */
-export interface ClientSettings extends ClientAuthSettings {
+export interface AnimeConClientSettings extends AnimeConAuthSettings {
     /**
      * Endpoint for the AnimeCon API that the Volunteer Portal communicates with.
      */
@@ -57,18 +57,18 @@ type GetTimeslotsFilters = {
  * @see https://github.com/AnimeNL/php-rest-api-client
  * @see https://github.com/AnimeNL/php-rest-api-client/blob/master/src/AnimeConClient.php
  */
-export class Client {
+export class AnimeConClient {
     #apiEndpoint: string;
-    #auth: ClientAuth;
+    #auth: AnimeConAuth;
     #fetch: typeof globalThis.fetch;
 
-    constructor(settings: ClientSettings, injectedFetch?: typeof globalThis.fetch) {
+    constructor(settings: AnimeConClientSettings, injectedFetch?: typeof globalThis.fetch) {
         const { apiEndpoint, ...authSettings } = settings;
 
         this.#fetch = injectedFetch ?? globalThis.fetch;
 
         this.#apiEndpoint = apiEndpoint;
-        this.#auth = new ClientAuth(this.#fetch, authSettings);
+        this.#auth = new AnimeConAuth(this.#fetch, authSettings);
     }
 
     /**

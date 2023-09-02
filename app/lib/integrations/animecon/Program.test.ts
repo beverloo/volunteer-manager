@@ -5,7 +5,7 @@ import { TextDecoder, TextEncoder } from 'util';
 import { z } from 'zod';
 
 import { Program, deserializeProgram, serializeProgram } from './Program';
-import { kActivityDefinition, kFloorDefinition } from './ClientTypes';
+import { kActivityDefinition, kFloorDefinition } from './AnimeConTypes';
 
 import exampleEventActivities from './test/animecon-2023.json';
 
