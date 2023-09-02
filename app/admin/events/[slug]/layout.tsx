@@ -41,6 +41,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     return await dbInstance.selectFrom(tEvents)
         .leftJoin(eventsTeamsJoin)
@@ -51,6 +52,10 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
         .leftJoin(pendingApplicationsJoin)
             .on(pendingApplicationsJoin.eventId.equals(tEvents.eventId))
             .and(pendingApplicationsJoin.teamId.equals(teamsJoin.teamId))
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.eventId.equals(tEvents.eventId))
+            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.userId.equals(user.userId))
         .where(tEvents.eventSlug.equals(eventSlug))
         .select({
             event: {
@@ -64,6 +69,9 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 color: teamsJoin.teamColourLightTheme,
                 pendingApplications: pendingApplicationsJoin.applications,
             }),
+            user: {
+                teamId: usersEventsJoin.teamId,
+            },
         })
         .groupBy(tEvents.eventId)
         .executeSelectNoneOrOne();
@@ -143,7 +151,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             icon: <PeopleIcon htmlColor={team.color} />,
             label: team.name!,
 
-            defaultOpen: false,  // FIXME
+            defaultOpen: info.user?.teamId === team.id,
             menu: [
                 {
                     icon: <NewReleasesIcon />,
