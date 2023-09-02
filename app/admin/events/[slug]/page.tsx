@@ -6,7 +6,7 @@ import { EventDashboard } from './EventDashboard';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEvents, tEventsTeams, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 export default async function EventPage(props: NextRouterParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
@@ -40,7 +40,33 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
 
-    return <EventDashboard event={event} teams={teams} />;
+    const storageJoin = tStorage.forUseInLeftJoin();
+
+    const recentVolunteers = await dbInstance.selectFrom(tEvents)
+        .innerJoin(tUsersEvents)
+            .on(tUsersEvents.eventId.equals(tEvents.eventId))
+            .and(tUsersEvents.registrationStatus.notIn([
+                RegistrationStatus.Cancelled, RegistrationStatus.Rejected ]))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tUsersEvents.userId))
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
+        .where(tUsersEvents.eventId.equals(event.id))
+        .select({
+            userId: tUsers.userId,
+            avatarHash: storageJoin.fileHash,
+            teamEnvironment: tTeams.teamEnvironment,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            status: tUsersEvents.registrationStatus,
+        })
+        .orderBy(tUsersEvents.registrationDate, 'desc')
+        .orderBy(/* fallback for older events= */ tUsers.username, 'asc')
+        .limit(/* based on width of the component= */ 5)
+        .executeSelectMany();
+
+    return <EventDashboard event={event} recentVolunteers={recentVolunteers} teams={teams} />;
 }
 
 export const generateMetadata = generateEventMetadataFn();

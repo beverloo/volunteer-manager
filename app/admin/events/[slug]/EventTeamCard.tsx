@@ -121,7 +121,8 @@ export function EventTeamCard(props: EventTeamCardProps) {
                                     <Typography variant="h5" sx={{ color: 'text.disabled' }}>
                                         /
                                     </Typography>
-                                    <Tooltip title="Target" sx={{ color: 'text.disabled' }}>
+                                    <Tooltip title="target # of volunteers"
+                                             sx={{ color: 'text.disabled' }}>
                                         <Typography variant="h5">
                                             {props.teamTargetSize}
                                         </Typography>

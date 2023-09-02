@@ -7,6 +7,8 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { EventIdentityCard } from './EventIdentityCard';
+import { EventRecentVolunteers, type EventRecentVolunteersProps } from './EventRecentVolunteers';
+import { EventSeniors } from './EventSeniors';
 import { EventTeamCard, type EventTeamCardProps } from './EventTeamCard';
 import { EventTimeline } from './EventTimeline';
 
@@ -20,6 +22,11 @@ export interface EventDashboardProps {
     event: PageInfo['event'];
 
     /**
+     * Most recent volunteers who applied to participate in this event.
+     */
+    recentVolunteers: EventRecentVolunteersProps['volunteers'];
+
+    /**
      * Teams that participate in this event, each with meta-information that can be displayed on
      * the <EventTeamCard> objects.
      */
@@ -31,10 +38,12 @@ export interface EventDashboardProps {
  * useful for the leads to know about. It's less detailed than the statistics sub-app.
  */
 export function EventDashboard(props: EventDashboardProps) {
+    const { event } = props;
+
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }}>
             <Grid xs={3}>
-                <EventIdentityCard event={props.event} />
+                <EventIdentityCard event={event} />
             </Grid>
             { props.teams.map((team, index) =>
                 <Grid key={`team-${index}`} xs={3}>
@@ -43,6 +52,15 @@ export function EventDashboard(props: EventDashboardProps) {
 
             <Grid xs={12}>
                 <EventTimeline />
+            </Grid>
+
+            { props.recentVolunteers.length &&
+                <Grid xs={6}>
+                    <EventRecentVolunteers event={event} volunteers={props.recentVolunteers} />
+                </Grid> }
+
+            <Grid xs={6}>
+                <EventSeniors />
             </Grid>
         </Grid>
     );
