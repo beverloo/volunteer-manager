@@ -5,6 +5,7 @@
 
 import Grid from '@mui/material/Unstable_Grid2';
 
+import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventTeamCard, type EventTeamCardProps } from './EventTeamCard';
 import { EventTimeline } from './EventTimeline';
@@ -13,6 +14,11 @@ import { EventTimeline } from './EventTimeline';
  * Props accepted by the <EventDashboard> component.
  */
 export interface EventDashboardProps {
+    /**
+     * Information about the event for which the dashboard is being shown.
+     */
+    event: PageInfo['event'];
+
     /**
      * Teams that participate in this event, each with meta-information that can be displayed on
      * the <EventTeamCard> objects.
@@ -28,7 +34,7 @@ export function EventDashboard(props: EventDashboardProps) {
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }}>
             <Grid xs={3}>
-                <EventIdentityCard />
+                <EventIdentityCard event={props.event} />
             </Grid>
             { props.teams.map((team, index) =>
                 <Grid key={`team-${index}`} xs={3}>

@@ -4,12 +4,24 @@
 'use client';
 
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 /**
  * Props accepted by the <EventIdentityCard> component.
  */
 export interface EventIdentityCardProps {
-    // TODO
+    event: {
+        /**
+         * Hash of the file at which the event's identity image has been stored.
+         */
+        identityHash?: string;
+
+        /**
+         * Full name of the event, displayed when no identity image is available.
+         */
+        name: string;
+    };
 }
 
 /**
@@ -17,9 +29,23 @@ export interface EventIdentityCardProps {
  * should help as a quick indication to the volunteer about which event is being displayed.
  */
 export function EventIdentityCard(props: EventIdentityCardProps) {
+    const { identityHash, name } = props.event;
+
+    if (!!identityHash) {
+        return <Paper sx={{ aspectRatio: 1.25, backgroundImage: `url(/blob/${identityHash}.png)`,
+                            backgroundSize: 'cover', backgroundPosition: 'center center' }} />;
+    }
+
     return (
         <Paper sx={{ aspectRatio: 1.25, p: 2 }}>
-            EventIdentityCard
+            <Stack direction="column" justifyContent="center" sx={{ height: '100%' }}>
+                <Typography variant="h5" align="center">
+                    {name}
+                </Typography>
+                <Typography variant="caption" align="center" sx={{ pt: 1 }}>
+                    (no image available)
+                </Typography>
+            </Stack>
         </Paper>
     );
 }

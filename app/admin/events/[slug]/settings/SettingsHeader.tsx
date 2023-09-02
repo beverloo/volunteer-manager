@@ -3,13 +3,14 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { TextFieldElement } from 'react-hook-form-mui';
 
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import ImageIcon from '@mui/icons-material/Image';
 import LinkIcon from '@mui/icons-material/Link';
 import Paper from '@mui/material/Paper';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -20,6 +21,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
+import { LazyAvatarEditor } from '@app/components/LazyAvatarEditor';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { TransitionAlert } from '@app/admin/components/TransitionAlert';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -64,6 +66,12 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
     const router = useRouter();
 
+    const imageSrc = useMemo(() => {
+        return props.event.identityHash ? `/blob/${props.event.identityHash}.png`
+                                        : undefined;
+    }, [ props.event.identityHash ]);
+
+    const [ imageOpen, setImageOpen ] = useState<boolean>(false);
     const [ publishOpen, setPublishOpen ] = useState<boolean>(false);
     const [ suspendOpen, setSuspendOpen ] = useState<boolean>(false);
     const [ slugOpen, setSlugOpen ] = useState<boolean>(false);
@@ -85,7 +93,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
         return response.success ? { success: `${event.shortName} has been published.` }
                                 : { error: `${event.shortName} could not be published.` };
-    }, [ event ]);
+    }, [ event.shortName, event.slug ]);
 
     const openSuspend = useCallback(() => setSuspendOpen(true), [ /* no deps */ ]);
     const handleSuspend = useCallback(async () => {
@@ -96,7 +104,30 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
         return response.success ? { success: `${event.shortName} has been suspended.` }
                                 : { error: `${event.shortName} could not be suspended.` };
-    }, [ event ]);
+    }, [ event.shortName, event.slug ]);
+
+    const closeImage = useCallback(() => setImageOpen(false), [ /* no deps */ ]);
+    const openImage = useCallback(() => setImageOpen(true), [ /* no deps */ ]);
+
+    const handleImage = useCallback(async (avatar: Blob) => {
+        const base64Header = 'data:image/png;base64,';
+        const base64Avatar = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend =
+                () => resolve((reader.result as string).substring(base64Header.length));
+            reader.readAsDataURL(avatar);
+        });
+
+        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+            event: event.slug,
+            eventIdentity: base64Avatar as string,
+        });
+
+        if (response.success)
+            router.refresh();
+
+        return response.success;
+    }, [ event.slug, router ]);
 
     const [ updatedSlug, setUpdatedSlug ] = useState<string | undefined>();
 
@@ -144,6 +175,8 @@ export function SettingsHeader(props: SettingsHeaderProps) {
                             Suspend
                         </Button> }
 
+                    <Button startIcon={ <ImageIcon /> } onClick={openImage}>Change image</Button>
+
                     <Button startIcon={ <LinkIcon /> } onClick={openSlug}>Change slug</Button>
 
                 </Stack>
@@ -169,6 +202,9 @@ export function SettingsHeader(props: SettingsHeaderProps) {
             <SettingDialog title={`Suspend ${event.shortName}`} open={suspendOpen}
                            description={kSuspendDescription} submitLabel="Suspend"
                            onClose={handleClose} onSubmit={handleSuspend} />
+
+            <LazyAvatarEditor open={imageOpen} square requestClose={closeImage} src={imageSrc}
+                              requestUpload={handleImage} title="Upload a new image" />
 
             <SettingDialog title={`${event.shortName} slug`} open={slugOpen}
                            description={kSlugDescription} onClose={handleCloseSlug}

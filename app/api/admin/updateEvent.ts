@@ -5,9 +5,11 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
+import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tEvents, tEventsTeams } from '@lib/database';
 
 /**
@@ -24,6 +26,11 @@ export const kUpdateEventDefinition = z.object({
          * Whether the event should be hidden. Will be updated when set to a value.
          */
         eventHidden: z.boolean().optional(),
+
+        /**
+         * The event identity image, encoded in the PNG format, represented as a string.
+         */
+        eventIdentity: z.string().optional(),
 
         /**
          * Event settings that should be updated, if any.
@@ -104,6 +111,37 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         }
 
         return { success: !!affectedRows };
+    }
+
+    if (request.eventIdentity !== undefined) {
+        const eventIdentityId = await storeBlobData({
+            bytes: Buffer.from(request.eventIdentity, 'base64'),
+            mimeType: 'image/png',
+            type: FileType.EventIdentity,
+        });
+
+        if (eventIdentityId !== false) {
+            const affectedRows = await db.update(tEvents)
+                .set({ eventIdentityId })
+                .where(tEvents.eventId.equals(event.eventId))
+                .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+            if (!!affectedRows) {
+                await Log({
+                    type: LogType.AdminUpdateEvent,
+                    severity: LogSeverity.Info,
+                    sourceUser: props.user,
+                    data: {
+                        action: 'the identity image',
+                        event: event.shortName,
+                    },
+                });
+            }
+
+            return { success: !!affectedRows };
+        }
+
+        return { success: false };
     }
 
     if (request.eventSettings !== undefined) {

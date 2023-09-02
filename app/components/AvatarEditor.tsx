@@ -61,6 +61,16 @@ export interface AvatarEditorProps {
      * Callback that should be called when the editor is requesting an upload.
      */
     requestUpload: (avatar: Blob) => Promise<boolean>;
+
+    /**
+     * Title of the editor, as it should be displayed.
+     */
+    title: string;
+
+    /**
+     * Whether the selection overlay should be square, otherwise it will be rounded.
+     */
+    square?: boolean;
 }
 
 /**
@@ -69,7 +79,7 @@ export interface AvatarEditorProps {
  * sure that the updated information is visible to all other users as well.
  */
 export default function AvatarEditor(props: AvatarEditorProps) {
-    const { open, src, requestClose, requestUpload } = props;
+    const { open, src, requestClose, requestUpload, title, square } = props;
 
     // Reference to the editor that's being used for the avatar. May be NULL.
     const editorRef = createRef<ReactAvatarEditor>();
@@ -165,10 +175,10 @@ export default function AvatarEditor(props: AvatarEditorProps) {
     return (
         <Dialog onClose={handleDialogClose} open={!!open}>
 
-            <DialogTitle>Upload a new avatar</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent dividers sx={{ padding: 0, paddingTop: 2, paddingBottom: 1 }}>
                 <ReactAvatarEditor width={250} height={250} scale={zoomLevel}
-                                   border={[ 32, 0 ]} borderRadius={125}
+                                   border={[ 32, 0 ]} borderRadius={!!square ? 0 : 125}
                                    color={themedBackground}
                                    image={image}
                                    /** @ts-ignore */

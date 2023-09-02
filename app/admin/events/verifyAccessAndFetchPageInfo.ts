@@ -7,7 +7,7 @@ import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@app/lib/database/Types';
 import { requireUser } from '@lib/auth/getUser';
-import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
 /**
  * Basic information that will always be made available. Includes the user who is signed in and key
@@ -53,6 +53,11 @@ export interface PageInfo {
          * Full name of the event, including its theme.
          */
         name: string;
+
+        /**
+         * Hash of the file containing the event's identity image, if any.
+         */
+        identityHash?: string;
 
         /**
          * Slug of the event, through which it can be identified in the URL.
@@ -124,8 +129,11 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
 
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
+    const storageJoin = tStorage.forUseInLeftJoin();
 
     const event = await db.selectFrom(tEvents)
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tEvents.eventIdentityId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.userId.equals(user.userId))
@@ -137,6 +145,7 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
             hidden: tEvents.eventHidden.equals(/* true= */ 1),
             name: tEvents.eventName,
             shortName: tEvents.eventShortName,
+            identityHash: storageJoin.fileHash,
             slug: tEvents.eventSlug,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,

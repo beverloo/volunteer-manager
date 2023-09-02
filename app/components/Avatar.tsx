@@ -191,7 +191,7 @@ export function Avatar(props: AvatarProps) {
             <>
                 {avatar}
                 <LazyAvatarEditor open={editorOpen}
-                                  src={props.src}
+                                  src={props.src} title="Upload a new avatar"
                                   requestClose={ () => setEditorOpen(false) }
                                   requestUpload={ props.onChange ?? (async () => false) } />
             </>

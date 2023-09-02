@@ -4,10 +4,10 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
+import { FileType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';
-import { FileType } from '@app/lib/database/Types';
 
 /**
  * Interface definition for the UpdateAvatar API, exposed through /api/auth/update-avatar.

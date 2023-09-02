@@ -1000,6 +1000,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: event_identity_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: publish_availability
     type: tinyint(1)
     nullable: false
@@ -1042,6 +1047,7 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `event_identity_id` int(8) unsigned DEFAULT NULL,
       `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
       `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
       `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,

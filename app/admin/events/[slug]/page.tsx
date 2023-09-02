@@ -40,7 +40,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
 
-    return <EventDashboard teams={teams} />;
+    return <EventDashboard event={event} teams={teams} />;
 }
 
 export const generateMetadata = generateEventMetadataFn();

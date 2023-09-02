@@ -17,6 +17,7 @@ export enum AuthType {
  */
 export enum FileType {
     Avatar = 'Avatar',
+    EventIdentity = 'EventIdentity',
 }
 
 /**
