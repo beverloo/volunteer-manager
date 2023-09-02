@@ -8,14 +8,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
-import StarIcon from '@mui/icons-material/Star';
+
+import { type EventRecentVolunteersProps, VolunteerStack } from './EventRecentVolunteers';
 
 /**
  * Props accepted by the <EventSeniors> component.
  */
-export interface EventSeniorsProps {
-    // TODO
-}
+export type EventSeniorsProps = EventRecentVolunteersProps;
 
 /**
  * The <EventSeniors> component displays the seniors who will participate in this event. Clicking on
@@ -28,8 +27,8 @@ export function EventSeniors(props: EventSeniorsProps) {
                         title="Leadership team" titleTypographyProps={{ variant: 'subtitle2' }}
                         subheader="Senior, Staff and Core Staff volunteers" />
             <Divider />
-            <CardContent>
-                EventSeniors
+            <CardContent sx={{ pb: '16px !important' }}>
+                <VolunteerStack {...props} />
             </CardContent>
         </Card>
     );

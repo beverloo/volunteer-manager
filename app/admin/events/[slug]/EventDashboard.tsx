@@ -8,7 +8,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventRecentVolunteers, type EventRecentVolunteersProps } from './EventRecentVolunteers';
-import { EventSeniors } from './EventSeniors';
+import { EventSeniors, type EventSeniorsProps } from './EventSeniors';
 import { EventTeamCard, type EventTeamCardProps } from './EventTeamCard';
 import { EventTimeline } from './EventTimeline';
 
@@ -25,6 +25,11 @@ export interface EventDashboardProps {
      * Most recent volunteers who applied to participate in this event.
      */
     recentVolunteers: EventRecentVolunteersProps['volunteers'];
+
+    /**
+     * The seniors who participate in this event.
+     */
+    seniors: EventSeniorsProps['volunteers'];
 
     /**
      * Teams that participate in this event, each with meta-information that can be displayed on
@@ -60,7 +65,7 @@ export function EventDashboard(props: EventDashboardProps) {
                 </Grid> }
 
             <Grid xs={6}>
-                <EventSeniors />
+                <EventSeniors event={event} volunteers={props.seniors} />
             </Grid>
         </Grid>
     );

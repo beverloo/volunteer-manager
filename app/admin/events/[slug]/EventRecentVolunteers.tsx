@@ -7,7 +7,6 @@ import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AvatarGroup from '@mui/material/AvatarGroup';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
@@ -18,7 +17,7 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
 
 /**
- * Props accepted by the <EventRecentVolunteers> component.
+ * Props accepted by the <EventRecentVolunteers> and <VolunteerStack> components.
  */
 export interface EventRecentVolunteersProps {
     event: {
@@ -26,7 +25,7 @@ export interface EventRecentVolunteersProps {
          * Slug of the event for which this card is being composed.
          */
         slug: string;
-    }
+    };
 
     volunteers: {
         /**
@@ -57,12 +56,44 @@ export interface EventRecentVolunteersProps {
 }
 
 /**
+ * The <VolunteerStack> component displays a stack containing all the volunteers carried in `props`.
+ */
+export function VolunteerStack(props: EventRecentVolunteersProps) {
+    const { event, volunteers } = props;
+    return (
+        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+            { volunteers.map((volunteer, index) => {
+                const linkBase = `/admin/events/${event.slug}/${volunteer.teamEnvironment}`;
+
+                let link: string = '/applications';
+                switch (volunteer.status) {
+                    case RegistrationStatus.Accepted:
+                    case RegistrationStatus.Cancelled:
+                        link = `/volunteers/${volunteer.userId}`;
+                        break;
+                }
+
+                const avatarSrc = volunteer.avatarHash ? `/blob/${volunteer.avatarHash}.png`
+                                                        : undefined;
+
+                return (
+                    <MuiLink key={index} component={Link} href={`${linkBase}${link}`}
+                                sx={{ textDecoration: 'none' }}>
+                        <Avatar size="medium" src={avatarSrc}>
+                            {volunteer.name}
+                        </Avatar>
+                    </MuiLink>
+                );
+            } )}
+        </Stack>
+    );
+}
+
+/**
  * The <EventRecentVolunteers> component displays the volunteers who have most recently joined the
  * team. Clicking on their avatar will forward the senior (or administrator) to their profile.
  */
 export function EventRecentVolunteers(props: EventRecentVolunteersProps) {
-    const { event, volunteers } = props;
-
     return (
         <Card>
             <CardHeader avatar={ <AccessTimeIcon color="primary" /> }
@@ -71,32 +102,7 @@ export function EventRecentVolunteers(props: EventRecentVolunteersProps) {
                         subheader="Based on when we received their application…" />
             <Divider />
             <CardContent sx={{ pb: '16px !important' }}>
-                <Stack direction="row" spacing={1}>
-                    { volunteers.map((volunteer, index) => {
-                        const linkBase = `/admin/events/${event.slug}/${volunteer.teamEnvironment}`;
-
-                        let link: string = '/applications';
-                        switch (volunteer.status) {
-                            case RegistrationStatus.Accepted:
-                            case RegistrationStatus.Cancelled:
-                                link = `/volunteers/${volunteer.userId}`;
-                                break;
-                        }
-
-                        const avatarSrc = volunteer.avatarHash ? `/blob/${volunteer.avatarHash}.png`
-                                                               : undefined;
-
-                        return (
-                            <MuiLink key={index} component={Link} href={`${linkBase}${link}`}
-                                     sx={{ textDecoration: 'none' }}>
-                                <Avatar size="large" src={avatarSrc}>
-                                    {volunteer.name}
-                                </Avatar>
-                            </MuiLink>
-                        );
-
-                    } )}
-                </Stack>
+                <VolunteerStack {...props} />
             </CardContent>
         </Card>
     );

@@ -6,7 +6,8 @@ import { EventDashboard } from './EventDashboard';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsTeams, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents, tUsers }
+    from '@lib/database';
 
 export default async function EventPage(props: NextRouterParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
@@ -66,7 +67,35 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .limit(/* based on width of the component= */ 5)
         .executeSelectMany();
 
-    return <EventDashboard event={event} recentVolunteers={recentVolunteers} teams={teams} />;
+    const rolesJoin = tRoles.forUseInLeftJoin();
+
+    const seniors = await dbInstance.selectFrom(tEvents)
+        .innerJoin(tUsersEvents)
+            .on(tUsersEvents.eventId.equals(tEvents.eventId))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tUsersEvents.userId))
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
+        .leftJoin(rolesJoin)
+            .on(rolesJoin.roleId.equals(tUsersEvents.roleId))
+        .where(tUsersEvents.eventId.equals(event.id))
+            .and(rolesJoin.roleAdminAccess.equals(/* true= */ 1))
+        .select({
+            userId: tUsers.userId,
+            avatarHash: storageJoin.fileHash,
+            teamEnvironment: tTeams.teamEnvironment,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            status: tUsersEvents.registrationStatus,
+        })
+        .orderBy(rolesJoin.roleOrder, 'asc')
+        .orderBy(tUsers.username, 'asc')
+        .executeSelectMany();
+
+    return <EventDashboard event={event} recentVolunteers={recentVolunteers} seniors={seniors}
+                           teams={teams} />;
 }
 
 export const generateMetadata = generateEventMetadataFn();
