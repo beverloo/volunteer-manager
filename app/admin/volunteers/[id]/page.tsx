@@ -9,9 +9,9 @@ import { Header } from './Header';
 import { Information } from './Information';
 import { Logs } from './Logs';
 import { type ParticipationInfo, Participation } from './Participation';
-import { Permissions } from './Permissions';
 import { Privilege, can } from '@app/lib/auth/Privileges';
 import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
+import { VolunteerPrivileges } from './VolunteerPrivileges';
 import { requireUser } from '@lib/auth/getUser';
 
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -122,13 +122,15 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
         <>
             <Header account={account} isAdmin={isAdmin} />
             <Information account={account} />
-            <Participation participation={participation} userId={account.userId} />
+
+            { !!participation.length &&
+                <Participation participation={participation} userId={account.userId} /> }
 
             { (can(user, Privilege.SystemLogsAccess) && logs.length > 0) &&
                 <Logs messages={logs} /> }
 
             { can(user, Privilege.Administrator) &&
-                <Permissions userId={account.userId} privileges={account.privileges} /> }
+                <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }
         </>
     );
 }

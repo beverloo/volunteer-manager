@@ -15,17 +15,20 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import WarningIcon from '@mui/icons-material/Warning';
 import { red } from '@mui/material/colors';
 
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
+import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@app/lib/issueServerAction';
 
 import { PrivilegeGroups, PrivilegeNames, PrivilegeWarnings, Privilege }
     from '@app/lib/auth/Privileges';
 
 /**
- * Custom styles applied to the <Permissions> component.
+ * Custom styles applied to the <VolunteerPrivileges> component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     unsavedWarning: {
@@ -42,11 +45,11 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Props accepted by the <Permissions> component.
+ * Props accepted by the <VolunteerPrivileges> component.
  */
-export interface PermissionsProps {
+export interface VolunteerPrivilegesProps {
     /**
-     * ID of the user for whom permissions are being displayed.
+     * ID of the user for whom privileges are being displayed.
      */
     userId: number;
 
@@ -58,10 +61,10 @@ export interface PermissionsProps {
 }
 
 /**
- * The <Permissions> component lists the permissions granted to this user, and allows for additional
- * permissions to be granted. Permissions are automatically generated. Only administrators get this.
+ * The <VolunteerPrivileges> component lists the privileges granted to this user, and allows for
+ * additional privileges to be granted. Permissions are automatically generated.
  */
-export function Permissions(props: PermissionsProps) {
+export function VolunteerPrivileges(props: VolunteerPrivilegesProps) {
     const groups = [ ...new Set(Object.values(PrivilegeGroups)) ];
     const router = useRouter();
 
@@ -105,11 +108,11 @@ export function Permissions(props: PermissionsProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
-                Global permissions
+                Volunteer Manager Privileges
             </Typography>
             <Alert severity="warning" sx={{ mb: 1 }}>
-                Permissions that will be granted to this volunteer regardless of their participation
-                in an event. Only administrators have the ability to amend permissions.
+                Privileges are granted in addition to event-based administrative access. Only
+                administrators have the ability to amend privileges.
             </Alert>
             <Grid container spacing={1}>
                 { groups.map(group =>
@@ -119,32 +122,34 @@ export function Permissions(props: PermissionsProps) {
                                 {group}
                             </Typography>
                         </Grid>
-                        { Object.entries(PrivilegeNames).map(([ privilege, label ]) => {
+                        { Object.entries(PrivilegeNames).map(([ privilege, name ]) => {
                             const typedPrivilege = privilege as unknown as Privilege;
                             if (PrivilegeGroups[typedPrivilege] !== group)
                                 return undefined;
 
                             const numericPrivilege = BigInt(privilege);
                             const checked = (privileges & numericPrivilege) === numericPrivilege;
+
+                            const label =
+                                <>
+                                    {name}
+                                    { PrivilegeWarnings.hasOwnProperty(privilege) &&
+                                        <Tooltip title={PrivilegeWarnings[typedPrivilege]}>
+                                            <WarningIcon color="warning" fontSize="small"
+                                                         sx={{ verticalAlign: 'sub', ml: 0.75 }} />
+                                        </Tooltip> }
+                                </>;
+
                             const control =
                                 <Checkbox size="small" checked={checked} value={privilege}
                                           onChange={ (e) => updatePrivilege(e.target) }/>;
 
                             return (
                                 <Grid key={privilege+props.userId} xs={6} sx={{ py: 0.2 }}>
-
                                     <FormControlLabel control={control} label={label}
                                                       slotProps={{
                                                           typography: { variant: 'body2' }
                                                       }} />
-
-                                    { PrivilegeWarnings.hasOwnProperty(privilege) &&
-                                        <Collapse in={checked}>
-                                            <Typography variant="body2" sx={kStyles.warning}>
-                                                { PrivilegeWarnings[typedPrivilege] }
-                                            </Typography>
-                                        </Collapse> }
-
                                 </Grid>
                             );
                         }) }

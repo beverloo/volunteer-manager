@@ -8,7 +8,7 @@ import type { UserData } from './UserData';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 15
+ * Next setting: 1 << 16
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -34,6 +34,7 @@ export enum Privilege {
 
     // Privileges captured by VolunteerAdministrator:
     VolunteerAvatarManagement           = 1 << 6,
+    VolunteerSilentMutations            = 1 << 15,
 };
 
 /**
@@ -79,6 +80,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
 
     [Privilege.VolunteerAdministrator]: [
         Privilege.VolunteerAvatarManagement,
+        Privilege.VolunteerSilentMutations,
     ],
 };
 
@@ -86,13 +88,13 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
  * Maximum depth of privilege expansion rules. I.e. Administrator -> EventAdministrator ->
  * EventApplicationManagement makes for two necessary iterations.
  */
-const kPrivilegeExpansionMaxIterations = 2;
+const kPrivilegeExpansionIterations = 2;
 
 /**
  * Expands the `privileges` according to the privilege expansion rules.
  */
 export function expand(privileges: Privileges): Privileges {
-    for (let iteration = 0; iteration < kPrivilegeExpansionMaxIterations; ++iteration) {
+    for (let iteration = 0; iteration < kPrivilegeExpansionIterations; ++iteration) {
         for (const [ privilege, expandedPrivileges ] of Object.entries(PrivilegeExpansion)) {
             if ((privileges & BigInt(privilege)) === 0n)
                 continue;  // the |privilege| has not been granted
@@ -127,6 +129,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
 
     [Privilege.VolunteerAdministrator]: 'Special access',
     [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
+    [Privilege.VolunteerSilentMutations]: 'Volunteer access',
 };
 
 /**
@@ -151,16 +154,18 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
     [Privilege.VolunteerAvatarManagement]: 'Avatar management',
+    [Privilege.VolunteerSilentMutations]: 'Silent changes',
 };
 
 /**
  * Warnings associated with each of the Privileges.
  */
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
-    [Privilege.Administrator]: 'Automatically grants all other privileges',
-    [Privilege.Statistics]: 'Allows access to (aggregated) statistics across all events',
+    [Privilege.Administrator]: 'Grants all privileges',
 
-    [Privilege.EventAdministrator]: 'Administrator access to anything related to events',
-    [Privilege.SystemAdministrator]: 'Administrator access to anything regarding system internals',
-    [Privilege.VolunteerAdministrator]: 'Administrator access to anything related to volunteers',
+    [Privilege.EventAdministrator]: 'Grants all event-related privileges',
+    [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
+    [Privilege.VolunteerAdministrator]: 'Grants all volunteer-related privileges',
+
+    [Privilege.VolunteerSilentMutations]: 'Make changes without informing the volunteer',
 };
