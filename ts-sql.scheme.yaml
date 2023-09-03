@@ -31,6 +31,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: content_protected
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
   - name: content
     type: text
     nullable: false
@@ -45,6 +50,11 @@ tables:
     type: timestamp
     nullable: false
     default: current_timestamp()
+    comment: ""
+  - name: revision_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
     comment: ""
   indexes:
   - name: event_id
@@ -78,9 +88,11 @@ tables:
       `team_id` int(4) unsigned NOT NULL,
       `content_path` text NOT NULL,
       `content_title` text NOT NULL,
+      `content_protected` tinyint(1) NOT NULL DEFAULT 0,
       `content` text NOT NULL,
       `revision_author_id` int(4) unsigned NOT NULL,
       `revision_date` timestamp NOT NULL DEFAULT current_timestamp(),
+      `revision_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`content_id`),
       KEY `event_id` (`event_id`,`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

@@ -100,6 +100,11 @@ export const kListContentDefinition = z.object({
              * User ID of the volunteer who last updated the content.
              */
             updatedByUserId: z.number(),
+
+            /**
+             * Included when the content has been protected and cannot be removed.
+             */
+            protected: z.boolean(),
         })),
     }),
 });
@@ -121,6 +126,7 @@ export async function listContent(request: Request, props: ActionProps): Promise
             .on(tUsers.userId.equals(tContent.revisionAuthorId))
         .where(tContent.eventId.equals(request.scope.eventId))
             .and(tContent.teamId.equals(request.scope.teamId))
+            .and(tContent.revisionVisible.equals(/* true= */ 1))
         .select({
             id: tContent.contentId,
             path: tContent.contentPath,
@@ -128,6 +134,7 @@ export async function listContent(request: Request, props: ActionProps): Promise
             updatedOn: tContent.revisionDate.getTime().divide(/* ms => s */ 1000),
             updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
             updatedByUserId: tUsers.userId,
+            protected: tContent.contentProtected.equals(/* true= */ 1),
         })
         .orderBy(request.sort?.field ?? 'path', request.sort?.sort ?? 'asc')
         .executeSelectMany();

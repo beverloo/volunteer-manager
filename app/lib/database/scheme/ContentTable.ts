@@ -15,9 +15,11 @@ export class ContentTable extends Table<DBConnection, 'ContentTable'> {
     teamId = this.column('team_id', 'int');
     contentPath = this.column('content_path', 'string');
     contentTitle = this.column('content_title', 'string');
+    contentProtected = this.columnWithDefaultValue('content_protected', 'int');
     content = this.column('content', 'string');
     revisionAuthorId = this.column('revision_author_id', 'int');
     revisionDate = this.columnWithDefaultValue('revision_date', 'localDateTime');
+    revisionVisible = this.columnWithDefaultValue('revision_visible', 'int');
 
     constructor() {
         super('content');

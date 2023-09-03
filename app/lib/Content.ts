@@ -53,6 +53,7 @@ export async function getContent(environmentName: string, event: Event, path: st
             .on(teamsJoin.teamId.equals(tContent.teamId))
         .where(tContent.eventId.equals(event.eventId))
             .and(tContent.contentPath.equals(path.join('/')))
+            .and(tContent.revisionVisible.equals(/* true= */ 1))
             .and(teamsJoin.teamEnvironment.equals(environmentName))
         .select({
             title: tContent.contentTitle,
