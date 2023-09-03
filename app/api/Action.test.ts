@@ -326,7 +326,9 @@ describe('Action', () => {
         const interfaceDefinition = z.object({
             request: z.object({
                 name: z.string(),
-                number: z.coerce.number(),  // coercion is necessary as request params are strings
+                child: z.object({
+                    number: z.coerce.number(),  // coercion is necessary as params are strings
+                }),
             }),
             response: z.object({
                 value: z.string(),
@@ -337,11 +339,11 @@ describe('Action', () => {
         type ResponseType = z.infer<typeof interfaceDefinition>['response'];
 
         async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
-            return { value: `${request.name}-${request.number}` };
+            return { value: `${request.name}-${request.child.number}` };
         }
 
         const request = createRequest(
-            'GET', /* body= */ undefined, 'https://example.com/?name=Joe&number=42');
+            'GET', /* body= */ undefined, 'https://example.com/?name=Joe&child.number=42');
 
         const response = await executeAction(request, interfaceDefinition, MyAction);
 
@@ -373,12 +375,28 @@ describe('Action', () => {
         const request = createRequest(
             'GET', /* body= */ undefined, 'https://example.com/21/?name=Joe');
 
-        const response = await executeAction(request, interfaceDefinition, MyAction, { id: '21' });
+        // Single value (i.e. NextJS' `[id]` route property)
+        {
+            const response =
+                await executeAction(request, interfaceDefinition, MyAction, { id: '21' });
 
-        expect(response.ok).toBeTruthy();
-        expect(response.status).toBe(200);
+            expect(response.ok).toBeTruthy();
+            expect(response.status).toBe(200);
 
-        const responseBody = await response.json();
-        expect(responseBody.value).toEqual('21-Joe');
+            const responseBody = await response.json();
+            expect(responseBody.value).toEqual('21-Joe');
+        }
+
+        // Multie value (i.e. NextJS' `[...id]` route property)
+        {
+            const response =
+                await executeAction(request, interfaceDefinition, MyAction, { id: [ '21' ] });
+
+            expect(response.ok).toBeTruthy();
+            expect(response.status).toBe(200);
+
+            const responseBody = await response.json();
+            expect(responseBody.value).toEqual('21-Joe');
+        }
     });
 });

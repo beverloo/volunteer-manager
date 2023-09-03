@@ -82,7 +82,32 @@ async function distillAndValidateRequestParams(
     let requestPayload: Record<string, any>;
     switch (request.method) {
         case 'GET':
-            requestPayload = Object.fromEntries(request.nextUrl.searchParams.entries());
+            requestPayload = { /* empty object */ };
+            request.nextUrl.searchParams.forEach((value, key) => {
+                const path = key.split('.');
+                const property = path.pop();
+
+                // (1) Establish the base reference within the `requestPayload` to write to.
+                let baseReference = requestPayload;
+                for (const component of path) {
+                    if (!Object.hasOwn(baseReference, component))
+                        baseReference[component] = {};
+
+                    if (typeof baseReference[component] === 'object')
+                        baseReference = baseReference[component];
+                    else
+                        console.warn(`Ignoring property ${key}: would override other parameters`);
+                }
+
+                // (2) Write the `value` to that reference.
+                if (Object.hasOwn(baseReference, property!)) {
+                    console.warn(`Ignoring property ${key}: the parameter already exists`);
+                    return;
+                }
+
+                baseReference[property!] = value;
+            });
+
             break;
 
         case 'DELETE':
