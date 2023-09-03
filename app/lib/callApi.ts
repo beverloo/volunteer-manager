@@ -4,6 +4,7 @@
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { HotelsDefinition } from '@app/api/event/hotels';
+import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -17,7 +18,9 @@ type ApiResponseType<T> = T extends { response: object } ? T['response'] : void;
  * associated with that. This enables significant simplication of the `callApi` method.
  */
 type ApiEndpoints = {
-    'get': {},
+    'get': {
+        '/api/admin/content': ListContentDefinition,
+    },
     'post': {
         '/api/admin/create-event': CreateEventDefinition,
         '/api/events/application': ApplicationDefinition,
@@ -31,6 +34,24 @@ type ApiEndpoints = {
  * The `fetch` function that should be used by the `callApi` machinery. Can be overridden for tests.
  */
 let globalFetch = globalThis.fetch;
+
+/**
+ * Writes the `value` at the given `path` to the `searchParams`. This allows the `callApi()` method
+ * to support input parameters to GET requests seamlessly.
+ */
+function writeToSearchParams(searchParams: URLSearchParams, value: any, path: string[]) {
+    if (Array.isArray(value))
+        throw new Error('Support for arrays has not been implemented yet');
+
+    if (typeof value === 'object') {
+        for (const [ childKey, childValue ] of Object.entries(value))
+            writeToSearchParams(searchParams, childValue, [ ...path, childKey ]);
+
+        return;
+    }
+
+    searchParams.set(path.join('.'), `${value}`);
+}
 
 /**
  * The `callApi` method is the Volunteer Manager's canonical mechanism for making REST API calls. It
@@ -55,14 +76,16 @@ export async function callApi<Method extends keyof ApiEndpoints,
     let requestPayload: string | undefined;
 
     if (method === 'get') {
-        requestEndpoint += new URLSearchParams([ ...Object.entries(request) ]).toString();
+        const searchParams = new URLSearchParams();
+        writeToSearchParams(searchParams, request, [ /* empty path */ ]);
+        requestEndpoint += `?${searchParams.toString()}`;
     } else {
         requestHeaders = { 'Content-Type': 'application/json' };
         requestPayload = JSON.stringify(request);
     }
 
     const response = await globalFetch(requestEndpoint, {
-        method,
+        method: method.toUpperCase(),
         headers: requestHeaders,
         body: requestPayload,
     });

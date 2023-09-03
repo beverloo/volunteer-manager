@@ -8,7 +8,7 @@ import type { UserData } from './UserData';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 16
+ * Next setting: 1 << 17
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -30,6 +30,7 @@ export enum Privilege {
     EventVolunteerContactInfo           = 1 << 11,
 
     // Privileges captured by SystemAdministrator:
+    SystemContentAccess                 = 1 << 16,
     SystemLogsAccess                    = 1 << 5,
 
     // Privileges captured by VolunteerAdministrator:
@@ -75,6 +76,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     ],
 
     [Privilege.SystemAdministrator]: [
+        Privilege.SystemContentAccess,
         Privilege.SystemLogsAccess,
     ],
 
@@ -125,6 +127,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerContactInfo]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
+    [Privilege.SystemContentAccess]: 'System access',
     [Privilege.SystemLogsAccess]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
@@ -150,6 +153,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',
 
     [Privilege.SystemAdministrator]: 'System administrator',
+    [Privilege.SystemContentAccess]: 'Global content access',
     [Privilege.SystemLogsAccess]: 'Logs access',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',

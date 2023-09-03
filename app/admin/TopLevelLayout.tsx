@@ -3,6 +3,7 @@
 
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import WebhookIcon from '@mui/icons-material/Webhook';
@@ -21,6 +22,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <GridViewIcon />,
             label: 'Dashboard',
             url: '/admin',
+        },
+        {
+            icon: <FeedOutlinedIcon />,
+            label: 'Content',
+            privilege: Privilege.SystemAdministrator,
+            url: '/admin/content',
         },
         {
             icon: <EventNoteIcon />,

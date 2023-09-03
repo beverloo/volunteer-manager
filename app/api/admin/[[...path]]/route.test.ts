@@ -47,7 +47,7 @@ describe('API Endpoints: /api/admin', () => {
     // ---------------------------------------------------------------------------------------------
 
     injectPermissionTestsForAction(kLogsDefinition, logs, {
-        request: { page: 0, pageSize: 25 },
+        request: { page: 0, pageSize: 25, sortModel: [] },
         insufficientPrivileges: Privilege.EventAdministrator,
     });
 

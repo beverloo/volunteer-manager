@@ -188,7 +188,7 @@ type DataTableRemoteData<RowModel extends GridValidRowModel> = {
     /**
      * Initial sort item, based on how the columns should be sorted without user intervention.
      */
-    initialSortItem: GridSortItem;
+    initialSortItem?: GridSortItem;
 };
 
 /**
@@ -333,7 +333,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     // Determine whether the <DataTable> will use local data, or will talk to an API endpoint in
     // order to fetch the necessary data from a remote source.
     const featureMode: GridFeatureMode = 'rows' in props ? 'client' : 'server';
-    const initialSortModel = 'initialSortItem' in props ? [ props.initialSortItem ] : [];
+    const initialSortModel = 'initialSortItem' in props ? [ props.initialSortItem! ] : [];
     const onRequestRows = 'onRequestRows' in props ? props.onRequestRows : undefined;
 
     const [ rowCount, setRowCount ] = useState('rows' in props ? props.rows.length : 0);
@@ -367,7 +367,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     return (
         <>
             <DataGrid rows={rows} columns={columns} loading={loading} autoHeight
-                    rowCount={rowCount} paginationMode={featureMode}
+                    rowCount={rowCount} paginationMode={featureMode} sortingMode={featureMode}
                     paginationModel={ featureMode === 'server' ? paginationModel : undefined }
                     onPaginationModelChange={
                         featureMode === 'server' ? setPaginationModel : undefined }
