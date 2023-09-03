@@ -63,7 +63,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
         ],
     });
 
-    return await executeAction(request, api, action, userForTesting);
+    return await executeAction(request, api, action, /* routeParams= */ undefined, userForTesting);
 }
 
 /**

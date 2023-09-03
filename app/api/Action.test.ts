@@ -23,16 +23,23 @@ describe('Action', () => {
      * Creates a NextRequest instance based on the given `body`, which will be stored as the request
      * body in a JSON-serialized representation.
      *
+     * @param method The request method that should be used.
      * @param body The request body that should be included.
+     * @param url The URL to which the request should be made, if any.
      * @param headers The headers to include with the request, if any.
      * @returns A NextRequest instance representing a POST request containing the given body.
      */
-    function createRequest(body: any, headers?: Headers): NextRequest {
+    function createRequest(method: string, body: any, url?: string, headers?: Headers)
+        : NextRequest
+    {
+        if (method.toLocaleUpperCase() === 'GET' && !!body)
+            throw new Error('Request payloads are not supported for GET requests');
+
         return new class extends NextRequest {
             override set url(value: string) { /* ignore */ }
-        }('https://example.com/api', {
-            method: 'POST',
-            body: JSON.stringify(body),
+        }(url ?? 'https://example.com/api', {
+            method,
+            body: body ? JSON.stringify(body) : undefined,
             headers,
         });
     }
@@ -61,7 +68,7 @@ describe('Action', () => {
 
         // Case 1: Valid requests are recognised as such.
         {
-            const request = createRequest({ first: 'foo', second: 42 });
+            const request = createRequest('POST', { first: 'foo', second: 42 });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -75,7 +82,7 @@ describe('Action', () => {
 
         // Case 2: Optional parameters can be omitted.
         {
-            const request = createRequest({ first: 'foo' });
+            const request = createRequest('POST', { first: 'foo' });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -85,7 +92,7 @@ describe('Action', () => {
 
         // Case 3: Extra parameters will be ignored.
         {
-            const request = createRequest({ first: 'foo', third: 'baz' });
+            const request = createRequest('POST', { first: 'foo', third: 'baz' });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -95,7 +102,7 @@ describe('Action', () => {
 
         // Case 4: Missing parameters will count as an error.
         {
-            const request = createRequest({ second: 42 });
+            const request = createRequest('POST', { second: 42 });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -105,7 +112,7 @@ describe('Action', () => {
 
         // Case 5: Parameters of an invalid type will count as an error.
         {
-            const request = createRequest({ first: 42 });
+            const request = createRequest('POST', { first: 42 });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -138,7 +145,7 @@ describe('Action', () => {
         {
             responseValue = { first: 'hello!', second: 42 };
 
-            const request = createRequest({ /* no payload */ });
+            const request = createRequest('POST', { /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -151,7 +158,7 @@ describe('Action', () => {
         {
             responseValue = { first: 'world!' };
 
-            const request = createRequest({ /* no payload */ });
+            const request = createRequest('POST', { /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -164,7 +171,7 @@ describe('Action', () => {
         {
             responseValue = { first: 'foobar!', third: 'baz' };
 
-            const request = createRequest({ /* no payload */ });
+            const request = createRequest('POST', { /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -178,7 +185,7 @@ describe('Action', () => {
         {
             responseValue = { second: 42 };
 
-            const request = createRequest({ /* no payload */ });
+            const request = createRequest('POST', { /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -192,7 +199,7 @@ describe('Action', () => {
         {
             responseValue = { first: 42 };
 
-            const request = createRequest({ /* no payload */ });
+            const request = createRequest('POST', { /* no payload */ });
             const response = await executeAction(request, interfaceDefinition, MyAction);
             const responseBody = await response.json();
 
@@ -232,7 +239,8 @@ describe('Action', () => {
             [ 'X-Second', 'banana' ],
         ]);
 
-        const request = createRequest({ /* no payload */ }, requestHeaders);
+        const request =
+            createRequest('POST', { /* no payload */ }, /* url= */ undefined, requestHeaders);
         const response = await executeAction(request, interfaceDefinition, MyAction);
         const responseBody = await response.json();
 
@@ -261,6 +269,7 @@ describe('Action', () => {
                 privileges: 0n,
                 activated: 1,
                 sessionToken: 9001,
+                events: [],
 
                 // Internal use in `authenticateUser`:
                 authType: AuthType.password,
@@ -282,7 +291,7 @@ describe('Action', () => {
             return { /* empty response */ };
         }
 
-        const request = createRequest({ /* no payload */ }, headers);
+        const request = createRequest('POST', { /* no payload */ }, /* url= */ undefined, headers);
         const response = await executeAction(request, interfaceDefinition, MyAction);
 
         await expect(response.json()).resolves.toEqual({ /* empty response */ });
@@ -306,10 +315,70 @@ describe('Action', () => {
             noAccess();
         }
 
-        const request = createRequest({ /* no payload */ });
+        const request = createRequest('POST', { /* no payload */ });
         const response = await executeAction(request, interfaceDefinition, MyAction);
 
         expect(response.ok).toBeFalsy();
         expect(response.status).toBe(403);
+    });
+
+    it('understands how to derive request parameters from GET requests', async () => {
+        const interfaceDefinition = z.object({
+            request: z.object({
+                name: z.string(),
+                number: z.coerce.number(),  // coercion is necessary as request params are strings
+            }),
+            response: z.object({
+                value: z.string(),
+            }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            return { value: `${request.name}-${request.number}` };
+        }
+
+        const request = createRequest(
+            'GET', /* body= */ undefined, 'https://example.com/?name=Joe&number=42');
+
+        const response = await executeAction(request, interfaceDefinition, MyAction);
+
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(200);
+
+        const responseBody = await response.json();
+        expect(responseBody.value).toEqual('Joe-42');
+    });
+
+    it('considers route parameters as part of the input request payload', async () => {
+        const interfaceDefinition = z.object({
+            request: z.object({
+                id: z.coerce.number(),  // coercion is necessary as request params are strings
+                name: z.string(),
+            }),
+            response: z.object({
+                value: z.string(),
+            }),
+        });
+
+        type RequestType = z.infer<typeof interfaceDefinition>['request'];
+        type ResponseType = z.infer<typeof interfaceDefinition>['response'];
+
+        async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
+            return { value: `${request.id}-${request.name}` };
+        }
+
+        const request = createRequest(
+            'GET', /* body= */ undefined, 'https://example.com/21/?name=Joe');
+
+        const response = await executeAction(request, interfaceDefinition, MyAction, { id: '21' });
+
+        expect(response.ok).toBeTruthy();
+        expect(response.status).toBe(200);
+
+        const responseBody = await response.json();
+        expect(responseBody.value).toEqual('21-Joe');
     });
 });

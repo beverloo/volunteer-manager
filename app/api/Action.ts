@@ -2,10 +2,17 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { ZodObject, ZodRawShape, z } from 'zod';
+import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 
 import type { User } from '@app/lib/auth/User';
 import { getUserFromHeaders } from '@app/lib/auth/getUser';
+
+/**
+ * Route parameters that can be included in the action request payload, based on REST principles.
+ */
+export type ActionRouteParams = {
+    [key: string]: string | string[];
+};
 
 /**
  * Additional properties made available to actions that allow actions to use or manipulate lasting
@@ -65,6 +72,48 @@ function createResponse(status: number, payload: any): NextResponse {
 }
 
 /**
+ * Distills the request parameters based on the `request`, inferred by the `definition`. When the
+ * GET request method is used the parameters must be included in the URL search parameters, whereas
+ * other types of requests will carry it as part of the request payload.
+ */
+async function distillAndValidateRequestParams(
+    request: NextRequest, definition: AnyZodObject, routeParams?: ActionRouteParams)
+{
+    let requestPayload: Record<string, any>;
+    switch (request.method) {
+        case 'GET':
+            requestPayload = Object.fromEntries(request.nextUrl.searchParams.entries());
+            break;
+
+        case 'DELETE':
+        case 'POST':
+        case 'PUT':
+            requestPayload = await request.json();
+            break;
+
+        default:
+            return {
+                success: false,
+                data: undefined,
+                error: new Error(`Unsupported request method: ${request.method}`),
+            };
+    }
+
+    // Inject the `routeParams` in the request payload. Route parameters will be ignored when a
+    // property with the same key is already present in the `requestPayload`.
+    if (typeof routeParams !== 'undefined') {
+        for (const [ key, value ] of Object.entries(routeParams)) {
+            if (Object.hasOwn(requestPayload, key))
+                continue;  // the `key` already exists on the `requestPayload`, ignore it
+
+            requestPayload[key] = value;
+        }
+    }
+
+    return definition.safeParse({ request: requestPayload });
+}
+
+/**
  * Executes the given `action` for the given `request`, which should validate according to the given
  * `interfaceDefinition`. Both the input coming from the request and the output coming from the
  * action will be validated according to the defined scheme.
@@ -72,18 +121,21 @@ function createResponse(status: number, payload: any): NextResponse {
  * @param request The NextRequest that was issued
  * @param interfaceDefinition The zod-based definition of the interface, both request and response.
  * @param action The action that is to be executed on the validated request.
+ * @param routeParams Route parameters, when REST-style request paths are used.
  * @param userForTesting The user for whom this request is issued, only valid for testing.
  * @returns A NextResponse populated with the resulting information.
  */
 export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
-    request: NextRequest, interfaceDefinition: T, action: Action<T>, userForTesting?: User)
+    request: NextRequest, interfaceDefinition: T, action: Action<T>,
+    routeParams?: ActionRouteParams, userForTesting?: User)
         : Promise<NextResponse>
 {
     const requestInterfaceDefinition = interfaceDefinition.pick({ request: true });
     const responseInterfaceDefinition = interfaceDefinition.pick({ response: true });
 
     try {
-        const result = requestInterfaceDefinition.safeParse({ request: await request.json() });
+        const result =
+            await distillAndValidateRequestParams(request, requestInterfaceDefinition, routeParams);
         if (!result.success) {
             return createResponse(500, {
                 success: false,
