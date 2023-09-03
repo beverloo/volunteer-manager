@@ -8,6 +8,7 @@ import { useCallback, useMemo } from 'react';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
 
 import type { ContentScope } from './ContentScope';
 import type { DataTableColumn, DataTableRowRequest } from '../DataTable';
@@ -31,9 +32,9 @@ export interface ContentListProps {
     enableAuthorLink?: boolean;
 
     /**
-     * Enables the ability for content to be deleted.
+     * Prefix to display at the beginning of the content's path.
      */
-    enableDelete?: boolean;
+    pathPrefix?: string;
 
     /**
      * Scope of the content that should be editable.
@@ -59,6 +60,22 @@ export function ContentList(props: ContentListProps) {
             headerName: 'Content path',
             sortable: true,
             flex: 3,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!props.pathPrefix)
+                    return params.value;
+
+                return (
+                    <>
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            {props.pathPrefix}
+                        </Typography>
+                        <Typography variant="body2">
+                            {params.value}
+                        </Typography>
+                    </>
+                );
+            },
         },
         {
             field: 'title',
@@ -94,7 +111,7 @@ export function ContentList(props: ContentListProps) {
                 );
             },
         }
-    ]), [ props.enableAuthorLink ]);
+    ]), [ props.enableAuthorLink, props.pathPrefix ]);
 
     const fetchContent = useCallback(async (request: DataTableRowRequest) => {
         const sortItem =

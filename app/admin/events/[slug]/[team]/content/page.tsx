@@ -19,6 +19,7 @@ export default async function EventContentPage(props: NextRouterParams<'slug' | 
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
+    const pathPrefix = `/registration/${event.slug}/`;
     const scope = createEventScope(event.id, team.id);
 
     return (
@@ -26,7 +27,8 @@ export default async function EventContentPage(props: NextRouterParams<'slug' | 
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Content
             </Typography>
-            <ContentList enableAuthorLink={enableAuthorLink} scope={scope} />
+            <ContentList enableAuthorLink={enableAuthorLink} pathPrefix={pathPrefix}
+                         scope={scope} />
         </Paper>
     );
 }
