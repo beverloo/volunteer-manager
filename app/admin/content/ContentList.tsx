@@ -57,28 +57,38 @@ export interface ContentListProps {
 export function ContentList(props: ContentListProps) {
     const router = useRouter();
 
+    const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
     const [ confirmationSubject, setConfirmationSubject ] =
         useState<{ id: number, path: string } | undefined>();
 
     const handleDelete = useCallback(async () => {
-        // TODO: Actually issue the DELETE call to the server.
-        // TODO: Refresh the page when the DELETE call was successful.
+        if (!confirmationOpen || !confirmationSubject)
+            return true;  // no content subject has been selected for deletion.
 
-        return {
-            error: confirmationSubject?.path,
-        };
-    }, [ confirmationSubject, router ]);
+        const response = await callApi('delete', '/api/admin/content/:id', {
+            id: confirmationSubject.id,
+            scope: props.scope,
+        });
 
-    const handleDeleteClose = useCallback(() => setConfirmationSubject(undefined), []);
+        if (!response.success)
+            return { error: 'The server was not able to delete the content.' };
+
+        router.refresh();
+        return true;
+
+    }, [ confirmationOpen, confirmationSubject, props.scope, router ]);
+
+    const requestDeleteClose = useCallback(() => setConfirmationOpen(false), [ /* no deps */ ]);
     const requestDelete = useCallback(async (params: GridRenderCellParams) => {
-        if (!!params.row.protected)
+        if (!!params.row.protected || confirmationOpen)
             return;  // protected rows cannot be deleted
 
+        setConfirmationOpen(true);
         setConfirmationSubject({
             id: params.row.id,
             path: `${props.pathPrefix}${params.row.path}`,
         });
-    }, [ props.pathPrefix ]);
+    }, [ confirmationOpen, props.pathPrefix ]);
 
     const columns: DataTableColumn[] = useMemo(() => ([
         {
@@ -92,18 +102,18 @@ export function ContentList(props: ContentListProps) {
                 return (
                     <Stack direction="row" spacing={0} alignItems="center">
                         <IconButton LinkComponent={Link} href={href} size="small">
-                            <Tooltip title="View item">
+                            <Tooltip title="View page">
                                 <ReadMoreIcon color="info" />
                             </Tooltip>
                         </IconButton>
                         { !params.row.protected &&
                             <IconButton size="small" onClick={ () => requestDelete(params) }>
-                                <Tooltip title="Delete item">
+                                <Tooltip title="Delete page">
                                     <DeleteForeverIcon fontSize="small" color="error" />
                                 </Tooltip>
                             </IconButton> }
                         { !!params.row.protected &&
-                            <Tooltip title="Cannot delete protected items">
+                            <Tooltip title="This page cannot be deleted">
                                 <DeleteForeverIcon fontSize="small" color="disabled"
                                                    sx={{ ml: '5px' }} />
                             </Tooltip>}
@@ -198,8 +208,8 @@ export function ContentList(props: ContentListProps) {
         <>
             <DataTable columns={columns} onRequestRows={fetchContent} dense
                        initialSortItem={{ field: 'path', sort: 'asc' }} />
-            <ConfirmationDialog onClose={handleDeleteClose} onConfirm={handleDelete}
-                                open={confirmationSubject !== undefined}
+            <ConfirmationDialog onClose={requestDeleteClose} onConfirm={handleDelete}
+                                open={confirmationOpen}
                                 title="Are you sure you want to delete this?">
                 <Typography>
                     Are you sure that you want to delete the content located at

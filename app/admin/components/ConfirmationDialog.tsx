@@ -43,14 +43,15 @@ export interface ConfirmationDialogProps {
      * To be called when the dialog is supposed to close. The `reason` indicates why the dialog has
      * been closed, in case behaviour should depend on those options.
      */
-    onClose?: (reason?: 'backdropClick' | 'button' | 'escapeKeyDown') => Promise<void> | void;
+    onClose?: (reason?: 'backdropClick' | 'button' | 'confirmed' | 'escapeKeyDown')
+        => Promise<void> | void;
 
     /**
      * To be called when the action described in this dialog has been confirmed. The handler
      * should throw an exception when an error occurs, or populate either (but not both) of the
      * response values.
      */
-    onConfirm?: () => Promise<{ success: Content } | { error: Content }>;
+    onConfirm?: () => Promise<true | { error: Content }>;
 
     /**
      * Whether the dialog should be open.
@@ -77,37 +78,30 @@ export function ConfirmationDialog(props: React.PropsWithChildren<ConfirmationDi
     // Internal handling for user interactions within the dialog.
     // ---------------------------------------------------------------------------------------------
     const [ errorMessage, setErrorMessage ] = useState<Content>();
-    const [ successMessage, setSuccessMessage ] = useState<Content>();
-
-    const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClose = useCallback(async (
-        event: unknown, reason?: 'backdropClick' | 'escapeKeyDown') =>
+        event: unknown, reason?: 'backdropClick' | 'confirmed' | 'escapeKeyDown') =>
     {
         try {
             if (onClose)
                 await onClose(reason ?? 'button');
         } finally {
             setErrorMessage(undefined);
-            setSuccessMessage(undefined);
-            setInvalidated(false);
             setLoading(false);
         }
     }, [ onClose ]);
 
     const handleConfirm = useCallback(async () => {
         setErrorMessage(undefined);
-        setSuccessMessage(undefined);
-        setInvalidated(true);
         setLoading(true);
         try {
             if (onConfirm) {
                 const result = await onConfirm();
-                if ('error' in result)
+                if (typeof result === 'object' && 'error' in result)
                     setErrorMessage(result.error);
                 else
-                    setSuccessMessage(result.success);
+                    handleClose(null, /* reason= */ 'confirmed');
             }
         } catch (error: any) {
             setErrorMessage(error.message ?? 'An unknown error occurred.');
@@ -115,7 +109,7 @@ export function ConfirmationDialog(props: React.PropsWithChildren<ConfirmationDi
         } finally {
             setLoading(false);
         }
-    }, [ onConfirm ]);
+    }, [ handleClose, onConfirm ]);
 
     // ---------------------------------------------------------------------------------------------
     // The actual React component.
@@ -131,11 +125,6 @@ export function ConfirmationDialog(props: React.PropsWithChildren<ConfirmationDi
                         {description}
                     </Typography> }
                 {children}
-                <Collapse in={!!successMessage}>
-                    <Alert severity="success" sx={{ mt: 2 }}>
-                        {successMessage}
-                    </Alert>
-                </Collapse>
                 <Collapse in={!!errorMessage}>
                     <Alert severity="error" sx={{ mt: 2 }}>
                         {errorMessage}
@@ -144,8 +133,7 @@ export function ConfirmationDialog(props: React.PropsWithChildren<ConfirmationDi
             </DialogContent>
             <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
                 <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                <LoadingButton disabled={!!successMessage} loading={loading} onClick={handleConfirm}
-                               variant="contained">
+                <LoadingButton loading={loading} onClick={handleConfirm} variant="contained">
                     {confirmLabel}
                 </LoadingButton>
             </DialogActions>

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
+import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
@@ -26,7 +27,9 @@ type ApiEndpoints = {
         '/api/events/application': ApplicationDefinition,
         '/api/events/hotels': HotelsDefinition,
     },
-    'delete': {},
+    'delete': {
+        '/api/admin/content/:id': DeleteContentDefinition,
+    },
     'put': {},
 };
 
@@ -62,6 +65,7 @@ function writeToSearchParams(searchParams: URLSearchParams, value: any, path: st
  * @example
  * ```
  * callApi('get', '/api/event/hotel', { eventSlug: '2024' });
+ * callApi('delete', '/api/admin/content/:id', { id: 42, scope: { ... } });
  * ```
  */
 export async function callApi<Method extends keyof ApiEndpoints,
@@ -71,7 +75,31 @@ export async function callApi<Method extends keyof ApiEndpoints,
     request: ApiRequestType<ApiEndpoints[Method][Endpoint]>)
         : Promise<ApiResponseType<ApiEndpoints[Method][Endpoint]>>
 {
-    let requestEndpoint: string = endpoint;
+    // (1) Replace placeholders in the endpoint with members included in the request.
+    const consumedProperties = new Set<string>();
+    const completedEndpoint = endpoint.replace(/:(\w+)/g, (_, placeholder) => {
+        if (!Object.hasOwn(request, placeholder))
+            throw new Error(`Endpoint placeholder doesn't exist in the request: ":${placeholder}"`);
+
+        consumedProperties.add(placeholder);
+
+        const value = (request as any)[placeholder];
+        switch (typeof value) {
+            case 'number':
+            case 'string':
+                return `${value}`;
+
+            default:
+                throw new Error(`Endpoint placeholders must be scalars (found ${typeof value})`);
+        }
+    });
+
+    // (2) Remove the `consumedProperties` from the `request` object, to not transmit them twice.
+    for (const consumedProperty of consumedProperties)
+        delete (request as any)[consumedProperty];
+
+    // (3) Compose the actual request endpoint, headers and payload.
+    let requestEndpoint: string = completedEndpoint;
     let requestHeaders: Record<string, string> | undefined;
     let requestPayload: string | undefined;
 
@@ -84,6 +112,7 @@ export async function callApi<Method extends keyof ApiEndpoints,
         requestPayload = JSON.stringify(request);
     }
 
+    // (4) Issue the request to the server with the composed information.
     const response = await globalFetch(requestEndpoint, {
         method: method.toUpperCase(),
         headers: requestHeaders,

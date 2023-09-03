@@ -64,4 +64,47 @@ describe('callApi', () => {
 
         expect(responsePromise).toReject();
     });
+
+    it('is able to substitute REST path parameters from the request to the endpoint', async () => {
+        scheduledResponse = new Response(JSON.stringify({ success: true }), { status: 200 });
+
+        const response = await callApi('delete', '/api/admin/content/:id', {
+            id: 42,
+            scope: {
+                eventId: 1,
+                teamId: 2,
+            }
+        });
+
+        expect(latestRequestInput).not.toBeUndefined();
+        expect(latestRequestInput).toEqual('/api/admin/content/42');
+
+        expect(latestRequestInit).not.toBeUndefined();
+        expect(latestRequestInit?.body).toEqual('{"scope":{"eventId":1,"teamId":2}}');
+        expect(latestRequestInit?.headers).toEqual({
+            'Content-Type': 'application/json',
+        });
+
+        expect(response.success).toBeTrue();
+    });
+
+    it('confirms that REST path parameters are present in the request', async () => {
+        scheduledResponse = new Response(JSON.stringify({ success: true }), { status: 200 });
+
+        const responsePromise = callApi('post', '/api/:foo' as any, {
+            /* `foo` is missing */
+        });
+
+        expect(responsePromise).rejects.toThrowError(/doesn't exist/)
+    });
+
+    it('confirms that REST path parameters are limited to scalar types', async () => {
+        scheduledResponse = new Response(JSON.stringify({ success: true }), { status: 200 });
+
+        const responsePromise = callApi('post', '/api/:foo' as any, {
+            foo: { a: 1, b: 2 }  // `foo` is not a scalar
+        });
+
+        expect(responsePromise).rejects.toThrowError(/must be scalars/)
+    });
 });

@@ -4,12 +4,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '@app/api/Action';
 
+import { deleteContent, kDeleteContentDefinition } from '../deleteContent';
 import { listContent, kListContentDefinition } from '../listContent';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
  */
 type RouteParams = { params: { id: string[] } };
+
+/**
+ * DELETE //api/content/*
+ */
+export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<Response> {
+    if (Object.hasOwn(params, 'id'))
+        return executeAction(request, kDeleteContentDefinition, deleteContent, params);
+
+    return NextResponse.json({ success: false }, { status: 404 });
+}
 
 /**
  * GET //api/content/*
