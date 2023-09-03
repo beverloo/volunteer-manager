@@ -34,6 +34,22 @@ export const kLogsDefinition = z.object({
          */
         pageSize: z.number(),
 
+        /**
+         * The way in which the resulting data should be sorted. Multiple sorting keys can be
+         * defined, as one might want to sort based on user, then based on time.
+         */
+        sortModel: z.array(z.object({
+            /**
+             * The field on which a sort should be applied.
+             */
+            field: z.enum([ 'date', 'severity', 'source', 'target' ]),
+
+            /**
+             * The direction in which the sort should be applied, if any.
+             */
+            sort: z.enum([ 'asc', 'desc' ]).nullable().optional(),
+        })),
+
     }),
     response: z.strictObject({
         /**
@@ -114,6 +130,7 @@ export async function logs(request: Request, props: ActionProps): Promise<Respon
             LogSeverity.Error
         ],
         start: request.pageSize * request.page,
+        sortModel: request.sortModel,
     });
 
     return {

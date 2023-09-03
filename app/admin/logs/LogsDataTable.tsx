@@ -75,6 +75,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
         {
             field: 'message',
             headerName: 'Message',
+            sortable: false,
             flex: 2,
         },
         {
@@ -118,6 +119,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
             },
             page: request.page,
             pageSize: request.pageSize,
+            sortModel: request.sortModel as any,
         });
 
         return {
@@ -132,5 +134,6 @@ export function LogsDataTable(props: LogsDataTableProps) {
 
     }, [ filters ]);
 
-    return <DataTable {...dataTableProps} dense onRequestRows={onRequestRows} columns={columns} />;
+    return <DataTable {...dataTableProps} dense onRequestRows={onRequestRows} columns={columns}
+                      initialSortItem={ { field: 'date', sort: 'desc' }} />;
 }

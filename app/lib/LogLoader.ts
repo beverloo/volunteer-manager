@@ -118,6 +118,21 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
 };
 
 /**
+ * Sort item indicating a sorting priority for the log items.
+ */
+export interface LogsSortItem {
+    /**
+     * The field on which the sort should be applied.
+     */
+    field: 'date' | 'severity' | 'source' | 'target';
+
+    /**
+     * The direction of sorting that should be considered.
+     */
+    sort?: 'asc' | 'desc' | null;
+}
+
+/**
  * Parameters that can be passed to the fetchLogs() function.
  */
 export interface FetchLogsParams {
@@ -140,6 +155,11 @@ export interface FetchLogsParams {
      * Result index at which to start the results. Defaults to 0.
      */
     start?: number;
+
+    /**
+     * Sort model to apply for the returned log items. Defaults to date, in descending order.
+     */
+    sortModel?: LogsSortItem[];
 }
 
 /**
@@ -155,6 +175,57 @@ export interface FetchLogsResponse {
      * All messages that were returned from the query.
      */
     messages: LogMessage[];
+}
+
+/**
+ * Normalizes the sort model based on the request's input, to something that the database is able to
+ * deal with. The sort model will be applied in the query.
+ */
+function normalizeSortModel(sortModel?: LogsSortItem[]): string {
+    const sortItems: string[] = [];
+    for (const { field, sort } of sortModel ?? [ { field: 'date', sort: 'desc' }]) {
+        let column: string;
+        switch (field) {
+            case 'date':
+            case 'severity':
+                column = field;
+                break;
+
+            case 'source':
+                column = 'sourceUserName';
+                break;
+
+            case 'target':
+                column = 'targetUserName';
+                break;
+
+            default:
+                throw new Error(`Unrecognised field: ${field}`);
+        }
+
+        let order: string;
+        switch (sort) {
+            case 'asc':
+            case 'desc':
+            case undefined:
+                order = sort ?? 'asc';
+                break;
+
+            case null:
+                order = 'asc nulls last';
+                break;
+
+            default:
+                throw new Error(`Unrecognised sort order: ${sort}`);
+        }
+
+        sortItems.push(`${column} ${order}`);
+    }
+
+    if (!sortItems.length)
+        return 'date asc';
+
+    return sortItems.join(', ');
 }
 
 /**
@@ -186,7 +257,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
             targetUserId: tLogs.logTargetUserId,
             targetUserName: targetUserJoin.firstName.concat(' ').concat(targetUserJoin.lastName),
         })
-        .orderBy(tLogs.logDate, 'desc')
+        .orderByFromString(normalizeSortModel(params.sortModel))
         .limit(params.limit ?? 100)
         .offsetIfValue(params.start)
         .where(tLogs.logSeverity.in(

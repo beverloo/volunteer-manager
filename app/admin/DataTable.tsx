@@ -8,8 +8,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { DataGrid, GridRowModes, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import type {
-    GridRenderCellParams, GridColDef, GridFeatureMode, GridPaginationModel, GridRowsProp,
-    GridValidRowModel, GridColumnHeaderParams, GridRowModesModel } from '@mui/x-data-grid';
+    GridColDef, GridColumnHeaderParams, GridFeatureMode, GridPaginationModel, GridRenderCellParams,
+    GridRowModesModel, GridRowsProp, GridSortItem, GridSortModel, GridValidRowModel }
+    from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -140,7 +141,12 @@ export interface DataTableBaseProps<RowModel extends GridValidRowModel = GridVal
 /**
  * The request information shared with a remote source when new information is required.
  */
-export interface DataTableRowRequest extends GridPaginationModel {}
+export interface DataTableRowRequest extends GridPaginationModel {
+    /**
+     * The way in which information in the data table should be sorted.
+     */
+    sortModel: GridSortModel;
+}
 
 /**
  * The response that has to be shared with the <DataTable> implementation when a remote data source
@@ -178,6 +184,11 @@ type DataTableRemoteData<RowModel extends GridValidRowModel> = {
      * will automatically load data based on the available data.
      */
     onRequestRows: (request: DataTableRowRequest) => Promise<DataTableRowResponse<RowModel>>;
+
+    /**
+     * Initial sort item, based on how the columns should be sorted without user intervention.
+     */
+    initialSortItem: GridSortItem;
 };
 
 /**
@@ -322,6 +333,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     // Determine whether the <DataTable> will use local data, or will talk to an API endpoint in
     // order to fetch the necessary data from a remote source.
     const featureMode: GridFeatureMode = 'rows' in props ? 'client' : 'server';
+    const initialSortModel = 'initialSortItem' in props ? [ props.initialSortItem ] : [];
     const onRequestRows = 'onRequestRows' in props ? props.onRequestRows : undefined;
 
     const [ rowCount, setRowCount ] = useState('rows' in props ? props.rows.length : 0);
@@ -329,6 +341,8 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
     const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
         page: 0, pageSize,
     });
+
+    const [ sortModel, setSortModel ] = useState<GridSortModel>(initialSortModel);
 
     // Effect to actually load the necessary data from the server. Only applicable for server-based
     // data sources, it's a no-op for client-side data sources.
@@ -339,13 +353,14 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
         setLoading(true);
         onRequestRows({
             ...paginationModel,
+            sortModel,
         }).then(response => {
             setLoading(false);
             setRowCount(response.rowCount);
             setRows(response.rows);
         });
 
-    }, [ featureMode, paginationModel, onRequestRows ])
+    }, [ featureMode, onRequestRows, paginationModel, sortModel ])
 
     // ---------------------------------------------------------------------------------------------
 
@@ -356,6 +371,8 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                     paginationModel={ featureMode === 'server' ? paginationModel : undefined }
                     onPaginationModelChange={
                         featureMode === 'server' ? setPaginationModel : undefined }
+                    sortModel={ featureMode === 'server' ? sortModel : undefined }
+                    onSortModelChange={ featureMode === 'server' ? setSortModel : undefined }
                     disableColumnMenu hideFooterSelectedRowCount hideFooter={!!disableFooter}
                     density={ dense ? 'compact' : 'standard' }
                     editMode={ commitEdit ? 'row' : undefined } processRowUpdate={doEdit}
