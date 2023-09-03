@@ -28,11 +28,6 @@ import { dayjs } from '@lib/DateTime';
  */
 export interface ContentListProps {
     /**
-     * Whether the user is allowed to request deletion of content items.
-     */
-    allowDelete?: boolean;
-
-    /**
      * Enables whether the author should be a link through to their account page. Those pages are
      * not available to everyone, hence why this must be explicitly enabled.
      */
@@ -103,7 +98,7 @@ export function ContentList(props: ContentListProps) {
                     <Stack direction="row" spacing={0} alignItems="center">
                         <IconButton LinkComponent={Link} href={href} size="small">
                             <Tooltip title="View page">
-                                <ReadMoreIcon color="info" />
+                                <ReadMoreIcon fontSize="small" color="info" />
                             </Tooltip>
                         </IconButton>
                         { !params.row.protected &&
@@ -206,14 +201,14 @@ export function ContentList(props: ContentListProps) {
 
     return (
         <>
-            <DataTable columns={columns} onRequestRows={fetchContent} dense
+            <DataTable columns={columns} onRequestRows={fetchContent} dense disableFooter
                        initialSortItem={{ field: 'path', sort: 'asc' }} />
             <ConfirmationDialog onClose={requestDeleteClose} onConfirm={handleDelete}
                                 open={confirmationOpen}
                                 title="Are you sure you want to delete this?">
                 <Typography>
-                    Are you sure that you want to delete the content located at
-                    <strong> {confirmationSubject?.path}</strong>? This action cannot be reverted.
+                    Deleting <strong> {confirmationSubject?.path}</strong> cannot be reverted, are
+                    you sure that you want to do this? It will immediately become unavailable.
                 </Typography>
             </ConfirmationDialog>
         </>

@@ -1,0 +1,101 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { type FieldValues, type FieldValue, FormContainer, TextFieldElement }
+    from 'react-hook-form-mui';
+
+import Grid from '@mui/material/Unstable_Grid2';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+
+import type { ContentScope } from './ContentScope';
+import { SubmitCollapse } from '../components/SubmitCollapse';
+import { callApi } from '@lib/callApi';
+
+/**
+ * Validates the path for content that should be added to the scope. We only validate syntax here,
+ * not whether the content already exists or other restrictions may be in place.
+ */
+function validateContentPath(value: FieldValue<FieldValues>): true | string {
+    if (!/^[/.a-zA-Z0-9-]+$/.test(value))
+        return 'This must be a valid URL path';
+
+    return true;
+}
+
+/**
+ * Props accepted by the <ContentCreate> component.
+ */
+export interface ContentCreateProps {
+    /**
+     * Prefix to display at the beginning of the content's path.
+     */
+    pathPrefix?: string;
+
+    /**
+     * Scope of the content that should be editable.
+     */
+    scope: ContentScope;
+}
+
+/**
+ * The <ContentCreate> component displays a form through which new content can be created. It
+ * handles
+ */
+export function ContentCreate(props: ContentCreateProps) {
+    const [ error, setError ] = useState<string | undefined>();
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
+    const [ loading, setLoading ] = useState<boolean>(false);
+
+    const router = useRouter();
+
+    const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
+    const handleSubmit = useCallback(async (data: FieldValues) => {
+        setLoading(true);
+        setError(undefined);
+        try {
+            const result = await callApi('post', '/api/admin/content', {
+                scope: props.scope,
+                path: data.path,
+                title: data.title,
+            });
+
+            if (result.error)
+                setError(result.error);
+            else if (result.id)
+                router.push(`./content/${result.id}`);
+        } catch (error: any) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [ props.scope, router ]);
+
+    return (
+        <FormContainer onSuccess={handleSubmit}>
+            <Grid container spacing={2}>
+                <Grid xs={12}>
+                    <TextFieldElement name="title" label="Content title" fullWidth size="small"
+                                      onChange={handleChange} required />
+                </Grid>
+                <Grid xs={12}>
+                    <Stack direction="row" spacing={1}>
+                        { props.pathPrefix &&
+                            <Typography sx={{ pt: '9px' }}>
+                                {props.pathPrefix}
+                            </Typography> }
+                        <TextFieldElement name="path" label="Content path" fullWidth size="small"
+                                          required onChange={handleChange}
+                                          validation={{ validate: validateContentPath }} />
+                    </Stack>
+                </Grid>
+            </Grid>
+            <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
+        </FormContainer>
+    );
+}

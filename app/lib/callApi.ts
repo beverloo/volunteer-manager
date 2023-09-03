@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { ApplicationDefinition } from '@app/api/event/application';
@@ -23,6 +24,7 @@ type ApiEndpoints = {
         '/api/admin/content': ListContentDefinition,
     },
     'post': {
+        '/api/admin/content': CreateContentDefinition,
         '/api/admin/create-event': CreateEventDefinition,
         '/api/events/application': ApplicationDefinition,
         '/api/events/hotels': HotelsDefinition,
