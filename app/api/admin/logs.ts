@@ -9,11 +9,21 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { fetchLogs } from '@lib/LogLoader';
 
 /**
- * Interface definition for the Logs API, exposed through /api/admin/logs. Only system admins have
- * the necessary permission to access this API.
+ * Interface definition for the Logs API, exposed through /api/admin/logs.
  */
 export const kLogsDefinition = z.object({
     request: z.object({
+        /**
+         * Optional filters that may be provided to limit the results.
+         */
+        filters: z.object({
+            /**
+             * The user ID of either the source or target log entry.
+             */
+            sourceOrTargetUserId: z.number().optional(),
+
+        }).optional(),
+
         /**
          * The page the user is currently navigating.
          */
@@ -95,6 +105,7 @@ export async function logs(request: Request, props: ActionProps): Promise<Respon
         noAccess();
 
     const response = await fetchLogs({
+        sourceOrTargetUserId: request.filters?.sourceOrTargetUserId,
         limit: request.pageSize,
         severity: [
             LogSeverity.Debug,

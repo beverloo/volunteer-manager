@@ -3,6 +3,7 @@
 
 'use client';
 
+import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
@@ -14,22 +15,33 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
-import type { DataTableRowRequest, DataTableRowResponse } from '@app/admin/DataTable';
+import type { DataTableRowRequest } from '@app/admin/DataTable';
 import type { LogsDefinition } from '@app/api/admin/logs';
 import { DataTable } from '../DataTable';
+import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@app/lib/issueServerAction';
 
 /**
  * Props made available to the <LogsDataTable> component.
  */
-export interface LogsDataTableProps extends DataTableBaseProps {}
+export interface LogsDataTableProps extends Omit<DataTableBaseProps, 'dense'> {
+    /**
+     * Filters to apply to the logs selection. Filters are optional, and will be communicated with
+     * the server where the actual filtering will take place.
+     */
+    filters?: {
+        sourceOrTargetUserId?: number;
+    };
+}
 
 /**
  * The <LogsDataTable> component populates the client-side table with the necessary functions to
  * transform the data and add interaction where applicable.
  */
 export function LogsDataTable(props: LogsDataTableProps) {
-    const columns: DataTableColumn[] = [
+    const { filters, ...dataTableProps } = props;
+
+    const columns: DataTableColumn[] = useMemo(() => ([
         {
             field: 'severity',
             headerName: 'Severity',
@@ -55,6 +67,10 @@ export function LogsDataTable(props: LogsDataTableProps) {
             headerName: 'Date',
             type: 'dateTime',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                return dayjs(params.value).format('YYYY-MM-DD HH:mm:ss');
+            },
         },
         {
             field: 'message',
@@ -93,10 +109,13 @@ export function LogsDataTable(props: LogsDataTableProps) {
                 );
             },
         },
-    ];
+    ]), [ /* no deps */ ]);
 
-    async function onRequestRows(request: DataTableRowRequest): Promise<DataTableRowResponse> {
+    const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
         const response = await issueServerAction<LogsDefinition>('/api/admin/logs', {
+            filters: {
+                sourceOrTargetUserId: filters?.sourceOrTargetUserId,
+            },
             page: request.page,
             pageSize: request.pageSize,
         });
@@ -110,9 +129,8 @@ export function LogsDataTable(props: LogsDataTableProps) {
                 }
             }),
         }
-    }
 
-    return (
-        <DataTable {...props} onRequestRows={onRequestRows} columns={columns} />
-    );
+    }, [ filters ]);
+
+    return <DataTable {...dataTableProps} dense onRequestRows={onRequestRows} columns={columns} />;
 }

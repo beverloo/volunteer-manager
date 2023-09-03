@@ -4,13 +4,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Header } from './Header';
 import { Information } from './Information';
-import { Logs } from './Logs';
+import { LogsDataTable } from '@app/admin/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Privilege, can } from '@app/lib/auth/Privileges';
-import { type LogMessage, fetchLogs } from '@app/lib/LogLoader';
 import { VolunteerPrivileges } from './VolunteerPrivileges';
 import { requireUser } from '@lib/auth/getUser';
 
@@ -34,11 +36,6 @@ export interface VolunteerInfo {
         privileges: bigint;
         activated: number;
     };
-
-    /**
-     * Log messages about or issued by this user. Limited to 100 messages.
-     */
-    logs: LogMessage[];
 
     /**
      * Information about the volunteer's participation across AnimeCon events.
@@ -67,8 +64,6 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         })
         .executeSelectNoneOrOne();
 
-    const logs = await fetchLogs({ sourceOrTargetUserId: numericUnverifiedId });
-
     const participation = await db.selectFrom(tUsersEvents)
         .innerJoin(tEvents)
             .on(tEvents.eventId.equals(tUsersEvents.eventId))
@@ -94,11 +89,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
     if (!account || !participation)
         notFound();
 
-    return {
-        account,
-        logs: logs.messages,
-        participation,
-    };
+    return { account, participation };
 }
 
 /**
@@ -114,7 +105,7 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
     if (!volunteerInfo)
         notFound();
 
-    const { account, logs, participation } = volunteerInfo;
+    const { account, participation } = volunteerInfo;
 
     const isAdmin = can(user, Privilege.Administrator);
 
@@ -126,8 +117,14 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
             { !!participation.length &&
                 <Participation participation={participation} userId={account.userId} /> }
 
-            { (can(user, Privilege.SystemLogsAccess) && logs.length > 0) &&
-                <Logs messages={logs} /> }
+            { can(user, Privilege.SystemLogsAccess) &&
+                <Paper sx={{ p: 2 }}>
+                    <Typography variant="h5" sx={{ pb: 1 }}>
+                        Logs
+                    </Typography>
+                    <LogsDataTable filters={{ sourceOrTargetUserId: account.userId }}
+                                   pageSize={10} pageSizeOptions={[ 10, 25, 50 ]} />
+                </Paper> }
 
             { can(user, Privilege.Administrator) &&
                 <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }
