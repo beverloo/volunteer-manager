@@ -27,7 +27,7 @@ export const kCreateContentDefinition = z.object({
         /**
          * Title of the content, as it should be created in the database.
          */
-        title: z.string(),
+        title: z.string().nonempty(),
 
     }),
     response: z.strictObject({

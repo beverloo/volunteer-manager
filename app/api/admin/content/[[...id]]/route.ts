@@ -6,7 +6,9 @@ import { executeAction } from '@app/api/Action';
 
 import { createContent, kCreateContentDefinition } from '../createContent';
 import { deleteContent, kDeleteContentDefinition } from '../deleteContent';
+import { getContent, kGetContentDefinition } from '../getContent';
 import { listContent, kListContentDefinition } from '../listContent';
+import { updateContent, kUpdateContentDefinition } from '../updateContent';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -31,9 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     if (!Object.hasOwn(params, 'id'))
         return executeAction(request, kListContentDefinition, listContent);
 
-    // TODO: getContent
-
-    return NextResponse.json({ success: false }, { status: 404 });
+    return executeAction(request, kGetContentDefinition, getContent, params);
 }
 
 /**
@@ -42,6 +42,16 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (!Object.hasOwn(params, 'id'))
         return executeAction(request, kCreateContentDefinition, createContent);
+
+    return NextResponse.json({ success: false }, { status: 404 });
+}
+
+/**
+ * PUT /api/content/:id
+ */
+export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
+    if (Object.hasOwn(params, 'id'))
+        return executeAction(request, kUpdateContentDefinition, updateContent, params);
 
     return NextResponse.json({ success: false }, { status: 404 });
 }

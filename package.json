@@ -28,6 +28,7 @@
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@google-cloud/aiplatform": "^3.0.0",
+    "@mdxeditor/editor": "^0.21.0",
     "@mui/icons-material": "^5.14.7",
     "@mui/lab": "^5.0.0-alpha.142",
     "@mui/material": "^5.14.7",

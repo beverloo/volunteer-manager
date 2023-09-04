@@ -1,12 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { ApplicationDefinition } from '@app/api/event/application';
 import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
-import type { ApplicationDefinition } from '@app/api/event/application';
+import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
+import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -22,6 +24,7 @@ type ApiResponseType<T> = T extends { response: object } ? T['response'] : void;
 type ApiEndpoints = {
     'get': {
         '/api/admin/content': ListContentDefinition,
+        '/api/admin/content/:id': GetContentDefinition,
     },
     'post': {
         '/api/admin/content': CreateContentDefinition,
@@ -32,7 +35,9 @@ type ApiEndpoints = {
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,
     },
-    'put': {},
+    'put': {
+        '/api/admin/content/:id': UpdateContentDefinition,
+    },
 };
 
 /**

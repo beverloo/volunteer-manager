@@ -21,7 +21,7 @@ import { callApi } from '@lib/callApi';
  * Validates the path for content that should be added to the scope. We only validate syntax here,
  * not whether the content already exists or other restrictions may be in place.
  */
-function validateContentPath(value: FieldValue<FieldValues>): true | string {
+export function validateContentPath(value: FieldValue<FieldValues>): true | string {
     if (!/^[/.a-zA-Z0-9-]+$/.test(value))
         return 'This must be a valid URL path';
 
@@ -45,7 +45,7 @@ export interface ContentCreateProps {
 
 /**
  * The <ContentCreate> component displays a form through which new content can be created. It
- * handles
+ * handles prefixes, URL validation, and forwards the user to the modify page once done.
  */
 export function ContentCreate(props: ContentCreateProps) {
     const [ error, setError ] = useState<string | undefined>();
