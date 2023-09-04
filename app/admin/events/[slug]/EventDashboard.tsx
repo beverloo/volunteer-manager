@@ -54,14 +54,15 @@ export function EventDashboard(props: EventDashboardProps) {
                     <EventTeamCard {...team} />
                 </Grid> ) }
 
-            { props.recentVolunteers.length &&
+            { props.recentVolunteers.length > 0 &&
                 <Grid xs={6}>
                     <EventRecentVolunteers event={event} volunteers={props.recentVolunteers} />
                 </Grid> }
 
-            <Grid xs={6}>
-                <EventSeniors event={event} volunteers={props.seniors} />
-            </Grid>
+            { props.seniors.length > 0 &&
+                <Grid xs={6}>
+                    <EventSeniors event={event} volunteers={props.seniors} />
+                </Grid> }
         </Grid>
     );
 }
