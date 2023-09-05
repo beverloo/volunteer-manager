@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { User } from '@lib/auth/User';
+import { PlaywrightHooks } from './PlaywrightHooks';
 import db, { tLogs } from '@lib/database';
 
 import { LogSeverity } from './database/Types';
@@ -91,6 +92,9 @@ export async function Log(entry: LogEntry): Promise<void> {
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
     const severity = entry.severity ?? LogSeverity.Info;
+
+    if (PlaywrightHooks.isActive() && PlaywrightHooks.isPlaywrightUser(sourceUserId, targetUserId))
+        return;  // don't create log entries on behalf of Playwright users
 
     await db.insertInto(tLogs)
         .values({

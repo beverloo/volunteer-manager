@@ -6,14 +6,14 @@ import { AuthType, RegistrationStatus } from '../database/Types';
 import { User } from './User';
 import { securePasswordHash } from './Password';
 
-import db, { tEvents, tRoles, tStorage, tTeams, tUsers, tUsersAuth, tUsersEvents }
-    from '../database';
+import { PlaywrightHooks } from '../PlaywrightHooks';
+import db, { tEvents, tRoles, tStorage, tUsers, tUsersAuth, tUsersEvents } from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
  * to sign in to their account, preferably using passkeys.
  */
-interface AuthenticationData {
+export interface AuthenticationData {
     /**
      * Whether the account has been activated already.
      */
@@ -111,6 +111,9 @@ export type AuthenticateUserParams =
  * `undefined` will be returned when something went wrong.
  */
 export async function authenticateUser(params: AuthenticateUserParams): Promise<User | undefined> {
+    if (PlaywrightHooks.isActive())
+        return PlaywrightHooks.authenticateUser(params);
+
     const eventsJoin = tEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
     const storageJoin = tStorage.forUseInLeftJoin();
@@ -246,6 +249,9 @@ export async function createAccount(data: AccountCreationData): Promise<number |
 export async function getAuthenticationData(username: string)
     : Promise<AuthenticationData | undefined>
 {
+    if (PlaywrightHooks.isActive())
+        return PlaywrightHooks.getAuthenticationData(username);
+
     const user = await db.selectFrom(tUsers)
         .select({ activated: tUsers.activated })
         .where(tUsers.username.equals(username))

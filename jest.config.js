@@ -10,6 +10,7 @@ const createJestConfig = nextJest({
  * Jest configuration applying to the Volunteer Manager.
  */
 module.exports = createJestConfig({
+    testPathIgnorePatterns: [ 'e2e' ],
     setupFiles: [ 'whatwg-fetch' ],
     setupFilesAfterEnv: [ 'jest-extended/all' ],
     testEnvironment: 'jest-environment-jsdom',

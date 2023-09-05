@@ -1,20 +1,18 @@
 # AnimeCon Volunteer Manager
 _Description tbc_
 
-## Building, testing and deployment
+## Building and deploying
 
-### Development environment
+### Building a developer environment
 Developing the AnimeCon Volunteer Manager follows NextJS' best practices. The following commands are
 enabled and actively supported:
 
 ```
 $ npm run build
-$ npm run lint
 $ npm run serve
-$ npm run test
 ```
 
-It is recommended to run the `build`, `lint` and `test` commands prior to committing a change.
+It is recommended to run the `build` and `test` commands prior to committing a change.
 
 The `serve` command spawns a local server that features live reload and advanced debugging
 capabilities. This is the recommended environment for development. In order for this to work well,
@@ -22,7 +20,7 @@ you will need to copy [`.env.development.sample`](.env.development.sample) to `.
 fill in the details of a MySQL database, as well as various encryption passwords. Each of those
 passwords needs to be at least 32 characters in length.
 
-### Production environment
+### Building a production environment
 Deployment of the AnimeCon Volunteer Manager happens using a Docker image. One can be created by
 running the following command, instructed by our [Dockerfile](Dockerfile):
 
@@ -34,6 +32,30 @@ Once the image has been created, you can run it locally through `npm run serve-p
 Docker has been installed on your system. The production environment will need a completed
 `.env.production` file based on [`.env.production.sample`](.env.production.sample).
 
+### Deploying to production
 Deployment to the actual server is done through a [GitHub Action](.github/workflows/deploy.yml) that
-mimics these steps remotely. This action is accessible through the GitHub user interface as well, at
-least for people with the necessary permissions.
+mimics these steps remotely. This action is accessible through the GitHub user interface.
+
+## Testing
+
+### Jest and unit tests
+We use [Jest](https://jestjs.io/) for unit tests in the project. They primarily focus on server-side
+logic, as using them for client-side components is awkward at best. (Consider Playwright.) Adding
+unit tests is easy and cheap, so should be the default for anything involving non-trivial logic.
+
+```
+$ npm run test
+```
+
+### Playwright end-to-end tests
+We use [Playwright](https://playwright.dev/) to enable end-to-end testing of the critical user
+journeys part of the Volunteer Manager. The full suite can be found in [`e2e/`](./e2e), where the
+cases are grouped together based on their use case.
+
+```
+$ npm run test:e2e
+```
+
+Not everything is expected to be covered by end-to-end tests, their primary purpose is to act as a
+smoke test for important user journeys that we don't manually verify frequently. An example would be
+creating an account, as it's safe to assume everyone working on this project has one.

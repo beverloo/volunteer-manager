@@ -4,6 +4,7 @@
 import type { UserData } from './UserData';
 
 import { AuthType } from '../database/Types';
+import { PlaywrightHooks } from '../PlaywrightHooks';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
@@ -104,6 +105,9 @@ export class User implements UserData {
      * @param incrementSessionToken Whether the session token should be incremented.
      */
     async updatePassword(hashedPassword: string, incrementSessionToken?: boolean): Promise<void> {
+        if (PlaywrightHooks.isActive())
+            return;  // no need to actually update a password
+
         const securelyHashedPassword = await securePasswordHash(hashedPassword);
 
         const dbInstance = db;
