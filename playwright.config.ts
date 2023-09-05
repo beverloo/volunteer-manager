@@ -15,12 +15,25 @@ const url = `http://localhost:${process.env.PORT || 3000}`;
 export default defineConfig({
     outputDir: path.join(__dirname, 'e2e', 'results'),
     testDir: path.join(__dirname, 'e2e'),
-    timeout: 30 * 1000,  // 30 seconds,
+    retries: 3,
+    timeout: 15 * 1000,  // 15 seconds,
 
     projects: [
         {
-            name: 'Chrome Desktop',
+            name: 'Desktop Firefox',
+            use: devices['Desktop Firefox'],
+        },
+        {
+            name: 'Desktop Chrome',
             use: devices['Desktop Chrome'],
+        },
+        {
+            name: 'Mobile Chrome',
+            use: devices['Pixel 5'],
+        },
+        {
+            name: 'Mobile Safari',
+            use: devices['iPhone 13'],
         }
     ],
 
