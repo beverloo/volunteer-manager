@@ -30,10 +30,10 @@ test('should be able to sign in to an account using a password', async ({ contex
     await page.getByLabel('Password').fill('playwright');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
-    // (5) Confirm that the user has signed in and the page refreshed with their identity.
+    // (6) Confirm that the user has signed in and the page refreshed with their identity.
     await page.getByText('PWUSER').waitFor();
 
-    // (6) Confirm that an 'auth' cookie has been set, i.e. the user's session information.
+    // (7) Confirm that an 'auth' cookie has been set, i.e. the user's session information.
     const cookies = await context.cookies();
     expect(cookies).toHaveLength(1);
     expect(cookies[0].name).toEqual('auth');
@@ -62,15 +62,15 @@ test('should be able to sign in to an account using an access code', async ({ co
     await page.getByLabel('Password').fill('8765');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
-    // (6) Wait for the user to be asked to update their password, confirm no cookies were set.
+    // (5) Wait for the user to be asked to update their password, confirm no cookies were set.
     await page.getByText('Update your password').waitFor();
     await expect(await context.cookies()).toHaveLength(0);
 
-    // (7) Enter the updated password and submit the form.
+    // (6) Enter the updated password and submit the form.
     await page.getByLabel('New password').fill(/* random.org= */ 'bQpwasV$RB5zVzpU');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
-    // (8) Confirm that the user has signed in, the page refreshed and that a cookie was set.
+    // (7) Confirm that the user has signed in, the page refreshed and that a cookie was set.
     await page.getByText('PWUSER').waitFor();
     await expect(await context.cookies()).toHaveLength(1);
 });
@@ -81,10 +81,10 @@ test('should be able to sign in to an account using an access code', async ({ co
 test('should not be able to sign in to unactivated accounts', async ({ context, page }) => {
     await page.goto('/');
 
-    // (2) Click on the "Sign in" button.
+    // (1) Click on the "Sign in" button.
     await page.getByText('Sign in').click();
 
-    // (3) Wait for the dialog to be loaded, enter the testing username and submit the form.
+    // (2) Wait for the dialog to be loaded, enter the testing username and submit the form.
     await page.getByText('Please enter your e-mail address').waitFor();
     await page.getByLabel('E-mail').fill('playwright-unactivated@animecon.nl');
     await page.getByRole('button', { name: 'Proceed' }).click();
