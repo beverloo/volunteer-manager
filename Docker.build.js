@@ -15,5 +15,5 @@ const buildHash = nextBuildId.sync({ dir: __dirname }).substring(0, 7);
  * up by the Dockerfile and then be made available to next.config.js as an environment variable.
  */
 childProcess.execSync(
-    `docker build --build-arg BUILD_HASH=${buildHash} -t volunteer-manager-docker .`,
+    `docker build --cpuset-cpus 0-2 --build-arg BUILD_HASH=${buildHash} -t volunteer-manager-docker .`,
     { stdio: 'inherit' });
