@@ -10,7 +10,7 @@ import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
-import db, { tEvents, tEventsTeams } from '@lib/database';
+import db, { tContent, tEvents, tEventsTeams } from '@lib/database';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/update-event.
@@ -198,26 +198,54 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
     }
 
     if (request.team !== undefined) {
-        const affectedRows = await db.insertInto(tEventsTeams)
-            .set({
-                eventId: event.eventId,
-                teamId: request.team.id,
-                teamTargetSize: request.team.targetSize,
-                enableTeam: request.team.enableTeam ? 1 : 0,
-                enableContent: request.team.enableContent ? 1 : 0,
-                enableRegistration: request.team.enableRegistration ? 1 : 0,
-                enableSchedule: request.team.enableSchedule ? 1 : 0,
-            })
-            .onConflictDoUpdateSet({
-                teamTargetSize: request.team.targetSize,
-                enableTeam: request.team.enableTeam ? 1 : 0,
-                enableContent: request.team.enableContent ? 1 : 0,
-                enableRegistration: request.team.enableRegistration ? 1 : 0,
-                enableSchedule: request.team.enableSchedule ? 1 : 0,
-            })
-            .executeInsert(/* min= */ 0, /* max= */ 1);
+        const dbInstance = db;
+        const success = await dbInstance.transaction(async () => {
+            if (!request.team)
+                return false;  // microtasks, you know...
 
-        if (affectedRows > 0) {
+            const affectedRows = await dbInstance.insertInto(tEventsTeams)
+                .set({
+                    eventId: event.eventId,
+                    teamId: request.team.id,
+                    teamTargetSize: request.team.targetSize,
+                    enableTeam: request.team.enableTeam ? 1 : 0,
+                    enableContent: request.team.enableContent ? 1 : 0,
+                    enableRegistration: request.team.enableRegistration ? 1 : 0,
+                    enableSchedule: request.team.enableSchedule ? 1 : 0,
+                })
+                .onConflictDoUpdateSet({
+                    teamTargetSize: request.team.targetSize,
+                    enableTeam: request.team.enableTeam ? 1 : 0,
+                    enableContent: request.team.enableContent ? 1 : 0,
+                    enableRegistration: request.team.enableRegistration ? 1 : 0,
+                    enableSchedule: request.team.enableSchedule ? 1 : 0,
+                })
+                .executeInsert(/* min= */ 0, /* max= */ 1);
+
+            if (!!affectedRows && request.team.enableTeam) {
+                const pages = [
+                    { contentPath: '', contentTitle: event.shortName },
+                    { contentPath: 'application', contentTitle: 'Apply to join' },
+                ];
+
+                await dbInstance.insertInto(tContent)
+                    .values(pages.map((pageProps) => ({
+                        eventId: event.eventId,
+                        teamId: request.team!.id,
+                        content: 'No content has been written yet…',
+                        contentProtected: 1,
+                        revisionAuthorId: props.user!.userId,
+                        revisionVisible: 1,
+                        ...pageProps,
+                    })))
+                    .onConflictDoNothing()
+                    .executeInsert();
+            }
+
+            return !!affectedRows;
+        });
+
+        if (success) {
             await Log({
                 type: LogType.AdminUpdateEvent,
                 severity: LogSeverity.Warning,
@@ -230,7 +258,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             });
         }
 
-        return { success: !!affectedRows };
+        return { success };
     }
 
     return { success: false };
