@@ -145,7 +145,7 @@ interface ApplicationProps {
 function Application(props: ApplicationProps) {
     const { application, requestResponse } = props;
 
-    const avatarUrl = application.avatar ? `/avatars/${application.avatar}.png` : undefined;
+    const avatarUrl = application.avatar ? `/blob/${application.avatar}.png` : undefined;
     const avatar = (
         <Avatar src={avatarUrl}>
             {application.firstName} {application.lastName}

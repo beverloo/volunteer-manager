@@ -11,7 +11,8 @@ import Box from '@mui/material/Box';
 import {
     BlockTypeSelect, BoldItalicUnderlineToggles, CreateLink, DiffSourceToggleWrapper, ListsToggle,
     MDXEditor, type MDXEditorMethods, Separator, UndoRedo, diffSourcePlugin, headingsPlugin,
-    listsPlugin, quotePlugin, tablePlugin, toolbarPlugin } from '@mdxeditor/editor';
+    imagePlugin,  linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin, tablePlugin,
+    thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
 
 /**
  * Props accepted by the <ContentEditorMdx> component.
@@ -41,9 +42,13 @@ export default function ContentEditorMdx(props: ContentEditorMdxProps) {
                        plugins={[
                            diffSourcePlugin({ diffMarkdown: props.markdown }),
                            headingsPlugin(),
+                           imagePlugin(),
+                           linkPlugin(),
                            listsPlugin(),
+                           markdownShortcutPlugin(),
                            quotePlugin(),
                            tablePlugin(),
+                           thematicBreakPlugin(),
                            toolbarPlugin({
                                toolbarContents: () =>
                                    <DiffSourceToggleWrapper>
