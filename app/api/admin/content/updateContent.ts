@@ -32,7 +32,7 @@ export const kUpdateContentDefinition = z.object({
         /**
          * Path of the content, excluding any prefixes (e.g. "privacy").
          */
-        path: z.string().regex(/^[/.a-zA-Z0-9-]+$/),
+        path: z.string().regex(/^[/.a-zA-Z0-9-]*$/),
 
         /**
          * Title of the content.

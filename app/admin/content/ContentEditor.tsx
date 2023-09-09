@@ -133,9 +133,11 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                                     {props.pathPrefix}
                                 </Typography> }
                             <TextFieldElement name="path" label="Content path" fullWidth
-                                              size="small" required
-                                              validation={{ validate: validateContentPath }}
-                                              InputProps={{ readOnly: !!contentProtected }}/>
+                                              size="small" required={!contentProtected}
+                                              validation={{
+                                                  validate: contentProtected ? undefined
+                                                                             : validateContentPath
+                                              }} InputProps={{ readOnly: !!contentProtected }}/>
                         </Stack>
                     </Grid>
                 </Grid>
