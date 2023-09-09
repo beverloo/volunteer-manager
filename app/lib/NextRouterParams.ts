@@ -4,7 +4,9 @@
 /**
  * Props accepted by the NextJS router component.
  */
-export interface NextRouterParams<Params extends string> {
+export interface NextRouterParams<SingleComponentParams extends string,
+                                  MultiComponentParams extends string = never>
+{
     /**
      * Parameters passed to the component by the NextJS router.
      */
@@ -12,7 +14,12 @@ export interface NextRouterParams<Params extends string> {
         /**
          * Parameter that was included in the URL.
          */
-        [P in Params]: string;
+        [P in SingleComponentParams]: string;
+    } & {
+        /**
+         * Parameters that were included in the URL.
+         */
+        [P in MultiComponentParams]?: string[];
     } & {
         /**
          * Search parameters given in the URL.

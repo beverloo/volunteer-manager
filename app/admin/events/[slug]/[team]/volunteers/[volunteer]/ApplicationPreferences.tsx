@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateTeamVolunteerDefinition } from '@app/api/admin/updateTeamVolunteer';
-import { ApplicationParticipation } from '@app/registration/[[...path]]/application/ApplicationParticipation';
+import { ApplicationParticipation } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 
