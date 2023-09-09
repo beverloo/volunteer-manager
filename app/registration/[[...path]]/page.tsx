@@ -3,9 +3,10 @@
 
 import { notFound, redirect } from 'next/navigation';
 
+import type { EventPageProps, EventPageFn } from './EventPageProps';
 import type { Event } from '@lib/Event';
-import { ApplicationPage } from './ApplicationPage';
-import { ApplicationStatusPage } from './ApplicationStatusPage';
+import { EventApplicationHotelsPage } from './application/hotel/EventApplicationHotelsPage';
+import { EventApplicationPage } from './application/EventApplicationPage';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContent } from '../RegistrationContent';
 import { RegistrationContentContainer } from '../RegistrationContentContainer';
@@ -15,6 +16,25 @@ import { getContent } from '@lib/Content';
 import { getEventBySlug, getEventsForUser } from '@lib/EventLoader';
 import { getRegistration } from '@app/lib/RegistrationLoader';
 import { getUser } from '@lib/auth/getUser';
+
+/**
+ * The <EventPage> component displays the regular content on one of the registration sub-pages.
+ */
+async function EventPage(props: EventPageProps</* UserRequired= */ false>) {
+    const { content, event, path } = props;
+
+    if (!content)
+        notFound();
+
+    const backUrl = path.length ? `/registration/${event.slug}` : undefined;
+    return (
+        <RegistrationContent backUrl={backUrl}
+                             content={content}
+                             event={event.toEventData()}
+                             showRegistrationButton={!path.length}
+                             enableRegistrationButton={!props.registration} />
+    );
+}
 
 /**
  * Properties accepted by the <EventRegistrationPage> server component.
@@ -45,10 +65,9 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
 
     const user = await getUser();
 
-    const path = props.params.path ?? [];
-
     // Step 1: Attempt to load the requested event based on the |path|. When no (valid) event has
     // been included, the user should be redirected to the homepage of the latest event.
+    const path = props.params.path ?? [];
     const event: Event | undefined = path.length ? await getEventBySlug(path.shift()!)
                                                  : undefined;
 
@@ -74,58 +93,35 @@ export default async function EventRegistrationPage(props: EventRegistrationPage
     const content = await getContent(environment.environmentName, event, path);
     const registration = await getRegistration(environment.environmentName, event, user?.userId);
 
-    // Step 3: Defer to more specific sub-components when this is a functional request.
+    // Step 3: Defer to more specific sub-components that is able to handle this request.
+    let component: EventPageFn = EventPage;
     let redirectUrl = `/registration/${event.slug}`;
-    let requestedPage = null;
 
-    switch (path[0]) {
+    switch (path.join('/')) {
         case 'application':
+            component = EventApplicationPage;
             redirectUrl = `/registration/${event.slug}/application`;
-            requestedPage = path[0];
             break;
-
-        // For all dynamic content pages we require the content to exist. Redirect back to the main
-        // event page when it does not, or back to the Volunteer Manager when it's the main page.
-        default:
-            if (!content) {
-                if (path.length /** leaf page */)
-                    redirect(`/registration/${event.slug}`);
-                else
-                    redirect('/');
-            }
+        case 'application/hotel':
+            if (user && registration)
+                component = EventApplicationHotelsPage;
+            break;
     }
 
-    // Step 3: Determine whether to intercept the request for one of the form pages, or to display
-    // a pure-content registration page with the information made available above.
-    const backUrl = path.length ? `/registration/${event.slug}` : undefined;
-
-    const eventData = event.toEventData(environment.environmentName);
-    const registrationData = registration?.toRegistrationData();
-    const userData = user?.toUserData();
+    const componentContent = await component({
+        content, environment, event, path,
+        registration: registration!,
+        user: user!,
+    });
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer event={eventData}
+            <RegistrationContentContainer event={event.toEventData(environment.environmentName)}
                                           title={event.name}
                                           redirectUrl={redirectUrl}
-                                          registration={registrationData}
-                                          user={userData}>
-
-                { (requestedPage === 'application' && !registration) &&
-                    <ApplicationPage content={content}
-                                     event={eventData}
-                                     user={userData} /> }
-                { (requestedPage === 'application' && registrationData && userData) &&
-                    <ApplicationStatusPage event={eventData}
-                                           registration={registrationData}
-                                           user={userData} /> }
-                { (!requestedPage && content) &&
-                    <RegistrationContent backUrl={backUrl}
-                                         content={content}
-                                         event={eventData}
-                                         showRegistrationButton={!path.length}
-                                         enableRegistrationButton={!registration} /> }
-
+                                          registration={registration?.toRegistrationData()}
+                                          user={user?.toUserData()}>
+                {componentContent}
             </RegistrationContentContainer>
         </RegistrationLayout>
     );

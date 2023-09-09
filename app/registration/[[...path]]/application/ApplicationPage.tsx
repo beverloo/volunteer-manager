@@ -21,7 +21,7 @@ import { lighten } from '@mui/system/colorManipulator';
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { UserData } from '@app/lib/auth/UserData';
-import { AuthenticationContext } from '../AuthenticationContext';
+import { AuthenticationContext } from '../../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
