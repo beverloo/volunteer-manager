@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
@@ -36,23 +37,36 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             url: '/admin/events',
         },
         {
-            icon: <WebhookIcon />,
-            label: 'Integrations',
-            privilege: Privilege.SystemAdministrator,
-            url: '/admin/integrations',
+            divider: true,
+            privilege: [ Privilege.SystemAdministrator, Privilege.SystemLogsAccess ],
         },
         {
-            icon: <DvrIcon />,
-            label: 'Logs',
-            privilege: Privilege.SystemLogsAccess,
-            url: '/admin/logs',
+            icon: <DeviceHubIcon />,
+            label: 'System',
+            privilege: [ Privilege.SystemAdministrator, Privilege.SystemLogsAccess ],
+
+            defaultOpen: Privilege.SystemAdministrator,
+            menu: [
+                {
+                    icon: <WebhookIcon />,
+                    label: 'Integrations',
+                    privilege: Privilege.SystemAdministrator,
+                    url: '/admin/integrations',
+                },
+                {
+                    icon: <DvrIcon />,
+                    label: 'Logs',
+                    privilege: Privilege.SystemLogsAccess,
+                    url: '/admin/logs',
+                },
+                {
+                    icon: <ManageHistoryIcon />,
+                    label: 'Services',
+                    privilege: Privilege.SystemAdministrator,
+                    url: '/admin/services',
+                }
+            ]
         },
-        {
-            icon: <ManageHistoryIcon />,
-            label: 'Services',
-            privilege: Privilege.SystemAdministrator,
-            url: '/admin/services',
-        }
     ];
 
     return (

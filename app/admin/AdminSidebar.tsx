@@ -45,9 +45,20 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
+ * Properties available to all sidebar entires, regardless of type.
+ */
+interface AdminSidebarMenuCommon {
+    /**
+     * The privilege this entry is gated behind. Visibility control, not an access control. When
+     * multiple privileges are provided then this entry will be visible when either of them if set.
+     */
+    privilege?: Privilege | Privilege[];
+}
+
+/**
  * Interface defining a manually configured divider that is to be added to the menu.
  */
-interface AdminSIdebarMenuDividerEntry {
+interface AdminSidebarMenuDivider extends AdminSidebarMenuCommon {
     /**
      * Set this to `true` to indicate that a divider should be added to the menu.
      */
@@ -58,7 +69,7 @@ interface AdminSIdebarMenuDividerEntry {
  * Base interface for an entry to the administration sidebar interface that applies to all kinds of
  * entries, which includes rendering properties and privilege checking.
  */
-interface AdminSidebarMenuEntryBase {
+interface AdminSidebarMenuItemCommon extends AdminSidebarMenuCommon {
     /**
      * The icon that should be displayed with the menu entry. Optional.
      */
@@ -68,18 +79,13 @@ interface AdminSidebarMenuEntryBase {
      * The label that should be displayed with the menu entry.
      */
     label: string;
-
-    /**
-     * The privilege this entry is gated behind. Visibility control, not an access control.
-     */
-    privilege?: Privilege;
 }
 
 /**
  * Interface that defines the additional options for menu entries that act as a button, which means
  * that the user is able to immediately navigate to them.
  */
-interface AdminSidebarMenuButtonEntry {
+interface AdminSidebarMenuButtonItem {
     /**
      * Optional badge that should be displayed on the menu item. Must be greater than zero.
      */
@@ -95,24 +101,24 @@ interface AdminSidebarMenuButtonEntry {
  * Interface that defines the additional options for menu entries that are a parent of a sub-menu.
  * These cannot have a URL (as they are collapsable) and cannot show a badge either.
  */
-interface AdminSidebarMenuParentEntry {
+interface AdminSidebarMenuSubMenuItem {
     /**
      * Whether the menu should be open by default. Defaults to false.
      */
-    defaultOpen?: boolean;
+    defaultOpen?: boolean | Privilege;
 
     /**
      * Child menu items that should be shown as part of this entry.
      */
-    menu: (AdminSidebarMenuEntryBase & AdminSidebarMenuButtonEntry)[];
+    menu: (AdminSidebarMenuItemCommon & AdminSidebarMenuButtonItem)[];
 }
 
 /**
  * Interface that specified menu entries for the <AdminSidebar> component must adhere to.
  */
 export type AdminSidebarMenuEntry =
-    AdminSIdebarMenuDividerEntry |
-        (AdminSidebarMenuEntryBase & (AdminSidebarMenuButtonEntry | AdminSidebarMenuParentEntry));
+    AdminSidebarMenuDivider |
+        (AdminSidebarMenuItemCommon & (AdminSidebarMenuButtonItem | AdminSidebarMenuSubMenuItem));
 
 /**
  * Props accepted by the <RenderSidebarMenu> component.
@@ -156,14 +162,33 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
     return (
         <List disablePadding>
             { menu.map((entry, index) => {
+                if (entry.privilege) {
+                    const privileges =
+                        Array.isArray(entry.privilege) ? entry.privilege : [ entry.privilege ];
+
+                    for (const privilege of privileges) {
+                        if (!can(user, privilege))
+                            return undefined;
+                    }
+                }
+
                 if ('divider' in entry)
                     return <Divider key={index} />;
 
-                if (entry.privilege && !can(user, entry.privilege))
-                    return undefined;
-
                 if (/* AdminSidebarMenuButtonEntry= */ 'menu' in entry) {
-                    const open = collapsedState.has(index) === !entry.defaultOpen;
+                    let defaultOpen = false;
+                    switch (typeof entry.defaultOpen) {
+                        case 'bigint':
+                        case 'number':
+                            defaultOpen = can(user, entry.defaultOpen as Privilege);
+                            break;
+
+                        case 'boolean':
+                            defaultOpen = !!entry.defaultOpen;
+                            break;
+                    }
+
+                    const open = collapsedState.has(index) === !defaultOpen;
 
                     return (
                         <React.Fragment key={index}>
