@@ -10,6 +10,11 @@ import { deepmerge } from '@mui/utils';
 import grey from '@mui/material/colors/grey'
 
 /**
+ * Representation of the theme colours for each of the valid Palette modes.
+ */
+type ThemeColour = { [key in PaletteMode]: string };
+
+/**
  * Add our own style, "hidden", which mimics disabled buttons while still allowing interaction. It
  * is used to highlight options that are only available through additional granted privileges.
  */
@@ -22,10 +27,12 @@ declare module '@mui/material/Button' {
 declare module '@mui/material/styles' {
     interface Palette {
         hidden: Palette['primary'];
+        theme: ThemeColour;
     }
 
     interface PaletteOptions {
         hidden?: PaletteOptions['primary'];
+        theme?: ThemeColour;
     }
 }
 
@@ -60,11 +67,6 @@ const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
 };
 
 /**
- * Representation of the theme colours for each of the valid Palette modes.
- */
-type ThemeColour = { [key in PaletteMode]: string };
-
-/**
  * Creates a theme for the given |themeColors| in the given |paletteMode|. The result of this call
  * will be cached for the lifetime of the global environment.
  */
@@ -86,6 +88,7 @@ export function createCachedTheme(themeColors: ThemeColour, paletteMode: Palette
                 primary: {
                     main: themeColour,
                 },
+                theme: themeColors,
                 hidden: {
                     main: grey[500],
                     contrastText: '#fff',

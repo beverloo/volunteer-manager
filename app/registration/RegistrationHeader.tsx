@@ -8,6 +8,7 @@ import Avatar from '@mui/material/Avatar';
 import FaceIcon from '@mui/icons-material/Face';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { darken } from '@mui/material/styles';
 
 import type { UserData } from '@lib/auth/UserData';
 import { AuthenticationHeaderChip } from './AuthenticationHeaderChip';
@@ -21,17 +22,22 @@ export const kStyles: { [key: string]: SxProps<Theme> } = {
         backgroundColor: 'primary.light',
         color: theme => theme.palette.getContrastText(theme.palette.primary.light),
     },
-    header: {
-        backgroundColor: 'primary.dark',
-        color: theme => theme.palette.getContrastText(theme.palette.primary.dark),
-        display: 'flex',
+    header: theme => {
+        const backgroundColor =
+            theme.palette.mode === 'light' ? darken(theme.palette.theme.light, 0.2)
+                                           : darken(theme.palette.theme.light, 0.3);
 
-        borderTopLeftRadius: 4,
-        borderTopRightRadius: 4,
+        return {
+            backgroundColor,
+            color: theme.palette.getContrastText(backgroundColor),
+            display: 'flex',
 
-        margin: 0,
-        paddingX: 2,
-        paddingY: 1,
+            borderTopLeftRadius: `${theme.shape.borderRadius}px`,
+            borderTopRightRadius: `${theme.shape.borderRadius}px`,
+
+            margin: theme.spacing(0),
+            padding: theme.spacing(1, 2),
+        };
     },
     text: {
         flex: 1,

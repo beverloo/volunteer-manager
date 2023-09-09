@@ -19,7 +19,7 @@ export interface ClientProvidersProps {
     /**
      * Whether dark mode should be enabled on the page. Defaults to `auto`.
      */
-    darkMode?: 'auto' | 'dark' | 'light';
+    paletteMode?: PaletteMode | 'auto';
 
     /**
      * Theme colours for the environment that's being displayed. Other colours will be computed.
@@ -34,7 +34,7 @@ export interface ClientProvidersProps {
  * https://nextjs.org/docs/getting-started/react-essentials#rendering-third-party-context-providers-in-server-components
  */
 export function ClientProviders(props: React.PropsWithChildren<ClientProvidersProps>) {
-    const darkMode = props.darkMode ?? 'auto';
+    const paletteMode = props.paletteMode ?? 'auto';
     const themeColours = props.themeColours ?? {
         dark: '#b2dfdb',
         light: '#00796b',
@@ -44,8 +44,8 @@ export function ClientProviders(props: React.PropsWithChildren<ClientProvidersPr
     // operating system. This is done by observing a media query.
     const systemPrefersDarkColorScheme = useMediaQuery('(prefers-color-scheme: dark)');
     const effectiveDarkModeState: PaletteMode =
-        darkMode === 'auto' ? (systemPrefersDarkColorScheme ? 'dark' : 'light')
-                            : darkMode;
+        paletteMode === 'auto' ? (systemPrefersDarkColorScheme ? 'dark' : 'light')
+                               : paletteMode;
 
     return (
         <>

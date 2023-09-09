@@ -28,7 +28,7 @@ export default async function RootLayout(props: React.PropsWithChildren) {
         <html lang="en">
             <head></head>
             <body>
-                <ClientProviders darkMode="auto" themeColours={environment?.themeColours}>
+                <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
                     {props.children}
                 </ClientProviders>
             </body>

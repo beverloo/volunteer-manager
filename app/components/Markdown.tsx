@@ -10,7 +10,7 @@ import type { SxProps, Theme } from '@mui/system';
 import Box, { type BoxProps } from '@mui/material/Box';
 import { default as MuiLink, type LinkProps } from '@mui/material/Link';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
-import { lighten } from '@mui/material/styles';
+import { darken, lighten } from '@mui/material/styles';
 
 import type { EventData } from '@lib/Event';
 import { RemoteContent } from './RemoteContent';
@@ -23,19 +23,24 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '&> div >:last-child': { mb: 0 },
         '&> p:last-child': { mb: 0 },
 
-        '& blockquote': {
-            backgroundColor: theme => lighten(theme.palette.error.main, .8),
-            border: theme => '1px solid ' + theme.palette.error.main,
-            borderRadius: theme => theme.shape.borderRadius,
+        '& blockquote': theme => {
+            const backgroundColor =
+                theme.palette.mode === 'light' ? lighten(theme.palette.error.main, .8)
+                                               : darken(theme.palette.error.main, .7);
 
-            marginX: 0,
-            marginY: 2,
-            paddingX: 2,
-            paddingY: 0,
+            return {
+                backgroundColor,
+                borderColor: 'transparent',
+                borderRadius: `${theme.shape.borderRadius}px`,
+                color: theme.palette.getContrastText(backgroundColor),
 
-            '& p': {
-                margin: 1,
-            }
+                margin: theme.spacing(2, 0),
+                padding: theme.spacing(0, 2),
+
+                '& p': {
+                    padding: theme.spacing(1, 0),
+                }
+            };
         },
 
         '& p': { marginBottom: 2 },
@@ -53,7 +58,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Components for the different
+ * Components for the different types of text that can be rendered as Markdown.
  */
 function Text(props: TypographyProps & { tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' }) {
     switch (props.tag) {

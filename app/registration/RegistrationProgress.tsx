@@ -21,9 +21,9 @@ import Paper from '@mui/material/Paper';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 
-import { lighten } from '@mui/material/styles';
+import { darken, lighten } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
-import lightGreen from '@mui/material/colors/lightGreen'
+import green from '@mui/material/colors/lightGreen'
 import red from '@mui/material/colors/red';
 import yellow from '@mui/material/colors/yellow';
 
@@ -43,9 +43,26 @@ const kProgressExpansionStateName = 'vm-progress-expanded';
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: { position: 'relative' },
 
-    containerAccepted: { backgroundColor: lightGreen[200] },
-    containerRegistered: { backgroundColor: yellow[100] },
-    containerRejected: { backgroundColor: theme => lighten(theme.palette.error.main, .8) },
+    containerAccepted: {
+        '& svg': { color: theme => theme.palette.mode === 'light' ? green[900] : green[400] },
+        backgroundColor:
+            theme => theme.palette.mode === 'light' ? lighten(theme.palette.success.main, 0.75)
+                                                    : darken(theme.palette.success.main, 0.65),
+    },
+
+    containerCancelledOrRejected: {
+        '& svg': { color: theme => theme.palette.mode === 'light' ? red[800] : red[400] },
+        backgroundColor:
+            theme => theme.palette.mode === 'light' ? lighten(theme.palette.error.main, 0.8)
+                                                    : darken(theme.palette.error.main, 0.7),
+    },
+
+    containerRegistered: {
+        '& svg': { color: theme => theme.palette.mode === 'light' ? yellow[900] : yellow[300] },
+        backgroundColor:
+            theme => theme.palette.mode === 'light' ? lighten(theme.palette.warning.main, 0.87)
+                                                    : darken(theme.palette.warning.main, 0.75),
+    },
 
     divider: { marginBottom: 1 },
 
@@ -117,7 +134,7 @@ export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
             <AccordionSummary sx={deepmerge(kStyles.summary, kStyles.summaryAccepted)}>
                 <Box sx={{ display: 'flex' }}>
                     <Box sx={kStyles.summaryIcon}>
-                        <ThumbUpIcon style={{ color: lightGreen[900] }} fontSize="inherit" />
+                        <ThumbUpIcon fontSize="inherit" />
                     </Box>
                     <Typography variant="body2">
                         Your participation has been <b>confirmed</b> ({registration.role}).
@@ -169,7 +186,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
     switch (registration.status) {
         case RegistrationStatus.Registered:
             containerStyle = kStyles.containerRegistered;
-            icon = <HowToVoteIcon style={{ color: yellow[900] }} fontSize="inherit" />;
+            icon = <HowToVoteIcon fontSize="inherit" />;
             title = <>Your application is <b>being considered</b>.</>;
             explanation = (
                 <Typography variant="body2">
@@ -182,8 +199,8 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
             break;
 
         case RegistrationStatus.Cancelled:
-            containerStyle = kStyles.containerRejected;
-            icon = <DoNotDisturbAltIcon style={{ color: red[800] }} fontSize="inherit" />;
+            containerStyle = kStyles.containerCancelledOrRejected;
+            icon = <DoNotDisturbAltIcon fontSize="inherit" />;
             title = <>Your participation has been <b>cancelled</b>.</>;
             explanation = (
                 <Typography variant="body2">
@@ -195,8 +212,8 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
             break;
 
         case RegistrationStatus.Rejected:
-            containerStyle = kStyles.containerRejected;
-            icon = <DoNotDisturbAltIcon style={{ color: red[800] }} fontSize="inherit" />;
+            containerStyle = kStyles.containerCancelledOrRejected;
+            icon = <DoNotDisturbAltIcon fontSize="inherit" />;
             title = <>Your participation has been <b>declined</b>.</>;
             explanation = (
                 <Typography variant="body2">

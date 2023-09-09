@@ -9,7 +9,9 @@ import { styled } from '@mui/material/styles';
 import { lighten } from '@mui/material/styles';
 
 export const AuthenticationHeaderChip = styled(Chip)(({ theme }) => {
-    const chipBackground = theme.palette.primary.main;
+    const chipBackground =
+        theme.palette.mode === 'light' ? theme.palette.primary.main
+                                       : theme.palette.theme.light;
 
     return {
         [`&.${chipClasses.root}`]: {
