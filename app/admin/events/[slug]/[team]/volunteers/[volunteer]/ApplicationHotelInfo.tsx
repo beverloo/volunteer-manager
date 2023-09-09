@@ -19,7 +19,7 @@ export interface ApplicationHotelInfoProps {
 export function ApplicationHotelInfo(props: ApplicationHotelInfoProps) {
     return (
         <UnderConstructionPaper>
-            Hotel information
+            Hotel preferences
         </UnderConstructionPaper>
     );
 }

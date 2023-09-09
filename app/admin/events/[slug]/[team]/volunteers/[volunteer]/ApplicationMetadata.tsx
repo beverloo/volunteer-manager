@@ -124,7 +124,7 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ mb: 1 }}>
-                Metadata & overrides
+                Application information
                 <Tooltip title="Restricted to the application override permission">
                     <LockOpenIcon color="warning" fontSize="small"
                                   sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />

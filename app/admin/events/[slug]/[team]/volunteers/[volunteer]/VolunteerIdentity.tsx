@@ -17,6 +17,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
 import { Avatar } from '@components/Avatar';
@@ -141,9 +142,15 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                      transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
                 { !contactInfo && <ContactInfoLoadingSkeleton /> }
                 { !!contactInfo &&
-                    <TextField name="emailAddress" label="E-mail address"
-                               value={contactInfo.username} size="small"
-                               sx={{ m: 2 }} InputProps={{ readOnly: true }} /> }
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 2 }}>
+                        <TextField name="emailAddress" label="E-mail address"
+                                value={contactInfo.username} size="small"
+                                InputProps={{ readOnly: true }} />
+                        { contactInfoLoading &&
+                            <Tooltip title="Treat personal information carefully">
+                                <WarningAmberIcon color="warning" />
+                            </Tooltip> }
+                    </Stack> }
             </Popover>
             <Popover open={!!phoneNumberAnchorEl} anchorEl={phoneNumberAnchorEl}
                      onClose={handlePhoneNumberClose}
@@ -151,9 +158,15 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                      transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
                 { !contactInfo && <ContactInfoLoadingSkeleton /> }
                 { !!contactInfo &&
-                    <TextField name="phoneNumber" label="Phone number"
-                               value={contactInfo.phoneNumber} size="small"
-                               sx={{ m: 2 }} InputProps={{ readOnly: true }} /> }
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 2 }}>
+                        <TextField name="phoneNumber" label="Phone number"
+                                value={contactInfo.phoneNumber} size="small"
+                                InputProps={{ readOnly: true }} />
+                        { contactInfoLoading &&
+                            <Tooltip title="Treat personal information carefully">
+                                <WarningAmberIcon color="warning" />
+                            </Tooltip> }
+                    </Stack> }
             </Popover>
         </Paper>
     );

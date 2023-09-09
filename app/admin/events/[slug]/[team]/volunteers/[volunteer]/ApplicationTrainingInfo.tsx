@@ -19,7 +19,7 @@ export interface ApplicationTrainingInfoProps {
 export function ApplicationTrainingInfo(props: ApplicationTrainingInfoProps) {
     return (
         <UnderConstructionPaper>
-            Training information
+            Training preferences
         </UnderConstructionPaper>
     );
 }
