@@ -7,16 +7,15 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tUsers, tUsersEvents } from '@lib/database';
+import db, { tRoles, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { ApplicationHotelInfo } from './ApplicationHotelInfo';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
 import { ApplicationTrainingInfo } from './ApplicationTrainingInfo';
 import { RegistrationStatus } from '@lib/database/Types';
-import { VolunteerAvailability } from './VolunteerAvailability';
-import { VolunteerContactInfo } from './VolunteerContactInfo';
 import { VolunteerHeader } from './VolunteerHeader';
+import { VolunteerIdentity } from './VolunteerIdentity';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -28,9 +27,15 @@ type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 export default async function EventVolunteerPage(props: RouterParams) {
     const { user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
+    const storageJoin = tStorage.forUseInLeftJoin();
+
     const volunteer = await db.selectFrom(tUsersEvents)
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
         .where(tUsersEvents.userId.equals(parseInt(props.params.volunteer, 10)))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
@@ -41,8 +46,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            avatarFileHash: storageJoin.fileHash,
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
+            roleName: tRoles.roleName,
             registrationDate: tUsersEvents.registrationDate,
             registrationStatus: tUsersEvents.registrationStatus,
             hotelEligible: tUsersEvents.hotelEligible,
@@ -73,15 +80,14 @@ export default async function EventVolunteerPage(props: RouterParams) {
         <>
             <VolunteerHeader event={event} team={team} volunteer={volunteer}
                              user={user.toUserData()} />
+            <VolunteerIdentity eventId={event.id} teamId={team.id} userId={volunteer.userId}
+                               contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event} team={team} volunteer={volunteer} />
-            <VolunteerContactInfo eventId={event.id} teamId={team.id} userId={volunteer.userId}
-                                  contactInfo={contactInfo} />
             { can(user, Privilege.EventVolunteerApplicationOverrides) &&
                 <ApplicationMetadata eventId={event.id} teamId={team.id} volunteer={volunteer} /> }
-            <VolunteerAvailability />
-            { can(user, Privilege.EventAdministrator) &&
+            { can(user, Privilege.EventHotelManagement) &&
                 <ApplicationHotelInfo /> }
-            { can(user, Privilege.EventAdministrator) &&
+            { can(user, Privilege.EventTrainingManagement) &&
                 <ApplicationTrainingInfo /> }
         </>
     );

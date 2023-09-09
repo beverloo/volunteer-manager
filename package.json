@@ -76,6 +76,7 @@
     "jest-extended": "^4.0.1",
     "next-build-id": "^3.0.0",
     "nodemailer-mock": "^2.0.1",
+    "request": "^2.88.2",
     "ts-sql-codegen": "^3.16.0",
     "typescript": "^5.2.2",
     "whatwg-fetch": "^3.6.18"
