@@ -6,8 +6,9 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
+import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -54,6 +55,7 @@ export function EventSettings(props: EventSettingsProps) {
                         shortName: data.shortName,
                         startTime: dayjs(data.startTime).toISOString(),
                         endTime: dayjs(data.endTime).toISOString(),
+                        hotelRoomForm: data.hotelRoomForm,
                     },
                 });
 
@@ -81,6 +83,12 @@ export function EventSettings(props: EventSettingsProps) {
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <EventSettingsForm onChange={handleChange} />
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid xs={12}>
+                        <TextFieldElement name="hotelRoomForm" label="Hotel room form URL"
+                                          fullWidth size="small" onChange={handleChange} />
+                    </Grid>
+                </Grid>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }}/>
             </FormContainer>
         </Paper>

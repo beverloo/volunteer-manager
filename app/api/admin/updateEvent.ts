@@ -40,6 +40,7 @@ export const kUpdateEventDefinition = z.object({
             shortName: z.string(),
             startTime: z.string(),
             endTime: z.string(),
+            hotelRoomForm: z.string().optional(),
         }).optional(),
 
         /**
@@ -151,6 +152,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 eventShortName: request.eventSettings.shortName,
                 eventStartTime: new Date(request.eventSettings.startTime),
                 eventEndTime: new Date(request.eventSettings.endTime),
+                eventHotelRoomForm: request.eventSettings.hotelRoomForm,
             })
             .where(tEvents.eventId.equals(event.eventId))
             .executeUpdate(/* min= */ 0, /* max= */ 1);

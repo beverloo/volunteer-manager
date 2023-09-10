@@ -73,6 +73,11 @@ export interface PageInfo {
          * Time at which the final shifts of the event will finish.
          */
         endTime: Date;
+
+        /**
+         * Link to the hotel room form where bookings should be made.
+         */
+        hotelRoomForm?: string;
     };
 
     /**
@@ -149,6 +154,7 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
             slug: tEvents.eventSlug,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,
+            hotelRoomForm: tEvents.eventHotelRoomForm,
             publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
             publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),

@@ -17,6 +17,7 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventHidden = this.columnWithDefaultValue('event_hidden', 'int');
     eventStartTime = this.column('event_start_time', 'localDateTime');
     eventEndTime = this.column('event_end_time', 'localDateTime');
+    eventHotelRoomForm = this.optionalColumnWithDefaultValue('event_hotel_room_form', 'string');
     eventIdentityId = this.optionalColumnWithDefaultValue('event_identity_id', 'int');
     publishAvailability = this.columnWithDefaultValue('publish_availability', 'int');
     publishHotels = this.columnWithDefaultValue('publish_hotels', 'int');

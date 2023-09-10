@@ -190,9 +190,8 @@ export function SettingsHeader(props: SettingsHeaderProps) {
                     </> }
                 { !event.hidden &&
                     <>
-                        <strong>{event.shortName}</strong> is currently live. Senior rights granted
-                        for this event are active, and public references to the event remain
-                        available.
+                        <strong>{event.shortName}</strong> is live. Senior rights granted for this
+                        event are active, and public references to the event remain available.
                     </> }
             </TransitionAlert>
             <SettingDialog title={`Publish ${event.shortName}`} open={publishOpen}

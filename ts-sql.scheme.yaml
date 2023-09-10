@@ -41,6 +41,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: event_hotel_room_form
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: event_identity_id
     type: int(8) unsigned
     nullable: true
@@ -88,6 +93,7 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `event_hotel_room_form` text DEFAULT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
       `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
       `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
@@ -1680,90 +1686,6 @@ tables:
       UNIQUE KEY `user_id` (`user_id`,`setting_name`),
       CONSTRAINT `users_settings_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: hotels_preferences
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: user_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: hotel_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_date_check_in
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_date_check_out
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_sharing_people
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_sharing_preferences
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: hotel_preferences_updated
-    type: datetime
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  indexes:
-  - name: user_id
-    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
-    table: hotels_preferences
-    columns:
-    - user_id
-    - event_id
-    - team_id
-    comment: ""
-  constraints:
-  - name: user_id
-    type: UNIQUE
-    def: UNIQUE KEY user_id (user_id, event_id, team_id)
-    table: hotels_preferences
-    referencedTable: null
-    columns:
-    - user_id
-    - event_id
-    - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `hotels_preferences` (
-      `user_id` int(8) unsigned NOT NULL,
-      `event_id` int(8) unsigned NOT NULL,
-      `team_id` int(8) unsigned NOT NULL,
-      `hotel_id` int(8) unsigned DEFAULT NULL,
-      `hotel_date_check_in` datetime DEFAULT NULL,
-      `hotel_date_check_out` datetime DEFAULT NULL,
-      `hotel_sharing_people` int(8) unsigned DEFAULT NULL,
-      `hotel_sharing_preferences` text DEFAULT NULL,
-      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
-      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
   comment: ""
@@ -1881,6 +1803,202 @@ tables:
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`,`content_path`,`revision_visible`) USING HASH,
       KEY `event_id` (`event_id`,`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: hotels_preferences
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: hotel_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_date_check_in
+    type: date
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_date_check_out
+    type: date
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_sharing_people
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_sharing_preferences
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: hotel_preferences_updated
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  indexes:
+  - name: user_id
+    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
+    table: hotels_preferences
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    comment: ""
+  constraints:
+  - name: user_id
+    type: UNIQUE
+    def: UNIQUE KEY user_id (user_id, event_id, team_id)
+    table: hotels_preferences
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `hotels_preferences` (
+      `user_id` int(8) unsigned NOT NULL,
+      `event_id` int(8) unsigned NOT NULL,
+      `team_id` int(8) unsigned NOT NULL,
+      `hotel_id` int(8) unsigned DEFAULT NULL,
+      `hotel_date_check_in` date DEFAULT NULL,
+      `hotel_date_check_out` date DEFAULT NULL,
+      `hotel_sharing_people` int(8) unsigned DEFAULT NULL,
+      `hotel_sharing_preferences` text DEFAULT NULL,
+      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
+      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: hotels_assignments
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: assignment_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_booked
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: assignment_hotel_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_check_in
+    type: date
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_check_out
+    type: date
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_p1_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_p1_name
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_p2_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_p2_name
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_p3_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_p3_name
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: hotels_assignments
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (assignment_id) USING BTREE
+    table: hotels_assignments
+    columns:
+    - assignment_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (assignment_id)
+    table: hotels_assignments
+    referencedTable: null
+    columns:
+    - assignment_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `hotels_assignments` (
+      `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `assignment_booked` tinyint(1) NOT NULL DEFAULT 0,
+      `assignment_hotel_id` int(8) unsigned NOT NULL,
+      `assignment_check_in` date NOT NULL,
+      `assignment_check_out` date NOT NULL,
+      `assignment_p1_user_id` int(8) unsigned DEFAULT NULL,
+      `assignment_p1_name` varchar(64) DEFAULT NULL,
+      `assignment_p2_user_id` int(8) unsigned DEFAULT NULL,
+      `assignment_p2_name` varchar(64) DEFAULT NULL,
+      `assignment_p3_user_id` int(8) unsigned DEFAULT NULL,
+      `assignment_p3_name` varchar(64) DEFAULT NULL,
+      `assignment_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`assignment_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:
