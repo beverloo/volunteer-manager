@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -82,6 +84,11 @@ export function Roles(props: RolesProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         },
         {
             field: 'hotelEligible',
@@ -90,6 +97,11 @@ export function Roles(props: RolesProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         },
         {
             field: 'trainingEligible',
@@ -98,6 +110,11 @@ export function Roles(props: RolesProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         }
     ];
 

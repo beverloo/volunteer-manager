@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
-import CheckIcon from '@mui/icons-material/Check';
-import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -92,8 +92,8 @@ export function TeamSettings(props: TeamSettingsProps) {
             width: 75,
 
             renderCell: (params: GridRenderCellParams) => {
-                return !params.row.enableTeam ? <DoNotDisturbIcon color="error" fontSize="small" />
-                                              : <CheckIcon color="success" fontSize="small" />;
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
             },
         },
         {
@@ -122,6 +122,11 @@ export function TeamSettings(props: TeamSettingsProps) {
             sortable: false,
             type: 'boolean',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         },
         {
             field: 'enableSchedule',
@@ -131,6 +136,11 @@ export function TeamSettings(props: TeamSettingsProps) {
             sortable: false,
             type: 'boolean',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         },
         {
             field: 'enableRegistration',
@@ -140,6 +150,11 @@ export function TeamSettings(props: TeamSettingsProps) {
             sortable: false,
             type: 'boolean',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
         },
     ];
 
