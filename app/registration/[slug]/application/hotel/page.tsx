@@ -69,15 +69,15 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
                                          : undefined,
     };
 
-    // TODO: Alert confirming financial risk
     // TODO: Confirmation once booked
+    const hasConfirmation = false;
 
     return (
         <Box sx={{ p: 2 }}>
             { substitutedContent && <Markdown>{substitutedContent}</Markdown> }
             <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
                               eventDate={event.startTime} hotelOptions={hotelOptions}
-                              hotelPreferences={hotelPreferences} />
+                              hotelPreferences={hotelPreferences} readOnly={hasConfirmation} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>

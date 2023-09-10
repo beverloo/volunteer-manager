@@ -9,6 +9,11 @@ import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import { dayjs } from '@lib/DateTime';
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import HotelIcon from '@mui/icons-material/Hotel';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
@@ -56,8 +61,8 @@ export interface HotelPreferencesProps {
         hotelId?: number,
         sharingPeople?: number,
         sharingPreferences?: string,
-        checkIn?: string,
-        checkOut?: string,
+        checkIn?: Date,
+        checkOut?: Date,
     };
 
     /**
@@ -96,6 +101,9 @@ export function HotelPreferences(props: HotelPreferencesProps) {
         setError(undefined);
         setSuccess(undefined);
         try {
+            if (props.readOnly)
+                throw new Error('Your preferences have bene locked in already.');
+
             const response = await callApi('post', '/api/event/hotel-preferences', {
                 environment: props.environment,
                 event: props.eventSlug,
@@ -119,7 +127,27 @@ export function HotelPreferences(props: HotelPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug ]);
+    }, [ props.environment, props.eventSlug, props.readOnly ]);
+
+    const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
+    const [ fieldValues, setFieldValues ] = useState<FieldValues | undefined>();
+
+    const confirmBooking = useCallback(async () => {
+        if (!fieldValues)
+            return;  // this shouldn't happen outside of development
+
+        setConfirmationOpen(false);
+        await handleSubmit(fieldValues);
+    }, [ fieldValues, handleSubmit ]);
+
+    const maybeHandleSubmit = useCallback(async (data: FieldValues) => {
+        if (!!data.interested) {
+            setFieldValues(data);
+            setConfirmationOpen(true);
+        } else {
+            await handleSubmit(data);
+        }
+    }, [ handleSubmit ]);
 
     return (
         <Box sx={{ mt: 1, mb: 2 }}>
@@ -127,24 +155,43 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                 Your hotel room preferences
             </Typography>
             { readOnly && <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
-            <FormContainer formContext={form} onSuccess={handleSubmit}>
+            <FormContainer formContext={form} onSuccess={maybeHandleSubmit}>
                 <HotelPreferencesForm eventDate={props.eventDate} form={form as any}
                                       hotelOptions={hotelOptions} readOnly={readOnly} />
-                <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
-                    <LoadingButton startIcon={ <HotelIcon /> } variant="contained"
-                                   loading={loading} type="submit">
-                        Store my preferences
-                    </LoadingButton>
-                    { success &&
-                        <Typography sx={{ color: 'success.main' }}>
-                            {success}
-                        </Typography> }
-                    { error &&
-                        <Typography sx={{ color: 'error.main' }}>
-                            {error}
-                        </Typography> }
-                </Stack>
+                { !readOnly &&
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
+                        <LoadingButton startIcon={ <HotelIcon /> } variant="contained"
+                                    loading={loading} type="submit">
+                            Update my preferences
+                        </LoadingButton>
+                        { success &&
+                            <Typography sx={{ color: 'success.main' }}>
+                                {success}
+                            </Typography> }
+                        { error &&
+                            <Typography sx={{ color: 'error.main' }}>
+                                {error}
+                            </Typography> }
+                    </Stack> }
             </FormContainer>
+            <Dialog open={confirmationOpen} onClose={ () => setConfirmationOpen(false) } fullWidth>
+                <DialogTitle>
+                    You're booking a hotel room
+                </DialogTitle>
+                <DialogContent>
+                    Your hotel room will be confirmed in the months leading to the event. If you
+                    need to cancel your reservation within 6 weeks of the event, you will either
+                    need to pay the full amount or find someone else to stay in the room.
+                </DialogContent>
+                <DialogActions sx={{ pr: 2, pb: 2 }}>
+                    <Button onClick={ () => setConfirmationOpen(false) }>
+                        Cancel
+                    </Button>
+                    <Button variant="contained" onClick={confirmBooking}>
+                        Continue
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
