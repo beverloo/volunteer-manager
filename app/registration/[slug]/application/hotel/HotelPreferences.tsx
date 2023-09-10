@@ -6,6 +6,7 @@
 import { useCallback, useState } from 'react';
 
 import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
+import { dayjs } from '@lib/DateTime';
 
 import Box from '@mui/material/Box';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -15,6 +16,7 @@ import Typography from '@mui/material/Typography';
 
 import { HotelPreferencesForm, type HotelPreferencesFormProps } from './HotelPreferencesForm';
 import { Markdown } from '@app/components/Markdown';
+import { callApi } from '@lib/callApi';
 
 /**
  * Message to display to volunteers when their preferences have been marked as read-only.
@@ -26,6 +28,16 @@ const kPreferencesLockedMarkdown =
  * Props accepted by the <HotelPreferences> component.
  */
 export interface HotelPreferencesProps {
+    /**
+     * Environment for which the preferences are being shown.
+     */
+    environment: string;
+
+    /**
+     * Slug of the event for which the preferences are being shown.
+     */
+    eventSlug: string;
+
     /**
      * Date on which the event will take place. Used to focus the check-{in, out} pickers.
      */
@@ -55,17 +67,37 @@ export function HotelPreferences(props: HotelPreferencesProps) {
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
+    const [ success, setSuccess ] = useState<string | undefined>();
 
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
+        setError(undefined);
+        setSuccess(undefined);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await callApi('post', '/api/event/hotel-preferences', {
+                environment: props.environment,
+                event: props.eventSlug,
+                preferences: {
+                    interested: !!data.interested,
+
+                    hotelId: data.hotelId,
+                    sharingPeople: data.sharingPeople,
+                    sharingPreferences: data.sharingPreferences,
+                    checkIn: data.checkIn ? dayjs(data.checkIn).format('YYYY-MM-DD') : undefined,
+                    checkOut: data.checkOut ? dayjs(data.checkOut).format('YYYY-MM-DD') : undefined,
+                },
+            });
+
+            if (response.success)
+                setSuccess('Your preferences have been updated!');
+            else
+                setError(response.error);
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ /* no deps */ ]);
+    }, [ props.environment, props.eventSlug ]);
 
     return (
         <Box sx={{ mt: 1, mb: 2 }}>
@@ -81,9 +113,13 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                                    loading={loading} type="submit">
                         Store my preferences
                     </LoadingButton>
+                    { success &&
+                        <Typography sx={{ color: 'success.main' }}>
+                            {success}
+                        </Typography> }
                     { error &&
                         <Typography sx={{ color: 'error.main' }}>
-                            Yow
+                            {error}
                         </Typography> }
                 </Stack>
             </FormContainer>

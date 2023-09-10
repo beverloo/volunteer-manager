@@ -53,7 +53,7 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { event, registration, user } = context;
+    const { environment, event, registration, user } = context;
     if (!registration.hotelEligible && !registration.hotel)
         notFound();  // the volunteer is not eligible to a hotel reservation
 
@@ -64,14 +64,15 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
 
     const hotelOptions = await getHotelRoomOptions(event.eventId);
 
-    // TODO: Request or decline
     // TODO: Alert confirming financial risk
     // TODO: Confirmation once booked
+    // TODO: Fill in form defaults
 
     return (
         <Box sx={{ p: 2 }}>
             { substitutedContent && <Markdown>{substitutedContent}</Markdown> }
-            <HotelPreferences eventDate={event.startTime} hotelOptions={hotelOptions} />
+            <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
+                              eventDate={event.startTime} hotelOptions={hotelOptions} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>

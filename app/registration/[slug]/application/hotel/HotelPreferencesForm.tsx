@@ -93,7 +93,7 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
             <Collapse in={!!interested} mountOnEnter unmountOnExit>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
                     <Grid xs={12}>
-                        <SelectElement name="selection" label="Which room would you like?"
+                        <SelectElement name="hotelId" label="Which room would you like?"
                                        options={hotelOptions} fullWidth size="small" required
                                        onChange={onChange} disabled={readOnly} />
                     </Grid>
@@ -104,7 +104,7 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
                                           disabled={readOnly} onChange={onChange} />
                     </Grid>
                     <Grid xs={6}>
-                        <TextFieldElement name="sharingPreferences" label="Who will you share with?"
+                        <TextFieldElement name="sharingPreferences" label="Sharing preferences?"
                                           fullWidth size="small" required
                                           disabled={readOnly} onChange={onChange} />
                     </Grid>

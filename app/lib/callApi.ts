@@ -6,6 +6,7 @@ import type { CreateContentDefinition } from '@app/api/admin/content/createConte
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GetContentDefinition } from '@app/api/admin/content/getContent';
+import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
@@ -29,8 +30,9 @@ type ApiEndpoints = {
     'post': {
         '/api/admin/content': CreateContentDefinition,
         '/api/admin/create-event': CreateEventDefinition,
-        '/api/events/application': ApplicationDefinition,
-        '/api/events/hotels': HotelsDefinition,
+        '/api/event/application': ApplicationDefinition,
+        '/api/event/hotel-preferences': HotelPreferencesDefinition,
+        '/api/event/hotels': HotelsDefinition,
     },
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,
