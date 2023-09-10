@@ -63,16 +63,21 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
                 : undefined;
 
     const hotelOptions = await getHotelRoomOptions(event.eventId);
+    const hotelPreferences = {
+        ...registration.hotel,
+        interested: !!registration.hotel ? (!!registration.hotel.hotelId ? 1 : 0)
+                                         : undefined,
+    };
 
     // TODO: Alert confirming financial risk
     // TODO: Confirmation once booked
-    // TODO: Fill in form defaults
 
     return (
         <Box sx={{ p: 2 }}>
             { substitutedContent && <Markdown>{substitutedContent}</Markdown> }
             <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
-                              eventDate={event.startTime} hotelOptions={hotelOptions} />
+                              eventDate={event.startTime} hotelOptions={hotelOptions}
+                              hotelPreferences={hotelPreferences} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>

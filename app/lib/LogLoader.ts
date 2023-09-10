@@ -115,7 +115,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated event preferences for ${target?.name}`;
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
-        return `Updated hotel room preferences for ${event}`;
+        return `Updated their hotel room preferences for ${event}`;
     },
     [LogType.DatabaseError]: (source, target, { query }) => {
         const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);

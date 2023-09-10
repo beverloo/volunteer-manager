@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import { dayjs } from '@lib/DateTime';
@@ -49,6 +49,18 @@ export interface HotelPreferencesProps {
     hotelOptions: HotelPreferencesFormProps['hotelOptions'];
 
     /**
+     * Input to the hotel room preferences this user already expressed previously.
+     */
+    hotelPreferences?: {
+        interested?: number,
+        hotelId?: number,
+        sharingPeople?: number,
+        sharingPreferences?: string,
+        checkIn?: string,
+        checkOut?: string,
+    };
+
+    /**
      * Whether the form should be marked as read-only, useful in case the hotel booking has been
      * confirmed. Changes can only be made after that by e-mailing our team.
      */
@@ -63,7 +75,17 @@ export interface HotelPreferencesProps {
 export function HotelPreferences(props: HotelPreferencesProps) {
     const { hotelOptions, readOnly } = props;
 
-    const form = useForm(/* TODO: defaultValues */);
+    const defaultValues = useMemo(() => {
+        return {
+            ...props.hotelPreferences,
+            checkIn: props.hotelPreferences?.checkIn ? dayjs(props.hotelPreferences.checkIn)
+                                                     : undefined,
+            checkOut: props.hotelPreferences?.checkOut ? dayjs(props.hotelPreferences.checkOut)
+                                                       : undefined,
+        };
+    }, [ props.hotelPreferences ]);
+
+    const form = useForm({ defaultValues });
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -106,7 +128,7 @@ export function HotelPreferences(props: HotelPreferencesProps) {
             </Typography>
             { readOnly && <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
             <FormContainer formContext={form} onSuccess={handleSubmit}>
-                <HotelPreferencesForm eventDate={props.eventDate} form={form}
+                <HotelPreferencesForm eventDate={props.eventDate} form={form as any}
                                       hotelOptions={hotelOptions} readOnly={readOnly} />
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
                     <LoadingButton startIcon={ <HotelIcon /> } variant="contained"
