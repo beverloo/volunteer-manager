@@ -128,7 +128,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
         setLoading(true);
 
         try {
-            const response = await callApi('post', '/api/events/application', {
+            const response = await callApi('post', '/api/event/application', {
                 availability: !!data.availability,
                 credits: !!data.credits,
                 environment: event.environmentName,

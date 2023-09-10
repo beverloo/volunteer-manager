@@ -171,7 +171,7 @@ export function CreateApplication(props: CreateApplicationProps) {
 
         setLoading(true);
         try {
-            const response = await callApi('post', '/api/events/application', {
+            const response = await callApi('post', '/api/event/application', {
                 availability: true,
                 credits: true,
                 environment: props.team.slug,
