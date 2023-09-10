@@ -61,6 +61,11 @@ export const kHotelPreferencesDefinition = z.object({
              */
             checkOut: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/).optional(),
         }),
+
+        /**
+         * Property that allows administrators to push updates on behalf of other users.
+         */
+        adminOverrideUserId: z.number().optional(),
     }),
     response: z.strictObject({
         /**
@@ -87,11 +92,19 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!props.user)
         return { success: false, error: 'You must be signed in to share your preferences' };
 
+    let subjectUserId = props.user.userId;
+    if (!!request.adminOverrideUserId) {
+        if (!can(props.user, Privilege.EventHotelManagement))
+            return { success: false, error: 'You do not have permission to update this data' };
+
+        subjectUserId = request.adminOverrideUserId;
+    }
+
     const event = await getEventBySlug(request.event);
     if (!event)
         return { success: false, error: 'The event no longer exists' };
 
-    const registration = await getRegistration(request.environment, event, props.user.userId);
+    const registration = await getRegistration(request.environment, event, subjectUserId);
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application' };
 
@@ -160,7 +173,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     const dbInstance = db;
     const affectedRows = await dbInstance.insertInto(tHotelsPreferences)
         .set({
-            userId: props.user.userId,
+            userId: subjectUserId,
             eventId: event.eventId,
             teamId: team.id,
             ...update,
@@ -175,16 +188,30 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!affectedRows)
         return { success: false, error: 'Unable to update your preferences in the database' };
 
-    await Log({
-        type: LogType.ApplicationHotelPreferences,
-        severity: LogSeverity.Info,
-        sourceUser: props.user,
-        data: {
-            event: event.shortName,
-            interested: !!request.preferences.interested,
-            hotelId: request.preferences.hotelId,
-        },
-    });
+    if (!request.adminOverrideUserId) {
+        await Log({
+            type: LogType.ApplicationHotelPreferences,
+            severity: LogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+                interested: !!request.preferences.interested,
+                hotelId: request.preferences.hotelId,
+            },
+        });
+    } else {
+        await Log({
+            type: LogType.AdminUpdateHotelPreferences,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: request.adminOverrideUserId,
+            data: {
+                event: event.shortName,
+                interested: !!request.preferences.interested,
+                hotelId: request.preferences.hotelId,
+            },
+        });
+    }
 
     return { success: true };
 }

@@ -101,6 +101,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated ${action ?? 'settings'} for ${event}`;
     },
     [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
+    [LogType.AdminUpdateHotelPreferences]: (source, target, { event }) => {
+        return `Updated their hotel preferences for ${event}`;
+    },
     [LogType.AdminUpdatePermission]: (source, target, data) => {
         return `Updated the permissions of ${target?.name}`;
     },
@@ -115,7 +118,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated event preferences for ${target?.name}`;
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
-        return `Updated their hotel room preferences for ${event}`;
+        return `Updated their hotel preferences for ${event}`;
     },
     [LogType.DatabaseError]: (source, target, { query }) => {
         const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);

@@ -3,6 +3,8 @@
 
 'use client';
 
+/* eslint-disable max-len */
+
 import Link from 'next/link';
 
 import Box from '@mui/material/Box';
@@ -185,25 +187,21 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                 </ListItemIcon>
 
                                 { (registration.hotel && !registration.hotel.hotelName) &&
-                                    <ListItemText
-                                        primary="You've declined a hotel room booking" /> }
+                                    <ListItemText primary="You don't need a hotel room booking" /> }
 
                                 { (registration.hotel && !!registration.hotel.hotelName) &&
                                     <ListItemText
-                                        primary="You've requested a hotel room booking"
-                                        secondary={
-                                            `${registration.hotel.hotelRoom} room in the ` +
-                                            `${registration.hotel.hotelName}` } /> }
+                                        primary={`You've requested a room in the ${registration.hotel.hotelName}`}
+                                        secondary= "We'll confirm the reservation closer to the convention" /> }
 
                                 { (!registration.hotel && !enableHotel) &&
                                     <ListItemText
-                                        primary="Request (or decline) a hotel room booking"
-                                        secondary="Hotel prices have not been published yet…" /> }
+                                        primary="Do you want to reserve a hotel room?"
+                                        secondary="Hotel information has not been published yet…" />
+                                }
 
                                 { (!registration.hotel && enableHotel) &&
-                                    <ListItemText
-                                        primary="Request (or decline) a hotel room booking"
-                                        secondary="We'd be happy to reserve one for you" /> }
+                                    <ListItemText primary="Do you want to reserve a hotel room?" /> }
 
                                 { (!enableHotel && enableHotelWithOverride) &&
                                     <Tooltip title="Access is limited to certain volunteers">

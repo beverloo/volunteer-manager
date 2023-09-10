@@ -34,6 +34,7 @@ export enum LogType {
     AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
     AdminUpdateEvent = 'admin-update-event',
     AdminUpdateGoogleIntegration = 'admin-update-google-integration',
+    AdminUpdateHotelPreferences = 'admin-update-hotel-preferences',
     AdminUpdatePermission = 'admin-update-permission',
     AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
     AdminUpdateRole = 'admin-update-role',

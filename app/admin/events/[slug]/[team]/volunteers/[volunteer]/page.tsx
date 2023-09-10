@@ -7,15 +7,16 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tRoles, tStorage, tUsers, tUsersEvents } from '@lib/database';
+import db, { tHotelsPreferences, tRoles, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
-import { ApplicationHotelInfo } from './ApplicationHotelInfo';
+import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
 import { ApplicationTrainingInfo } from './ApplicationTrainingInfo';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
+import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/page';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -62,11 +63,46 @@ export default async function EventVolunteerPage(props: RouterParams) {
             socials: tUsersEvents.includeSocials,
             tshirtFit: tUsersEvents.shirtFit,
             tshirtSize: tUsersEvents.shirtSize,
+
+            isHotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+            isTrainingEligible:
+                tUsersEvents.trainingEligible.valueWhenNull(tRoles.roleTrainingEligible),
         })
         .executeSelectNoneOrOne();
 
     if (!volunteer)
         notFound();
+
+    let hotelManagement: React.ReactNode = undefined;
+    if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {
+        const hotelOptions = await getHotelRoomOptions(event.id);
+        const hotelPreferences = await db.selectFrom(tHotelsPreferences)
+            .where(tHotelsPreferences.userId.equals(volunteer.userId))
+                .and(tHotelsPreferences.eventId.equals(event.id))
+                .and(tHotelsPreferences.teamId.equals(team.id))
+            .select({
+                hotelId: tHotelsPreferences.hotelId,
+                sharingPeople: tHotelsPreferences.hotelSharingPeople,
+                sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
+                checkIn: tHotelsPreferences.hotelDateCheckIn,
+                checkOut: tHotelsPreferences.hotelDateCheckOut,
+            })
+            .executeSelectNoneOrOne() ?? undefined;
+
+        hotelManagement = (
+            <ApplicationHotelPreferences eventDate={event.startTime.toDateString()}
+                                         eventSlug={event.slug} hotelOptions={hotelOptions}
+                                         hotelPreferences={hotelPreferences}
+                                         teamSlug={team.slug} volunteerUserId={volunteer.userId} />
+        );
+    }
+
+    const trainingManagement: React.ReactNode = undefined;
+    if (can(user, Privilege.EventTrainingManagement) && !!volunteer.isTrainingEligible) {
+        //trainingManagement = (
+        //    <ApplicationTrainingInfo />
+        //);
+    }
 
     const contactAccess =
         can(user, Privilege.EventVolunteerContactInfo) ||
@@ -83,12 +119,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity eventId={event.id} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event} team={team} volunteer={volunteer} />
+            {hotelManagement}
+            {trainingManagement}
             { can(user, Privilege.EventVolunteerApplicationOverrides) &&
                 <ApplicationMetadata eventId={event.id} teamId={team.id} volunteer={volunteer} /> }
-            { can(user, Privilege.EventHotelManagement) &&
-                <ApplicationHotelInfo /> }
-            { can(user, Privilege.EventTrainingManagement) &&
-                <ApplicationTrainingInfo /> }
         </>
     );
 }

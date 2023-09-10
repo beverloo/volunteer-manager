@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import { dayjs } from '@lib/DateTime';
@@ -91,6 +92,7 @@ export function HotelPreferences(props: HotelPreferencesProps) {
     }, [ props.hotelPreferences ]);
 
     const form = useForm({ defaultValues });
+    const router = useRouter();
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -118,16 +120,18 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                 },
             });
 
-            if (response.success)
+            if (response.success) {
                 setSuccess('Your preferences have been updated!');
-            else
+                router.refresh();
+            } else {
                 setError(response.error);
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, props.readOnly ]);
+    }, [ props.environment, props.eventSlug, props.readOnly, router ]);
 
     const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
     const [ fieldValues, setFieldValues ] = useState<FieldValues | undefined>();
