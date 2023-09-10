@@ -190,7 +190,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
-                {event.shortName} hotel & room options
+                Hotel room configuration
             </Typography>
             <PublishAlert published={event.publishHotels} sx={{ mb: 2 }} onClick={onPublish}>
                 { event.publishHotels
@@ -198,7 +198,8 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
                     : 'Hotel room information has not yet been published to volunteers.' }
             </PublishAlert>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       messageSubject="hotel room" rows={props.rooms} columns={columns} />
+                       messageSubject="hotel room" rows={props.rooms} columns={columns}
+                       disableFooter dense />
         </Paper>
     );
 }
