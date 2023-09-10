@@ -5,7 +5,8 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { tEvents, tHotels, tRoles, tTeams, tTeamsRoles, tUsersEvents } from './database';
+import db, { tEvents, tHotels, tHotelsPreferences, tRoles, tTeams, tTeamsRoles, tUsersEvents }
+    from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -19,6 +20,9 @@ export async function getRegistration(environmentName: string, event: Event, use
     if (!userId)
         return undefined;
 
+    const hotelsJoin = tHotels.forUseInLeftJoin();
+    const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
+
     const dbInstance = db;
     const registration = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tEvents)
@@ -28,6 +32,12 @@ export async function getRegistration(environmentName: string, event: Event, use
             .and(tTeams.teamEnvironment.equals(environmentName))
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .leftJoin(hotelsPreferencesJoin)
+            .on(hotelsPreferencesJoin.userId.equals(tUsersEvents.userId))
+                .and(hotelsPreferencesJoin.eventId.equals(tUsersEvents.eventId))
+                .and(hotelsPreferencesJoin.teamId.equals(tUsersEvents.teamId))
+        .leftJoin(hotelsJoin)
+            .on(hotelsJoin.hotelId.equals(hotelsPreferencesJoin.hotelId))
         .where(tUsersEvents.userId.equals(userId))
             .and(tUsersEvents.eventId.equals(event.eventId))
         .select({
@@ -41,7 +51,16 @@ export async function getRegistration(environmentName: string, event: Event, use
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(
                 tRoles.roleHotelEligible).equals(/* true= */ 1),
-            // TODO: `hotel`
+            hotel: {
+                hotelId: hotelsPreferencesJoin.hotelId,
+                hotelName: hotelsJoin.hotelName,
+                hotelRoom: hotelsJoin.hotelRoomName,
+                checkIn: hotelsPreferencesJoin.hotelDateCheckIn,
+                checkOut: hotelsPreferencesJoin.hotelDateCheckOut,
+                sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
+                sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
+                updated: hotelsPreferencesJoin.hotelPreferencesUpdated,
+            },
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
             trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(

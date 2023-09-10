@@ -176,15 +176,24 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                 href={`/registration/${event.slug}/application/hotel`}>
 
                                 <ListItemIcon>
-                                    { registration.hotel && <TaskAltIcon color="success" /> }
+                                    { (registration.hotel && !registration.hotel.hotelName) &&
+                                        <TaskAltIcon color="success" /> }
+                                    { (registration.hotel && !!registration.hotel.hotelName) &&
+                                        <RadioButtonUncheckedIcon color="success" /> }
                                     { !registration.hotel &&
                                         <RadioButtonUncheckedIcon color="warning" /> }
                                 </ListItemIcon>
 
-                                { registration.hotel &&
+                                { (registration.hotel && !registration.hotel.hotelName) &&
                                     <ListItemText
-                                        primary="TODO"
-                                        secondary="TODO" /> }
+                                        primary="You've declined a hotel room booking" /> }
+
+                                { (registration.hotel && !!registration.hotel.hotelName) &&
+                                    <ListItemText
+                                        primary="You've requested a hotel room booking"
+                                        secondary={
+                                            `${registration.hotel.hotelRoom} room in the ` +
+                                            `${registration.hotel.hotelName}` } /> }
 
                                 { (!registration.hotel && !enableHotel) &&
                                     <ListItemText

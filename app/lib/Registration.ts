@@ -16,11 +16,65 @@ export interface RegistrationDatabaseRow {
 
     hotelAvailable: boolean;
     hotelEligible: boolean;
-    // TODO: `hotel`
+    hotel?: {
+        hotelId?: number;
+        hotelName?: string;
+        hotelRoom?: string;
+        checkIn?: Date;
+        checkOut?: Date;
+        sharingPeople?: number;
+        sharingPreferences?: string;
+        updated?: Date;
+    };
 
     trainingAvailable: boolean;
     trainingEligible: boolean;
     // TODO: `training`
+}
+
+/**
+ * Hotel information associated with a registration for participation in a particular event.
+ */
+export interface RegistrationHotelData {
+    /**
+     * ID of the hotel room they would like to stay in, if any.
+     */
+    hotelId?: number;
+
+    /**
+     * Name of the hotel they would like to stay in, if any.
+     */
+    hotelName?: string;
+
+    /**
+     * Name of the hotel room they would like to stay in, if any.
+     */
+    hotelRoom?: string;
+
+    /**
+     * Check-in date of the hotel, starting on which they can stay over.
+     */
+    checkIn?: Date;
+
+    /**
+     * Check-out date of the hotel, on which day they will have to leave.
+     */
+    checkOut?: Date;
+
+    /**
+     * Number of people they would like to share their hotel room with.
+     */
+    sharingPeople?: number;
+
+    /**
+     * Preferences regarding sharing their hotel room. With who?
+     */
+    sharingPreferences?: string;
+
+    /**
+     * Date on which the volunteer's hotel information was updated.
+     */
+    updated?: Date;
 }
 
 /**
@@ -78,7 +132,7 @@ export interface RegistrationData {
     /**
      * The preferences the volunteer has provided regarding their hotel bookings.
      */
-    hotel: undefined;
+    hotel?: RegistrationHotelData;
 
     // ---------------------------------------------------------------------------------------------
     // Trainings
@@ -128,7 +182,7 @@ export class Registration implements RegistrationData {
 
     get hotelAvailable() { return this.#registration.hotelAvailable; }
     get hotelEligible() { return this.#registration.hotelEligible; }
-    get hotel() { return undefined; }
+    get hotel() { return this.#registration.hotel; }
 
     get trainingAvailable() { return this.#registration.trainingAvailable; }
     get trainingEligible() { return this.#registration.trainingEligible; }

@@ -18,7 +18,6 @@ export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferenc
     hotelDateCheckOut = this.optionalColumnWithDefaultValue('hotel_date_check_out', 'localDateTime');
     hotelSharingPeople = this.optionalColumnWithDefaultValue('hotel_sharing_people', 'int');
     hotelSharingPreferences = this.optionalColumnWithDefaultValue('hotel_sharing_preferences', 'string');
-    hotelLicensePlate = this.optionalColumnWithDefaultValue('hotel_license_plate', 'string');
     hotelPreferencesUpdated = this.columnWithDefaultValue('hotel_preferences_updated', 'localDateTime');
 
     constructor() {
