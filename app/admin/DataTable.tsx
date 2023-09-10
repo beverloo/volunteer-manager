@@ -386,7 +386,7 @@ export function DataTable<RowModel extends GridValidRowModel>(props: DataTablePr
                 </DialogTitle>
                 <DialogContent>
                     Are you sure that you want to remove this {messageSubject}? This action can't
-                    be undone once you confirm its deletion. you confirm its deletion.
+                    be undone once you confirm its deletion.
                 </DialogContent>
                 <DialogActions sx={{ p: 2, pt: 0 }}>
                     <Button onClick={ () => setDeleteCandidate(undefined) }>Cancel</Button>

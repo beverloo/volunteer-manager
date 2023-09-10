@@ -199,7 +199,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
             </PublishAlert>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="hotel room" rows={props.rooms} columns={columns}
-                       disableFooter dense />
+                       disableFooter dense pageSize={50} pageSizeOptions={[ 50 ]} />
         </Paper>
     );
 }

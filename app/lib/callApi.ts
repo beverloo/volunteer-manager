@@ -2,13 +2,16 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
+import type { CreateAssignmentDefinition } from '@app/api/admin/hotel-assignments/createAssignment';
 import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
+import type { DeleteAssignmentDefinition } from '@app/api/admin/hotel-assignments/deleteAssignment';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
+import type { UpdateAssignmentDefinition } from '@app/api/admin/hotel-assignments/updateAssignment';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 
 /**
@@ -30,15 +33,18 @@ type ApiEndpoints = {
     'post': {
         '/api/admin/content': CreateContentDefinition,
         '/api/admin/create-event': CreateEventDefinition,
+        '/api/admin/hotel-assignments/:slug': CreateAssignmentDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
     },
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,
+        '/api/admin/hotel-assignments/:slug/:id': DeleteAssignmentDefinition,
     },
     'put': {
         '/api/admin/content/:id': UpdateContentDefinition,
+        '/api/admin/hotel-assignments/:slug/:id': UpdateAssignmentDefinition,
     },
 };
 

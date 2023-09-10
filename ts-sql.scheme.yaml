@@ -1909,18 +1909,18 @@ tables:
     comment: ""
   - name: assignment_hotel_id
     type: int(8) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: assignment_check_in
     type: date
     nullable: false
-    default: null
+    default: current_timestamp()
     comment: ""
   - name: assignment_check_out
     type: date
     nullable: false
-    default: null
+    default: current_timestamp()
     comment: ""
   - name: assignment_p1_user_id
     type: int(8) unsigned
@@ -1986,9 +1986,9 @@ tables:
       `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `event_id` int(8) unsigned NOT NULL,
       `assignment_booked` tinyint(1) NOT NULL DEFAULT 0,
-      `assignment_hotel_id` int(8) unsigned NOT NULL,
-      `assignment_check_in` date NOT NULL,
-      `assignment_check_out` date NOT NULL,
+      `assignment_hotel_id` int(8) unsigned DEFAULT NULL,
+      `assignment_check_in` date NOT NULL DEFAULT current_timestamp(),
+      `assignment_check_out` date NOT NULL DEFAULT current_timestamp(),
       `assignment_p1_user_id` int(8) unsigned DEFAULT NULL,
       `assignment_p1_name` varchar(64) DEFAULT NULL,
       `assignment_p2_user_id` int(8) unsigned DEFAULT NULL,

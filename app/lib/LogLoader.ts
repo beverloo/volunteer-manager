@@ -86,6 +86,24 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventTrainingExtraMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} an extra participant to ${eventName} trainings`;
     },
+
+    [LogType.AdminHotelAssignVolunteer]: (source, target, { event }) => {
+        return `Assigned ${target?.name} a hotel room for ${event}`;
+    },
+    [LogType.AdminHotelAssignVolunteerDelete]: (source, target, { event }) => {
+        return `Removed ${target?.name}'s hotel room for ${event}`;
+    },
+
+    [LogType.AdminHotelAssignmentCreate]: (source, target, { event }) => {
+        return `Created a new hotel assignment for ${event}`;
+    },
+    [LogType.AdminHotelAssignmentDelete]: (source, target, { event }) => {
+        return `Deleted a hotel assignment for ${event}`;
+    },
+    [LogType.AdminHotelAssignmentUpdate]: (source, target, { event }) => {
+        return `Updated a hotel assignment for ${event}`;
+    },
+
     [LogType.AdminResetAccessCode]: (source, target, data) => {
         return `Created a new access code for ${target?.name}`;
     },

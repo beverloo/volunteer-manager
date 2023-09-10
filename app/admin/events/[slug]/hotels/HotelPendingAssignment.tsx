@@ -91,7 +91,8 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Pending assignment
             </Typography>
-            <DataTable rows={props.requests} columns={columns} disableFooter dense />
+            <DataTable rows={props.requests} columns={columns} disableFooter dense
+                       pageSize={50} pageSizeOptions={[ 50 ]} />
         </Paper>
     );
 }
