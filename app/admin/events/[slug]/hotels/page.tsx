@@ -152,10 +152,6 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
         unassignedRequests.push(request);
     }
 
-    // TODO: Create warnings
-    // - Differences in check-in or check-out dates
-    // - Differences in hotel room selection
-
     // ---------------------------------------------------------------------------------------------
     // Input necessary for <HotelConfiguration>
     // ---------------------------------------------------------------------------------------------
@@ -169,19 +165,23 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
             roomName: tHotels.hotelRoomName,
             roomPeople: tHotels.hotelRoomPeople,
             roomPrice: tHotels.hotelRoomPrice,
+            visible: tHotels.hotelRoomVisible.equals(/* true= */ 1),
         })
-        .where(tHotels.hotelRoomVisible.equals(/* true= */ 1))
-            .and(tEvents.eventSlug.equals(props.params.slug))
+        .where(tEvents.eventSlug.equals(props.params.slug))
         .orderBy(tHotels.hotelName, 'asc')
         .orderBy(tHotels.hotelRoomName, 'asc')
         .executeSelectMany();
 
+    // Only visible rooms are included in the configuration panel, whereas the assignment panel will
+    // include all rooms and show warnings when volunteers are assigned to non-existing rooms.
+    const filteredRooms = rooms.filter(room => !!room.visible);
+
     return (
         <>
-            <HotelAssignment assignments={assignments} event={event} />
+            <HotelAssignment assignments={assignments} event={event} rooms={rooms} />
             { unassignedRequests.length > 0 &&
                 <HotelPendingAssignment requests={unassignedRequests} /> }
-            <HotelConfiguration event={event} rooms={rooms} />
+            <HotelConfiguration event={event} rooms={filteredRooms} />
         </>
     );
 }

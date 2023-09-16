@@ -43,7 +43,7 @@
     "mariadb": "^3.2.1",
     "marked": "^9.0.1",
     "mui-markdown": "^1.1.9",
-    "next": "13.4.19",
+    "next": "13.4.20-canary.33",
     "nodemailer": "^6.9.5",
     "react": "^18.2.0",
     "react-avatar-editor": "^13.0.0",

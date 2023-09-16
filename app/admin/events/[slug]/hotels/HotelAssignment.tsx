@@ -3,6 +3,7 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
@@ -11,8 +12,10 @@ import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import type { HotelConfigurationEntry } from './HotelConfiguration';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
@@ -34,6 +37,7 @@ export interface HotelAssignmentProps {
 
         thirdName?: string;
 
+        hotelId?: number;
         hotelName?: string;
 
         checkIn?: Date;
@@ -46,6 +50,11 @@ export interface HotelAssignmentProps {
      * Information about the event for which hotel rooms are being shown.
      */
     event: PageInfo['event'];
+
+    /**
+     * The hotel rooms that volunteers can be assigned too. Includes removed rooms.
+     */
+    rooms: HotelConfigurationEntry[];
 }
 
 type Assignment = HotelAssignmentProps['assignments'][number];
@@ -55,7 +64,7 @@ type Assignment = HotelAssignmentProps['assignments'][number];
  * preferences expressed by the volunteers.
  */
 export function HotelAssignment(props: HotelAssignmentProps) {
-    const { event } = props;
+    const { event, rooms } = props;
 
     async function commitAdd(): Promise<Assignment> {
         const response = await callApi('post', '/api/admin/hotel-assignments/:slug', {
@@ -79,8 +88,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             // TODO: First guest
             // TODO: Second guest
             // TODO: Third guest
-            // TODO: Hotel room
 
+            hotelId: newRow.hotelId,
             checkIn: dayjs(newRow.checkIn).format('YYYY-MM-DD'),
             checkOut: dayjs(newRow.checkOut).format('YYYY-MM-DD'),
             booked: !!newRow.booked,
@@ -96,7 +105,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         });
     }
 
-    const columns: DataTableColumn<Assignment>[] = [
+    const columns: DataTableColumn<Assignment>[] = useMemo(() => ([
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -130,12 +139,16 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         },
 
         {
-            field: 'hotelName',
+            field: 'hotelId',
             headerName: 'Hotel room',
             editable: true,
+            type: 'singleSelect',
             flex: 1,
 
-            // joint format
+            valueOptions: rooms.map(room => ({
+                value: room.id,
+                label: `${room.hotelName} (${room.roomName})`
+            })),
         },
 
         {
@@ -170,7 +183,17 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                                       : <CancelIcon fontSize="small" color="error" />;
             },
         }
-    ];
+    ]), [ /* deps= */ rooms ]);
+
+    const warnings = useMemo(() => {
+        // TODO: Create warnings
+        // - Differences in check-in or check-out dates
+        // - Differences in hotel room selection
+
+        return [
+            { volunteer: 'Person Name', warning: 'Warnings are not supported yet.' },
+        ];
+    }, [ /* deps= */ rooms ]);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -191,6 +214,15 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="assignment" rows={props.assignments} columns={columns}
                        dense disableFooter pageSize={50} pageSizeOptions={[ 50 ]} />
+            { warnings.length > 0 &&
+                <Alert severity="warning" sx={{ mt: 2 }}>
+                    <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>
+                        { warnings.map(({ volunteer, warning }, index) =>
+                            <Typography key={index} variant="body2">
+                                <strong>{volunteer}</strong>: {warning}
+                            </Typography> )}
+                    </Stack>
+                </Alert> }
         </Paper>
     );
 }

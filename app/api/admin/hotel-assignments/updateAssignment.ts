@@ -27,7 +27,11 @@ export const kUpdateAssignmentDefinition = z.object({
         // TODO: First guest
         // TODO: Second guest
         // TODO: Third guest
-        // TODO: Hotel room
+
+        /**
+         * ID of the hotel & hotel room that these volunteers will stay in.
+         */
+        hotelId: z.number().optional(),
 
         /**
          * Date on which this room will be able to check in.
@@ -70,6 +74,7 @@ export async function updateAssignment(request: Request, props: ActionProps): Pr
     console.log(request);
     const affectedRows = await db.update(tHotelsAssignments)
         .set({
+            assignmentHotelId: request.hotelId,
             assignmentCheckIn: new Date(request.checkIn),
             assignmentCheckOut: new Date(request.checkOut),
             assignmentBooked: request.booked ? 1 : 0,
