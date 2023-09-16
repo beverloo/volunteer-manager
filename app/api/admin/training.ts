@@ -46,17 +46,17 @@ export const kTrainingDefinition = z.object({
             /**
              * Date at which the training will be taking place.
              */
-            trainingDate: z.string().optional(),
+            trainingStart: z.string().optional(),
+
+            /**
+             * Date at which the training will be taking place.
+             */
+            trainingEnd: z.string().optional(),
 
             /**
              * Maximum number of people that can join this training session.
              */
             trainingCapacity: z.number().optional(),
-
-            /**
-             * User ID of the person who will be leading this training.
-             */
-            trainingLeadUserId: z.number().optional(),
 
         }).optional(),
     }),
@@ -138,10 +138,14 @@ export async function training(request: Request, props: ActionProps): Promise<Re
     if (request.update !== undefined) {
         const affectedRows = await db.update(tTrainings)
             .set({
-                trainingDate:
-                    request.update.trainingDate ? new Date(request.update.trainingDate) : undefined,
+                trainingStart:
+                    request.update.trainingStart ? new Date(request.update.trainingStart)
+                                                 : undefined,
+                trainingEnd:
+                    request.update.trainingEnd ? new Date(request.update.trainingEnd)
+                                               : undefined,
+
                 trainingCapacity: request.update.trainingCapacity,
-                trainingLeadUserId: request.update.trainingLeadUserId,
             })
             .where(tTrainings.trainingId.equals(request.update.id))
             .and(tTrainings.eventId.equals(event.eventId))

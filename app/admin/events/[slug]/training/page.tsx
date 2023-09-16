@@ -38,10 +38,10 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         .select({
             id: tTrainings.trainingId,
             trainingCapacity: tTrainings.trainingCapacity,
-            trainingDate: tTrainings.trainingDate,
-            trainingLeadUserId: tTrainings.trainingLeadUserId,
+            trainingStart: tTrainings.trainingStart,
+            trainingEnd: tTrainings.trainingEnd,
         })
-        .orderBy(tTrainings.trainingDate, 'asc')
+        .orderBy(tTrainings.trainingStart, 'asc')
         .executeSelectMany();
 
     return (

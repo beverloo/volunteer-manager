@@ -3,8 +3,6 @@
 
 'use client';
 
-import { useCallback } from 'react';
-
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
@@ -13,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingExtraDefinition } from '@app/api/admin/trainingExtra';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
-import { PublishAlert } from '@app/admin/components/PublishAlert';
+import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -133,6 +131,8 @@ export function TrainingExternal(props: TrainingExternalProps) {
             sortable: true,
             type: 'date',
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD'),
         },
     ];
 
@@ -147,7 +147,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
             </Alert>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="participant" rows={props.participants} columns={columns}
-                       disableFooter />
+                       disableFooter dense />
         </Paper>
     );
 }

@@ -15,6 +15,7 @@ import type { TrainingDefinition } from '@app/api/admin/training';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
+import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -32,14 +33,14 @@ export interface TrainingConfigurationEntry {
     trainingCapacity?: number;
 
     /**
-     * Date on which the training will be taking place.
+     * Date and time at which the training will commence.
      */
-    trainingDate?: Date;
+    trainingStart?: Date;
 
     /**
-     * Lead User ID of the volunteer who will be leading this training.
+     * Date and time at which the training will conclude.
      */
-    trainingLeadUserId?: number;
+    trainingEnd?: Date;
 }
 
 /**
@@ -76,8 +77,8 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
         return {
             id: response.id,
             trainingCapacity: 10,
-            trainingDate: new Date(),
-            trainingLeadUserId: undefined,
+            trainingStart: event.startTime,
+            trainingEnd: event.endTime,
         };
     }
 
@@ -95,9 +96,9 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             event: event.slug,
             update: {
                 id: oldRow.id,
+                trainingStart: newRow.trainingStart,
+                trainingEnd: newRow.trainingEnd,
                 trainingCapacity: newRow.trainingCapacity,
-                trainingDate: newRow.trainingDate,
-                trainingLeadUserId: newRow.trainingLeadUserId,
             }
         });
 
@@ -126,12 +127,26 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             width: 50,
         },
         {
-            field: 'trainingDate',
-            headerName: 'Date',
+            field: 'trainingStart',
+            headerName: 'Date (start time)',
             editable: true,
             sortable: true,
-            type: 'date',
-            flex: 1,
+            type: 'dateTime',
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) =>
+                dayjs(params.value).format('YYYY-MM-DD [at] h:mma'),
+        },
+        {
+            field: 'trainingEnd',
+            headerName: 'Date (end time)',
+            editable: true,
+            sortable: true,
+            type: 'dateTime',
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) =>
+                dayjs(params.value).format('YYYY-MM-DD [at] h:mma'),
         },
         {
             field: 'trainingCapacity',
@@ -139,13 +154,6 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             editable: true,
             sortable: true,
             type: 'number',
-            flex: 1,
-        },
-        {
-            field: 'trainingLeadUserId',
-            headerName: 'Lead',
-            editable: true,
-            sortable: true,
             flex: 1,
         },
     ];
@@ -162,7 +170,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             </PublishAlert>
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="training" rows={props.trainings} columns={columns}
-                       disableFooter />
+                       disableFooter dense />
         </Paper>
     );
 }
