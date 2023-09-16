@@ -103,11 +103,7 @@ export class MailMessage {
                 substitutedMarkdown = substitutedMarkdown.replaceAll(`{${key}}`, value);
         }
 
-        this.#options.html = marked.parse(substitutedMarkdown, {
-            headerIds: false,
-            headerPrefix: undefined,
-            mangle: false,
-        });
+        this.#options.html = marked.parse(substitutedMarkdown);
 
         if (!Object.hasOwn(this.#options, 'text'))
             this.#options.text = substitutedMarkdown;
