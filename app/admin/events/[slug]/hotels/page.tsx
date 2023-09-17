@@ -10,11 +10,11 @@ import { HotelAssignment } from './HotelAssignment';
 import { HotelConfiguration } from './HotelConfiguration';
 import { HotelPendingAssignment } from './HotelPendingAssignment';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotelsAssignments, tHotelsPreferences, tHotels, tTeams, tUsersEvents, tUsers }
     from '@lib/database';
-import { RegistrationStatus } from '@app/lib/database/Types';
 
 /**
  * Retrives all hotel assignments from the database for the given `eventId`.
@@ -24,33 +24,72 @@ async function getHotelAssignments(eventId: number) {
     const secondUsersJoin = tUsers.forUseInLeftJoinAs('p2');
     const thirdUsersJoin = tUsers.forUseInLeftJoinAs('p3');
 
+    const firstUsersEventsJoin = tUsersEvents.forUseInLeftJoinAs('p1e');
+    const secondUsersEventsJoin = tUsersEvents.forUseInLeftJoinAs('p2e');
+    const thirdUsersEventsJoin = tUsersEvents.forUseInLeftJoinAs('p3e');
+
+    const firstTeamsJoin = tTeams.forUseInLeftJoinAs('p1t');
+    const secondTeamsJoin = tTeams.forUseInLeftJoinAs('p2t');
+    const thirdTeamsJoin = tTeams.forUseInLeftJoinAs('p3t');
+
     const hotelsJoin = tHotels.forUseInLeftJoin();
 
+    // This is quite a complicated query, largely caused by the many joins necessary to individually
+    // gather information about three individual occupants. Better normalization might help, but
+    // would also make other operations more complicated. Let's live with this for now.
     const assignments = await db.selectFrom(tHotelsAssignments)
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(tHotelsAssignments.assignmentHotelId))
+
+        // Information regarding the first occupant:
         .leftJoin(firstUsersJoin)
             .on(firstUsersJoin.userId.equals(tHotelsAssignments.assignmentP1UserId))
+        .leftJoin(firstUsersEventsJoin)
+            .on(firstUsersEventsJoin.userId.equals(tHotelsAssignments.assignmentP1UserId))
+            .and(firstUsersEventsJoin.eventId.equals(eventId))
+            .and(firstUsersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(firstTeamsJoin)
+            .on(firstTeamsJoin.teamId.equals(firstUsersEventsJoin.teamId))
+
+        // Information regarding the second occupant:
         .leftJoin(secondUsersJoin)
             .on(secondUsersJoin.userId.equals(tHotelsAssignments.assignmentP2UserId))
+        .leftJoin(secondUsersEventsJoin)
+            .on(secondUsersEventsJoin.userId.equals(tHotelsAssignments.assignmentP2UserId))
+            .and(secondUsersEventsJoin.eventId.equals(eventId))
+            .and(secondUsersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(secondTeamsJoin)
+            .on(secondTeamsJoin.teamId.equals(secondUsersEventsJoin.teamId))
+
+        // Information regarding the third occupant:
         .leftJoin(thirdUsersJoin)
             .on(thirdUsersJoin.userId.equals(tHotelsAssignments.assignmentP3UserId))
+        .leftJoin(thirdUsersEventsJoin)
+            .on(thirdUsersEventsJoin.userId.equals(tHotelsAssignments.assignmentP3UserId))
+            .and(thirdUsersEventsJoin.eventId.equals(eventId))
+            .and(thirdUsersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(thirdTeamsJoin)
+            .on(thirdTeamsJoin.teamId.equals(thirdUsersEventsJoin.teamId))
+
         .where(tHotelsAssignments.eventId.equals(eventId))
             .and(tHotelsAssignments.assignmentVisible.equals(/* true= */ 1))
         .select({
             id: tHotelsAssignments.assignmentId,
 
             firstUserId: tHotelsAssignments.assignmentP1UserId,
-            firstUserName: firstUsersJoin.firstName.concat(' ').concat(firstUsersJoin.lastName),
-            firstName: tHotelsAssignments.assignmentP1Name,
+            firstTeam: firstTeamsJoin.teamEnvironment,
+            firstName: tHotelsAssignments.assignmentP1Name.valueWhenNull(
+                firstUsersJoin.firstName.concat(' ').concat(firstUsersJoin.lastName)),
 
             secondUserId: tHotelsAssignments.assignmentP2UserId,
-            secondUserName: secondUsersJoin.firstName.concat(' ').concat(secondUsersJoin.lastName),
-            secondName: tHotelsAssignments.assignmentP2Name,
+            secondTeam: secondTeamsJoin.teamEnvironment,
+            secondName: tHotelsAssignments.assignmentP2Name.valueWhenNull(
+                secondUsersJoin.firstName.concat(' ').concat(secondUsersJoin.lastName)),
 
             thirdUserId: tHotelsAssignments.assignmentP3UserId,
-            thirdUserName: thirdUsersJoin.firstName.concat(' ').concat(thirdUsersJoin.lastName),
-            thirdName: tHotelsAssignments.assignmentP3Name,
+            thirdTeam: thirdTeamsJoin.teamEnvironment,
+            thirdName: tHotelsAssignments.assignmentP3Name.valueWhenNull(
+                thirdUsersJoin.firstName.concat(' ').concat(thirdUsersJoin.lastName)),
 
             hotelId: hotelsJoin.hotelId,
             hotelName: hotelsJoin.hotelName,
@@ -180,7 +219,8 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
 
     return (
         <>
-            <HotelAssignment assignments={assignments} event={event} rooms={rooms} />
+            <HotelAssignment assignments={assignments} event={event} requests={unassignedRequests}
+                             rooms={rooms} />
             <Collapse in={!!unassignedRequests.length} sx={{ mt: '0px !important' }}>
                 <HotelPendingAssignment requests={unassignedRequests} />
             </Collapse>

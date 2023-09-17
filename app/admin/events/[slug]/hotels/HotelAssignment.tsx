@@ -6,13 +6,15 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridRenderCellParams, GridRenderEditCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import Autocomplete from '@mui/material/Autocomplete';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import type { HotelConfigurationEntry } from './HotelConfiguration';
@@ -20,6 +22,32 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
 import { callApi } from '@app/lib/callApi';
+
+/**
+ * Props accepted by the <HotelAssignmentPersonSelect> component.
+ */
+interface HotelAssignmentPersonSelectProps extends GridRenderEditCellParams {
+    /**
+     * The requests that have not been assigned to any rooms yet.
+     */
+    requests: {
+        id: number;
+        userName: string;
+    }[];
+}
+
+/**
+ * The <HotelAssignmentPersonSelect> component displays a select box in which an individual can be
+ * typed who will stay in said hotel room. Volunteers who are pending assignment will be suggested.
+ */
+function HotelAssignmentPersonSelect(props: HotelAssignmentPersonSelectProps) {
+    const options = useMemo(() => props.requests.map(option => option.userName), [ props.requests ])
+    return (
+        <Autocomplete freeSolo disableClearable fullWidth options={options}
+                      renderInput={ (params) =>
+                          <TextField {...params} fullWidth size="small" /> } />
+    );
+}
 
 /**
  * Props accepted by the <HotelAssignment> component.
@@ -52,6 +80,11 @@ export interface HotelAssignmentProps {
     event: PageInfo['event'];
 
     /**
+     * The requests that have not been assigned to any rooms yet.
+     */
+    requests: HotelAssignmentPersonSelectProps['requests'];
+
+    /**
      * The hotel rooms that volunteers can be assigned too. Includes removed rooms.
      */
     rooms: HotelConfigurationEntry[];
@@ -64,7 +97,7 @@ type Assignment = HotelAssignmentProps['assignments'][number];
  * preferences expressed by the volunteers.
  */
 export function HotelAssignment(props: HotelAssignmentProps) {
-    const { event, rooms } = props;
+    const { event, requests, rooms } = props;
 
     async function commitAdd(): Promise<Assignment> {
         const response = await callApi('post', '/api/admin/hotel-assignments/:slug', {
@@ -84,11 +117,9 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         const response = await callApi('put', '/api/admin/hotel-assignments/:slug/:id', {
             slug: props.event.slug,
             id: oldRow.id,
-
-            // TODO: First guest
-            // TODO: Second guest
-            // TODO: Third guest
-
+            firstName: newRow.firstName,
+            secondName: newRow.secondName,
+            thirdName: newRow.thirdName,
             hotelId: newRow.hotelId,
             checkIn: dayjs(newRow.checkIn).format('YYYY-MM-DD'),
             checkOut: dayjs(newRow.checkOut).format('YYYY-MM-DD'),
@@ -119,7 +150,16 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             flex: 1,
 
-            // guest format
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.row.firstUserId || !params.row.firstTeam)
+                    return params.value;
+
+                const href = `/admin/events/${event.slug}/${params.row.firstTeam}/volunteers/${params.row.firstUserId}`;
+                return <MuiLink component={Link} href={href}>{params.value}</MuiLink>;
+            },
+
+            renderEditCell: (params: GridRenderEditCellParams) =>
+                <HotelAssignmentPersonSelect requests={requests} {...params} />,
         },
         {
             field: 'secondName',
@@ -127,7 +167,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             flex: 1,
 
-            // guest format
+            renderEditCell: (params: GridRenderEditCellParams) =>
+                <HotelAssignmentPersonSelect requests={requests} {...params} />,
         },
         {
             field: 'thirdName',
@@ -135,7 +176,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             flex: 1,
 
-            // guest format
+            renderEditCell: (params: GridRenderEditCellParams) =>
+                <HotelAssignmentPersonSelect requests={requests} {...params} />,
         },
 
         {
@@ -183,7 +225,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                                       : <CancelIcon fontSize="small" color="error" />;
             },
         }
-    ]), [ /* deps= */ rooms ]);
+    ]), [ /* deps= */ event.slug, requests, rooms ]);
 
     const warnings = useMemo(() => {
         // TODO: Create warnings
