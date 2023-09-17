@@ -9,6 +9,7 @@ import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -17,6 +18,24 @@ import type { DataTableColumn } from '@app/admin/DataTable';
 import { DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 import { dayjs } from '@lib/DateTime';
+
+/**
+ * Icon to show for events that are currently active.
+ */
+const kEventActiveIcon = (
+    <Tooltip title="This event is currently active">
+        <VisibilityIcon color="success" fontSize="small" />
+    </Tooltip>
+);
+
+/**
+ * Icon to show for teams that are currently suspended.
+ */
+const kEventSuspendedIcon = (
+    <Tooltip title="This event has been suspended">
+        <VisibilityOffIcon color="disabled" fontSize="small" />
+    </Tooltip>
+);
 
 /**
  * Information for an individual event that should be listed on this page. Access checks should
@@ -95,8 +114,7 @@ export function EventList(props: EventListProps) {
             width: 75,
 
             renderCell: (params: GridRenderCellParams) =>
-                params.value ? <VisibilityOffIcon color="disabled" fontSize="small" />
-                             : <VisibilityIcon color="primary" fontSize="small" />,
+                params.value ? kEventSuspendedIcon : kEventActiveIcon,
         },
         {
             field: 'shortName',
