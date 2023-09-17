@@ -17,6 +17,7 @@ export class EventsTeamsTable extends Table<DBConnection, 'EventsTeamsTable'> {
     enableContent = this.columnWithDefaultValue('enable_content', 'int');
     enableRegistration = this.columnWithDefaultValue('enable_registration', 'int');
     enableSchedule = this.columnWithDefaultValue('enable_schedule', 'int');
+    whatsappLink = this.optionalColumnWithDefaultValue('whatsapp_link', 'string');
 
     constructor() {
         super('events_teams');

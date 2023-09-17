@@ -57,6 +57,11 @@ export interface TeamSettings {
      * Whether volunteers in this team can access the volunteer portal.
      */
     enableSchedule?: boolean;
+
+    /**
+     * Link that can be shared with accepted volunteers in this team to join the WhatsApp group.
+     */
+    whatsappLink?: string;
 }
 
 /**
@@ -101,7 +106,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             headerName: 'Team',
             editable: false,
             sortable: false,
-            flex: 2,
+            flex: 3,
         },
         {
             field: 'targetSize',
@@ -112,7 +117,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             editable: true,
             sortable: false,
             type: 'number',
-            flex: 1,
+            flex: 2,
         },
         {
             field: 'enableContent',
@@ -121,7 +126,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
-            flex: 1,
+            flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
@@ -135,7 +140,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
-            flex: 1,
+            flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
@@ -149,12 +154,21 @@ export function TeamSettings(props: TeamSettingsProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
-            flex: 1,
+            flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
+        },
+        {
+            field: 'whatsappLink',
+            headerName: 'WhatsApp invite',
+            description: 'WhatsApp group invite to share with the team',
+            editable: true,
+            sortable: false,
+            type: 'string',
+            flex: 3,
         },
     ];
 
@@ -171,6 +185,7 @@ export function TeamSettings(props: TeamSettingsProps) {
                 enableRegistration: !!newRow.enableRegistration,
                 enableSchedule: !!newRow.enableSchedule,
                 targetSize: newRow.targetSize,
+                whatsappLink: newRow.whatsappLink,
             }
         });
 

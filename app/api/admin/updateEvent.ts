@@ -59,6 +59,7 @@ export const kUpdateEventDefinition = z.object({
             enableRegistration: z.boolean(),
             enableSchedule: z.boolean(),
             targetSize: z.number(),
+            whatsappLink: z.string().optional(),
         }).optional(),
     }),
     response: z.strictObject({
@@ -214,6 +215,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     enableContent: request.team.enableContent ? 1 : 0,
                     enableRegistration: request.team.enableRegistration ? 1 : 0,
                     enableSchedule: request.team.enableSchedule ? 1 : 0,
+                    whatsappLink: request.team.whatsappLink,
                 })
                 .onConflictDoUpdateSet({
                     teamTargetSize: request.team.targetSize,
@@ -221,6 +223,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     enableContent: request.team.enableContent ? 1 : 0,
                     enableRegistration: request.team.enableRegistration ? 1 : 0,
                     enableSchedule: request.team.enableSchedule ? 1 : 0,
+                    whatsappLink: request.team.whatsappLink,
                 })
                 .executeInsert(/* min= */ 0, /* max= */ 1);
 

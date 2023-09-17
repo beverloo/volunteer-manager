@@ -139,6 +139,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: whatsapp_link
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
@@ -200,6 +205,7 @@ tables:
       `enable_content` tinyint(1) NOT NULL DEFAULT 0,
       `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
       `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
+      `whatsapp_link` text DEFAULT NULL,
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
       KEY `event_id` (`event_id`),
       KEY `team_id` (`team_id`),
