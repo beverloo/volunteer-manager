@@ -87,7 +87,7 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
     ];
 
     return (
-        <Paper sx={{ p: 2 }}>
+        <Paper sx={{ p: 2, mt: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Pending assignment
             </Typography>

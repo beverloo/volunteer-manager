@@ -3,6 +3,8 @@
 
 import { notFound } from 'next/navigation';
 
+import Collapse from '@mui/material/Collapse';
+
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { HotelAssignment } from './HotelAssignment';
 import { HotelConfiguration } from './HotelConfiguration';
@@ -179,8 +181,9 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
     return (
         <>
             <HotelAssignment assignments={assignments} event={event} rooms={rooms} />
-            { unassignedRequests.length > 0 &&
-                <HotelPendingAssignment requests={unassignedRequests} /> }
+            <Collapse in={!!unassignedRequests.length} sx={{ mt: '0px !important' }}>
+                <HotelPendingAssignment requests={unassignedRequests} />
+            </Collapse>
             <HotelConfiguration event={event} rooms={filteredRooms} />
         </>
     );
