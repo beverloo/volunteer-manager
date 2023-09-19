@@ -219,7 +219,7 @@ export default async function EventHotelsPage(props: NextRouterParams<'slug'>) {
 
     return (
         <>
-            <HotelAssignment assignments={assignments} event={event} requests={unassignedRequests}
+            <HotelAssignment assignments={assignments} event={event} requests={requests}
                              rooms={rooms} />
             <Collapse in={!!unassignedRequests.length} sx={{ mt: '0px !important' }}>
                 <HotelPendingAssignment requests={unassignedRequests} />

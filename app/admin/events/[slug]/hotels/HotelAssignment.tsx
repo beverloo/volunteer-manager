@@ -154,7 +154,9 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                 if (!params.row.firstUserId || !params.row.firstTeam)
                     return params.value;
 
-                const href = `/admin/events/${event.slug}/${params.row.firstTeam}/volunteers/${params.row.firstUserId}`;
+                const href = `/admin/events/${event.slug}/${params.row.firstTeam}/volunteers/` +
+                    `${params.row.firstUserId}`;
+
                 return <MuiLink component={Link} href={href}>{params.value}</MuiLink>;
             },
 
@@ -167,6 +169,16 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             flex: 1,
 
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.row.secondUserId || !params.row.secondTeam)
+                    return params.value;
+
+                const href = `/admin/events/${event.slug}/${params.row.secondTeam}/volunteers/` +
+                    `${params.row.secondUserId}`;
+
+                return <MuiLink component={Link} href={href}>{params.value}</MuiLink>;
+            },
+
             renderEditCell: (params: GridRenderEditCellParams) =>
                 <HotelAssignmentPersonSelect requests={requests} {...params} />,
         },
@@ -175,6 +187,16 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             headerName: 'Third guest',
             editable: true,
             flex: 1,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.row.thirdUserId || !params.row.thirdTeam)
+                    return params.value;
+
+                const href = `/admin/events/${event.slug}/${params.row.thirdTeam}/volunteers/` +
+                    `${params.row.thirdUserId}`;
+
+                return <MuiLink component={Link} href={href}>{params.value}</MuiLink>;
+            },
 
             renderEditCell: (params: GridRenderEditCellParams) =>
                 <HotelAssignmentPersonSelect requests={requests} {...params} />,
