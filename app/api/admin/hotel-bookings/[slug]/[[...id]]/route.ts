@@ -4,9 +4,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '@app/api/Action';
 
-import { createAssignment, kCreateAssignmentDefinition } from '../../createAssignment';
-import { deleteAssignment, kDeleteAssignmentDefinition } from '../../deleteAssignment';
-import { updateAssignment, kUpdateAssignmentDefinition } from '../../updateAssignment';
+import { createBooking, kCreateBookingDefinition } from '../../createBooking';
+import { deleteBooking, kDeleteBookingDefinition } from '../../deleteBooking';
+import { updateBooking, kUpdateBookingDefinition } from '../../updateBooking';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -14,31 +14,31 @@ import { updateAssignment, kUpdateAssignmentDefinition } from '../../updateAssig
 type RouteParams = { params: { slug: string; id: string[]; } };
 
 /**
- * DELETE /api/admin/hotel-assignments/:slug/:id
+ * DELETE /api/admin/hotel-bookings/:slug/:id
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (Object.hasOwn(params, 'id'))
-        return executeAction(request, kDeleteAssignmentDefinition, deleteAssignment, params);
+        return executeAction(request, kDeleteBookingDefinition, deleteBooking, params);
 
     return NextResponse.json({ success: false }, { status: 404 });
 }
 
 /**
- * POST /api/admin/hotel-assignments/:slug
+ * POST /api/admin/hotel-bookings/:slug
  */
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (!Object.hasOwn(params, 'id'))
-        return executeAction(request, kCreateAssignmentDefinition, createAssignment, params);
+        return executeAction(request, kCreateBookingDefinition, createBooking, params);
 
     return NextResponse.json({ success: false }, { status: 404 });
 }
 
 /**
- * PUT /api/admin/hotel-assignments/:slug/:id
+ * PUT /api/admin/hotel-bookings/:slug/:id
  */
 export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (Object.hasOwn(params, 'id'))
-        return executeAction(request, kUpdateAssignmentDefinition, updateAssignment, params);
+        return executeAction(request, kUpdateBookingDefinition, updateBooking, params);
 
     return NextResponse.json({ success: false }, { status: 404 });
 }

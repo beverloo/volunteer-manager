@@ -1875,11 +1875,11 @@ tables:
       `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
       UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: hotels_assignments
+- name: hotels_bookings
   type: BASE TABLE
   comment: ""
   columns:
-  - name: assignment_id
+  - name: booking_id
     type: int(8) unsigned
     nullable: false
     default: null
@@ -1890,62 +1890,120 @@ tables:
     nullable: false
     default: null
     comment: ""
-  - name: assignment_booked
+  - name: booking_hotel_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: booking_check_in
+    type: date
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: booking_check_out
+    type: date
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: booking_confirmed
     type: tinyint(1)
     nullable: false
     default: "0"
     comment: ""
-  - name: assignment_hotel_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_check_in
-    type: date
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  - name: assignment_check_out
-    type: date
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  - name: assignment_p1_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_p1_name
-    type: varchar(64)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_p2_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_p2_name
-    type: varchar(64)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_p3_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_p3_name
-    type: varchar(64)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: assignment_visible
+  - name: booking_visible
     type: tinyint(1)
     nullable: false
     default: "1"
     comment: ""
   indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: hotels_bookings
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (booking_id) USING BTREE
+    table: hotels_bookings
+    columns:
+    - booking_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (booking_id)
+    table: hotels_bookings
+    referencedTable: null
+    columns:
+    - booking_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `hotels_bookings` (
+      `booking_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `booking_hotel_id` int(8) unsigned DEFAULT NULL,
+      `booking_check_in` date NOT NULL DEFAULT current_timestamp(),
+      `booking_check_out` date NOT NULL DEFAULT current_timestamp(),
+      `booking_confirmed` tinyint(1) NOT NULL DEFAULT 0,
+      `booking_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`booking_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: hotels_assignments
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: assignment_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: booking_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_name
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_primary
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: assignment_created
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  indexes:
+  - name: assignment_user_id
+    def: KEY assignment_user_id (assignment_user_id) USING BTREE
+    table: hotels_assignments
+    columns:
+    - assignment_user_id
+    comment: ""
+  - name: booking_id
+    def: KEY booking_id (booking_id) USING BTREE
+    table: hotels_assignments
+    columns:
+    - booking_id
+    comment: ""
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: hotels_assignments
@@ -1972,21 +2030,17 @@ tables:
   def: |-
     CREATE TABLE `hotels_assignments` (
       `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `booking_id` int(8) unsigned NOT NULL,
       `event_id` int(8) unsigned NOT NULL,
-      `assignment_booked` tinyint(1) NOT NULL DEFAULT 0,
-      `assignment_hotel_id` int(8) unsigned DEFAULT NULL,
-      `assignment_check_in` date NOT NULL DEFAULT current_timestamp(),
-      `assignment_check_out` date NOT NULL DEFAULT current_timestamp(),
-      `assignment_p1_user_id` int(8) unsigned DEFAULT NULL,
-      `assignment_p1_name` varchar(64) DEFAULT NULL,
-      `assignment_p2_user_id` int(8) unsigned DEFAULT NULL,
-      `assignment_p2_name` varchar(64) DEFAULT NULL,
-      `assignment_p3_user_id` int(8) unsigned DEFAULT NULL,
-      `assignment_p3_name` varchar(64) DEFAULT NULL,
-      `assignment_visible` tinyint(1) NOT NULL DEFAULT 1,
+      `assignment_user_id` int(8) unsigned DEFAULT NULL,
+      `assignment_name` varchar(64) DEFAULT NULL,
+      `assignment_primary` tinyint(1) NOT NULL DEFAULT 0,
+      `assignment_created` datetime NOT NULL DEFAULT current_timestamp(),
       PRIMARY KEY (`assignment_id`),
+      KEY `assignment_user_id` (`assignment_user_id`),
+      KEY `booking_id` (`booking_id`),
       KEY `event_id` (`event_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

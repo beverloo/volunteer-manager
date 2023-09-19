@@ -94,13 +94,13 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Removed ${target?.name}'s hotel room for ${event}`;
     },
 
-    [LogType.AdminHotelAssignmentCreate]: (source, target, { event }) => {
+    [LogType.AdminHotelBookingCreate]: (source, target, { event }) => {
         return `Created a new hotel assignment for ${event}`;
     },
-    [LogType.AdminHotelAssignmentDelete]: (source, target, { event }) => {
+    [LogType.AdminHotelBookingDelete]: (source, target, { event }) => {
         return `Deleted a hotel assignment for ${event}`;
     },
-    [LogType.AdminHotelAssignmentUpdate]: (source, target, { event }) => {
+    [LogType.AdminHotelBookingUpdate]: (source, target, { event }) => {
         return `Updated a hotel assignment for ${event}`;
     },
 

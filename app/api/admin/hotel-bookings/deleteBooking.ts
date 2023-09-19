@@ -7,41 +7,41 @@ import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tHotelsAssignments } from '@lib/database';
+import db, { tHotelsAssignments, tHotelsBookings } from '@lib/database';
 
 /**
- * Interface definition for the Hotel Assignment API, exposed through /api/admin/hotel-assignments.
+ * Interface definition for the Hotel Booking API, exposed through /api/admin/hotel-bookings.
  */
-export const kDeleteAssignmentDefinition = z.object({
+export const kDeleteBookingDefinition = z.object({
     request: z.object({
         /**
-         * Slug of the event for which the assignment is in scope.
+         * Slug of the event for which the booking is in scope.
          */
         slug: z.string(),
 
         /**
-         * Unique ID of the hotel assignment that's being deleted.
+         * Unique ID of the hotel booking that's being deleted.
          */
         id: z.coerce.number(),
 
     }),
     response: z.strictObject({
         /**
-         * Whether the hotel room assignment could successfully be deleted.
+         * Whether the hotel room booking could successfully be deleted.
          */
         success: z.boolean(),
     }),
 });
 
-export type DeleteAssignmentDefinition = z.infer<typeof kDeleteAssignmentDefinition>;
+export type DeleteBookingDefinition = z.infer<typeof kDeleteBookingDefinition>;
 
-type Request = DeleteAssignmentDefinition['request'];
-type Response = DeleteAssignmentDefinition['response'];
+type Request = DeleteBookingDefinition['request'];
+type Response = DeleteBookingDefinition['response'];
 
 /**
- * API to delete a hotel assignment within a given scope.
+ * API to delete a hotel booking within a given scope.
  */
-export async function deleteAssignment(request: Request, props: ActionProps): Promise<Response> {
+export async function deleteBooking(request: Request, props: ActionProps): Promise<Response> {
     if (!can(props.user, Privilege.EventHotelManagement))
         noAccess();
 
@@ -49,32 +49,29 @@ export async function deleteAssignment(request: Request, props: ActionProps): Pr
     if (!event)
         return { success: false };
 
-    const existingAssignment = await db.selectFrom(tHotelsAssignments)
-        .where(tHotelsAssignments.eventId.equals(event.eventId))
-            .and(tHotelsAssignments.assignmentId.equals(request.id))
-            .and(tHotelsAssignments.assignmentVisible.equals(/* true= */ 1))
-        .select({
-            firstUserId: tHotelsAssignments.assignmentP1UserId,
-            secondUserId: tHotelsAssignments.assignmentP2UserId,
-            thirdUserId: tHotelsAssignments.assignmentP3UserId,
-        })
-        .executeSelectNoneOrOne();
+    // TODO: Hide the booking + AdminHotelBookingDelete
+    // TODO: For each assigned volunteer, log AdminHotelAssignVolunteerDelete
 
+    if (false)
+        return _foo(request, props);
+
+    return { success: false };
+}
+
+async function _foo(request: Request, props: ActionProps): Promise<Response> {
+    const event = await getEventBySlug(request.slug);
+    if (!event)
+        return { success: false };
+
+    const existingAssignment = null;
     if (!existingAssignment)
         return { success: false };
 
-    const affectedRows = await db.update(tHotelsAssignments)
-        .set({
-            assignmentVisible: /* false= */ 0
-        })
-        .where(tHotelsAssignments.eventId.equals(event.eventId))
-            .and(tHotelsAssignments.assignmentId.equals(request.id))
-            .and(tHotelsAssignments.assignmentVisible.equals(/* true= */ 1))
-        .executeUpdate(/* min= */ 0, /* max= */ 1);
+    const affectedRows = 0 /* update visibility */;
 
     if (!!affectedRows) {
         await Log({
-            type: LogType.AdminHotelAssignmentDelete,
+            type: LogType.AdminHotelBookingDelete,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
@@ -82,6 +79,7 @@ export async function deleteAssignment(request: Request, props: ActionProps): Pr
             },
         });
 
+        /**
         const affectedVolunteers = [
             existingAssignment.firstUserId,
             existingAssignment.secondUserId,
@@ -102,6 +100,7 @@ export async function deleteAssignment(request: Request, props: ActionProps): Pr
                 },
             });
         }
+        **/
     }
 
     return { success: !!affectedRows };
