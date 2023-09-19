@@ -88,7 +88,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
 
     [LogType.AdminHotelAssignVolunteer]: (source, target, { event }) => {
-        return `Assigned ${target?.name} a hotel room for ${event}`;
+        return `Assigned ${target?.name} to a hotel room for ${event}`;
     },
     [LogType.AdminHotelAssignVolunteerDelete]: (source, target, { event }) => {
         return `Removed ${target?.name}'s hotel room for ${event}`;

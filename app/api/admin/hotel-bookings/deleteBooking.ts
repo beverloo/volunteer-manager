@@ -7,6 +7,7 @@ import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
+import { getHotelBookings } from '@app/admin/events/[slug]/hotels/HotelBookings';
 import db, { tHotelsAssignments, tHotelsBookings } from '@lib/database';
 
 /**
@@ -49,59 +50,48 @@ export async function deleteBooking(request: Request, props: ActionProps): Promi
     if (!event)
         return { success: false };
 
-    // TODO: Hide the booking + AdminHotelBookingDelete
-    // TODO: For each assigned volunteer, log AdminHotelAssignVolunteerDelete
+    const { bookings } = await getHotelBookings(event.eventId, request.id);
+    if (!bookings || !bookings.length)
+        return { success: false };  // the booking does not exist anymore
 
-    if (false)
-        return _foo(request, props);
+    const { occupants } = bookings[0];
 
-    return { success: false };
-}
+    // Step (1): Delete the booking from the database, i.e. mark it as invisible.
+    const affectedRows = await db.update(tHotelsBookings)
+        .set({
+            bookingVisible: 0
+        })
+        .where(tHotelsBookings.bookingId.equals(request.id))
+            .and(tHotelsBookings.eventId.equals(event.id))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
 
-async function _foo(request: Request, props: ActionProps): Promise<Response> {
-    const event = await getEventBySlug(request.slug);
-    if (!event)
+    if (!affectedRows)
         return { success: false };
 
-    const existingAssignment = null;
-    if (!existingAssignment)
-        return { success: false };
+    await Log({
+        type: LogType.AdminHotelBookingDelete,
+        severity: LogSeverity.Info,
+        sourceUser: props.user,
+        data: {
+            event: event.shortName,
+        },
+    })
 
-    const affectedRows = 0 /* update visibility */;
+    // Step (2): For each occupying volunteer, log that their assigned hotel room was removed.
+    for (const occupant of occupants) {
+        if (!occupant.userId)
+            continue;  // the occupant is not a volunteer
 
-    if (!!affectedRows) {
         await Log({
-            type: LogType.AdminHotelBookingDelete,
-            severity: LogSeverity.Info,
+            type: LogType.AdminHotelAssignVolunteerDelete,
+            severity: LogSeverity.Warning,
             sourceUser: props.user,
+            targetUser: occupant.userId,
             data: {
                 event: event.shortName,
-            },
+            }
         });
-
-        /**
-        const affectedVolunteers = [
-            existingAssignment.firstUserId,
-            existingAssignment.secondUserId,
-            existingAssignment.thirdUserId
-        ];
-
-        for (const userId of affectedVolunteers) {
-            if (!userId)
-                continue;  // this wasn't a volunteer-based assignment
-
-            await Log({
-                type: LogType.AdminHotelAssignVolunteerDelete,
-                severity: LogSeverity.Warning,
-                sourceUser: props.user,
-                targetUser: userId,
-                data: {
-                    event: event.shortName,
-                },
-            });
-        }
-        **/
     }
 
-    return { success: !!affectedRows };
+    return { success: true };
 }
