@@ -13,6 +13,7 @@ import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Collapse from '@mui/material/Collapse';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -245,7 +246,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         },
         {
             field: 'firstName',
-            headerName: 'First guest',
+            headerName: 'Booking owner',
             editable: true,
             flex: 1,
 
@@ -320,17 +321,121 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         }
     ]), [ event, requests, rooms ]);
 
-    const warnings = useMemo(() => {
-        // TODO: Create warnings
-        // - Differences in check-in or check-out dates
-        // - Differences in hotel room selection
-        // - Hotel rooms that no longer exist
-        // - Non-volunteer primary occupant
+    // ---------------------------------------------------------------------------------------------
+    // Compute the warnings that should be displayed regarding hotel rooms
+    // ---------------------------------------------------------------------------------------------
 
-        return [
-            { volunteer: 'Person Name', warning: 'Warnings are not supported yet.' },
-        ];
-    }, [ /* deps= */ ]);
+    const warnings = useMemo(() => {
+        const warnings: { volunteer: string; warning: string }[] = [];
+
+        const bookingDates = new Map<number, { min: dayjs.Dayjs; max: dayjs.Dayjs; }>();
+        const requestMap = new Map<number, typeof props.requests[number]>();
+        const requestProcessed = new Set<number>();
+
+        for (const request of props.requests)
+            requestMap.set(request.user.id, request);
+
+        for (const booking of props.bookings) {
+            let deletedRoomWarning = false;
+            let missingRoomWarning = false;
+
+            for (const occupant of booking.occupants) {
+                const volunteer = occupant.name;
+
+                if (occupant.primary && !occupant.userId) {
+                    warnings.push({
+                        volunteer,
+                        warning: 'cannot be a booking owner as they\'re not a registered volunteer',
+                    });
+                }
+
+                if (!booking.hotel && !missingRoomWarning) {
+                    warnings.push({
+                        volunteer,
+                        warning: 'has been assigned to a booking that doesn\'t have a room',
+                    });
+
+                    missingRoomWarning = true;
+                }
+
+                if (booking.hotel && !booking.hotel.visible && !deletedRoomWarning) {
+                    warnings.push({
+                        volunteer,
+                        warning: 'has been assigned a hotel room that\'s been deleted',
+                    });
+
+                    deletedRoomWarning = true;
+                }
+
+                if (occupant.userId) {
+                    if (requestProcessed.has(occupant.userId)) {
+                        warnings.push({
+                            volunteer,
+                            warning: 'has been assigned a room multiple times',
+                        });
+
+                        continue;
+                    }
+
+                    requestProcessed.add(occupant.userId);
+
+                    let [ min, max ] = [
+                        dayjs(booking.checkIn),
+                        dayjs(booking.checkOut),
+                    ];
+
+                    if (bookingDates.has(occupant.userId)) {
+                        const dates = bookingDates.get(occupant.userId)!;
+                        if (dates.min.isBefore(min))
+                            min = dates.min;
+                        if (dates.max.isAfter(max))
+                            max = dates.max;
+                    }
+
+                    bookingDates.set(occupant.userId, { min, max });
+
+                    const request = requestMap.get(occupant.userId);
+                    if (!request)
+                        continue;
+
+                    if (booking.hotel && request.hotel.id !== booking.hotel.id) {
+                        warnings.push({
+                            volunteer,
+                            warning: 'has been assigned a room different from their preferences',
+                        });
+                    }
+                }
+            }
+        }
+
+        for (const request of props.requests) {
+            if (!bookingDates.has(request.user.id))
+                continue;  // this user has not been assigned a room yet
+
+            const { min, max } = bookingDates.get(request.user.id)!;
+
+            if (!min.isSame(request.checkIn, 'day')) {
+                warnings.push({
+                    volunteer: request.user.name,
+                    warning:
+                        `requested check-in on ${dayjs(request.checkIn).format('YYYY-MM-DD')}, ` +
+                        `but is booked in from ${min.format('YYYY-MM-DD')}`,
+                });
+            }
+
+            if (!max.isSame(request.checkOut, 'day')) {
+                warnings.push({
+                    volunteer: request.user.name,
+                    warning:
+                        `requested check-out on ${dayjs(request.checkOut).format('YYYY-MM-DD')}, ` +
+                        `but is booked in until ${max.format('YYYY-MM-DD')}`,
+                });
+            }
+        }
+
+        return warnings;
+
+    }, [ props ]);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -351,15 +456,16 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                        messageSubject="assignment" rows={bookings} columns={columns}
                        dense disableFooter pageSize={50} pageSizeOptions={[ 50 ]} />
-            { warnings.length > 0 &&
+            <Collapse in={warnings.length > 0}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
                     <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>
                         { warnings.map(({ volunteer, warning }, index) =>
                             <Typography key={index} variant="body2">
-                                <strong>{volunteer}</strong>: {warning}
+                                <strong>{volunteer}</strong> {warning}
                             </Typography> )}
                     </Stack>
-                </Alert> }
+                </Alert>
+            </Collapse>
         </Paper>
     );
 }
