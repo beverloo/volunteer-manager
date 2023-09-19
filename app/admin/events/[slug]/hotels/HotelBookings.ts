@@ -46,6 +46,7 @@ export interface HotelBooking {
      */
     occupants: {
         assignmentId: number;
+        primary: boolean;
 
         name: string;
 
@@ -71,9 +72,12 @@ export interface HotelBookingsInfo {
 
 /**
  * Retrieves all hotel bookings from the database for the given `eventId`. This combines information
- * from the `hotels_assignments` and the `hotels_bookings` tables.
+ * from the `hotels_assignments` and the `hotels_bookings` tables. Optionally the `bookingId` can be
+ * specified to limit results to a single booking.
  */
-export async function getHotelBookings(eventId: number): Promise<HotelBookingsInfo> {
+export async function getHotelBookings(eventId: number, bookingId?: number)
+    : Promise<HotelBookingsInfo>
+{
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
     const usersJoin = tUsers.forUseInLeftJoin();
@@ -92,9 +96,11 @@ export async function getHotelBookings(eventId: number): Promise<HotelBookingsIn
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .where(tHotelsAssignments.eventId.equals(eventId))
+            .and(tHotelsAssignments.bookingId.equalsIfValue(bookingId))
         .select({
             id: tHotelsAssignments.assignmentId,
             bookingId: tHotelsAssignments.bookingId,
+            primary: tHotelsAssignments.assignmentPrimary.equals(/* true= */ 1),
 
             // For volunteers and other people:
             assignmentName: tHotelsAssignments.assignmentName.valueWhenNull(
@@ -120,6 +126,7 @@ export async function getHotelBookings(eventId: number): Promise<HotelBookingsIn
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(tHotelsBookings.bookingHotelId))
         .where(tHotelsBookings.eventId.equals(eventId))
+            .and(tHotelsBookings.bookingId.equalsIfValue(bookingId))
             .and(tHotelsBookings.bookingVisible.equals(/* true= */ 1))
         .select({
             id: tHotelsBookings.bookingId,
@@ -148,6 +155,8 @@ export async function getHotelBookings(eventId: number): Promise<HotelBookingsIn
 
             occupants.push({
                 assignmentId: assignment.id,
+                primary: assignment.primary,
+
                 name: assignment.assignmentName!,
 
                 userId: assignment.assignmentUserId,

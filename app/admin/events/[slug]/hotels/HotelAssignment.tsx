@@ -3,8 +3,9 @@
 
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams, GridRenderEditCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
@@ -16,6 +17,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { useGridApiContext } from '@mui/x-data-grid';
 
 import type { HotelBooking, HotelRequest } from './HotelBookings';
 import type { HotelConfigurationEntry } from './HotelConfiguration';
@@ -39,10 +41,35 @@ interface HotelAssignmentPersonSelectProps extends GridRenderEditCellParams {
  * typed who will stay in said hotel room. Volunteers who are pending assignment will be suggested.
  */
 function HotelAssignmentPersonSelect(props: HotelAssignmentPersonSelectProps) {
+    const { field, hasFocus, id } = props;
+
+    const context = useGridApiContext();
+
+    const handleAutocompleteChange = useCallback((event: unknown, value: string) => {
+        context.current.setEditCellValue({ id, field, value });
+    }, [ context, field, id ]);
+
+    const handleInputChange = useCallback(
+        (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+            context.current.setEditCellValue({ id, field, value: event.currentTarget.value });
+        }, [ context, field, id ]);
+
+    const ref = useRef<HTMLTextAreaElement | HTMLInputElement>();
+
+    useLayoutEffect(() => {
+        if (hasFocus && ref.current)
+            ref.current.focus();
+
+    }, [ hasFocus, ref ]);
+
     return (
         <Autocomplete freeSolo disableClearable fullWidth options={props.requests}
-                      value={props.value} renderInput={ (params) =>
-                          <TextField {...params} fullWidth size="small" /> } />
+                      value={props.value} onChange={handleAutocompleteChange}
+                      renderOption={ (params, option) =>
+                          <li {...params} key={option}>{option}</li> }
+                      renderInput={ (params) =>
+                          <TextField {...params} fullWidth size="small" inputRef={ref}
+                                     onChange={handleInputChange} /> } />
     );
 }
 
@@ -121,6 +148,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
     const requests = useMemo(() =>
         props.requests.map(request => request.user.name).sort(), [ props.requests ]);
 
+    const router = useRouter();
+
     type Booking = typeof bookings[number];
 
     // ---------------------------------------------------------------------------------------------
@@ -154,30 +183,54 @@ export function HotelAssignment(props: HotelAssignmentProps) {
     }, [ props.event ]);
 
     const commitEdit = useCallback(async (newRow: Booking, oldRow: Booking) => {
+        const occupants = [];
+        if (newRow.firstName && newRow.firstName.length > 0)
+            occupants.push(newRow.firstName);
+        if (newRow.secondName && newRow.secondName.length > 0)
+            occupants.push(newRow.secondName);
+        if (newRow.thirdName && newRow.thirdName.length > 0)
+            occupants.push(newRow.thirdName);
+
         const response = await callApi('put', '/api/admin/hotel-bookings/:slug/:id', {
             slug: props.event.slug,
             id: newRow.id,
-
-            // TODO: firstName
-            // TODO: secondName
-            // TODO: thirdName
-
+            occupants,
             hotelId: newRow.hotelId,
             checkIn: dayjs(newRow.checkIn).format('YYYY-MM-DD'),
             checkOut: dayjs(newRow.checkOut).format('YYYY-MM-DD'),
             confirmed: !!newRow.confirmed,
         });
 
-        return response.success ? newRow : oldRow;
+        if (response.success && response.occupants) {
+            router.refresh();
+            return {
+                ...newRow,
 
-    }, [ props.event ]);
+                firstOccupant: response.occupants[0],
+                firstName: response.occupants[0]?.name,
+
+                secondOccupant: response.occupants[1],
+                secondName: response.occupants[1]?.name,
+
+                thirdOccupant: response.occupants[2],
+                thirdName: response.occupants[2]?.name,
+            };
+        }
+
+        return oldRow;
+
+    }, [ props.event, router ]);
 
     const commitDelete = useCallback(async (oldRow: Booking) => {
-        await callApi('delete', '/api/admin/hotel-bookings/:slug/:id', {
+        const response = await callApi('delete', '/api/admin/hotel-bookings/:slug/:id', {
             slug: props.event.slug,
             id: oldRow.id,
         });
-    }, [ props.event ]);
+
+        if (response.success)
+            router.refresh();
+
+    }, [ props.event, router ]);
 
     // ---------------------------------------------------------------------------------------------
     // Column definition for the assignment table
@@ -272,6 +325,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
         // - Differences in check-in or check-out dates
         // - Differences in hotel room selection
         // - Hotel rooms that no longer exist
+        // - Non-volunteer primary occupant
 
         return [
             { volunteer: 'Person Name', warning: 'Warnings are not supported yet.' },
