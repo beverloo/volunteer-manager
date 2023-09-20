@@ -108,7 +108,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application' };
 
-    if (!registration.hotelEligible && !registration.hotel)
+    if (!registration.hotelEligible && !registration.hotelPreferences)
         return { success: false, error: 'You are not eligible to book a hotel room' };
 
     if (!registration.hotelAvailable && !can(props.user, Privilege.EventHotelManagement))
