@@ -38,6 +38,12 @@ export interface SessionData {
      * case they believe their account has been compromised.
      */
     token: number;
+
+    /**
+     * Session data can optionally be nested. When signing out such a user, the nested session data
+     * will be restored instead. Optionally a return URL may be specified as well.
+     */
+    parent?: SessionData & { returnUrl?: string; };
 }
 
 /**

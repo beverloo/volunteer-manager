@@ -11,6 +11,7 @@ import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
+import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 
@@ -34,6 +35,7 @@ type ApiEndpoints = {
         '/api/admin/content': CreateContentDefinition,
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
+        '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,

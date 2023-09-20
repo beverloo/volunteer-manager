@@ -104,6 +104,10 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated a hotel assignment for ${event}`;
     },
 
+    [LogType.AdminImpersonateVolunteer]: (source, target, data) => {
+        return `Impersonated ${target?.name}'s account`;
+    },
+
     [LogType.AdminResetAccessCode]: (source, target, data) => {
         return `Created a new access code for ${target?.name}`;
     },

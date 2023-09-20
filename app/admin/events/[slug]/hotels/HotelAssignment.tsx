@@ -345,7 +345,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                 if (occupant.primary && !occupant.userId) {
                     warnings.push({
                         volunteer,
-                        warning: 'cannot be a booking owner as they\'re not a registered volunteer',
+                        warning: 'is a booking owner while they\'re not a registered volunteer',
                     });
                 }
 

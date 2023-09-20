@@ -303,9 +303,12 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
     const onRequestSignOut = useCallback(async () => {
-        await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { /* no parameters */ });
+        const response = await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { });
 
         router.refresh();
+        if (response.returnUrl)
+            router.push(response.returnUrl);
+
         onRequestClose(/* forceState= */ 'username');
 
     }, [ onRequestClose, router ]);

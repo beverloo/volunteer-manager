@@ -97,7 +97,6 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
 
         secondary  = `${earliestCheckIn.format('dddd')} until ${latestCheckOut.format('dddd')}, in`;
         secondary += hotel;
-
     } else if (!!preferences) {
         // (2) The volunteer indicated their preferences, wants a room and is awaiting confirmation.
         if (!!preferences.hotelName) {

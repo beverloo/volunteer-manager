@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
+import AttributionIcon from '@mui/icons-material/Attribution';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
@@ -25,6 +26,7 @@ import type { VolunteerInfo } from './page';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@app/lib/callApi';
 
 /**
  * Props passed to the various dialog properties.
@@ -184,6 +186,43 @@ function PasswordResetDialog(props: DialogProps) {
 }
 
 /**
+ * Dialog that confirms whether the administrator wants to impersonate this user. This will sign
+ * them in as the user, with a "nested" session from which they can sign out again too.
+ */
+function ImpersonationDialog(props: DialogProps) {
+    const { account, onClose, open } = props;
+
+    const router = useRouter();
+
+    const handleSubmit = useCallback(async () => {
+        const response = await callApi('post', '/api/auth/sign-in-impersonate', {
+            userId: account.userId,
+            returnUrl: `/admin/volunteers/${account.userId}`,
+        });
+
+        if (response.success) {
+            router.push('/');
+            router.refresh();
+            return { success: 'Impersonation successful. You are being forwarded…' };
+        }
+
+        return { error: 'Unable to impersonate this user right now.' };
+
+    }, [ account, router ]);
+
+    return (
+        <SettingDialog onClose={onClose} onSubmit={handleSubmit} open={open}
+                       description={
+                           <>
+                               You can impersonate <strong> {account.firstName}</strong>, which
+                               means that you will be signed in to their account. You will be back
+                               to your own account after signing out.
+                           </> }
+                       submitLabel="Impersonate" title="Impersonate this user" />
+    )
+}
+
+/**
  * Props accepted by the <Header> component.
  */
 export interface HeaderProps {
@@ -210,6 +249,7 @@ export function Header(props: HeaderProps) {
     const [ activateOpen, setActivateOpen ] = useState(false);
     const [ deactivateOpen, setDeactivateOpen ] = useState(false);
     const [ resetOpen, setResetOpen ] = useState(false);
+    const [ impersonateOpen, setImpersonateOpen ] = useState(false);
 
     const router = useRouter();
 
@@ -225,6 +265,8 @@ export function Header(props: HeaderProps) {
             setDeactivateOpen(false);
         if (resetOpen)
             setResetOpen(false);
+        if (impersonateOpen)
+            setImpersonateOpen(false);
     }
 
     return (
@@ -259,6 +301,12 @@ export function Header(props: HeaderProps) {
                         Access code
                     </Button>
 
+                    { isAdmin &&
+                        <Button variant="text" startIcon={ <AttributionIcon /> }
+                                onClick={ () => setImpersonateOpen(true) }>
+                            Impersonate
+                        </Button> }
+
                 </Stack>
             </ContrastBox>
 
@@ -266,6 +314,7 @@ export function Header(props: HeaderProps) {
             <ActivateDialog account={account} open={activateOpen} onClose={requestClose} />
             <DeactivateDialog account={account} open={deactivateOpen} onClose={requestClose} />
             <PasswordResetDialog account={account} open={resetOpen} onClose={requestClose} />
+            <ImpersonationDialog account={account} open={impersonateOpen} onClose={requestClose} />
 
         </Paper>
     );

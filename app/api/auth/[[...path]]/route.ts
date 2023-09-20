@@ -10,6 +10,7 @@ import { passwordResetRequest, kPasswordResetRequestDefinition } from '../passwo
 import { passwordResetVerify, kPasswordResetVerifyDefinition } from '../passwordResetVerify';
 import { register, kRegisterDefinition } from '../register';
 import { registerActivate, kRegisterActivateDefinition } from '../registerActivate';
+import { signInImpersonate, kSignInImpersonateDefinition } from '../signInImpersonate';
 import { signInPassword, kSignInPasswordDefinition } from '../signInPassword';
 import { signInPasswordUpdate, kSignInPasswordUpdateDefinition } from '../signInPasswordUpdate';
 import { signOut, kSignOutDefinition } from '../signOut';
@@ -39,6 +40,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kRegisterDefinition, register);
         case 'register-activate':
             return executeAction(request, kRegisterActivateDefinition, registerActivate);
+        case 'sign-in-impersonate':
+            return executeAction(request, kSignInImpersonateDefinition, signInImpersonate);
         case 'sign-in-password':
             return executeAction(request, kSignInPasswordDefinition, signInPassword);
         case 'sign-in-password-update':

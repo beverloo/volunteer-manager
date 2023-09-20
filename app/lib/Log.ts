@@ -33,6 +33,7 @@ export enum LogType {
     AdminHotelBookingCreate = 'admin-hotel-booking-create',
     AdminHotelBookingDelete = 'admin-hotel-booking-delete',
     AdminHotelBookingUpdate = 'admin-hotel-booking-update',
+    AdminImpersonateVolunteer = 'admin-impersonate-volunteer',
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
