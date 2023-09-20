@@ -433,6 +433,13 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             }
         }
 
+        warnings.sort((lhs, rhs) => {
+            if (lhs.volunteer !== rhs.volunteer)
+                return lhs.volunteer.localeCompare(rhs.volunteer);
+
+            return lhs.warning.localeCompare(rhs.warning);
+        });
+
         return warnings;
 
     }, [ props ]);
