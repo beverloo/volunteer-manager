@@ -16,7 +16,7 @@ export interface RegistrationDatabaseRow {
 
     hotelAvailable: boolean;
     hotelEligible: boolean;
-    hotel?: {
+    hotelPreferences?: {
         hotelId?: number;
         hotelName?: string;
         hotelRoom?: string;
@@ -35,7 +35,7 @@ export interface RegistrationDatabaseRow {
 /**
  * Hotel information associated with a registration for participation in a particular event.
  */
-export interface RegistrationHotelData {
+export interface RegistrationHotelRequest {
     /**
      * ID of the hotel room they would like to stay in, if any.
      */
@@ -75,6 +75,34 @@ export interface RegistrationHotelData {
      * Date on which the volunteer's hotel information was updated.
      */
     updated?: Date;
+}
+
+/**
+ * Information related to a hotel room booking contained within a registration.
+ */
+export interface RegistrationHotelBooking {
+    /**
+     * Date on which the hotel room can be checked in to.
+     */
+    checkIn: Date;
+
+    /**
+     * Date on which the hotel room can be checked out of.
+     */
+    checkOut: Date;
+
+    /**
+     * The hotel and room that the volunteer was booked in to.
+     */
+    hotel: {
+        name: string;
+        room: string;
+    };
+
+    /**
+     * The people they will be sharing the room with, if any.
+     */
+    sharing: string[];
 }
 
 /**
@@ -132,7 +160,12 @@ export interface RegistrationData {
     /**
      * The preferences the volunteer has provided regarding their hotel bookings.
      */
-    hotel?: RegistrationHotelData;
+    hotelPreferences?: RegistrationHotelRequest;
+
+    /**
+     * The hotel bookings that were made on behalf of this volunteer.
+     */
+    hotelBookings: RegistrationHotelBooking[];
 
     // ---------------------------------------------------------------------------------------------
     // Trainings
@@ -160,13 +193,15 @@ export interface RegistrationData {
  * representation of the same information.
  *
  * TODO: Availability information
- * TODO: Hotel information
  */
 export class Registration implements RegistrationData {
     #registration: RegistrationDatabaseRow;
 
-    constructor(registration: RegistrationDatabaseRow) {
+    #hotelBookings: RegistrationHotelBooking[];
+
+    constructor(registration: RegistrationDatabaseRow, hotelBookings: RegistrationHotelBooking[]) {
         this.#registration = registration;
+        this.#hotelBookings = hotelBookings;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -182,7 +217,8 @@ export class Registration implements RegistrationData {
 
     get hotelAvailable() { return this.#registration.hotelAvailable; }
     get hotelEligible() { return this.#registration.hotelEligible; }
-    get hotel() { return this.#registration.hotel; }
+    get hotelPreferences() { return this.#registration.hotelPreferences; }
+    get hotelBookings() { return this.#hotelBookings; }
 
     get trainingAvailable() { return this.#registration.trainingAvailable; }
     get trainingEligible() { return this.#registration.trainingEligible; }
@@ -206,7 +242,8 @@ export class Registration implements RegistrationData {
 
             hotelAvailable: this.hotelAvailable,
             hotelEligible: this.hotelEligible,
-            hotel: this.hotel,
+            hotelPreferences: this.hotelPreferences,
+            hotelBookings: this.#hotelBookings,
 
             trainingAvailable: this.trainingAvailable,
             trainingEligible: this.trainingEligible,

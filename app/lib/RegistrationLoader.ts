@@ -5,8 +5,8 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { tEvents, tHotels, tHotelsPreferences, tRoles, tTeams, tTeamsRoles, tUsersEvents }
-    from './database';
+import db, { tEvents, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles,
+    tTeams, tTeamsRoles, tUsers, tUsersEvents } from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -51,7 +51,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(
                 tRoles.roleHotelEligible).equals(/* true= */ 1),
-            hotel: {
+            hotelPreferences: {
                 hotelId: hotelsPreferencesJoin.hotelId,
                 hotelName: hotelsJoin.hotelName,
                 hotelRoom: hotelsJoin.hotelRoomName,
@@ -70,10 +70,43 @@ export async function getRegistration(environmentName: string, event: Event, use
         .groupBy(tUsersEvents.eventId)
         .executeSelectNoneOrOne();
 
+    const hotelsAssignmentsJoin = tHotelsAssignments.forUseInLeftJoinAs('a2');
+    const usersJoin = tUsers.forUseInLeftJoin();
+
+    const hotelBookings = await dbInstance.selectFrom(tHotelsAssignments)
+        .innerJoin(tHotelsBookings)
+            .on(tHotelsBookings.bookingId.equals(tHotelsAssignments.bookingId))
+            .and(tHotelsBookings.bookingVisible.equals(/* true= */ 1))
+        .innerJoin(tHotels)
+            .on(tHotels.hotelId.equals(tHotelsBookings.bookingHotelId))
+        .leftJoin(hotelsAssignmentsJoin)
+            .on(hotelsAssignmentsJoin.bookingId.equals(tHotelsAssignments.bookingId))
+            .and(hotelsAssignmentsJoin.assignmentUserId.notEquals(userId))
+        .leftJoin(usersJoin)
+            .on(usersJoin.userId.equals(hotelsAssignmentsJoin.assignmentUserId))
+        .where(tHotelsAssignments.assignmentUserId.equals(userId))
+            .and(tHotelsBookings.bookingConfirmed.equals(/* true= */ 1))
+        .select({
+            checkIn: tHotelsBookings.bookingCheckIn,
+            checkOut: tHotelsBookings.bookingCheckOut,
+
+            hotel: {
+                name: tHotels.hotelName,
+                room: tHotels.hotelRoomName,
+            },
+
+            sharing: dbInstance.aggregateAsArrayOfOneColumn(
+                hotelsAssignmentsJoin.assignmentName.valueWhenNull(
+                    usersJoin.firstName.concat(' ').concat(usersJoin.lastName))),
+        })
+        .groupBy(tHotelsAssignments.bookingId)
+        .orderBy('checkIn', 'asc')
+        .executeSelectMany();
+
     if (!registration)
         return undefined;
 
-    return new Registration(registration);
+    return new Registration(registration, hotelBookings);
 }
 
 /**
