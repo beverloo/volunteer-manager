@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -79,6 +80,8 @@ export interface ApplicationMetadataProps {
 export function ApplicationMetadata(props: ApplicationMetadataProps) {
     const { eventId, teamId, volunteer } = props;
 
+    const router = useRouter();
+
     const [ error, setError ] = useState<string | undefined>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -106,14 +109,16 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
                     },
                 });
 
-            if (response.success)
+            if (response.success) {
                 setInvalidated(false);
+                router.refresh();
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ eventId, teamId, volunteer.userId ]);
+    }, [ eventId, router, teamId, volunteer.userId ]);
 
     const defaultValues = useMemo(() => ({
         hotelEligible: volunteer.hotelEligible,
