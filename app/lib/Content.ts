@@ -32,6 +32,11 @@ export interface Content {
 }
 
 /**
+ * Content substitutions that can be provided to the `getContent` functions.
+ */
+type ContentSubstitutions = Record<string, string>;
+
+/**
  * Fetches content from the database for the given `path`, `event` and `environmentName` tuple. Will
  * run a database query to do so. Only the latest revision of a page will be included, all else will
  * be ignored as they are no longer deemed relevant.
@@ -39,14 +44,17 @@ export interface Content {
  * @param environmentName The environment for which to fetch the content.
  * @param event The event with which the content should be associated.
  * @param path The path towards the content, relative from the /registration/slug/ root.
+ * @param substitutions Content substitutions that should be applied, if any.
  * @return Content object with the content when found, or undefined in all other cases.
  */
-export async function getContent(environmentName: string, event: Event, path: string[])
-        : Promise<Content | undefined> {
+export async function getContent(
+    environmentName: string, event: Event, path: string[], substitutions?: ContentSubstitutions)
+        : Promise<Content | undefined>
+{
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersJoin = tUsers.forUseInLeftJoin();
 
-    return await db.selectFrom(tContent)
+    const content = await db.selectFrom(tContent)
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(tContent.revisionAuthorId))
         .leftJoin(teamsJoin)
@@ -64,7 +72,17 @@ export async function getContent(environmentName: string, event: Event, path: st
         })
         .orderBy(tContent.revisionDate, 'desc')
         .limit(1)
-        .executeSelectNoneOrOne() ?? undefined;
+        .executeSelectNoneOrOne();
+
+    if (!content)
+        return undefined;
+
+    if (substitutions) {
+        for (const [ key, value ] of Object.entries(substitutions))
+            content.markdown = content.markdown.replaceAll(`{${key}}`, value);
+    }
+
+    return content;
 }
 
 /**
@@ -72,8 +90,13 @@ export async function getContent(environmentName: string, event: Event, path: st
  * particular environment or event.
  *
  * @param path The path towards the content, relative from the domain root.
+ * @param substitutions Content substitutions that should be applied, if any.
  * @returns Content object with the content when found, or undefined in all other cases.
  */
-export async function getStaticContent(path: string[]): Promise<Content | undefined> {
-    return getContent(/* environment= */ 'stewards.team', /* event= */ { eventId: 0 } as any, path);
+export async function getStaticContent(path: string[], substitutions?: ContentSubstitutions)
+    : Promise<Content | undefined>
+{
+    return getContent(
+        /* environment= */ 'stewards.team', /* event= */ { eventId: 0 } as any, path,
+        substitutions);
 }

@@ -47,7 +47,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '& svg': { color: theme => theme.palette.mode === 'light' ? green[900] : green[400] },
         backgroundColor:
             theme => theme.palette.mode === 'light' ? lighten(theme.palette.success.main, 0.75)
-                                                    : darken(theme.palette.success.main, 0.65),
+                                                    : darken(theme.palette.success.main, 0.6),
     },
 
     containerCancelledOrRejected: {

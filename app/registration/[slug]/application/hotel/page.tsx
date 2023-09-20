@@ -8,8 +8,10 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { HotelConfirmation } from './HotelConfirmation';
 import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@app/components/Markdown';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
 import { getStaticContent } from '@lib/Content';
 import db, { tHotels } from '@lib/database';
@@ -54,30 +56,43 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
         notFound();  // the event does not exist, or the volunteer is not signed in
 
     const { environment, event, registration, user } = context;
-    if (!registration.hotelEligible && !registration.hotel)
+
+    const bookings = registration.hotelBookings;
+    const eligible = registration.hotelEligible;
+    const enabled = registration.hotelAvailable || can(user, Privilege.EventHotelManagement);
+    const preferences = registration.hotelPreferences;
+
+    if ((!eligible || !enabled) && !bookings)
         notFound();  // the volunteer is not eligible to a hotel reservation
 
-    const content = await getStaticContent([ 'registration', 'application', 'hotel' ]);
-    const substitutedContent =
-        content ? content.markdown.replaceAll('{firstName}', user.firstName)
-                : undefined;
+    const options = await getHotelRoomOptions(event.eventId);
+    const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
+        firstName: user.firstName,
+    });
 
-    const hotelOptions = await getHotelRoomOptions(event.eventId);
+    // ---------------------------------------------------------------------------------------------
+    // Logic pertaining to <HotelConfirmation>
+    // ---------------------------------------------------------------------------------------------
+    const readOnly = bookings.length > 0;
+
+    // ---------------------------------------------------------------------------------------------
+    // Data transformation for <HotelPreferences>
+    // ---------------------------------------------------------------------------------------------
     const hotelPreferences = {
-        ...registration.hotel,
-        interested: !!registration.hotel ? (!!registration.hotel.hotelId ? 1 : 0)
-                                         : undefined,
+        ...preferences,
+        interested: !!preferences ? (!!preferences.hotelId ? 1 : 0) : undefined,
     };
-
-    // TODO: Confirmation once booked
-    const hasConfirmation = false;
 
     return (
         <Box sx={{ p: 2 }}>
-            { substitutedContent && <Markdown>{substitutedContent}</Markdown> }
-            <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
-                              eventDate={event.startTime} hotelOptions={hotelOptions}
-                              hotelPreferences={hotelPreferences} readOnly={hasConfirmation} />
+            { content && <Markdown>{content.markdown}</Markdown> }
+            { bookings.length > 0 &&
+                <HotelConfirmation bookings={bookings} /> }
+            { (eligible || !!registration.hotelPreferences) &&
+                <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
+                                  eventDate={event.startTime} hotelOptions={options}
+                                  hotelPreferences={hotelPreferences} readOnly={readOnly} /> }
+
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>
