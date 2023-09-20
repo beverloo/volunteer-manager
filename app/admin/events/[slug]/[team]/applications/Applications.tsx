@@ -26,8 +26,8 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { ApplicationResponseFlow } from './ApplicationResponseFlow';
 import { Avatar } from '@app/components/Avatar';
+import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 
 /**
@@ -255,6 +255,12 @@ function Application(props: ApplicationProps) {
  */
 export interface ApplicationsProps {
     /**
+     * Whether sending out a communication can be skipped altogether. Should be guarded behind a
+     * permission, and should ideally be used rarely.
+     */
+    allowSilent?: boolean;
+
+    /**
      * The applications that are currently pending a response.
      */
     applications: ApplicationInfo[];
@@ -281,10 +287,10 @@ export interface ApplicationsProps {
  * event administrators and folks with the application management permissions.
  */
 export function Applications(props: ApplicationsProps) {
-    const { applications, canManageApplications, event, team } = props;
+    const { allowSilent, applications, canManageApplications, event, team } = props;
 
-    const [ action, setAction ] = useState<'approve' | 'reject'>();
-    const [ open, setOpen ] = useState<boolean>(false);
+    const [ approveOpen, setApproveOpen ] = useState<boolean>(false);
+    const [ rejectOpen, setRejectOpen ] = useState<boolean>(false);
 
     const [ application, setApplication ] = useState<{
         firstName: string,
@@ -294,11 +300,7 @@ export function Applications(props: ApplicationsProps) {
     }>();
 
     const doRequestResponse = useCallback(
-        async (application: ApplicationInfo, action: 'approve' | 'reject') =>
-        {
-            setAction(action);
-            setOpen(true);
-
+        async (application: ApplicationInfo, action: 'approve' | 'reject') => {
             setApplication({
                 firstName: application.firstName,
 
@@ -307,9 +309,31 @@ export function Applications(props: ApplicationsProps) {
                 teamId: team.id,
             });
 
-        }, [ event, setAction, setApplication, setOpen, team ]);
+            setApproveOpen(action === 'approve');
+            setRejectOpen(action === 'reject');
+        }, [ event, team ]);
 
     const requestResponse = canManageApplications ? doRequestResponse : undefined;
+
+    // ---------------------------------------------------------------------------------------------
+    // Mechanisms for approving and rejecting applications
+    // ---------------------------------------------------------------------------------------------
+
+    const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no deps */ ]);
+    const handleApproved = useCallback(async () => {
+        if (!application)
+            return { error: 'Not sure which application has been selected' };
+
+        return { error: 'Not yet implemented' };
+    }, [ application ]);
+
+    const handleRejectClose = useCallback(() => setRejectOpen(false), [ /* no deps */ ]);
+    const handleRejected = useCallback(async () => {
+        if (!application)
+            return { error: 'Not sure which application has been selected' };
+
+        return { error: 'Not yet implemented' };
+    }, [ application ]);
 
     if (!applications.length)
         return <NoApplications />;
@@ -322,8 +346,29 @@ export function Applications(props: ApplicationsProps) {
                         <Application application={application} requestResponse={requestResponse} />
                     </Grid> )}
             </Grid>
-            <ApplicationResponseFlow open={open} action={action} application={application}
-                                     onClose={ () => setOpen(false) } />
+
+            <CommunicationDialog title={`Approve ${application?.firstName}'s application`}
+                                 open={approveOpen} onClose={handleApproveClose}
+                                 confirmLabel="Approve" allowSilent={allowSilent} description={
+                                     <>
+                                         You're about to approve
+                                         <strong> {application?.firstName}</strong>'s application to
+                                         help out during this event. An e-mail will automatically be
+                                         sent to share the good news with them.
+                                     </>
+                                 } onCommunicated={handleApproved} />
+
+            <CommunicationDialog title={`Reject ${application?.firstName}'s application`}
+                                 open={rejectOpen} onClose={handleRejectClose}
+                                 confirmLabel="Reject" allowSilent={allowSilent} description={
+                                     <>
+                                         You're about to reject
+                                         <strong> {application?.firstName}</strong>'s application to
+                                         help out during this event. An e-mail will automatically be
+                                         sent to let them know.
+                                     </>
+                                 } onCommunicated={handleRejected} />
+
         </>
     );
 }
