@@ -8,7 +8,7 @@ import type { UserData } from './UserData';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 17
+ * Next setting: 1 << 18
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -32,6 +32,7 @@ export enum Privilege {
     // Privileges captured by SystemAdministrator:
     SystemContentAccess                 = 1 << 16,
     SystemLogsAccess                    = 1 << 5,
+    SystemOutboxAccess                  = 1 << 17,
 
     // Privileges captured by VolunteerAdministrator:
     VolunteerAvatarManagement           = 1 << 6,
@@ -78,6 +79,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.SystemAdministrator]: [
         Privilege.SystemContentAccess,
         Privilege.SystemLogsAccess,
+        Privilege.SystemOutboxAccess,
     ],
 
     [Privilege.VolunteerAdministrator]: [
@@ -129,6 +131,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.SystemAdministrator]: 'Special access',
     [Privilege.SystemContentAccess]: 'System access',
     [Privilege.SystemLogsAccess]: 'System access',
+    [Privilege.SystemOutboxAccess]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
     [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
@@ -155,6 +158,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.SystemAdministrator]: 'System administrator',
     [Privilege.SystemContentAccess]: 'Global content access',
     [Privilege.SystemLogsAccess]: 'Logs access',
+    [Privilege.SystemOutboxAccess]: 'Outbox access',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
     [Privilege.VolunteerAvatarManagement]: 'Avatar management',
@@ -170,6 +174,8 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
     [Privilege.VolunteerAdministrator]: 'Grants all volunteer-related privileges',
+
+    [Privilege.SystemOutboxAccess]: 'Access to all sent e-mails and their content',
 
     [Privilege.VolunteerSilentMutations]: 'Make changes without informing the volunteer',
 };

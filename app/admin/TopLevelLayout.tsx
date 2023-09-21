@@ -6,6 +6,7 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
+import MailIcon from '@mui/icons-material/Mail';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
@@ -43,7 +44,11 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <DeviceHubIcon />,
             label: 'System',
-            privilege: [ Privilege.SystemAdministrator, Privilege.SystemLogsAccess ],
+            privilege: [
+                Privilege.SystemAdministrator,
+                Privilege.SystemLogsAccess,
+                Privilege.SystemOutboxAccess,
+            ],
 
             defaultOpen: Privilege.SystemAdministrator,
             menu: [
@@ -58,6 +63,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     label: 'Logs',
                     privilege: Privilege.SystemLogsAccess,
                     url: '/admin/logs',
+                },
+                {
+                    icon: <MailIcon />,
+                    label: 'Outbox',
+                    privilege: Privilege.SystemOutboxAccess,
+                    url: '/admin/outbox',
                 },
                 {
                     icon: <ManageHistoryIcon />,

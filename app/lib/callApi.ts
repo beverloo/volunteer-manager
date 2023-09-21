@@ -8,9 +8,11 @@ import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GetContentDefinition } from '@app/api/admin/content/getContent';
+import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
+import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
@@ -30,6 +32,7 @@ type ApiEndpoints = {
     'get': {
         '/api/admin/content': ListContentDefinition,
         '/api/admin/content/:id': GetContentDefinition,
+        '/api/admin/outbox/:id': GetOutboxDefinition,
     },
     'post': {
         '/api/admin/content': CreateContentDefinition,
@@ -39,6 +42,9 @@ type ApiEndpoints = {
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
+
+        // TODO: Move to GET when `writeToSearchParams` can deal with arrays:
+        '/api/admin/outbox': ListOutboxDefinition,
     },
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,

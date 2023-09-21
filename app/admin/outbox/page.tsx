@@ -7,30 +7,30 @@ import { notFound } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { LogsDataTable } from './LogsDataTable';
+import { OutboxDataTable } from './OutboxDataTable';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { requireUser } from '@lib/auth/getUser';
 
 /**
- * The logs page provides access to the most recent log entries created by the Volunteer Manager,
- * with a variety of filtering options available. All log entries are made accessible to the client,
- * however they will be streamed by the server to deal with ~infinitely large data sets.
+ * The outbox page summarises all outgoing e-mail messages, and tells the volunteer whether they
+ * have been successfully sent or ran into an issue somewhere. This page is only available to those
+ * with specific permissions, as messages may contain e.g. password reset links.
  */
-export default async function LogsPage() {
+export default async function OutboxPage() {
     const user = await requireUser();
-    if (!can(user, Privilege.SystemLogsAccess))
+    if (!can(user, Privilege.SystemOutboxAccess))
         notFound();
 
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
-                Logs
+                Outbox
             </Typography>
-            <LogsDataTable />
+            <OutboxDataTable />
         </Paper>
     );
 }
 
 export const metadata: Metadata = {
-    title: 'Logs | AnimeCon Volunteer Manager',
+    title: 'Outbox | AnimeCon Volunteer Manager',
 };
