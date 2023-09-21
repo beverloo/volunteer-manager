@@ -6,6 +6,7 @@ import { default as nodemailermock } from 'nodemailer-mock';
 
 import type { EmailLogger } from './EmailLogger';
 import type { EmailMessage } from './EmailMessage';
+import type { SendMessageRequest } from './EmailClient';
 import { EmailClient } from './EmailClient';
 
 /**
@@ -29,11 +30,9 @@ export class EmailClientMock extends EmailClient {
     /**
      * Overrides the default logger with an empty instance that does no logging.
      */
-    protected override async createLogger(
-        sender: string, message: EmailMessage): Promise<EmailLogger>
-    {
+    protected override async createLogger(request: SendMessageRequest): Promise<EmailLogger> {
         return new class implements EmailLogger {
-            async initialise(sender: string, message: EmailMessage): Promise<void> {}
+            async initialise(request: SendMessageRequest): Promise<void> {}
             async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {}
         };
     }

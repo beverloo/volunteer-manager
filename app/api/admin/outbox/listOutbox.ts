@@ -65,9 +65,19 @@ export const kListOutboxDefinition = z.object({
             from: z.string(),
 
             /**
+             * User ID of the sender of the message, when known.
+             */
+            fromUserId: z.number().optional(),
+
+            /**
              * Recipient of the message, a user-associated e-mail address.
              */
             to: z.string(),
+
+            /**
+             * User ID of the recipient of the message, when known.
+             */
+            toUserId: z.number().optional(),
 
             /**
              * Subject of the message as it was sent to them.
@@ -146,8 +156,10 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
         .select({
             id: tOutbox.outboxId,
             date: tOutbox.outboxTimestamp,
-            from: tOutbox.outboxSender,  // todo: userId
-            to: tOutbox.outboxTo,  // todo: userId
+            from: tOutbox.outboxSender,
+            fromUserId: tOutbox.outboxSenderUserId,
+            to: tOutbox.outboxTo,
+            toUserId: tOutbox.outboxToUserId,
             subject: tOutbox.outboxSubject,
             delivered: tOutbox.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
         })

@@ -40,7 +40,7 @@ export function OutboxDataTable() {
             field: 'date',
             headerName: 'Date',
             type: 'dateTime',
-            flex: 1,
+            width: 150,
 
             valueGetter: (params: GridValueGetterParams) => new Date(params.value),
             renderCell: (params: GridRenderCellParams) => {
@@ -51,13 +51,35 @@ export function OutboxDataTable() {
             field: 'from',
             headerName: 'Sender',
             sortable: true,
-            flex: 1,
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.row.fromUserId)
+                    return params.value;
+
+                return (
+                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'to',
             headerName: 'Recipient',
             sortable: true,
-            flex: 1,
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) => {
+                if (!params.row.fromUserId)
+                    return params.value;
+
+                return (
+                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'subject',

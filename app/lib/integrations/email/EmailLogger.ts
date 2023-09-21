@@ -6,6 +6,8 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Readable } from 'stream';
 
 import type { EmailMessage } from './EmailMessage';
+import type { SendMessageRequest } from './EmailClient';
+import { User } from '@lib/auth/User';
 import db, { tOutbox } from '@lib/database';
 
 /**
@@ -15,7 +17,7 @@ export interface EmailLogger {
     /**
      * Initialises the e-mail logger. Loggers may only be initialized once.
      */
-    initialise(sender: string, message: EmailMessage): Promise<void>;
+    initialise(request: SendMessageRequest): Promise<void>;
 
     /**
      * Finalises the logger with the `info`, obtained from the sending operation.
@@ -38,16 +40,18 @@ export class EmailLoggerImpl implements EmailLogger {
      * Initialises the logger. This is called before the message will be send over SMTP, and will
      * store the message in the database, sort of as an "outbox".
      */
-    async initialise(sender: string, message: EmailMessage) {
+    async initialise(request: SendMessageRequest) {
         if (!!this.#insertId)
             throw new Error('E-mail loggers may only be initialised once.');
 
-        const options = message.options;
+        const options = request.message.options;
 
         this.#insertId = await db.insertInto(tOutbox)
             .set({
-                outboxSender: sender,
+                outboxSender: request.sender,
+                outboxSenderUserId: this.normalizeUser(request.sourceUser),
                 outboxTo: this.normalizeRecipients(options.to)!,
+                outboxToUserId: this.normalizeUser(request.targetUser),
                 outboxCc: this.normalizeRecipients(options.cc),
                 outboxBcc: this.normalizeRecipients(options.bcc),
                 outboxHeaders: JSON.stringify(options.headers),
@@ -57,6 +61,18 @@ export class EmailLoggerImpl implements EmailLogger {
             })
             .returningLastInsertedId()
             .executeInsert();
+    }
+
+    /**
+     * Normalizes the User ID from the given `input`. The database only stores with IDs.
+     */
+    private normalizeUser(input?: User | number): number | null {
+        if (typeof input === 'number')
+            return input;
+        else if (input instanceof User)
+            return input.userId;
+
+        return null;
     }
 
     /**

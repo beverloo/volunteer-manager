@@ -4,6 +4,7 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailer, type Transporter } from 'nodemailer';
 
+import type { User } from '@lib/auth/User';
 import { EmailLoggerImpl, type EmailLogger } from './EmailLogger';
 import { EmailMessage } from './EmailMessage';
 
@@ -31,6 +32,31 @@ export interface EmailClientSettings {
      * Password using which we can sign in to the SMTP account.
      */
     password: string;
+}
+
+/**
+ * Options that can be provided when sending an e-mail.
+ */
+export interface SendMessageRequest {
+    /**
+     * The message that should be distributed. Includes the recipients.
+     */
+    message: EmailMessage;
+
+    /**
+     * Name of the sender. Will be completed with the e-mail address. ("John Doe")
+     */
+    sender: string;
+
+    /**
+     * Source user, on whose behalf the message will be sent.
+     */
+    sourceUser?: number | User;
+
+    /**
+     * Target user, to whom the e-mail message will be sent.
+     */
+    targetUser?: number | User;
 }
 
 /**
@@ -69,19 +95,18 @@ export class EmailClient {
      * information about the sent message when successful, or throws an exception when a failure is
      * seen. (Regardless of whether it's with the message or with the transport.)
      *
-     * @param sender Name of the sender the message should be from.
-     * @param message The message that should be send.
+     * @param request The e-mail send request containing the message and sender.
      * @returns Information about the sent message.
      */
-    async sendMessage(sender: string, message: EmailMessage): Promise<SMTPTransport.SentMessageInfo>
+    async sendMessage(request: SendMessageRequest): Promise<SMTPTransport.SentMessageInfo>
     {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 
-        const logger = await this.createLogger(sender, message);
+        const logger = await this.createLogger(request);
         const result = await this.#transport.sendMail({
-            from: `${sender} <${this.#settings.username}>`,
-            ...message.options,
+            from: `${request.sender} <${this.#settings.username}>`,
+            ...request.message.options,
         });
 
         await logger.finalise(result);
@@ -93,13 +118,12 @@ export class EmailClient {
      * Safe version of `sendMessage` that will not throw an exception, but will rather return a
      * boolean that indicates thether the given `message` was sent successfully.
      *
-     * @param sender Name of the sender the message should be from.
-     * @param message The message that should be send.
+     * @param request The e-mail send request containing the message and sender.
      * @returns A boolean that indicates whether the message was handed off to the SMTP server.
      */
-    async safeSendMessage(sender: string, message: EmailMessage): Promise<boolean> {
+    async safeSendMessage(request: SendMessageRequest): Promise<boolean> {
         try {
-            await this.sendMessage(sender, message);
+            await this.sendMessage(request);
             return true;
 
         } catch (error) {
@@ -125,9 +149,9 @@ export class EmailClient {
     /**
      * Creates a new instance of the e-mail logger. Can be overridden for testing purposes.
      */
-    protected async createLogger(sender: string, message: EmailMessage): Promise<EmailLogger> {
+    protected async createLogger(request: SendMessageRequest): Promise<EmailLogger> {
         const logger = new EmailLoggerImpl();
-        await logger.initialise(sender, message);
+        await logger.initialise(request);
 
         return logger;
     }

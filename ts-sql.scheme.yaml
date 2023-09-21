@@ -1895,10 +1895,20 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: outbox_sender_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: outbox_to
     type: varchar(128)
     nullable: false
     default: null
+    comment: ""
+  - name: outbox_to_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: outbox_cc
     type: varchar(128)
@@ -1962,6 +1972,18 @@ tables:
     columns:
     - outbox_timestamp
     comment: ""
+  - name: outbox_sender_user_id
+    def: KEY outbox_sender_user_id (outbox_sender_user_id) USING BTREE
+    table: outbox
+    columns:
+    - outbox_sender_user_id
+    comment: ""
+  - name: outbox_to_user_id
+    def: KEY outbox_to_user_id (outbox_to_user_id) USING BTREE
+    table: outbox
+    columns:
+    - outbox_to_user_id
+    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (outbox_id) USING BTREE
     table: outbox
@@ -1984,7 +2006,9 @@ tables:
       `outbox_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `outbox_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
       `outbox_sender` varchar(128) NOT NULL,
+      `outbox_sender_user_id` int(8) unsigned DEFAULT NULL,
       `outbox_to` varchar(128) NOT NULL,
+      `outbox_to_user_id` int(8) unsigned DEFAULT NULL,
       `outbox_cc` varchar(128) DEFAULT NULL,
       `outbox_bcc` varchar(128) DEFAULT NULL,
       `outbox_headers` text DEFAULT NULL,
@@ -1997,8 +2021,10 @@ tables:
       `outbox_result_pending` text DEFAULT NULL,
       `outbox_result_response` text DEFAULT NULL,
       PRIMARY KEY (`outbox_id`),
-      KEY `outbox_date` (`outbox_timestamp`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      KEY `outbox_date` (`outbox_timestamp`),
+      KEY `outbox_to_user_id` (`outbox_to_user_id`),
+      KEY `outbox_sender_user_id` (`outbox_sender_user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 
+import type { User } from '@lib/auth/User';
 import { type ActionProps, noAccess } from '../Action';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createAnimeConClient } from '@lib/integrations/animecon';
@@ -76,7 +77,7 @@ async function runAnimeConHealthCheck(): Promise<Response> {
 /**
  * Runs a health check for the e-mail client integration.
  */
-async function runEmailHealthCheck(): Promise<Response> {
+async function runEmailHealthCheck(user: User): Promise<Response> {
     try {
         const client = await createEmailClient();
         const message = client.createMessage()
@@ -84,7 +85,13 @@ async function runEmailHealthCheck(): Promise<Response> {
             .setSubject('Volunteer Manager integration test')
             .setMarkdown('Test message from the **AnimeCon Volunteer Manager**');
 
-        const result = await client.sendMessage('AnimeCon Volunteer Manager', message);
+        const result = await client.sendMessage({
+            sender: 'AnimeCon Volunteer Manager',
+            message,
+            sourceUser: user,
+            targetUser: /* Peter= */ 1,
+        });
+
         if (!result.messageId)
             throw new Error(`Unexpected result, missing message Id: ${result.messageId}`);
 
@@ -145,14 +152,14 @@ async function runVertexAIHealthCheck(): Promise<Response> {
  * each integration that we support.
  */
 export async function serviceHealth(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemAdministrator))
+    if (!props.user || !can(props.user, Privilege.SystemAdministrator))
         noAccess();
 
     switch (request.service) {
         case 'AnimeCon':
             return runAnimeConHealthCheck();
         case 'Email':
-            return runEmailHealthCheck();
+            return runEmailHealthCheck(props.user);
         case 'Google':
             return runGoogleHealthCheck();
         case 'VertexAI':

@@ -47,7 +47,7 @@ describe('EmailClient', () => {
         });
 
         const client = new EmailClientMock();
-        const info = await client.sendMessage('My Name', message);
+        const info = await client.sendMessage({ sender: 'My Name', message });
         expect(info.messageId.length).toBeGreaterThan(16);
 
         const [ sentMessage ] = client.mock.getSentMail();

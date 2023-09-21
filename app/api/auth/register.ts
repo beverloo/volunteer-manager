@@ -128,7 +128,10 @@ export async function register(request: Request, props: ActionProps): Promise<Re
                 'sender': sender,
             });
 
-        await client.safeSendMessage(sender, message);
+        await client.safeSendMessage({
+            sender, message,
+            targetUser: userId,
+        });
     }
 
     await Log({
