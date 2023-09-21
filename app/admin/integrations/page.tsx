@@ -4,6 +4,7 @@
 import type { Metadata } from 'next';
 
 import { AnimeCon, type AnimeConSettings } from './AnimeCon';
+import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Prompts, type PromptSettings } from './Prompts';
@@ -24,6 +25,12 @@ export default async function IntegrationsPage() {
         'integration-animecon-username',
         'integration-animecon-password',
         'integration-animecon-scopes',
+
+        // E-mail:
+        'integration-email-smtp-hostname',
+        'integration-email-smtp-port',
+        'integration-email-smtp-username',
+        'integration-email-smtp-password',
 
         // Google:
         'integration-google-credentials',
@@ -52,6 +59,13 @@ export default async function IntegrationsPage() {
         scopes: settings['integration-animecon-scopes'] ?? '',
     };
 
+    const emailSettings: EmailSettings = {
+        hostname: settings['integration-email-smtp-hostname'] ?? '',
+        port: settings['integration-email-smtp-port'] ?? 587,
+        username: settings['integration-email-smtp-username'] ?? '',
+        password: settings['integration-email-smtp-password'] ?? '',
+    };
+
     const googleSettings: GoogleSettings = {
         credential: settings['integration-google-credentials'] ?? '',
         location: settings['integration-google-location'] ?? '',
@@ -75,6 +89,7 @@ export default async function IntegrationsPage() {
         <>
             <StatusHeader />
             <AnimeCon settings={animeConSettings} />
+            <Email settings={emailSettings} />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
             <Prompts settings={promptSettings} />

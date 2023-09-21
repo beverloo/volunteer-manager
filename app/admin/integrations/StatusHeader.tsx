@@ -10,6 +10,7 @@ import AttractionsIcon from '@mui/icons-material/Attractions';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
+import EmailIcon from '@mui/icons-material/Email';
 import GoogleIcon from '@mui/icons-material/Google';
 import HeatPumpIcon from '@mui/icons-material/HeatPump';
 import IconButton from '@mui/material/IconButton';
@@ -100,6 +101,7 @@ export function StatusHeader() {
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const [ animeConStatus, setAnimeConStatus ] = useState<ServiceHealthResponse>();
+    const [ emailStatus, setEmailStatus ] = useState<ServiceHealthResponse>();
     const [ googleStatus, setGoogleStatus ] = useState<ServiceHealthResponse>();
     const [ vertexAiStatus, setVertexAiStatus ] = useState<ServiceHealthResponse>();
 
@@ -107,6 +109,7 @@ export function StatusHeader() {
         setLoading(true);
         await Promise.all([
             determineServiceStatus('AnimeCon').then(result => setAnimeConStatus(result)),
+            determineServiceStatus('Email').then(result => setEmailStatus(result)),
             determineServiceStatus('Google').then(result => setGoogleStatus(result)),
             determineServiceStatus('VertexAI').then(result => setVertexAiStatus(result)),
         ]);
@@ -134,6 +137,9 @@ export function StatusHeader() {
 
                         <ServiceStatus icon={ <AttractionsIcon /> }
                                        label="AnimeCon" status={animeConStatus?.status} />
+
+                        <ServiceStatus icon={ <EmailIcon /> }
+                                       label="E-mail" status={emailStatus?.status} />
 
                         <ServiceStatus icon={ <GoogleIcon /> }
                                        label="Google" status={googleStatus?.status} />

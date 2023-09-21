@@ -4,60 +4,81 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailer, type Transporter } from 'nodemailer';
 
-import type { MailMessage } from './MailMessage';
+import { EmailMessage } from './EmailMessage';
 
 /**
- * Confirm that global configuration is available when loading this file.
+ * Settings related to the e-mail client. An SMTP connection will be used to actually send e-mail,
+ * and all messages will be stored in the "outbox" database table for tracking purposes.
  */
-if (!process.env.APP_SMTP_HOST || !process.env.APP_SMTP_PORT || !process.env.APP_SMTP_USERNAME ||
-        !process.env.APP_SMTP_PASSWORD) {
-    throw new Error('Volunteer Manager e-mail configuration must be set in environment variables.');
+export interface EmailClientSettings {
+    /**
+     * The SMTP host to which a connection will be made.
+     */
+    hostname: string;
+
+    /**
+     * The SMTP port to which a connection will be made.
+     */
+    port: number;
+
+    /**
+     * Username using which we can sign in to the SMTP account.
+     */
+    username: string;
+
+    /**
+     * Password using which we can sign in to the SMTP account.
+     */
+    password: string;
 }
 
 /**
- * The MailClient class encapsulates behaviour necessary to be able to send e-mails over SMTP. It
- * assumes configuration from the environment so that it will be built in in our image. Don't use
- * the MailClient for testing, rather, use the MailClientMock that doesn't talk to a real server.
+ * The e-mail client is able to send messages to volunteers' e-mail addresses across the internet.
+ * Messages will be logged in their entirety, which can be accessed through the "outbox" integration
+ * configuration interface in the administrative area.
  */
-export class MailClient {
+export class EmailClient {
     #configuration: SMTPTransport.Options;
-
+    #settings: EmailClientSettings;
     #transport?: Transporter<SMTPTransport.SentMessageInfo>;
-    #sender: string;
 
-    constructor(sender?: string) {
+    constructor(settings: EmailClientSettings) {
         this.#configuration = {
-            host: process.env.APP_SMTP_HOST!,
-            port: parseInt(process.env.APP_SMTP_PORT!, /* radix= */ 10),
+            host: settings.hostname,
+            port: settings.port,
             auth: {
-                user: process.env.APP_SMTP_USERNAME!,
-                pass: process.env.APP_SMTP_PASSWORD!,
+                user: settings.username,
+                pass: settings.password,
             },
         };
 
+        this.#settings = settings;
         this.#transport = undefined;
-        this.#sender = `${sender || 'AnimeCon'} <${process.env.APP_SMTP_USERNAME}>`;
     }
 
     /**
-     * Gets the sender from whom all sent e-mails will be addressed.
+     * Convenience manner to get an instance of the EmailMessage builder.
      */
-    get sender() { return this.#sender; }
+    createMessage(): EmailMessage {
+        return new EmailMessage();
+    }
 
     /**
      * Distributes the given `message` over the configured SMTP connection. Returns a promise with
      * information about the sent message when successful, or throws an exception when a failure is
      * seen. (Regardless of whether it's with the message or with the transport.)
      *
+     * @param sender Name of the sender the message should be from.
      * @param message The message that should be send.
      * @returns Information about the sent message.
      */
-    async sendMessage(message: MailMessage): Promise<SMTPTransport.SentMessageInfo> {
+    async sendMessage(sender: string, message: EmailMessage): Promise<SMTPTransport.SentMessageInfo>
+    {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 
         return this.#transport.sendMail({
-            from: this.#sender,
+            from: `${sender} <${this.#settings.username}>`,
             ...message.options,
         });
     }
@@ -66,12 +87,13 @@ export class MailClient {
      * Safe version of `sendMessage` that will not throw an exception, but will rather return a
      * boolean that indicates thether the given `message` was sent successfully.
      *
+     * @param sender Name of the sender the message should be from.
      * @param message The message that should be send.
      * @returns A boolean that indicates whether the message was handed off to the SMTP server.
      */
-    async safeSendMessage(message: MailMessage): Promise<boolean> {
+    async safeSendMessage(sender: string, message: EmailMessage): Promise<boolean> {
         try {
-            await this.sendMessage(message);
+            await this.sendMessage(sender, message);
             return true;
 
         } catch (error) {
@@ -91,7 +113,7 @@ export class MailClient {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 
-        return this.#transport!.verify();
+        return this.#transport.verify();
     }
 
     /**

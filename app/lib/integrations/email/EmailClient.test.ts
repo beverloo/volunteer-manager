@@ -3,24 +3,22 @@
 
 import { setImmediate } from 'timers';
 
-import { MailClientMock } from './MailClientMock';
-import { MailMessage } from './MailMessage';
+import { EmailClientMock } from './EmailClientMock';
+import { EmailMessage } from './EmailMessage';
 
 global.setImmediate = setImmediate;
 
-describe('MailClient', () => {
+describe('EmailClient', () => {
     it('it is able to verify connections while using the mock', async () => {
-        const client = new MailClientMock();
+        const client = new EmailClientMock();
         client.mock.setMockedVerify(true);
-
-        expect(client.sender).toEqual('AnimeCon <user@example.com>');
 
         const result = await client.verifyConfiguration();
         expect(result).toBeTruthy();
     });
 
     it('is able to build messages using a builder pattern', async () => {
-        const message = new MailMessage()
+        const message = new EmailMessage()
             .setTo('user@example.com')
             .setCc('another@example.com')
             .setBcc([ 'foo@bar.com', 'baz@qux.com' ])
@@ -48,8 +46,8 @@ describe('MailClient', () => {
             text: 'Hello, world!',
         });
 
-        const client = new MailClientMock('My Name');
-        const info = await client.sendMessage(message);
+        const client = new EmailClientMock();
+        const info = await client.sendMessage('My Name', message);
         expect(info.messageId.length).toBeGreaterThan(16);
 
         const [ sentMessage ] = client.mock.getSentMail();
@@ -60,7 +58,7 @@ describe('MailClient', () => {
     });
 
     it('is able to build messages using markdown', () => {
-        const message = new MailMessage().setMarkdown('**Hello** {who}!', { who: 'world' });
+        const message = new EmailMessage().setMarkdown('**Hello** {who}!', { who: 'world' });
         expect(message.options).toEqual({
             // Defaults:
             disableFileAccess: true,

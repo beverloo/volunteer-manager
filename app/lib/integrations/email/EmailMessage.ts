@@ -9,7 +9,7 @@ import { marked } from 'marked';
  * takes required information about the sender, after which a building pattern is enabled to create
  * the remainder of the e-mail.
  */
-export class MailMessage {
+export class EmailMessage {
     #headers: Array<{ key: string, value: string }>;
     #options: Omit<SendMailOptions, 'from' | 'headers' | 'sender'>;
 
@@ -34,7 +34,7 @@ export class MailMessage {
      * Sets the `recipients` (either a string or an array of strings) as the people who should
      * receive this message on the To: line. Returns this instance of MailMessage.
      */
-    setTo(recipients: string | string[]): MailMessage {
+    setTo(recipients: string | string[]): EmailMessage {
         this.#options.to = recipients;
         return this;
     }
@@ -43,7 +43,7 @@ export class MailMessage {
      * Sets the `recipients` (either a string or an array of strings) as the people who should
      * receive this message on the Cc: line. Returns this instance of MailMessage.
      */
-    setCc(recipients: string | string[]): MailMessage {
+    setCc(recipients: string | string[]): EmailMessage {
         this.#options.cc = recipients;
         return this;
     }
@@ -52,7 +52,7 @@ export class MailMessage {
      * Sets the `recipients` (either a string or an array of strings) as the people who should
      * receive this message on the Bcc: line. Returns this instance of MailMessage.
      */
-    setBcc(recipients: string | string[]): MailMessage {
+    setBcc(recipients: string | string[]): EmailMessage {
         this.#options.bcc = recipients;
         return this;
     }
@@ -65,7 +65,7 @@ export class MailMessage {
      * Adds a header with the given `key` and `value` to the message. Custom headers should always
      * start with "X-" to signal the intention. Returns this instance of MailMessage.
      */
-    addHeader(key: string, value: string): MailMessage {
+    addHeader(key: string, value: string): EmailMessage {
         this.#headers.push({ key, value });
         return this;
     }
@@ -74,7 +74,7 @@ export class MailMessage {
      * Sets the subject of the message to the given `subject`. This line must appeal people to read
      * the rest of the message. Returns this instance of MailMessage.
      */
-    setSubject(subject: string): MailMessage {
+    setSubject(subject: string): EmailMessage {
         this.#options.subject = subject;
         return this;
     }
@@ -87,7 +87,7 @@ export class MailMessage {
      * Sets the HTML content of this message to the given `html` string. It is recommended to also
      * include a text version of the message. Returns this instance of MailMessage.
      */
-    setHtml(html: string): MailMessage {
+    setHtml(html: string): EmailMessage {
         this.#options.html = html;
         return this;
     }
@@ -96,7 +96,7 @@ export class MailMessage {
      * Sets the Markdown content of this message to the given `markdown` string. Since Markdown is
      * human readable, it will also be the text version. Returns this instance of MailMessage.
      */
-    setMarkdown(markdown: string, substitutions?: Record<string, string>): MailMessage {
+    setMarkdown(markdown: string, substitutions?: Record<string, string>): EmailMessage {
         let substitutedMarkdown = markdown;
         if (substitutions) {
             for (const [ key, value ] of Object.entries(substitutions))
@@ -115,7 +115,7 @@ export class MailMessage {
      * Sets the plaintext content of this message to the given `text` string. It is recommended to
      * also include an HTML version of the message. Returns this instance of MailMessage.
      */
-    setText(text: string): MailMessage {
+    setText(text: string): EmailMessage {
         this.#options.text = text;
         return this;
     }

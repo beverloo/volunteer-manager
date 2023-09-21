@@ -5,9 +5,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { MailClient } from '@lib/MailClient';
-import { MailMessage } from '@app/lib/MailMessage';
 import { User } from '@lib/auth/User';
+import { createEmailClient } from '@lib/integrations/email';
 import { getStaticContent } from '@lib/Content';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 
@@ -57,8 +56,8 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
             const passwordResetLink =
                 `${props.origin}/?password-reset-request=${passwordResetRequest}`;
 
-            const client = new MailClient(sender);
-            const message = new MailMessage()
+            const client = await createEmailClient();
+            const message = client.createMessage()
                 .setTo(request.username)
                 .setSubject(messageContent.title)
                 .setMarkdown(messageContent.markdown, /* substitutions= */ {
@@ -67,7 +66,7 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
                     'sender': sender,
                 });
 
-            await client.safeSendMessage(message);
+            await client.safeSendMessage(sender, message);
 
             await Log({
                 type: LogType.AccountPasswordResetRequest,

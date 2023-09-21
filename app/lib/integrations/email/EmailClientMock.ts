@@ -4,12 +4,21 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailermock } from 'nodemailer-mock';
 
-import { MailClient } from './MailClient';
+import { EmailClient } from './EmailClient';
 
 /**
  * Mock implementation of the MailClient that avoids using a real server.
  */
-export class MailClientMock extends MailClient {
+export class EmailClientMock extends EmailClient {
+    constructor() {
+        super({
+            hostname: '127.0.0.1',
+            port: 587,
+            username: 'user@example.com',
+            password: 'TestPassword1',
+        });
+    }
+
     /**
      * Returns the `nodemailer-mock` mock information, which allows instrumentation of the system.
      */

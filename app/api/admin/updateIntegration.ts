@@ -30,6 +30,16 @@ export const kUpdateIntegrationDefinition = z.object({
         }).optional(),
 
         /**
+         * E-mail settings that should be updated.
+         */
+        email: z.object({
+            hostname: z.string(),
+            port: z.number(),
+            username: z.string(),
+            password: z.string(),
+        }).optional(),
+
+        /**
          * Google settings that should be updated.
          */
         google: z.object({
@@ -86,6 +96,21 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: LogType.AdminUpdateAnimeConIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+        });
+    }
+
+    if (request.email) {
+        await writeSettings({
+            'integration-email-smtp-hostname': request.email.hostname,
+            'integration-email-smtp-port': request.email.port,
+            'integration-email-smtp-username': request.email.username,
+            'integration-email-smtp-password': request.email.password,
+        });
+
+        await Log({
+            type: LogType.AdminUpdateEmailIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
         });

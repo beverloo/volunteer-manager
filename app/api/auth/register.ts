@@ -5,9 +5,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { MailClient } from '@lib/MailClient';
-import { MailMessage } from '@app/lib/MailMessage';
 import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
+import { createEmailClient } from '@lib/integrations/email';
 import { getStaticContent } from '@lib/Content';
 import { sealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 
@@ -119,8 +118,8 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     {
         const sender = 'AnimeCon Volunteering Teams';
 
-        const client = new MailClient(sender);
-        const message = new MailMessage()
+        const client = await createEmailClient();
+        const message = client.createMessage()
             .setTo(request.username)
             .setSubject(messageContent.title)
             .setMarkdown(messageContent.markdown, /* substitutions= */ {
@@ -129,7 +128,7 @@ export async function register(request: Request, props: ActionProps): Promise<Re
                 'sender': sender,
             });
 
-        await client.safeSendMessage(message);
+        await client.safeSendMessage(sender, message);
     }
 
     await Log({

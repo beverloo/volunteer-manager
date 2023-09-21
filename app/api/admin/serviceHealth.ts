@@ -6,13 +6,14 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createAnimeConClient } from '@lib/integrations/animecon';
+import { createEmailClient } from '@lib/integrations/email';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { readSettings } from '@lib/Settings';
 
 /**
  * The services for which health check can be carried out.
  */
-const ServiceEnumeration = z.enum([ 'AnimeCon', 'Google', 'VertexAI' ]);
+const ServiceEnumeration = z.enum([ 'AnimeCon', 'Email', 'Google', 'VertexAI' ]);
 
 /**
  * Interface definition for the Integration API, exposed through /api/admin/service-health.
@@ -73,6 +74,31 @@ async function runAnimeConHealthCheck(): Promise<Response> {
 }
 
 /**
+ * Runs a health check for the e-mail client integration.
+ */
+async function runEmailHealthCheck(): Promise<Response> {
+    try {
+        const client = await createEmailClient();
+
+        const result = await client.verifyConfiguration();
+        if (!result)
+            throw new Error('Unexpected result from EmailClient::verifyConfiguration()');
+
+        return {
+            status: 'success',
+            service: 'Email',
+            message: 'The integration is functional (connection verified)',
+        };
+    } catch (error: any) {
+        return {
+            status: 'error',
+            service: 'Email',
+            message: error.message,
+        };
+    }
+}
+
+/**
  * Runs a health check for the Google integration.
  */
 async function runGoogleHealthCheck(): Promise<Response> {
@@ -121,6 +147,8 @@ export async function serviceHealth(request: Request, props: ActionProps): Promi
     switch (request.service) {
         case 'AnimeCon':
             return runAnimeConHealthCheck();
+        case 'Email':
+            return runEmailHealthCheck();
         case 'Google':
             return runGoogleHealthCheck();
         case 'VertexAI':
