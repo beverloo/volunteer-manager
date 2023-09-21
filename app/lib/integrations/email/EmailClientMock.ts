@@ -4,6 +4,8 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailermock } from 'nodemailer-mock';
 
+import type { EmailLogger } from './EmailLogger';
+import type { EmailMessage } from './EmailMessage';
 import { EmailClient } from './EmailClient';
 
 /**
@@ -23,6 +25,18 @@ export class EmailClientMock extends EmailClient {
      * Returns the `nodemailer-mock` mock information, which allows instrumentation of the system.
      */
     get mock() { return nodemailermock.mock; }
+
+    /**
+     * Overrides the default logger with an empty instance that does no logging.
+     */
+    protected override async createLogger(
+        sender: string, message: EmailMessage): Promise<EmailLogger>
+    {
+        return new class implements EmailLogger {
+            async initialise(sender: string, message: EmailMessage): Promise<void> {}
+            async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {}
+        };
+    }
 
     /**
      * Overrides the default transport with an instance of `nodemailer-mock`, which avoids messages

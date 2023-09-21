@@ -4,6 +4,7 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailer, type Transporter } from 'nodemailer';
 
+import { EmailLoggerImpl, type EmailLogger } from './EmailLogger';
 import { EmailMessage } from './EmailMessage';
 
 /**
@@ -77,10 +78,15 @@ export class EmailClient {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 
-        return this.#transport.sendMail({
+        const logger = await this.createLogger(sender, message);
+        const result = await this.#transport.sendMail({
             from: `${sender} <${this.#settings.username}>`,
             ...message.options,
         });
+
+        await logger.finalise(result);
+
+        return result;
     }
 
     /**
@@ -114,6 +120,16 @@ export class EmailClient {
             this.#transport = this.createTransport(this.#configuration);
 
         return this.#transport.verify();
+    }
+
+    /**
+     * Creates a new instance of the e-mail logger. Can be overridden for testing purposes.
+     */
+    protected async createLogger(sender: string, message: EmailMessage): Promise<EmailLogger> {
+        const logger = new EmailLoggerImpl();
+        await logger.initialise(sender, message);
+
+        return logger;
     }
 
     /**

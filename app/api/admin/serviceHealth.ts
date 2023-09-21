@@ -79,10 +79,14 @@ async function runAnimeConHealthCheck(): Promise<Response> {
 async function runEmailHealthCheck(): Promise<Response> {
     try {
         const client = await createEmailClient();
+        const message = client.createMessage()
+            .setTo('peter@animecon.nl')
+            .setSubject('Volunteer Manager integration test')
+            .setMarkdown('Test message from the **AnimeCon Volunteer Manager**');
 
-        const result = await client.verifyConfiguration();
-        if (!result)
-            throw new Error('Unexpected result from EmailClient::verifyConfiguration()');
+        const result = await client.sendMessage('AnimeCon Volunteer Manager', message);
+        if (!result.messageId)
+            throw new Error(`Unexpected result, missing message Id: ${result.messageId}`);
 
         return {
             status: 'success',
