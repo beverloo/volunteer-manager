@@ -104,14 +104,22 @@ export class EmailClient {
             this.#transport = this.createTransport(this.#configuration);
 
         const logger = await this.createLogger(request);
-        const result = await this.#transport.sendMail({
-            from: `${request.sender} <${this.#settings.username}>`,
-            ...request.message.options,
-        });
 
-        await logger.finalise(result);
+        let result: SMTPTransport.SentMessageInfo | undefined;
+        try {
+            result = await this.#transport.sendMail({
+                from: `${request.sender} <${this.#settings.username}>`,
+                ...request.message.options,
+            });
+        } catch (error: any) {
+            await logger.reportException(error);
+            throw error;
+        } finally {
+            if (result)
+                await logger.finalise(result);
+        }
 
-        return result;
+        return result!;
     }
 
     /**

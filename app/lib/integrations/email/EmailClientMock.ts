@@ -34,6 +34,7 @@ export class EmailClientMock extends EmailClient {
         return new class implements EmailLogger {
             async initialise(request: SendMessageRequest): Promise<void> {}
             async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {}
+            async reportException(error: Error): Promise<void> {}
         };
     }
 

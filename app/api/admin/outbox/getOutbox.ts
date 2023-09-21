@@ -74,6 +74,34 @@ export const kGetOutboxDefinition = z.object({
          */
         html: z.string(),
 
+        // -----------------------------------------------------------------------------------------
+        // Exception that occurred when trying to send the message
+        // -----------------------------------------------------------------------------------------
+
+        /**
+         * Name of the exception.
+         */
+        errorName: z.string().optional(),
+
+        /**
+         * Message of the exception.
+         */
+        errorMessage: z.string().optional(),
+
+        /**
+         * Stack trace of the exception.
+         */
+        errorStack: z.string().optional(),
+
+        /**
+         * Cause of the exception, when given.
+         */
+        errorCause: z.string().optional(),
+
+        // -----------------------------------------------------------------------------------------
+        // Result of sending the message across the wires
+        // -----------------------------------------------------------------------------------------
+
         /**
          * ID of the message as it was accepted by the receiving server.
          */
@@ -131,6 +159,12 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
             // Message content:
             text: tOutbox.outboxBodyText,
             html: tOutbox.outboxBodyHtml,
+
+            // Message error:
+            errorName: tOutbox.outboxErrorName,
+            errorMessage: tOutbox.outboxErrorMessage,
+            errorStack: tOutbox.outboxErrorStack,
+            errorCause: tOutbox.outboxErrorCause,
 
             // Message result:
             messageId: tOutbox.outboxResultMessageId,

@@ -111,16 +111,46 @@ export function OutboxMessage(props: OutboxMessageProps) {
             </TableContainer>
             <Stack direction="row" spacing={2}>
                 <Paper sx={{ flexBasis: '100%', p: 2 }}>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre' }}>
+                    <Typography variant="body2"
+                                sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
                         {message.text}
                     </Typography>
                 </Paper>
                 <Paper sx={{ flexBasis: '100%', p: 2 }}>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre' }}>
+                    <Typography variant="body2"
+                                sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
                         {message.html}
                     </Typography>
                 </Paper>
             </Stack>
+            { !!message.errorName &&
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableRow>
+                            <TableCell width="25%" component="th" scope="row">Error name</TableCell>
+                            <TableCell>{message.errorName}</TableCell>
+                        </TableRow>
+                        { !!message.errorMessage &&
+                            <TableRow>
+                                <TableCell component="th" scope="row">Error message</TableCell>
+                                <TableCell>{message.errorMessage}</TableCell>
+                            </TableRow> }
+                        { !!message.errorStack &&
+                            <TableRow>
+                                <TableCell component="th" scope="row">Stack trace</TableCell>
+                                <TableCell sx={{whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}>
+                                    {message.errorStack}
+                                </TableCell>
+                            </TableRow> }
+                        { !!message.errorCause &&
+                            <TableRow>
+                                <TableCell component="th" scope="row">Cause</TableCell>
+                                <TableCell sx={{whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}>
+                                    {JSON.parse(message.errorCause)}
+                                </TableCell>
+                            </TableRow> }
+                    </Table>
+                </TableContainer> }
             <TableContainer component={Paper}>
                 <Table>
                     { !!message.messageId &&

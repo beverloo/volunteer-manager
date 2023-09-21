@@ -23,6 +23,11 @@ export interface EmailLogger {
      * Finalises the logger with the `info`, obtained from the sending operation.
      */
     finalise(info: SMTPTransport.SentMessageInfo): Promise<void>;
+
+    /**
+     * Reports an exception that happened while the e-mail was being sent.
+     */
+    reportException(error: Error): Promise<void>;
 }
 
 /**
@@ -30,9 +35,11 @@ export interface EmailLogger {
  * so that nothing is stored in the database.
  */
 export class EmailLoggerImpl implements EmailLogger {
+    #error?: Error;
     #insertId?: number;
 
     constructor() {
+        this.#error = undefined;
         this.#insertId = undefined;
     }
 
@@ -40,7 +47,7 @@ export class EmailLoggerImpl implements EmailLogger {
      * Initialises the logger. This is called before the message will be send over SMTP, and will
      * store the message in the database, sort of as an "outbox".
      */
-    async initialise(request: SendMessageRequest) {
+    async initialise(request: SendMessageRequest): Promise<void> {
         if (!!this.#insertId)
             throw new Error('E-mail loggers may only be initialised once.');
 
@@ -109,15 +116,29 @@ export class EmailLoggerImpl implements EmailLogger {
     }
 
     /**
+     * Reports an exception that happened while the e-mail was being sent. We only store the error
+     * for now, and will store it in the database then the `finalise` method runs.
+     */
+    async reportException(error: Error): Promise<void> {
+        this.#error = error;
+    }
+
+    /**
      * Finalises the logger. This will write the `info` to the database entry, which will tell us
      * whether the message had been sent successfully.
      */
-    async finalise(info: SMTPTransport.SentMessageInfo) {
+    async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {
         if (!this.#insertId)
             throw new Error('E-mail loggers must be initialised before being finalised.');
 
         await db.update(tOutbox)
             .set({
+                outboxErrorName: this.#error?.name,
+                outboxErrorMessage: this.#error?.message,
+                outboxErrorStack: this.#error?.stack,
+                outboxErrorCause:
+                    this.#error?.cause ? JSON.stringify(this.#error?.cause) : undefined,
+
                 outboxResultMessageId: info.messageId,
                 outboxResultAccepted: this.normalizeRecipients(info.accepted),
                 outboxResultRejected: this.normalizeRecipients(info.rejected),

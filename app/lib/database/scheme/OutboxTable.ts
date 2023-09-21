@@ -22,6 +22,10 @@ export class OutboxTable extends Table<DBConnection, 'OutboxTable'> {
     outboxSubject = this.column('outbox_subject', 'string');
     outboxBodyHtml = this.columnWithDefaultValue('outbox_body_html', 'string');
     outboxBodyText = this.columnWithDefaultValue('outbox_body_text', 'string');
+    outboxErrorName = this.optionalColumnWithDefaultValue('outbox_error_name', 'string');
+    outboxErrorCause = this.optionalColumnWithDefaultValue('outbox_error_cause', 'string');
+    outboxErrorMessage = this.optionalColumnWithDefaultValue('outbox_error_message', 'string');
+    outboxErrorStack = this.optionalColumnWithDefaultValue('outbox_error_stack', 'string');
     outboxResultMessageId = this.optionalColumnWithDefaultValue('outbox_result_message_id', 'string');
     outboxResultAccepted = this.optionalColumnWithDefaultValue('outbox_result_accepted', 'string');
     outboxResultRejected = this.optionalColumnWithDefaultValue('outbox_result_rejected', 'string');

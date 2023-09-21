@@ -1940,6 +1940,26 @@ tables:
     nullable: false
     default: "''"
     comment: ""
+  - name: outbox_error_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_cause
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: outbox_result_message_id
     type: varchar(256)
     nullable: true
@@ -2015,6 +2035,10 @@ tables:
       `outbox_subject` text NOT NULL,
       `outbox_body_html` text NOT NULL DEFAULT '',
       `outbox_body_text` text NOT NULL DEFAULT '',
+      `outbox_error_name` varchar(32) DEFAULT NULL,
+      `outbox_error_cause` text DEFAULT NULL,
+      `outbox_error_message` text DEFAULT NULL,
+      `outbox_error_stack` text DEFAULT NULL,
       `outbox_result_message_id` varchar(256) DEFAULT NULL,
       `outbox_result_accepted` text DEFAULT NULL,
       `outbox_result_rejected` text DEFAULT NULL,
