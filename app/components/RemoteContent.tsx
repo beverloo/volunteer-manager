@@ -16,7 +16,6 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { alpha, darken, lighten } from '@mui/system';
 
-import type { EventData } from '@app/lib/Event';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import { Markdown } from './Markdown';
 import { issueServerAction } from '@app/lib/issueServerAction';
@@ -60,7 +59,7 @@ export interface RemoteContentProps {
     /**
      * Event for which the remote content is being rendered.
      */
-    event?: EventData;
+    event: string;
 
     /**
      * Type of remote content that should be included.
@@ -79,7 +78,7 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'hotels'>) {
             return;
 
         issueServerAction<HotelsDefinition>('/api/event/hotels', {
-            event: props.event.slug
+            event: props.event
         }).then(response => setHotels(response));
 
     }, [ props.event ]);
@@ -96,9 +95,7 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'hotels'>) {
     }
 
     if (!hotels.hotels.length) {
-        const event = props.event?.name ?? 'this AnimeCon event';
-        const message = `> Hotel room availability for ${event} has not been published yet.`;
-
+        const message = '> Hotel room availability for this event has not been published yet.';
         return <Markdown>{message}</Markdown>;
     }
 
@@ -150,6 +147,4 @@ export function RemoteContent(props: RemoteContentProps) {
         case 'hotels':
             return RemoteContentHotels(props);
     }
-
-    return undefined;
 }

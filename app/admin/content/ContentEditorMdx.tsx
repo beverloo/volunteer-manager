@@ -8,11 +8,13 @@
 // -------------------------------------------------------------------------------------------------
 
 import Box from '@mui/material/Box';
+
+import type { JsxComponentDescriptor, MDXEditorMethods } from '@mdxeditor/editor';
 import {
-    BlockTypeSelect, BoldItalicUnderlineToggles, CreateLink, DiffSourceToggleWrapper, ListsToggle,
-    MDXEditor, type MDXEditorMethods, Separator, UndoRedo, diffSourcePlugin, headingsPlugin,
-    imagePlugin,  linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin, tablePlugin,
-    thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
+    BlockTypeSelect, BoldItalicUnderlineToggles, CreateLink, DiffSourceToggleWrapper,
+    GenericJsxEditor, ListsToggle, MDXEditor, Separator, UndoRedo, diffSourcePlugin, headingsPlugin,
+    imagePlugin, jsxPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin,
+    tablePlugin, thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
 
 /**
  * Props accepted by the <ContentEditorMdx> component.
@@ -34,6 +36,19 @@ export interface ContentEditorMdxProps {
  * plugins loaded that we require. It's designed to be embedded within the <ContentEditor>.
  */
 export default function ContentEditorMdx(props: ContentEditorMdxProps) {
+    const jsxComponentDescriptors: JsxComponentDescriptor[] = [
+        {
+            name: 'RemoteContent',
+            kind: 'text',
+            props: [
+                { name: 'event', type: 'string' },
+                { name: 'type', type: 'string' },
+            ],
+            hasChildren: false,
+            Editor: GenericJsxEditor,
+        },
+    ];
+
     return (
         <Box sx={{ '& [contenteditable="true"]': { fontFamily: 'Roboto', padding: 0 } }}>
             <MDXEditor contentEditableClassName=""
@@ -43,6 +58,7 @@ export default function ContentEditorMdx(props: ContentEditorMdxProps) {
                            diffSourcePlugin({ diffMarkdown: props.markdown }),
                            headingsPlugin(),
                            imagePlugin(),
+                           jsxPlugin({ jsxComponentDescriptors }),
                            linkPlugin(),
                            listsPlugin(),
                            markdownShortcutPlugin(),
