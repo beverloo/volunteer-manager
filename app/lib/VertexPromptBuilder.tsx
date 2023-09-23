@@ -52,9 +52,9 @@ export type VertexPromptTone = keyof typeof kToneOptions;
  * various settings regarding style, tone and more.
  */
 export class VertexPromptBuilder {
+    #context: string[];
     #humour: VertexPromptHumour;
     #identity: VertexPromptIdentity;
-    #motivation: string | undefined;
     #narrative: string | undefined;
     #tone: VertexPromptTone;
 
@@ -69,9 +69,9 @@ export class VertexPromptBuilder {
     }
 
     private constructor(values: Record<string, string>) {
+        this.#context = [];
         this.#humour = 'Never';
         this.#identity = 'Individual';
-        this.#motivation = undefined;
         this.#narrative = undefined;
         this.#tone = 'Cooperative';
 
@@ -83,6 +83,14 @@ export class VertexPromptBuilder {
      */
     forSituation(narrative: string): VertexPromptBuilder {
         this.#narrative = narrative;
+        return this;
+    }
+
+    /**
+     * Adds the given |context| to the prompt builder, generally a sentence carrying information.
+     */
+    withContext(context: string): VertexPromptBuilder {
+        this.#context.push(context);
         return this;
     }
 
@@ -99,14 +107,6 @@ export class VertexPromptBuilder {
      */
     withIdentity(identity: VertexPromptIdentity): VertexPromptBuilder {
         this.#identity = identity;
-        return this;
-    }
-
-    /**
-     * Sets the motivation of the prompt to the given `motivation`.
-     */
-    withMotivation(motivation: string): VertexPromptBuilder {
-        this.#motivation = motivation;
         return this;
     }
 
@@ -131,8 +131,8 @@ export class VertexPromptBuilder {
      */
     build(): string {
         const composedPrompt = [
+            ...this.#context,
             this.#narrative,
-            this.#motivation,
             kToneOptions[this.#tone],
             kIdentityOptions[this.#identity],
             kHumourOptions[this.#humour],

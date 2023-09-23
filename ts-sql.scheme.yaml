@@ -1,105 +1,6 @@
 name: anime
 desc: ""
 tables:
-- name: events
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: event_name
-    type: varchar(64)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_short_name
-    type: varchar(32)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_slug
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_hidden
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: event_start_time
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_end_time
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_hotel_room_form
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: event_identity_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: publish_availability
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: publish_hotels
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: publish_trainings
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (event_id) USING BTREE
-    table: events
-    columns:
-    - event_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (event_id)
-    table: events
-    referencedTable: null
-    columns:
-    - event_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `events` (
-      `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `event_name` varchar(64) NOT NULL,
-      `event_short_name` varchar(32) NOT NULL,
-      `event_slug` varchar(16) NOT NULL,
-      `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
-      `event_start_time` datetime NOT NULL,
-      `event_end_time` datetime NOT NULL,
-      `event_hotel_room_form` text DEFAULT NULL,
-      `event_identity_id` int(8) unsigned DEFAULT NULL,
-      `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
-      `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
-      `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
-      PRIMARY KEY (`event_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_teams
   type: BASE TABLE
   comment: ""
@@ -2214,6 +2115,111 @@ tables:
       KEY `assignment_user_id` (`assignment_user_id`),
       KEY `booking_id` (`booking_id`),
       KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_short_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_slug
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_hidden
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: event_start_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_end_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_location
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: event_hotel_room_form
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: event_identity_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: publish_availability
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: publish_hotels
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: publish_trainings
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (event_id) USING BTREE
+    table: events
+    columns:
+    - event_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (event_id)
+    table: events
+    referencedTable: null
+    columns:
+    - event_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events` (
+      `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `event_name` varchar(64) NOT NULL,
+      `event_short_name` varchar(32) NOT NULL,
+      `event_slug` varchar(16) NOT NULL,
+      `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
+      `event_start_time` datetime NOT NULL,
+      `event_end_time` datetime NOT NULL,
+      `event_location` text DEFAULT NULL,
+      `event_hotel_room_form` text DEFAULT NULL,
+      `event_identity_id` int(8) unsigned DEFAULT NULL,
+      `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
+      `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
+      `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
+      PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
