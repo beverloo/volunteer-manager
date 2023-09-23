@@ -11,11 +11,9 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdateTeamVolunteerDefinition } from '@app/api/admin/updateTeamVolunteer';
 import { ApplicationParticipation } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Options for a binary select box. They look better on the page than checkboxes.
@@ -30,14 +28,14 @@ const kSelectOptions = [
  */
 export interface ApplicationPreferencesProps {
     /**
-     * Information about the event this volunteer will participate in.
+     * Slug of the event for which application metadata is being shown.
      */
-    event: PageInfoWithTeam['event'];
+    event: string;
 
     /**
-     * Information about the team this volunteer is part of.
+     * Slug of the team that this application is part of.
      */
-    team: PageInfoWithTeam['team'];
+    team: string;
 
     /**
      * Information about the volunteer for whom this page is being displayed.
@@ -70,23 +68,21 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
-            console.log(data);
-            const response = await issueServerAction<UpdateTeamVolunteerDefinition>(
-                '/api/admin/update-team-volunteer', {
-                    userId: volunteer.userId,
-                    eventId: event.id,
-                    teamId: team.id,
+            const response = await callApi('put', '/api/application/:event/:team/:userId', {
+                event,
+                team,
+                userId: volunteer.userId,
 
-                    application: {
-                        credits: !!data.credits,
-                        preferences: data.preferences,
-                        serviceHours: `${data.serviceHours}` as any,
-                        serviceTiming: data.serviceTiming,
-                        socials: !!data.socials,
-                        tshirtFit: data.tshirtFit,
-                        tshirtSize: data.tshirtSize,
-                    },
-                });
+                data: {
+                    credits: !!data.credits,
+                    preferences: data.preferences,
+                    serviceHours: `${data.serviceHours}` as any,
+                    serviceTiming: data.serviceTiming,
+                    socials: !!data.socials,
+                    tshirtFit: data.tshirtFit,
+                    tshirtSize: data.tshirtSize,
+                },
+            });
 
             if (response.success)
                 setInvalidated(false);
@@ -95,7 +91,7 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ event.id, team.id, volunteer.userId ]);
+    }, [ event, team, volunteer.userId ]);
 
     const serviceTiming = `${volunteer.preferenceTimingStart}-${volunteer.preferenceTimingEnd}`;
     const defaultValues = { ...volunteer, serviceTiming };

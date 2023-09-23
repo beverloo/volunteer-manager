@@ -118,11 +118,11 @@ export default async function EventVolunteerPage(props: RouterParams) {
                              user={user.toUserData()} />
             <VolunteerIdentity eventId={event.id} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
-            <ApplicationPreferences event={event} team={team} volunteer={volunteer} />
+            <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
             {hotelManagement}
             {trainingManagement}
             { can(user, Privilege.EventVolunteerApplicationOverrides) &&
-                <ApplicationMetadata eventId={event.id} teamId={team.id} volunteer={volunteer} /> }
+                <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
         </>
     );
 }

@@ -25,10 +25,11 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Typography from '@mui/material/Typography';
 
-import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { Avatar } from '@app/components/Avatar';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
+import { RegistrationStatus } from '@lib/database/Types';
+import { callApi } from '@lib/callApi';
 
 /**
  * Formatter for displaying the date on which the application was received.
@@ -271,14 +272,14 @@ export interface ApplicationsProps {
     canManageApplications?: boolean;
 
     /**
-     * Information about the event for which applications are being shown.
+     * Slug of the event for which application metadata is being shown.
      */
-    event: PageInfoWithTeam['event'];
+    event: string;
 
     /**
-     * Information about the team for which applications are being shown.
+     * Slug of the team that this application is part of.
      */
-    team: PageInfoWithTeam['team'];
+    team: string;
 }
 
 /**
@@ -295,23 +296,18 @@ export function Applications(props: ApplicationsProps) {
     const [ application, setApplication ] = useState<{
         firstName: string,
         userId: number,
-        eventId: number,
-        teamId: number
     }>();
 
     const doRequestResponse = useCallback(
         async (application: ApplicationInfo, action: 'approve' | 'reject') => {
             setApplication({
                 firstName: application.firstName,
-
                 userId: application.userId,
-                eventId: event.id,
-                teamId: team.id,
             });
 
             setApproveOpen(action === 'approve');
             setRejectOpen(action === 'reject');
-        }, [ event, team ]);
+        }, [ /* no deps */ ]);
 
     const requestResponse = canManageApplications ? doRequestResponse : undefined;
 
@@ -319,21 +315,37 @@ export function Applications(props: ApplicationsProps) {
     // Mechanisms for approving and rejecting applications
     // ---------------------------------------------------------------------------------------------
 
-    const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no deps */ ]);
-    const handleApproved = useCallback(async () => {
-        if (!application)
-            return { error: 'Not sure which application has been selected' };
+    const handleDecided = useCallback(
+        async (status: RegistrationStatus, subject?: string, message?: string) => {
+            if (!application)
+                return { error: 'Lost context of the selected application, please try again' };
 
-        return { error: 'Not yet implemented' };
-    }, [ application ]);
+            const response = await callApi('put', '/api/application/:event/:team/:userId', {
+                event,
+                team,
+                userId: application.userId,
+
+                status: {
+                    registrationStatus: status,
+                    // TODO: message
+                    // TODO: subject
+                },
+            });
+
+            if (response.success)
+                return { success: 'Your decision has been processed, thanks!' };
+            else
+                return { error: 'Something went wrong when processing your decision. Try again?' };
+
+        }, [ application, event, team ]);
+
+    const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no deps */ ]);
+    const handleApproved = useCallback((subject?: string, message?: string) =>
+        handleDecided(RegistrationStatus.Accepted, subject, message), [ handleDecided ]);
 
     const handleRejectClose = useCallback(() => setRejectOpen(false), [ /* no deps */ ]);
-    const handleRejected = useCallback(async () => {
-        if (!application)
-            return { error: 'Not sure which application has been selected' };
-
-        return { error: 'Not yet implemented' };
-    }, [ application ]);
+    const handleRejected = useCallback((subject?: string, message?: string) =>
+        handleDecided(RegistrationStatus.Rejected, subject, message), [ handleDecided ]);
 
     if (!applications.length)
         return <NoApplications />;
@@ -353,10 +365,9 @@ export function Applications(props: ApplicationsProps) {
                                      <>
                                          You're about to approve
                                          <strong> {application?.firstName}</strong>'s application to
-                                         help out during this event. An e-mail will automatically be
-                                         sent to share the good news with them.
+                                         help out during this event.
                                      </>
-                                 } onCommunicated={handleApproved} />
+                                 } onSubmit={handleApproved} />
 
             <CommunicationDialog title={`Reject ${application?.firstName}'s application`}
                                  open={rejectOpen} onClose={handleRejectClose}
@@ -364,10 +375,9 @@ export function Applications(props: ApplicationsProps) {
                                      <>
                                          You're about to reject
                                          <strong> {application?.firstName}</strong>'s application to
-                                         help out during this event. An e-mail will automatically be
-                                         sent to let them know.
+                                         help out during this event.
                                      </>
-                                 } onCommunicated={handleRejected} />
+                                 } onSubmit={handleRejected} />
 
         </>
     );

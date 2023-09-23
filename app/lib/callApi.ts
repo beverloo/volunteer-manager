@@ -14,6 +14,7 @@ import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
+import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 
@@ -53,6 +54,7 @@ type ApiEndpoints = {
     'put': {
         '/api/admin/content/:id': UpdateContentDefinition,
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
+        '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
     },
 };
 

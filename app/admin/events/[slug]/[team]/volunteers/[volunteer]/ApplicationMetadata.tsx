@@ -18,9 +18,8 @@ import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { UpdateTeamVolunteerDefinition } from '@app/api/admin/updateTeamVolunteer';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -37,14 +36,14 @@ const kSelectOptions = [
  */
 export interface ApplicationMetadataProps {
     /**
-     * Unique ID of the event that this page is being displayed for.
+     * Slug of the event for which application metadata is being shown.
      */
-    eventId: number;
+    event: string;
 
     /**
-     * Unique ID of the team that this volunteer is part of.
+     * Slug of the team that this application is part of.
      */
-    teamId: number;
+    team: string;
 
     /**
      * Information about the volunteer for whom this panel is being shown.
@@ -78,7 +77,7 @@ export interface ApplicationMetadataProps {
  * ability to participate in trainings and/or hotel room eligibility.
  */
 export function ApplicationMetadata(props: ApplicationMetadataProps) {
-    const { eventId, teamId, volunteer } = props;
+    const { event, team, volunteer } = props;
 
     const router = useRouter();
 
@@ -91,23 +90,22 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
         setLoading(true);
         setError(undefined);
         try {
-            const response = await issueServerAction<UpdateTeamVolunteerDefinition>(
-                '/api/admin/update-team-volunteer', {
-                    userId: volunteer.userId,
-                    eventId,
-                    teamId,
+            const response = await callApi('put', '/api/application/:event/:team/:userId', {
+                event,
+                team,
+                userId: volunteer.userId,
 
-                    metadata: {
-                        registrationDate:
-                            data.registrationDate ? data.registrationDate.toISOString()
-                                                  : undefined,
-                        hotelEligible:
-                            [ 0, 1 ].includes(data.hotelEligible) ? data.hotelEligible : undefined,
-                        trainingEligible:
-                            [ 0, 1 ].includes(data.trainingEligible) ? data.trainingEligible
-                                                                     : undefined,
-                    },
-                });
+                metadata: {
+                    registrationDate:
+                        data.registrationDate ? data.registrationDate.toISOString()
+                                              : undefined,
+                    hotelEligible:
+                        [ 0, 1 ].includes(data.hotelEligible) ? data.hotelEligible : undefined,
+                    trainingEligible:
+                        [ 0, 1 ].includes(data.trainingEligible) ? data.trainingEligible
+                                                                 : undefined,
+                },
+            });
 
             if (response.success) {
                 setInvalidated(false);
@@ -118,7 +116,7 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
         } finally {
             setLoading(false);
         }
-    }, [ eventId, router, teamId, volunteer.userId ]);
+    }, [ event, router, team, volunteer.userId ]);
 
     const defaultValues = useMemo(() => ({
         hotelEligible: volunteer.hotelEligible,

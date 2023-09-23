@@ -54,11 +54,12 @@ export interface CommunicationDialogProps {
         => Promise<void> | void;
 
     /**
-     * To be called when the dialog flow is complete and a communication has been sent out. The
-     * underlying action can now continue as planned. Either error or success responses may be
-     * returned, which will be reflected in the confirmation dialog.
+     * To be called when the dialog flow is complete and a communication is ready to be sent out.
+     * The callback will be responsible for activating both the action, and sending out the actual
+     * communication. The subject and message may be omitted for users with the "silent" permission.
      */
-    onCommunicated: () => Promise<{ success: React.ReactNode } | { error: React.ReactNode }>;
+    onSubmit: (subject?: string, message?: string)
+        => Promise<{ success: React.ReactNode } | { error: React.ReactNode }>;
 
     /**
      * Whether the dialog should be open.
@@ -84,7 +85,7 @@ export interface CommunicationDialogProps {
  * Dialogs will be given a type and a payload, which will be used in the to-be-generated message.
  */
 export function CommunicationDialog(props: CommunicationDialogProps) {
-    const { description, onClose, onCommunicated, open, title } = props;
+    const { description, onClose, onSubmit, open, title } = props;
 
     const closeLabel = props.closeLabel ?? 'Close';
     const confirmLabel = props.confirmLabel ?? 'Confirm';
@@ -112,9 +113,9 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
     const [ error, setError ] = useState<React.ReactNode | undefined>(undefined);
     const [ success, setSuccess ] = useState<React.ReactNode | undefined>(undefined);
 
-    const handleCommunicated = useCallback(async () => {
+    const handleSubmit = useCallback(async () => {
         try {
-            const result = await onCommunicated();
+            const result = await onSubmit(/* subject= */ undefined, /* message= */ undefined);
 
             setState('confirmation');
             if ('error' in result)
@@ -125,7 +126,7 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
         } finally {
             // TODO: Clean up state
         }
-    }, [ onCommunicated ]);
+    }, [ onSubmit ]);
 
     // ---------------------------------------------------------------------------------------------
     // State: `message`
@@ -154,13 +155,13 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                     await new Promise(resolve => setTimeout(resolve, 2500));
                     break;
                 case 'silent':
-                    await handleCommunicated();
+                    await handleSubmit();
                     break;
             }
         } finally {
             setMessageLoading(false);
         }
-    }, [ handleCommunicated, messageLoading ]);
+    }, [ handleSubmit, messageLoading ]);
 
     return (
         <Dialog open={!!open} onClose={handleClose} fullWidth>
@@ -174,7 +175,8 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                     </Typography> }
                 <Collapse in={state === 'language'}>
                     <Typography>
-                        In which language should the message be written?
+                        An e-mail will automatically be sent to let them know. In which language
+                        should the message be written?
                     </Typography>
                     <Stack direction="row" justifyContent="space-between" spacing={2}
                            alignItems="stretch" sx={{ mt: 2 }}>

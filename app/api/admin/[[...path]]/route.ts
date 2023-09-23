@@ -19,7 +19,6 @@ import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermis
 import { updatePublication, kUpdatePublicationDefinition } from '../updatePublication';
 import { updateRole, kUpdateRoleDefinition } from '../updateRole';
 import { updateTeam, kUpdateTeamDefinition } from '../updateTeam';
-import { updateTeamVolunteer, kUpdateTeamVolunteerDefinition } from '../updateTeamVolunteer';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 import { volunteerContactInfo, kVolunteerContactInfoDefinition } from '../volunteerContactInfo';
@@ -68,8 +67,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdateRoleDefinition, updateRole);
         case 'update-team':
             return executeAction(request, kUpdateTeamDefinition, updateTeam);
-        case 'update-team-volunteer':
-            return executeAction(request, kUpdateTeamVolunteerDefinition, updateTeamVolunteer);
         case 'update-volunteer':
             return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
         case 'vertex-ai':
