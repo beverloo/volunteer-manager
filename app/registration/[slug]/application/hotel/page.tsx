@@ -13,37 +13,8 @@ import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@app/components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
+import { getHotelRoomOptions } from './getHotelRoomOptions';
 import { getStaticContent } from '@lib/Content';
-import db, { tHotels } from '@lib/database';
-
-/**
- * Returns the hotel room options that are available for `eventId`, formatted in a manner that's
- * appropriate to be used on the hotel room preference form.
- */
-export async function getHotelRoomOptions(eventId: number) {
-    const hotelOptions = await db.selectFrom(tHotels)
-        .where(tHotels.eventId.equals(eventId))
-            .and(tHotels.hotelRoomVisible.equals(/* true= */ 1))
-        .select({
-            hotelId: tHotels.hotelId,
-            hotelName: tHotels.hotelName,
-            hotelRoom: tHotels.hotelRoomName,
-            hotelRoomPeople: tHotels.hotelRoomPeople,
-            hotelRoomPrice: tHotels.hotelRoomPrice,
-        })
-        .orderBy(tHotels.hotelName, 'asc')
-        .orderBy(tHotels.hotelRoomName, 'asc')
-        .executeSelectMany();
-
-    const kPriceFormatter = new Intl.NumberFormat('en-UK', { style: 'currency', currency: 'EUR' });
-    return hotelOptions.map(option => {
-        const price = kPriceFormatter.format(option.hotelRoomPrice / 100);
-        return {
-            id: option.hotelId,
-            label: `${option.hotelName} (${option.hotelRoom}) - ${price}/room/night`,
-        };
-    });
-}
 
 /**
  * The <EventApplicationHotelsPage> component serves the ability for users to select which hotel

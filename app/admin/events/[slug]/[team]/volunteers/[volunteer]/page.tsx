@@ -17,8 +17,8 @@ import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
-import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/page';
-import { getTrainingOptions } from '@app/registration/[slug]/application/training/page';
+import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
+import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 

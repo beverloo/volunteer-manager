@@ -13,37 +13,8 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { dayjs } from '@lib/DateTime';
 import { getStaticContent } from '@lib/Content';
-import db, { tTrainings } from '@lib/database';
-
-/**
- * Returns a list of the available training options in which the volunteer can participate.
- */
-export async function getTrainingOptions(eventId: number) {
-    const trainings = await db.selectFrom(tTrainings)
-        .where(tTrainings.eventId.equals(eventId))
-            .and(tTrainings.trainingVisible.equals(/* true= */ 1))
-        .select({
-            id: tTrainings.trainingId,
-
-            trainingStart: tTrainings.trainingStart,
-            trainingEnd: tTrainings.trainingEnd,
-        })
-        .executeSelectMany();
-
-    return trainings.map(training => {
-        const date = dayjs(training.trainingStart).format('dddd, MMMM D');
-
-        const start = dayjs(training.trainingStart).format('H:mm');
-        const end = dayjs(training.trainingEnd).format('H:mm');
-
-        return {
-            id: training.id,
-            label: `${date}, from ${start} to ${end}`,
-        };
-    });
-}
+import { getTrainingOptions } from './getTrainingOptions';
 
 /**
  * The <EventApplicationTrainingPage> component serves the ability for users to select which
