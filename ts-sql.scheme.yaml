@@ -1740,6 +1740,7 @@ tables:
     type: datetime
     nullable: false
     default: current_timestamp()
+    extraDef: on update current_timestamp()
     comment: ""
   indexes:
   - name: user_id
@@ -1773,7 +1774,7 @@ tables:
       `hotel_date_check_out` date DEFAULT NULL,
       `hotel_sharing_people` int(8) unsigned DEFAULT NULL,
       `hotel_sharing_preferences` text DEFAULT NULL,
-      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
+      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
       UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox
@@ -1949,6 +1950,95 @@ tables:
       KEY `outbox_date` (`outbox_timestamp`),
       KEY `outbox_to_user_id` (`outbox_to_user_id`),
       KEY `outbox_sender_user_id` (`outbox_sender_user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: trainings_assignments
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: assignment_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: assignment_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_extra_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_training_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: assignment_confirmed
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: preference_training_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: preference_updated
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  indexes:
+  - name: assignment_user_id
+    def: KEY assignment_user_id (assignment_user_id) USING BTREE
+    table: trainings_assignments
+    columns:
+    - assignment_user_id
+    comment: ""
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: trainings_assignments
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (assignment_id) USING BTREE
+    table: trainings_assignments
+    columns:
+    - assignment_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (assignment_id)
+    table: trainings_assignments
+    referencedTable: null
+    columns:
+    - assignment_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `trainings_assignments` (
+      `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `assignment_user_id` int(8) unsigned DEFAULT NULL,
+      `assignment_extra_id` int(8) unsigned DEFAULT NULL,
+      `assignment_training_id` int(8) unsigned DEFAULT NULL,
+      `assignment_confirmed` tinyint(1) NOT NULL DEFAULT 0,
+      `preference_training_id` int(8) unsigned DEFAULT NULL,
+      `preference_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+      PRIMARY KEY (`assignment_id`),
+      KEY `event_id` (`event_id`),
+      KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE

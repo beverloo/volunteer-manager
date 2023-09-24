@@ -29,7 +29,14 @@ export interface RegistrationDatabaseRow {
 
     trainingAvailable: boolean;
     trainingEligible: boolean;
-    // TODO: `training`
+    training?: {
+        confirmed?: boolean;
+        preference?: number;
+        updated?: Date;
+
+        preferenceDate?: Date;
+        assignedDate?: Date;
+    };
 }
 
 /**
@@ -103,6 +110,37 @@ export interface RegistrationHotelBooking {
      * The people they will be sharing the room with, if any.
      */
     sharing: string[];
+}
+
+/**
+ * Information about the volunteer's preferences regarding participation in the training, as well as
+ * their assigned training date, if any.
+ */
+export interface RegistrationTraining {
+    /**
+     * Whether the volunteer's training preferences have been confirmed by a manager.
+     */
+    confirmed?: boolean;
+
+    /**
+     * Set to a non-null value when the volunteer has indicated a preference.
+     */
+    preference?: number;
+
+    /**
+     * Date on which the volunteer would like to participate in the training, if any.
+     */
+    preferenceDate?: Date;
+
+    /**
+     * Date on which the volunteer has been assigned to participate in the training, if any.
+     */
+    assignedDate?: Date;
+
+    /**
+     * When the preferences were last updated by the volunteer.
+     */
+    updated?: Date;
 }
 
 /**
@@ -184,7 +222,7 @@ export interface RegistrationData {
     /**
      * The preferences the volunteer has provided regarding their participation in trainings.
      */
-    training: undefined;
+    training?: RegistrationTraining;
 }
 
 /**
@@ -222,7 +260,7 @@ export class Registration implements RegistrationData {
 
     get trainingAvailable() { return this.#registration.trainingAvailable; }
     get trainingEligible() { return this.#registration.trainingEligible; }
-    get training() { return undefined; }
+    get training() { return this.#registration.training; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain RegistrationData object:

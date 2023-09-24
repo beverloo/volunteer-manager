@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
-import type { RegistrationData } from '@lib/Registration';
+import type { RegistrationData, RegistrationTraining } from '@lib/Registration';
 import type { UserData } from '@lib/auth/UserData';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
@@ -153,6 +153,11 @@ interface TrainingStatusButtonProps {
      * Whether the volunteer has the ability to override normal access restrictions.
      */
     override: boolean;
+
+    /**
+     * Information about the volunteer's preferences regarding participating in the training.
+     */
+    training?: RegistrationTraining;
 }
 
 /**
@@ -161,41 +166,60 @@ interface TrainingStatusButtonProps {
  *
  * This button deals with a number of situations:
  *   (1) The volunteer has a confirmed spot in one of the sessions.
- *   (2) The volunteer indicated their preferences, wants to join and is awaiting confirmation.
- *   (3) The volunteer indicated their preferences and does not want to participate.
- *   (4) The volunteer is able to indicate their preferences, but has not done so yet.
- *   (5) The volunteer is not able to indicate their preferences yet.
+ *   (2) The volunteer indicated their preferences, wants to join and waits for confirmation.
+ *   (3) The volunteer indicated their preferences and is confirmed to not to participate.
+ *   (4) The volunteer indicated their preferences and does not want to participate.
+ *   (5) The volunteer is able to indicate their preferences, but has not done so yet.
+ *   (6) The volunteer is not able to indicate their preferences yet.
  *
  * Volunteers can only join a single training session. It's possible for seniors to join multiple
  * training sessions, but we'll handle those out-of-bounds.
  */
 function TrainingStatusButton(props: TrainingStatusButtonProps) {
-    const { enabled, override } = props;
+    const { enabled, override, training } = props;
 
     let status: 'pending' | 'submitted' | 'confirmed' = 'pending';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
-    // (1) The volunteer has a confirmed spot in one of the sessions.
-    if (false) {
-        status = 'confirmed';
+    if (!!training && !!training.preferenceDate) {
+        // (1) The volunteer has a confirmed spot in one of the sessions.
+        if (training.confirmed && !!training.assignedDate) {
+            const assignedDate = dayjs(training.preferenceDate).format('dddd, MMMM D');
+            const assignedTime = dayjs(training.assignedDate).format('H:mm');
+
+            status = 'confirmed';
+            primary = `You'll join the training on ${assignedDate}`;
+            secondary = `It starts at ${assignedTime}, please make sure to be there on time`;
+
+        // (2) The volunteer indicated their preferences, wants to join and waits for confirmation.
+        } else {
+            const preferenceDate = dayjs(training.preferenceDate).format('dddd, MMMM D');
+            status = 'submitted';
+            primary = `You'd like to join the training on ${preferenceDate}`;
+            secondary = 'This will be confirmed by one of the leads closer to the event…';
+        }
     }
 
-    // (2) The volunteer indicated their preferences, wants to join and is awaiting confirmation.
-    else if (false) {
-        status = 'submitted';
-    }
+    else if (!!training && !training.preferenceDate) {
+        // (3) The volunteer indicated their preferences and is confirmed to not to participate.
+        if (training.confirmed) {
+            status = 'confirmed';
+            primary = 'You\'ll skip the professional training this year'
 
-    // (3) The volunteer indicated their preferences and does not want to participate.
-    else if (false) {
-        status = 'submitted';
+        // (4) The volunteer indicated their preferences and does not want to participate.
+        } else {
+            status = 'submitted';
+            primary = 'You would like to skip the training this year';
+            secondary = 'This will be confirmed by one of the leads closer to the event…';
+        }
     }
 
     else {
-        // (4) The volunteer is able to indicate their preferences, but has not done so yet.
+        // (5) The volunteer is able to indicate their preferences, but has not done so yet.
         primary = 'Do you want to join our professional training?';
 
-        // (5) The volunteer is not able to indicate their preferences yet.
+        // (6) The volunteer is not able to indicate their preferences yet.
         if (!enabled)
             secondary = 'Training information has not been published yet…';
     }
@@ -323,7 +347,8 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <TrainingStatusButton enabled={registration.trainingAvailable}
                                                   override={
                                                       can(user, Privilege.EventTrainingManagement)
-                                                  } /> }
+                                                  }
+                                                  training={registration.training} /> }
 
                         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                                         disabled={!enableScheduleWithOverride}

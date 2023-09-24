@@ -6,7 +6,8 @@ import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
 import db, { tEvents, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles,
-    tTeams, tTeamsRoles, tUsers, tUsersEvents } from './database';
+    tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments, tUsers, tUsersEvents }
+    from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -23,6 +24,10 @@ export async function getRegistration(environmentName: string, event: Event, use
     const hotelsJoin = tHotels.forUseInLeftJoin();
     const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
 
+    const trainingsAssignedJoin = tTrainings.forUseInLeftJoinAs('t1');
+    const trainingsPreferenceJoin = tTrainings.forUseInLeftJoinAs('t2');
+    const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
+
     const dbInstance = db;
     const registration = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tEvents)
@@ -38,6 +43,15 @@ export async function getRegistration(environmentName: string, event: Event, use
                 .and(hotelsPreferencesJoin.teamId.equals(tUsersEvents.teamId))
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(hotelsPreferencesJoin.hotelId))
+        .leftJoin(trainingsAssignmentsJoin)
+            .on(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+            .and(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(trainingsPreferenceJoin)
+            .on(trainingsPreferenceJoin.trainingId.equals(
+                trainingsAssignmentsJoin.preferenceTrainingId))
+        .leftJoin(trainingsAssignedJoin)
+            .on(trainingsAssignedJoin.trainingId.equals(
+                trainingsAssignmentsJoin.assignmentTrainingId))
         .where(tUsersEvents.userId.equals(userId))
             .and(tUsersEvents.eventId.equals(event.eventId))
         .select({
@@ -65,7 +79,14 @@ export async function getRegistration(environmentName: string, event: Event, use
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
             trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
                 tRoles.roleTrainingEligible).equals(/* true= */ 1),
-            // TODO: `training`
+            training: {
+                confirmed: trainingsAssignmentsJoin.assignmentConfirmed.equals(/* true= */ 1),
+                preference: trainingsAssignmentsJoin.preferenceTrainingId,
+                updated: trainingsAssignmentsJoin.preferenceUpdated,
+
+                preferenceDate: trainingsPreferenceJoin.trainingStart,
+                assignedDate: trainingsAssignedJoin.trainingStart,
+            },
         })
         .groupBy(tUsersEvents.eventId)
         .executeSelectNoneOrOne();
