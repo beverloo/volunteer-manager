@@ -11,8 +11,39 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Markdown } from '@app/components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
+import { TrainingPreferences } from './TrainingPreferences';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
+import { dayjs } from '@lib/DateTime';
 import { getStaticContent } from '@lib/Content';
+import db, { tTrainings } from '@lib/database';
+
+/**
+ * Returns a list of the available training options in which the volunteer can participate.
+ */
+async function getTrainingOptions(eventId: number) {
+    const trainings = await db.selectFrom(tTrainings)
+        .where(tTrainings.eventId.equals(eventId))
+            .and(tTrainings.trainingVisible.equals(/* true= */ 1))
+        .select({
+            id: tTrainings.trainingId,
+
+            trainingStart: tTrainings.trainingStart,
+            trainingEnd: tTrainings.trainingEnd,
+        })
+        .executeSelectMany();
+
+    return trainings.map(training => {
+        const date = dayjs(training.trainingStart).format('dddd, MMMM D');
+
+        const start = dayjs(training.trainingStart).format('H:mm');
+        const end = dayjs(training.trainingEnd).format('H:mm');
+
+        return {
+            id: training.id,
+            label: `${date}, from ${start} to ${end}`,
+        };
+    });
+}
 
 /**
  * The <EventApplicationTrainingPage> component serves the ability for users to select which
@@ -33,6 +64,7 @@ export default async function EventApplicationTrainingPage(props: NextRouterPara
     if ((!eligible || !enabled) && !(!!preferences && !!preferences.confirmed))
         notFound();  // the volunteer is not eligible to participate in the training
 
+    const trainingOptions = await getTrainingOptions(event.eventId);
     const content = await getStaticContent([ 'registration', 'application', 'training' ], {
         firstName: user.firstName,
     });
@@ -40,13 +72,15 @@ export default async function EventApplicationTrainingPage(props: NextRouterPara
     // ---------------------------------------------------------------------------------------------
     // Logic pertaining to <TrainingPreferences>
     // ---------------------------------------------------------------------------------------------
-    const readOnly = false;//bookings.length > 0;
+    const readOnly = !!preferences && !!preferences.confirmed;
 
     return (
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
             { (!!registration.training && !!registration.training.confirmed) &&
                 <TrainingConfirmation training={registration.training} /> }
+            <TrainingPreferences readOnly={readOnly} training={registration.training}
+                                 trainingOptions={trainingOptions} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>
