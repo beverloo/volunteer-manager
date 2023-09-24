@@ -3,9 +3,11 @@
 
 'use client';
 
+import React from 'react';
 import { useEffect, useState } from 'react';
 
 import type { SxProps, Theme } from '@mui/system';
+import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -17,6 +19,7 @@ import Typography from '@mui/material/Typography';
 import { alpha, darken, lighten } from '@mui/system';
 
 import type { HotelsDefinition } from '@app/api/event/hotels';
+import type { TrainingsDefinition } from '@app/api/event/trainings';
 import { Markdown } from './Markdown';
 import { issueServerAction } from '@app/lib/issueServerAction';
 
@@ -64,14 +67,14 @@ export interface RemoteContentProps {
     /**
      * Type of remote content that should be included.
      */
-    type: 'hotels';
+    type: 'hotels' | 'trainings';
 }
 
 /**
  * Displays information about the hotel rooms that are available for a particular event. The content
  * will be displayed as if it were common page content.
  */
-function RemoteContentHotels(props: Omit<RemoteContentProps, 'hotels'>) {
+function RemoteContentHotels(props: Omit<RemoteContentProps, 'type'>) {
     const [ hotels, setHotels ] = useState<HotelsDefinition['response']>();
     useEffect(() => {
         if (!props.event)
@@ -101,8 +104,8 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'hotels'>) {
 
     return (
         <>
-            { hotels.hotels.map(hotel =>
-                <>
+            { hotels.hotels.map((hotel, index) =>
+                <React.Fragment key={index}>
                     <Typography variant="h6">
                         {hotel.name}
                     </Typography>
@@ -133,8 +136,54 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'hotels'>) {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                </> ) }
+                </React.Fragment> ) }
         </>
+    );
+}
+
+
+/**
+ * Displays information about the training dates available for an event. The data will be fetched
+ * asynchronously over the network, then displayed neatly on the page.
+ */
+function RemoteContentTrainings(props: Omit<RemoteContentProps, 'type'>) {
+    const [ trainings, setTrainings ] = useState<TrainingsDefinition['response']>();
+    useEffect(() => {
+        if (!props.event)
+            return;
+
+        issueServerAction<TrainingsDefinition>('/api/event/trainings', {
+            event: props.event
+        }).then(response => setTrainings(response));
+
+    }, [ props.event ]);
+
+    if (!trainings) {
+        return (
+            <>
+                <Skeleton animation="wave" height={16} width="40%" />
+                <Skeleton animation="wave" height={16} width="50%" />
+                <Skeleton animation="wave" height={16} width="60%" sx={{ mb: 2 }} />
+            </>
+        );
+    }
+
+    if (!trainings.trainings.length) {
+        const message = '> Training availability for this event has not been published yet.';
+        return <Markdown>{message}</Markdown>;
+    }
+
+    return (
+        <React.Fragment>
+            <Typography variant="body1">
+                We've scheduled training sessions on the following days:
+            </Typography>
+            <Box sx={{ borderLeft: theme => `4px solid ${theme.palette.success.main}`, px: 2 }}>
+                <Typography variant="body1">
+                    { trainings.trainings.map((training, index) => <>{training}<br /></> )}
+                </Typography>
+            </Box>
+        </React.Fragment>
     );
 }
 
@@ -146,5 +195,7 @@ export function RemoteContent(props: RemoteContentProps) {
     switch (props.type) {
         case 'hotels':
             return RemoteContentHotels(props);
+        case 'trainings':
+            return RemoteContentTrainings(props);
     }
 }

@@ -8,6 +8,7 @@ import { application, kApplicationDefinition } from '../application';
 import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
 import { hotels, kHotelsDefinition } from '../hotels';
 import { trainingPreferences, kTrainingPreferencesDefinition } from '../trainingPreferences';
+import { trainings, kTrainingsDefinition } from '../trainings';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -29,6 +30,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kHotelsDefinition, hotels);
         case 'training-preferences':
             return executeAction(request, kTrainingPreferencesDefinition, trainingPreferences);
+        case 'trainings':
+            return executeAction(request, kTrainingsDefinition, trainings);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });
