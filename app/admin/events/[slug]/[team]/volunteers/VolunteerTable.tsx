@@ -9,7 +9,6 @@ import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
@@ -86,10 +85,8 @@ export function VolunteerTable(props: VolunteerTableProps) {
                 return (
                     <>
                         {params.value}
-                        <Tooltip title={params.row.role}>
-                            <VolunteerBadge variant={params.row.roleBadge} color="error"
-                                            fontSize="small" sx={{ pl: .5 }} />
-                        </Tooltip>
+                        <VolunteerBadge variant={params.row.roleBadge} color="error"
+                                        fontSize="small" sx={{ pl: .5 }} />
                     </>
                 );
             },
