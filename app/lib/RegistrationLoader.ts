@@ -85,6 +85,7 @@ export async function getRegistration(environmentName: string, event: Event, use
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(hotelsAssignmentsJoin.assignmentUserId))
         .where(tHotelsAssignments.assignmentUserId.equals(userId))
+            .and(tHotelsAssignments.eventId.equals(event.eventId))
             .and(tHotelsBookings.bookingConfirmed.equals(/* true= */ 1))
         .select({
             checkIn: tHotelsBookings.bookingCheckIn,

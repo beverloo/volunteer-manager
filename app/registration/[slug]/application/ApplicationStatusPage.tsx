@@ -115,7 +115,7 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
 
         // (5) The volunteer is not able to indicate their preferences yet.
         if (!enabled)
-            secondary = 'Hotel information has not been published yet';
+            secondary = 'Hotel information has not been published yet…';
     }
 
     return (
@@ -132,7 +132,89 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
             <ListItemText primary={primary} secondary={secondary} />
 
             { (!enabled && override) &&
-                <Tooltip title="Access is limited to certain volunteers">
+                <Tooltip title="Access is limited to hotel booking managers">
+                    <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
+                </Tooltip> }
+
+        </ListItemButton>
+    );
+}
+
+/**
+ * Props accepted by the <TrainingStatusButton> component.
+ */
+interface TrainingStatusButtonProps {
+    /**
+     * Whether the button should be enabled by default, i.e. has information been published?
+     */
+    enabled: boolean;
+
+    /**
+     * Whether the volunteer has the ability to override normal access restrictions.
+     */
+    override: boolean;
+}
+
+/**
+ * The <TrainingStatusButton> component displays the volunteer's participation in the training
+ * sessions organised for the Stewards. This is a multi-step process involving back and forth.
+ *
+ * This button deals with a number of situations:
+ *   (1) The volunteer has a confirmed spot in one of the sessions.
+ *   (2) The volunteer indicated their preferences, wants to join and is awaiting confirmation.
+ *   (3) The volunteer indicated their preferences and does not want to participate.
+ *   (4) The volunteer is able to indicate their preferences, but has not done so yet.
+ *   (5) The volunteer is not able to indicate their preferences yet.
+ *
+ * Volunteers can only join a single training session. It's possible for seniors to join multiple
+ * training sessions, but we'll handle those out-of-bounds.
+ */
+function TrainingStatusButton(props: TrainingStatusButtonProps) {
+    const { enabled, override } = props;
+
+    let status: 'pending' | 'submitted' | 'confirmed' = 'pending';
+    let primary: string | undefined = undefined;
+    let secondary: string | undefined = undefined;
+
+    // (1) The volunteer has a confirmed spot in one of the sessions.
+    if (false) {
+        status = 'confirmed';
+    }
+
+    // (2) The volunteer indicated their preferences, wants to join and is awaiting confirmation.
+    else if (false) {
+        status = 'submitted';
+    }
+
+    // (3) The volunteer indicated their preferences and does not want to participate.
+    else if (false) {
+        status = 'submitted';
+    }
+
+    else {
+        // (4) The volunteer is able to indicate their preferences, but has not done so yet.
+        primary = 'Do you want to join our professional training?';
+
+        // (5) The volunteer is not able to indicate their preferences yet.
+        if (!enabled)
+            secondary = 'Training information has not been published yet…';
+    }
+
+    return (
+        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
+                        disabled={!enabled && !override}
+                        href="./application/training">
+
+            <ListItemIcon>
+                { status === 'confirmed' && <TaskAltIcon color="success" /> }
+                { status === 'submitted' && <RadioButtonUncheckedIcon color="success" /> }
+                { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
+            </ListItemIcon>
+
+            <ListItemText primary={primary} secondary={secondary} />
+
+            { (!enabled && override) &&
+                <Tooltip title="Access is limited to training managers">
                     <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
                 </Tooltip> }
 
@@ -195,30 +277,12 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
             break;
     }
 
-    let hasAdminAccess = false;
-    for (const { eventId, adminAccess } of user.events) {
-        if (eventId !== event.id || !adminAccess)
-            continue;
-
-        hasAdminAccess = true;
-        break;
-    }
-
-    // Display and enablement of availability preferences.
-    const displayAvailability = registration.availabilityEligible || !!registration.availability;
-    const enableAvailability = registration.availabilityAvailable;
-    const enableAvailabilityWithOverride =
-        enableAvailability || can(user, Privilege.EventScheduleOverride);
-
     // Display and enablement of hotel booking preferences.
     const displayHotel = registration.hotelEligible || !!registration.hotelPreferences ||
                          registration.hotelBookings.length > 0;
 
     // Display and enablement of training preferences.
     const displayTraining = registration.trainingEligible || !!registration.training;
-    const enableTraining = registration.trainingAvailable;
-    const enableTrainingWithOverride =
-        enableTraining || can(user, Privilege.EventTrainingManagement);
 
     const enableSchedule = event.enableSchedule;
     const enableScheduleWithOverride = enableSchedule || can(user, Privilege.EventScheduleOverride);
@@ -249,40 +313,6 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <ListItemText primary="Your application has been accepted!" />
                         </ListItem>
 
-                        { displayAvailability &&
-                            <ListItemButton
-                                LinkComponent={Link} sx={{ pl: 4 }}
-                                disabled={!enableAvailabilityWithOverride}
-                                href={`/registration/${event.slug}/application/availability`}>
-
-                                <ListItemIcon>
-                                    { registration.availability && <TaskAltIcon color="success" /> }
-                                    { !registration.availability &&
-                                        <RadioButtonUncheckedIcon color="warning" /> }
-                                </ListItemIcon>
-
-                                { registration.availability &&
-                                    <ListItemText
-                                        primary="You've shared your availability"
-                                        secondary="This will help in creating your schedule." /> }
-
-                                { (!registration.availability && !enableAvailability) &&
-                                    <ListItemText
-                                        primary="Submit your availability information"
-                                        secondary="The schedule has not been published yet…" /> }
-
-                                { (!registration.availability && enableAvailability) &&
-                                    <ListItemText
-                                        primary="Submit your availability information"
-                                        secondary="This will help in creating your schedule." /> }
-
-                                { (!enableAvailability && enableAvailabilityWithOverride) &&
-                                    <Tooltip title="Access is limited to certain volunteers">
-                                        <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
-                                    </Tooltip> }
-
-                            </ListItemButton> }
-
                         { displayHotel &&
                             <HotelStatusButton bookings={registration.hotelBookings}
                                                enabled={registration.hotelAvailable}
@@ -290,38 +320,10 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                                preferences={registration.hotelPreferences} /> }
 
                         { displayTraining &&
-                            <ListItemButton
-                                LinkComponent={Link} sx={{ pl: 4 }}
-                                disabled={!enableTrainingWithOverride}
-                                href={`/registration/${event.slug}/application/training`}>
-
-                                <ListItemIcon>
-                                    { registration.training && <TaskAltIcon color="success" /> }
-                                    { !registration.training &&
-                                        <RadioButtonUncheckedIcon color="warning" /> }
-                                </ListItemIcon>
-
-                                { registration.training &&
-                                    <ListItemText
-                                        primary="TODO"
-                                        secondary="TODO" /> }
-
-                                { (!registration.training && !enableTraining) &&
-                                    <ListItemText
-                                        primary="Participate in our professional training"
-                                        secondary="Dates have not been published yet…" /> }
-
-                                { (!registration.training && enableTraining) &&
-                                    <ListItemText
-                                        primary="Participate in our professional training"
-                                        secondary="Indicate when (& if) you'd like to join!" /> }
-
-                                { (!enableTraining && enableTrainingWithOverride) &&
-                                    <Tooltip title="Access is limited to certain volunteers">
-                                        <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
-                                    </Tooltip> }
-
-                            </ListItemButton> }
+                            <TrainingStatusButton enabled={registration.trainingAvailable}
+                                                  override={
+                                                      can(user, Privilege.EventTrainingManagement)
+                                                  } /> }
 
                         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                                         disabled={!enableScheduleWithOverride}
