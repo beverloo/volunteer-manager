@@ -7,16 +7,18 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tHotelsPreferences, tRoles, tStorage, tUsers, tUsersEvents } from '@lib/database';
+import db, { tHotelsPreferences, tRoles, tStorage, tTrainingsAssignments, tUsers, tUsersEvents }
+    from '@lib/database';
 
 import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
-import { ApplicationTrainingInfo } from './ApplicationTrainingInfo';
+import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/page';
+import { getTrainingOptions } from '@app/registration/[slug]/application/training/page';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -97,11 +99,23 @@ export default async function EventVolunteerPage(props: RouterParams) {
         );
     }
 
-    const trainingManagement: React.ReactNode = undefined;
+    let trainingManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventTrainingManagement) && !!volunteer.isTrainingEligible) {
-        //trainingManagement = (
-        //    <ApplicationTrainingInfo />
-        //);
+        const trainingOptions = await getTrainingOptions(event.id);
+        const training = await db.selectFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.eventId.equals(event.id))
+                .and(tTrainingsAssignments.assignmentUserId.equals(volunteer.userId))
+            .select({
+                preference: tTrainingsAssignments.preferenceTrainingId,
+            })
+            .executeSelectNoneOrOne() ?? undefined;
+
+        trainingManagement = (
+            <ApplicationTrainingPreferences eventSlug={event.slug}
+                                            teamSlug={team.slug}
+                                            trainingOptions={trainingOptions} training={training}
+                                            volunteerUserId={volunteer.userId} />
+        );
     }
 
     const contactAccess =

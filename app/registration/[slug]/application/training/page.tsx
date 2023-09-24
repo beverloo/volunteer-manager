@@ -20,7 +20,7 @@ import db, { tTrainings } from '@lib/database';
 /**
  * Returns a list of the available training options in which the volunteer can participate.
  */
-async function getTrainingOptions(eventId: number) {
+export async function getTrainingOptions(eventId: number) {
     const trainings = await db.selectFrom(tTrainings)
         .where(tTrainings.eventId.equals(eventId))
             .and(tTrainings.trainingVisible.equals(/* true= */ 1))
