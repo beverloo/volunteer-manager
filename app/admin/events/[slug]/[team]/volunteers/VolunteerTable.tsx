@@ -13,8 +13,8 @@ import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { RoleBadge } from '@app/lib/database/Types';
-import { VolunteerBadge } from '@app/components/VolunteerBadge';
+import { RoleBadge } from '@lib/database/Types';
+import { VolunteerBadge } from '@components/VolunteerBadge';
 
 /**
  * Formats the given number of `milliseconds` to a HH:MM string.

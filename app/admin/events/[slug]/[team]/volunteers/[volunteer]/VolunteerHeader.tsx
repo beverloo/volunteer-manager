@@ -29,7 +29,7 @@ import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
-import { issueServerAction } from '@app/lib/issueServerAction';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <ChangeRoleDialog> dialog.

@@ -23,9 +23,9 @@
     "allowUnusedLabels": false,
     "jsx": "preserve",
     "paths": {
-      "@app/*": [ "*" ],
       "@components/*": [ "components/*" ],
-      "@lib/*": [ "lib/*" ]
+      "@lib/*": [ "lib/*" ],
+      "@app/*": [ "*" ]
     },
     "plugins": [
       {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { ServiceLogImpl } from './ServiceLogImpl';
-import { useMockConnection } from '@app/lib/database/Connection';
+import { useMockConnection } from '@lib/database/Connection';
 
 describe('ServiceLogImpl', () => {
     const mockConnection = useMockConnection();

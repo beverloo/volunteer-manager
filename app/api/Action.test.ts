@@ -6,7 +6,7 @@ import { serialize } from 'cookie';
 import { z } from 'zod';
 
 import type { User, UserDatabaseRow } from '@lib/auth/User';
-import { AuthType } from '@app/lib/database/Types';
+import { AuthType } from '@lib/database/Types';
 import { type ActionProps, executeAction, noAccess } from './Action';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
 import { useMockConnection } from '@lib/database/Connection';

@@ -26,7 +26,7 @@ import type { VolunteerInfo } from './page';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@lib/issueServerAction';
-import { callApi } from '@app/lib/callApi';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props passed to the various dialog properties.

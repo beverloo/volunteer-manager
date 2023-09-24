@@ -3,7 +3,7 @@
 
 import type { AdminHeaderEventEntry } from '../AdminHeader';
 import type { User } from '@lib/auth/User';
-import { Privilege, can } from '@app/lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tEvents, tRoles, tUsersEvents } from '@lib/database';
 
 /**

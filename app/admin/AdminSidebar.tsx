@@ -21,8 +21,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { deepmerge } from '@mui/utils';
 
-import type { UserData } from '@app/lib/auth/UserData';
-import { type Privilege, can } from '@app/lib/auth/Privileges';
+import type { UserData } from '@lib/auth/UserData';
+import { type Privilege, can } from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <AdminSidebar> & related components.

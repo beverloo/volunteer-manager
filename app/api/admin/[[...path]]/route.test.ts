@@ -1,9 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Privilege } from '@app/lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { executeActionForTests, injectPermissionTestsForAction } from '../../ActionTestSupport';
-import { useMockConnection } from '@app/lib/database/Connection';
+import { useMockConnection } from '@lib/database/Connection';
 
 import { hotel, kHotelDefinition } from '../hotel';
 import { logs, kLogsDefinition } from '../logs';

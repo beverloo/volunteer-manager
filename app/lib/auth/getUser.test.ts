@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { UserDatabaseRow } from './User';
-import { AuthType } from '@app/lib/database/Types';
+import { AuthType } from '@lib/database/Types';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { getUserFromHeaders } from './getUser';
 import { serialize } from 'cookie';
@@ -46,6 +46,7 @@ describe('getUser', () => {
                 privileges: 0n,
                 activated: 1,
                 sessionToken: sessionData.token,
+                events: [],
 
                 // Internal use in `authenticateUser`:
                 authType: AuthType.password,

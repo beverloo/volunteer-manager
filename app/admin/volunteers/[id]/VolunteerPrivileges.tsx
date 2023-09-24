@@ -22,10 +22,10 @@ import { red } from '@mui/material/colors';
 
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@app/lib/issueServerAction';
+import { issueServerAction } from '@lib/issueServerAction';
 
 import { PrivilegeGroups, PrivilegeNames, PrivilegeWarnings, Privilege }
-    from '@app/lib/auth/Privileges';
+    from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <VolunteerPrivileges> component.

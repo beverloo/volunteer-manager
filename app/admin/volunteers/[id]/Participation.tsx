@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
-import type { RegistrationStatus } from '@app/lib/database/Types';
+import type { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Information about a volunteer's participation in a singular event.

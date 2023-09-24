@@ -6,7 +6,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { z } from 'zod';
 
 import type { Action } from './Action';
-import { User, type UserDatabaseRow } from '@app/lib/auth/User';
+import { User, type UserDatabaseRow } from '@lib/auth/User';
 import { executeAction } from './Action';
 
 /**

@@ -8,8 +8,8 @@ import { useSearchParams } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 
-import type { EventData } from '@app/lib/Event';
-import type { RegistrationData } from '@app/lib/Registration';
+import type { EventData } from '@lib/Event';
+import type { RegistrationData } from '@lib/Registration';
 import type { UserData } from '@lib/auth/UserData';
 import { AuthenticationContext } from './AuthenticationContext';
 import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';

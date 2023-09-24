@@ -21,7 +21,7 @@ import { alpha, darken, lighten } from '@mui/system';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import { Markdown } from './Markdown';
-import { issueServerAction } from '@app/lib/issueServerAction';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Mechanism for formatting hotel room prices in euros. Prefer Intl.NumberFormat, but fall back to

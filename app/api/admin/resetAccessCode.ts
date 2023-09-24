@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
-import { AuthType } from '@app/lib/database/Types';
+import { AuthType } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tUsersAuth } from '@lib/database';

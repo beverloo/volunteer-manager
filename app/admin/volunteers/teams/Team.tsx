@@ -22,7 +22,7 @@ import { deepmerge } from '@mui/utils';
 import type { Role } from './Roles';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@app/lib/issueServerAction';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Custom styles applied to the <Team> & related components.

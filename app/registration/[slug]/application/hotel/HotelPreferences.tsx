@@ -21,7 +21,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { HotelPreferencesForm, type HotelPreferencesFormProps } from './HotelPreferencesForm';
-import { Markdown } from '@app/components/Markdown';
+import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
 
 /**

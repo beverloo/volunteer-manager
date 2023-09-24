@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { getEventBySlug } from '@app/lib/EventLoader';
+import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsExtra } from '@lib/database';
 
 /**

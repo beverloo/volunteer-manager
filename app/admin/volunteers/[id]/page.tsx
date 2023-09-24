@@ -12,7 +12,7 @@ import { Header } from './Header';
 import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
-import { Privilege, can } from '@app/lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { VolunteerPrivileges } from './VolunteerPrivileges';
 import { requireUser } from '@lib/auth/getUser';
 

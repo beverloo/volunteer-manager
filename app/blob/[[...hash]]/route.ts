@@ -4,7 +4,7 @@
 import type { NextRequest } from 'next/server';
 import { notFound } from 'next/navigation';
 
-import { readBlobDataByHash } from '@app/lib/database/BlobStore';
+import { readBlobDataByHash } from '@lib/database/BlobStore';
 
 /**
  * Params accepted by this route implementation. Only the hash exists, using NextJS dynamic routing.

@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { HotelConfirmation } from './HotelConfirmation';
 import { HotelPreferences } from './HotelPreferences';
-import { Markdown } from '@app/components/Markdown';
+import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
 import { getHotelRoomOptions } from './getHotelRoomOptions';

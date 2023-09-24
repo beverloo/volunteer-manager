@@ -8,7 +8,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { Markdown } from '@app/components/Markdown';
+import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';

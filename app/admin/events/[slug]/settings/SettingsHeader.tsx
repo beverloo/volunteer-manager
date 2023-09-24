@@ -21,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
-import { LazyAvatarEditor } from '@app/components/LazyAvatarEditor';
+import { LazyAvatarEditor } from '@components/LazyAvatarEditor';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { TransitionAlert } from '@app/admin/components/TransitionAlert';
 import { issueServerAction } from '@lib/issueServerAction';

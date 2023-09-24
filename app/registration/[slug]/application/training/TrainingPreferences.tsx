@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { RegistrationTraining } from '@lib/Registration';
-import { Markdown } from '@app/components/Markdown';
+import { Markdown } from '@components/Markdown';
 import { TrainingPreferencesForm } from './TrainingPreferencesForm';
 import { callApi } from '@lib/callApi';
 

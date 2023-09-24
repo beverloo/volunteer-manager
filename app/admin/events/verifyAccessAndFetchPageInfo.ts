@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationStatus } from '@app/lib/database/Types';
+import { RegistrationStatus } from '@lib/database/Types';
 import { requireUser } from '@lib/auth/getUser';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 

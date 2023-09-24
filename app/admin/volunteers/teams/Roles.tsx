@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography';
 import type { DataTableColumn } from '@app/admin/DataTable';
 import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
 import { DataTable } from '@app/admin/DataTable';
-import { VolunteerBadge, VolunteerBadgeVariant } from '@app/components/VolunteerBadge';
+import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadge';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**

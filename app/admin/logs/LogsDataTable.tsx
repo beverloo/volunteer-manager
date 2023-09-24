@@ -19,7 +19,7 @@ import type { DataTableRowRequest } from '@app/admin/DataTable';
 import type { LogsDefinition } from '@app/api/admin/logs';
 import { DataTable } from '../DataTable';
 import { dayjs } from '@lib/DateTime';
-import { issueServerAction } from '@app/lib/issueServerAction';
+import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props made available to the <LogsDataTable> component.

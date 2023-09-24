@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import type { ContentScope } from '@app/admin/content/ContentScope';
-import type { User } from '@app/lib/auth/User';
+import type { User } from '@lib/auth/User';
 import { type ActionProps, noAccess } from '../../Action';
 import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tContent, tUsers } from '@lib/database';

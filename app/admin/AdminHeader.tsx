@@ -21,9 +21,9 @@ import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Typography from '@mui/material/Typography';
 
-import type { UserData } from '@app/lib/auth/UserData';
-import { Avatar } from '@app/components/Avatar';
-import { Privilege, can } from '@app/lib/auth/Privileges';
+import type { UserData } from '@lib/auth/UserData';
+import { Avatar } from '@components/Avatar';
+import { Privilege, can } from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <AdminHeader> & related components.

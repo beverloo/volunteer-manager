@@ -13,7 +13,7 @@ import WebhookIcon from '@mui/icons-material/Webhook';
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from './AdminSidebar';
-import { Privilege } from '@app/lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { requireUser } from '../lib/auth/getUser';
 
 export default async function TopLevelLayout(props: React.PropsWithChildren) {

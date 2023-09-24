@@ -3,7 +3,7 @@
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can  } from '@lib/auth/Privileges';
-import { RegistrationStatus } from '@app/lib/database/Types';
+import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';

@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@app/lib/NextRouterParams';
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptPersonalityPage } from './PromptPersonalityPage';
 import { readSetting } from '@lib/Settings';

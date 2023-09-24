@@ -25,7 +25,7 @@ import type { HotelConfigurationEntry } from './HotelConfiguration';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
-import { callApi } from '@app/lib/callApi';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <HotelAssignmentPersonSelect> component.

@@ -4,8 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 
-import type { User } from '@app/lib/auth/User';
-import { getUserFromHeaders } from '@app/lib/auth/getUser';
+import type { User } from '@lib/auth/User';
+import { getUserFromHeaders } from '@lib/auth/getUser';
 
 /**
  * Route parameters that can be included in the action request payload, based on REST principles.
