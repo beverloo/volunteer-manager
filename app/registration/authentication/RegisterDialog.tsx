@@ -4,8 +4,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
     type FieldValues, CheckboxElement, DatePickerElement, FormContainer, SelectElement,
     TextFieldElement } from 'react-hook-form-mui';
@@ -136,12 +134,10 @@ export function RegisterDialog(props: RegisterDialogProps) {
                     </Grid>
 
                     <Grid xs={12} md={6}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePickerElement name="rawBirthdate" label="Date of birth"
-                                               disableFuture disableHighlightToday openTo="year"
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               required />
-                        </LocalizationProvider>
+                        <DatePickerElement name="rawBirthdate" label="Date of birth"
+                                           disableFuture disableHighlightToday openTo="year"
+                                           inputProps={{ fullWidth: true, size: 'small' }}
+                                           required />
                     </Grid>
 
                     <Grid xs={12}>

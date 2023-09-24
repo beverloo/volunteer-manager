@@ -5,12 +5,15 @@
 
 import { NextAppDirEmotionCacheProvider } from 'tss-react/next/appDir';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { createCachedTheme } from './ClientTheme';
+import { dayjs } from '@lib/DateTime';
 
 /**
  * Props accepted by the <ClientProviders> component.
@@ -52,7 +55,9 @@ export function ClientProviders(props: React.PropsWithChildren<ClientProvidersPr
             <CssBaseline />
             <NextAppDirEmotionCacheProvider options={{ key: 'css' }}>
                 <ThemeProvider theme={createCachedTheme(themeColours, effectiveDarkModeState)}>
-                    {props.children}
+                    <LocalizationProvider dateAdapter={AdapterDayjs} dateLibInstance={dayjs}>
+                        {props.children}
+                    </LocalizationProvider>
                 </ThemeProvider>
             </NextAppDirEmotionCacheProvider>
         </>

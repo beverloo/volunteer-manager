@@ -1,9 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePickerElement, TextFieldElement } from 'react-hook-form-mui';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import type { InputProps } from '@mui/material/Input';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -46,18 +44,16 @@ export function EventSettingsForm(props: EventSettingsFormProps) {
                                   onChange={onChange} />
             </Grid>
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Grid xs={6}>
-                    <DateTimePickerElement name="startTime" label="Start time" required
-                                           inputProps={{ fullWidth: true, size: 'small' }}
-                                           onChange={onChange} textReadOnly />
-                </Grid>
-                <Grid xs={6}>
-                    <DateTimePickerElement name="endTime" label="End time" required
-                                           inputProps={{ fullWidth: true, size: 'small' }}
-                                           onChange={onChange} textReadOnly />
-                </Grid>
-            </LocalizationProvider>
+            <Grid xs={6}>
+                <DateTimePickerElement name="startTime" label="Start time" required
+                                       inputProps={{ fullWidth: true, size: 'small' }}
+                                       onChange={onChange} textReadOnly />
+            </Grid>
+            <Grid xs={6}>
+                <DateTimePickerElement name="endTime" label="End time" required
+                                       inputProps={{ fullWidth: true, size: 'small' }}
+                                       onChange={onChange} textReadOnly />
+            </Grid>
         </Grid>
     );
 }

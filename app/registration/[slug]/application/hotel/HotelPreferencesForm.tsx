@@ -5,15 +5,13 @@
 
 import { useEffect, useState } from 'react';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { dayjs } from '@lib/DateTime';
-
 import type { UseFormReturn } from 'react-hook-form-mui';
 import { DatePickerElement, SelectElement, TextFieldElement } from 'react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
+
+import { dayjs } from '@lib/DateTime';
 
 /**
  * Options users can choose from when indicating whether they would like a hotel room.
@@ -109,20 +107,18 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
                                           disabled={readOnly} onChange={onChange} />
                     </Grid>
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <Grid xs={6}>
-                            <DatePickerElement name="checkIn" label="Check in" textReadOnly
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               minDate={minDate} maxDate={maxDate} required
-                                               disabled={readOnly} onChange={onChange} />
-                        </Grid>
-                        <Grid xs={6}>
-                            <DatePickerElement name="checkOut" label="Check out" textReadOnly
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               minDate={minDate} maxDate={maxDate} required
-                                               disabled={readOnly} onChange={onChange} />
-                        </Grid>
-                    </LocalizationProvider>
+                    <Grid xs={6}>
+                        <DatePickerElement name="checkIn" label="Check in" textReadOnly
+                                           inputProps={{ fullWidth: true, size: 'small' }}
+                                           minDate={minDate} maxDate={maxDate} required
+                                           disabled={readOnly} onChange={onChange} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <DatePickerElement name="checkOut" label="Check out" textReadOnly
+                                           inputProps={{ fullWidth: true, size: 'small' }}
+                                           minDate={minDate} maxDate={maxDate} required
+                                           disabled={readOnly} onChange={onChange} />
+                    </Grid>
                 </Grid>
             </Collapse>
         </>

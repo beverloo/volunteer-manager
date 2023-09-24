@@ -7,8 +7,6 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { dayjs } from '@lib/DateTime';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
@@ -107,12 +105,10 @@ export function Information(props: InformationProps) {
                     </Grid>
 
                     <Grid xs={6}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePickerElement name="rawBirthdate" label="Date of birth"
-                                               disableFuture disableHighlightToday openTo="year"
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               onChange={ () => setInvalidated(true) } />
-                        </LocalizationProvider>
+                        <DatePickerElement name="rawBirthdate" label="Date of birth"
+                                           disableFuture disableHighlightToday openTo="year"
+                                           inputProps={{ fullWidth: true, size: 'small' }}
+                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
                     <Grid xs={6}>
                         <TextFieldElement name="phoneNumber" label="Phone number" type="tel"

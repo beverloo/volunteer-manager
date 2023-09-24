@@ -6,9 +6,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
 import { type FieldValues, DateTimePickerElement, FormContainer, SelectElement }
     from 'react-hook-form-mui';
 
@@ -136,11 +133,9 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
                     <Grid xs={12}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePickerElement name="registrationDate" label="Registration date"
-                                                   inputProps={{ fullWidth: true, size: 'small' }}
-                                                   onChange={handleChange} />
-                        </LocalizationProvider>
+                        <DateTimePickerElement name="registrationDate" label="Registration date"
+                                               inputProps={{ fullWidth: true, size: 'small' }}
+                                               onChange={handleChange} />
                     </Grid>
 
                     <Grid xs={6}>
