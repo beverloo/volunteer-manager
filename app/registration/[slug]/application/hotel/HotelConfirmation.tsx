@@ -3,31 +3,12 @@
 
 'use client';
 
-import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { darken, lighten } from '@mui/material/styles';
 
 import type { RegistrationData } from '@lib/Registration';
+import { ConfirmationBox } from './ConfirmationBox';
 import { dayjs } from '@lib/DateTime';
-
-/**
- * Manual styles that apply to the <HotelConfirmation> client component.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    confirmation: theme => ({
-        borderLeft: `4px solid ${theme.palette.success.main}`,
-        paddingX: 2,
-        paddingY: 1,
-        marginY: 2,
-
-        borderRadius: theme.shape.borderRadius,
-        borderTopLeftRadius: 0,
-        borderBottomLeftRadius: 0,
-        backgroundColor: theme.palette.mode === 'light' ? lighten(theme.palette.success.main, .93)
-                                                        : darken(theme.palette.success.main, .6),
-    }),
-};
 
 /**
  * Props accepted by the <HotelConfirmation> component.
@@ -51,24 +32,19 @@ export function HotelConfirmation(props: HotelConfirmationProps) {
             <Typography variant="h5">
                 Your confirmed booking{ bookings.length > 1 ? 's' : '' }
             </Typography>
-            { bookings.map((booking, index) =>
-                <Box key={index} sx={kStyles.confirmation}>
-                    <Typography variant="h6">
-                        {booking.hotel.name} ({booking.hotel.room})
-                    </Typography>
-                    <Typography variant="body1">
-                        Check in on {dayjs(booking.checkIn).format('dddd, MMMM D')}, check out on
-                        {dayjs(booking.checkOut).format(' dddd, MMMM D')}
-                    </Typography>
-                    { booking.sharing.length > 0 &&
-                        <Typography variant="body1">
-                            You'll share this room with {booking.sharing.join(' & ')}
-                        </Typography> }
-                    { booking.sharing.length === 0 &&
-                        <Typography variant="body1">
-                            You won't share this room with anyone
-                        </Typography> }
-                </Box> )}
+            { bookings.map((booking, index) => {
+                const primary = `${booking.hotel.name} (${booking.hotel.room})`;
+                const secondary =
+                    `Check in on ${dayjs(booking.checkIn).format('dddd, MMMM D')}, check out on ` +
+                    `${dayjs(booking.checkOut).format(' dddd, MMMM D')}`;
+                const tertiary =
+                    !!booking.sharing.length
+                        ? `You'll share this room with ${booking.sharing.join(' & ')}`
+                        : 'You won\'t share this room with anyone';
+
+                return <ConfirmationBox key={index} primary={primary} secondary={secondary}
+                                        tertiary={tertiary} />;
+            }) }
         </Box>
     );
 }

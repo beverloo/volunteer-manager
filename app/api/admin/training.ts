@@ -44,6 +44,11 @@ export const kTrainingDefinition = z.object({
             id: z.number(),
 
             /**
+             * Address at which the training will be taking place.
+             */
+            trainingAddress: z.string().optional(),
+
+            /**
              * Date at which the training will be taking place.
              */
             trainingStart: z.string().optional(),
@@ -138,6 +143,7 @@ export async function training(request: Request, props: ActionProps): Promise<Re
     if (request.update !== undefined) {
         const affectedRows = await db.update(tTrainings)
             .set({
+                trainingAddress: request.update.trainingAddress,
                 trainingStart:
                     request.update.trainingStart ? new Date(request.update.trainingStart)
                                                  : undefined,

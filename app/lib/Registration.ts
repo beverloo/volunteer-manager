@@ -36,6 +36,8 @@ export interface RegistrationDatabaseRow {
 
         preferenceDate?: Date;
         assignedDate?: Date;
+        assignedEndDate?: Date;
+        assignedAddress?: string;
     };
 }
 
@@ -136,6 +138,16 @@ export interface RegistrationTraining {
      * Date on which the volunteer has been assigned to participate in the training, if any.
      */
     assignedDate?: Date;
+
+    /**
+     * Date and time on which the assigned training is supposed to end.
+     */
+    assignedEndDate?: Date;
+
+    /**
+     * Address where the assigned training will be taking place, if any.
+     */
+    assignedAddress?: string;
 
     /**
      * When the preferences were last updated by the volunteer.

@@ -86,6 +86,8 @@ export async function getRegistration(environmentName: string, event: Event, use
 
                 preferenceDate: trainingsPreferenceJoin.trainingStart,
                 assignedDate: trainingsAssignedJoin.trainingStart,
+                assignedEndDate: trainingsAssignedJoin.trainingEnd,
+                assignedAddress: trainingsAssignedJoin.trainingAddress,
             },
         })
         .groupBy(tUsersEvents.eventId)

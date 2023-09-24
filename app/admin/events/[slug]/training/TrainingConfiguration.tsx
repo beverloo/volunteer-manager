@@ -28,6 +28,11 @@ export interface TrainingConfigurationEntry {
     id: number;
 
     /**
+     * Address at which the training will be taking place.
+     */
+    trainingAddress?: string;
+
+    /**
      * Maximum capacity of the training.
      */
     trainingCapacity?: number;
@@ -77,6 +82,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
         return {
             id: response.id,
             trainingCapacity: 10,
+            trainingAddress: undefined,
             trainingStart: event.startTime,
             trainingEnd: event.endTime,
         };
@@ -96,6 +102,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             event: event.slug,
             update: {
                 id: oldRow.id,
+                trainingAddress: newRow.trainingAddress,
                 trainingStart: newRow.trainingStart,
                 trainingEnd: newRow.trainingEnd,
                 trainingCapacity: newRow.trainingCapacity,
@@ -147,6 +154,13 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
 
             renderCell: (params: GridRenderCellParams) =>
                 dayjs(params.value).format('YYYY-MM-DD [at] h:mma'),
+        },
+        {
+            field: 'trainingAddress',
+            headerName: 'Address',
+            editable: true,
+            sortable: true,
+            flex: 3,
         },
         {
             field: 'trainingCapacity',

@@ -14,6 +14,7 @@ export class TrainingsTable extends Table<DBConnection, 'TrainingsTable'> {
     eventId = this.column('event_id', 'int');
     trainingStart = this.columnWithDefaultValue('training_start', 'localDateTime');
     trainingEnd = this.columnWithDefaultValue('training_end', 'localDateTime');
+    trainingAddress = this.optionalColumnWithDefaultValue('training_address', 'string');
     trainingCapacity = this.columnWithDefaultValue('training_capacity', 'int');
     trainingVisible = this.columnWithDefaultValue('training_visible', 'int');
 

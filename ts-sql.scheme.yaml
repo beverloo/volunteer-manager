@@ -1056,6 +1056,11 @@ tables:
     nullable: false
     default: current_timestamp()
     comment: ""
+  - name: training_address
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: training_capacity
     type: int(4)
     nullable: false
@@ -1106,6 +1111,7 @@ tables:
       `event_id` int(8) unsigned NOT NULL,
       `training_start` datetime NOT NULL DEFAULT current_timestamp(),
       `training_end` datetime NOT NULL DEFAULT current_timestamp(),
+      `training_address` text DEFAULT NULL,
       `training_capacity` int(4) NOT NULL DEFAULT 10,
       `training_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`training_id`),

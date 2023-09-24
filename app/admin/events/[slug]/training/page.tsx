@@ -37,6 +37,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             .and(tTrainings.trainingVisible.equals(/* true= */ 1))
         .select({
             id: tTrainings.trainingId,
+            trainingAddress: tTrainings.trainingAddress,
             trainingCapacity: tTrainings.trainingCapacity,
             trainingStart: tTrainings.trainingStart,
             trainingEnd: tTrainings.trainingEnd,
