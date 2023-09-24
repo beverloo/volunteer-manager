@@ -17,6 +17,7 @@ import Typography from '@mui/material/Typography';
 import type { RegistrationTraining } from '@lib/Registration';
 import { Markdown } from '@app/components/Markdown';
 import { TrainingPreferencesForm } from './TrainingPreferencesForm';
+import { callApi } from '@lib/callApi';
 
 /**
  * Message to display to volunteers when their preferences have been marked as read-only.
@@ -28,6 +29,16 @@ const kPreferencesLockedMarkdown =
  * Props accepted by the <TrainingPreferences> component.
  */
 export interface TrainingPreferencesProps {
+    /**
+     * Environment for which the preferences are being shown.
+     */
+    environment: string;
+
+    /**
+     * Slug of the event for which the preferences are being shown.
+     */
+    eventSlug: string;
+
     /**
      * Whether the form should be marked as read-only, useful in case their participation has been
      * confirmed. Changes can only be made after that by e-mailing our team.
@@ -67,15 +78,26 @@ export function TrainingPreferences(props: TrainingPreferencesProps) {
             if (readOnly)
                 throw new Error('Your preferences have been locked in already.');
 
-            // TODO...
-            //router.refresh();
+            const response = await callApi('post', '/api/event/training-preferences', {
+                environment: props.environment,
+                event: props.eventSlug,
+                preferences: {
+                    training: data.training,
+                },
+            });
 
+            if (response.success) {
+                setSuccess('Your preferences have been updated!');
+                router.refresh();
+            } else {
+                setError(response.error);
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ readOnly, router ]);
+    }, [ props.environment, props.eventSlug, readOnly, router ]);
 
     const defaultValues = useMemo(() => {
         if (!training)

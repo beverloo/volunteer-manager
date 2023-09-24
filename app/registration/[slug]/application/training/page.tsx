@@ -79,7 +79,8 @@ export default async function EventApplicationTrainingPage(props: NextRouterPara
             { content && <Markdown>{content.markdown}</Markdown> }
             { (!!registration.training && !!registration.training.confirmed) &&
                 <TrainingConfirmation training={registration.training} /> }
-            <TrainingPreferences readOnly={readOnly} training={registration.training}
+            <TrainingPreferences environment={environment.environmentName} eventSlug={event.slug}
+                                 readOnly={readOnly} training={registration.training}
                                  trainingOptions={trainingOptions} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration

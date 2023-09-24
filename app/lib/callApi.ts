@@ -14,6 +14,7 @@ import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
+import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
@@ -43,6 +44,7 @@ type ApiEndpoints = {
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
+        '/api/event/training-preferences': TrainingPreferencesDefinition,
 
         // TODO: Move to GET when `writeToSearchParams` can deal with arrays:
         '/api/admin/outbox': ListOutboxDefinition,

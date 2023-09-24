@@ -1746,7 +1746,6 @@ tables:
     type: datetime
     nullable: false
     default: current_timestamp()
-    extraDef: on update current_timestamp()
     comment: ""
   indexes:
   - name: user_id
@@ -1780,7 +1779,7 @@ tables:
       `hotel_date_check_out` date DEFAULT NULL,
       `hotel_sharing_people` int(8) unsigned DEFAULT NULL,
       `hotel_sharing_preferences` text DEFAULT NULL,
-      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+      `hotel_preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
       UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox
@@ -2021,7 +2020,24 @@ tables:
     columns:
     - assignment_id
     comment: ""
+  - name: event_id_2
+    def: UNIQUE KEY event_id_2 (event_id, assignment_user_id) USING BTREE
+    table: trainings_assignments
+    columns:
+    - event_id
+    - assignment_user_id
+    comment: ""
   constraints:
+  - name: event_id_2
+    type: UNIQUE
+    def: UNIQUE KEY event_id_2 (event_id, assignment_user_id)
+    table: trainings_assignments
+    referencedTable: null
+    columns:
+    - event_id
+    - assignment_user_id
+    referencedColumns: []
+    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (assignment_id)
@@ -2043,6 +2059,7 @@ tables:
       `preference_training_id` int(8) unsigned DEFAULT NULL,
       `preference_updated` timestamp NOT NULL DEFAULT current_timestamp(),
       PRIMARY KEY (`assignment_id`),
+      UNIQUE KEY `event_id_2` (`event_id`,`assignment_user_id`),
       KEY `event_id` (`event_id`),
       KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

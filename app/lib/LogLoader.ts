@@ -133,6 +133,10 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [LogType.AdminUpdateRole]: (source, target, { role }) => `Updated the ${role} role settings`,
     [LogType.AdminUpdateTeam]: (source, target, { team }) => `Updated the ${team} team settings`,
+    [LogType.AdminUpdateTrainingPreferences]: (source, target, { event }) => {
+        return `Updated their training preferences for ${event}`;
+    },
+
     [LogType.AdminUpdateVertexIntegration]: 'Updated the integration settings for Vertex AI',
     [LogType.AdminUpdateVolunteer]: (source, target, data) => {
         return `Updated the user information of ${target?.name}`;
@@ -142,6 +146,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
+    },
+    [LogType.ApplicationTrainingPreferences]: (source, target, { event }) => {
+        return `Updated their training preferences for ${event}`;
     },
     [LogType.DatabaseError]: (source, target, { query }) => {
         const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);

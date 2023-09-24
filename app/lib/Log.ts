@@ -47,9 +47,11 @@ export enum LogType {
     AdminUpdateRole = 'admin-update-role',
     AdminUpdateTeam = 'admin-update-team',
     AdminUpdateTeamVolunteer = 'admin-update-team-volunteer',
+    AdminUpdateTrainingPreferences = 'admin-update-training-preferences',
     AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     ApplicationHotelPreferences = 'application-hotel-preferences',
+    ApplicationTrainingPreferences = 'application-training-preferences',
     DatabaseError = 'database-error',
 }
 
