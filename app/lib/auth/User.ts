@@ -46,12 +46,6 @@ export interface User {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Returns the type of authentication mechanism that was used to sign this user in. Only
-     * available when the instance was created from a access code, password or passkey credential.
-     */
-    authTypeForCredentialBasedAuthentication: AuthType;
-
-    /**
      * Events that the user has been accepted in to, and some metainformation about these events.
      */
     events: {

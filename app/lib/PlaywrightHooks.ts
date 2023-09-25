@@ -85,6 +85,7 @@ export class PlaywrightHooks {
                 continue;
 
             return {
+                authType: AuthType.password,
                 user: {
                     userId: 999999,
                     username: undefined,
@@ -94,7 +95,6 @@ export class PlaywrightHooks {
                     privileges: 0n,
 
                     // TODO: Remove these fields:
-                    authTypeForCredentialBasedAuthentication: AuthType.password,
                     events: [],
                     sessionToken: 0,
 

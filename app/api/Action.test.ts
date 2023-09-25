@@ -266,7 +266,6 @@ describe('Action', () => {
                 privileges: 0n,
 
                 // TODO: Remove these fields
-                authTypeForCredentialBasedAuthentication: AuthType.password,
                 events: [],
                 sessionToken: 9001,
             };

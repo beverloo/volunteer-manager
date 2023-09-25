@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { AuthType } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { authenticateUser } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
@@ -49,14 +50,19 @@ type Response = SignInPasswordDefinition['response'];
  * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
 export async function signInPassword(request: Request, props: ActionProps): Promise<Response> {
-    const { user } = await authenticateUser({
+    const authenticationContext = await authenticateUser({
         type: 'password',
         username: request.username,
         sha256Password: request.password
     });
 
-    switch (user?.authTypeForCredentialBasedAuthentication) {
-        case 'code': {  // one-time access code
+    if (!authenticationContext.user)
+        return { success: false };
+
+    const { user } = authenticationContext;
+
+    switch (authenticationContext.authType) {
+        case AuthType.code: {  // one-time access code
             await Log({
                 type: LogType.AccountIdentifyAccessCode,
                 severity: LogSeverity.Debug,
@@ -73,7 +79,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
             };
         }
 
-        case 'password': {  // stored password
+        case AuthType.password: {  // stored password
             await Log({
                 type: LogType.AccountIdentifyPassword,
                 severity: LogSeverity.Debug,

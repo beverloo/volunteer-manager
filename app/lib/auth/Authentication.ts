@@ -189,12 +189,14 @@ export async function authenticateUser(params: AuthenticateUserParams)
         privileges: expand(authenticationResult.privileges),
 
         // TODO: Remove these from `User`
-        authTypeForCredentialBasedAuthentication: authenticationResult.authType,
         events: authenticationResult.events as any,
         sessionToken: authenticationResult.sessionToken,
     };
 
-    return { user };
+    return {
+        authType: authenticationResult.authType,
+        user
+    };
 }
 
 /**

@@ -43,7 +43,6 @@ describe('AuthenticationContext', () => {
                 privileges: 0n,
 
                 // TODO: Remove these fields:
-                authTypeForCredentialBasedAuthentication: AuthType.password,
                 events: [],
                 sessionToken: sessionData.token,
             };

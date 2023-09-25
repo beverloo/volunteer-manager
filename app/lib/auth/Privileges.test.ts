@@ -14,7 +14,6 @@ describe('Privileges', () => {
         lastName: 'Example',
 
         // TODO: Remove these fields:
-        authTypeForCredentialBasedAuthentication: AuthType.password,
         events: [],
         sessionToken: 1,
     };

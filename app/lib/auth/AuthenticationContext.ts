@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { SessionData } from './Session';
 import type { User } from './User';
+import { AuthType } from '@lib/database/Types';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
@@ -20,6 +21,11 @@ export interface UserAuthenticationContext {
      * The user who is currently signed in to their account.
      */
     user: User;
+
+    /**
+     * Authentication type that was used to sign the user in.
+     */
+    authType: AuthType;
 }
 
 /**
