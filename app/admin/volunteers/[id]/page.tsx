@@ -97,9 +97,10 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
  * be fetched from the database prior to being displayed.
  */
 export default async function VolunteerPage(props: NextRouterParams<'id'>) {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.VolunteerAdministrator))
-        notFound();
+    const { user } = await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     const volunteerInfo = await fetchVolunteerInfo(props.params.id);
     if (!volunteerInfo)

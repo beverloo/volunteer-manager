@@ -70,7 +70,7 @@ async function fetchBirthdays(user: User) {
  * give an overview of what's going on. Exact cards depend on the user's access level.
  */
 export default async function AdminPage() {
-    const { user } = await requireAuthenticationContext();
+    const { user } = await requireAuthenticationContext({ check: 'admin' });
 
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);

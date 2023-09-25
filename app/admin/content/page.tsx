@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
@@ -19,9 +18,10 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * deleted as applicable. This includes the privacy policy, e-mail messages, and so on.
  */
 export default async function ContentPage() {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.SystemContentAccess))
-        notFound();
+    const { user } = await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.SystemContentAccess,
+    });
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
     const scope = createGlobalScope();

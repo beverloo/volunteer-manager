@@ -2,11 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { OutboxMessage } from './OutboxMessage';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -15,9 +14,10 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * is rendered client-side as it depends on an API.
  */
 export default async function OutboxPage(props: NextRouterParams<'id'>) {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.SystemOutboxAccess))
-        notFound();
+    await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.SystemOutboxAccess,
+    });
 
     return <OutboxMessage id={parseInt(props.params.id, 10)} />;
 }

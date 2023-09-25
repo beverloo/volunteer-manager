@@ -7,15 +7,22 @@ import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
+import { Privilege } from '@lib/auth/Privileges';
 import { Prompts, type PromptSettings } from './Prompts';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { readSettings } from '@lib/Settings';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The Integrations page lists settings and information regarding the third party services that the
  * Volunteer Manager integrates with.
  */
 export default async function IntegrationsPage() {
+    await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.SystemAdministrator,
+    });
+
     const settings = await readSettings([
         // AnimeCon:
         'integration-animecon-api-endpoint',

@@ -16,7 +16,7 @@ import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/da
  * events. Events cannot be removed through the portal, although they can be hidden.
  */
 export default async function EventsPage() {
-    const { user } = await requireAuthenticationContext();
+    const { user } = await requireAuthenticationContext({ check: 'admin' });
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();

@@ -2,13 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { OutboxDataTable } from './OutboxDataTable';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -17,9 +16,10 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * with specific permissions, as messages may contain e.g. password reset links.
  */
 export default async function OutboxPage() {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.SystemOutboxAccess))
-        notFound();
+    await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.SystemOutboxAccess,
+    });
 
     return (
         <Paper sx={{ p: 2 }}>

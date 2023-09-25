@@ -7,8 +7,10 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { Privilege } from '@lib/auth/Privileges';
 import { Roles } from './Roles';
 import { Team } from './Team';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
 
 /**
@@ -17,6 +19,11 @@ import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
  * should be fairly rare. Creating and removing teams is restricted to the database.
  */
 export default async function VolunteersTeamsPage() {
+    await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
+
     const dbInstance = db;
     const roles = await dbInstance.selectFrom(tRoles)
         .select({

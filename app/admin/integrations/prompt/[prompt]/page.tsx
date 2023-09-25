@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { PromptPersonalityPage } from './PromptPersonalityPage';
 import { readSetting } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -15,9 +15,10 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * different personalities that the volunteer manager supports.
  */
 export default async function IntegrationsPromptPage(props: NextRouterParams<'prompt'>) {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.VolunteerAdministrator))
-        notFound();
+    const { user } = await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.SystemAdministrator,
+    });
 
     const requestedPrompt = await readSetting(`integration-prompt-${props.params.prompt}` as any);
     if (!requestedPrompt)

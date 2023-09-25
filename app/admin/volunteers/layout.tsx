@@ -18,9 +18,10 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function VolunteersLayout(props: React.PropsWithChildren) {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.VolunteerAdministrator))
-        notFound();
+    const { user } = await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {

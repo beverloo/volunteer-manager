@@ -4,8 +4,6 @@
 import { notFound } from 'next/navigation';
 
 import type { User } from '@lib/auth/User';
-import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
@@ -126,7 +124,10 @@ export async function verifyAccessAndFetchPageInfo(params: PageInfoParams)
 export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?: string })
     : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
-    const { user } = await requireAuthenticationContext();
+    const { user } = await requireAuthenticationContext({
+        check: 'admin-event',
+        event: params.slug,
+    });
 
     // ---------------------------------------------------------------------------------------------
     // Event information
@@ -160,19 +161,12 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
             publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),
 
             // For internal use:
-            userAdminAccess: rolesJoin.roleAdminAccess,
-            userRegistrationStatus: usersEventsJoin.registrationStatus,
             userTeamId: usersEventsJoin.teamId,
         })
         .executeSelectNoneOrOne();
 
     if (!event)
         notFound();  // no event identified by |params.slug| exists in the database
-
-    if (!event.userAdminAccess || event.userRegistrationStatus !== RegistrationStatus.Accepted) {
-        if (!can(user, Privilege.EventAdministrator))
-            notFound();  // the |user| does not have access to the event
-    }
 
     if (!Object.hasOwn(params, 'team'))
         return { user, event };
@@ -196,11 +190,6 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
 
     if (!team)
         notFound();  // the team does not exist, or does not participate in the |event|
-
-    if (event.userTeamId !== team.id) {
-        if (!can(user, Privilege.EventAdministrator))
-            notFound();  // the |user| is not part of the |team|
-    }
 
     return { user, event, team };
 }

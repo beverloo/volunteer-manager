@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType } from '@lib/database/Types';
+import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
@@ -93,14 +94,86 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
 }
 
 /**
+ * Types of access check that can be executed. Each check should be individually documented.
+ */
+type AuthenticationAccessCheckTypes =
+    /**
+     * Access to the administrative area. This is the case when either:
+     *   (1) The user has the EventAdministrator privilege,
+     *   (2) The user has admin access because of an active event.
+     */
+    { check: 'admin' } |
+
+    /**
+     * Access to the administrative area for a particular event. This is the case when either:
+     *   (1) The user has the Administrator privilege,
+     *   (2) The user has admin access to the given `event`, which must be active.
+     */
+    { check: 'admin-event', event: string } |
+
+    /**
+     * Access checks may be omitted in favour of only checking for privileges.
+     */
+    { };
+
+/**
+ * The access check always allows for permissions to be checked inline.
+ */
+type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
+    privilege?: Privilege | Privilege[];
+};
+
+/**
+ * Executes the given `access` check. The `type` determines what should be checked for, optionally
+ * with additional parameters, and permissions can always be checked for. A HTTP 404 Not Found error
+ * will be thrown when the access check fails.
+ *
+ * @note Access checks can be done inline when requiring an authentication context to exist.
+ */
+export function executeAccessCheck(
+    context: UserAuthenticationContext, access: AuthenticationAccessCheck): void | never
+{
+    if (access.privilege) {
+        const privileges = Array.isArray(access.privilege) ? access.privilege : [access.privilege];
+        for (const privilege of privileges) {
+            if (!can(context.user, privilege))
+                notFound();
+        }
+    }
+
+    if ('check' in access) {
+        switch (access.check) {
+            case 'admin':
+                if (!can(context.user, Privilege.EventAdministrator)) {
+                    if (!context.events.size)
+                        notFound();
+                }
+                break;
+
+            case 'admin-event':
+                if (!can(context.user, Privilege.EventAdministrator)) {
+                    if (!context.events.has(access.event))
+                        notFound();
+                }
+                break;
+        }
+    }
+}
+
+/**
  * Determines the authentication context from the cookies included with the current request, and
  * will issue a HTTP 404 Not Found error when none could be loaded. May only be used by server-side
  * components, as authentication requires a database query.
  */
-export async function requireAuthenticationContext(): Promise<UserAuthenticationContext> {
+export async function requireAuthenticationContext(access?: AuthenticationAccessCheck)
+    : Promise<UserAuthenticationContext>
+{
     const authenticationContext = await getAuthenticationContext();
     if (!authenticationContext.user)
         notFound();
+
+    if (access)
+        executeAccessCheck(authenticationContext, access);
 
     return authenticationContext;
 }

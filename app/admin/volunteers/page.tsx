@@ -2,13 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerDataTable } from './VolunteerDataTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -19,9 +18,10 @@ import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
  * in a <DataTable> component. Provides access to individual user pages.
  */
 export default async function VolunteersPage() {
-    const { user } = await requireAuthenticationContext();
-    if (!can(user, Privilege.VolunteerAdministrator))
-        notFound();
+    await requireAuthenticationContext({
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();

@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function RootAdminLayout(props: React.PropsWithChildren) {
-    const { user } = await requireAuthenticationContext();
+    const { user } = await requireAuthenticationContext({ check: 'admin' });
     const events = await getHeaderEventsForUser(user);
 
     return (

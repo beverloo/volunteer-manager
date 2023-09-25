@@ -123,6 +123,10 @@ export async function authenticateUser(params: AuthenticateUserParams)
             events: dbInstance.aggregateAsArray({
                 event: eventsJoin.eventSlug,
                 team: teamsJoin.teamEnvironment,
+
+                // TODO: Figure out if we can do this filtering in the query somehow...
+                isEventHidden: eventsJoin.eventHidden,
+                isRoleAdmin: rolesJoin.roleAdminAccess,
             }),
 
             // UserAuthenticationContext.user:
@@ -196,6 +200,12 @@ export async function authenticateUser(params: AuthenticateUserParams)
     for (const entry of authenticationResult.events) {
         if (!entry.event || !entry.team)
             continue;  // incomplete data
+
+        if (entry.isEventHidden)
+            continue;  // the event has been suspended
+
+        if (!entry.isRoleAdmin)
+            continue;  // role does not grant administrator access
 
         events.set(entry.event, {
             event: entry.event,
