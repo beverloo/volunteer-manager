@@ -44,7 +44,6 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
 
             // TODO: Remove these fields:
             events: [],
-            sessionToken: 0,
 
             ...params.user,
         };

@@ -118,8 +118,6 @@ export async function authenticateUser(params: AuthenticateUserParams)
             lastName: tUsers.lastName,
             avatarFileHash: storageJoin.fileHash,
             privileges: tUsers.privileges,
-            activated: tUsers.activated,
-            sessionToken: tUsers.sessionToken,
 
             events: dbInstance.aggregateAsArray({
                 eventId: usersEventsJoin.eventId,
@@ -190,13 +188,23 @@ export async function authenticateUser(params: AuthenticateUserParams)
 
         // TODO: Remove these from `User`
         events: authenticationResult.events as any,
-        sessionToken: authenticationResult.sessionToken,
     };
 
     return {
         authType: authenticationResult.authType,
         user
     };
+}
+
+/**
+ * Returns the current session token from the `user`. This is a value that's quite important to the
+ * security of their account, so it won't be included in the regular User type.
+ */
+export async function getUserSessionToken(user: User | number): Promise<number | null> {
+    return db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(typeof user === 'number' ? user : user.userId))
+        .selectOneColumn(tUsers.sessionToken)
+        .executeSelectNoneOrOne();
 }
 
 /**

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { authenticateUser } from '@lib/auth/Authentication';
+import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
@@ -49,15 +49,18 @@ export async function signInImpersonate(request: Request, props: ActionProps): P
     const { user: impersonatedUser } =
         await authenticateUser({ type: 'userId', userId: request.userId });
 
-    if (!impersonatedUser)
+    const impersonatedUserSessionToken = await getUserSessionToken(request.userId);
+    const userSessionToken = await getUserSessionToken(props.user.userId);
+
+    if (!impersonatedUser || !impersonatedUserSessionToken || !userSessionToken)
         return { success: false };  // unable to find the user
 
     await writeSealedSessionCookie({
         id: impersonatedUser.userId,
-        token: impersonatedUser.sessionToken,
+        token: impersonatedUserSessionToken,
         parent: {
             id: props.user.userId,
-            token: props.user.sessionToken,
+            token: userSessionToken,
         },
     }, props.responseHeaders);
 

@@ -267,7 +267,6 @@ describe('Action', () => {
 
                 // TODO: Remove these fields
                 events: [],
-                sessionToken: 9001,
             };
         });
 

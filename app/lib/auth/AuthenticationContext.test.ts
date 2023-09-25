@@ -44,7 +44,6 @@ describe('AuthenticationContext', () => {
 
                 // TODO: Remove these fields:
                 events: [],
-                sessionToken: sessionData.token,
             };
         });
 

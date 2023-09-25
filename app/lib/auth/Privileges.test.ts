@@ -15,7 +15,6 @@ describe('Privileges', () => {
 
         // TODO: Remove these fields:
         events: [],
-        sessionToken: 1,
     };
 
     it('has the ability to perform basic access checks', () => {

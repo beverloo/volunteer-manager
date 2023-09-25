@@ -96,7 +96,6 @@ export class PlaywrightHooks {
 
                     // TODO: Remove these fields:
                     events: [],
-                    sessionToken: 0,
 
                     ...playwrightUser,  // expand the partial user configuration
                 },

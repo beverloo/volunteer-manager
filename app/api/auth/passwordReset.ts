@@ -8,7 +8,7 @@ import { LogType, Log } from '@lib/Log';
 
 import { AuthType } from '@lib/database/Types';
 import { PlaywrightHooks } from '@lib/PlaywrightHooks';
-import { authenticateUser } from '@lib/auth/Authentication';
+import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { securePasswordHash } from '@lib/auth/Password';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -95,8 +95,13 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
         const { user } = await authenticateUser({ type: 'session', ... passwordResetRequest });
         if (user) {
             await updateUserPassword(user.userId, request.password);
+
+            const sessionToken = await getUserSessionToken(user);
+            if (!sessionToken)
+                return { success: false };  // the user went away...
+
             await writeSealedSessionCookie(
-                { id: user.userId, token: user.sessionToken + 1 }, props.responseHeaders);
+                { id: user.userId, token: sessionToken }, props.responseHeaders);
 
             await Log({
                 type: LogType.AccountPasswordReset,

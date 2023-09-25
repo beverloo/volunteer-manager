@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { authenticateUser } from '@lib/auth/Authentication';
+import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { unsealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 import db, { tUsers } from '@lib/database';
@@ -74,12 +74,12 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
         return { success: false };  // unable to update the user in the database?
 
     const { user } = await authenticateUser({ type: 'userId', userId: registrationRequest.id });
-    if (!user)
+    const sessionToken = await getUserSessionToken(registrationRequest.id);
+
+    if (!user || !sessionToken)
         return { success: false };  // the user must be disabled for another reason
 
-    await writeSealedSessionCookie(
-        { id: user.userId, token: user.sessionToken }, props.responseHeaders);
-
+    await writeSealedSessionCookie({ id: user.userId, token: sessionToken }, props.responseHeaders);
     await Log({
         type: LogType.AccountActivate,
         sourceUser: user,

@@ -1,8 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AuthType } from '../database/Types';
-
 /**
  * Interface describing the information we maintain on an individual user. Instances of these
  * objects can be obtained through the `authenticateUser()` function. Tests may mimic their own
@@ -69,9 +67,4 @@ export interface User {
          */
         hidden: boolean;
     }[],
-
-    /**
-     * The user's current session token. Must match the token given in the Iron Session.
-     */
-    sessionToken: number;
 }
