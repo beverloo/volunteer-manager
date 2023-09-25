@@ -6,6 +6,7 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { z } from 'zod';
 
 import type { Action } from './Action';
+import { AuthType } from '@lib/database/Types';
 import { User, type UserDatabaseRow } from '@lib/auth/User';
 import { executeAction } from './Action';
 
@@ -38,14 +39,13 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
             username: 'foo@bar.com',
             firstName: 'Foo',
             lastName: 'Bar',
-            gender: 'Other',
-            birthdate: new Date('2023-08-17'),
-            phoneNumber: '',
-            avatarFileHash: undefined,
+            avatarUrl: undefined,
             privileges: 0n,
-            activated: 1,
-            sessionToken: 0,
+
+            // TODO: Remove these fields:
+            authTypeForCredentialBasedAuthentication: AuthType.password,
             events: [],
+            sessionToken: 0,
 
             ...params.user,
         });

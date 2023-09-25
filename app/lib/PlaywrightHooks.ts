@@ -7,28 +7,46 @@ import { AuthType } from './database/Types';
 import { User, type UserDatabaseRow } from './auth/User';
 
 /**
+ * Internal fields to the User type used by Playwright.
+ */
+interface PlaywrightUserFields {
+    /**
+     * Whether the account has been activated.
+     */
+    activated: boolean;
+
+    /**
+     * The SHA256-hashed password that the user can sign in with.
+     */
+    password: string;
+}
+
+/**
  * The users that exist when running Playwright
  */
-const kPlaywrightUsers: Partial<UserDatabaseRow & { password: string }>[] = [
+const kPlaywrightUsers: (Partial<UserDatabaseRow> & PlaywrightUserFields)[] = [
     {
         userId: 1000000,
         username: 'playwright@animecon.nl',
-        password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
         firstName: 'PWUSER',
-        activated: 1,
+
+        activated: true,
+        password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
     },
     {
         userId: 1000003,
         username: 'playwright-access-code@animecon.nl',
+
+        activated: true,
         password: 'cccd34d95dc5294d17177274e6a7b25a569fda7d823f2aa59ba63dfba9f8e013',  // 8765
-        activated: 1,
-        authType: AuthType.code,
+        //authType: AuthType.code,
     },
     {
         userId: 1000002,
         username: 'playwright-unactivated@animecon.nl',
+
         password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
-        activated: 0,
+        activated: false,
     }
 ];
 
@@ -72,18 +90,16 @@ export class PlaywrightHooks {
                     username: undefined,
                     firstName: 'PWUSER',
                     lastName: 'Example',
-                    gender: 'Other',
-                    birthdate: undefined,
-                    phoneNumber: undefined,
-                    avatarFileHash: undefined,
+                    avatarUrl: undefined,
                     privileges: 0n,
-                    activated: 1,
-                    sessionToken: 0,
+
+                    // TODO: Remove these fields:
+                    authTypeForCredentialBasedAuthentication: AuthType.password,
                     events: [],
+                    sessionToken: 0,
 
                     ...playwrightUser,  // expand the partial user configuration
-
-                }, playwrightUser.authType ?? AuthType.password),
+                }),
             };
         }
 
@@ -98,7 +114,7 @@ export class PlaywrightHooks {
             if (playwrightUser.username !== username)
                 continue;
 
-            return { activated: !!playwrightUser.activated };
+            return { activated: playwrightUser.activated };
         }
 
         return undefined;

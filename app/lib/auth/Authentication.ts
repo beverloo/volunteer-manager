@@ -5,6 +5,8 @@ import type { AuthenticationContext } from './AuthenticationContext';
 import type { SessionData } from './Session';
 import { AuthType, RegistrationStatus } from '../database/Types';
 import { User } from './User';
+import { expand } from './Privileges';
+import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
 
 import { PlaywrightHooks } from '../PlaywrightHooks';
@@ -114,9 +116,6 @@ export async function authenticateUser(params: AuthenticateUserParams)
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
-            gender: tUsers.gender,
-            birthdate: tUsers.birthdate,
-            phoneNumber: tUsers.phoneNumber,
             avatarFileHash: storageJoin.fileHash,
             privileges: tUsers.privileges,
             activated: tUsers.activated,
@@ -178,8 +177,23 @@ export async function authenticateUser(params: AuthenticateUserParams)
     if (!authenticationResult)
         return { user: /* visitor= */ undefined };
 
-    const user = new User(authenticationResult, includeAuthType ? authenticationResult.authType
-                                                                : undefined);
+    const user = new User({
+        userId: authenticationResult.userId,
+        username: authenticationResult.username,
+        firstName: authenticationResult.firstName,
+        lastName: authenticationResult.lastName,
+        avatarUrl:
+            authenticationResult.avatarFileHash ? getBlobUrl(authenticationResult.avatarFileHash)
+                                                : undefined,
+
+        privileges: expand(authenticationResult.privileges),
+
+        // TODO: Remove these from `User`
+        authTypeForCredentialBasedAuthentication: authenticationResult.authType,
+        events: authenticationResult.events as any,
+        sessionToken: authenticationResult.sessionToken,
+    });
+
     return { user };
 }
 
