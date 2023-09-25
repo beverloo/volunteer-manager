@@ -53,7 +53,7 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
 {
     const passwordResetRequest = await unsealPasswordResetRequest(request.passwordResetRequest);
     if (passwordResetRequest) {
-        const user = await authenticateUser({ type: 'session', ...passwordResetRequest });
+        const { user } = await authenticateUser({ type: 'session', ...passwordResetRequest });
         if (user) {
             await user.updatePassword(request.password, /* incrementSessionToken= */ true);
             await writeSealedSessionCookie(

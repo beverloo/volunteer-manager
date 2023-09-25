@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AuthenticationContext } from './AuthenticationContext';
 import type { SessionData } from './Session';
 import { AuthType, RegistrationStatus } from '../database/Types';
 import { User } from './User';
@@ -94,7 +95,8 @@ export async function activateAccount(userId: number): Promise<User | undefined>
     if (!affectedRows)
         return undefined;  // the account could not be activated
 
-    return authenticateUser({ type: 'userId', userId });
+    const authenticationContext = await authenticateUser({ type: 'userId', userId });
+    return authenticationContext.user;
 }
 
 /**
@@ -110,7 +112,9 @@ export type AuthenticateUserParams =
  * instance of the `User` class will be returned when the given information was correct, whereas
  * `undefined` will be returned when something went wrong.
  */
-export async function authenticateUser(params: AuthenticateUserParams): Promise<User | undefined> {
+export async function authenticateUser(params: AuthenticateUserParams)
+    : Promise<AuthenticationContext>
+{
     if (PlaywrightHooks.isActive())
         return PlaywrightHooks.authenticateUser(params);
 
@@ -200,10 +204,11 @@ export async function authenticateUser(params: AuthenticateUserParams): Promise<
 
     const authenticationResult = await authenticationQuery;
     if (!authenticationResult)
-        return undefined;
+        return { user: /* visitor= */ undefined };
 
-    return new User(authenticationResult, includeAuthType ? authenticationResult.authType
-                                                          : undefined);
+    const user = new User(authenticationResult, includeAuthType ? authenticationResult.authType
+                                                                : undefined);
+    return { user };
 }
 
 /**

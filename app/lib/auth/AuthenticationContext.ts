@@ -83,7 +83,5 @@ export async function requireAuthenticationContext(): Promise<UserAuthentication
 async function getAuthenticationContextFromSessionData(sessionData: SessionData)
     : Promise<AuthenticationContext>
 {
-    return {
-        user: await authenticateUser({ type: 'session', ...sessionData }),
-    };
+    return authenticateUser({ type: 'session', ...sessionData });
 }

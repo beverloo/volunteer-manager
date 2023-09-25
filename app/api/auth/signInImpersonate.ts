@@ -46,7 +46,9 @@ export async function signInImpersonate(request: Request, props: ActionProps): P
     if (!props.user || !can(props.user, Privilege.Administrator))
         noAccess();
 
-    const impersonatedUser = await authenticateUser({ type: 'userId', userId: request.userId });
+    const { user: impersonatedUser } =
+        await authenticateUser({ type: 'userId', userId: request.userId });
+
     if (!impersonatedUser)
         return { success: false };  // unable to find the user
 

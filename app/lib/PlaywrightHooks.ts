@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AuthenticationContext } from './auth/AuthenticationContext';
 import type { AuthenticationData, AuthenticateUserParams } from './auth/Authentication';
 import { AuthType } from './database/Types';
 import { User, type UserDatabaseRow } from './auth/User';
@@ -46,7 +47,7 @@ export class PlaywrightHooks {
     /**
      * Hook for `authenticateUser` in `//app/lib/auth/Authentication.ts`.
      */
-    static authenticateUser(params: AuthenticateUserParams): User | undefined {
+    static authenticateUser(params: AuthenticateUserParams): AuthenticationContext {
         for (const playwrightUser of kPlaywrightUsers) {
             let match = false;
             switch (params.type) {
@@ -65,26 +66,28 @@ export class PlaywrightHooks {
             if (!match)
                 continue;
 
-            return new User({
-                userId: 999999,
-                username: undefined,
-                firstName: 'PWUSER',
-                lastName: 'Example',
-                gender: 'Other',
-                birthdate: undefined,
-                phoneNumber: undefined,
-                avatarFileHash: undefined,
-                privileges: 0n,
-                activated: 1,
-                sessionToken: 0,
-                events: [],
+            return {
+                user: new User({
+                    userId: 999999,
+                    username: undefined,
+                    firstName: 'PWUSER',
+                    lastName: 'Example',
+                    gender: 'Other',
+                    birthdate: undefined,
+                    phoneNumber: undefined,
+                    avatarFileHash: undefined,
+                    privileges: 0n,
+                    activated: 1,
+                    sessionToken: 0,
+                    events: [],
 
-                ...playwrightUser,  // expand the partial user configuration
+                    ...playwrightUser,  // expand the partial user configuration
 
-            }, playwrightUser.authType ?? AuthType.password);
+                }, playwrightUser.authType ?? AuthType.password),
+            };
         }
 
-        return undefined;
+        return { user: /* visitor= */ undefined };
     }
 
     /**

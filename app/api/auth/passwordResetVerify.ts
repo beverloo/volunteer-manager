@@ -47,7 +47,7 @@ export async function passwordResetVerify({ request }: Request, props: ActionPro
 {
     const passwordResetRequest = await unsealPasswordResetRequest(request);
     if (passwordResetRequest) {
-        const user = await authenticateUser({ type: 'session', ...passwordResetRequest });
+        const { user } = await authenticateUser({ type: 'session', ...passwordResetRequest });
         if (user) {
             return {
                 success: true,

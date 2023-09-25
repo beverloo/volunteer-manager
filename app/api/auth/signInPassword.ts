@@ -49,7 +49,7 @@ type Response = SignInPasswordDefinition['response'];
  * the server must be SHA-256 hashed already. A cookie will be set when the password is correct.
  */
 export async function signInPassword(request: Request, props: ActionProps): Promise<Response> {
-    const user = await authenticateUser({
+    const { user } = await authenticateUser({
         type: 'password',
         username: request.username,
         sha256Password: request.password

@@ -47,8 +47,7 @@ type Response = PasswordResetDefinition['response'];
 export async function passwordReset(request: Request, props: ActionProps): Promise<Response> {
     const passwordResetRequest = await unsealPasswordResetRequest(request.request);
     if (passwordResetRequest) {
-        const user = await authenticateUser({ type: 'session', ... passwordResetRequest });
-
+        const { user } = await authenticateUser({ type: 'session', ... passwordResetRequest });
         if (user) {
             await user.updatePassword(request.password, /* incrementSessionToken= */ true);
             await writeSealedSessionCookie(
