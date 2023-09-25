@@ -52,13 +52,16 @@ export async function contextForRegistrationPage(slug: string)
     if (!event)
         return undefined;  // invalid event
 
-    const { user } = await getAuthenticationContext();
-    const registration = await getRegistration(environment.environmentName, event, user?.userId);
+    const authenticationContext = await getAuthenticationContext();
+    const { user } = authenticationContext;
 
+    const registration = await getRegistration(environment.environmentName, event, user?.userId);
     if (!can(user, Privilege.EventContentOverride)) {
-        const environmentData = event.getEnvironmentData(environment.environmentName);
-        if (!environmentData?.enableContent)
-            return undefined;  // no access to the event
+        if (!authenticationContext.user || !authenticationContext.events.has(slug)) {
+            const environmentData = event.getEnvironmentData(environment.environmentName);
+            if (!environmentData?.enableContent)
+                return undefined;  // no access to the event
+        }
     }
 
     return { environment, event, registration, user };
