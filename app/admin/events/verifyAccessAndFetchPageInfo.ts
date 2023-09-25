@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
 /**
@@ -126,7 +126,7 @@ export async function verifyAccessAndFetchPageInfo(params: PageInfoParams)
 export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?: string })
     : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
 
     // ---------------------------------------------------------------------------------------------
     // Event information

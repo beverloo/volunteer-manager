@@ -7,7 +7,7 @@ import { default as TopLevelLayout } from '../TopLevelLayout';
 import { EventCreate } from './EventCreate';
 import { EventList } from './EventList';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/database';
 
 /**
@@ -16,7 +16,7 @@ import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/da
  * events. Events cannot be removed through the portal, although they can be hidden.
  */
 export default async function EventsPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();

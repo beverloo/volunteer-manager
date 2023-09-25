@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '@app/registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
-import { getUser } from '@lib/auth/getUser';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * Placeholder for the schedule sub-application, which has not been imported to the new Volunteer
@@ -20,7 +20,7 @@ export default async function SchedulePage() {
     if (!environment)
         notFound();
 
-    const user = await getUser();
+    const { user } = await getAuthenticationContext();
 
     return (
         <RegistrationLayout environment={environment}>

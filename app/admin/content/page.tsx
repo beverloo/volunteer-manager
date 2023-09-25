@@ -12,14 +12,14 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { ContentCreate } from './ContentCreate';
 import { ContentList } from './ContentList';
 import { createGlobalScope } from './ContentScope';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The <ContentPage> component lists the global content, which then, in turn, may be edited and
  * deleted as applicable. This includes the privacy policy, e-mail messages, and so on.
  */
 export default async function ContentPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.SystemContentAccess))
         notFound();
 

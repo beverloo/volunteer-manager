@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerDataTable } from './VolunteerDataTable';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
@@ -19,7 +19,7 @@ import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
  * in a <DataTable> component. Provides access to individual user pages.
  */
 export default async function VolunteersPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 

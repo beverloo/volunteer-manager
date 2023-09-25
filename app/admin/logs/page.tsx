@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 
 import { LogsDataTable } from './LogsDataTable';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The logs page provides access to the most recent log entries created by the Volunteer Manager,
@@ -17,7 +17,7 @@ import { requireUser } from '@lib/auth/getUser';
  * however they will be streamed by the server to deal with ~infinitely large data sets.
  */
 export default async function LogsPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.SystemLogsAccess))
         notFound();
 

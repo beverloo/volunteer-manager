@@ -8,8 +8,8 @@ import type { Registration } from '@lib/Registration';
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { WelcomePage } from './welcome/WelcomePage';
 import { determineEnvironment } from '@lib/Environment';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventsForUser } from './lib/EventLoader';
-import { getUser } from './lib/auth/getUser';
 import { getRegistration } from './lib/RegistrationLoader';
 
 /**
@@ -21,7 +21,7 @@ export default async function RootPage() {
     if (!environment)
         notFound();
 
-    const user = await getUser();
+    const { user } = await getAuthenticationContext();
     const events = await getEventsForUser(environment.environmentName, user);
 
     // Identify the most recent team for which applications are being accepted, then fetch whether

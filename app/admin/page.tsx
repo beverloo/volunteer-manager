@@ -10,7 +10,7 @@ import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tUsers, tUsersEvents } from '@lib/database';
 
 import { globalConnectionPool } from '@lib/database/Connection';
@@ -70,7 +70,7 @@ async function fetchBirthdays(user: User) {
  * give an overview of what's going on. Exact cards depend on the user's access level.
  */
 export default async function AdminPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
 
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);

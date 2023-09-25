@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 
 import type { User } from '@lib/auth/User';
-import { getUserFromHeaders } from '@lib/auth/getUser';
+import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
 
 /**
  * Route parameters that can be included in the action request payload, based on REST principles.
@@ -174,7 +174,8 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             origin: request.nextUrl.origin,
             requestHeaders: request.headers,
             responseHeaders,
-            user: userForTesting ?? await getUserFromHeaders(request.headers),
+            user:
+                userForTesting ?? (await getAuthenticationContextFromHeaders(request.headers)).user
         });
 
         const responseValidation = responseInterfaceDefinition.safeParse({ response });

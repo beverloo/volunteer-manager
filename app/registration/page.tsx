@@ -4,8 +4,8 @@
 import { notFound, redirect } from 'next/navigation';
 
 import { determineEnvironment } from '@lib/Environment';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventsForUser } from '@lib/EventLoader';
-import { getUser } from '@lib/auth/getUser';
 
 /**
  * The <RegistrationPage> component does not own content, but will redirect the user to the earliest
@@ -16,7 +16,7 @@ export default async function RegistrationPage() {
     if (!environment)
         notFound();
 
-    const user = await getUser();
+    const { user } = await getAuthenticationContext();
 
     const events = await getEventsForUser(environment.environmentName, user);
     for (const potentialEvent of events) {

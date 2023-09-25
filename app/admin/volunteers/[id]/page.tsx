@@ -14,7 +14,7 @@ import { LogsDataTable } from '@app/admin/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { VolunteerPrivileges } from './VolunteerPrivileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -97,7 +97,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
  * be fetched from the database prior to being displayed.
  */
 export default async function VolunteerPage(props: NextRouterParams<'id'>) {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 

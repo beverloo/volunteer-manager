@@ -18,7 +18,7 @@ import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
@@ -107,7 +107,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
 
     const { slug } = props.params;
 
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
 
     const info = await fetchEventSidebarInformation(user, slug);
     if (!info)

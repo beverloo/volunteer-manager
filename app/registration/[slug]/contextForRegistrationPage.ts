@@ -8,9 +8,9 @@ import type { User } from '@lib/auth/User';
 
 import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
-import { getUser } from '@lib/auth/getUser';
 
 /**
  * The context that should be commonly available for the different registration pages.
@@ -52,7 +52,7 @@ export async function contextForRegistrationPage(slug: string)
     if (!event)
         return undefined;  // invalid event
 
-    const user = await getUser();
+    const { user } = await getAuthenticationContext();
     const registration = await getRegistration(environment.environmentName, event, user?.userId);
 
     if (!can(user, Privilege.EventContentOverride)) {

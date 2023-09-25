@@ -14,10 +14,10 @@ import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from './AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
-import { requireUser } from '../lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 export default async function TopLevelLayout(props: React.PropsWithChildren) {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
 
     const dashboardMenu: AdminSidebarMenuEntry[] = [
         {

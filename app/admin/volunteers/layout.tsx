@@ -11,15 +11,14 @@ import { AdminContent } from '../AdminContent';
 import { AdminPageContainer } from '../AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function VolunteersLayout(props: React.PropsWithChildren) {
-    const user = await requireUser();
-
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 

@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { OutboxMessage } from './OutboxMessage';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The message outbox page displays an individual message that was sent through the Volunteer
@@ -15,7 +15,7 @@ import { requireUser } from '@lib/auth/getUser';
  * is rendered client-side as it depends on an API.
  */
 export default async function OutboxPage(props: NextRouterParams<'id'>) {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.SystemOutboxAccess))
         notFound();
 

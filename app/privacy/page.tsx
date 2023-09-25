@@ -7,8 +7,8 @@ import { RegistrationContent } from '../registration/RegistrationContent';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getStaticContent } from '@lib/Content';
-import { getUser } from '@lib/auth/getUser';
 
 /**
  * Root component for the /private page, which lists the GDPR and data collection policies of the
@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
     if (!environment)
         notFound();
 
-    const user = await getUser();
+    const { user } = await getAuthenticationContext();
 
     const content = await getStaticContent([ 'privacy' ]);
     if (!content)

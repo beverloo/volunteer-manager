@@ -8,14 +8,14 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptPersonalityPage } from './PromptPersonalityPage';
 import { readSetting } from '@lib/Settings';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The prompt page allows an administrator to test the result of a particular prompt against the
  * different personalities that the volunteer manager supports.
  */
 export default async function IntegrationsPromptPage(props: NextRouterParams<'prompt'>) {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.VolunteerAdministrator))
         notFound();
 

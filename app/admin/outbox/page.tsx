@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 
 import { OutboxDataTable } from './OutboxDataTable';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { requireUser } from '@lib/auth/getUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The outbox page summarises all outgoing e-mail messages, and tells the volunteer whether they
@@ -17,7 +17,7 @@ import { requireUser } from '@lib/auth/getUser';
  * with specific permissions, as messages may contain e.g. password reset links.
  */
 export default async function OutboxPage() {
-    const user = await requireUser();
+    const { user } = await requireAuthenticationContext();
     if (!can(user, Privilege.SystemOutboxAccess))
         notFound();
 

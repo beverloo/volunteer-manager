@@ -4,7 +4,7 @@
 import type { UserDatabaseRow } from './User';
 import { AuthType } from '@lib/database/Types';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
-import { getUserFromHeaders } from './getUser';
+import { getAuthenticationContextFromHeaders } from './AuthenticationContext';
 import { serialize } from 'cookie';
 import { useMockConnection } from '../database/Connection';
 
@@ -13,7 +13,7 @@ import { TextDecoder, TextEncoder } from 'util';
 global.TextEncoder = TextEncoder as any;
 global.TextDecoder = TextDecoder as any;
 
-describe('getUser', () => {
+describe('AuthenticationContext', () => {
     const mockConnection = useMockConnection();
 
     it('is able to authenticate users based on valid session data', async () => {
@@ -53,7 +53,7 @@ describe('getUser', () => {
             };
         });
 
-        const user = await getUserFromHeaders(headers);
+        const { user } = await getAuthenticationContextFromHeaders(headers);
         expect(user).not.toBeUndefined();
 
         expect(user?.firstName).toEqual('Joe');
