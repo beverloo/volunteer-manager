@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsExtra } from '@lib/database';
 
@@ -83,8 +84,11 @@ type Response = TrainingExtraDefinition['response'];
  * people outside of our organisation who would like to participate in the training.
  */
 export async function trainingExtra(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventTrainingManagement))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        event: request.event,
+        privilege: Privilege.EventTrainingManagement,
+    });
 
     const event = await getEventBySlug(request.event);
     if (!event)

@@ -5,11 +5,12 @@ import { dayjs } from '@lib/DateTime';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../../Action';
 import type { User } from '@lib/auth/User';
-import { type ActionProps, noAccess } from '../../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VertexPromptBuilder } from '@lib/VertexPromptBuilder';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { readSetting } from '@lib/Settings';
 import db, { tEvents, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -173,8 +174,11 @@ export async function createMessage(request: Request, props: ActionProps): Promi
     switch (request.type) {
         case 'approve-volunteer':
         case 'reject-volunteer':
-            if (!can(props.user, Privilege.EventApplicationManagement))
-                noAccess();
+            executeAccessCheck(props.authenticationContext, {
+                check: 'admin-event',
+                event: request.event,
+                privilege: Privilege.EventApplicationManagement,
+            });
 
             promptSetting =
                 request.type === 'approve-volunteer' ? 'integration-prompt-approve-volunteer'

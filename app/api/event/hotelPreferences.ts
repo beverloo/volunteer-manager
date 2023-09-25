@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
 import db, { tEventsTeams, tHotelsPreferences, tTeams } from '@lib/database';
@@ -93,8 +94,11 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
     let subjectUserId = props.user.userId;
     if (!!request.adminOverrideUserId) {
-        if (!can(props.user, Privilege.EventHotelManagement))
-            return { success: false, error: 'You do not have permission to update this data' };
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+            privilege: Privilege.EventHotelManagement,
+        });
 
         subjectUserId = request.adminOverrideUserId;
     }

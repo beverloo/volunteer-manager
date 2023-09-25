@@ -8,6 +8,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
 import { kApplicationProperties } from '../event/application';
@@ -129,8 +130,10 @@ export async function updateApplication(request: Request, props: ActionProps): P
     //----------------------------------------------------------------------------------------------
 
     if (request.data) {
-        if (!can(props.user, Privilege.EventAdministrator))
-            noAccess();  // TODO: Seniors are allowed to use this API
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+        });
 
         const [ preferenceTimingStart, preferenceTimingEnd ] =
             request.data.serviceTiming.split('-').map(v => parseInt(v, 10));
@@ -156,8 +159,11 @@ export async function updateApplication(request: Request, props: ActionProps): P
     //----------------------------------------------------------------------------------------------
 
     if (request.metadata) {
-        if (!can(props.user, Privilege.EventVolunteerApplicationOverrides))
-            noAccess();
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+            privilege: Privilege.EventVolunteerApplicationOverrides,
+        });
 
         affectedRows = await db.update(tUsersEvents)
             .set({
@@ -178,8 +184,11 @@ export async function updateApplication(request: Request, props: ActionProps): P
     //----------------------------------------------------------------------------------------------
 
     if (request.status) {
-        if (!can(props.user, Privilege.EventApplicationManagement))
-            noAccess();
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+            privilege: Privilege.EventApplicationManagement,
+        });
 
         const { subject, message } = request.status;
         if (!subject || !message) {

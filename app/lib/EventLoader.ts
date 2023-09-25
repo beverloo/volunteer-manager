@@ -47,6 +47,16 @@ export async function getEventBySlug(slug: string)
 }
 
 /**
+ * Returns the event slug for the event uniquely identified by the given `eventId`, if any.
+ */
+export async function getEventSlugForId(eventId: number): Promise<string | undefined> {
+    return await db.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(eventId))
+        .selectOneColumn(tEvents.eventSlug)
+        .executeSelectNoneOrOne() ?? undefined;
+}
+
+/**
  * Returns all events that are publicly visible, limited to the |user| when they are signed in to
  * their account. This function issues a database query specific to the current environment.
  */

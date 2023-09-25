@@ -48,9 +48,13 @@ interface ContactInfo {
  */
 export interface VolunteerIdentityProps {
     /**
-     * ID of the event, team and user for whom this box is being displayed.
+     * Slug of the event for which this box is being displayed.
      */
-    eventId: number;
+    event: string;
+
+    /**
+     * ID of the team and user for whom this box is being displayed.
+     */
     teamId: number;
     userId: number;
 
@@ -68,7 +72,7 @@ export interface VolunteerIdentityProps {
  * avatar, name, role and some basic other information.
  */
 export function VolunteerIdentity(props: VolunteerIdentityProps) {
-    const { eventId, teamId, userId, volunteer } = props;
+    const { event, teamId, userId, volunteer } = props;
 
     const [ contactInfo, setContactInfo ] = useState<ContactInfo | undefined>(props.contactInfo);
     const [ contactInfoLoading, setContactInfoLoading ] = useState<boolean>(false);
@@ -95,12 +99,12 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
 
         setContactInfoLoading(true);
         issueServerAction<VolunteerContactInfoDefinition>(
-            '/api/admin/volunteer-contact-info', { eventId, teamId, userId }).then(response =>
+            '/api/admin/volunteer-contact-info', { event, teamId, userId }).then(response =>
         {
             setContactInfo(response);
         });
 
-    }, [ contactInfo, contactInfoLoading, emailAnchorEl, eventId, phoneNumberAnchorEl, teamId,
+    }, [ contactInfo, contactInfoLoading, emailAnchorEl, event, phoneNumberAnchorEl, teamId,
          userId ])
 
     const avatarSrc =

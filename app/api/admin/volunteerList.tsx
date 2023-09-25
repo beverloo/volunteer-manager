@@ -3,8 +3,9 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import type { ActionProps } from '../Action';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents } from '@lib/database';
 
 /**
@@ -53,10 +54,10 @@ type Response = VolunteerListDefinition['response'];
  * creating a new application on the fly.
  */
 export async function volunteerList(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventAdministrator) &&
-            !can(props.user, Privilege.EventApplicationManagement)) {
-        noAccess();
-    }
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.EventApplicationManagement,
+    });
 
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
     const volunteers = await db.selectFrom(tUsers)

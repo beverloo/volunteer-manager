@@ -6,9 +6,10 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
-import db, { tTrainings, tTrainingsAssignments } from '@lib/database';
+import db, {  tTrainingsAssignments } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/event/training-preferences.
@@ -64,8 +65,11 @@ export async function trainingPreferences(request: Request, props: ActionProps):
 
     let subjectUserId = props.user.userId;
     if (!!request.adminOverrideUserId) {
-        if (!can(props.user, Privilege.EventTrainingManagement))
-            return { success: false, error: 'You do not have permission to update this data' };
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+            privilege: Privilege.EventTrainingManagement,
+        });
 
         subjectUserId = request.adminOverrideUserId;
     }

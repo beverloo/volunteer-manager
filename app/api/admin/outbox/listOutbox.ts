@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
-import db, { tOutbox, tUsers } from '@lib/database';
+import type { ActionProps } from '../../Action';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import db, { tOutbox } from '@lib/database';
 
 /**
  * Interface definition for the Outbox API, exposed through /api/admin/outbox.
@@ -149,8 +150,10 @@ function normalizeSortModel(sortModel?: Request['sortModel']): string {
  * Manager. This endpoint allows retrieval of a paginated list of all messages.
  */
 export async function listOutbox(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemOutboxAccess))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemOutboxAccess,
+    });
 
     const result = await db.selectFrom(tOutbox)
         .select({

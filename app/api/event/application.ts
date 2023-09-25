@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 
 /**
@@ -114,8 +115,11 @@ export async function application(request: Request, props: ActionProps): Promise
 
         let userId: number = props.user.userId;
         if (request.adminOverride) {
-            if (!can(props.user, Privilege.EventApplicationManagement))
-                throw new Error('Sorry, you do not have permission to impersonate users.');
+            executeAccessCheck(props.authenticationContext, {
+                check: 'admin-event',
+                event: request.event,
+                privilege: Privilege.EventApplicationManagement,
+            });
 
             userId = request.adminOverride.userId;
 

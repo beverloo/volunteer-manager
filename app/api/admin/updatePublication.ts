@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents } from '@lib/database';
 
 /**
@@ -52,6 +53,11 @@ type Response = UpdatePublicationDefinition['response'];
  * updated. Generally this will be about availability, hotel and training infomration.
  */
 export async function updatePublication(request: Request, props: ActionProps): Promise<Response> {
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        event: request.event,
+    });
+
     const updates: {
         publishAvailability?: number;
         publishHotels?: number;

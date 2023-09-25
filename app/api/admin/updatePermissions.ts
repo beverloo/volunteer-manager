@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
 /**
@@ -43,8 +44,10 @@ type Response = UpdatePermissionsDefinition['response'];
  * ability to call this API from the administration section.
  */
 export async function updatePermissions(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.Administrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.Administrator,
+    });
 
     await Log({
         type: LogType.AdminUpdatePermission,

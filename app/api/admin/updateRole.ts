@@ -3,10 +3,11 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { RoleBadge } from '@lib/database/Types';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles } from '@lib/database';
 
 /**
@@ -67,8 +68,10 @@ type Response = UpdateRoleDefinition['response'];
  * admin access, hotel and training eligibility and of course the role's name.
  */
 export async function updateRole(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.VolunteerAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     await db.update(tRoles)
         .set({

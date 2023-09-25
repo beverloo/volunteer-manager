@@ -3,10 +3,11 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { clearEnvironmentCache } from '@lib/Environment';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tTeamsRoles } from '@lib/database';
 
 /**
@@ -72,8 +73,10 @@ type Response = UpdateTeamDefinition['response'];
  * description, as well as visual information such as the colour scheme that should be used.
  */
 export async function updateTeam(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.VolunteerAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     // Verify that the `request` contains at least one role, and a valid default role.
     if (!request.teamRoles.length || !request.teamRoles.includes(request.teamDefaultRole))

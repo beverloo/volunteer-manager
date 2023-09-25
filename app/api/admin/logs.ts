@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { fetchLogs } from '@lib/LogLoader';
 
 /**
@@ -117,8 +118,10 @@ type Response = LogsDefinition['response'];
  * ones, while MUI <DataGrid> provides powerful filtering capabilities.
  */
 export async function logs(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemLogsAccess))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemLogsAccess,
+    });
 
     const response = await fetchLogs({
         sourceOrTargetUserId: request.filters?.sourceOrTargetUserId,

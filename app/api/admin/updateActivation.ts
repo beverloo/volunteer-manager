@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
 /**
@@ -42,8 +43,10 @@ type Response = UpdateActivationDefinition['response'];
  * universal volunteer access can use this API, and they cannot use it on their own account.
  */
 export async function updateActivation(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.VolunteerAdministrator) || request.userId === props.user?.userId)
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     const affectedRows = await db.update(tUsers)
         .set({ activated: request.activated ? 1 : 0 })

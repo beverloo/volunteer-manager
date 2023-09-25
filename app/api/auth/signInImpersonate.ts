@@ -7,6 +7,7 @@ import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
@@ -43,14 +44,16 @@ type Response = SignInImpersonateDefinition['response'];
  * to verify access and permission behaviour throughout the portal.
  */
 export async function signInImpersonate(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user || !can(props.user, Privilege.Administrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.Administrator,
+    });
 
     const { user: impersonatedUser } =
         await authenticateUser({ type: 'userId', userId: request.userId });
 
     const impersonatedUserSessionToken = await getUserSessionToken(request.userId);
-    const userSessionToken = await getUserSessionToken(props.user.userId);
+    const userSessionToken = await getUserSessionToken(props.user!.userId);
 
     if (!impersonatedUser || !impersonatedUserSessionToken || !userSessionToken)
         return { success: false };  // unable to find the user
@@ -59,7 +62,7 @@ export async function signInImpersonate(request: Request, props: ActionProps): P
         id: impersonatedUser.userId,
         token: impersonatedUserSessionToken,
         parent: {
-            id: props.user.userId,
+            id: props.user!.userId,
             token: userSessionToken,
         },
     }, props.responseHeaders);

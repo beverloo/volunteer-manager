@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import db, { tUsers } from '@lib/database';
 
@@ -38,8 +39,10 @@ type Response = ResetPasswordLinkDefinition['response'];
  * have the ability to call this API from the administration section.
  */
 export async function resetPasswordLink(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.Administrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.Administrator,
+    });
 
     const user = await db.selectFrom(tUsers)
         .select({ sessionToken: tUsers.sessionToken })

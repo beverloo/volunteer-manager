@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
 import { kVertexAiSettings } from './vertexAi';
@@ -80,8 +81,10 @@ type Response = UpdateIntegrationDefinition['response'];
  * different permission levels if need be.
  */
 export async function updateIntegration(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemAdministrator,
+    });
 
     if (request.animecon) {
         await writeSettings({

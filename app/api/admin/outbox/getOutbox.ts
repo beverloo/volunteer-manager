@@ -4,8 +4,9 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import type { ActionProps } from '../../Action';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tOutbox } from '@lib/database';
 
 /**
@@ -139,8 +140,10 @@ type Response = GetOutboxDefinition['response'];
  * allows information about a specific message to be retrieved.
  */
 export async function getOutbox(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemOutboxAccess))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemOutboxAccess,
+    });
 
     const message = await db.selectFrom(tOutbox)
         .select({

@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ActionProps } from '../../Action';
 import { confirmUserHasAccess, kContentScopeDefinition } from './listContent';
 import db, { tContent } from '@lib/database';
 
@@ -54,8 +54,7 @@ type Response = GetContentDefinition['response'];
  * API to get a piece of content within a particular scope.
  */
 export async function getContent(request: Request, props: ActionProps): Promise<Response> {
-    if (!await confirmUserHasAccess(request.scope, props.user))
-        noAccess();
+    confirmUserHasAccess(request.scope, props.authenticationContext);
 
     return await db.selectFrom(tContent)
         .where(tContent.contentId.equals(request.id))

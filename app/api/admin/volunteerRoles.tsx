@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles, tTeamsRoles, tUsersEvents } from '@lib/database';
 
 /**
@@ -72,8 +73,10 @@ type Response = VolunteerRolesDefinition['response'];
  * during a particular event. As such, this API serves multiple purposes.
  */
 export async function volunteerRoles(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        privilege: Privilege.EventAdministrator,
+    });
 
     const roles = await db.selectFrom(tTeamsRoles)
         .innerJoin(tRoles)

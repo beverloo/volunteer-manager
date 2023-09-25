@@ -4,10 +4,11 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tContent, tEvents, tEventsTeams } from '@lib/database';
@@ -85,8 +86,11 @@ type Response = UpdateEventDefinition['response'];
  * participate in an event. Only event administrators have the rights to use this page.
  */
 export async function updateEvent(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        event: request.event,
+        privilege: Privilege.EventAdministrator,
+    });
 
     const event = await getEventBySlug(request.event);
     if (!event)

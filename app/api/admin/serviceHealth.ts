@@ -3,13 +3,13 @@
 
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { User } from '@lib/auth/User';
-import { type ActionProps, noAccess } from '../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 import { createEmailClient } from '@lib/integrations/email';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
-import { readSettings } from '@lib/Settings';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
 /**
  * The services for which health check can be carried out.
@@ -152,14 +152,16 @@ async function runVertexAIHealthCheck(): Promise<Response> {
  * each integration that we support.
  */
 export async function serviceHealth(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user || !can(props.user, Privilege.SystemAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemAdministrator,
+    });
 
     switch (request.service) {
         case 'AnimeCon':
             return runAnimeConHealthCheck();
         case 'Email':
-            return runEmailHealthCheck(props.user);
+            return runEmailHealthCheck(props.user!);
         case 'Google':
             return runGoogleHealthCheck();
         case 'VertexAI':

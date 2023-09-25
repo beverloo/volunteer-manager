@@ -131,7 +131,7 @@ type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
  * @note Access checks can be done inline when requiring an authentication context to exist.
  */
 export function executeAccessCheck(
-    context: UserAuthenticationContext, access: AuthenticationAccessCheck): void | never
+    context: AuthenticationContext, access: AuthenticationAccessCheck): void | never
 {
     if (access.privilege) {
         const privileges = Array.isArray(access.privilege) ? access.privilege : [access.privilege];
@@ -142,6 +142,9 @@ export function executeAccessCheck(
     }
 
     if ('check' in access) {
+        if (!context.user)
+            notFound();
+
         switch (access.check) {
             case 'admin':
                 if (!can(context.user, Privilege.EventAdministrator)) {

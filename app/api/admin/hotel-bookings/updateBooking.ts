@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getHotelBookings } from '@app/admin/events/[slug]/hotels/HotelBookings';
 import db, { tHotelsAssignments, tHotelsBookings, tUsers } from '@lib/database';
@@ -104,8 +105,11 @@ type Response = UpdateBookingDefinition['response'];
  * API to update a hotel booking within a given scope.
  */
 export async function updateBooking(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventHotelManagement))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        event: request.slug,
+        privilege: Privilege.EventHotelManagement,
+    });
 
     const event = await getEventBySlug(request.slug);
     if (!event)

@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { confirmUserHasAccess, kContentScopeDefinition } from './listContent';
 import { contextForContent } from './deleteContent';
@@ -61,8 +61,7 @@ type Response = UpdateContentDefinition['response'];
  * API to update content that exists at a specific scope.
  */
 export async function updateContent(request: Request, props: ActionProps): Promise<Response> {
-    if (!await confirmUserHasAccess(request.scope, props.user))
-        noAccess();
+    confirmUserHasAccess(request.scope, props.authenticationContext);
 
     // (1) Fetch whether the existing content is protected, in which case we do not allow the path
     //     to be updated. Failing to do that check could break the system.

@@ -3,11 +3,12 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { LogType, Log, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tEvents, tEventsTeams } from '@lib/database';
+import db, { tEvents } from '@lib/database';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/create-event.
@@ -63,8 +64,10 @@ type Response = CreateEventDefinition['response'];
  * but one that we should be able to take rather seamlessly. Access is restricted.
  */
 export async function createEvent(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.EventAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.EventAdministrator,
+    });
 
     if (request.slug.length < 4 || request.slug.length > 12)
         return { error: 'The slug must be between 4 and 12 characters long.' };

@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 
+import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
 import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
 
@@ -19,6 +20,11 @@ export type ActionRouteParams = {
  * state, such as understanding who the signed in user is and getting or setting headers.
  */
 export interface ActionProps {
+    /**
+     * The authentication context that's applicable for this request.
+     */
+    authenticationContext: AuthenticationContext;
+
     /**
      * IP address of the computer who issued this request.
      */
@@ -40,7 +46,7 @@ export interface ActionProps {
     responseHeaders: Headers;
 
     /**
-     * The user for whom the request is being made, if any.
+     * The user for whom the request is being made, if any. Same as `authenticationContext.user`.
      */
     user?: User;
 }
@@ -168,14 +174,18 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             });
         }
 
+        const authenticationContext = await getAuthenticationContextFromHeaders(request.headers);
+        if (userForTesting)
+            authenticationContext.user = userForTesting;
+
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {
+            authenticationContext,
             ip: request.ip ?? request.headers.get('x-forwarded-for') ?? undefined,
             origin: request.nextUrl.origin,
             requestHeaders: request.headers,
             responseHeaders,
-            user:
-                userForTesting ?? (await getAuthenticationContextFromHeaders(request.headers)).user
+            user: authenticationContext.user
         });
 
         const responseValidation = responseInterfaceDefinition.safeParse({ response });

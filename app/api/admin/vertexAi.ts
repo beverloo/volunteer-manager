@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import type { ActionProps } from '../Action';
+import { Privilege } from '@lib/auth/Privileges';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { readSettings } from '@lib/Settings';
 
 /**
@@ -53,8 +54,10 @@ type Response = VertexAiDefinition['response'];
  * use the settings stored in the database when they are not set in the request.
  */
 export async function vertexAi(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.SystemAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.SystemAdministrator,
+    });
 
     const { settings } = request;
 

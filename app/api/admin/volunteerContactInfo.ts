@@ -3,10 +3,11 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
-import db, { tUsers } from '@lib/database';
+import { RegistrationStatus } from '@lib/database/Types';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import db, { tUsers, tUsersEvents, tEvents } from '@lib/database';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-contact-info.
@@ -14,9 +15,9 @@ import db, { tUsers } from '@lib/database';
 export const kVolunteerContactInfoDefinition = z.object({
     request: z.object({
         /**
-         * ID of the event for which this information is being requested.
+         * Slug of the event for which this information is being requested.
          */
-        eventId: z.number(),
+        event: z.string(),
 
         /**
          * ID of the team for which this information is being requested.
@@ -53,12 +54,18 @@ type Response = VolunteerContactInfoDefinition['response'];
 export async function volunteerContactInfo(request: Request, props: ActionProps)
     : Promise<Response>
 {
-    if (!can(props.user, Privilege.EventAdministrator))
-        noAccess();
-
-    // TODO: Proper access checks for seniors.
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin-event',
+        event: request.event,
+    });
 
     const contactInformation = await db.selectFrom(tUsers)
+        .innerJoin(tUsersEvents)
+            .on(tUsersEvents.userId.equals(tUsers.userId))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .and(tEvents.eventSlug.equals(request.event))
         .where(tUsers.userId.equals(request.userId))
         .select({
             username: tUsers.username,

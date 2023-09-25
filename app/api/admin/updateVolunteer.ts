@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
 import db, { tUsers } from '@lib/database';
 
@@ -72,8 +73,10 @@ type Response = UpdateVolunteerDefinition['response'];
  * have the ability to call into this endpoint.
  */
 export async function updateVolunteer(request: Request, props: ActionProps): Promise<Response> {
-    if (!can(props.user, Privilege.VolunteerAdministrator))
-        noAccess();
+    executeAccessCheck(props.authenticationContext, {
+        check: 'admin',
+        privilege: Privilege.VolunteerAdministrator,
+    });
 
     const user = await db.selectFrom(tUsers)
         .select({

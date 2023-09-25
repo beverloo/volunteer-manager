@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { confirmUserHasAccess, kContentScopeDefinition } from './listContent';
 import { contextForContent } from './deleteContent';
@@ -52,8 +52,7 @@ type Response = CreateContentDefinition['response'];
  * API to create new content within a given scope.
  */
 export async function createContent(request: Request, props: ActionProps): Promise<Response> {
-    if (!await confirmUserHasAccess(request.scope, props.user))
-        noAccess();
+    confirmUserHasAccess(request.scope, props.authenticationContext);
 
     const existingContent = await db.selectFrom(tContent)
         .where(tContent.eventId.equals(request.scope.eventId))

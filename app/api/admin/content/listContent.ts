@@ -3,10 +3,12 @@
 
 import { z } from 'zod';
 
+import type { ActionProps } from '../../Action';
+import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { ContentScope } from '@app/admin/content/ContentScope';
-import type { User } from '@lib/auth/User';
-import { type ActionProps, noAccess } from '../../Action';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { getEventSlugForId } from '@lib/EventLoader';
 import db, { tContent, tUsers } from '@lib/database';
 
 /**
@@ -26,18 +28,22 @@ export const kContentScopeDefinition = z.object({
 });
 
 /**
- * Confirm whether the given `user` has access to content of the given `scope`. The check for global
- * content is synchronous, whereas event-based content may be checked in the database
+ * Confirm whether the given `context` has access to content of the given `scope`. The check for
+ * global content is synchronous, whereas event-based content may be checked in the database
  */
-export async function confirmUserHasAccess(scope: ContentScope, user?: User): Promise<boolean> {
-    if (scope.eventId === /* invalid event= */ 0)
-        return can(user, Privilege.SystemContentAccess);
-
-    if (can(user, Privilege.EventAdministrator))
-        return true;  // event administrators can always access event content
-
-    // TODO: Allow Senior+ volunteers with implied access to modify content as well.
-    return false;
+export async function confirmUserHasAccess(scope: ContentScope, context: AuthenticationContext) {
+    if (scope.eventId === /* invalid event= */ 0) {
+        executeAccessCheck(context, {
+            check: 'admin',
+            privilege: Privilege.SystemContentAccess,
+        });
+    } else {
+        executeAccessCheck(context, {
+            check: 'admin-event',
+            event: (await getEventSlugForId(scope.eventId))!,
+            privilege: Privilege.EventAdministrator,
+        })
+    }
 }
 
 /**
@@ -118,8 +124,7 @@ type Response = ListContentDefinition['response'];
  * API to list the content that exists within a specific scope.
  */
 export async function listContent(request: Request, props: ActionProps): Promise<Response> {
-    if (!await confirmUserHasAccess(request.scope, props.user))
-        noAccess();
+    confirmUserHasAccess(request.scope, props.authenticationContext);
 
     const content = await db.selectFrom(tContent)
         .innerJoin(tUsers)

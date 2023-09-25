@@ -129,7 +129,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     return (
         <>
             <VolunteerHeader event={event} team={team} volunteer={volunteer} user={user} />
-            <VolunteerIdentity eventId={event.id} teamId={team.id} userId={volunteer.userId}
+            <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
             {hotelManagement}

@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { confirmUserHasAccess, kContentScopeDefinition } from './listContent';
 import db, { tContent, tEvents, tTeams } from '@lib/database';
@@ -73,8 +73,7 @@ type Response = DeleteContentDefinition['response'];
  * API to delete a certain piece of content. The content must not be protected.
  */
 export async function deleteContent(request: Request, props: ActionProps): Promise<Response> {
-    if (!await confirmUserHasAccess(request.scope, props.user))
-        noAccess();
+    confirmUserHasAccess(request.scope, props.authenticationContext);
 
     const affectedRows = await db.update(tContent)
         .set({ revisionVisible: /* false= */ 0 })
