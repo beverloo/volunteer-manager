@@ -21,13 +21,17 @@ export default async function RootPage() {
     if (!environment)
         notFound();
 
-    const { user } = await getAuthenticationContext();
+    const authenticationContext = await getAuthenticationContext();
+    const { user } = authenticationContext;
+
     const events = await getEventsForUser(environment.environmentName, user);
 
     // Identify the most recent team for which applications are being accepted, then fetch whether
     // the `user`, if they are signed in, has applied to that event.
     let registrationEvent: Event | undefined;
     let registration: Registration | undefined;
+
+    let adminAccess: string[] = [];
 
     if (user) {
         for (const event of events) {
@@ -39,6 +43,8 @@ export default async function RootPage() {
             registration = await getRegistration(environment.environmentName, event, user.userId);
             break;
         }
+
+        adminAccess = [ ...authenticationContext.events.keys() ];
     }
 
     const eventDatas = events.map(event => event.toEventData(environment.environmentName));
@@ -47,7 +53,8 @@ export default async function RootPage() {
 
     return (
         <RegistrationLayout environment={environment}>
-            <WelcomePage events={eventDatas}
+            <WelcomePage adminAccess={adminAccess}
+                         events={eventDatas}
                          user={user}
                          registrationEvent={registrationEventData}
                          registration={registrationData}

@@ -12,9 +12,6 @@ describe('Privileges', () => {
         username: 'joe@example.com',
         firstName: 'Joe',
         lastName: 'Example',
-
-        // TODO: Remove these fields:
-        events: [],
     };
 
     it('has the ability to perform basic access checks', () => {

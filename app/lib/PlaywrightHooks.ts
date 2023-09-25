@@ -86,6 +86,7 @@ export class PlaywrightHooks {
 
             return {
                 authType: AuthType.password,
+                events: new Map(),
                 user: {
                     userId: 999999,
                     username: undefined,
@@ -93,9 +94,6 @@ export class PlaywrightHooks {
                     lastName: 'Example',
                     avatarUrl: undefined,
                     privileges: 0n,
-
-                    // TODO: Remove these fields:
-                    events: [],
 
                     ...playwrightUser,  // expand the partial user configuration
                 },

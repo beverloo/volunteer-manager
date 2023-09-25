@@ -13,6 +13,22 @@ import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 const headers = import('next/headers');
 
 /**
+ * Authentication Context describing a particular user's access to a particular event. Senior
+ * volunteering roles grant administrative access. Only active events will be considered.
+ */
+export interface UserEventAuthenticationContext {
+    /**
+     * Unique slug of the event ("2024"), through which it is identified in URLs.
+     */
+    event: string;
+
+    /**
+     * Unique slug of the team that the user is part of ("stewards.team").
+     */
+    team: string;
+}
+
+/**
  * Authentication Context specific to signed in users. Includes the user, as well as an overview of
  * the events that they've got access to.
  */
@@ -26,6 +42,12 @@ export interface UserAuthenticationContext {
      * Authentication type that was used to sign the user in.
      */
     authType: AuthType;
+
+    /**
+     * Context regarding the user's access to events. Keyed by event slug ("2024"). Events won't be
+     * included when the user does not have elevated access for an event.
+     */
+    events: Map<string, UserEventAuthenticationContext>;
 }
 
 /**

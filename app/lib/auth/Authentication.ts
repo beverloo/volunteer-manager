@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { AuthenticationContext } from './AuthenticationContext';
+import type { AuthenticationContext, UserAuthenticationContext } from './AuthenticationContext';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
@@ -10,7 +10,8 @@ import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
 
 import { PlaywrightHooks } from '../PlaywrightHooks';
-import db, { tEvents, tRoles, tStorage, tUsers, tUsersAuth, tUsersEvents } from '../database';
+import db, { tEvents, tRoles, tStorage, tTeams, tUsers, tUsersAuth, tUsersEvents }
+    from '../database';
 
 /**
  * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
@@ -95,6 +96,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
     const eventsJoin = tEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
     const storageJoin = tStorage.forUseInLeftJoin();
+    const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const dbInstance = db;
@@ -108,26 +110,28 @@ export async function authenticateUser(params: AuthenticateUserParams)
             .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .groupBy(tUsers.userId)
         .select({
+            // UserAuthenticationContext.authType:
+            authType: tUsersAuth.authType,
+
+            // UserAuthenticationContext.events:
+            events: dbInstance.aggregateAsArray({
+                event: eventsJoin.eventSlug,
+                team: teamsJoin.teamEnvironment,
+            }),
+
+            // UserAuthenticationContext.user:
             userId: tUsers.userId,
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
             avatarFileHash: storageJoin.fileHash,
             privileges: tUsers.privileges,
-
-            events: dbInstance.aggregateAsArray({
-                eventId: usersEventsJoin.eventId,
-                teamId: usersEventsJoin.teamId,
-                adminAccess: rolesJoin.roleAdminAccess.equals(/* true= */ 1),
-                hidden: eventsJoin.eventHidden.equals(/* true= */ 1),
-            }),
-
-            // For internal use only, as behaviour for access code differs from passwords.
-            authType: tUsersAuth.authType,
         });
 
     let authenticationQuery: ReturnType<typeof authenticationBaseSelect['executeSelectNoneOrOne']>;
@@ -175,6 +179,8 @@ export async function authenticateUser(params: AuthenticateUserParams)
     if (!authenticationResult)
         return { user: /* visitor= */ undefined };
 
+    const authType = authenticationResult.authType;
+    const events: UserAuthenticationContext['events'] = new Map();
     const user: User = {
         userId: authenticationResult.userId,
         username: authenticationResult.username,
@@ -185,15 +191,19 @@ export async function authenticateUser(params: AuthenticateUserParams)
                                                 : undefined,
 
         privileges: expand(authenticationResult.privileges),
-
-        // TODO: Remove these from `User`
-        events: authenticationResult.events as any,
     };
 
-    return {
-        authType: authenticationResult.authType,
-        user
-    };
+    for (const entry of authenticationResult.events) {
+        if (!entry.event || !entry.team)
+            continue;  // incomplete data
+
+        events.set(entry.event, {
+            event: entry.event,
+            team: entry.team,
+        });
+    }
+
+    return { authType, events, user };
 }
 
 /**

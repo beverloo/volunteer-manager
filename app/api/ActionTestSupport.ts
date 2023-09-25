@@ -42,9 +42,6 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
             avatarUrl: undefined,
             privileges: 0n,
 
-            // TODO: Remove these fields:
-            events: [],
-
             ...params.user,
         };
     }

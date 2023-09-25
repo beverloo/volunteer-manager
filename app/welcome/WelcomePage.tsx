@@ -65,6 +65,11 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  */
 export interface WelcomePageProps {
     /**
+     * List of event slugs to which the user has administrative access, if any.
+     */
+    adminAccess: string[];
+
+    /**
      * The events (zero or more) the current visitor has access to. The events should be sorted in
      * descending order based on the dates during which they will take place.
      */
@@ -107,11 +112,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
     const additionalEvents: EventDataWithEnvironment[] = [];
 
-    const adminAccess = new Set<number>();
-    for (const eventInfo of user?.events ?? [ /* no events */ ]) {
-        if (eventInfo.adminAccess)
-            adminAccess.add(eventInfo.eventId);
-    }
+    const adminAccess = new Set<string /* slug */>(props.adminAccess);
 
     const eventContentOverride = can(user, Privilege.EventContentOverride);
     const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
@@ -155,7 +156,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                             { (upcomingEvent &&
                                     (upcomingEvent.enableContent || eventContentOverride ||
-                                        adminAccess.has(upcomingEvent.id))) &&
+                                        adminAccess.has(upcomingEvent.slug))) &&
                                 <Button component={Link}
                                         href={`/registration/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableContent ? 'primary' : 'hidden'}
@@ -166,7 +167,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                             { (upcomingEvent &&
                                     (upcomingEvent.enableSchedule || eventScheduleOverride ||
-                                        adminAccess.has(upcomingEvent.id))) &&
+                                        adminAccess.has(upcomingEvent.slug))) &&
                                 <Button component={Link}
                                         href={`/schedule/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableSchedule ? 'primary' : 'hidden'}
@@ -177,7 +178,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                             { (currentEvent &&
                                     (currentEvent.enableContent || eventContentOverride ||
-                                        adminAccess.has(currentEvent.id))) &&
+                                        adminAccess.has(currentEvent.slug))) &&
                                 <Button component={Link}
                                         href={`/registration/${currentEvent.slug}/`}
                                         color={currentEvent.enableContent ? 'primary' : 'hidden'}
@@ -188,7 +189,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                             { (currentEvent &&
                                     (currentEvent.enableSchedule || eventScheduleOverride ||
-                                        adminAccess.has(currentEvent.id))) &&
+                                        adminAccess.has(currentEvent.slug))) &&
                                 <Button component={Link}
                                         href={`/schedule/${currentEvent.slug}/`}
                                         color={currentEvent.enableSchedule ? 'primary' : 'hidden'}
@@ -272,14 +273,14 @@ export function WelcomePage(props: WelcomePageProps) {
                                 </Stack>
                             </CardContent>
                             <CardActions sx={kStyles.eventCardActions}>
-                                { (event.enableContent || adminAccess.has(event.id) ||
+                                { (event.enableContent || adminAccess.has(event.slug) ||
                                        eventContentOverride) &&
                                     <Link href={`/registration/${event.slug}/`} passHref>
                                         <Button size="small" startIcon={ <HowToRegIcon />}>
                                             Registration
                                         </Button>
                                     </Link> }
-                                { (event.enableSchedule || adminAccess.has(event.id) ||
+                                { (event.enableSchedule || adminAccess.has(event.slug) ||
                                        eventScheduleOverride) &&
                                     <Link href={`/schedule/${event.slug}/`} passHref>
                                         <Button size="small" startIcon={ <EventNoteIcon />}>

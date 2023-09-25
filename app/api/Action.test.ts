@@ -264,9 +264,6 @@ describe('Action', () => {
                 lastName: 'Example',
                 avatarUrl: undefined,
                 privileges: 0n,
-
-                // TODO: Remove these fields
-                events: [],
             };
         });
 
