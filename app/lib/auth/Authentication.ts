@@ -72,34 +72,6 @@ interface AccountCreationData {
 }
 
 /**
- * Activates the account with the given `userId`. The account must not have been activated yet. Will
- * return an instance of the User class when successful, or undefined when a failure occurred.
- */
-export async function activateAccount(userId: number): Promise<User | undefined> {
-    const confirmation = await db.selectFrom(tUsers)
-        .where(tUsers.userId.equals(userId))
-        .select({
-            activated: tUsers.activated,
-            sessionToken: tUsers.sessionToken,
-        })
-        .executeSelectNoneOrOne();
-
-    if (!confirmation || !!confirmation.activated)
-        return undefined;  // unknown user, or the account is already activated
-
-    const affectedRows = await db.update(tUsers)
-        .set({ activated: 1 })
-        .where(tUsers.userId.equals(userId))
-        .executeUpdate(/* min= */ 0, /* max= */ 1);
-
-    if (!affectedRows)
-        return undefined;  // the account could not be activated
-
-    const authenticationContext = await authenticateUser({ type: 'userId', userId });
-    return authenticationContext.user;
-}
-
-/**
  * Type of input that can be used to authenticate users. Used by `authenticateUser()`.
  */
 export type AuthenticateUserParams =

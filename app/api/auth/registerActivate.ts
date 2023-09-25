@@ -5,9 +5,10 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { activateAccount } from '@lib/auth/Authentication';
+import { authenticateUser } from '@lib/auth/Authentication';
 import { unsealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the RegisterActivate API, exposed through /api/auth/register-activate.
@@ -53,9 +54,28 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     if (!registrationRequest)
         return { success: false };  // invalid or expired registration request
 
-    const user = await activateAccount(registrationRequest.id);
+    const unactivatedUser = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(registrationRequest.id))
+        .select({
+            activated: tUsers.activated,
+            sessionToken: tUsers.sessionToken,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!unactivatedUser || !!unactivatedUser.activated)
+        return { success: false };  // the account has already been activated
+
+    const affectedRows = await db.update(tUsers)
+        .set({ activated: 1 })
+        .where(tUsers.userId.equals(registrationRequest.id))
+        .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+    if (!affectedRows)
+        return { success: false };  // unable to update the user in the database?
+
+    const { user } = await authenticateUser({ type: 'userId', userId: registrationRequest.id });
     if (!user)
-        return { success: false };  // the account does not exist, or has already been activated
+        return { success: false };  // the user must be disabled for another reason
 
     await writeSealedSessionCookie(
         { id: user.userId, token: user.sessionToken }, props.responseHeaders);
