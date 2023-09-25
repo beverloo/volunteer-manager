@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { authenticateUser } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { updateUserPassword } from './passwordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 /**
@@ -55,9 +56,9 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
     if (passwordResetRequest) {
         const { user } = await authenticateUser({ type: 'session', ...passwordResetRequest });
         if (user) {
-            await user.updatePassword(request.password, /* incrementSessionToken= */ true);
+            await updateUserPassword(user.userId, request.password);
             await writeSealedSessionCookie(
-                { id: user.userId, token: user.sessionToken }, props.responseHeaders);
+                { id: user.userId, token: user.sessionToken + 1 }, props.responseHeaders);
 
             await Log({
                 type: LogType.AccountPasswordUpdate,

@@ -4,32 +4,8 @@
 import type { UserData } from './UserData';
 
 import { AuthType } from '../database/Types';
-import { PlaywrightHooks } from '../PlaywrightHooks';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
-import { securePasswordHash } from './Password';
-import db, { tUsers, tUsersAuth } from '../database';
-
-/**
- * Data that needs to be made available for a password reset request for a particular user. This
- * information is considered sensitive and should only be shared with the included e-mail address.
- */
-interface PasswordResetData {
-    /**
-     * The user's unique Id as stored in the database.
-     */
-    userId: number;
-
-    /**
-     * The user's current session token, instrumental to allowing password reset.
-     */
-    sessionToken: number;
-
-    /**
-     * First name of the person who requested their password to be reset.
-     */
-    firstName: string;
-}
 
 /**
  * Describes the fields that exist in the `users` table in the database.
@@ -65,23 +41,6 @@ export interface UserDatabaseRow {
  * the User.prototype.toUserData() method.
  */
 export class User implements UserData {
-    /**
-     * Gets the information required in order to reset the password of the given |username|. This
-     * method does not require further authentication, and should be considered sensitive.
-     */
-    static async getPasswordResetData(username: string): Promise<PasswordResetData | undefined> {
-        return await db.selectFrom(tUsers)
-            .where(tUsers.username.equals(username))
-            .select({
-                userId: tUsers.userId,
-                sessionToken: tUsers.sessionToken,
-                firstName: tUsers.firstName,
-            })
-            .executeSelectNoneOrOne() ?? undefined;
-    }
-
-    // ---------------------------------------------------------------------------------------------
-
     #authType?: AuthType;
     #privileges: bigint;
     #user: Omit<UserDatabaseRow, 'authType'>;
@@ -95,45 +54,6 @@ export class User implements UserData {
     // ---------------------------------------------------------------------------------------------
     // Functionality limited to server components:
     // ---------------------------------------------------------------------------------------------
-
-    /**
-     * Update the user's password to the given |hashedPassword|, which already should be a SHA-256
-     * hashed representation. Optionally the session token can be incremented as well, which will
-     * invalidate all other existing sessions.
-     *
-     * @param hashedPassword SHA-256 representation of the user's new password.
-     * @param incrementSessionToken Whether the session token should be incremented.
-     */
-    async updatePassword(hashedPassword: string, incrementSessionToken?: boolean): Promise<void> {
-        if (PlaywrightHooks.isActive())
-            return;  // no need to actually update a password
-
-        const securelyHashedPassword = await securePasswordHash(hashedPassword);
-
-        const dbInstance = db;
-        await dbInstance.transaction(async () => {
-            // (1) Delete all old passwords, which should no longer be valid.
-            await dbInstance.deleteFrom(tUsersAuth)
-                .where(tUsersAuth.userId.equals(this.#user.userId))
-                    .and(tUsersAuth.authType.in([ AuthType.code, AuthType.password ]))
-                .executeDelete();
-
-            // (2) Store the new password in the authentication table.
-            await dbInstance.insertInto(tUsersAuth)
-                .values({
-                    userId: this.#user.userId,
-                    authType: AuthType.password,
-                    authValue: securelyHashedPassword
-                })
-                .executeInsert(/* min= */ 0, /* max= */ 1);
-
-            // (3) Increment the user's session token, invalidating all other sessions.
-            await dbInstance.update(tUsers)
-                .set({ sessionToken: this.#user.sessionToken + 1 })
-                .where(tUsers.userId.equals(this.#user.userId))
-                .executeUpdate(/* min= */ 0, /* max= */ 1);
-        });
-    }
 
     /**
      * Unique, automatically incrementing user ID assigned to this user.

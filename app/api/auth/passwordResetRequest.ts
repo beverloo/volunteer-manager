@@ -5,10 +5,10 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { User } from '@lib/auth/User';
 import { createEmailClient } from '@lib/integrations/email';
 import { getStaticContent } from '@lib/Content';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Interface definition for the PasswordResetRequest API, exposed through
@@ -43,7 +43,15 @@ type Response = PasswordResetRequestDefinition['response'];
 export async function passwordResetRequest(request: Request, props: ActionProps)
     : Promise<Response>
 {
-    const passwordResetData = await User.getPasswordResetData(request.username);
+    const passwordResetData = await db.selectFrom(tUsers)
+        .where(tUsers.username.equals(request.username))
+        .select({
+            userId: tUsers.userId,
+            sessionToken: tUsers.sessionToken,
+            firstName: tUsers.firstName,
+        })
+        .executeSelectNoneOrOne() ?? undefined;
+
     if (passwordResetData) {
         const passwordResetRequest = await sealPasswordResetRequest({
             id: passwordResetData.userId,
