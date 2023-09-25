@@ -29,14 +29,12 @@ describe('API Endpoints: /api/admin', () => {
     });
 
     it('requires a valid event', async () => {
-        mockConnection.expect('selectOneRow');
-
         const response = await executeActionForTests(kHotelDefinition, hotel, {
             request: { event: 'invalid-event' },
             user: { privileges: BigInt(Privilege.Administrator) },
         });
 
-        expect(response.ok).toBeTruthy();
+        expect(response.ok).toBeFalsy();
         expect(await response.json()).toEqual({
             success: false,
         });

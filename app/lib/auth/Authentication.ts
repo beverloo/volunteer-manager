@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { AuthenticationContext, UserAuthenticationContext } from './AuthenticationContext';
+import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
@@ -179,7 +180,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             throw new Error('Invalid authentication type was provided');
     }
 
-    const authenticationResult = await authenticationQuery;
+    const authenticationResult: AuthenticationResult | null = await authenticationQuery;
     if (!authenticationResult)
         return { user: /* visitor= */ undefined };
 

@@ -1,12 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { NextRequest, NextResponse } from 'next/server';
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server';
+import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
 import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
+import { AuthType } from '@lib/database/Types';
 
 /**
  * Route parameters that can be included in the action request payload, based on REST principles.
@@ -174,9 +176,9 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             });
         }
 
-        const authenticationContext = await getAuthenticationContextFromHeaders(request.headers);
-        if (userForTesting)
-            authenticationContext.user = userForTesting;
+        const authenticationContext =
+            userForTesting ? { authType: AuthType.password, events: new Map, user: userForTesting }
+                           : await getAuthenticationContextFromHeaders(request.headers);
 
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {
@@ -206,6 +208,9 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
     } catch (error: any) {
         if (error instanceof NoAccessError)
             return createResponse(403, { success: false });
+
+        if (isNotFoundError(error))
+            return createResponse(404, { success: false });
 
         if (!process.env.JEST_WORKER_ID)
             console.error(`Action(${request.nextUrl.pathname}) threw an Exception:`, error);

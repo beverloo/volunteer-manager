@@ -7,7 +7,6 @@ import type { z } from 'zod';
 
 import type { Action } from './Action';
 import type { User } from '@lib/auth/User';
-import { AuthType } from '@lib/database/Types';
 import { executeAction } from './Action';
 
 /**
@@ -35,7 +34,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
     let userForTesting: User | undefined;
     if (typeof params.user !== 'undefined') {
         userForTesting = {
-            userId: 1,
+            userId: 1000000,
             username: 'foo@bar.com',
             firstName: 'Foo',
             lastName: 'Bar',
@@ -78,8 +77,11 @@ export interface InjectPermissionTestsForActionParams<T extends ZodObject<ZodRaw
 
 /**
  * Injects a permission test for the given action. Two assertions will be made:
- *     1. Invoking the |action| without authentication yields a 403 Forbidden,
- *     2. Invoking the |action| with the insufficient privileges yields a 403 Forbidden.
+ *     1. Invoking the |action| without authentication yields a HTTP 404 Not Found,
+ *     2. Invoking the |action| with the insufficient privileges yields a HTTP 404 Not Found
+ *
+ * @todo Ideally case (2) would throw a HTTP 403 Forbidden error, but we cannot distinguish between
+ *       API and app calls in `executeAccessCheck`. Err on the side of sharing less information.
  */
 export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawShape, any, any>>(
     api: T, action: Action<T>, params: InjectPermissionTestsForActionParams<T>): Promise<void>
@@ -91,7 +93,7 @@ export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawS
         });
 
         expect(guestResponse.ok).toBeFalsy();
-        expect(guestResponse.status).toBe(/* Forbidden= */ 403);
+        expect(guestResponse.status).toBe(/* Not Found= */ 404);
 
         const userResponse = await executeActionForTests(api, action, {
             request: params.request,
@@ -101,6 +103,6 @@ export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawS
         });
 
         expect(userResponse.ok).toBeFalsy();
-        expect(userResponse.status).toBe(/* Forbidden= */ 403);
+        expect(userResponse.status).toBe(/* Not Found= */ 404);
     });
 }

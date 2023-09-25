@@ -1,9 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { User } from '@lib/auth/User';
-import { AuthType } from '@lib/database/Types';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
+import { expectAuthenticationQuery } from './AuthenticationTestHelpers';
 import { getAuthenticationContextFromHeaders } from './AuthenticationContext';
 import { serialize } from 'cookie';
 import { useMockConnection } from '../database/Connection';
@@ -33,16 +32,7 @@ describe('AuthenticationContext', () => {
 
         // Intercepts the authentication SQL query that will be fired in order to validate the
         // information contained within the `sessionData`. Validate the parameters, otherwise pass.
-        mockConnection.expect('selectOneRow', (query: string, params: any[]): User => {
-            return {
-                userId: sessionData.id,
-                username: 'joe@example.com',
-                firstName: 'Joe',
-                lastName: 'Example',
-                avatarUrl: undefined,
-                privileges: 0n,
-            };
-        });
+        expectAuthenticationQuery(mockConnection);
 
         const { user } = await getAuthenticationContextFromHeaders(headers);
         expect(user).not.toBeUndefined();

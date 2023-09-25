@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { User } from '@lib/auth/User';
 import { AuthType } from '@lib/database/Types';
 import { type ActionProps, executeAction, noAccess } from './Action';
+import { expectAuthenticationQuery } from '@lib/auth/AuthenticationTestHelpers';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
 import { useMockConnection } from '@lib/database/Connection';
 
@@ -256,15 +257,10 @@ describe('Action', () => {
         const sealedCookie = serialize(kSessionCookieName, sealedSession, { httpOnly: true });
         const headers = new Headers([ ['Cookie', sealedCookie ] ]);
 
-        mockConnection.expect('selectOneRow', (query: string, params: any[]): User => {
-            return {
-                userId: 42,
-                username: 'joe@example.com',
-                firstName: 'Joe',
-                lastName: 'Example',
-                avatarUrl: undefined,
-                privileges: 0n,
-            };
+        expectAuthenticationQuery(mockConnection, {
+            username: 'joe@example.com',
+            firstName: 'Joe',
+            lastName: 'Example',
         });
 
         const interfaceDefinition = z.object({
