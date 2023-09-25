@@ -24,7 +24,7 @@ export default async function IntegrationsPromptPage(props: NextRouterParams<'pr
         notFound();
 
     return <PromptPersonalityPage promptName={props.params.prompt} prompt={requestedPrompt}
-                                  user={user.toUserData()} />;
+                                  user={user} />;
 }
 
 export const metadata: Metadata = {

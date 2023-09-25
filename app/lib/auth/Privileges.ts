@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { User } from './User';
-import type { UserData } from './UserData';
 
 /**
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
@@ -49,7 +48,7 @@ export type Privileges = bigint;
  * Returns whether the given |user| has been granted the given |privilege|. No need for null-checks
  * as the |user| argument can be considered optional, any falsy value will fall back to defaults.
  */
-export function can(user: User | UserData | undefined, privilege: Privilege): boolean {
+export function can(user: User | undefined, privilege: Privilege): boolean {
     return !!user && (user.privileges & BigInt(privilege)) !== 0n;
 }
 

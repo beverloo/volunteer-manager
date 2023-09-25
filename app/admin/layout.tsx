@@ -16,7 +16,7 @@ export default async function RootAdminLayout(props: React.PropsWithChildren) {
 
     return (
         <AdminLayout>
-            <AdminHeader events={events} user={user.toUserData()} />
+            <AdminHeader events={events} user={user} />
             {props.children}
         </AdminLayout>
     );

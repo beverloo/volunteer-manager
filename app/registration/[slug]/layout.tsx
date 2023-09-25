@@ -26,7 +26,7 @@ export default async function RegistrationEventLayout(props: RegistrationEventLa
                                           title={event.name}
                                           redirectUrl={`/registration/${event.slug}/application`}
                                           registration={registration?.toRegistrationData()}
-                                          user={user?.toUserData()}>
+                                          user={user}>
                 {props.children}
             </RegistrationContentContainer>
         </RegistrationLayout>

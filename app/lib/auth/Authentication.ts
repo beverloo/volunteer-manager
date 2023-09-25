@@ -3,8 +3,8 @@
 
 import type { AuthenticationContext } from './AuthenticationContext';
 import type { SessionData } from './Session';
+import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
-import { User } from './User';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
@@ -177,7 +177,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
     if (!authenticationResult)
         return { user: /* visitor= */ undefined };
 
-    const user = new User({
+    const user: User = {
         userId: authenticationResult.userId,
         username: authenticationResult.username,
         firstName: authenticationResult.firstName,
@@ -192,7 +192,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
         authTypeForCredentialBasedAuthentication: authenticationResult.authType,
         events: authenticationResult.events as any,
         sessionToken: authenticationResult.sessionToken,
-    });
+    };
 
     return { user };
 }

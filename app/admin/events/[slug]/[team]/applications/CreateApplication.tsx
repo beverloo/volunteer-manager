@@ -20,7 +20,7 @@ import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
 import { ApplicationParticipation } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { callApi } from '@lib/callApi';
@@ -142,7 +142,7 @@ export interface CreateApplicationProps {
     /**
      * The user who is signed in to their account.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

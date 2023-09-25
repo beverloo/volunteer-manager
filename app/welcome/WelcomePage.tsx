@@ -21,7 +21,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { DateTime } from '@lib/DateTime';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -73,7 +73,7 @@ export interface WelcomePageProps {
     /**
      * The User the current visitor is signed in as, if any.
      */
-    user?: UserData;
+    user?: User;
 
     /**
      * The event for which the signed in volunteer may have registered.

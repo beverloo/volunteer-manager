@@ -23,7 +23,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -184,7 +184,7 @@ export interface VolunteerHeaderProps {
     /**
      * The user who is signed in to their account. Used for access checks.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

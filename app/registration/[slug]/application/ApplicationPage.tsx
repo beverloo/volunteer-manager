@@ -20,7 +20,7 @@ import { lighten } from '@mui/system/colorManipulator';
 
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { AuthenticationContext } from '../../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';
@@ -91,7 +91,7 @@ export interface ApplicationPageProps {
      * The user who is currently signed in. We require someone to be signed in when applying, as
      * it helps carry their participation information across multiple events.
      */
-    user?: UserData;
+    user?: User;
 }
 
 /**

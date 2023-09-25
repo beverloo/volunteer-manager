@@ -3,8 +3,8 @@
 
 import type { AuthenticationContext } from './auth/AuthenticationContext';
 import type { AuthenticationData, AuthenticateUserParams } from './auth/Authentication';
+import type { User } from '@lib/auth/User';
 import { AuthType } from './database/Types';
-import { User, type UserDatabaseRow } from './auth/User';
 
 /**
  * Internal fields to the User type used by Playwright.
@@ -24,7 +24,7 @@ interface PlaywrightUserFields {
 /**
  * The users that exist when running Playwright
  */
-const kPlaywrightUsers: (Partial<UserDatabaseRow> & PlaywrightUserFields)[] = [
+const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
     {
         userId: 1000000,
         username: 'playwright@animecon.nl',
@@ -85,7 +85,7 @@ export class PlaywrightHooks {
                 continue;
 
             return {
-                user: new User({
+                user: {
                     userId: 999999,
                     username: undefined,
                     firstName: 'PWUSER',
@@ -99,7 +99,7 @@ export class PlaywrightHooks {
                     sessionToken: 0,
 
                     ...playwrightUser,  // expand the partial user configuration
-                }),
+                },
             };
         }
 

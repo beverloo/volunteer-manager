@@ -82,7 +82,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
 
     return (
         <AdminContent>
-            <AdminSidebar menu={dashboardMenu} title="Dashboard" user={user.toUserData()} />
+            <AdminSidebar menu={dashboardMenu} title="Dashboard" user={user} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

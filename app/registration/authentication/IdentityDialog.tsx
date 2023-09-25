@@ -13,7 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { Avatar } from '@components/Avatar';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -35,7 +35,7 @@ interface IdentityDialogProps {
      * Information about the signed in user. The Identity dialog can only be shown for signed in
      * users, otherwise there wouldn't be anything to display.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

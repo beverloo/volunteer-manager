@@ -44,12 +44,11 @@ export default async function RootPage() {
     const eventDatas = events.map(event => event.toEventData(environment.environmentName));
     const registrationEventData = registrationEvent?.toEventData(environment.environmentName);
     const registrationData = registration?.toRegistrationData();
-    const userData = user?.toUserData();
 
     return (
         <RegistrationLayout environment={environment}>
             <WelcomePage events={eventDatas}
-                         user={userData}
+                         user={user}
                          registrationEvent={registrationEventData}
                          registration={registrationData}
                          title={environment.environmentName}

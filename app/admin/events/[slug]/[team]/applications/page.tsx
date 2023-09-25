@@ -73,8 +73,6 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
             rejections.push(application);
     }
 
-    const userData = user.toUserData();
-
     // Whether the volunteer can respond to applications without sending communication to the
     // affected volunteer. This is guarded behind a separate permission.
     const allowSilent = can(user, Privilege.VolunteerSilentMutations);
@@ -87,13 +85,13 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
 
     return (
         <>
-            <Header event={event} team={team} user={userData} />
+            <Header event={event} team={team} user={user} />
             <Applications event={event.slug} team={team.slug} applications={applications}
                           canManageApplications={canManageApplications} allowSilent={allowSilent} />
             { !!rejections.length &&
                 <Rejections applications={rejections} /> }
             { canManageApplications &&
-                <CreateApplication event={event} team={team} user={userData} /> }
+                <CreateApplication event={event} team={team} user={user} /> }
         </>
     );
 }

@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
 
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { AuthenticationHeaderChip } from './AuthenticationHeaderChip';
 import { determineInitials } from '@components/Avatar';
 
@@ -63,7 +63,7 @@ export interface RegistrationHeaderProps {
     /**
      * Information about the signed in user, as they should be shown in the header.
      */
-    user?: UserData;
+    user?: User;
 }
 
 /**

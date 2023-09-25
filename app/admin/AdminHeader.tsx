@@ -21,7 +21,7 @@ import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Typography from '@mui/material/Typography';
 
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { Avatar } from '@components/Avatar';
 import { Privilege, can } from '@lib/auth/Privileges';
 
@@ -70,7 +70,7 @@ export interface AdminHeaderProps {
     /**
      * The user who is currently viewing the administration area.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

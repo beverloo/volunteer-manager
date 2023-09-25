@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { UserDatabaseRow } from './User';
+import type { User } from '@lib/auth/User';
 import { AuthType } from '@lib/database/Types';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { getAuthenticationContextFromHeaders } from './AuthenticationContext';
@@ -33,23 +33,19 @@ describe('AuthenticationContext', () => {
 
         // Intercepts the authentication SQL query that will be fired in order to validate the
         // information contained within the `sessionData`. Validate the parameters, otherwise pass.
-        mockConnection.expect('selectOneRow', (query: string, params: any[]): UserDatabaseRow => {
+        mockConnection.expect('selectOneRow', (query: string, params: any[]): User => {
             return {
                 userId: sessionData.id,
                 username: 'joe@example.com',
                 firstName: 'Joe',
                 lastName: 'Example',
-                gender: 'Male',
-                birthdate: new Date('2023-07-12'),
-                phoneNumber: '+440000000000',
-                avatarFileHash: undefined,
+                avatarUrl: undefined,
                 privileges: 0n,
-                activated: 1,
-                sessionToken: sessionData.token,
-                events: [],
 
-                // Internal use in `authenticateUser`:
-                authType: AuthType.password,
+                // TODO: Remove these fields:
+                authTypeForCredentialBasedAuthentication: AuthType.password,
+                events: [],
+                sessionToken: sessionData.token,
             };
         });
 

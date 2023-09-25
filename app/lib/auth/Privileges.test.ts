@@ -1,20 +1,27 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { UserData } from './UserData';
+import type { User } from '@lib/auth/User';
+import { AuthType } from '@lib/database/Types';
 import { Privilege, can, expand } from './Privileges';
 
+
 describe('Privileges', () => {
-    const kUserDataWithoutPrivileges: Omit<UserData, 'privileges'> = {
-        events: [],
+    const kUserWithoutPrivileges: Omit<User, 'privileges'> = {
+        userId: 2000000,
+        username: 'joe@example.com',
         firstName: 'Joe',
         lastName: 'Example',
-        username: 'joe@example.com',
+
+        // TODO: Remove these fields:
+        authTypeForCredentialBasedAuthentication: AuthType.password,
+        events: [],
+        sessionToken: 1,
     };
 
     it('has the ability to perform basic access checks', () => {
-        const user: UserData = {
-            ...kUserDataWithoutPrivileges,
+        const user: User = {
+            ...kUserWithoutPrivileges,
             privileges: BigInt(Privilege.Statistics),
         };
 
@@ -27,18 +34,18 @@ describe('Privileges', () => {
     });
 
     it('has the ability to expand privilege groups into individual privileges', () => {
-        const unexpandedUser: UserData = {
-            ...kUserDataWithoutPrivileges,
+        const unexpandedUser: User = {
+            ...kUserWithoutPrivileges,
             privileges: BigInt(Privilege.EventAdministrator),
         };
 
-        const expandedUser: UserData = {
-            ...kUserDataWithoutPrivileges,
+        const expandedUser: User = {
+            ...kUserWithoutPrivileges,
             privileges: expand(BigInt(Privilege.EventAdministrator)),
         };
 
-        const doubleExpandedUser: UserData = {
-            ...kUserDataWithoutPrivileges,
+        const doubleExpandedUser: User = {
+            ...kUserWithoutPrivileges,
             privileges: expand(BigInt(Privilege.Administrator)),
         };
 

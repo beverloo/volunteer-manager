@@ -5,9 +5,8 @@ import type { Address, AttachmentLike } from 'nodemailer/lib/mailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Readable } from 'stream';
 
-import type { EmailMessage } from './EmailMessage';
 import type { SendMessageRequest } from './EmailClient';
-import { User } from '@lib/auth/User';
+import type { User } from '@lib/auth/User';
 import db, { tOutbox } from '@lib/database';
 
 /**
@@ -76,7 +75,7 @@ export class EmailLoggerImpl implements EmailLogger {
     private normalizeUser(input?: User | number): number | null {
         if (typeof input === 'number')
             return input;
-        else if (input instanceof User)
+        else if (typeof input === 'object' && 'userId' in input)
             return input.userId;
 
         return null;

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -116,7 +116,7 @@ export interface AuthenticationFlowProps {
     /**
      * Information about the signed in user, when they already are signed in to an account.
      */
-    user?: UserData;
+    user?: User;
 }
 
 /**

@@ -44,7 +44,7 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
 
     return (
         <AdminContent>
-            <AdminSidebar menu={volunteersMenu} title="Volunteers" user={user.toUserData()} />
+            <AdminSidebar menu={volunteersMenu} title="Volunteers" user={user} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

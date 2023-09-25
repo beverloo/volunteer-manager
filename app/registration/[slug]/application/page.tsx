@@ -25,14 +25,13 @@ export default async function EventApplicationPage(props: NextRouterParams<'slug
     return (
         <>
             { (!registration || !user) &&
-                <ApplicationPage content={content}
-                                 event={event.toEventData(environment.environmentName)}
-                                 user={user?.toUserData()} />
+                <ApplicationPage content={content} user={user}
+                                 event={event.toEventData(environment.environmentName)} />
             }
             { (registration && user) &&
                 <ApplicationStatusPage event={event.toEventData(environment.environmentName)}
                                        registration={registration.toRegistrationData()}
-                                       user={user!.toUserData()} />
+                                       user={user} />
             }
         </>
     );

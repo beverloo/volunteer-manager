@@ -6,8 +6,8 @@ import type { ZodObject, ZodRawShape } from 'zod';
 import type { z } from 'zod';
 
 import type { Action } from './Action';
+import type { User } from '@lib/auth/User';
 import { AuthType } from '@lib/database/Types';
-import { User, type UserDatabaseRow } from '@lib/auth/User';
 import { executeAction } from './Action';
 
 /**
@@ -23,7 +23,7 @@ export interface InvokeActionParams<T extends ZodObject<ZodRawShape, any, any>> 
      * The user who should be signed in while executing the action. When a dictionary is passed with
      * any properties set then a User instance will be created, otherwise this will be a visitor.
      */
-    user?: Partial<UserDatabaseRow>;
+    user?: Partial<User>;
 }
 
 /**
@@ -34,7 +34,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
 {
     let userForTesting: User | undefined;
     if (typeof params.user !== 'undefined') {
-        userForTesting = new User({
+        userForTesting = {
             userId: 1,
             username: 'foo@bar.com',
             firstName: 'Foo',
@@ -48,7 +48,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
             sessionToken: 0,
 
             ...params.user,
-        });
+        };
     }
 
     const request = new class extends NextRequest {

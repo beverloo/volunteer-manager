@@ -17,7 +17,7 @@ import Skeleton from '@mui/material/Skeleton';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Typography from '@mui/material/Typography';
 
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -104,7 +104,7 @@ export interface PromptPersonalityPageProps {
     /**
      * The user who is signed in to their account and is viewing this page.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

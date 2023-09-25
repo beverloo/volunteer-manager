@@ -21,10 +21,9 @@ export default async function SchedulePage() {
         notFound();
 
     const { user } = await getAuthenticationContext();
-
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer title="Volunteer Portal" user={user?.toUserData()}>
+            <RegistrationContentContainer title="Volunteer Portal" user={user}>
                 <Box sx={{ p: 2 }}>
                     <Typography variant="body1">
                         The Volunteer Portal is not available yet. Please come back closer to the

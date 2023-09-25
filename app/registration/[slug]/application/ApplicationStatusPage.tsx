@@ -21,7 +21,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData, RegistrationTraining } from '@lib/Registration';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
@@ -264,7 +264,7 @@ export interface ApplicationStatusPageProps {
      * The user who is currently signed in. We require someone to be signed in when applying, as
      * it helps carry their participation information across multiple events.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

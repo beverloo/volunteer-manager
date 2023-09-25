@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 
 import type { EventData } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { AuthenticationContext } from './AuthenticationContext';
 import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { RegistrationHeader } from './RegistrationHeader';
@@ -51,7 +51,7 @@ export interface RegistrationContentContainerProps {
     /**
      * Information about the signed in user, as they should be shown in the header.
      */
-    user?: UserData;
+    user?: User;
 }
 
 /**

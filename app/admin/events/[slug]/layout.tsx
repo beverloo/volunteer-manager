@@ -175,7 +175,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
 
     return (
         <AdminContent>
-            <AdminSidebar menu={volunteersMenu} title={info.event.name} user={user.toUserData()} />
+            <AdminSidebar menu={volunteersMenu} title={info.event.name} user={user} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

@@ -21,7 +21,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { deepmerge } from '@mui/utils';
 
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 import { type Privilege, can } from '@lib/auth/Privileges';
 
 /**
@@ -137,7 +137,7 @@ interface RenderSidebarMenuProps {
     /**
      * The user for whom the menu is being shown. Included for permission checking.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

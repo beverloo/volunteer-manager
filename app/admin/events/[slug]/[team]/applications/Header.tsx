@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UserData } from '@lib/auth/UserData';
+import type { User } from '@lib/auth/User';
 
 /**
  * Props accepted by the <Header> component.
@@ -26,7 +26,7 @@ export interface HeaderProps {
     /**
      * The user for whom information is being shown.
      */
-    user: UserData;
+    user: User;
 }
 
 /**

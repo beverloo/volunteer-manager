@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 import { serialize } from 'cookie';
 import { z } from 'zod';
 
-import type { User, UserDatabaseRow } from '@lib/auth/User';
+import type { User } from '@lib/auth/User';
 import { AuthType } from '@lib/database/Types';
 import { type ActionProps, executeAction, noAccess } from './Action';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
@@ -256,23 +256,19 @@ describe('Action', () => {
         const sealedCookie = serialize(kSessionCookieName, sealedSession, { httpOnly: true });
         const headers = new Headers([ ['Cookie', sealedCookie ] ]);
 
-        mockConnection.expect('selectOneRow', (query: string, params: any[]): UserDatabaseRow => {
+        mockConnection.expect('selectOneRow', (query: string, params: any[]): User => {
             return {
                 userId: 42,
                 username: 'joe@example.com',
                 firstName: 'Joe',
                 lastName: 'Example',
-                gender: 'Male',
-                birthdate: new Date('2023-07-12'),
-                phoneNumber: '+440000000000',
-                avatarFileHash: undefined,
+                avatarUrl: undefined,
                 privileges: 0n,
-                activated: 1,
-                sessionToken: 9001,
-                events: [],
 
-                // Internal use in `authenticateUser`:
-                authType: AuthType.password,
+                // TODO: Remove these fields
+                authTypeForCredentialBasedAuthentication: AuthType.password,
+                events: [],
+                sessionToken: 9001,
             };
         });
 
