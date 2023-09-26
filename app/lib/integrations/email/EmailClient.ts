@@ -103,7 +103,8 @@ export class EmailClient {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 
-        const logger = await this.createLogger(request);
+        const logger = this.createLogger(request);
+        await logger.initialise(request);
 
         let result: SMTPTransport.SentMessageInfo | undefined;
         try {
@@ -115,8 +116,7 @@ export class EmailClient {
             await logger.reportException(error);
             throw error;
         } finally {
-            if (result)
-                await logger.finalise(result);
+            await logger.finalise(result);
         }
 
         return result!;
@@ -157,11 +157,8 @@ export class EmailClient {
     /**
      * Creates a new instance of the e-mail logger. Can be overridden for testing purposes.
      */
-    protected async createLogger(request: SendMessageRequest): Promise<EmailLogger> {
-        const logger = new EmailLoggerImpl();
-        await logger.initialise(request);
-
-        return logger;
+    protected createLogger(request: SendMessageRequest): EmailLogger {
+        return new EmailLoggerImpl();
     }
 
     /**

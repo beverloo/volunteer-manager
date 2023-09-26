@@ -21,7 +21,7 @@ export interface EmailLogger {
     /**
      * Finalises the logger with the `info`, obtained from the sending operation.
      */
-    finalise(info: SMTPTransport.SentMessageInfo): Promise<void>;
+    finalise(info?: SMTPTransport.SentMessageInfo): Promise<void>;
 
     /**
      * Reports an exception that happened while the e-mail was being sent.
@@ -126,7 +126,7 @@ export class EmailLoggerImpl implements EmailLogger {
      * Finalises the logger. This will write the `info` to the database entry, which will tell us
      * whether the message had been sent successfully.
      */
-    async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {
+    async finalise(info?: SMTPTransport.SentMessageInfo): Promise<void> {
         if (!this.#insertId)
             throw new Error('E-mail loggers must be initialised before being finalised.');
 
@@ -138,11 +138,11 @@ export class EmailLoggerImpl implements EmailLogger {
                 outboxErrorCause:
                     this.#error?.cause ? JSON.stringify(this.#error?.cause) : undefined,
 
-                outboxResultMessageId: info.messageId,
-                outboxResultAccepted: this.normalizeRecipients(info.accepted),
-                outboxResultRejected: this.normalizeRecipients(info.rejected),
-                outboxResultPending: this.normalizeRecipients(info.pending),
-                outboxResultResponse: info.response,
+                outboxResultMessageId: info?.messageId,
+                outboxResultAccepted: this.normalizeRecipients(info?.accepted),
+                outboxResultRejected: this.normalizeRecipients(info?.rejected),
+                outboxResultPending: this.normalizeRecipients(info?.pending),
+                outboxResultResponse: info?.response,
             })
             .where(tOutbox.outboxId.equals(this.#insertId))
             .executeUpdate();

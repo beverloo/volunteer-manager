@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { setImmediate } from 'timers';
 
 import { EmailClientMock } from './EmailClientMock';
@@ -69,5 +70,32 @@ describe('EmailClient', () => {
             html: '<p><strong>Hello</strong> world!</p>\n',
             text: '**Hello** world!',
         });
+    });
+
+    it('is able to catch exceptions that occur when sending a message', async () => {
+        const message = new EmailMessage()
+            .setTo('user@example.com')
+            .setSubject('This is a test')
+            .setText('Hello, world!');
+
+        const client = new EmailClientMock();
+        client.mock.setShouldFailOnce(true);
+
+        expect(client.loggedInitialisations).toHaveLength(0);
+        expect(client.loggedExceptions).toHaveLength(0);
+        expect(client.loggedFinalisations).toHaveLength(0);
+
+        let info: SMTPTransport.SentMessageInfo | undefined = undefined;
+        try {
+            info = await client.sendMessage({ sender: 'My Name', message });
+        } catch (error: any) {
+            expect(error.message).toEqual('nodemailer-mock failure');
+        }
+
+        expect(info).toBeUndefined();
+
+        expect(client.loggedInitialisations).toHaveLength(1);
+        expect(client.loggedExceptions).toHaveLength(1);
+        expect(client.loggedFinalisations).toHaveLength(1);
     });
 });

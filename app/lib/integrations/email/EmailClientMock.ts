@@ -5,7 +5,6 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailermock } from 'nodemailer-mock';
 
 import type { EmailLogger } from './EmailLogger';
-import type { EmailMessage } from './EmailMessage';
 import type { SendMessageRequest } from './EmailClient';
 import { EmailClient } from './EmailClient';
 
@@ -13,6 +12,10 @@ import { EmailClient } from './EmailClient';
  * Mock implementation of the MailClient that avoids using a real server.
  */
 export class EmailClientMock extends EmailClient {
+    #loggedExceptions: Error[] = [];
+    #loggedFinalisations: (SMTPTransport.SentMessageInfo | undefined)[] = [];
+    #loggedInitialisations: SendMessageRequest[] = [];
+
     constructor() {
         super({
             hostname: '127.0.0.1',
@@ -28,13 +31,28 @@ export class EmailClientMock extends EmailClient {
     get mock() { return nodemailermock.mock; }
 
     /**
-     * Overrides the default logger with an empty instance that does no logging.
+     * Provides access to the log entries that were created during the lifetime of this instance.
      */
-    protected override async createLogger(request: SendMessageRequest): Promise<EmailLogger> {
+    get loggedExceptions() { return this.#loggedExceptions; }
+    get loggedFinalisations() { return this.#loggedFinalisations; }
+    get loggedInitialisations() { return this.#loggedInitialisations; }
+
+    /**
+     * Overrides the default logger with an empty instance that logs to the mocked instance.
+     */
+    protected override createLogger(request: SendMessageRequest): EmailLogger {
+        const parent = this;
+
         return new class implements EmailLogger {
-            async initialise(request: SendMessageRequest): Promise<void> {}
-            async finalise(info: SMTPTransport.SentMessageInfo): Promise<void> {}
-            async reportException(error: Error): Promise<void> {}
+            async initialise(request: SendMessageRequest): Promise<void> {
+                parent.#loggedInitialisations.push(request);
+            }
+            async finalise(info?: SMTPTransport.SentMessageInfo): Promise<void> {
+                parent.#loggedFinalisations.push(info);
+            }
+            async reportException(error: Error): Promise<void> {
+                parent.#loggedExceptions.push(error);
+            }
         };
     }
 
