@@ -10,6 +10,11 @@ import type { User } from '@lib/auth/User';
 import db, { tOutbox } from '@lib/database';
 
 /**
+ * Severity of messages that can be stored by the EmailLogger.
+ */
+export type EmailLoggerSeverity = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+
+/**
  * Interface describing the e-mail logger.
  */
 export interface EmailLogger {
@@ -26,7 +31,12 @@ export interface EmailLogger {
     /**
      * Reports an exception that happened while the e-mail was being sent.
      */
-    reportException(error: Error): Promise<void>;
+    reportException(error: Error): void;
+
+    /**
+     * Reports that a log message has been issued by the underlying library.
+     */
+    reportLog(severity: EmailLoggerSeverity, ...params: any[]): void;
 }
 
 /**
@@ -35,11 +45,15 @@ export interface EmailLogger {
  */
 export class EmailLoggerImpl implements EmailLogger {
     #error?: Error;
+    #logs: { params: any[]; severity: EmailLoggerSeverity; time: number }[];
+
+    #startTime?: bigint;
     #insertId?: number;
 
     constructor() {
         this.#error = undefined;
         this.#insertId = undefined;
+        this.#logs = [];
     }
 
     /**
@@ -52,6 +66,7 @@ export class EmailLoggerImpl implements EmailLogger {
 
         const options = request.message.options;
 
+        this.#startTime = process.hrtime.bigint();
         this.#insertId = await db.insertInto(tOutbox)
             .set({
                 outboxSender: request.sender,
@@ -118,8 +133,22 @@ export class EmailLoggerImpl implements EmailLogger {
      * Reports an exception that happened while the e-mail was being sent. We only store the error
      * for now, and will store it in the database then the `finalise` method runs.
      */
-    async reportException(error: Error): Promise<void> {
+    reportException(error: Error): void {
         this.#error = error;
+    }
+
+    /**
+     * Reports that a log message has been issued by the underlying e-mail framework.
+     */
+    reportLog(severity: EmailLoggerSeverity, ...params: any[]): void {
+        if (!this.#startTime)
+            throw new Error('E-mail loggers must be initialised before receiving logs');
+
+        this.#logs.push({
+            params,
+            severity,
+            time: Number((process.hrtime.bigint() - this.#startTime) / 1000n / 1000n),
+        });
     }
 
     /**
@@ -132,6 +161,8 @@ export class EmailLoggerImpl implements EmailLogger {
 
         await db.update(tOutbox)
             .set({
+                outboxLogs: JSON.stringify(this.#logs),
+
                 outboxErrorName: this.#error?.name,
                 outboxErrorMessage: this.#error?.message,
                 outboxErrorStack: this.#error?.stack,
@@ -148,5 +179,6 @@ export class EmailLoggerImpl implements EmailLogger {
             .executeUpdate();
 
         this.#insertId = undefined;
+        this.#startTime = undefined;
     }
 }

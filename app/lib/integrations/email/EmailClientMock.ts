@@ -4,7 +4,7 @@
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailermock } from 'nodemailer-mock';
 
-import type { EmailLogger } from './EmailLogger';
+import type { EmailLogger, EmailLoggerSeverity } from './EmailLogger';
 import type { SendMessageRequest } from './EmailClient';
 import { EmailClient } from './EmailClient';
 
@@ -15,6 +15,7 @@ export class EmailClientMock extends EmailClient {
     #loggedExceptions: Error[] = [];
     #loggedFinalisations: (SMTPTransport.SentMessageInfo | undefined)[] = [];
     #loggedInitialisations: SendMessageRequest[] = [];
+    #loggedLogMessages: any[] = [];
 
     constructor() {
         super({
@@ -36,6 +37,7 @@ export class EmailClientMock extends EmailClient {
     get loggedExceptions() { return this.#loggedExceptions; }
     get loggedFinalisations() { return this.#loggedFinalisations; }
     get loggedInitialisations() { return this.#loggedInitialisations; }
+    get loggedLogMessages() { return this.#loggedLogMessages; }
 
     /**
      * Overrides the default logger with an empty instance that logs to the mocked instance.
@@ -50,8 +52,11 @@ export class EmailClientMock extends EmailClient {
             async finalise(info?: SMTPTransport.SentMessageInfo): Promise<void> {
                 parent.#loggedFinalisations.push(info);
             }
-            async reportException(error: Error): Promise<void> {
+            reportException(error: Error): void {
                 parent.#loggedExceptions.push(error);
+            }
+            reportLog(severity: EmailLoggerSeverity, ...params: any[]): void {
+                parent.#loggedLogMessages.push({ severity, params });
             }
         };
     }

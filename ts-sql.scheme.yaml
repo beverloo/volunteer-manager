@@ -1246,7 +1246,7 @@ tables:
   - name: session_token
     type: int(4) unsigned
     nullable: false
-    default: "0"
+    default: "1"
     comment: ""
   indexes:
   - name: PRIMARY
@@ -1278,7 +1278,7 @@ tables:
       `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
-      `session_token` int(4) unsigned NOT NULL DEFAULT 0,
+      `session_token` int(4) unsigned NOT NULL DEFAULT 1,
       PRIMARY KEY (`user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_auth
@@ -1847,6 +1847,11 @@ tables:
     nullable: false
     default: "''"
     comment: ""
+  - name: outbox_logs
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: outbox_error_name
     type: varchar(32)
     nullable: true
@@ -1942,6 +1947,7 @@ tables:
       `outbox_subject` text NOT NULL,
       `outbox_body_html` text NOT NULL DEFAULT '',
       `outbox_body_text` text NOT NULL DEFAULT '',
+      `outbox_logs` text DEFAULT NULL,
       `outbox_error_name` varchar(32) DEFAULT NULL,
       `outbox_error_cause` text DEFAULT NULL,
       `outbox_error_message` text DEFAULT NULL,

@@ -76,6 +76,15 @@ export const kGetOutboxDefinition = z.object({
         html: z.string(),
 
         // -----------------------------------------------------------------------------------------
+        // Log messages providing detailed information about the message
+        // -----------------------------------------------------------------------------------------
+
+        /**
+         * Log messages that were recorded when the message was sent. As a JSON-encoded string.
+         */
+        logs: z.string().optional(),
+
+        // -----------------------------------------------------------------------------------------
         // Exception that occurred when trying to send the message
         // -----------------------------------------------------------------------------------------
 
@@ -162,6 +171,9 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
             // Message content:
             text: tOutbox.outboxBodyText,
             html: tOutbox.outboxBodyHtml,
+
+            // Message logs:
+            logs: tOutbox.outboxLogs,
 
             // Message error:
             errorName: tOutbox.outboxErrorName,

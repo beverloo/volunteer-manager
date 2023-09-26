@@ -5,6 +5,7 @@ import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { default as nodemailer, type Transporter } from 'nodemailer';
 
 import type { User } from '@lib/auth/User';
+import { EmailConnectionLogger } from './EmailConnectionLogger';
 import { EmailLoggerImpl, type EmailLogger } from './EmailLogger';
 import { EmailMessage } from './EmailMessage';
 
@@ -66,10 +67,12 @@ export interface SendMessageRequest {
  */
 export class EmailClient {
     #configuration: SMTPTransport.Options;
+    #connectionLogger: EmailConnectionLogger;
     #settings: EmailClientSettings;
     #transport?: Transporter<SMTPTransport.SentMessageInfo>;
 
     constructor(settings: EmailClientSettings) {
+        this.#connectionLogger = new EmailConnectionLogger();
         this.#configuration = {
             host: settings.hostname,
             port: settings.port,
@@ -77,6 +80,9 @@ export class EmailClient {
                 user: settings.username,
                 pass: settings.password,
             },
+            connectionTimeout: /* 5 seconds= */ 5000,
+            logger: this.#connectionLogger,
+            debug: true,
         };
 
         this.#settings = settings;
@@ -106,6 +112,8 @@ export class EmailClient {
         const logger = this.createLogger(request);
         await logger.initialise(request);
 
+        this.#connectionLogger.setMessageLogger(logger);
+
         let result: SMTPTransport.SentMessageInfo | undefined;
         try {
             result = await this.#transport.sendMail({
@@ -113,9 +121,10 @@ export class EmailClient {
                 ...request.message.options,
             });
         } catch (error: any) {
-            await logger.reportException(error);
+            logger.reportException(error);
             throw error;
         } finally {
+            this.#connectionLogger.setMessageLogger(undefined);
             await logger.finalise(result);
         }
 
