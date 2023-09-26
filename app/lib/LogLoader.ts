@@ -144,6 +144,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdateTeamVolunteer]: (source, target, data) => {
         return `Updated event preferences for ${target?.name}`;
     },
+    [LogType.AdminUpdateTeamVolunteerStatus]: (source, target, { action, event }) => {
+        return `${action} ${target?.name}'s participation in ${event}`;
+    },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
     },

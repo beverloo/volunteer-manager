@@ -47,6 +47,7 @@ export enum LogType {
     AdminUpdateRole = 'admin-update-role',
     AdminUpdateTeam = 'admin-update-team',
     AdminUpdateTeamVolunteer = 'admin-update-team-volunteer',
+    AdminUpdateTeamVolunteerStatus = 'admin-update-team-volunteer-status',
     AdminUpdateTrainingPreferences = 'admin-update-training-preferences',
     AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',

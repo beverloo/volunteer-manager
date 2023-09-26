@@ -184,19 +184,39 @@ export async function updateApplication(request: Request, props: ActionProps): P
     //----------------------------------------------------------------------------------------------
 
     if (request.status) {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
-            event: request.event,
-            privilege: Privilege.EventApplicationManagement,
-        });
+        switch (request.status.registrationStatus) {
+            // Accept and approve applications; cancel and re-instate volunteers:
+            case RegistrationStatus.Accepted:
+            case RegistrationStatus.Cancelled:
+            case RegistrationStatus.Rejected:
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin-event',
+                    event: request.event,
+                    privilege: Privilege.EventApplicationManagement,
+                });
 
-        const { subject, message } = request.status;
-        if (!subject || !message) {
-            if (!can(props.user, Privilege.VolunteerSilentMutations))
-                noAccess();
+                break;
 
-        } else {
-            // TODO: Inform the volunteer w/ request.status.{message, subject}
+            // Reconsider previously rejected applications:
+            case RegistrationStatus.Registered:
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin-event',
+                    event: request.event,
+                    privilege: Privilege.EventAdministrator,
+                });
+
+                break;
+        }
+
+        if (request.status.registrationStatus !== RegistrationStatus.Registered) {
+            const { subject, message } = request.status;
+            if (!subject || !message) {
+                if (!can(props.user, Privilege.VolunteerSilentMutations))
+                    noAccess();
+
+            } else {
+                // TODO: Inform the volunteer w/ request.status.{message, subject}
+            }
         }
 
         affectedRows = await db.update(tUsersEvents)
@@ -207,6 +227,20 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+        await Log({
+            type: LogType.AdminUpdateTeamVolunteerStatus,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: request.userId,
+            data: {
+                action: request.status.registrationStatus.replace('Registered', 'Reset'),
+                event: requestContext.event,
+                eventId, teamId,
+            },
+        });
+
+        return { success: !!affectedRows };
     }
 
     // ---------------------------------------------------------------------------------------------

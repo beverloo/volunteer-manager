@@ -8,10 +8,12 @@ import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
+import Collapse from '@mui/material/Collapse';
+
 import { Applications } from './Applications';
 import { CreateApplication } from './CreateApplication';
 import { Header } from './Header';
-import { Rejections } from './Rejections';
+import { RejectedApplications } from './RejectedApplications';
 
 /**
  * The Applications page allows senior volunteers to see, and sometimes modify the incoming requests
@@ -77,21 +79,23 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
     // affected volunteer. This is guarded behind a separate permission.
     const allowSilent = can(user, Privilege.VolunteerSilentMutations);
 
-    // Whether the volunteer can respond to applications depends on their permissions. Those who
-    // are either an event administrator or have application management rights can.
-    const canManageApplications =
-        can(user, Privilege.EventAdministrator) ||
-        can(user, Privilege.EventApplicationManagement);
+    // Whether the volunteer can respond to applications depends on their permissions - normal
+    // application managers cannot, however, event administrators are allowed to. Similarly, only
+    // event administrators are able to reverse the decision on rejections.
+    const canManageApplications = can(user, Privilege.EventAdministrator);
+    const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);
 
     return (
         <>
             <Header event={event} team={team} user={user} />
             <Applications event={event.slug} team={team.slug} applications={applications}
                           canManageApplications={canManageApplications} allowSilent={allowSilent} />
-            { !!rejections.length &&
-                <Rejections applications={rejections} /> }
             { canManageApplications &&
                 <CreateApplication event={event} team={team} user={user} /> }
+            <Collapse in={!!rejections.length}>
+                <RejectedApplications applications={rejections} event={event.slug} team={team.slug}
+                                      editable={canApproveRejectedVolunteers} />
+            </Collapse>
         </>
     );
 }
