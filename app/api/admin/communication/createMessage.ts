@@ -165,7 +165,7 @@ type Response = CreateMessageDefinition['response'];
  * API to create new a new communication based on particular conditions.
  */
 export async function createMessage(request: Request, props: ActionProps): Promise<Response> {
-    let promptSetting: `integration-prompt-${Request['type']}`;
+    let promptSetting: `gen-ai-prompt-${Request['type']}`;
 
     // ---------------------------------------------------------------------------------------------
     // Step 1: Access checks and prompt selection.
@@ -181,8 +181,8 @@ export async function createMessage(request: Request, props: ActionProps): Promi
             });
 
             promptSetting =
-                request.type === 'approve-volunteer' ? 'integration-prompt-approve-volunteer'
-                                                     : 'integration-prompt-reject-volunteer';
+                request.type === 'approve-volunteer' ? 'gen-ai-prompt-approve-volunteer'
+                                                     : 'gen-ai-prompt-reject-volunteer';
             break;
     }
 

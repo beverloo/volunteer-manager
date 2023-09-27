@@ -12,6 +12,20 @@ import db, { tSettings } from '@lib/database';
  */
 type SettingsMap = {
     // ---------------------------------------------------------------------------------------------
+    // Generative AI settings
+    // ---------------------------------------------------------------------------------------------
+
+    // Personality:
+    'gen-ai-personality': string;
+
+    // Prompts:
+    'gen-ai-prompt-approve-volunteer': string;
+    'gen-ai-prompt-cancel-participation': string;
+    'gen-ai-prompt-change-team': string;
+    'gen-ai-prompt-reinstate-participation': string;
+    'gen-ai-prompt-reject-volunteer': string;
+
+    // ---------------------------------------------------------------------------------------------
     // Integration settings
     // ---------------------------------------------------------------------------------------------
 
@@ -34,10 +48,6 @@ type SettingsMap = {
     'integration-google-credentials': string;
     'integration-google-location': string;
     'integration-google-project-id': string;
-
-    // Prompts:
-    'integration-prompt-approve-volunteer': string;
-    'integration-prompt-reject-volunteer': string;
 
     // Google Vertex AI:
     'integration-vertex-model': 'text-bison' | 'text-bison@001';

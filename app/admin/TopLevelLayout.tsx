@@ -8,6 +8,7 @@ import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import MailIcon from '@mui/icons-material/Mail';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
 import { AdminContent } from './AdminContent';
@@ -45,13 +46,19 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <DeviceHubIcon />,
             label: 'System',
             privilege: [
-                Privilege.SystemAdministrator,
+                Privilege.SystemAiAccess,
                 Privilege.SystemLogsAccess,
                 Privilege.SystemOutboxAccess,
             ],
 
             defaultOpen: Privilege.SystemAdministrator,
             menu: [
+                {
+                    icon: <ModelTrainingIcon />,
+                    label: 'Generative AI',
+                    privilege: Privilege.SystemAiAccess,
+                    url: '/admin/ai',
+                },
                 {
                     icon: <WebhookIcon />,
                     label: 'Integrations',

@@ -118,6 +118,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return data.activated ? `Activated the account of ${target?.name}`
                               : `Deactivated their account of ${target?.name}`;
     },
+    [LogType.AdminUpdateAiSetting]: (source, target, { setting }) => {
+        return `Updated the generative AI ${setting}`;
+    },
     [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
     [LogType.AdminUpdateEvent]: (source, target, { action, event }) => {
         return `Updated ${action ?? 'settings'} for ${event}`;

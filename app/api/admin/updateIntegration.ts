@@ -50,14 +50,6 @@ export const kUpdateIntegrationDefinition = z.object({
         }).optional(),
 
         /**
-         * Vertex AI prompt settings that should be updated.
-         */
-        prompts: z.object({
-            approveVolunteer: z.string(),
-            rejectVolunteer: z.string(),
-        }).optional(),
-
-        /**
          * Vertex AI settings that should be updated.
          */
         vertexAi: kVertexAiSettings.optional(),
@@ -128,19 +120,6 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: LogType.AdminUpdateGoogleIntegration,
-            severity: LogSeverity.Warning,
-            sourceUser: props.user,
-        });
-    }
-
-    if (request.prompts) {
-        await writeSettings({
-            'integration-prompt-approve-volunteer': request.prompts.approveVolunteer,
-            'integration-prompt-reject-volunteer': request.prompts.rejectVolunteer,
-        });
-
-        await Log({
-            type: LogType.AdminUpdatePromptIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
         });

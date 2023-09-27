@@ -37,6 +37,7 @@ export enum LogType {
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
+    AdminUpdateAiSetting = 'admin-update-ai-settings',
     AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
     AdminUpdateEmailIntegration = 'admin-update-email-integration',
     AdminUpdateEvent = 'admin-update-event',

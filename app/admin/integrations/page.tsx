@@ -8,7 +8,6 @@ import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Privilege } from '@lib/auth/Privileges';
-import { Prompts, type PromptSettings } from './Prompts';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -44,10 +43,6 @@ export default async function IntegrationsPage() {
         'integration-google-location',
         'integration-google-project-id',
 
-        // Prompts:
-        'integration-prompt-approve-volunteer',
-        'integration-prompt-reject-volunteer',
-
         // Google Vertex AI:
         'integration-vertex-model',
         'integration-vertex-temperature',
@@ -79,11 +74,6 @@ export default async function IntegrationsPage() {
         projectId: settings['integration-google-project-id'] ?? '',
     };
 
-    const promptSettings: PromptSettings = {
-        approveVolunteer: settings['integration-prompt-approve-volunteer'] ?? '',
-        rejectVolunteer: settings['integration-prompt-reject-volunteer'] ?? '',
-    };
-
     const vertexSettings: VertexAISettings = {
         model: settings['integration-vertex-model'] ?? 'text-bison@001',
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
@@ -99,7 +89,6 @@ export default async function IntegrationsPage() {
             <Email settings={emailSettings} />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
-            <Prompts settings={promptSettings} />
         </>
     );
 }

@@ -18,6 +18,7 @@ import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPrefe
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
+import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -56,6 +57,7 @@ type ApiEndpoints = {
     'put': {
         '/api/admin/content/:id': UpdateContentDefinition,
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
+        '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
     },
 };
