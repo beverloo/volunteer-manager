@@ -7,12 +7,20 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
 
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <AiExplorer> component.
@@ -27,6 +35,11 @@ export interface AiExplorerProps {
      * The prompt this explorer should service.
      */
     prompt: string;
+
+    /**
+     * The type of prompt that should be generated; passed to the API.
+     */
+    type: string;
 }
 
 /**
@@ -37,20 +50,32 @@ export function AiExplorer(props: AiExplorerProps) {
     const [ error, setError ] = useState<string>();
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    const [ generatedContext, setGeneratedContext ] = useState<string[] | undefined>();
+    const [ generatedPrompt, setGeneratedPrompt ] = useState<string | undefined>();
+    const [ generatedResult, setGeneratedResult ] =
+        useState<{ subject?: string; message: string } | undefined>();
+
     const handleGenerate = useCallback(async () => {
         setLoading(true);
         setError(undefined);
         try {
-            throw new Error('Not yet implemented.');
+            const response = await callApi('post', '/api/ai/generate/:type', {
+                type: props.type as any,
+            });
+
+            if (response.success) {
+                setGeneratedContext(response.context);
+                setGeneratedPrompt(response.prompt);
+                setGeneratedResult(response.result);
+            } else {
+                setError(response.error);
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ ]);
-
-    // TODO: Resulting prompt
-    // TODO: Resulting context (from API)
+    }, [ props.type ]);
 
     const defaultValues = useMemo(() => ({
         personality: props.personality,
@@ -94,6 +119,45 @@ export function AiExplorer(props: AiExplorerProps) {
                     </Grid>
                 </Grid>
             </Paper>
+            <Collapse in={!!generatedResult}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    { generatedResult?.subject &&
+                        <Typography variant="h5" sx={{ mb: 1 }}>
+                            {generatedResult?.subject}
+                        </Typography> }
+                    <Typography sx={{ whiteSpace: 'pre-wrap', lineBreak: 'loose' }}>
+                        {generatedResult?.message}
+                    </Typography>
+                </Paper>
+            </Collapse>
+            <Collapse in={!!generatedContext && generatedContext.length > 0}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                        Generated context
+                    </Typography>
+                    <List dense>
+                        { generatedContext?.map((context, index) =>
+                            <ListItem key={index} disablePadding>
+                                <ListItemIcon sx={{ minWidth: '40px' }}>
+                                    <ArrowRightIcon />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {context}
+                                </ListItemText>
+                            </ListItem> )}
+                    </List>
+                </Paper>
+            </Collapse>
+            <Collapse in={!!generatedPrompt}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                        Generated prompt
+                    </Typography>
+                    <Typography sx={{ whiteSpace: 'pre-wrap', lineBreak: 'loose' }}>
+                        {generatedPrompt}
+                    </Typography>
+                </Paper>
+            </Collapse>
         </FormContainer>
     );
 }

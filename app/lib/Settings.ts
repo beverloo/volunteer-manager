@@ -67,6 +67,11 @@ type SettingsMap = {
 };
 
 /**
+ * Type containing all setting names known to the system.
+ */
+export type Setting = keyof SettingsMap;
+
+/**
  * Reads the setting with the given `setting`, or `undefined` when it cannot be loaded. This
  * function will end up issuing a database call.
  */

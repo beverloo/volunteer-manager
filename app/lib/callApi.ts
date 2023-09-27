@@ -7,6 +7,7 @@ import type { CreateContentDefinition } from '@app/api/admin/content/createConte
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
+import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
@@ -41,6 +42,7 @@ type ApiEndpoints = {
         '/api/admin/content': CreateContentDefinition,
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
+        '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,

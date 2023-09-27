@@ -29,7 +29,8 @@ export default async function AiPromptExplorer(props: NextRouterParams<'prompt'>
     return (
         <>
             <AiHeader />
-            <AiExplorer personality={personality} prompt={requestedPrompt} />
+            <AiExplorer personality={personality} prompt={requestedPrompt}
+                        type={props.params.prompt} />
         </>
     );
 }
