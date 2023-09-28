@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type EventPromptContext, composeEventPromptContext, generateEventPromptContext } from './generateEventPromptContext';
-import { type UserPromptContext, composeUserPromptContext, generateUserPromptContext } from './generateUserPromptContext';
+import { type EventContext, composeEventContext, generateEventContext } from './generateEventContext';
+import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
 import { PromptBuilder } from './PromptBuilder';
 import { dayjs } from '@lib/DateTime';
 
@@ -17,8 +17,8 @@ interface ApproveVolunteerParams {
  * Context collected by the `ApproveVolunteerPromptBuilder` class.
  */
 interface ApproveVolunteerContext {
-    event: EventPromptContext;
-    user: UserPromptContext;
+    event: EventContext;
+    user: UserContext;
 }
 
 /**
@@ -40,8 +40,8 @@ export class ApproveVolunteerPromptBuilder extends
         : Promise<ApproveVolunteerContext>
     {
         return {
-            event: await generateEventPromptContext(params.event),
-            user: await generateUserPromptContext(userId, params.event),
+            event: await generateEventContext(params.event),
+            user: await generateUserContext(userId, params.event),
         }
     }
 
@@ -53,15 +53,15 @@ export class ApproveVolunteerPromptBuilder extends
                 startTime: dayjs().add(100, 'days'),
                 endTime: dayjs().add(102, 'days'),
             },
-            user: await generateUserPromptContext(userId),
+            user: await generateUserContext(userId),
         }
     }
 
     override composeContext(context: ApproveVolunteerContext): string[] {
         const composition: string[] = [];
 
-        composition.push(...composeUserPromptContext(context.user));
-        composition.push(...composeEventPromptContext(context.event));
+        composition.push(...composeUserContext(context.user));
+        composition.push(...composeEventContext(context.event));
 
         return composition;
     }

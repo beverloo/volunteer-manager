@@ -7,7 +7,7 @@ import db, { tEvents, tTeams, tUsersEvents, tUsers } from '@lib/database';
 /**
  * Context that can be generated for a particular user.
  */
-export interface UserPromptContext {
+export interface UserContext {
     /**
      * Full name of the user who is supposedly writing this message.
      */
@@ -23,7 +23,7 @@ export interface UserPromptContext {
  * Composes the given `context` in a series of individual strings, that can be added to the final
  * prompt context composition.
  */
-export function composeUserPromptContext(context: UserPromptContext): string[] {
+export function composeUserContext(context: UserContext): string[] {
     return context.team ? [ `Your name is ${context.name}, part of the AnimeCon ${context.team}.` ]
                         : [ `Your name is ${context.name}.` ];
 }
@@ -32,9 +32,7 @@ export function composeUserPromptContext(context: UserPromptContext): string[] {
  * Generates context for the user identified by the given `userId`. Optionally the `event` can be
  * passed, in which case context will be added regarding their role in the given event.
  */
-export async function generateUserPromptContext(userId: number, event?: string)
-    : Promise<UserPromptContext>
-{
+export async function generateUserContext(userId: number, event?: string): Promise<UserContext> {
     const eventsJoin = tEvents.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
