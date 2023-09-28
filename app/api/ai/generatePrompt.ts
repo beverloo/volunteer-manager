@@ -35,7 +35,9 @@ export const kGeneratePromptDefinition = z.object({
          * Parameters that can be passed when the `type` equals `approve-volunteer`.
          */
         approveVolunteer: z.object({
+            userId: z.number(),
             event: z.string(),
+            team: z.string(),
         }).optional(),
 
         // TODO: cancel-participation
@@ -46,7 +48,9 @@ export const kGeneratePromptDefinition = z.object({
          * Parameters that can be passed when the `type` equals `reject-volunteer`.
          */
         rejectVolunteer: z.object({
+            userId: z.number(),
             event: z.string(),
+            team: z.string(),
         }).optional(),
 
     }),

@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { type ApplicationContext, composeApplicationContext, generateApplicationContext } from './generateApplicationContext';
 import { type EventContext, composeEventContext, generateEventContext } from './generateEventContext';
 import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
 import { PromptBuilder } from './PromptBuilder';
@@ -10,13 +11,16 @@ import { dayjs } from '@lib/DateTime';
  * Parameters expected by the `ApproveVolunteerPromptBuilder` class.
  */
 interface ApproveVolunteerParams {
+    userId: number;
     event: string;
+    team: string;
 }
 
 /**
  * Context collected by the `ApproveVolunteerPromptBuilder` class.
  */
 interface ApproveVolunteerContext {
+    application: ApplicationContext;
     event: EventContext;
     user: UserContext;
 }
@@ -40,6 +44,7 @@ export class ApproveVolunteerPromptBuilder extends
         : Promise<ApproveVolunteerContext>
     {
         return {
+            application: await generateApplicationContext(params.userId, params.event, params.team),
             event: await generateEventContext(params.event),
             user: await generateUserContext(userId, params.event),
         }
@@ -47,6 +52,12 @@ export class ApproveVolunteerPromptBuilder extends
 
     override async collectExampleContext(userId: number): Promise<ApproveVolunteerContext> {
         return {
+            application: {
+                event: 'acon-classic',
+                firstName: 'Joe',
+                teamName: 'Festival Hosts',
+                team: 'hosts.team',
+            },
             event: {
                 name: 'AnimeCon Unicorn Edition',
                 location: 'The Unicorn Hotel in Rotterdam',
@@ -62,6 +73,7 @@ export class ApproveVolunteerPromptBuilder extends
 
         composition.push(...composeUserContext(context.user));
         composition.push(...composeEventContext(context.event));
+        composition.push(...composeApplicationContext(context.application, /* approved= */ true));
 
         return composition;
     }
