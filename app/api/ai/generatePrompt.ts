@@ -6,9 +6,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+
+import { createVertexAIClient } from '@lib/integrations/vertexai';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -30,6 +33,15 @@ export const kGeneratePromptDefinition = z.object({
          * In which language should the prompt be written?
          */
         language: z.enum([ 'Dutch', 'English' ]),
+
+        /**
+         * Optional overrides that may be provided by Ai administrators. Only used for the prompt
+         * exploration pages, to make testing new prompts easier.
+         */
+        overrides: z.object({
+            personality: z.string(),
+            prompt: z.string(),
+        }).optional(),
 
         /**
          * Parameters that can be passed when the `type` equals `approve-volunteer`.
@@ -135,11 +147,17 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
+    // Install personality and prompt overrides when provided. This feature is only accessible
+    // through the Generative AI Explorer pages, and relies on a special permission.
+    if (request.overrides && can(props.user, Privilege.SystemAiAccess))
+        generator.setOverrides(request.overrides.personality, request.overrides.prompt);
+
     const { context, prompt } = await generator.build(request.language);
 
-    // TODO: Actually query Vertex AI
+    const client = await createVertexAIClient();
+
     const subject = generator.subject;
-    const message = 'TODO';
+    const message = await client.predictText(prompt) ?? '[unable to generate message]';
 
     return { success: true, context, prompt, result: { subject, message } };
 }

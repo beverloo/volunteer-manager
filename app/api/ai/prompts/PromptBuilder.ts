@@ -23,16 +23,30 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     #promptSetting: Setting;
     #userId: number;
 
+    #personalityOverride: string | undefined;
+    #promptOverride: string | undefined;
+
     constructor(userId: number, promptParams: Params | undefined, promptSetting: Setting) {
         this.#promptParams = promptParams;
         this.#promptSetting = promptSetting;
         this.#userId = userId;
+
+        this.#personalityOverride = undefined;
+        this.#promptOverride = undefined;
     }
 
     /**
      * Returns the subject for a message of this type that's about to be sent out.
      */
     get subject(): string | undefined { return undefined; }
+
+    /**
+     * Sets the prompt configuration overrides to the given `personality` and `prompt`.
+     */
+    setOverrides(personality: string, prompt: string): void {
+        this.#personalityOverride = personality;
+        this.#promptOverride = prompt;
+    }
 
     /**
      * Collects the prompt context based on the given `params`.
@@ -55,8 +69,8 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     async build(language: PromptBuilderLanguage): Promise<PromptBuilderResult> {
         const settings = await readSettings([ 'gen-ai-personality', this.#promptSetting ]);
 
-        const personality = settings['gen-ai-personality'];
-        const prompt = settings[this.#promptSetting];
+        const personality = this.#personalityOverride ?? settings['gen-ai-personality'];
+        const prompt = this.#promptOverride ?? settings[this.#promptSetting];
 
         const languageRequest = `Write the prompt in ${language}.`;
 

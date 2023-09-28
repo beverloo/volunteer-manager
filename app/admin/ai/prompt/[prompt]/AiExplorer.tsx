@@ -5,7 +5,8 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
-import { FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement }
+    from 'react-hook-form-mui';
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Collapse from '@mui/material/Collapse';
@@ -21,6 +22,14 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { callApi } from '@lib/callApi';
+
+/**
+ * Options available for the language selection box.
+ */
+const kLanguageOptions = [
+    { id: 'English', label: 'English' },
+    { id: 'Dutch', label: 'Dutch' },
+];
 
 /**
  * Props accepted by the <AiExplorer> component.
@@ -55,13 +64,18 @@ export function AiExplorer(props: AiExplorerProps) {
     const [ generatedResult, setGeneratedResult ] =
         useState<{ subject?: string; message: string } | undefined>();
 
-    const handleGenerate = useCallback(async () => {
+    const handleGenerate = useCallback(async (data: FieldValues) => {
         setLoading(true);
         setError(undefined);
         try {
             const response = await callApi('post', '/api/ai/generate/:type', {
                 type: props.type as any,
-                language: 'English',
+                language: data.language,
+
+                overrides: {
+                    personality: data.personality,
+                    prompt: data.prompt,
+                },
             });
 
             if (response.success) {
@@ -79,6 +93,7 @@ export function AiExplorer(props: AiExplorerProps) {
     }, [ props.type ]);
 
     const defaultValues = useMemo(() => ({
+        language: 'English',
         personality: props.personality,
         prompt: props.prompt,
     }), [ props ]);
@@ -103,6 +118,16 @@ export function AiExplorer(props: AiExplorerProps) {
                     </Grid>
                     <Grid xs={9}>
                         <TextareaAutosizeElement name="prompt" size="small" fullWidth />
+                    </Grid>
+
+                    <Grid xs={3}>
+                        <Typography variant="subtitle2">
+                            Language
+                        </Typography>
+                    </Grid>
+                    <Grid xs={9}>
+                        <SelectElement name="language" size="small" fullWidth
+                                       options={kLanguageOptions} />
                     </Grid>
 
                     <Grid xs={3}>{ /* ... */ }</Grid>
