@@ -34,7 +34,7 @@ export interface EventPromptContext {
  * prompt context composition.
  */
 export function composeEventPromptContext(context: EventPromptContext): string[] {
-    const composition = [];
+    const composition: string[] = [];
 
     const today = dayjs().format('MMMM D, YYYY');
     const start = context.startTime.format('MMMM D, YYYY');

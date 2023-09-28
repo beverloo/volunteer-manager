@@ -5,6 +5,11 @@ import type { Setting } from '@lib/Settings';
 import { readSettings } from '@lib/Settings';
 
 /**
+ * What message should the message be written in?
+ */
+type PromptBuilderLanguage = 'Dutch' | 'English';
+
+/**
  * Result of building the PromptBuilder with the given input.
  */
 type PromptBuilderResult = { context: string[]; prompt: string; };
@@ -16,10 +21,12 @@ type PromptBuilderResult = { context: string[]; prompt: string; };
 export abstract class PromptBuilder<Params extends {}, Context extends Record<string, any>> {
     #promptParams: Params | undefined;
     #promptSetting: Setting;
+    #userId: number;
 
-    constructor(promptParams: Params | undefined, promptSetting: Setting) {
+    constructor(userId: number, promptParams: Params | undefined, promptSetting: Setting) {
         this.#promptParams = promptParams;
         this.#promptSetting = promptSetting;
+        this.#userId = userId;
     }
 
     /**
@@ -30,12 +37,12 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     /**
      * Collects the prompt context based on the given `params`.
      */
-    abstract collectContext(params: Params): Context | Promise<Context>;
+    abstract collectContext(userId: number, params: Params): Context | Promise<Context>;
 
     /**
      * Collects example context in absence of input parameters, generally for example purposes.
      */
-    abstract collectExampleContext(): Context | Promise<Context>;
+    abstract collectExampleContext(userId: number): Context | Promise<Context>;
 
     /**
      * Composes the given `context` in a series of strings that will be appended to the prompt.
@@ -45,19 +52,21 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     /**
      * Builds the actual prompt, and returns the prompt as a string.
      */
-    async build(): Promise<PromptBuilderResult> {
+    async build(language: PromptBuilderLanguage): Promise<PromptBuilderResult> {
         const settings = await readSettings([ 'gen-ai-personality', this.#promptSetting ]);
 
         const personality = settings['gen-ai-personality'];
         const prompt = settings[this.#promptSetting];
 
+        const languageRequest = `Write the prompt in ${language}.`;
+
         const context = await this.composeContext(
-            this.#promptParams ? await this.collectContext(this.#promptParams)
-                               : await this.collectExampleContext());
+            this.#promptParams ? await this.collectContext(this.#userId, this.#promptParams)
+                               : await this.collectExampleContext(this.#userId));
 
         return {
             context,
-            prompt: `${personality} ${context.join(' ')} ${prompt}`,
+            prompt: `${personality} ${context.join(' ')} ${prompt} ${languageRequest}`,
         };
     }
 }

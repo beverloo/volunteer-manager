@@ -61,6 +61,7 @@ export function AiExplorer(props: AiExplorerProps) {
         try {
             const response = await callApi('post', '/api/ai/generate/:type', {
                 type: props.type as any,
+                language: 'English',
             });
 
             if (response.success) {

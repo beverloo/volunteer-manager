@@ -1,11 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
-import { Privilege } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -16,7 +16,7 @@ import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 export const kGeneratePromptDefinition = z.object({
     request: z.object({
         /**
-         * Type of prompt that is being generated.
+         * Type of prompt that is being generated. Conveyed in the URL.
          */
         type: z.enum([
             'approve-volunteer',
@@ -25,6 +25,11 @@ export const kGeneratePromptDefinition = z.object({
             'reinstate-participation',
             'reject-volunteer',
         ]),
+
+        /**
+         * In which language should the prompt be written?
+         */
+        language: z.enum([ 'Dutch', 'English' ]),
 
         /**
          * Parameters that can be passed when the `type` equals `approve-volunteer`.
@@ -103,10 +108,15 @@ type Response = GeneratePromptDefinition['response'];
 export async function generatePrompt(request: Request, props: ActionProps): Promise<Response> {
     // TODO: Permission checks.
 
+    if (!props.user)
+        notFound();
+
+    const userId = props.user.userId;
+
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer':
-            generator = new ApproveVolunteerPromptBuilder(request.approveVolunteer);
+            generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
             break;
 
             // TODO: cancel-participation
@@ -114,14 +124,14 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             // TODO: reinstate-participation
 
         case 'reject-volunteer':
-            generator = new RejectVolunteerPromptBuilder(request.rejectVolunteer);
+            generator = new RejectVolunteerPromptBuilder(userId, request.rejectVolunteer);
             break;
 
         default:
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    const { context, prompt } = await generator.build();
+    const { context, prompt } = await generator.build(request.language);
 
     // TODO: Actually query Vertex AI
     const subject = generator.subject;
