@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { RegistrationStatus } from '@lib/database/Types';
-import db, { tEvents, tTeams, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEventsTeams, tEvents, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * Context that can be generated for a particular application.
@@ -32,6 +32,11 @@ export interface ApplicationContext {
      * Identity of the team, expressed as a domain name.
      */
     team: string;
+
+    /**
+     * Link to the WhatsApp group private to volunteers of this particular team. Optional.
+     */
+    whatsappLink?: string;
 }
 
 /**
@@ -54,6 +59,12 @@ export function composeApplicationContext(context: ApplicationContext, approved?
         composition.push(
             'You must include the following link, where they can find more information and share ' +
             `their preferences: ${url}.`);
+
+        if (context.whatsappLink) {
+            composition.push(
+                'You must include the following link, which allows them to join the private ' +
+                `WhatsApp group for volunteers: ${context.whatsappLink}.`);
+        }
     }
 
     return composition;
@@ -75,6 +86,9 @@ export async function generateApplicationContext(userId: number, event: string, 
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .and(tTeams.teamName.equals(team))
+        .innerJoin(tEventsTeams)
+            .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
+            .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
         .where(tUsersEvents.userId.equals(userId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Registered))
         .select({
@@ -83,6 +97,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             teamName: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
             team: tTeams.teamEnvironment,
+            whatsApp: tEventsTeams.whatsappLink,
         })
         .executeSelectOne();
 
