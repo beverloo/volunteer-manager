@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AuthenticationContext, UserEventAuthenticationContext } from './AuthenticationContext';
+import type { User } from './User';
 import type { useMockConnection } from '@lib/database/Connection';
 import { AuthType } from '../database/Types';
 
@@ -28,6 +30,40 @@ export interface AuthenticationResult {
     lastName: string,
     avatarFileHash?: string,
     privileges: bigint,
+}
+
+/**
+ * Parameters that can be provided when building an authentication context. All missing information
+ * will be substituted with default values, and is not required to be given.
+ */
+interface BuildAuthenticationContextParams {
+    user?: Partial<User>;
+    authType?: AuthType;
+    events?: Map<string, UserEventAuthenticationContext>;
+}
+
+/**
+ * Builds a new instance of an AuthenticationContext, for testing purposes. All fields are optional
+ * and will be substituted with default values.
+ */
+export function buildAuthenticationContext(params?: BuildAuthenticationContextParams)
+    : AuthenticationContext
+{
+    params = params ?? {};
+    return {
+        user: {
+            userId: 2000000,
+            username: 'joe@example.com',
+            firstName: 'Joe',
+            lastName: 'Example',
+            avatarUrl: undefined,
+            privileges: 0n,
+
+            ...params.user,
+        },
+        authType: params.authType ?? AuthType.password,
+        events: params.events ?? new Map,
+    };
 }
 
 type MockConnection = ReturnType<typeof useMockConnection>;
