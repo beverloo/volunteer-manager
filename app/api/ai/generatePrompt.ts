@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
 import { Privilege } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
+import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -24,6 +25,25 @@ export const kGeneratePromptDefinition = z.object({
             'reinstate-participation',
             'reject-volunteer',
         ]),
+
+        /**
+         * Parameters that can be passed when the `type` equals `approve-volunteer`.
+         */
+        approveVolunteer: z.object({
+            event: z.string(),
+        }).optional(),
+
+        // TODO: cancel-participation
+        // TODO: change-team
+        // TODO: reinstate-participation
+
+        /**
+         * Parameters that can be passed when the `type` equals `reject-volunteer`.
+         */
+        rejectVolunteer: z.object({
+            event: z.string(),
+        }).optional(),
+
     }),
     response: z.strictObject({
         /**
@@ -83,18 +103,25 @@ type Response = GeneratePromptDefinition['response'];
 export async function generatePrompt(request: Request, props: ActionProps): Promise<Response> {
     // TODO: Permission checks.
 
-    let generator: PromptBuilder;
+    let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer':
-            generator = new ApproveVolunteerPromptBuilder();
+            generator = new ApproveVolunteerPromptBuilder(request.approveVolunteer);
+            break;
+
+            // TODO: cancel-participation
+            // TODO: change-team
+            // TODO: reinstate-participation
+
+        case 'reject-volunteer':
+            generator = new RejectVolunteerPromptBuilder(request.rejectVolunteer);
             break;
 
         default:
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    const prompt = await generator.build();
-    const context = generator.context;
+    const { context, prompt } = await generator.build();
 
     // TODO: Actually query Vertex AI
     const subject = generator.subject;

@@ -6,54 +6,54 @@ import { PromptBuilder } from './PromptBuilder';
 import { dayjs } from '@lib/DateTime';
 
 /**
- * Parameters expected by the `ApproveVolunteerPromptBuilder` class.
+ * Parameters expected by the `RejectVolunteerPromptBuilder` class.
  */
-interface ApproveVolunteerParams {
+interface RejectVolunteerParams {
     event: string;
 }
 
 /**
- * Context collected by the `ApproveVolunteerPromptBuilder` class.
+ * Context collected by the `RejectVolunteerPromptBuilder` class.
  */
-interface ApproveVolunteerContext {
+interface RejectVolunteerContext {
     event: EventPromptContext;
 }
 
 /**
- * Prompt generator for the situation in which a volunteer's application has been approved, and we
- * want to share the news with them.
+ * Prompt generator for the situation in which a volunteer's application has been rejected, and we
+ * have to tell them the sad news.
  */
-export class ApproveVolunteerPromptBuilder extends
-    PromptBuilder<ApproveVolunteerParams, ApproveVolunteerContext>
+export class RejectVolunteerPromptBuilder extends
+    PromptBuilder<RejectVolunteerParams, RejectVolunteerContext>
 {
-    constructor(params?: ApproveVolunteerParams) {
-        super(params, 'gen-ai-prompt-approve-volunteer');
+    constructor(params?: RejectVolunteerParams) {
+        super(params, 'gen-ai-prompt-reject-volunteer');
     }
 
     // ---------------------------------------------------------------------------------------------
     // PromptBuilder implementation:
     // ---------------------------------------------------------------------------------------------
 
-    override async collectContext(params: ApproveVolunteerParams)
-        : Promise<ApproveVolunteerContext>
+    override async collectContext(params: RejectVolunteerParams)
+        : Promise<RejectVolunteerContext>
     {
         return {
             event: await generateEventPromptContext(params.event),
         }
     }
 
-    override collectExampleContext(): ApproveVolunteerContext {
+    override collectExampleContext(): RejectVolunteerContext {
         return {
             event: {
-                name: 'AnimeCon Unicorn Edition',
-                location: 'The Unicorn Hotel in Rotterdam',
-                startTime: dayjs().add(100, 'days'),
-                endTime: dayjs().add(102, 'days'),
+                name: 'AnimeCon Classic',
+                location: 'Theaterhotel in Almelo',
+                startTime: dayjs().add(40, 'days'),
+                endTime: dayjs().add(42, 'days'),
             },
         }
     }
 
-    override composeContext(context: ApproveVolunteerContext): string[] {
+    override composeContext(context: RejectVolunteerContext): string[] {
         const composition: string[] = [];
 
         composition.push(...composeEventPromptContext(context.event));
