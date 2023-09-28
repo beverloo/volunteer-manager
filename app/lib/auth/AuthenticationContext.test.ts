@@ -5,7 +5,7 @@ import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import { Privilege } from './Privileges';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
-import { executeAccessCheck, getAuthenticationContextFromHeaders } from './AuthenticationContext';
+import { executeAccessCheck, or, and, getAuthenticationContextFromHeaders } from './AuthenticationContext';
 import { buildAuthenticationContext, expectAuthenticationQuery } from './AuthenticationTestHelpers';
 import { serialize } from 'cookie';
 import { useMockConnection } from '../database/Connection';
@@ -146,7 +146,11 @@ describe('AuthenticationContext', () => {
         });
 
         // Pass:
+        executeAccessCheck(authenticationContext, { privilege: 0n as any as Privilege });
         executeAccessCheck(authenticationContext, { privilege: Privilege.EventHotelManagement });
+        executeAccessCheck(authenticationContext, {
+            privilege: or(Privilege.EventHotelManagement, Privilege.Statistics),
+        });
 
         // Fail:
         try {
@@ -156,7 +160,13 @@ describe('AuthenticationContext', () => {
             expect(isNotFoundError(error)).toBeTrue();
         }
 
-        // TODO: and()
-        // TODO: or()
+        try {
+            executeAccessCheck(authenticationContext, {
+                privilege: and(Privilege.EventHotelManagement, Privilege.Statistics),
+            });
+            fail('executeAccessCheck was expected to throw');
+        } catch (error: any) {
+            expect(isNotFoundError(error)).toBeTrue();
+        }
     });
 });

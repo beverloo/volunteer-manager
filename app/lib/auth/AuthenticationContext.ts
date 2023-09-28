@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType } from '@lib/database/Types';
-import { Privilege, can } from './Privileges';
+import { Privilege, can, type Privileges } from './Privileges';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
@@ -94,6 +94,14 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
 }
 
 /**
+ * A set of privileges that should be checked in a particular manner.
+ */
+type PrivilegeSet = { type: 'and' | 'or', privileges: Privilege[] };
+
+export const and = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'and', privileges });
+export const or = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'or', privileges });
+
+/**
  * Types of access check that can be executed. Each check should be individually documented.
  */
 type AuthenticationAccessCheckTypes =
@@ -120,8 +128,23 @@ type AuthenticationAccessCheckTypes =
  * The access check always allows for permissions to be checked inline.
  */
 type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
-    privilege?: Privilege | Privilege[];
+    privilege?: Privilege | PrivilegeSet;
 };
+
+/**
+ * Checks whether the `user` has been granted the given `privilege`, which may be a privilege set.
+ */
+function checkPrivilege(user: User | undefined, privilege: Privilege | PrivilegeSet): boolean {
+    if (typeof privilege !== 'object')
+        return can(user, privilege);
+
+    let count = 0;
+    for (const individualPrivilege of privilege.privileges)
+        count += can(user, individualPrivilege) ? 1 : 0;
+
+    return privilege.type === 'and' ? /* && */ count === privilege.privileges.length
+                                    : /* || */ count > 0;
+}
 
 /**
  * Executes the given `access` check. The `type` determines what should be checked for, optionally
@@ -134,11 +157,8 @@ export function executeAccessCheck(
     context: AuthenticationContext, access: AuthenticationAccessCheck): void | never
 {
     if (access.privilege) {
-        const privileges = Array.isArray(access.privilege) ? access.privilege : [access.privilege];
-        for (const privilege of privileges) {
-            if (!can(context.user, privilege))
-                notFound();
-        }
+        if (!checkPrivilege(context.user, access.privilege))
+            notFound();
     }
 
     if ('check' in access) {

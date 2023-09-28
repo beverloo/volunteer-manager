@@ -9,7 +9,7 @@ import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptB
 import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 
@@ -122,8 +122,6 @@ type Response = GeneratePromptDefinition['response'];
  * API that allows AI-related settings to be updated.
  */
 export async function generatePrompt(request: Request, props: ActionProps): Promise<Response> {
-    // TODO: Permission checks.
-
     if (!props.user)
         notFound();
 
@@ -132,6 +130,11 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer':
+            executeAccessCheck(props.authenticationContext, {
+                check: 'admin',
+                privilege: or(Privilege.EventApplicationManagement, Privilege.SystemAiAccess),
+            });
+
             generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
             break;
 
@@ -140,6 +143,11 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             // TODO: reinstate-participation
 
         case 'reject-volunteer':
+            executeAccessCheck(props.authenticationContext, {
+                check: 'admin',
+                privilege: or(Privilege.EventApplicationManagement, Privilege.SystemAiAccess),
+            });
+
             generator = new RejectVolunteerPromptBuilder(userId, request.rejectVolunteer);
             break;
 
