@@ -27,8 +27,12 @@ import { callApi } from '@lib/callApi';
  * Options available for the language selection box.
  */
 const kLanguageOptions = [
-    { id: 'English', label: 'English' },
     { id: 'Dutch', label: 'Dutch' },
+    { id: 'English', label: 'English' },
+    { id: 'French', label: 'French' },
+    { id: 'German', label: 'German' },
+    { id: 'Japanese', label: 'Japanese' },
+    { id: 'Spanish', label: 'Spanish' },
 ];
 
 /**

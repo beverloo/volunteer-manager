@@ -32,7 +32,7 @@ export const kGeneratePromptDefinition = z.object({
         /**
          * In which language should the prompt be written?
          */
-        language: z.enum([ 'Dutch', 'English' ]),
+        language: z.enum([ 'Dutch', 'English', 'French', 'German', 'Japanese', 'Spanish' ]),
 
         /**
          * Optional overrides that may be provided by Ai administrators. Only used for the prompt

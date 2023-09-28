@@ -7,7 +7,7 @@ import { readSettings } from '@lib/Settings';
 /**
  * What message should the message be written in?
  */
-type PromptBuilderLanguage = 'Dutch' | 'English';
+type PromptBuilderLanguage = 'Dutch' | 'English' | 'French' | 'German' | 'Japanese' | 'Spanish';
 
 /**
  * Result of building the PromptBuilder with the given input.
@@ -64,6 +64,26 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     abstract composeContext(context: Context): string[] | Promise<string[]>;
 
     /**
+     * Composes the language request based on the given `language`.
+     */
+    composeLanguageRequest(language: PromptBuilderLanguage): string {
+        switch (language) {
+            case 'English':
+                // This is the default language, don't include anything special.
+                return '';
+
+            case 'Dutch':
+                return 'Write your message in Dutch, translate application as aanmelding.';
+
+            case 'French':
+            case 'German':
+            case 'Japanese':
+            case 'Spanish':
+                return `Write your message in ${language}.`;
+        }
+    }
+
+    /**
      * Builds the actual prompt, and returns the prompt as a string.
      */
     async build(language: PromptBuilderLanguage): Promise<PromptBuilderResult> {
@@ -72,7 +92,7 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
         const personality = this.#personalityOverride ?? settings['gen-ai-personality'];
         const prompt = this.#promptOverride ?? settings[this.#promptSetting];
 
-        const languageRequest = `Write the prompt in ${language}.`;
+        const languageRequest = this.composeLanguageRequest(language);
 
         const context = await this.composeContext(
             this.#promptParams ? await this.collectContext(this.#userId, this.#promptParams)

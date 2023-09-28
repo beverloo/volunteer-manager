@@ -24,6 +24,11 @@ export interface ApplicationContext {
     teamName: string;
 
     /**
+     * Description of the team that they are interested in joining.
+     */
+    teamDescription: string;
+
+    /**
      * Identity of the team, expressed as a domain name.
      */
     team: string;
@@ -39,15 +44,16 @@ export function composeApplicationContext(context: ApplicationContext, approved?
 {
     const composition: string[] = [];
 
-    const { firstName, teamName, team } = context;
+    const { firstName, teamName, teamDescription } = context;
 
     composition.push(`You are messaging ${firstName}, who volunteered for the ${teamName}.`);
     if (approved) {
         const url = `https://${context.team}/registration/${context.event}/application`;
 
+        composition.push(teamDescription.replaceAll(/\[([^\]]+)\]\(([^\)]+)\)/g, '$1'));
         composition.push(
-            'You want to tell them they can find more information and share their preferences ' +
-            `on ${url}.`);
+            'You must include the following link, where they can find more information and share ' +
+            `their preferences: ${url}.`);
     }
 
     return composition;
@@ -75,6 +81,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             event: tEvents.eventSlug,
             firstName: tUsers.firstName,
             teamName: tTeams.teamTitle,
+            teamDescription: tTeams.teamDescription,
             team: tTeams.teamEnvironment,
         })
         .executeSelectOne();

@@ -56,6 +56,7 @@ export class RejectVolunteerPromptBuilder extends
                 event: 'acon-classic',
                 firstName: 'Joe',
                 teamName: 'Festival Hosts',
+                teamDescription: 'Festival Hosts guide visitors to where they need to be.',
                 team: 'hosts.team',
             },
             event: {
