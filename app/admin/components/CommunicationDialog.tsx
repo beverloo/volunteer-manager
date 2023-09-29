@@ -5,7 +5,8 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement, TextareaAutosizeElement, useForm }
+    from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
@@ -16,11 +17,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
+import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
 
+import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { callApi } from '@lib/callApi';
 
@@ -33,6 +36,11 @@ export interface CommunicationDialogProps {
      * permission, and should ideally be used rarely.
      */
     allowSilent?: boolean;
+
+    /**
+     * Parameters to pass to the Generative AI API endpoint.
+     */
+    apiParams: Omit<GeneratePromptDefinition['request'], 'language'>;
 
     /**
      * Label to display on the close button. Defaults to "Close".
@@ -93,6 +101,8 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
     const closeLabel = props.closeLabel ?? 'Close';
     const confirmLabel = props.confirmLabel ?? 'Confirm';
 
+    const form = useForm();
+
     const [ confirmSilent, setConfirmSilent ] = useState<boolean>(false);
 
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -103,9 +113,8 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
     // ---------------------------------------------------------------------------------------------
 
     const [ error, setError ] = useState<React.ReactNode | undefined>(undefined);
+    const [ fatalError, setFatalError ] = useState<string | undefined>(undefined);
     const [ success, setSuccess ] = useState<React.ReactNode | undefined>(undefined);
-
-
 
     // ---------------------------------------------------------------------------------------------
     // State: `message`
@@ -117,11 +126,27 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
     const handleGenerateMessage = useCallback(async (requestLanguage?: 'Dutch' | 'English') => {
         setMessageLoading(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await callApi('post', '/api/ai/generate/:type', {
+                language: requestLanguage ?? 'English',
+                ...props.apiParams,
+            });
+
+            if (!response.success) {
+                setFatalError(response.error ?? 'Unable to generate the message...');
+                return;
+            }
+
+            setState('message');
+
+            form.setValue('subject', response.result?.subject);
+            form.setValue('message', response.result?.message);
+            form.setFocus('subject');
+        } catch (error: any) {
+            setFatalError(error.message);
         } finally {
             setMessageLoading(false);
         }
-    }, [ /* no deps */ ]);
+    }, [ form, props.apiParams ]);
 
     // ---------------------------------------------------------------------------------------------
     // State: `language`
@@ -131,7 +156,9 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
         if (messageLoading)
             return;
 
+        setConfirmSilent(language === 'Silent');
         setLanguage(language);
+
         switch (language) {
             case 'Dutch':
             case 'English':
@@ -139,7 +166,7 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                 break;
 
             case 'Silent':
-                setConfirmSilent(true);
+                // No further action necessary.
                 break;
         }
     }, [ handleGenerateMessage, messageLoading ]);
@@ -154,19 +181,23 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
             await onClose(reason ?? 'button');
         } finally {
             setTimeout(() => {
+                form.reset(/* all fields */);
                 setConfirmSilent(false);
+                setFatalError(undefined);
                 setState('language');
             }, 300);
         }
-    }, [ onClose ]);
+    }, [ form, onClose ]);
 
-    const handleConfirm = useCallback(async () => {
+    const handleConfirm = useCallback(async (data: FieldValues) => {
         if (language === 'Silent' && !props.allowSilent)
             return;  // block silent confirmations when the volunteer is not allowed to do this
 
-        // TODO: Confirm e-mail
-        const subject = undefined;
-        const message = undefined;
+        const subject = language === 'Silent' ? undefined : data.subject;
+        const message = language === 'Silent' ? undefined : data.message;
+
+        if (language !== 'Silent' && !subject || !message)
+            return;  // block attempted silent confirmations
 
         setLoading(true);
         try {
@@ -187,51 +218,66 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
 
     return (
         <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <DialogTitle>
-                {title}
-            </DialogTitle>
-            <DialogContent>
-                { description &&
-                    <Typography sx={{ pb: 2 }}>
-                        {description}
-                    </Typography> }
-                <Collapse in={state === 'language'}>
-                    <Typography>
-                        An e-mail will automatically be sent to let them know. In which language
-                        should the message be written?
-                    </Typography>
-                    <Stack direction="row" justifyContent="space-between" spacing={2}
-                           alignItems="stretch" sx={{ mt: 2 }}>
-                        <LanguageButton onClick={handleLanguageChoice} variant="Dutch" />
-                        <LanguageButton onClick={handleLanguageChoice} variant="English" />
-                        { props.allowSilent &&
-                            <LanguageButton onClick={handleLanguageChoice} variant="Silent" /> }
-                    </Stack>
-                    <Collapse in={!!confirmSilent}>
-                        <Alert severity="warning" sx={{ mt: 2 }}>
-                            You are about to make this change without sending a message. <strong>You
-                            are responsible for letting them know</strong>. Click the button below
-                            to proceed.
-                        </Alert>
+            <FormContainer formContext={form} onSuccess={handleConfirm}>
+                <DialogTitle>
+                    {title}
+                </DialogTitle>
+                <DialogContent>
+                    { description &&
+                        <Typography sx={{ pb: 2 }}>
+                            {description}
+                        </Typography> }
+                    <Collapse in={state === 'language'}>
+                        <Typography>
+                            An e-mail will automatically be sent to let them know. In which language
+                            should the message be written?
+                        </Typography>
+                        <Stack direction="row" justifyContent="space-between" spacing={2}
+                               alignItems="stretch" sx={{ mt: 2 }}>
+                            <LanguageButton onClick={handleLanguageChoice} variant="Dutch" />
+                            <LanguageButton onClick={handleLanguageChoice} variant="English" />
+                            { props.allowSilent &&
+                                <LanguageButton onClick={handleLanguageChoice} variant="Silent" /> }
+                        </Stack>
+                        <Collapse in={!!confirmSilent}>
+                            <Alert severity="warning" sx={{ mt: 2 }}>
+                                You are about to make this change without sending a message.
+                                <strong> You are responsible for letting them know</strong>. Click
+                                the button below to proceed.
+                            </Alert>
+                        </Collapse>
                     </Collapse>
-                </Collapse>
-                <Collapse in={state === 'message'}>
-                    <FormContainer>
-                        Ayy
-                    </FormContainer>
-                </Collapse>
-                <Collapse in={state === 'confirmation'}>
-                    { error && <Alert severity="error">{error}</Alert> }
-                    { success && <Alert severity="success">{success}</Alert> }
-                </Collapse>
-            </DialogContent>
-            <DialogActions sx={{ pt: 0, mr: 2, mb: 1.5 }}>
-                <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                <LoadingButton loading={loading} onClick={handleConfirm} variant="contained"
-                               disabled={ state !== 'message' && !confirmSilent }>
-                    {confirmLabel}
-                </LoadingButton>
-            </DialogActions>
+                    <Collapse in={state === 'message'}>
+                        <Grid container spacing={1}>
+                            <Grid xs={11}>
+                                <TextFieldElement name="subject" fullWidth size="small" />
+                            </Grid>
+                            <Grid xs={1}>
+                                { /* TODO: Reload button */ }
+                            </Grid>
+
+                            <Grid xs={12}>
+                                <TextareaAutosizeElement name="message" fullWidth size="small" />
+                            </Grid>
+                        </Grid>
+                    </Collapse>
+                    <Collapse in={state === 'confirmation'}>
+                        { error && <Alert severity="error">{error}</Alert> }
+                        { success && <Alert severity="success">{success}</Alert> }
+                    </Collapse>
+                </DialogContent>
+                <DialogActions sx={{ pt: 0, mr: 2, mb: 1.5 }}>
+                    { fatalError &&
+                        <Typography sx={{ color: 'error.main', flexGrow: 1, pl: 2 }}>
+                            {fatalError}
+                        </Typography> }
+                    <Button onClick={handleClose} variant="text">{closeLabel}</Button>
+                    <LoadingButton loading={loading} type="submit" variant="contained"
+                                   disabled={ state !== 'message' && !confirmSilent }>
+                        {confirmLabel}
+                    </LoadingButton>
+                </DialogActions>
+            </FormContainer>
         </Dialog>
     );
 }

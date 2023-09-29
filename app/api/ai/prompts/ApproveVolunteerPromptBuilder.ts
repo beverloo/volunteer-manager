@@ -3,8 +3,8 @@
 
 import { type ApplicationContext, composeApplicationContext, generateApplicationContext } from './generateApplicationContext';
 import { type EventContext, composeEventContext, generateEventContext } from './generateEventContext';
+import { type PromptBuilderLanguage, PromptBuilder } from './PromptBuilder';
 import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
-import { PromptBuilder } from './PromptBuilder';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -77,5 +77,19 @@ export class ApproveVolunteerPromptBuilder extends
         composition.push(...composeApplicationContext(context.application, /* approved= */ true));
 
         return composition;
+    }
+
+    override composeSubject(context: ApproveVolunteerContext, language: PromptBuilderLanguage) {
+        switch (language) {
+            case 'Dutch':
+                return `Aanmelding voor ${context.event.name}`;
+
+            case 'English':
+            case 'French':
+            case 'German':
+            case 'Japanese':
+            case 'Spanish':
+                return `Your ${context.event.name} application`;
+        }
     }
 }

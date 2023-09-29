@@ -7,12 +7,13 @@ import { readSettings } from '@lib/Settings';
 /**
  * What message should the message be written in?
  */
-type PromptBuilderLanguage = 'Dutch' | 'English' | 'French' | 'German' | 'Japanese' | 'Spanish';
+export type PromptBuilderLanguage =
+    'Dutch' | 'English' | 'French' | 'German' | 'Japanese' | 'Spanish';
 
 /**
  * Result of building the PromptBuilder with the given input.
  */
-type PromptBuilderResult = { context: string[]; prompt: string; };
+type PromptBuilderResult = { context: string[]; prompt: string; subject: string; };
 
 /**
  * Base implementation of a prompt builder, that the other prompt generation generators extend on.
@@ -36,11 +37,6 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     }
 
     /**
-     * Returns the subject for a message of this type that's about to be sent out.
-     */
-    get subject(): string | undefined { return undefined; }
-
-    /**
      * Sets the prompt configuration overrides to the given `personality` and `prompt`.
      */
     setOverrides(personality: string, prompt: string): void {
@@ -62,6 +58,12 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
      * Composes the given `context` in a series of strings that will be appended to the prompt.
      */
     abstract composeContext(context: Context): string[] | Promise<string[]>;
+
+    /**
+     * Composes the subject for the message based on the given `Context`.
+     */
+    abstract composeSubject(context: Context, language: PromptBuilderLanguage)
+        : string | Promise<string>;
 
     /**
      * Composes the language request based on the given `language`.
@@ -94,13 +96,17 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
 
         const languageRequest = this.composeLanguageRequest(language);
 
-        const context = await this.composeContext(
+        const inputContext =
             this.#promptParams ? await this.collectContext(this.#userId, this.#promptParams)
-                               : await this.collectExampleContext(this.#userId));
+                               : await this.collectExampleContext(this.#userId);
+
+        const context = await this.composeContext(inputContext);
+        const subject = await this.composeSubject(inputContext, language);
 
         return {
             context,
             prompt: `${personality} ${context.join(' ')} ${prompt} ${languageRequest}`,
+            subject,
         };
     }
 }

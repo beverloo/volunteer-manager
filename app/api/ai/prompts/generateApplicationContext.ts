@@ -85,7 +85,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             .and(tEvents.eventSlug.equals(event))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .and(tTeams.teamName.equals(team))
+            .and(tTeams.teamEnvironment.equals(team))
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
             .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))

@@ -371,7 +371,13 @@ export function Applications(props: ApplicationsProps) {
                                          <strong> {application?.firstName}</strong>'s application to
                                          help out during this event.
                                      </>
-                                 } onSubmit={handleApproved} />
+                                 } apiParams={{
+                                     type: 'approve-volunteer',
+                                     approveVolunteer: {
+                                         userId: application?.userId ?? 0,
+                                         event, team,
+                                     },
+                                 }} onSubmit={handleApproved} />
 
             <CommunicationDialog title={`Reject ${application?.firstName}'s application`}
                                  open={rejectOpen} onClose={handleRejectClose}
@@ -381,7 +387,13 @@ export function Applications(props: ApplicationsProps) {
                                          <strong> {application?.firstName}</strong>'s application to
                                          help out during this event.
                                      </>
-                                 } onSubmit={handleRejected} />
+                                 } apiParams={{
+                                     type: 'reject-volunteer',
+                                     rejectVolunteer: {
+                                         userId: application?.userId ?? 0,
+                                         event, team,
+                                     },
+                                 }} onSubmit={handleRejected} />
 
         </>
     );
