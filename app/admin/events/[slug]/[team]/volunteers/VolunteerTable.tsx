@@ -4,16 +4,19 @@
 'use client';
 
 import Link from 'next/link';
+import React from 'react';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import ReportIcon from '@mui/icons-material/Report';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { RoleBadge } from '@lib/database/Types';
+import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
 /**
@@ -44,12 +47,12 @@ export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
      */
     volunteers: {
         id: number;
+        status: RegistrationStatus;
         name: string;
         role: string;
         roleBadge?: RoleBadge;
         shiftCount: number;
         shiftMilliseconds?: number;
-        status?: string;  // <-- todo
     }[];
 }
 
@@ -75,26 +78,26 @@ export function VolunteerTable(props: VolunteerTableProps) {
         {
             field: 'name',
             headerName: 'Name',
-            sortable: true,
+            sortable: false,
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
-                if (!params.row.roleBadge)
-                    return params.value;
-
                 return (
-                    <>
-                        {params.value}
-                        <VolunteerBadge variant={params.row.roleBadge} color="error"
-                                        fontSize="small" sx={{ pl: .5 }} />
-                    </>
+                    <React.Fragment>
+                        <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
+                            {params.value}
+                        </MuiLink>
+                        { !!params.row.roleBadge &&
+                            <VolunteerBadge variant={params.row.roleBadge} color="error"
+                                            fontSize="small" sx={{ pl: .5 }} /> }
+                    </React.Fragment>
                 );
             },
         },
         {
             field: 'role',
             headerName: 'Role',
-            sortable: true,
+            sortable: false,
             flex: 1,
         },
         {
@@ -115,7 +118,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
         {
             field: 'status',
             headerName: 'Status',
-            sortable: true,
+            sortable: false,
             flex: 1,
 
             // TODO: Display status icons for registration status (hotel etc.)
@@ -130,7 +133,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
             </Typography>
             <DataTable columns={columns} rows={props.volunteers}
                        pageSize={props.volunteers.length}
-                       disableFooter enableFilter />
+                       dense disableFooter enableFilter />
         </Paper>
     )
 }

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -19,6 +20,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
+import { RegistrationStatus } from '@lib/database/Types';
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
 import { Avatar } from '@components/Avatar';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -62,6 +64,7 @@ export interface VolunteerIdentityProps {
     volunteer: {
         firstName: string;
         lastName: string;
+        registrationStatus: RegistrationStatus;
         avatarFileHash?: string;
         roleName: string;
     },
@@ -121,6 +124,11 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                     <Box>
                         <Typography variant="subtitle1">
                             {volunteer.firstName} {volunteer.lastName}
+                            { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
+                                <Tooltip title={`${volunteer.firstName} no longer participates`}>
+                                    <Chip label="cancelled" size="small" color="error"
+                                          sx={{ ml: 1 }} />
+                                </Tooltip> }
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'action.active' }}>
                             {volunteer.roleName}

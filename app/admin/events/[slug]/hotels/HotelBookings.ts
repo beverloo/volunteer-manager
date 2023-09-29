@@ -51,6 +51,7 @@ export interface HotelBooking {
         name: string;
 
         userId?: number;
+        userStatus?: RegistrationStatus;
         userTeam?: string;
     }[];
 }
@@ -108,6 +109,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
 
             // For volunteers:
             assignmentUserId: tHotelsAssignments.assignmentUserId,
+            assignmentStatus: usersEventsJoin.registrationStatus,
             assignmentTeam: teamsJoin.teamEnvironment,
         })
         .orderBy(tHotelsAssignments.assignmentPrimary, 'desc')
@@ -160,6 +162,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
                 name: assignment.assignmentName!,
 
                 userId: assignment.assignmentUserId,
+                userStatus: assignment.assignmentStatus,
                 userTeam: assignment.assignmentTeam,
             });
         }
@@ -253,6 +256,7 @@ export async function getHotelRequests(eventId: number): Promise<HotelRequest[]>
             .on(tUsersEvents.userId.equals(tHotelsPreferences.userId))
                 .and(tUsersEvents.eventId.equals(tHotelsPreferences.eventId))
                 .and(tUsersEvents.teamId.equals(tHotelsPreferences.teamId))
+                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tHotelsPreferences.teamId))
         .innerJoin(tHotels)

@@ -11,12 +11,15 @@ import type { GridRenderCellParams, GridRenderEditCellParams } from '@mui/x-data
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
+import BlockIcon from '@mui/icons-material/Block';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Collapse from '@mui/material/Collapse';
 import Paper from '@mui/material/Paper';
+import ReportIcon from '@mui/icons-material/Report';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useGridApiContext } from '@mui/x-data-grid';
 
@@ -24,6 +27,7 @@ import type { HotelBooking, HotelRequest } from './HotelBookings';
 import type { HotelConfigurationEntry } from './HotelConfiguration';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
 import { callApi } from '@lib/callApi';
 
@@ -87,9 +91,15 @@ function RenderLinkifiedOccupant(
 
     const href = `/admin/events/${event.slug}/${occupant.userTeam}/volunteers/${occupant.userId}`;
     return (
-        <MuiLink component={Link} href={href}>
-            {occupant.name}
-        </MuiLink>
+        <React.Fragment>
+            <MuiLink component={Link} href={href}>
+                {occupant.name}
+            </MuiLink>
+            { occupant.userStatus === RegistrationStatus.Cancelled &&
+                <Tooltip title="This volunteer no longer participates">
+                    <ReportIcon fontSize="small" color="error" sx={{ ml: 1 }} />
+                </Tooltip> }
+        </React.Fragment>
     );
 }
 
@@ -342,13 +352,6 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             for (const occupant of booking.occupants) {
                 const volunteer = occupant.name;
 
-                if (occupant.primary && !occupant.userId) {
-                    warnings.push({
-                        volunteer,
-                        warning: 'is a booking owner while they\'re not a registered volunteer',
-                    });
-                }
-
                 if (!booking.hotel && !missingRoomWarning) {
                     warnings.push({
                         volunteer,
@@ -378,6 +381,13 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                     }
 
                     requestProcessed.add(occupant.userId);
+
+                    if (occupant.userStatus === RegistrationStatus.Cancelled) {
+                        warnings.push({
+                            volunteer,
+                            warning: 'cancelled, but has still been assigned a hotel room',
+                        });
+                    }
 
                     let [ min, max ] = [
                         dayjs(booking.checkIn),

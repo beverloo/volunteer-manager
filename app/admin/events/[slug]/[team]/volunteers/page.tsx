@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { CancelledVolunteers } from './CancelledVolunteers';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerTable } from './VolunteerTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
@@ -35,6 +36,7 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
                 [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
         .select({
             id: tUsers.userId,
+            status: tUsersEvents.registrationStatus,
             name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
             role: tRoles.roleName,
             roleBadge: tRoles.roleBadge,
@@ -47,9 +49,23 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
         .orderBy('name', 'asc')
         .executeSelectMany();
 
+    const acceptedVolunteers: typeof volunteers = [];
+    const cancelledVolunteers: typeof volunteers = [];
+
+    for (const volunteer of volunteers) {
+        if (volunteer.status === RegistrationStatus.Accepted)
+            acceptedVolunteers.push(volunteer);
+        else
+            cancelledVolunteers.push(volunteer);
+    }
+
     return (
-        <VolunteerTable title={`${event.shortName} ${team.name}`}
-                        volunteers={volunteers} {...props} />
+        <>
+            <VolunteerTable title={`${event.shortName} ${team.name}`}
+                            volunteers={acceptedVolunteers} {...props} />
+            { cancelledVolunteers.length > 0 &&
+                <CancelledVolunteers volunteers={cancelledVolunteers} /> }
+        </>
     );
 }
 

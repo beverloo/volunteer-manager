@@ -16,7 +16,6 @@ import Divider from '@mui/material/Divider';
 import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
 import LoadingButton from '@mui/lab/LoadingButton';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import MoveUpIcon from '@mui/icons-material/MoveUp';
 import Paper from '@mui/material/Paper';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import Stack from '@mui/material/Stack';
@@ -25,11 +24,13 @@ import Typography from '@mui/material/Typography';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { User } from '@lib/auth/User';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
+import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <ChangeRoleDialog> dialog.
@@ -196,9 +197,59 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
 
     const router = useRouter();
 
-    // TODO: Cancel
-    // TODO: Reinstante
-    // TODO: Change team
+    // ---------------------------------------------------------------------------------------------
+    // Common (cancel & reinstate participation)
+    // ---------------------------------------------------------------------------------------------
+
+    const allowSilent = can(user, Privilege.VolunteerSilentMutations);
+
+    const handleDecided = useCallback(
+        async (status: RegistrationStatus, subject?: string, message?: string) => {
+            const response = await callApi('put', '/api/application/:event/:team/:userId', {
+                event: event.slug,
+                team: team.slug,
+                userId: volunteer.userId,
+                status: {
+                    registrationStatus: status,
+                    subject, message,
+                }
+            });
+
+            if (response.success) {
+                router.refresh();
+                return { success: 'Your decision has been processed, thanks!' };
+            } else {
+                return { error: 'Something went wrong when processing your decision. Try again?' };
+            }
+        }, [ event, router, team, volunteer ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Cancel participation
+    // ---------------------------------------------------------------------------------------------
+
+    const [ cancelOpen, setCancelOpen ] = useState<boolean>(false);
+
+    const handleCancelClose = useCallback(() => setCancelOpen(false), [ /* no deps */ ]);
+    const handleCancelOpen = useCallback(() => setCancelOpen(true), [ /* no deps */ ]);
+
+    const handleCancelled = useCallback((subject?: string, message?: string) =>
+        handleDecided(RegistrationStatus.Cancelled, subject, message), [ handleDecided ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Reinstate participation
+    // ---------------------------------------------------------------------------------------------
+
+    const [ reinstateOpen, setReinstateOpen ] = useState<boolean>(false);
+
+    const handleReinstateClose = useCallback(() => setReinstateOpen(false), [ /* no deps */ ]);
+    const handleReinstateOpen = useCallback(() => setReinstateOpen(true), [ /* no deps */ ]);
+
+    const handleReinstated = useCallback((subject?: string, message?: string) =>
+        handleDecided(RegistrationStatus.Accepted, subject, message), [ handleDecided ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Change role
+    // ---------------------------------------------------------------------------------------------
 
     const [ roles, setRoles ] = useState<VolunteerRolesDefinition['response']['roles']>();
     const [ rolesLoading, setRolesLoading ] = useState<boolean>(false);
@@ -243,19 +294,17 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                             Account
                         </Button> }
 
-                    { volunteer.registrationStatus === RegistrationStatus.Accepted &&
-                        <Button startIcon={ <DoNotDisturbIcon /> }>
+                    { (can(user, Privilege.EventApplicationManagement) &&
+                           volunteer.registrationStatus === RegistrationStatus.Accepted) &&
+                        <Button startIcon={ <DoNotDisturbIcon /> } onClick={handleCancelOpen}>
                             Cancel participation
                         </Button> }
 
-                    { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
-                        <Button startIcon={ <SettingsBackupRestoreIcon /> }>
+                    { (can(user, Privilege.EventApplicationManagement) &&
+                           volunteer.registrationStatus === RegistrationStatus.Cancelled) &&
+                        <Button startIcon={ <SettingsBackupRestoreIcon /> }
+                                onClick={handleReinstateOpen}>
                             Reinstate volunteer
-                        </Button> }
-
-                    { can(user, Privilege.EventAdministrator) &&
-                        <Button startIcon={ <MoveUpIcon /> }>
-                            Change team
                         </Button> }
 
                     { can(user, Privilege.EventAdministrator) &&
@@ -266,9 +315,36 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
 
                 </Stack>
             </ContrastBox>
+            <CommunicationDialog title={`Cancel ${volunteer.firstName}'s participation`}
+                                 open={cancelOpen} onClose={handleCancelClose}
+                                 confirmLabel="Proceed" allowSilent={allowSilent} description={
+                                     <>
+                                         You're about to cancel
+                                         <strong> {volunteer.firstName}</strong>'s participation in
+                                         this event.
+                                     </>
+                                 } apiParams={{
+                                     type: 'cancel-participation',
+
+                                 }} onSubmit={handleCancelled} />
+
+            <CommunicationDialog title={`Reinstate ${volunteer.firstName}'s participation`}
+                                 open={reinstateOpen} onClose={handleReinstateClose}
+                                 confirmLabel="Reinstate" allowSilent={allowSilent} description={
+                                     <>
+                                         You're about to reinstate
+                                         <strong> {volunteer.firstName}</strong> to participation in
+                                         this event.
+                                     </>
+                                 } apiParams={{
+                                     type: 'reinstate-participation',
+
+                                 }} onSubmit={handleReinstated} />
+
             <ChangeRoleDialog onClose={handleRolesClose} open={roles && rolesOpen}
                               roles={roles!} volunteer={volunteer} eventId={event.id}
                               teamId={team.id} />
+
         </Paper>
     );
 }
