@@ -22,6 +22,7 @@ export enum LogType {
     AccountUpdateAvatar = 'account-update-avatar',
     AdminAccessVolunteerInfo = 'admin-access-volunteer-info',
     AdminContentMutation = 'admin-content-mutation',
+    AdminEventApplication = 'admin-event-application',
     AdminEventCreate = 'admin-event-create',
     AdminEventHotelMutation = 'admin-event-hotel',
     AdminEventPublishInfo = 'admin-event-publish-info',
@@ -56,6 +57,7 @@ export enum LogType {
     ApplicationHotelPreferences = 'application-hotel-preferences',
     ApplicationTrainingPreferences = 'application-training-preferences',
     DatabaseError = 'database-error',
+    EventApplication = 'event-application',
 }
 
 /**

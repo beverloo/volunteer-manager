@@ -70,6 +70,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminContentMutation]: (source, target, { mutation, context }) => {
         return `${mutation} page ${context}`;
     },
+    [LogType.AdminEventApplication]: (source, target, { event }) => {
+        return `Applied for ${target?.name} to participate in ${event}`;
+    },
     [LogType.AdminEventCreate]: (source, target, { event }) => `Created the ${event} event`,
     [LogType.AdminEventHotelMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} a new hotel room for ${eventName}`;
@@ -161,6 +164,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);
         return `Database error: "${normalizedQuery}"…`;
     },
+    [LogType.EventApplication]: (source, target, { event }) => `Applied to participate in ${event}`,
 };
 
 /**

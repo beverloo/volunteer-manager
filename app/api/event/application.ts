@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -142,6 +143,27 @@ export async function application(request: Request, props: ActionProps): Promise
 
         // TODO: Send an e-mail to the volunteering leads.
         // TODO: Send an e-mail to the applicant.
+
+        if (request.adminOverride) {
+            await Log({
+                type: LogType.AdminEventApplication,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: request.adminOverride.userId,
+                data: {
+                    event: event.shortName,
+                }
+            });
+        } else {
+            await Log({
+                type: LogType.EventApplication,
+                sourceUser: props.user,
+                data: {
+                    event: event.shortName,
+                    ip: props.ip
+                },
+            });
+        }
 
         return { success: true };
 
