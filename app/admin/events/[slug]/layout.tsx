@@ -36,6 +36,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
             teamId: tUsersEvents.teamId,
             applications: dbInstance.count(tUsersEvents.userId),
         })
+        .groupBy('teamId')
         .forUseInQueryAs('PendingApplications')
         .forUseInLeftJoinAs('PendingApplications');
 
