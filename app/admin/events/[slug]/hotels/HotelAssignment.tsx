@@ -11,7 +11,6 @@ import type { GridRenderCellParams, GridRenderEditCellParams } from '@mui/x-data
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
-import BlockIcon from '@mui/icons-material/Block';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Collapse from '@mui/material/Collapse';

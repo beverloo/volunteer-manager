@@ -6,8 +6,10 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
+import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
+import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
 import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 
@@ -52,9 +54,25 @@ export const kGeneratePromptDefinition = z.object({
             team: z.string(),
         }).optional(),
 
-        // TODO: cancel-participation
+        /**
+         * Parameters that can be passed when the `type` equals `cancel-participation`.
+         */
+        cancelParticipation: z.object({
+            userId: z.number(),
+            event: z.string(),
+            team: z.string(),
+        }).optional(),
+
         // TODO: change-team
-        // TODO: reinstate-participation
+
+        /**
+         * Parameters that can be passed when the `type` equals `reinstate-participation`.
+         */
+        reinstateParticipation: z.object({
+            userId: z.number(),
+            event: z.string(),
+            team: z.string(),
+        }).optional(),
 
         /**
          * Parameters that can be passed when the `type` equals `reject-volunteer`.
@@ -138,9 +156,19 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
             break;
 
-            // TODO: cancel-participation
+        case 'cancel-participation':
+            generator = new CancelParticipationVolunteerPromptBuilder(
+                userId, request.cancelParticipation);
+            break;
+
+            // -------------------------------------------------------------------------------------
             // TODO: change-team
-            // TODO: reinstate-participation
+            // -------------------------------------------------------------------------------------
+
+        case 'reinstate-participation':
+            generator = new ReinstateParticipationVolunteerPromptBuilder(
+                userId, request.reinstateParticipation);
+            break;
 
         case 'reject-volunteer':
             executeAccessCheck(props.authenticationContext, {
