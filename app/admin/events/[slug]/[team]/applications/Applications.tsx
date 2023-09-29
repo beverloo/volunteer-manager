@@ -7,7 +7,6 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
@@ -20,6 +19,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -217,13 +217,13 @@ function Application(props: ApplicationProps) {
     ];
 
     return (
-        <Card>
+        <Stack component={Paper} direction="column" sx={{ minHeight: '100%' }}>
             <CardHeader avatar={avatar}
                         titleTypographyProps={{ variant: 'subtitle1' }}
                         title={`${application.firstName} ${application.lastName}`}
                         subheader={kApplicationDateFormatter.format(application.date)} />
             <Divider />
-            <CardContent sx={{ py: '0 !important' }}>
+            <CardContent sx={{ flex: 1, py: '0 !important' }}>
                 <List dense>
                     { information.map(({ icon, message }, index) =>
                         <ListItem key={index}>
@@ -248,7 +248,7 @@ function Application(props: ApplicationProps) {
                         </Button>
                     </CardActions>
                 </> }
-        </Card>
+        </Stack>
     );
 }
 
@@ -355,7 +355,8 @@ export function Applications(props: ApplicationsProps) {
 
     return (
         <>
-            <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}>
+            <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}
+                  alignItems="stretch">
                 { applications.map((application, index) =>
                     <Grid key={index} xs={6}>
                         <Application application={application} requestResponse={requestResponse} />
