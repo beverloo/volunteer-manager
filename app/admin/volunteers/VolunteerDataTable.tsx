@@ -126,5 +126,5 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
-    return <DataTable columns={columns} rows={props.volunteers} {...props} />
+    return <DataTable dense columns={columns} rows={props.volunteers} {...props} />
 }

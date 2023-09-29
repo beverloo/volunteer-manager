@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Box from '@mui/material/Box';
@@ -23,6 +24,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { RegistrationStatus } from '@lib/database/Types';
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
 import { Avatar } from '@components/Avatar';
+import { callApi } from '@lib/callApi';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -93,6 +95,28 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
         setPhoneNumberAnchorEl(event.currentTarget);
     }, []);
 
+    const router = useRouter();
+
+    const handleUploadAvatar = useCallback(async (avatar: Blob) => {
+        const base64Header = 'data:image/png;base64,';
+        const base64Avatar = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend =
+                () => resolve((reader.result as string).substring(base64Header.length));
+            reader.readAsDataURL(avatar);
+        });
+
+        const response = await callApi('post', '/api/auth/update-avatar', {
+            avatar: base64Avatar as string,
+            overrideUserId: userId,
+        });
+
+        if (response.success)
+            router.refresh();
+
+        return response.success;
+    }, [ router, userId ]);
+
     useEffect(() => {
         if (!!contactInfo || contactInfoLoading)
             return;  // the contact information is already (being) loaded
@@ -118,7 +142,7 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Stack direction="row" spacing={2} alignItems="center"
                     divider={ <Divider orientation="vertical" flexItem /> }>
-                    <Avatar src={avatarSrc}>
+                    <Avatar editable onChange={handleUploadAvatar} src={avatarSrc}>
                         {volunteer.firstName} {volunteer.lastName}
                     </Avatar>
                     <Box>

@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { type ActionProps, noAccess } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
+import { Privilege } from '@lib/auth/Privileges';
+import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';
 
@@ -18,6 +20,12 @@ export const kUpdateAvatarDefinition = z.object({
          * The avatar, encoded in the PNG format, represented as a string.
          */
         avatar: z.string(),
+
+        /**
+         * User ID that should be amended, if it's not the signed in user. This relies on having
+         * additional permissions.
+         */
+        overrideUserId: z.number().optional(),
     }),
     response: z.strictObject({
         /**
@@ -40,27 +48,42 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     if (!props.user)
         return noAccess();
 
-    const { userId } = props.user;
+    let subjectUserId: number = props.user.userId;
+    if (request.overrideUserId) {
+        executeAccessCheck(props.authenticationContext, {
+            privilege: or(Privilege.VolunteerAvatarManagement, Privilege.EventAdministrator),
+        });
+
+        subjectUserId = request.overrideUserId;
+    }
 
     const avatarId = await storeBlobData({
         bytes: Buffer.from(request.avatar, 'base64'),
         mimeType: 'image/png',
         type: FileType.Avatar,
-        userId,
+        userId: subjectUserId,
     });
 
     if (avatarId) {
         const affectedRows = await db.update(tUsers)
             .set({ avatarId })
-            .where(tUsers.userId.equals(userId))
+            .where(tUsers.userId.equals(subjectUserId))
             .executeUpdate();
 
         if (!!affectedRows) {
-            await Log({
-                type: LogType.AccountUpdateAvatar,
-                sourceUser: props.user,
-                data: { ip: props.ip },
-            });
+            if (request.overrideUserId) {
+                await Log({
+                    type: LogType.AdminUpdateAvatar,
+                    sourceUser: props.user,
+                    targetUser: request.overrideUserId,
+                });
+            } else {
+                await Log({
+                    type: LogType.AccountUpdateAvatar,
+                    sourceUser: props.user,
+                    data: { ip: props.ip },
+                });
+            }
 
             return { success: true };
         }

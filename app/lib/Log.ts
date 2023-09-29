@@ -39,6 +39,7 @@ export enum LogType {
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdateAiSetting = 'admin-update-ai-settings',
     AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
+    AdminUpdateAvatar = 'admin-update-avatar',
     AdminUpdateEmailIntegration = 'admin-update-email-integration',
     AdminUpdateEvent = 'admin-update-event',
     AdminUpdateGoogleIntegration = 'admin-update-google-integration',

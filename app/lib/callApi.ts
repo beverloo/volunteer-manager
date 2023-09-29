@@ -17,6 +17,7 @@ import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
+import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
@@ -44,6 +45,7 @@ type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
+        '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,

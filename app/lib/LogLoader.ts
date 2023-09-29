@@ -125,6 +125,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdateEvent]: (source, target, { action, event }) => {
         return `Updated ${action ?? 'settings'} for ${event}`;
     },
+    [LogType.AdminUpdateAvatar]: (source, target) => `Updated ${target?.name}'s avatar`,
     [LogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
     [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
     [LogType.AdminUpdateHotelPreferences]: (source, target, { event }) => {
