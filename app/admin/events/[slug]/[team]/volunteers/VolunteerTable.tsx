@@ -8,9 +8,12 @@ import React from 'react';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
+import HotelIcon from '@mui/icons-material/Hotel';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
-import ReportIcon from '@mui/icons-material/Report';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -33,6 +36,26 @@ function formatMilliseconds(milliseconds: number): string {
 }
 
 /**
+ * Information associated with
+ */
+export interface VolunteerInfo {
+    id: number;
+    date?: Date;
+    status: RegistrationStatus;
+    name: string;
+    role: string;
+    roleBadge?: RoleBadge;
+    shiftCount: number;
+    shiftMilliseconds?: number;
+
+    hotelEligible?: number;
+    hotelStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
+
+    trainingEligible?: number;
+    trainingStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
+}
+
+/**
  * Props accepted by the <VolunteerTable> component.
  */
 export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
@@ -45,15 +68,7 @@ export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
      * Information about the volunteers that should be displayed in the table. Transformations will
      * be used to add interaction to the <DataTable>.
      */
-    volunteers: {
-        id: number;
-        status: RegistrationStatus;
-        name: string;
-        role: string;
-        roleBadge?: RoleBadge;
-        shiftCount: number;
-        shiftMilliseconds?: number;
-    }[];
+    volunteers: VolunteerInfo[];
 }
 
 /**
@@ -122,7 +137,88 @@ export function VolunteerTable(props: VolunteerTableProps) {
             flex: 1,
 
             // TODO: Display status icons for registration status (hotel etc.)
-            renderCell: (params: GridRenderCellParams) => '…',
+            renderCell: (params: GridRenderCellParams) => {
+                let hotelIcon: React.ReactNode = undefined;
+                switch (params.row.hotelStatus) {
+                    case 'available':
+                        hotelIcon = (
+                            <Tooltip title="Pending volunteer preferences">
+                                <HotelIcon color="error" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'submitted':
+                        hotelIcon = (
+                            <Tooltip title="Preferences shared, pending confirmation">
+                                <HotelIcon color="warning" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'skipped':
+                        hotelIcon = (
+                            <Tooltip title="Skipped">
+                                <HotelIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'confirmed':
+                        hotelIcon = (
+                            <Tooltip title="Confirmed">
+                                <HotelIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+                }
+
+                let trainingIcon: React.ReactNode = undefined;
+                switch (params.row.trainingStatus) {
+                    case 'available':
+                        trainingIcon = (
+                            <Tooltip title="Pending volunteer preferences">
+                                <HistoryEduIcon color="error" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'submitted':
+                        trainingIcon = (
+                            <Tooltip title="Preferences shared, pending confirmation">
+                                <HistoryEduIcon color="warning" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'skipped':
+                        trainingIcon = (
+                            <Tooltip title="Skipped">
+                                <HistoryEduIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+
+                    case 'confirmed':
+                        trainingIcon = (
+                            <Tooltip title="Confirmed">
+                                <HistoryEduIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+                        break;
+                }
+
+                return (
+                    <Stack direction="row" spacing={1}>
+                        {hotelIcon}
+                        {trainingIcon}
+                        { !params.row.date &&
+                            <Tooltip title="Registration date missing">
+                                <HistoryToggleOffIcon color="warning" fontSize="small" />
+                            </Tooltip> }
+                    </Stack>
+                );
+            },
         }
     ];
 

@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
 import { RegistrationStatus } from '@lib/database/Types';
-import { VolunteerTable } from './VolunteerTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tRoles, tSchedule, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles, tSchedule,
+    tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * The volunteers page for a particular event lists the volunteers who have signed up and have been
@@ -19,6 +20,10 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
 
     const dbInstance = db;
     const scheduleJoin = tSchedule.forUseInLeftJoin();
+
+    // ---------------------------------------------------------------------------------------------
+    // Step (1): Gather a list of all volunteers
+    // ---------------------------------------------------------------------------------------------
 
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
@@ -36,6 +41,7 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
                 [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
         .select({
             id: tUsers.userId,
+            date: tUsersEvents.registrationDate,
             status: tUsersEvents.registrationStatus,
             name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
             role: tRoles.roleName,
@@ -43,26 +49,127 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),
             shiftMilliseconds: dbInstance.sum(
                 scheduleJoin.scheduleTimeEnd.getTime().substract(
-                    scheduleJoin.scheduleTimeStart.getTime()))
+                    scheduleJoin.scheduleTimeStart.getTime())),
+
+            hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+            trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
+                tRoles.roleTrainingEligible),
         })
         .orderBy(tRoles.roleOrder, 'asc')
         .orderBy('name', 'asc')
         .executeSelectMany();
 
-    const acceptedVolunteers: typeof volunteers = [];
-    const cancelledVolunteers: typeof volunteers = [];
+    const acceptedVolunteers: Map<number, VolunteerInfo> = new Map;
+    const cancelledVolunteers: VolunteerInfo[] = [];
 
     for (const volunteer of volunteers) {
         if (volunteer.status === RegistrationStatus.Accepted)
-            acceptedVolunteers.push(volunteer);
+            acceptedVolunteers.set(volunteer.id, volunteer);
         else
             cancelledVolunteers.push(volunteer);
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Step (2): Complement that list with information about availability
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
+    // Step (3): Complement that list with information about hotels
+    // ---------------------------------------------------------------------------------------------
+
+    const hotelsAssignmentsJoin = tHotelsAssignments.forUseInLeftJoin();
+    const hotelsBookingsJoin = tHotelsBookings.forUseInLeftJoin();
+    const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
+
+    const hotelInfo = await dbInstance.selectFrom(tUsersEvents)
+        .leftJoin(hotelsPreferencesJoin)
+            .on(hotelsPreferencesJoin.userId.equals(tUsersEvents.userId))
+            .and(hotelsPreferencesJoin.teamId.equals(tUsersEvents.teamId))
+            .and(hotelsPreferencesJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(hotelsAssignmentsJoin)
+            .on(hotelsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+            .and(hotelsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+        .leftJoin(hotelsBookingsJoin)
+            .on(hotelsBookingsJoin.bookingId.equals(hotelsAssignmentsJoin.bookingId))
+            .and(hotelsBookingsJoin.bookingVisible.equals(/* true= */ 1))
+        .where(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .select({
+            userId: tUsersEvents.userId,
+
+            hotelPreference: hotelsPreferencesJoin.hotelId,
+            hotelPreferencesUpdated: hotelsPreferencesJoin.hotelPreferencesUpdated,
+            hotelBookingId: hotelsBookingsJoin.bookingId,
+            hotelBookingConfirmed: hotelsBookingsJoin.bookingConfirmed,
+        })
+        .orderBy('hotelBookingConfirmed', 'asc nulls first')
+        .orderBy('hotelBookingId', 'asc nulls first')
+        .executeSelectMany();
+
+    console.log(hotelInfo);
+
+    for (const volunteerHotelInfo of hotelInfo) {
+        const volunteer = acceptedVolunteers.get(volunteerHotelInfo.userId)!;
+        if (volunteerHotelInfo.hotelBookingConfirmed) {
+            volunteer.hotelStatus = 'confirmed';
+        } else if (!!volunteerHotelInfo.hotelPreferencesUpdated) {
+            if (!!volunteerHotelInfo.hotelPreference)
+                volunteer.hotelStatus = 'submitted';
+            else
+                volunteer.hotelStatus = 'skipped';
+        } else if (volunteer.hotelEligible && event.publishHotels) {
+            volunteer.hotelStatus = 'available';
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Step (4): Complement that list with information about trainings
+    // ---------------------------------------------------------------------------------------------
+
+    const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
+
+    const trainingInfo = await dbInstance.selectFrom(tUsersEvents)
+        .leftJoin(trainingsAssignmentsJoin)
+            .on(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+            .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+        .where(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .select({
+            userId: tUsersEvents.userId,
+
+            trainingPreference: trainingsAssignmentsJoin.preferenceTrainingId,
+            trainingPreferencesUpdated: trainingsAssignmentsJoin.preferenceUpdated,
+            trainingAssignment: trainingsAssignmentsJoin.assignmentTrainingId,
+            trainingAssignmentConfirmed: trainingsAssignmentsJoin.assignmentConfirmed,
+        })
+        .executeSelectMany();
+
+    for (const volunteerTrainingInfo of trainingInfo) {
+        const volunteer = acceptedVolunteers.get(volunteerTrainingInfo.userId)!;
+        if (volunteerTrainingInfo.trainingAssignmentConfirmed) {
+            if (!!volunteerTrainingInfo.trainingAssignment)
+                volunteer.trainingStatus = 'confirmed';
+            else
+                volunteer.trainingStatus = 'skipped';
+        } else if (!!volunteerTrainingInfo.trainingPreferencesUpdated) {
+            volunteer.trainingStatus = 'submitted';
+        } else if (volunteer.trainingEligible && event.publishTrainings) {
+            volunteer.trainingStatus = 'available';
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Step (5): Actually display the page \o/
+    // ---------------------------------------------------------------------------------------------
+
     return (
         <>
             <VolunteerTable title={`${event.shortName} ${team.name}`}
-                            volunteers={acceptedVolunteers} {...props} />
+                            volunteers={[ ...acceptedVolunteers.values() ]} {...props} />
             { cancelledVolunteers.length > 0 &&
                 <CancelledVolunteers volunteers={cancelledVolunteers} /> }
         </>
