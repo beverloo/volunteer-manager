@@ -40,6 +40,8 @@ export class CancelParticipationVolunteerPromptBuilder extends
     // PromptBuilder implementation:
     // ---------------------------------------------------------------------------------------------
 
+    override get dutchApplicationVerb() { return 'afmelding'; }
+
     override async collectContext(userId: number, params: CancelParticipationParams)
         : Promise<CancelParticipationContext>
     {

@@ -90,7 +90,6 @@ export async function generateApplicationContext(userId: number, event: string, 
             .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
             .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
         .where(tUsersEvents.userId.equals(userId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Registered))
         .select({
             event: tEvents.eventSlug,
             firstName: tUsers.firstName,

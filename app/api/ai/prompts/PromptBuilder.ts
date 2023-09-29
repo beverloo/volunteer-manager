@@ -37,6 +37,11 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
     }
 
     /**
+     * Verb to use instead of "application" in Dutch.
+     */
+    get dutchApplicationVerb() { return 'aanmelding'; }
+
+    /**
      * Sets the prompt configuration overrides to the given `personality` and `prompt`.
      */
     setOverrides(personality: string, prompt: string): void {
@@ -75,7 +80,8 @@ export abstract class PromptBuilder<Params extends {}, Context extends Record<st
                 return '';
 
             case 'Dutch':
-                return 'Write your message in Dutch, translate application as aanmelding.';
+                return 'Write your message in Dutch, translate application as ' +
+                       `${this.dutchApplicationVerb}.`;
 
             case 'French':
             case 'German':

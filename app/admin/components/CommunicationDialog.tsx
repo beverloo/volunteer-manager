@@ -124,9 +124,12 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
 
     const [ language, setLanguage ] = useState<'Dutch' | 'English' | 'Silent'>('Silent');
     const [ messageLoading, setMessageLoading ] = useState<boolean>(false);
+    const [ messageWarning, setMessageWarning ] = useState<boolean>(false);
 
     const handleGenerateMessage = useCallback(async (requestLanguage?: 'Dutch' | 'English') => {
+        setFatalError(undefined);
         setMessageLoading(true);
+        setMessageWarning(false);
         try {
             const response = await callApi('post', '/api/ai/generate/:type', {
                 language: requestLanguage ?? 'English',
@@ -138,11 +141,13 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                 return;
             }
 
+            setMessageWarning(/\[([^\[]+)\]/g.test(response.result?.message ?? ''));
             setState('message');
 
             form.setValue('subject', response.result?.subject);
             form.setValue('message', response.result?.message);
             form.setFocus('subject');
+
         } catch (error: any) {
             setFatalError(error.message);
         } finally {
@@ -266,6 +271,12 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                         </Stack>
                         <TextareaAutosizeElement name="message" fullWidth size="small"
                                                  disabled={messageLoading} />
+                        <Collapse in={!!messageWarning}>
+                            <Alert severity="warning" sx={{ mt: 2 }}>
+                                <strong>Please carefully read the message</strong>, as an anomaly
+                                was detected.
+                            </Alert>
+                        </Collapse>
                     </Collapse>
                     <Collapse in={state === 'confirmation'}>
                         { error && <Alert severity="error">{error}</Alert> }

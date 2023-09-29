@@ -325,7 +325,11 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      </>
                                  } apiParams={{
                                      type: 'cancel-participation',
-
+                                     cancelParticipation: {
+                                         userId: volunteer.userId,
+                                         event: event.slug,
+                                         team: team.slug,
+                                     }
                                  }} onSubmit={handleCancelled} />
 
             <CommunicationDialog title={`Reinstate ${volunteer.firstName}'s participation`}
@@ -338,7 +342,11 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      </>
                                  } apiParams={{
                                      type: 'reinstate-participation',
-
+                                     reinstateParticipation: {
+                                         userId: volunteer.userId,
+                                         event: event.slug,
+                                         team: team.slug,
+                                     }
                                  }} onSubmit={handleReinstated} />
 
             <ChangeRoleDialog onClose={handleRolesClose} open={roles && rolesOpen}
