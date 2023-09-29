@@ -76,13 +76,11 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
-                if (params.row.activated && !params.row.admin)
-                    return params.value;
-
                 return (
                     <>
-                        {params.value}
-
+                        <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
+                            {params.value}
+                        </MuiLink>
                         { !!params.row.admin &&
                             <Tooltip title="Administrator">
                                 <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
@@ -92,8 +90,8 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
                             <Tooltip title="Pending activation">
                                 <ReportGmailerrorredIcon color="error" fontSize="small"
                                                          sx={{ ml: 1 }} />
-                            </Tooltip>
-                        }
+                            </Tooltip> }
+
                     </>
                 );
             },
