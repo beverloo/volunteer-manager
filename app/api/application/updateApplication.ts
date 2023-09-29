@@ -9,7 +9,8 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
+import { createEmailClient } from '@lib/integrations/email';
+import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kApplicationProperties } from '../event/application';
 
@@ -110,18 +111,21 @@ export async function updateApplication(request: Request, props: ActionProps): P
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
             .and(tTeams.teamEnvironment.equals(request.team))
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(request.userId))
         .where(tEventsTeams.enableTeam.equals(/* true= */ 1))
         .select({
             event: tEvents.eventShortName,
             eventId: tEvents.eventId,
             teamId: tTeams.teamId,
+            username: tUsers.username,
         })
         .executeSelectNoneOrOne();
 
-    if (!requestContext)
+    if (!requestContext || !requestContext.username)
         notFound();
 
-    const { eventId, teamId } = requestContext;
+    const { eventId, teamId, username } = requestContext;
 
     let affectedRows: number = 0;
 
@@ -215,7 +219,18 @@ export async function updateApplication(request: Request, props: ActionProps): P
                     noAccess();
 
             } else {
-                // TODO: Inform the volunteer w/ request.status.{message, subject}
+                const client = await createEmailClient();
+                const emailMessage = client.createMessage()
+                    .setTo(username)
+                    .setSubject(subject)
+                    .setText(message);
+
+                await client.safeSendMessage({
+                    message: emailMessage,
+                    sender: `${props.user.firstName} ${props.user.lastName} (AnimeCon)`,
+                    sourceUser: props.user,
+                    targetUser: request.userId,
+                });
             }
         }
 

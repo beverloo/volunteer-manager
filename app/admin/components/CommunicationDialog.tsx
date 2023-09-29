@@ -18,7 +18,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
 import Grid from '@mui/material/Unstable_Grid2';
+import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
@@ -148,6 +150,12 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
         }
     }, [ form, props.apiParams ]);
 
+    const handleRefreshMessage = useCallback(() => {
+        if (language && language !== 'Silent')
+            handleGenerateMessage(language);
+
+    }, [ handleGenerateMessage, language ]);
+
     // ---------------------------------------------------------------------------------------------
     // State: `language`
     // ---------------------------------------------------------------------------------------------
@@ -248,18 +256,16 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                         </Collapse>
                     </Collapse>
                     <Collapse in={state === 'message'}>
-                        <Grid container spacing={1}>
-                            <Grid xs={11}>
-                                <TextFieldElement name="subject" fullWidth size="small" />
-                            </Grid>
-                            <Grid xs={1}>
-                                { /* TODO: Reload button */ }
-                            </Grid>
-
-                            <Grid xs={12}>
-                                <TextareaAutosizeElement name="message" fullWidth size="small" />
-                            </Grid>
-                        </Grid>
+                        <Stack direction="row" spacing={1} justifyContent="space-between"
+                               sx={{ mb: 1 }}>
+                            <TextFieldElement name="subject" fullWidth size="small"
+                                              disabled={messageLoading} />
+                            <IconButton onClick={handleRefreshMessage} disabled={messageLoading}>
+                                <RefreshIcon color="primary" />
+                            </IconButton>
+                        </Stack>
+                        <TextareaAutosizeElement name="message" fullWidth size="small"
+                                                 disabled={messageLoading} />
                     </Collapse>
                     <Collapse in={state === 'confirmation'}>
                         { error && <Alert severity="error">{error}</Alert> }

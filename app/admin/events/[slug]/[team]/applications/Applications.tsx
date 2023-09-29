@@ -330,8 +330,7 @@ export function Applications(props: ApplicationsProps) {
 
                 status: {
                     registrationStatus: status,
-                    // TODO: message
-                    // TODO: subject
+                    subject, message
                 },
             });
 
