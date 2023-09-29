@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -290,6 +291,8 @@ export interface ApplicationsProps {
 export function Applications(props: ApplicationsProps) {
     const { allowSilent, applications, canManageApplications, event, team } = props;
 
+    const router = useRouter();
+
     const [ approveOpen, setApproveOpen ] = useState<boolean>(false);
     const [ rejectOpen, setRejectOpen ] = useState<boolean>(false);
 
@@ -332,12 +335,13 @@ export function Applications(props: ApplicationsProps) {
                 },
             });
 
-            if (response.success)
+            if (response.success) {
+                router.refresh();
                 return { success: 'Your decision has been processed, thanks!' };
-            else
+            } else {
                 return { error: 'Something went wrong when processing your decision. Try again?' };
-
-        }, [ application, event, team ]);
+            }
+        }, [ application, event, router, team ]);
 
     const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no deps */ ]);
     const handleApproved = useCallback((subject?: string, message?: string) =>

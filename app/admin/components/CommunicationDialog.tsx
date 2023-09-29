@@ -5,6 +5,8 @@
 
 import { useCallback, useState } from 'react';
 
+import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -20,6 +22,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
 
 import { ContrastBox } from '@app/admin/components/ContrastBox';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <CommunicationDialog> component.
@@ -90,8 +93,56 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
     const closeLabel = props.closeLabel ?? 'Close';
     const confirmLabel = props.confirmLabel ?? 'Confirm';
 
+    const [ confirmSilent, setConfirmSilent ] = useState<boolean>(false);
+
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ state, setState ] = useState<'language' | 'message' | 'confirmation'>('language');
+
+    // ---------------------------------------------------------------------------------------------
+    // State: `confirmation`
+    // ---------------------------------------------------------------------------------------------
+
+    const [ error, setError ] = useState<React.ReactNode | undefined>(undefined);
+    const [ success, setSuccess ] = useState<React.ReactNode | undefined>(undefined);
+
+
+
+    // ---------------------------------------------------------------------------------------------
+    // State: `message`
+    // ---------------------------------------------------------------------------------------------
+
+    const [ language, setLanguage ] = useState<'Dutch' | 'English' | 'Silent'>('Silent');
+    const [ messageLoading, setMessageLoading ] = useState<boolean>(false);
+
+    const handleGenerateMessage = useCallback(async (requestLanguage?: 'Dutch' | 'English') => {
+        setMessageLoading(true);
+        try {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+        } finally {
+            setMessageLoading(false);
+        }
+    }, [ /* no deps */ ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // State: `language`
+    // ---------------------------------------------------------------------------------------------
+
+    const handleLanguageChoice = useCallback(async (language: 'Dutch' | 'English' | 'Silent') => {
+        if (messageLoading)
+            return;
+
+        setLanguage(language);
+        switch (language) {
+            case 'Dutch':
+            case 'English':
+                await handleGenerateMessage(language);
+                break;
+
+            case 'Silent':
+                setConfirmSilent(true);
+                break;
+        }
+    }, [ handleGenerateMessage, messageLoading ]);
 
     // ---------------------------------------------------------------------------------------------
     // Common functionality
@@ -102,66 +153,37 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
         try {
             await onClose(reason ?? 'button');
         } finally {
-            setTimeout(() => setState('language'), 300);
+            setTimeout(() => {
+                setConfirmSilent(false);
+                setState('language');
+            }, 300);
         }
     }, [ onClose ]);
 
-    // ---------------------------------------------------------------------------------------------
-    // State: `confirmation`
-    // ---------------------------------------------------------------------------------------------
+    const handleConfirm = useCallback(async () => {
+        if (language === 'Silent' && !props.allowSilent)
+            return;  // block silent confirmations when the volunteer is not allowed to do this
 
-    const [ error, setError ] = useState<React.ReactNode | undefined>(undefined);
-    const [ success, setSuccess ] = useState<React.ReactNode | undefined>(undefined);
+        // TODO: Confirm e-mail
+        const subject = undefined;
+        const message = undefined;
 
-    const handleSubmit = useCallback(async () => {
+        setLoading(true);
         try {
-            const result = await onSubmit(/* subject= */ undefined, /* message= */ undefined);
+            const result = await onSubmit(subject, message);
 
+            setConfirmSilent(false);
             setState('confirmation');
+
             if ('error' in result)
                 setError(result.error);
             else
                 setSuccess(result.success);
 
         } finally {
-            // TODO: Clean up state
+            setLoading(false);
         }
-    }, [ onSubmit ]);
-
-    // ---------------------------------------------------------------------------------------------
-    // State: `message`
-    // ---------------------------------------------------------------------------------------------
-
-    const handleConfirm = useCallback(async () => {
-
-    }, [ /* no deps */ ]);
-
-    // ---------------------------------------------------------------------------------------------
-    // State: `language`
-    // ---------------------------------------------------------------------------------------------
-
-    const [ messageLoading, setMessageLoading ] = useState<boolean>(false);
-
-    const handleLanguageSelection = useCallback(async (language: 'nl' | 'en' | 'silent') => {
-        if (messageLoading)
-            return;
-
-        setMessageLoading(true);
-        try {
-            switch (language) {
-                case 'en':
-                case 'nl':
-                    // TODO: Generate a message and send that for review.
-                    await new Promise(resolve => setTimeout(resolve, 2500));
-                    break;
-                case 'silent':
-                    await handleSubmit();
-                    break;
-            }
-        } finally {
-            setMessageLoading(false);
-        }
-    }, [ handleSubmit, messageLoading ]);
+    }, [ language, onSubmit, props.allowSilent ]);
 
     return (
         <Dialog open={!!open} onClose={handleClose} fullWidth>
@@ -180,11 +202,23 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                     </Typography>
                     <Stack direction="row" justifyContent="space-between" spacing={2}
                            alignItems="stretch" sx={{ mt: 2 }}>
-                        <LanguageButton onClick={handleLanguageSelection} variant="nl" />
-                        <LanguageButton onClick={handleLanguageSelection} variant="en" />
+                        <LanguageButton onClick={handleLanguageChoice} variant="Dutch" />
+                        <LanguageButton onClick={handleLanguageChoice} variant="English" />
                         { props.allowSilent &&
-                            <LanguageButton onClick={handleLanguageSelection} variant="silent" /> }
+                            <LanguageButton onClick={handleLanguageChoice} variant="Silent" /> }
                     </Stack>
+                    <Collapse in={!!confirmSilent}>
+                        <Alert severity="warning" sx={{ mt: 2 }}>
+                            You are about to make this change without sending a message. <strong>You
+                            are responsible for letting them know</strong>. Click the button below
+                            to proceed.
+                        </Alert>
+                    </Collapse>
+                </Collapse>
+                <Collapse in={state === 'message'}>
+                    <FormContainer>
+                        Ayy
+                    </FormContainer>
                 </Collapse>
                 <Collapse in={state === 'confirmation'}>
                     { error && <Alert severity="error">{error}</Alert> }
@@ -194,7 +228,7 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
             <DialogActions sx={{ pt: 0, mr: 2, mb: 1.5 }}>
                 <Button onClick={handleClose} variant="text">{closeLabel}</Button>
                 <LoadingButton loading={loading} onClick={handleConfirm} variant="contained"
-                               disabled={ state !== 'message' }>
+                               disabled={ state !== 'message' && !confirmSilent }>
                     {confirmLabel}
                 </LoadingButton>
             </DialogActions>
@@ -250,9 +284,9 @@ const kCustomFlag = <DoNotDisturbOnTotalSilenceIcon color="action" fontSize="lar
  * Language variant options that can be passed to the <LanguageButton> component.
  */
 const kLanguageButtonVariantOptions = {
-    en: ['English', kBritishFlag],
-    nl: ['Dutch', kDutchFlag],
-    silent: ['Silent', kCustomFlag],
+    English: kBritishFlag,
+    Dutch: kDutchFlag,
+    Silent: kCustomFlag,
 };
 
 /**
@@ -277,7 +311,7 @@ interface LanguageButtonProps {
 function LanguageButton(props: LanguageButtonProps) {
     const { onClick, variant } = props;
 
-    const [ label, icon ] = kLanguageButtonVariantOptions[variant];
+    const icon = kLanguageButtonVariantOptions[variant];
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClick = useCallback(async () => {
@@ -304,7 +338,7 @@ function LanguageButton(props: LanguageButtonProps) {
                 <>
                     {icon}
                     <Typography>
-                        {label}
+                        {variant}
                     </Typography>
                 </> }
         </Stack>

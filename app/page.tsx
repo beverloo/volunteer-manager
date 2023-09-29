@@ -58,7 +58,7 @@ export default async function RootPage() {
                          user={user}
                          registrationEvent={registrationEventData}
                          registration={registrationData}
-                         title={environment.environmentName}
+                         title={environment.environmentTitle}
                          description={environment.teamDescription} />
         </RegistrationLayout>
     );
