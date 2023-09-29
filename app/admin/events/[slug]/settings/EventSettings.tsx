@@ -55,6 +55,7 @@ export function EventSettings(props: EventSettingsProps) {
                         shortName: data.shortName,
                         startTime: dayjs(data.startTime).toISOString(),
                         endTime: dayjs(data.endTime).toISOString(),
+                        location: data.location,
                         hotelRoomForm: data.hotelRoomForm,
                     },
                 });
@@ -84,6 +85,10 @@ export function EventSettings(props: EventSettingsProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <EventSettingsForm onChange={handleChange} />
                 <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid xs={12}>
+                        <TextFieldElement name="location" label="Location"
+                                          fullWidth size="small" onChange={handleChange} />
+                    </Grid>
                     <Grid xs={12}>
                         <TextFieldElement name="hotelRoomForm" label="Hotel room form URL"
                                           fullWidth size="small" onChange={handleChange} />

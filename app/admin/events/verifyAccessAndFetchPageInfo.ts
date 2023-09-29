@@ -155,6 +155,7 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
             slug: tEvents.eventSlug,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,
+            location: tEvents.eventLocation,
             hotelRoomForm: tEvents.eventHotelRoomForm,
             publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
