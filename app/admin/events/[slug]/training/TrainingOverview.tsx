@@ -124,17 +124,24 @@ export function TrainingOverview(props: TrainingOverviewProps) {
                                 <TableCell sx={{ color: 'text.disabled' }}>{index + 1}</TableCell>
                                 { row.map((participant, index2) =>
                                     <TableCell key={index2} align="center">
+                                        <Typography sx={
+                                            (!!participant && participant.confirmed)
+                                                ? {}
+                                                : { fontStyle: 'italic',
+                                                    '& a': { color: 'text.disabled' }
+                                                } } variant="body2">
 
-                                        { (!!participant && !!participant.userId) &&
-                                            <MuiLink component={Link} href={
-                                                `./${participant.team}/volunteers/` +
-                                                participant.userId}>
-                                                {participant.name}
-                                            </MuiLink> }
+                                            { (!!participant && !!participant.userId) &&
+                                                <MuiLink component={Link} href={
+                                                    `./${participant.team}/volunteers/` +
+                                                    participant.userId}>
+                                                    {participant.name}
+                                                </MuiLink> }
 
-                                        { (!!participant && !participant.userId) &&
-                                            participant.name }
+                                            { (!!participant && !participant.userId) &&
+                                                participant.name }
 
+                                        </Typography>
                                     </TableCell> )}
                                 <TableCell sx={{ color: 'text.disabled' }}>{index + 1}</TableCell>
                             </TableRow> )}
