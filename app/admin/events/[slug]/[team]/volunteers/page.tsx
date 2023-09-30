@@ -109,8 +109,6 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
         .orderBy('hotelBookingId', 'asc nulls first')
         .executeSelectMany();
 
-    console.log(hotelInfo);
-
     for (const volunteerHotelInfo of hotelInfo) {
         const volunteer = acceptedVolunteers.get(volunteerHotelInfo.userId)!;
         if (volunteerHotelInfo.hotelBookingConfirmed) {
