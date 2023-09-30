@@ -12,8 +12,10 @@ import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Collapse from '@mui/material/Collapse';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -204,7 +206,56 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                                                 : newRow;
     }, [ props.event, router ]);
 
-    // TODO: Warnings
+    // ---------------------------------------------------------------------------------------------
+    // Compute the warnings that should be displayed regarding training sessions
+    // ---------------------------------------------------------------------------------------------
+
+    const warnings = useMemo(() => {
+        const warnings: { volunteer: string; warning: string }[] = [];
+
+        for (const assignment of props.assignments) {
+            if (assignment.preferredTrainingId === undefined)
+                continue;  // they have not shared their preferences yet
+
+            if (assignment.assignedTrainingId === undefined)
+                continue;  // their preferences have not been acknowledged yet
+
+            const preferredType = typeof assignment.preferredTrainingId;
+            const assignedType = typeof assignment.assignedTrainingId;
+
+            if (preferredType === 'number' && assignedType === 'number') {
+                if (assignment.preferredTrainingId !== assignment.assignedTrainingId) {
+                    warnings.push({
+                        volunteer: assignment.name,
+                        warning: 'has been assigned to a training different from their preferences',
+                    });
+                }
+            }
+
+            if (preferredType === 'number' && assignedType !== 'number') {
+                warnings.push({
+                    volunteer: assignment.name,
+                    warning: 'will be told to skip the training despite wanting to participate',
+                });
+            }
+
+            if (assignedType === 'number' && preferredType !== 'number') {
+                warnings.push({
+                    volunteer: assignment.name,
+                    warning: 'has been assigned to a training despite wanting to skip',
+                });
+            }
+        }
+
+        warnings.sort((lhs, rhs) => {
+            if (lhs.volunteer !== rhs.volunteer)
+                return lhs.volunteer.localeCompare(rhs.volunteer);
+
+            return lhs.warning.localeCompare(rhs.warning);
+        });
+
+        return warnings;
+    }, [ props.assignments ]);
 
     return (
         <Paper sx={{ p: 2, mt: 2 }}>
@@ -217,6 +268,16 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             </Alert>
             <DataTable columns={columns} rows={props.assignments} commitEdit={commitEdit}
                        pageSize={100} pageSizeOptions={[100]} disableFooter dense />
+            <Collapse in={warnings.length > 0}>
+                <Alert severity="warning" sx={{ mt: 2 }}>
+                    <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>
+                        { warnings.map(({ volunteer, warning }, index) =>
+                            <Typography key={index} variant="body2">
+                                <strong>{volunteer}</strong> {warning}
+                            </Typography> )}
+                    </Stack>
+                </Alert>
+            </Collapse>
         </Paper>
     );
 }
