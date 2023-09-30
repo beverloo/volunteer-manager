@@ -15,6 +15,7 @@ export class TrainingsAssignmentsTable extends Table<DBConnection, 'TrainingsAss
     assignmentUserId = this.optionalColumnWithDefaultValue('assignment_user_id', 'int');
     assignmentExtraId = this.optionalColumnWithDefaultValue('assignment_extra_id', 'int');
     assignmentTrainingId = this.optionalColumnWithDefaultValue('assignment_training_id', 'int');
+    assignmentUpdated = this.optionalColumnWithDefaultValue('assignment_updated', 'localDateTime');
     assignmentConfirmed = this.columnWithDefaultValue('assignment_confirmed', 'int');
     preferenceTrainingId = this.optionalColumnWithDefaultValue('preference_training_id', 'int');
     preferenceUpdated = this.columnWithDefaultValue('preference_updated', 'localDateTime');

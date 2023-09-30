@@ -175,7 +175,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
-                {event.shortName} training sessions
+                Training sessions
             </Typography>
             <PublishAlert published={event.publishTrainings} sx={{ mb: 2 }} onClick={onPublish}>
                 { event.publishTrainings
