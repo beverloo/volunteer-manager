@@ -111,11 +111,10 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     ];
 
     // ---------------------------------------------------------------------------------------------
-    // Combine the information to create a comprehensive assignment and confirmation tables
+    // Combine the information to create a comprehensive assignment table
     // ---------------------------------------------------------------------------------------------
 
     const trainingAssignments: TrainingAssignment[] = [];
-    const trainingConfirmations: TrainingConfirmation[] = [ [ /* todo */ ] ];
 
     for (const assignment of [ ...assignments, ...extraParticipants ]) {
         let preferredTrainingId: number | null | undefined = undefined;
@@ -158,10 +157,49 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         return lhs.name.localeCompare(rhs.name);
     });
 
+    // ---------------------------------------------------------------------------------------------
+    // Then process it again towards the confirmation table, combined with training information
+    // ---------------------------------------------------------------------------------------------
+
+    const trainingConfirmations: { [key: number]: TrainingConfirmation } = {};
+    let trainingConfirmationCount = 0;
+
+    for (const training of trainings) {
+        trainingConfirmations[training.id] = {
+            capacity: training.trainingCapacity,
+            date: training.trainingStart,
+            participants: [],
+        };
+    }
+
+    for (const assignment of trainingAssignments) {
+        if (!assignment.assignedTrainingId)
+            continue;
+
+        if (!trainingConfirmations.hasOwnProperty(assignment.assignedTrainingId))
+            continue;  // this should not happen.. deleted trainings?
+
+        trainingConfirmationCount++;
+        trainingConfirmations[assignment.assignedTrainingId].participants.push({
+            name: assignment.name,
+            userId: assignment.userId,
+            team: assignment.team,
+            confirmed: assignment.confirmed,
+        });
+    }
+
+    const confirmations = [ ...Object.values(trainingConfirmations) ];
+    confirmations.sort((lhs, rhs) => {
+        if (lhs.date === rhs.date)
+            return 0;
+
+        return dayjs(lhs.date).isBefore(rhs.date) ? -1 : 1;
+    });
+
     return (
         <>
-            <Collapse in={trainingConfirmations.length > 0} sx={{ mt: '-16px !important' }}>
-                <TrainingOverview confirmations={trainingConfirmations} />
+            <Collapse in={trainingConfirmationCount > 0} sx={{ mt: '-16px !important' }}>
+                <TrainingOverview confirmations={confirmations} />
             </Collapse>
             <Collapse in={event.publishTrainings && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>
