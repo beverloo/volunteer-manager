@@ -148,14 +148,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         }
     }
 
-    // Sort the training assignments first by confirmation state (unconfirmed participation comes
-    // first), then alphabetically by name of the participant.
-    trainingAssignments.sort((lhs, rhs) => {
-        if (lhs.confirmed !== rhs.confirmed)
-            return lhs.confirmed ? -1 : 1;
-
-        return lhs.name.localeCompare(rhs.name);
-    });
+    // Sort the training assignments alphabetically by name of the participant.
+    trainingAssignments.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
 
     // ---------------------------------------------------------------------------------------------
     // Then process it again towards the confirmation table, combined with training information
@@ -189,6 +183,15 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     }
 
     const confirmations = [ ...Object.values(trainingConfirmations) ];
+    for (let index = 0; index < confirmations.length; ++index) {
+        confirmations[index].participants.sort((lhs, rhs) => {
+            if (lhs.confirmed !== rhs.confirmed)
+                return lhs.confirmed ? -1 : 1;
+
+            return lhs.name.localeCompare(rhs.name);
+        });
+    }
+
     confirmations.sort((lhs, rhs) => {
         if (lhs.date === rhs.date)
             return 0;

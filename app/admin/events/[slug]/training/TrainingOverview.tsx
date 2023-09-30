@@ -83,7 +83,10 @@ export function TrainingOverview(props: TrainingOverviewProps) {
                     count++;
                 }
 
-                row.push(session.participants[index]);
+                row.push({
+                    overflow: index >= session.capacity,
+                    ...session.participants[index],
+                });
             }
 
             if (!count)
@@ -121,29 +124,41 @@ export function TrainingOverview(props: TrainingOverviewProps) {
                     <TableBody>
                         { rows.map((row, index) =>
                             <TableRow key={index}>
-                                <TableCell sx={{ color: 'text.disabled' }}>{index + 1}</TableCell>
-                                { row.map((participant, index2) =>
-                                    <TableCell key={index2} align="center">
-                                        <Typography sx={
-                                            (!!participant && participant.confirmed)
-                                                ? {}
-                                                : { fontStyle: 'italic',
-                                                    '& a': { color: 'text.disabled' }
-                                                } } variant="body2">
+                                <TableCell sx={{ color: 'text.disabled' }} align="left">
+                                    {index + 1}
+                                </TableCell>
+                                { row.map((participant, index2) => {
+                                    if (!participant)
+                                        return <TableCell key={index2}></TableCell>;
 
-                                            { (!!participant && !!participant.userId) &&
-                                                <MuiLink component={Link} href={
-                                                    `./${participant.team}/volunteers/` +
-                                                    participant.userId}>
-                                                    {participant.name}
-                                                </MuiLink> }
+                                    const href =
+                                        `./${participant.team}/volunteers/${participant.userId}`;
 
-                                            { (!!participant && !participant.userId) &&
-                                                participant.name }
+                                    let color: string | undefined = undefined;
+                                    if (participant.overflow)
+                                        color = 'warning.main';
+                                    else if (!participant.confirmed)
+                                        color = 'text.disabled';
 
-                                        </Typography>
-                                    </TableCell> )}
-                                <TableCell sx={{ color: 'text.disabled' }}>{index + 1}</TableCell>
+                                    return (
+                                        <TableCell key={index2} align="center">
+                                            <Typography variant="body2" sx={{
+                                                fontStyle: participant.confirmed ? '' : 'italic',
+                                                '& a': { color } }}>
+
+                                                { !participant.userId && participant.name }
+                                                { !!participant.userId &&
+                                                    <MuiLink component={Link} href={href}>
+                                                        {participant.name}
+                                                    </MuiLink> }
+
+                                            </Typography>
+                                        </TableCell>
+                                    );
+                                } )}
+                                <TableCell sx={{ color: 'text.disabled' }} align="right">
+                                    {index + 1}
+                                </TableCell>
                             </TableRow> )}
                     </TableBody>
                 </Table>
