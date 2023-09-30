@@ -16,9 +16,7 @@ import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { TrainingConfigurationEntry } from './TrainingConfiguration';
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Information about an individual assignment. Volunteers must have indicated their preferences
@@ -71,7 +69,7 @@ export interface TrainingAssignmentsProps {
     /**
      * Training configuration entries, which the preference/assignment options can be picked from.
      */
-    trainings: TrainingConfigurationEntry[];
+    trainings: { value: number; label: string; }[];
 }
 
 /**
@@ -79,23 +77,13 @@ export interface TrainingAssignmentsProps {
  * the training sessions, their preferences and the decided (& confirmed) assignments.
  */
 export function TrainingAssignments(props: TrainingAssignmentsProps) {
-    const options = useMemo(() => {
-        return [
-            { id: 0, label: 'Skip the training' },
-            ...props.trainings.map(training => ({
-                id: training.id,
-                label: dayjs(training.trainingStart).format('dddd, MMMM D'),
-            })),
-        ];
-    }, [ props.trainings ]);
-
     const optionsMap = useMemo(() => {
         const optionsMap = new Map<number, string>();
-        for (const option of options)
-            optionsMap.set(option.id, option.label);
+        for (const option of props.trainings)
+            optionsMap.set(option.value, option.label);
 
         return optionsMap;
-    }, [ options ]);
+    }, [ props.trainings ]);
 
     const columns: DataTableColumn<TrainingAssignment>[] = [
         {

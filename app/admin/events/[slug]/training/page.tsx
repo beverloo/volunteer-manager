@@ -12,8 +12,10 @@ import { TrainingAssignments, type TrainingAssignment } from './TrainingAssignme
 import { TrainingConfiguration } from './TrainingConfiguration';
 import { TrainingExternal } from './TrainingExternal';
 import { TrainingOverview, type TrainingConfirmation } from './TrainingOverview';
+import { dayjs } from '@lib/DateTime';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+
 import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra, tUsersEvents,
     tUsers } from '@lib/database';
 
@@ -96,6 +98,18 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         .executeSelectMany();
 
     // ---------------------------------------------------------------------------------------------
+    // Assemble the training options that are available for this event
+    // ---------------------------------------------------------------------------------------------
+
+    const trainingOptions = [
+        { value: 0, label: 'Skip the training' },
+        ...trainings.map(training => ({
+            value: training.id,
+            label: dayjs(training.trainingStart).format('dddd, MMMM D'),
+        })),
+    ];
+
+    // ---------------------------------------------------------------------------------------------
     // Combine the information to create a comprehensive assignment and confirmation tables
     // ---------------------------------------------------------------------------------------------
 
@@ -150,9 +164,11 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             </Collapse>
             <Collapse in={event.publishTrainings && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>
-                <TrainingAssignments assignments={trainingAssignments} trainings={trainings} />
+                <TrainingAssignments assignments={trainingAssignments}
+                                     trainings={trainingOptions} />
             </Collapse>
-            <TrainingExternal event={event} participants={extraParticipants} />
+            <TrainingExternal event={event} participants={extraParticipants}
+                              trainings={trainingOptions} />
             <TrainingConfiguration event={event} trainings={trainings} />
         </>
     );

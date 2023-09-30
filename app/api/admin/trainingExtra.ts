@@ -8,7 +8,7 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tTrainingsExtra } from '@lib/database';
+import db, { tTrainingsAssignments, tTrainingsExtra } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/admin/training-extra.
@@ -58,6 +58,11 @@ export const kTrainingExtraDefinition = z.object({
              * Date of birth of the participant, necessary for certification.
              */
             trainingExtraBirthdate: z.string().optional(),
+
+            /**
+             * ID of the training in which the extra would like to participate.
+             */
+            preferenceTrainingId: z.number().optional(),
 
         }).optional(),
     }),
@@ -140,17 +145,44 @@ export async function trainingExtra(request: Request, props: ActionProps): Promi
 
     // Operation: update
     if (request.update !== undefined) {
-        const affectedRows = await db.update(tTrainingsExtra)
-            .set({
-                trainingExtraName: request.update.trainingExtraName,
-                trainingExtraEmail: request.update.trainingExtraEmail,
-                trainingExtraBirthdate:
-                request.update.trainingExtraBirthdate ?
-                    new Date(request.update.trainingExtraBirthdate) : undefined,
-            })
-            .where(tTrainingsExtra.trainingExtraId.equals(request.update.id))
-            .and(tTrainingsExtra.eventId.equals(event.eventId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
+        const dbInstance = db;
+        const affectedRows = await dbInstance.transaction(async () => {
+            if (!request.update)
+                return 0;  // this cannot happen
+
+            const affectedRows = await dbInstance.update(tTrainingsExtra)
+                .set({
+                    trainingExtraName: request.update.trainingExtraName,
+                    trainingExtraEmail: request.update.trainingExtraEmail,
+                    trainingExtraBirthdate:
+                    request.update.trainingExtraBirthdate ?
+                        new Date(request.update.trainingExtraBirthdate) : undefined,
+                })
+                .where(tTrainingsExtra.trainingExtraId.equals(request.update.id))
+                .and(tTrainingsExtra.eventId.equals(event.eventId))
+                .executeUpdate(/* min= */ 0, /* max= */ 1);
+
+            if (request.update.preferenceTrainingId !== undefined) {
+                const preferenceTrainingId =
+                    request.update.preferenceTrainingId === 0 ? null
+                                                              : request.update.preferenceTrainingId;
+
+                await dbInstance.insertInto(tTrainingsAssignments)
+                    .set({
+                        eventId: event.eventId,
+                        assignmentExtraId: request.update.id,
+                        preferenceTrainingId,
+                        preferenceUpdated: dbInstance.currentTimestamp(),
+                    })
+                    .onConflictDoUpdateSet({
+                        preferenceTrainingId,
+                        preferenceUpdated: dbInstance.currentTimestamp(),
+                    })
+                    .executeInsert(/* min= */ 0, /* max= */ 1);
+            }
+
+            return affectedRows;
+        });
 
         if (affectedRows > 0) {
             await Log({
