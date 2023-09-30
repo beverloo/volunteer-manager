@@ -83,8 +83,12 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
         return `Updated their role to ${role} for an event`;
     },
+    [LogType.AdminEventTrainingAssignment]: (source, target, { event }) => {
+        return target ? `Updated ${target.name}'s training assignment for ${event}`
+                      : `Updated a training assignment for ${event}`;
+    },
     [LogType.AdminEventTrainingMutation]: (source, target, { eventName, mutation }) => {
-        return `${mutation} a new training session for ${eventName}`;
+        return `${mutation} a training session for ${eventName}`;
     },
     [LogType.AdminEventTrainingExtraMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} an extra participant to ${eventName} trainings`;

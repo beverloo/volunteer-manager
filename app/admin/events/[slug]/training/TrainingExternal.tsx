@@ -126,7 +126,10 @@ export function TrainingExternal(props: TrainingExternalProps) {
             return oldRow;
 
         const copiedRow = newRow;
-        copiedRow.preferenceUpdated = new Date();
+        if (!!newRow.preferenceTrainingId)
+            copiedRow.preferenceUpdated = new Date();
+        else
+            copiedRow.preferenceUpdated = undefined;
 
         return copiedRow;
 

@@ -4,11 +4,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -17,6 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { callApi } from '@lib/callApi';
 
 /**
  * Information about an individual assignment. Volunteers must have indicated their preferences
@@ -65,6 +67,11 @@ export interface TrainingAssignmentsProps {
      * The assignments that should be shown.
      */
     assignments: TrainingAssignment[];
+
+    /**
+     * Slug of the event for which assignments are being shown.
+     */
+    event: string;
 
     /**
      * Training configuration entries, which the preference/assignment options can be picked from.
@@ -120,7 +127,11 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                         </Tooltip>
                     );
                 } else if (params.value === null) {
-                    return 'Skip the training';
+                    return (
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            Skip the training
+                        </Typography>
+                    );
                 }
 
                 const label = optionsMap.get(params.value);
@@ -134,6 +145,9 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             sortable: true,
             flex: 1,
 
+            type: 'singleSelect',
+            valueOptions: props.trainings,
+
             renderCell: (params: GridRenderCellParams<TrainingAssignment>) => {
                 if (params.value === undefined) {
                     return (
@@ -141,8 +155,12 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                             <MoreHorizIcon color="warning" fontSize="small" />
                         </Tooltip>
                     );
-                } else if (params.value === null) {
-                    return 'Skip the training';
+                } else if (params.value === null || params.value === 0) {
+                    return (
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            Skip the training
+                        </Typography>
+                    );
                 }
 
                 const label = optionsMap.get(params.value);
@@ -164,6 +182,28 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
         }
     ];
 
+    const router = useRouter();
+
+    const commitEdit = useCallback(async (newRow: TrainingAssignment, oldRow: TrainingAssignment) =>
+    {
+        const response = await callApi('post', '/api/admin/training', {
+            event: props.event,
+            assignment: {
+                id: newRow.id,
+                assignedTrainingId: newRow.assignedTrainingId,
+                confirmed: newRow.confirmed,
+            },
+        });
+
+        if (!response.success)
+            return oldRow;
+
+        router.refresh();
+
+        return newRow.assignedTrainingId === -1 ? { ...newRow, assignedTrainingId: undefined }
+                                                : newRow;
+    }, [ props.event, router ]);
+
     // TODO: Warnings
 
     return (
@@ -171,7 +211,11 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Training assignments
             </Typography>
-            <DataTable columns={columns} rows={props.assignments}
+            <Alert severity="info" sx={{ mb: 2 }}>
+                Preferences must be indicated by volunteers and cannot be updated here. Assignments
+                will be tentative until the confirmation box is checked.
+            </Alert>
+            <DataTable columns={columns} rows={props.assignments} commitEdit={commitEdit}
                        pageSize={100} pageSizeOptions={[100]} disableFooter dense />
         </Paper>
     );

@@ -1628,8 +1628,8 @@ tables:
     comment: ""
   - name: preference_updated
     type: timestamp
-    nullable: false
-    default: current_timestamp()
+    nullable: true
+    default: "NULL"
     comment: ""
   indexes:
   - name: assignment_user_id
@@ -1657,6 +1657,13 @@ tables:
     - event_id
     - assignment_user_id
     comment: ""
+  - name: event_id_3
+    def: UNIQUE KEY event_id_3 (event_id, assignment_extra_id) USING BTREE
+    table: trainings_assignments
+    columns:
+    - event_id
+    - assignment_extra_id
+    comment: ""
   constraints:
   - name: event_id_2
     type: UNIQUE
@@ -1666,6 +1673,16 @@ tables:
     columns:
     - event_id
     - assignment_user_id
+    referencedColumns: []
+    comment: ""
+  - name: event_id_3
+    type: UNIQUE
+    def: UNIQUE KEY event_id_3 (event_id, assignment_extra_id)
+    table: trainings_assignments
+    referencedTable: null
+    columns:
+    - event_id
+    - assignment_extra_id
     referencedColumns: []
     comment: ""
   - name: PRIMARY
@@ -1688,9 +1705,10 @@ tables:
       `assignment_updated` timestamp NULL DEFAULT NULL,
       `assignment_confirmed` tinyint(1) NOT NULL DEFAULT 0,
       `preference_training_id` int(8) unsigned DEFAULT NULL,
-      `preference_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+      `preference_updated` timestamp NULL DEFAULT NULL,
       PRIMARY KEY (`assignment_id`),
       UNIQUE KEY `event_id_2` (`event_id`,`assignment_user_id`),
+      UNIQUE KEY `event_id_3` (`event_id`,`assignment_extra_id`),
       KEY `event_id` (`event_id`),
       KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

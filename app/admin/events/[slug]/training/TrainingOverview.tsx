@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
  * Information about an individual confirmation.
  */
 export interface TrainingConfirmation {
-    // TODO
+    // TODO (name, date, provisional?)
 }
 
 /**

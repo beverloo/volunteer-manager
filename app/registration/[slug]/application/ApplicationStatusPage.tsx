@@ -166,8 +166,8 @@ interface TrainingStatusButtonProps {
  *
  * This button deals with a number of situations:
  *   (1) The volunteer has a confirmed spot in one of the sessions.
- *   (2) The volunteer indicated their preferences, wants to join and waits for confirmation.
- *   (3) The volunteer indicated their preferences and is confirmed to not to participate.
+ *   (2) The volunteer indicated their preferences and is confirmed to not to participate.
+ *   (3) The volunteer indicated their preferences, wants to join and waits for confirmation.
  *   (4) The volunteer indicated their preferences and does not want to participate.
  *   (5) The volunteer is able to indicate their preferences, but has not done so yet.
  *   (6) The volunteer is not able to indicate their preferences yet.
@@ -182,33 +182,34 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
-    if (!!training && !!training.preferenceDate) {
+    if (!!training && (training.confirmed || training.updated)) {
         // (1) The volunteer has a confirmed spot in one of the sessions.
-        if (training.confirmed && !!training.assignedDate) {
-            const assignedDate = dayjs(training.preferenceDate).format('dddd, MMMM D');
+        if (!!training.assignedDate && training.confirmed) {
+            const assignedDate = dayjs(training.assignedDate).format('dddd, MMMM D');
             const assignedTime = dayjs(training.assignedDate).format('H:mm');
 
             status = 'confirmed';
             primary = `You'll join the training on ${assignedDate}`;
             secondary = `It starts at ${assignedTime}, please make sure to be there on time`;
+        }
 
-        // (2) The volunteer indicated their preferences, wants to join and waits for confirmation.
-        } else {
+        // (2) The volunteer indicated their preferences and is confirmed to not to participate.
+        else if (!training.assignedDate && training.confirmed) {
+            status = 'confirmed';
+            primary = 'You\'ll skip the professional training this year'
+        }
+
+        // (3) The volunteer indicated their preferences, wants to join and waits for confirmation.
+        else if (!!training.preferenceDate) {
             const preferenceDate = dayjs(training.preferenceDate).format('dddd, MMMM D');
+
             status = 'submitted';
             primary = `You'd like to join the training on ${preferenceDate}`;
             secondary = 'This will be confirmed by one of the leads closer to the event…';
         }
-    }
-
-    else if (!!training && !training.preferenceDate) {
-        // (3) The volunteer indicated their preferences and is confirmed to not to participate.
-        if (training.confirmed) {
-            status = 'confirmed';
-            primary = 'You\'ll skip the professional training this year'
 
         // (4) The volunteer indicated their preferences and does not want to participate.
-        } else {
+        else {
             status = 'submitted';
             primary = 'You would like to skip the training this year';
             secondary = 'This will be confirmed by one of the leads closer to the event…';

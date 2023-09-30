@@ -100,7 +100,7 @@ export function TrainingPreferences(props: TrainingPreferencesProps) {
     }, [ props.environment, props.eventSlug, readOnly, router ]);
 
     const defaultValues = useMemo(() => {
-        if (!training)
+        if (!training || !training.updated)
             return { /* no preferences */ };
         else if (training.preference === undefined)
             return { training: /* skip= */ 0 };

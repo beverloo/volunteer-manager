@@ -8,7 +8,7 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tTrainings } from '@lib/database';
+import db, { tTrainingsAssignments, tTrainings } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/admin/training.
@@ -19,6 +19,27 @@ export const kTrainingDefinition = z.object({
          * Slug of the event for which training sessions are being managed.
          */
         event: z.string(),
+
+        /**
+         * Must be set to an object when an assignment to a training is being updated.
+         */
+        assignment: z.object({
+            /**
+             * Unique ID of this training session, either "user/ID" or "extra/ID".
+             */
+            id: z.string(),
+
+            /**
+             * ID of the training to which the volunteer has been assigned.
+             */
+            assignedTrainingId: z.number().optional().nullable(),
+
+            /**
+             * Whether their participation in the training has been confirmed.
+             */
+            confirmed: z.boolean(),
+
+        }).optional(),
 
         /**
          * Must be set to an empty object when a new training session is being added.
@@ -98,6 +119,71 @@ export async function training(request: Request, props: ActionProps): Promise<Re
     const event = await getEventBySlug(request.event);
     if (!event)
         return { success: false };
+
+    // Operation: assignment
+    if (request.assignment !== undefined) {
+        let extraId: number | null = null;
+        let userId: number | null = null;
+
+        if (request.assignment.id.startsWith('extra/'))
+            extraId = parseInt(request.assignment.id.substring(6), 10);
+        if (request.assignment.id.startsWith('user/'))
+            userId = parseInt(request.assignment.id.substring(5), 10);
+
+        if (!extraId && !userId)
+            return { success: false };
+
+        const dbInstance = db;
+
+        let assignmentTrainingId: null | number;
+        let assignmentUpdated: null | ReturnType<typeof dbInstance.currentTimestamp>;
+
+        switch (request.assignment.assignedTrainingId) {
+            case -1:   // reset
+            case null: // new row
+                assignmentTrainingId = null;
+                assignmentUpdated = null;
+                break;
+
+            case 0:     // don't participate
+                assignmentTrainingId = null;
+                assignmentUpdated = dbInstance.currentTimestamp();
+                break;
+
+            default:    // participate
+                assignmentTrainingId = request.assignment.assignedTrainingId!;
+                assignmentUpdated = dbInstance.currentTimestamp();
+                break;
+        }
+
+        await dbInstance.insertInto(tTrainingsAssignments)
+            .set({
+                eventId: event.eventId,
+                assignmentUserId: userId,
+                assignmentExtraId: extraId,
+                assignmentTrainingId,
+                assignmentUpdated,
+                assignmentConfirmed: request.assignment.confirmed ? 1 : 0,
+            })
+            .onConflictDoUpdateSet({
+                assignmentTrainingId,
+                assignmentUpdated,
+                assignmentConfirmed: request.assignment.confirmed ? 1 : 0,
+            })
+            .executeInsert(/* min= */ 0, /* max= */ 1);
+
+        await Log({
+            type: LogType.AdminEventTrainingAssignment,
+            severity: LogSeverity.Info,
+            sourceUser: props.user,
+            targetUser: userId ?? undefined,
+            data: {
+                event: event.shortName,
+            },
+        });
+
+        return { success: true };
+    }
 
     // Operation: create
     if (request.create !== undefined) {

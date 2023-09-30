@@ -102,6 +102,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     // ---------------------------------------------------------------------------------------------
 
     const trainingOptions = [
+        { value: -1, label: ' ' },
         { value: 0, label: 'Skip the training' },
         ...trainings.map(training => ({
             value: training.id,
@@ -164,7 +165,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             </Collapse>
             <Collapse in={event.publishTrainings && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>
-                <TrainingAssignments assignments={trainingAssignments}
+                <TrainingAssignments assignments={trainingAssignments} event={event.slug}
                                      trainings={trainingOptions} />
             </Collapse>
             <TrainingExternal event={event} participants={extraParticipants}
