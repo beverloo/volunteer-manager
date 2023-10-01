@@ -1,16 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
-
 import GroupsIcon from '@mui/icons-material/Groups';
-import ImportExportIcon from '@mui/icons-material/ImportExport';
 import PersonIcon from '@mui/icons-material/Person';
 
+import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
 import { AdminPageContainer } from '../AdminPageContainer';
-import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -24,12 +21,6 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
     });
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
-        {
-            icon: <ImportExportIcon />,
-            label: 'Data exports',
-            privilege: Privilege.Administrator,
-            url: '/admin/volunteers/exports',
-        },
         {
             icon: <GroupsIcon />,
             label: 'Teams & roles',
