@@ -5,21 +5,66 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { EventIdentityCard } from './EventIdentityCard';
+import { EventMetadata } from './EventMetadata';
+import { EventRecentChanges } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents, tUsers }
-    from '@lib/database';
+import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
+    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings } from '@lib/database';
 
 /**
  * Returns metadata about the event that's being shown, including hotel & training status and
  * remaining time until the event is about to kick off.
  */
 async function getEventMetadata(eventId: number) {
-    // TODO
+    const dbInstance = db;
+
+    const hotelAssignmentsQuery = dbInstance.selectFrom(tHotelsAssignments)
+        .innerJoin(tHotelsBookings)
+            .on(tHotelsBookings.bookingId.equals(tHotelsAssignments.bookingId))
+        .where(tHotelsAssignments.eventId.equals(eventId))
+            .and(tHotelsBookings.bookingVisible.equals(/* true= */ 1))
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
+    const hotelBookingsQuery = dbInstance.selectFrom(tHotelsBookings)
+        .where(tHotelsBookings.eventId.equals(eventId))
+            .and(tHotelsBookings.bookingVisible.equals(/* true= */ 1))
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
+    const hotelOptionsQuery = dbInstance.selectFrom(tHotels)
+        .where(tHotels.eventId.equals(eventId))
+            .and(tHotels.hotelRoomVisible.equals(/* true= */ 1))
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
+    const trainingAssignmentsQuery = dbInstance.selectFrom(tTrainingsAssignments)
+        .where(tTrainingsAssignments.eventId.equals(eventId))
+            .and(tTrainingsAssignments.assignmentTrainingId.isNotNull())
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
+    const trainingSessionsQuery = dbInstance.selectFrom(tTrainings)
+        .where(tTrainings.eventId.equals(eventId))
+            .and(tTrainings.trainingVisible.equals(/* true= */ 1))
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
+    return await dbInstance.selectFromNoTable()
+        .select({
+            hotelAssignments: hotelAssignmentsQuery,
+            hotelBookings: hotelBookingsQuery,
+            hotelOptions: hotelOptionsQuery,
+            trainingAssignments: trainingAssignmentsQuery,
+            trainingSessions: trainingSessionsQuery,
+        })
+        .executeSelectNoneOrOne() ?? undefined;
+    ;
 }
 
 /**
@@ -143,6 +188,8 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
+    console.log(eventMetadata);
+
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
             <Grid xs={3}>
@@ -152,6 +199,14 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
                 <Grid key={`team-${index}`} xs={3}>
                     <EventTeamCard {...team} />
                 </Grid> ) }
+
+            <Grid xs={6}>
+                <EventMetadata event={event} metadata={eventMetadata} />
+            </Grid>
+
+            <Grid xs={6}>
+                <EventRecentChanges />
+            </Grid>
 
             { recentVolunteers.length > 0 &&
                 <Grid xs={6}>
