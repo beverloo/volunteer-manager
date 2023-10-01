@@ -6,7 +6,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
-import { EventRecentChanges } from './EventRecentChanges';
+import { EventRecentChanges, type EventRecentChangesProps } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
@@ -14,7 +14,8 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
-    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings } from '@lib/database';
+    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences }
+    from '@lib/database';
 
 /**
  * Returns metadata about the event that's being shown, including hotel & training status and
@@ -107,7 +108,57 @@ async function getParticipatingTeams(eventId: number) {
  * they share their preferences. This helps volunteers look out for potential changes.
  */
 async function getRecentChanges(eventId: number) {
-    // TODO
+    const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
+    const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
+
+    const preferenceUpdates = await db.selectFrom(tUsersEvents)
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tUsersEvents.userId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .leftJoin(hotelsPreferencesJoin)
+            .on(hotelsPreferencesJoin.userId.equals(tUsersEvents.userId))
+            .and(hotelsPreferencesJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(trainingsAssignmentsJoin)
+            .on(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+            .and(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+        .where(tUsersEvents.eventId.equals(eventId))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .select({
+            userId: tUsersEvents.userId,
+            name: tUsers.firstName,
+            team: tTeams.teamEnvironment,
+
+            hotelPreferencesUpdated: hotelsPreferencesJoin.hotelPreferencesUpdated,
+            trainingPreferencesUpdated: trainingsAssignmentsJoin.preferenceUpdated,
+        })
+        .executeSelectMany();
+
+    const changes: EventRecentChangesProps['changes'] = [];
+    for (const preferenceUpdate of preferenceUpdates) {
+        if (!!preferenceUpdate.hotelPreferencesUpdated) {
+            changes.push({
+                name: preferenceUpdate.name,
+                userId: preferenceUpdate.userId,
+                team: preferenceUpdate.team,
+                update: 'updated their hotel preferences',
+                date: preferenceUpdate.hotelPreferencesUpdated
+            });
+        }
+
+        if (!!preferenceUpdate.trainingPreferencesUpdated) {
+            changes.push({
+                name: preferenceUpdate.name,
+                userId: preferenceUpdate.userId,
+                team: preferenceUpdate.team,
+                update: 'updated their training preferences',
+                date: preferenceUpdate.trainingPreferencesUpdated
+            });
+        }
+    }
+
+    changes.sort((lhs, rhs) => rhs.date.getTime() - lhs.date.getTime());
+    return changes.slice(0, 5);
 }
 
 /**
@@ -188,7 +239,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
-    console.log(eventMetadata);
+    console.log(recentChanges);
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
@@ -204,13 +255,14 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
                 <EventMetadata event={event} metadata={eventMetadata} />
             </Grid>
 
-            <Grid xs={6}>
-                <EventRecentChanges />
-            </Grid>
-
             { recentVolunteers.length > 0 &&
                 <Grid xs={6}>
                     <EventRecentVolunteers event={event} volunteers={recentVolunteers} />
+                </Grid> }
+
+            { recentChanges.length > 0 &&
+                <Grid xs={6}>
+                    <EventRecentChanges changes={recentChanges} event={event} />
                 </Grid> }
 
             { seniorVolunteers.length > 0 &&

@@ -24,8 +24,8 @@ export function EventSeniors(props: EventSeniorsProps) {
     return (
         <Card>
             <CardHeader avatar={ <AdminPanelSettingsIcon color="primary" /> }
-                        title="Leadership team" titleTypographyProps={{ variant: 'subtitle2' }}
-                        subheader="Senior, Staff and Core Staff volunteers" />
+                        title={`${props.event.shortName} Leadership team`}
+                        titleTypographyProps={{ variant: 'subtitle2' }} />
             <Divider />
             <CardContent sx={{ pb: '16px !important' }}>
                 <VolunteerStack {...props} />

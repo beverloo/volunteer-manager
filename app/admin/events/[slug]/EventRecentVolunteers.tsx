@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
+import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
 
@@ -21,12 +22,7 @@ import { Avatar } from '@components/Avatar';
  * Props accepted by the <EventRecentVolunteers> and <VolunteerStack> components.
  */
 export interface EventRecentVolunteersProps {
-    event: {
-        /**
-         * Slug of the event for which this card is being composed.
-         */
-        slug: string;
-    };
+    event: PageInfo['event'];
 
     volunteers: {
         /**
@@ -98,11 +94,10 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
  */
 export function EventRecentVolunteers(props: EventRecentVolunteersProps) {
     return (
-        <Card>
+        <Card sx={{ minHeight: '100%' }}>
             <CardHeader avatar={ <AccessTimeIcon color="primary" /> }
                         title="Latest volunteers to apply"
-                        titleTypographyProps={{ variant: 'subtitle2' }}
-                        subheader="Based on when we received their application…" />
+                        titleTypographyProps={{ variant: 'subtitle2' }} />
             <Divider />
             <CardContent sx={{ pb: '16px !important' }}>
                 <VolunteerStack {...props} />
