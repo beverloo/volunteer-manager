@@ -12,6 +12,7 @@ import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 
 import { RegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
@@ -77,12 +78,14 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
                                                         : undefined;
 
                 return (
-                    <MuiLink key={index} component={Link} href={`${linkBase}${link}`}
-                                sx={{ textDecoration: 'none' }}>
-                        <Avatar size="medium" src={avatarSrc}>
-                            {volunteer.name}
-                        </Avatar>
-                    </MuiLink>
+                    <Tooltip key={index} title={volunteer.name}>
+                        <MuiLink component={Link} href={`${linkBase}${link}`}
+                                    sx={{ textDecoration: 'none' }}>
+                            <Avatar size="medium" src={avatarSrc}>
+                                {volunteer.name}
+                            </Avatar>
+                        </MuiLink>
+                    </Tooltip>
                 );
             } )}
         </Stack>

@@ -1,21 +1,36 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Grid from '@mui/material/Unstable_Grid2';
+
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { EventDashboard } from './EventDashboard';
+import { EventIdentityCard } from './EventIdentityCard';
+import { EventRecentVolunteers } from './EventRecentVolunteers';
+import { EventSeniors } from './EventSeniors';
+import { EventTeamCard } from './EventTeamCard';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents, tUsers }
     from '@lib/database';
 
-export default async function EventPage(props: NextRouterParams<'slug'>) {
-    const { event } = await verifyAccessAndFetchPageInfo(props.params);
+/**
+ * Returns metadata about the event that's being shown, including hotel & training status and
+ * remaining time until the event is about to kick off.
+ */
+async function getEventMetadata(eventId: number) {
+    // TODO
+}
 
+/**
+ * Returns the teams that participate in the event, together with some high-level metainformation
+ * about whether the teams have published their information pages, registration portal and schedule.
+ */
+async function getParticipatingTeams(eventId: number) {
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const dbInstance = db;
-    const teams = await dbInstance.selectFrom(tEvents)
+    return await dbInstance.selectFrom(tEvents)
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tEvents.eventId))
             .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
@@ -25,7 +40,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.teamId.equals(tEventsTeams.teamId))
             .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
-        .where(tEvents.eventId.equals(event.id))
+        .where(tEvents.eventId.equals(eventId))
         .select({
             teamName: tTeams.teamName,
             teamColourDarkTheme: tTeams.teamColourDarkTheme,
@@ -40,10 +55,23 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .groupBy(tEventsTeams.teamId)
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
+}
 
+/**
+ * Returns the most recent changes made by volunteers who are part of the event, for example when
+ * they share their preferences. This helps volunteers look out for potential changes.
+ */
+async function getRecentChanges(eventId: number) {
+    // TODO
+}
+
+/**
+ * Returns the volunteers who most recently signed up to participate in the event.
+ */
+async function getRecentVolunteers(eventId: number) {
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    const recentVolunteers = await dbInstance.selectFrom(tEvents)
+    return await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.notIn([
@@ -54,7 +82,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tUsers.avatarId))
-        .where(tUsersEvents.eventId.equals(event.id))
+        .where(tUsersEvents.eventId.equals(eventId))
         .select({
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,
@@ -65,11 +93,18 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .orderBy(tUsersEvents.registrationDate, 'desc')
         .orderBy(/* fallback for older events= */ tUsers.username, 'asc')
         .limit(/* based on width of the component= */ 9)
-        .executeSelectMany();
+        .executeSelectMany();;
+}
 
+/**
+ * Returns the Senior-level engineers that participate in the event, which is defined as any role
+ * that grants administrator access to the event.
+ */
+async function getSeniorVolunteers(eventId: number) {
     const rolesJoin = tRoles.forUseInLeftJoin();
+    const storageJoin = tStorage.forUseInLeftJoin();
 
-    const seniors = await dbInstance.selectFrom(tEvents)
+    return await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
@@ -81,7 +116,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(tUsersEvents.roleId))
-        .where(tUsersEvents.eventId.equals(event.id))
+        .where(tUsersEvents.eventId.equals(eventId))
             .and(rolesJoin.roleAdminAccess.equals(/* true= */ 1))
         .select({
             userId: tUsers.userId,
@@ -93,9 +128,42 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
         .orderBy(rolesJoin.roleOrder, 'asc')
         .orderBy(tUsers.username, 'asc')
         .executeSelectMany();
+}
 
-    return <EventDashboard event={event} recentVolunteers={recentVolunteers} seniors={seniors}
-                           teams={teams} />;
+/**
+ * The <EventPage> component gathers the required information for the event-specific dashboard,
+ * which concisely displays the status and progress of organising an individual event.
+ */
+export default async function EventPage(props: NextRouterParams<'slug'>) {
+    const { event } = await verifyAccessAndFetchPageInfo(props.params);
+
+    const eventMetadata = await getEventMetadata(event.id);
+    const participatingTeams = await getParticipatingTeams(event.id);
+    const recentChanges = await getRecentChanges(event.id);
+    const recentVolunteers = await getRecentVolunteers(event.id);
+    const seniorVolunteers = await getSeniorVolunteers(event.id);
+
+    return (
+        <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
+            <Grid xs={3}>
+                <EventIdentityCard event={event} />
+            </Grid>
+            { participatingTeams.map((team, index) =>
+                <Grid key={`team-${index}`} xs={3}>
+                    <EventTeamCard {...team} />
+                </Grid> ) }
+
+            { recentVolunteers.length > 0 &&
+                <Grid xs={6}>
+                    <EventRecentVolunteers event={event} volunteers={recentVolunteers} />
+                </Grid> }
+
+            { seniorVolunteers.length > 0 &&
+                <Grid xs={6}>
+                    <EventSeniors event={event} volunteers={seniorVolunteers} />
+                </Grid> }
+        </Grid>
+    );
 }
 
 export const generateMetadata = generateEventMetadataFn();
