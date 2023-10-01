@@ -123,7 +123,7 @@ export async function register(request: Request, props: ActionProps): Promise<Re
             .setTo(request.username)
             .setSubject(messageContent.title)
             .setMarkdown(messageContent.markdown, /* substitutions= */ {
-                'link': `${props.origin}/?registration-request=${registrationRequest}`,
+                'link': `https://${props.origin}/?registration-request=${registrationRequest}`,
                 'name': request.firstName,
                 'sender': sender,
             });

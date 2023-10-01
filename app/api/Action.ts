@@ -184,7 +184,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         const response = await action((result.data as any).request, {
             authenticationContext,
             ip: request.ip ?? request.headers.get('x-forwarded-for') ?? undefined,
-            origin: request.nextUrl.origin,
+            origin: request.headers.get('host') ?? 'animecon.team',
             requestHeaders: request.headers,
             responseHeaders,
             user: authenticationContext.user

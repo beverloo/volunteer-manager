@@ -65,6 +65,8 @@ export async function resetPasswordLink(request: Request, props: ActionProps): P
         data: { ip: props.ip }
     });
 
-    const passwordResetLink = `${props.origin}/?password-reset-request=${passwordResetRequest}`;
+    const passwordResetLink =
+        `https://${props.origin}/?password-reset-request=${passwordResetRequest}`;
+
     return { link: passwordResetLink };
 }
