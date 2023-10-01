@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { SubmitCollapse } from '../components/SubmitCollapse';
+import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
 /**

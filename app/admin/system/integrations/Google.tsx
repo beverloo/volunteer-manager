@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
-import { SubmitCollapse } from '../components/SubmitCollapse';
+import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**

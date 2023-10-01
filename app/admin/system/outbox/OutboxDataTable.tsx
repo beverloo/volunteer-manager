@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
-import { DataTable } from '../DataTable';
+import { DataTable } from '../../DataTable';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 

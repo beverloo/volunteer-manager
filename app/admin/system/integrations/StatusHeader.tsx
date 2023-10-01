@@ -21,7 +21,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ServiceHealthDefinition } from '@app/api/admin/serviceHealth';
-import { ContrastBox } from '../components/ContrastBox';
+import { ContrastBox } from '../../components/ContrastBox';
 import { issueServerAction } from '@lib/issueServerAction';
 
 type ServiceHealthRequest = ServiceHealthDefinition['request'];

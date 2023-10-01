@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Header } from './Header';
 import { Information } from './Information';
-import { LogsDataTable } from '@app/admin/logs/LogsDataTable';
+import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { VolunteerPrivileges } from './VolunteerPrivileges';

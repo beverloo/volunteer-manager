@@ -3,11 +3,11 @@
 
 import type { Metadata } from 'next';
 
-import type { Birthday } from './BirthdayCard';
-import type { DatabaseStatus } from './DatabaseCard';
+import type { Birthday } from './dashboard/BirthdayCard';
+import type { DatabaseStatus } from './dashboard/DatabaseCard';
 import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
-import { Dashboard } from './Dashboard';
+import { Dashboard } from './dashboard/Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';

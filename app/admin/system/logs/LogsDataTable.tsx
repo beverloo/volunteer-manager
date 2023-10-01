@@ -17,7 +17,7 @@ import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import type { DataTableRowRequest } from '@app/admin/DataTable';
 import type { LogsDefinition } from '@app/api/admin/logs';
-import { DataTable } from '../DataTable';
+import { DataTable } from '../../DataTable';
 import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
 

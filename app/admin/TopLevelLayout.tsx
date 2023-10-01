@@ -64,31 +64,31 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     icon: <ModelTrainingIcon />,
                     label: 'Generative AI',
                     privilege: Privilege.SystemAiAccess,
-                    url: '/admin/ai',
+                    url: '/admin/system/ai',
                 },
                 {
                     icon: <WebhookIcon />,
                     label: 'Integrations',
                     privilege: Privilege.SystemAdministrator,
-                    url: '/admin/integrations',
+                    url: '/admin/system/integrations',
                 },
                 {
                     icon: <DvrIcon />,
                     label: 'Logs',
                     privilege: Privilege.SystemLogsAccess,
-                    url: '/admin/logs',
+                    url: '/admin/system/logs',
                 },
                 {
                     icon: <MailIcon />,
                     label: 'Outbox',
                     privilege: Privilege.SystemOutboxAccess,
-                    url: '/admin/outbox',
+                    url: '/admin/system/outbox',
                 },
                 {
                     icon: <ManageHistoryIcon />,
                     label: 'Services',
                     privilege: Privilege.SystemAdministrator,
-                    url: '/admin/services',
+                    url: '/admin/system/services',
                 }
             ]
         },

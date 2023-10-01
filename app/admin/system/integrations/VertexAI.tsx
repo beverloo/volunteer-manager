@@ -22,8 +22,8 @@ import Typography from '@mui/material/Typography';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VertexAISettings } from '@lib/integrations/vertexai/VertexAIClient';
-import { PlaceholderPaper } from '../components/PlaceholderPaper';
-import { SubmitCollapse } from '../components/SubmitCollapse';
+import { PlaceholderPaper } from '../../components/PlaceholderPaper';
+import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 
 export type { VertexAISettings };
