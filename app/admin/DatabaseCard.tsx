@@ -50,7 +50,7 @@ export interface DatabaseCardProps {
 }
 
 /**
- * The <DatabaseCard> component
+ * The <DatabaseCard> component displays information on the database performance on the dashboard.
  */
 export function DatabaseCard(props: DatabaseCardProps) {
     const { connections, taskQueueSize } = props.status;

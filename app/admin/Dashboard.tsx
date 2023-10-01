@@ -6,13 +6,19 @@
 import Masonry from '@mui/lab/Masonry';
 
 import type { DatabaseStatus } from './DatabaseCard';
-import { type Birthday, BirthdayCard } from './BirthdayCard';
+import { AccessibleEventCard, type AccessibleEvent } from './AccessibleEventCard';
+import { BirthdayCard, type Birthday } from './BirthdayCard';
 import { DatabaseCard } from './DatabaseCard';
 
 /**
  * Props accepted by the <Dashboard> component.
  */
 export interface DashboardProps {
+    /**
+     * Entry for each of the accessible events that should be displayed, if any.
+     */
+    accessibleEvents: AccessibleEvent[];
+
     /**
      * The birthdays that happen in the current month.
      */
@@ -40,6 +46,8 @@ export function Dashboard(props: DashboardProps) {
                 <BirthdayCard birthdays={props.currentBirthdays} /> }
             { !!props.upcomingBirthdays.length &&
                 <BirthdayCard upcoming birthdays={props.upcomingBirthdays} /> }
+            { props.accessibleEvents.map((accessibleEvent, index) =>
+                <AccessibleEventCard key={index} accessibleEvent={accessibleEvent} /> )}
             { props.databaseStatus && <DatabaseCard status={props.databaseStatus} /> }
         </Masonry>
     );

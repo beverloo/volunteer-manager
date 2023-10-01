@@ -11,7 +11,7 @@ import { Dashboard } from './Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tUsers, tUsersEvents } from '@lib/database';
+import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { globalConnectionPool } from '@lib/database/Connection';
 
@@ -70,7 +70,7 @@ async function fetchBirthdays(user: User) {
  * give an overview of what's going on. Exact cards depend on the user's access level.
  */
 export default async function AdminPage() {
-    const { user } = await requireAuthenticationContext({ check: 'admin' });
+    const { events, user } = await requireAuthenticationContext({ check: 'admin' });
 
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);
@@ -87,10 +87,27 @@ export default async function AdminPage() {
         };
     }
 
+    const storageJoin = tStorage.forUseInLeftJoin();
+
+    const accessibleEvents = await db.selectFrom(tEvents)
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tEvents.eventIdentityId))
+        .where(tEvents.eventSlug.in([ ...events.keys() ]))
+        .select({
+            name: tEvents.eventShortName,
+            slug: tEvents.eventSlug,
+            startTime: tEvents.eventStartTime,
+            endTime: tEvents.eventEndTime,
+            location: tEvents.eventLocation,
+            fileHash: storageJoin.fileHash,
+        })
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectMany();
+
     return (
         <TopLevelLayout>
-            <Dashboard currentBirthdays={currentBirthdays} upcomingBirthdays={upcomingBirthdays}
-                       databaseStatus={databaseStatus} />
+            <Dashboard accessibleEvents={accessibleEvents} currentBirthdays={currentBirthdays}
+                       upcomingBirthdays={upcomingBirthdays} databaseStatus={databaseStatus} />
         </TopLevelLayout>
     );
 }
