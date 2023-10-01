@@ -142,7 +142,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) =>
-                dayjs(params.value).format('YYYY-MM-DD [at] h:mma'),
+                dayjs(params.value).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'trainingEnd',
@@ -153,7 +153,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) =>
-                dayjs(params.value).format('YYYY-MM-DD [at] h:mma'),
+                dayjs(params.value).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'trainingAddress',
