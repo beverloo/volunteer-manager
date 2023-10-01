@@ -37,5 +37,5 @@ export default async function DelARieAdviesPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Del a Rie Advies',
+    title: 'Del a Rie Advies | AnimeCon Volunteer Manager',
 };

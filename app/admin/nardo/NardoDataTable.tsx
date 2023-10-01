@@ -3,8 +3,9 @@
 
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
@@ -56,6 +57,8 @@ export function NardoDataTable() {
         },
     ]), [ /* no deps */ ]);
 
+    const router = useRouter();
+
     const commitAdd = useCallback(async (): Promise<GridValidRowModel> => {
         return await callApi('post', '/api/nardo', { /* no parameters */ });
     }, [ /* no deps */ ]);
@@ -72,8 +75,11 @@ export function NardoDataTable() {
             advice: newRow.advice,
         });
 
+        if (response.success)
+            router.refresh();
+
         return response.success ? newRow : oldRow;
-    }, [ /* no deps */ ]);
+    }, [ router ]);
 
     const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
         let sort: 'advice' | 'authorName' | 'date' = 'date';
