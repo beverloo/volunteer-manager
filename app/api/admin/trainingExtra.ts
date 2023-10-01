@@ -178,7 +178,7 @@ export async function trainingExtra(request: Request, props: ActionProps): Promi
                         preferenceTrainingId,
                         preferenceUpdated: dbInstance.currentTimestamp(),
                     })
-                    .executeInsert(/* min= */ 0, /* max= */ 1);
+                    .executeInsert();
             }
 
             return affectedRows;

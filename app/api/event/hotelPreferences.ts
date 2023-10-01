@@ -186,7 +186,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
             ...update,
             hotelPreferencesUpdated: dbInstance.currentDateTime()
         })
-        .executeInsert(/* min= */ 0, /* max= */ 1);
+        .executeInsert();
 
     if (!affectedRows)
         return { success: false, error: 'Unable to update your preferences in the database' };

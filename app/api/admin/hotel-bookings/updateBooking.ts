@@ -199,7 +199,7 @@ export async function updateBooking(request: Request, props: ActionProps): Promi
                 assignmentName: updatedOccupant.name,
                 assignmentPrimary: updatedOccupant.primary ? 1 : 0,
             })
-            .executeInsert(/* min= */ 0, /* max= */ 1);
+            .executeInsert();
 
         await Log({
             type: LogType.AdminHotelAssignVolunteer,

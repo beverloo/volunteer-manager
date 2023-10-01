@@ -170,7 +170,7 @@ export async function training(request: Request, props: ActionProps): Promise<Re
                 assignmentUpdated,
                 assignmentConfirmed: request.assignment.confirmed ? 1 : 0,
             })
-            .executeInsert(/* min= */ 0, /* max= */ 1);
+            .executeInsert();
 
         await Log({
             type: LogType.AdminEventTrainingAssignment,

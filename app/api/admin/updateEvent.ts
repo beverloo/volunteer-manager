@@ -231,7 +231,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     enableSchedule: request.team.enableSchedule ? 1 : 0,
                     whatsappLink: request.team.whatsappLink,
                 })
-                .executeInsert(/* min= */ 0, /* max= */ 1);
+                .executeInsert();
 
             if (!!affectedRows && request.team.enableTeam) {
                 const pages = [

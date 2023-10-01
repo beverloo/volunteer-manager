@@ -249,7 +249,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
                 phoneNumber: data.phoneNumber,
             })
             .returningLastInsertedId()
-            .executeInsert(/* min= */ 0, /* max= */ 1);
+            .executeInsert();
 
         await dbInstance.insertInto(tUsersAuth)
             .set({

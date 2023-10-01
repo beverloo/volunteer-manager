@@ -139,7 +139,7 @@ export async function writeSettings<T extends keyof SettingsMap>(
         if (keysToInsert.length) {
             await dbInstance.insertInto(tSettings)
                 .values(keysToInsert)
-                .executeInsert(/* min= */ 0, /* max= */ keysToInsert.length);
+                .executeInsert();
         }
     });
 }

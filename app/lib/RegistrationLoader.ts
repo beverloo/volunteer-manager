@@ -176,7 +176,7 @@ export async function createRegistration(
             includeCredits: !!application.credits ? 1 : 0,
             includeSocials: !!application.socials ? 1 : 0,
         })
-        .executeInsert(/* min= */ 0, /* max= */ 1);
+        .executeInsert();
 
     if (!affectedRows)
         throw new Error('Unable to create an application for the chosen team');

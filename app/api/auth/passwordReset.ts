@@ -72,7 +72,7 @@ export async function updateUserPassword(userId: number, hashedPassword: string)
                 authType: AuthType.password,
                 authValue: securelyHashedPassword
             })
-            .executeInsert(/* min= */ 0, /* max= */ 1);
+            .executeInsert();
 
         // (3) Increment the user's session token, invalidating all other sessions.
         await dbInstance.update(tUsers)

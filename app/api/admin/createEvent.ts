@@ -88,7 +88,7 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventStartTime: new Date(request.startTime),
             eventEndTime: new Date(request.endTime),
         })
-        .executeInsert(/* min= */ 0, /* max= */ 1);
+        .executeInsert();
 
     if (!!insertId) {
         Log({
