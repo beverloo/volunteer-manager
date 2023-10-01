@@ -2093,6 +2093,64 @@ tables:
       KEY `outbox_to_user_id` (`outbox_to_user_id`),
       KEY `outbox_sender_user_id` (`outbox_sender_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: nardo
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: nardo_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: nardo_advice
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: nardo_author_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: nardo_author_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    extraDef: on update current_timestamp()
+    comment: ""
+  - name: nardo_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (nardo_id) USING BTREE
+    table: nardo
+    columns:
+    - nardo_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (nardo_id)
+    table: nardo
+    referencedTable: null
+    columns:
+    - nardo_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `nardo` (
+      `nardo_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `nardo_advice` text NOT NULL,
+      `nardo_author_id` int(8) unsigned NOT NULL,
+      `nardo_author_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+      `nardo_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`nardo_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

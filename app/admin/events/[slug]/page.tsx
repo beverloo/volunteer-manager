@@ -14,8 +14,8 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
-    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences }
-    from '@lib/database';
+    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences,
+    tNardo } from '@lib/database';
 
 /**
  * Returns metadata about the event that's being shown, including hotel & training status and
@@ -158,7 +158,7 @@ async function getRecentChanges(eventId: number) {
     }
 
     changes.sort((lhs, rhs) => rhs.date.getTime() - lhs.date.getTime());
-    return changes.slice(0, 5);
+    return changes.slice(0, 8);
 }
 
 /**
@@ -239,7 +239,11 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
-    console.log(recentChanges);
+    const advice = await db.selectFrom(tNardo)
+        .selectOneColumn(tNardo.nardoAdvice)
+        .orderBy(db.rawFragment`RAND()`)
+        .limit(1)
+        .executeSelectNoneOrOne() ?? undefined;
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
@@ -267,7 +271,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
 
             { seniorVolunteers.length > 0 &&
                 <Grid xs={6}>
-                    <EventSeniors event={event} volunteers={seniorVolunteers} />
+                    <EventSeniors advice={advice} event={event} volunteers={seniorVolunteers} />
                 </Grid> }
         </Grid>
     );

@@ -167,6 +167,7 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
             delivered: tOutbox.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
         })
         .orderByFromString(normalizeSortModel(request.sortModel))
+        .limit(request.pageSize).offset(request.page * request.pageSize)
         .executeSelectPage();
 
     return {

@@ -2,9 +2,11 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
+import type { CreateAdviceDefinition } from '@app/api/nardo/createAdvice';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
+import type { DeleteAdviceDefinition } from '@app/api/nardo/deleteAdvice';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
@@ -12,11 +14,13 @@ import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
+import type { ListAdviceDefinition } from '@app/api/nardo/listAdvice';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
+import type { UpdateAdviceDefinition } from '@app/api/nardo/updateAdvice';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
@@ -39,6 +43,7 @@ type ApiEndpoints = {
         '/api/admin/content': ListContentDefinition,
         '/api/admin/content/:id': GetContentDefinition,
         '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/nardo': ListAdviceDefinition,
     },
     'post': {
         '/api/admin/content': CreateContentDefinition,
@@ -52,6 +57,7 @@ type ApiEndpoints = {
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
+        '/api/nardo': CreateAdviceDefinition,
 
         // TODO: Move to GET when `writeToSearchParams` can deal with arrays:
         '/api/admin/outbox': ListOutboxDefinition,
@@ -59,12 +65,14 @@ type ApiEndpoints = {
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/nardo/:id': DeleteAdviceDefinition,
     },
     'put': {
         '/api/admin/content/:id': UpdateContentDefinition,
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
+        '/api/nardo/:id': UpdateAdviceDefinition,
     },
 };
 

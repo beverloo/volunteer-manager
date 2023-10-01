@@ -9,6 +9,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import MailIcon from '@mui/icons-material/Mail';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
 import { AdminContent } from './AdminContent';
@@ -31,6 +32,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             label: 'Content',
             privilege: Privilege.SystemAdministrator,
             url: '/admin/content',
+        },
+        {
+            icon: <TipsAndUpdatesIcon />,
+            label: 'Del a Rie Advies',
+            privilege: Privilege.SystemNardoAccess,
+            url: '/admin/nardo',
         },
         {
             icon: <EventNoteIcon />,

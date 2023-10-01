@@ -115,6 +115,10 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Impersonated ${target?.name}'s account`;
     },
 
+    [LogType.AdminNardoMutation]: (source, target, { mutation }) => {
+        return `${mutation} an excellent piece of Del a Rie Advies`;
+    },
+
     [LogType.AdminResetAccessCode]: (source, target, data) => {
         return `Created a new access code for ${target?.name}`;
     },
