@@ -84,12 +84,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     privilege: Privilege.SystemOutboxAccess,
                     url: '/admin/system/outbox',
                 },
-                {
-                    icon: <ManageHistoryIcon />,
-                    label: 'Services',
-                    privilege: Privilege.SystemAdministrator,
-                    url: '/admin/system/services',
-                }
             ]
         },
     ];
