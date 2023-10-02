@@ -6,9 +6,12 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { createEmailClient } from '@lib/integrations/email';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
+import { getStaticContent } from '@lib/Content';
+import db, { tTeams } from '@lib/database';
 
 /**
  * Common properties that can be set or updated as part of applications.
@@ -114,6 +117,14 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!event)
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
+        const teamTitle = await db.selectFrom(tTeams)
+            .where(tTeams.teamEnvironment.equals(request.environment))
+            .selectOneColumn(tTeams.teamTitle)
+            .executeSelectNoneOrOne();
+
+        if (!teamTitle)
+            throw new Error('Sorry, something went wrong (unable to find the right team)...');
+
         let userId: number = props.user.userId;
         if (request.adminOverride) {
             executeAccessCheck(props.authenticationContext, {
@@ -140,10 +151,6 @@ export async function application(request: Request, props: ActionProps): Promise
             throw new Error('Sorry, you have already applied to participate in this event.');
 
         await createRegistration(request.environment, event, userId, request);
-
-        // TODO: Send an e-mail to the volunteering leads.
-        // TODO: Send an e-mail to the applicant.
-
         if (request.adminOverride) {
             await Log({
                 type: LogType.AdminEventApplication,
@@ -163,6 +170,54 @@ export async function application(request: Request, props: ActionProps): Promise
                     ip: props.ip
                 },
             });
+        }
+
+        // -----------------------------------------------------------------------------------------
+
+        if (!request.adminOverride) {
+            const client = await createEmailClient();
+
+            // In context of: message/application-confirmation
+            // In context of: message/application-received
+            const substitutions = {
+                environment: request.environment,
+                event: event.shortName,
+                eventSlug: event.slug,
+                hostname: props.origin,
+                name: props.user.firstName,
+                team: teamTitle,
+            };
+
+            const applicationConfirmation =
+                await getStaticContent([ 'message', 'application-confirmation' ], substitutions);
+            const applicationReceived =
+                await getStaticContent([ 'message', 'application-received' ], substitutions);
+
+            if (applicationConfirmation) {
+                const message = client.createMessage()
+                    .setTo(props.user.username!)
+                    .setSubject(applicationConfirmation.title)
+                    .setMarkdown(applicationConfirmation.markdown);
+
+                await client.safeSendMessage({
+                    message,
+                    sender: `AnimeCon ${teamTitle}`,
+                    targetUser: props.user,
+                });
+            }
+
+            if (applicationReceived) {
+                const message = client.createMessage()
+                    .setTo('crew@animecon.nl')
+                    .setSubject(applicationReceived.title)
+                    .setMarkdown(applicationReceived.markdown);
+
+                await client.safeSendMessage({
+                    message,
+                    sender: `AnimeCon ${teamTitle}`,
+                    sourceUser: props.user,
+                });
+            }
         }
 
         return { success: true };
