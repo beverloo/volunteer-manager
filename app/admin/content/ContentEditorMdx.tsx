@@ -16,6 +16,8 @@ import {
     imagePlugin, jsxPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin,
     tablePlugin, thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
 
+import { unrecognisedNodePlugin } from './mdxEditorPlugins';
+
 /**
  * Props accepted by the <ContentEditorMdx> component.
  */
@@ -50,7 +52,8 @@ export default function ContentEditorMdx(props: ContentEditorMdxProps) {
     ];
 
     return (
-        <Box sx={{ '& [contenteditable="true"]': { fontFamily: 'Roboto', padding: 0 } }}>
+        <Box sx={{ '& [contenteditable="true"]': { fontFamily: 'Roboto', padding: 0 },
+                   '& .cm-content': { whiteSpace: 'normal !important' } }}>
             <MDXEditor contentEditableClassName=""
                        ref={props.innerRef}
                        markdown={props.markdown ?? ''}
@@ -77,7 +80,8 @@ export default function ContentEditorMdx(props: ContentEditorMdxProps) {
                                        <Separator />
                                        <BlockTypeSelect />
                                    </DiffSourceToggleWrapper>
-                           })
+                           }),
+                           unrecognisedNodePlugin(),
                        ]} />
         </Box>
     );

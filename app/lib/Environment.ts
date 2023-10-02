@@ -18,7 +18,7 @@ export interface Environment {
     id: number;
 
     /**
-     * Name of the environment that this instance represents. (E.g. "gophers.team".)
+     * Name of the environment that this instance represents. (E.g. "animecon.team".)
      */
     environmentName: string;
 

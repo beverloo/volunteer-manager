@@ -78,8 +78,13 @@ export async function getContent(
         return undefined;
 
     if (substitutions) {
-        for (const [ key, value ] of Object.entries(substitutions))
+        content.title = content.title.replace(/\\\{([a-z0-9_]+)\}/gi, '{$1}');
+        content.markdown = content.markdown.replace(/\\\{([a-z0-9_]+)\}/gi, '{$1}');
+
+        for (const [ key, value ] of Object.entries(substitutions)) {
+            content.title = content.title.replaceAll(`{${key}}`, value);
             content.markdown = content.markdown.replaceAll(`{${key}}`, value);
+        }
     }
 
     return content;
