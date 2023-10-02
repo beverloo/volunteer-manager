@@ -15,6 +15,9 @@ import { createAdminTheme } from './AdminTheme';
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     root: {
+        overflow: 'auto',
+    },
+    container: {
         backgroundColor: 'background.default',
         minHeight: '100vh',
         minWidth: 1280,
@@ -32,10 +35,12 @@ export function AdminLayout(props: React.PropsWithChildren) {
     return (
         <ThemeProvider theme={createAdminTheme(/* mode= */ 'light')}>
             <Box sx={kStyles.root}>
-                {props.children}
-                <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
-                    AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
-                </Typography>
+                <Box sx={kStyles.container}>
+                    {props.children}
+                    <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
+                        AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
+                    </Typography>
+                </Box>
             </Box>
         </ThemeProvider>
     );
