@@ -139,7 +139,7 @@ export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
                         <ThumbUpIcon fontSize="inherit" />
                     </Box>
                     <Typography variant="body2">
-                        Your participation has been <b>confirmed</b> ({registration.role}).
+                        Your participation has been <b>confirmed</b>
                     </Typography>
                 </Box>
 
@@ -189,7 +189,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
         case RegistrationStatus.Registered:
             containerStyle = kStyles.containerRegistered;
             icon = <HowToVoteIcon fontSize="inherit" />;
-            title = <>Your application is <b>being considered</b>.</>;
+            title = <>Your application is <b>being considered</b></>;
             explanation = (
                 <Typography variant="body2">
                     We have received your application for <strong>{event.name}</strong> and have
@@ -203,7 +203,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
         case RegistrationStatus.Cancelled:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
-            title = <>Your participation has been <b>cancelled</b>.</>;
+            title = <>Your participation has been <b>cancelled</b></>;
             explanation = (
                 <Typography variant="body2">
                     Unfortunately you've withdrawn from participating in the
@@ -216,7 +216,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
         case RegistrationStatus.Rejected:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
-            title = <>Your participation has been <b>declined</b>.</>;
+            title = <>Your participation has been <b>declined</b></>;
             explanation = (
                 <Typography variant="body2">
                     Unfortunately we have not been able to offer you participation in the

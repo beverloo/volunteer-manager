@@ -160,7 +160,6 @@ export function WelcomePage(props: WelcomePageProps) {
                                 <Button component={Link}
                                         href={`/registration/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableContent ? 'primary' : 'hidden'}
-                                        endIcon={upcomingEvent.enableContent ? null : hiddenIcon}
                                         variant={shouldHighlight(upcomingEvent.enableContent)}>
                                     Join the {upcomingEvent.shortName} {props.title}!
                                 </Button> }
@@ -171,7 +170,6 @@ export function WelcomePage(props: WelcomePageProps) {
                                 <Button component={Link}
                                         href={`/schedule/${upcomingEvent.slug}/`}
                                         color={upcomingEvent.enableSchedule ? 'primary' : 'hidden'}
-                                        endIcon={upcomingEvent.enableSchedule ? null : hiddenIcon}
                                         variant="outlined">
                                     {upcomingEvent.shortName} Volunteer Portal
                                 </Button> }
@@ -182,7 +180,6 @@ export function WelcomePage(props: WelcomePageProps) {
                                 <Button component={Link}
                                         href={`/registration/${currentEvent.slug}/`}
                                         color={currentEvent.enableContent ? 'primary' : 'hidden'}
-                                        endIcon={currentEvent.enableContent ? null : hiddenIcon}
                                         variant={shouldHighlight(currentEvent.enableContent)}>
                                     Join the {currentEvent.shortName} {props.title}!
                                 </Button> }
@@ -193,7 +190,6 @@ export function WelcomePage(props: WelcomePageProps) {
                                 <Button component={Link}
                                         href={`/schedule/${currentEvent.slug}/`}
                                         color={currentEvent.enableSchedule ? 'primary' : 'hidden'}
-                                        endIcon={currentEvent.enableSchedule ? null : hiddenIcon}
                                         variant="outlined">
                                     {currentEvent.shortName} Volunteer Portal
                                 </Button> }

@@ -82,7 +82,7 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
             primary = `You've got ${bookings.length} confirmed hotel room bookings`;
         } else {
             hotel = ` the ${bookings[0].hotel.name}`;
-            primary = 'Your hotel room booking has been confirmed';
+            primary = 'Your hotel room has been confirmed!';
         }
 
         let earliestCheckIn = dayjs('2099-12-31 23:59:59');
