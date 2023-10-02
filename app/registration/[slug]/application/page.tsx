@@ -4,11 +4,13 @@
 import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { type Content, getContent, getStaticContent } from '@lib/Content';
 import { ApplicationPage } from './ApplicationPage';
 import { ApplicationStatusPage } from './ApplicationStatusPage';
+import { Markdown } from '@components/Markdown';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
-import { getContent } from '@lib/Content';
 
 /**
  * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
@@ -21,19 +23,33 @@ export default async function EventApplicationPage(props: NextRouterParams<'slug
 
     const { environment, event, registration, user } = context;
 
-    const content = await getContent(environment.environmentName, event, [ 'application' ]);
+    let content: Content | undefined = undefined;
+    let state: 'status' | 'application' | 'unavailable';
+
+    if (registration && user) {
+        state = 'status';
+    } else {
+        const environmentData = event.getEnvironmentData(environment.environmentName);
+        if (environmentData?.enableRegistration || can(user, Privilege.EventRegistrationOverride)) {
+            content = await getContent(environment.environmentName, event, [ 'application' ]);
+            state = 'application';
+        } else {
+            content = await getStaticContent([ 'registration', 'application', 'unavailable' ]);
+            state = 'unavailable';
+        }
+    }
 
     return (
         <>
-            { (!registration || !user) &&
+            { state === 'application' &&
                 <ApplicationPage content={content} user={user}
-                                 event={event.toEventData(environment.environmentName)} />
-            }
-            { (registration && user) &&
+                                 event={event.toEventData(environment.environmentName)} /> }
+            { (state === 'status' && (registration && user)) &&
                 <ApplicationStatusPage event={event.toEventData(environment.environmentName)}
                                        registration={registration.toRegistrationData()}
-                                       user={user} />
-            }
+                                       user={user} /> }
+            { state === 'unavailable' &&
+                <Markdown sx={{ p: 2 }}>{content?.markdown}</Markdown> }
         </>
     );
 }
