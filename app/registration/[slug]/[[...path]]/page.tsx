@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RegistrationContent } from '../../RegistrationContent';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import { getContent } from '@lib/Content';
 
 /**
@@ -34,3 +35,5 @@ export default async function EventContentPage(props: NextRouterParams<'slug', '
                              enableRegistrationButton={!registration} />
     );
 }
+
+export const generateMetadata = generatePortalMetadataFn();

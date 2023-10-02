@@ -79,6 +79,6 @@ export default async function VolunteersTeamsPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Teams & roles',
+    title: 'Teams & roles | AnimeCon Volunteer Manager',
 };
 

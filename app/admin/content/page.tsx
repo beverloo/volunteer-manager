@@ -49,5 +49,5 @@ export default async function ContentPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Content',
+    title: 'Content | AnimeCon Volunteer Manager',
 };

@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation'
 
 import { RegistrationContent } from '../registration/RegistrationContent';
@@ -34,3 +35,7 @@ export default async function PrivacyPage() {
         </RegistrationLayout>
     );
 }
+
+export const metadata: Metadata = {
+    title: 'GDPR & Data Sharing Policies | AnimeCon Volunteering Teams',
+};

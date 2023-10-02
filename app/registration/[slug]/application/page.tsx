@@ -7,6 +7,7 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ApplicationPage } from './ApplicationPage';
 import { ApplicationStatusPage } from './ApplicationStatusPage';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import { getContent } from '@lib/Content';
 
 /**
@@ -36,3 +37,5 @@ export default async function EventApplicationPage(props: NextRouterParams<'slug
         </>
     );
 }
+
+export const generateMetadata = generatePortalMetadataFn('Application');

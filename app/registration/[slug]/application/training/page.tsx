@@ -13,6 +13,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getStaticContent } from '@lib/Content';
 import { getTrainingOptions } from './getTrainingOptions';
 
@@ -59,3 +60,5 @@ export default async function EventApplicationTrainingPage(props: NextRouterPara
         </Box>
     );
 }
+
+export const generateMetadata = generatePortalMetadataFn('Training preferences');

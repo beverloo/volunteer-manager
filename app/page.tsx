@@ -8,6 +8,7 @@ import type { Registration } from '@lib/Registration';
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { WelcomePage } from './welcome/WelcomePage';
 import { determineEnvironment } from '@lib/Environment';
+import { generatePortalMetadataFn } from './registration/generatePortalMetadataFn';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventsForUser } from './lib/EventLoader';
 import { getRegistration } from './lib/RegistrationLoader';
@@ -63,3 +64,5 @@ export default async function RootPage() {
         </RegistrationLayout>
     );
 }
+
+export const generateMetadata = generatePortalMetadataFn();

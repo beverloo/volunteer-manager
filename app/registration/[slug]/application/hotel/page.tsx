@@ -13,6 +13,7 @@ import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getHotelRoomOptions } from './getHotelRoomOptions';
 import { getStaticContent } from '@lib/Content';
 
@@ -70,3 +71,5 @@ export default async function EventApplicationHotelsPage(props: NextRouterParams
         </Box>
     );
 }
+
+export const generateMetadata = generatePortalMetadataFn('Hotel preferences');

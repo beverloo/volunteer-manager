@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Metadata } from 'next';
+
 import { DashboardContainer } from './DashboardContainer';
 import { DashboardGraph } from './DashboardGraph';
 import { determineEnvironment } from '@lib/Environment';
@@ -35,3 +37,7 @@ export default async function StatisticsOverviewPage() {
         </>
     )
 }
+
+export const metadata: Metadata = {
+    title: 'Statistics | AnimeCon Volunteering Teams',
+};

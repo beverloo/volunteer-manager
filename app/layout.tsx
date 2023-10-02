@@ -12,9 +12,9 @@ import { determineEnvironment } from '@lib/Environment';
  */
 export const metadata: Metadata = {
     colorScheme: 'only light',
-    description: 'Volunteer Manager for the AnimeCon conventions',
+    description: 'Volunteer portal for the AnimeCon conventions',
     robots: 'noindex, nofollow',
-    title: 'AnimeCon Volunteer Manager',
+    title: 'AnimeCon Volunteering Teams',
 };
 
 /**
@@ -26,7 +26,9 @@ export default async function RootLayout(props: React.PropsWithChildren) {
 
     return (
         <html lang="en">
-            <head></head>
+            <head>
+                <link rel="icon" href="/favicon.ico" sizes="any" />
+            </head>
             <body>
                 <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
                     {props.children}
