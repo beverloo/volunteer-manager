@@ -58,12 +58,12 @@ export function composeApplicationContext(context: ApplicationContext, approved?
         composition.push(teamDescription.replaceAll(/\[([^\]]+)\]\(([^\)]+)\)/g, '$1'));
         composition.push(
             'You must include the following link, where they can find more information and share ' +
-            `their preferences: ${url}.`);
+            `their preferences: ${url}`);
 
         if (context.whatsappLink) {
             composition.push(
                 'You must include the following link, which allows them to join the private ' +
-                `WhatsApp group for volunteers: ${context.whatsappLink}.`);
+                `WhatsApp group for volunteers: ${context.whatsappLink}`);
         }
     }
 
@@ -96,7 +96,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             teamName: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
             team: tTeams.teamEnvironment,
-            whatsApp: tEventsTeams.whatsappLink,
+            whatsappLink: tEventsTeams.whatsappLink,
         })
         .executeSelectOne();
 
