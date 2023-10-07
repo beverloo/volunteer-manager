@@ -38,7 +38,7 @@ type ApiResponseType<T> = T extends { response: object } ? T['response'] : void;
  * Mapping of the API endpoints that are available, with the request method and type information
  * associated with that. This enables significant simplication of the `callApi` method.
  */
-type ApiEndpoints = {
+export type ApiEndpoints = {
     'get': {
         '/api/admin/content': ListContentDefinition,
         '/api/admin/content/:id': GetContentDefinition,
