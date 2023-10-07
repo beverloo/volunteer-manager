@@ -46,7 +46,8 @@ export class CancelParticipationVolunteerPromptBuilder extends
         : Promise<CancelParticipationContext>
     {
         return {
-            participation: await generateParticipationContext(userId, params.event, params.team),
+            participation:
+                await generateParticipationContext(params.userId, params.event, params.team),
             event: await generateEventContext(params.event),
             user: await generateUserContext(userId, params.event),
         }
