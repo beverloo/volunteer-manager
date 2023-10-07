@@ -29,9 +29,11 @@ type Filters = Record<string, boolean | number | string>;
  * Filters that may be provided in the `Client::getActivities()` method.
  */
 type GetActivitiesFilters = {
-    year?: string;  // exact match
-    title?: string;  // partial match
-    visible?: boolean;  // exact match
+    'activityType.visible'?: boolean;
+    'festivalId'?: number;
+    'title'?: string;  // partial match
+    'visible'?: boolean;
+    'year'?: string;  // exact match
 };
 
 /**
