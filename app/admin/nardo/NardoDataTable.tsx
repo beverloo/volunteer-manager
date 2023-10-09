@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 
+import { RemoteDataTable } from '../components/RemoteDataTable';
+
 import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
 import { DataTable } from '../DataTable';
 import { callApi } from '@lib/callApi';
@@ -59,45 +61,52 @@ export function NardoDataTable() {
 
     const router = useRouter();
 
-    const commitAdd = useCallback(async (): Promise<GridValidRowModel> => {
-        return await callApi('post', '/api/nardo', { /* no parameters */ });
     }, [ /* no deps */ ]);
+    if (true) {
 
-    const commitDelete = useCallback(async (row: GridValidRowModel): Promise<void> => {
-        await callApi('delete', '/api/nardo/:id', { id: row.id });
-    }, [ /* no deps */ ]);
+        return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}} />;
 
-    const commitEdit = useCallback(async (
-        newRow: GridValidRowModel, oldRow: GridValidRowModel): Promise<GridValidRowModel> =>
-    {
-        const response = await callApi('put', '/api/nardo/:id', {
-            id: newRow.id,
-            advice: newRow.advice,
-        });
+    } else {
+        const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {
+            return await callApi('post', '/api/nardo', { /* no parameters */ });
+        }, [ /* no deps */ ]);
 
-        if (response.success)
-            router.refresh();
+        const commitDelete = useCallback!(async (row: GridValidRowModel): Promise<void> => {
+            await callApi('delete', '/api/nardo/:id', { id: row.id });
+        }, [ /* no deps */ ]);
 
-        return response.success ? newRow : oldRow;
-    }, [ router ]);
+        const commitEdit = useCallback!(async (
+            newRow: GridValidRowModel, oldRow: GridValidRowModel): Promise<GridValidRowModel> =>
+        {
+            const response = await callApi('put', '/api/nardo/:id', {
+                id: newRow.id,
+                advice: newRow.advice,
+            });
 
-    const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
-        let sort: 'advice' | 'authorName' | 'date' = 'date';
-        let sortDirection: 'asc' | 'desc' | null | undefined = 'desc';
+            if (response.success)
+                router.refresh();
 
-        if (request.sortModel.length > 0) {
-            sort = request.sortModel[0].field as any;
-            sortDirection = request.sortModel[0].sort;
-        }
+            return response.success ? newRow : oldRow;
+        }, [ router ]);
 
-        return await callApi('get', '/api/nardo', {
-            page: request.page,
-            sort, sortDirection,
-        });
-    }, [ /* no deps */ ]);
+        const onRequestRows = useCallback!(async (request: DataTableRowRequest) => {
+            let sort: 'advice' | 'authorName' | 'date' = 'date';
+            let sortDirection: 'asc' | 'desc' | null | undefined = 'desc';
 
-    return <DataTable dense onRequestRows={onRequestRows} columns={columns}
-                      commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                      initialSortItem={ { field: 'date', sort: 'desc' }} messageSubject="advice"
-                      pageSize={100} pageSizeOptions={[ 100 ]} />;
+            if (request.sortModel.length > 0) {
+                sort = request.sortModel[0].field as any;
+                sortDirection = request.sortModel[0].sort;
+            }
+
+            return await callApi('get', '/api/nardo', {
+                page: request.page,
+                sort, sortDirection,
+            });
+        }, [ /* no deps */ ]);
+
+        return <DataTable dense onRequestRows={onRequestRows} columns={columns}
+                          commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
+                          initialSortItem={ { field: 'date', sort: 'desc' }} messageSubject="advice"
+                          pageSize={100} pageSizeOptions={[ 100 ]} />;
+    }
 }
