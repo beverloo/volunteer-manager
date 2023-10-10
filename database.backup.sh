@@ -39,9 +39,14 @@ eval export $(cat .env.production)
 # See: https://stackoverflow.com/a/34670902
 export MYSQL_PWD="$APP_DATABASE_PASSWORD"
 
+BACKUP_DIRNAME=~/.tmp/gsutil/db/$(date +"%Y")/$(date +"%m")
+BACKUP_FILENAME=$APP_DATABASE_NAME-$(date +"%Y-%m-%d").sql.gz
+BACKUP_FILE=$BACKUP_DIRNAME/$BACKUP_FILENAME
+
+mkdir -p $BACKUP_DIRNAME
+
 mysqldump -h "$APP_DATABASE_SERVER" \
           -u "$APP_DATABASE_USERNAME" \
-          "$APP_DATABASE_NAME" | gzip -9 -c > \
-              ~/.tmp/db-$APP_DATABASE_NAME-$(date "+%b_%d_%Y_%H_%M_%S").sql.gz
+          "$APP_DATABASE_NAME" | gzip -9 -c > $BACKUP_FILE
 
-gsutil mv ~/.tmp/db-* $1
+gsutil mv ~/.tmp/gsutil/* $1
