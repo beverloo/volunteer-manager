@@ -56,6 +56,14 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
 };
 
 /**
+ * `callApi()` compatible endpoint definition for DataTable List requests.
+ */
+export type DataTableListEndpoint<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
+    request: DataTableListHandlerRequest<Context>,
+    response: DataTableListHandlerResponse<RowModel>,
+};
+
+/**
  * Abstract interface describing the Data Table API that has to be implemented by each customer.
  */
 export interface DataTableApi<RowModel extends AnyZodObject, Context extends ZodTypeAny> {

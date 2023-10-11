@@ -14,7 +14,7 @@ import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
-import type { ListAdviceDefinition } from '@app/api/nardo/listAdvice';
+import type { ListNardoDefinition } from '@app/api/nardo/route';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
@@ -43,7 +43,7 @@ export type ApiEndpoints = {
         '/api/admin/content': ListContentDefinition,
         '/api/admin/content/:id': GetContentDefinition,
         '/api/admin/outbox/:id': GetOutboxDefinition,
-        '/api/nardo': ListAdviceDefinition,
+        '/api/nardo': ListNardoDefinition,
     },
     'post': {
         '/api/admin/content': CreateContentDefinition,

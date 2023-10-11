@@ -61,7 +61,6 @@ export function NardoDataTable() {
 
     const router = useRouter();
 
-    }, [ /* no deps */ ]);
     if (true) {
 
         return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}} />;
@@ -98,10 +97,16 @@ export function NardoDataTable() {
                 sortDirection = request.sortModel[0].sort;
             }
 
-            return await callApi('get', '/api/nardo', {
+            const response = await callApi('get', '/api/nardo', {
                 page: request.page,
                 sort, sortDirection,
             });
+
+            if (!response.success)
+                throw new Error('Unable to add a row to the database.');
+
+            return response;
+
         }, [ /* no deps */ ]);
 
         return <DataTable dense onRequestRows={onRequestRows} columns={columns}

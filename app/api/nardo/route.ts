@@ -4,6 +4,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
+import type { DataTableListEndpoint } from '../createDataTableApi';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createAdvice, kCreateAdviceDefinition } from './createAdvice';
 import { createDataTableApi } from '../createDataTableApi';
@@ -44,6 +45,12 @@ const kNardoRowModel = z.object({
  * The Nardo API does not require any context.
  */
 const kNardoContext = z.never();
+
+/**
+ * Export type definitions so that the Nardo DataTable API can be used in `callApi()`.
+ */
+export type ListNardoDefinition =
+    DataTableListEndpoint<typeof kNardoRowModel, typeof kNardoContext>;
 
 /**
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
