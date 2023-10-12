@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { DataTableEndpoints } from '../createDataTableApi';
+import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { createDataTableApi } from '../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -54,7 +55,7 @@ export type NardoEndpoints = DataTableEndpoints<typeof kNardoRowModel, typeof kN
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */
 export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
-    accessCheck: (action, props) => {
+    accessCheck(action, props) {
         switch (action) {
             case 'create':
                 executeAccessCheck(props.authenticationContext, {
@@ -70,7 +71,7 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
         }
     },
 
-    create: async (request, props) => {
+    async create(request, props) {
         //const insertId = await db.insertInto(tNardo)
         //    .set({
         //        nardoAdvice: 'Nardo!',
@@ -88,7 +89,7 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
         };
     },
 
-    list: async ({ pagination, sort }, props) => {
+    async list({ pagination, sort }, props) {
         const publicView = !can(props.user, Privilege.SystemNardoAccess);
         const results = await db.selectFrom(tNardo)
             .innerJoin(tUsers)
@@ -113,5 +114,13 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
                 publicView ? { advice: result.advice } :
                              { ...result, date: result.date.toISOString() }),
         }
+    },
+
+    async writeLog(request, mutation, props) {
+        await Log({
+            type: LogType.AdminNardoMutation,
+            sourceUser: props.user!.userId,
+            data: { mutation },
+        });
     },
 });

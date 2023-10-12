@@ -121,8 +121,10 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
     /**
      * Execute an access check for the given `action`. The `props` and `context` may be consulted
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
+     *
+     * @todo Include `context` in the `request`
      */
-    accessCheck?(action: 'create' | 'list', props: ActionProps): Promise<void> | void;
+    accessCheck?(request: any, action: 'create' | 'list', props: ActionProps): Promise<void> | void;
 
     /**
      * Creates a new row in the database, and returns the `RowModel` for the new row. An ID must
@@ -145,7 +147,14 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
         : Promise<DataTableListHandlerResponse<RowModel>>;
 
     // TODO: update
-    // TODO: writeLog
+
+    /**
+     * Called when a mutation has occurred in case the implementation wants to log the fact that
+     * this action has taken place. This call will be _awaited_ for.
+     *
+     * @todo Include `context` in the `request`
+     */
+    writeLog?(request: any, mutation: 'Created', props: ActionProps): Promise<void> | void;
 }
 
 /**
@@ -232,7 +241,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
 
     const GET: DataTableApiHandler = async(request, { params }) => {
         return executeAction(request, getInterface, async (innerRequest, props) => {
-            await implementation.accessCheck?.('list', props);
+            await implementation.accessCheck?.(innerRequest, 'list', props);
             return implementation.list(innerRequest, props);
         }, params);
     };
@@ -259,7 +268,12 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             if (!implementation.create)
                 throw new Error('Cannot handle POST requests without a create handler');
 
-            await implementation.accessCheck?.('create', props);
+            await implementation.accessCheck?.(innerRequest, 'create', props);
+
+            const response = await implementation.create(innerRequest, props);
+            if (response.success)
+                await implementation.writeLog?.(innerRequest, 'Created', props);
+
             return implementation.create(innerRequest, props);
         });
     };
