@@ -51,8 +51,6 @@ type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHa
  */
 type DataTableListHandlerRequest<RowModel extends AnyZodObject,
                                  Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
-    // TODO: filtering
-
     /**
      * Pagination that should be applied to the row selection.
      */
@@ -91,7 +89,7 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
     success: true,
 
     /**
-     * The total number of rows that are available in the database, considering any filter rules.
+     * The total number of rows that are available in the database.
      */
     rowCount: number;
 
@@ -139,7 +137,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
 
     /**
      * Implements the ability to retrieve the rows that should be displayed in the data table. The
-     * `request` includes the necessary parameters to support filtering, pagination and sorting.
+     * `request` includes the necessary parameters to support pagination and sorting.
      *
      * @handles `/endpoint`
      */
@@ -210,7 +208,6 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const getInterface = z.object({
         request: z.object({
             // TODO: context
-            // TODO: filtering
             pagination: z.object({
                 page: z.coerce.number(),
                 pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),

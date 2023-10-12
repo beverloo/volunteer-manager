@@ -60,10 +60,10 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
 
     /**
      * Additional parameters that should be passed to the endpoint. The internal params for enabling
-     * pagination, sorting and filtering are not relevant here, as <RemoteDataTable> will add them.
+     * pagination and sorting are not relevant here, as <RemoteDataTable> will add them.
      */
     endpointParams:
-        Omit<ApiEndpoints['get'][Endpoint]['request'], 'sort'>;
+        Omit<ApiEndpoints['get'][Endpoint]['request'], 'pagination' | 'sort'>;
 
     /**
      * The default number of rows that can be displayed per page. Defaults to 50.
@@ -175,8 +175,6 @@ export function RemoteDataTable<
     // Capability: (R)ead existing rows
     // ---------------------------------------------------------------------------------------------
 
-    // TODO: Support `filter`
-
     const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
         page: 0,
         pageSize: props.pageSize ?? 50,
@@ -208,7 +206,6 @@ export function RemoteDataTable<
         // TODO: Remove `as any` when all applicable APIs have been updated to the Data Table API.
         const requestPromise = callApi('get', props.endpoint, {
             // TODO: context
-            // TODO: filtering
             pagination: paginationModel,
             ...( sortModel ? { sort: sortModel[0] } : { /* no sort applied */ } ),
         } as any);

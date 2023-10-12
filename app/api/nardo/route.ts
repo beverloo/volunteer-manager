@@ -89,8 +89,6 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
     },
 
     list: async ({ pagination, sort }, props) => {
-        // TODO: Implement filtering
-
         const publicView = !can(props.user, Privilege.SystemNardoAccess);
         const results = await db.selectFrom(tNardo)
             .innerJoin(tUsers)
