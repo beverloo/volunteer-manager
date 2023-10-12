@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+
 import { type AnyZodObject, type ZodTypeAny, ZodNever, z } from 'zod';
 
 import { type ActionProps, executeAction } from './Action';
@@ -28,6 +29,22 @@ type DataTableHandlerErrorResponse = {
  */
 type DataTableContext<Context extends ZodTypeAny> =
     Context extends ZodNever ? { /* omit the context */ } : { context: z.infer<Context> };
+
+/**
+ * Request and response expected for POST requests with the purpose of creating rows.
+ */
+type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse |
+    {
+        /**
+         * Whether the operation could be completed successfully.
+         */
+        success: true;
+
+        /**
+         * The row that was created. Follows the `RowModel`, but requires an ID to be set.
+         */
+        row: z.infer<RowModel> & { id: number };
+    };
 
 /**
  * Request and response expected for GET requests with the purpose of listing rows.
@@ -79,18 +96,25 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
     rowCount: number;
 
     /**
-     * The rows to display in the current DataTable view, considering pagination.
+     * The rows to display in the current Data Table view, considering pagination.
      */
     rows: z.infer<RowModel>[];
 };
 
 /**
- * `callApi()` compatible endpoint definition for DataTable List requests.
+ * `callApi()` compatible endpoint definitions for the generated APIs.
  */
-export type DataTableListEndpoint<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
-    request: DataTableListHandlerRequest<RowModel, Context>,
-    response: DataTableListHandlerResponse<RowModel>,
+export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
+    create: {
+        request: { /* todo */ },
+        response: DataTableCreateHandlerResponse<RowModel>,
+    },
+    list: {
+        request: DataTableListHandlerRequest<RowModel, Context>,
+        response: DataTableListHandlerResponse<RowModel>,
+    },
 };
+
 
 /**
  * Abstract interface describing the Data Table API that has to be implemented by each customer.
@@ -100,9 +124,17 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * Execute an access check for the given `action`. The `props` and `context` may be consulted
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
      */
-    accessCheck?(action: 'list', props: ActionProps): Promise<void> | void;
+    accessCheck?(action: 'create' | 'list', props: ActionProps): Promise<void> | void;
 
-    // TODO: create
+    /**
+     * Creates a new row in the database, and returns the `RowModel` for the new row. An ID must
+     * be included as it's expected by the `<RemoteDataTable>` interface.
+     *
+     * @todo Include `context` in the `request`
+     */
+    create?(request: any, props: ActionProps)
+        : Promise<DataTableCreateHandlerResponse<RowModel>>;
+
     // TODO: delete
 
     /**
@@ -136,7 +168,7 @@ type DataTableApiHandler =
 type DataTableApiHandlers = {
     //DELETE: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     GET: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
-    //POST: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
+    POST: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     //PUT: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
 }
 
@@ -211,12 +243,34 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
     // POST
     // ---------------------------------------------------------------------------------------------
-    // TODO
+
+    const postInterface = z.object({
+        request: z.object({
+            // TODO: context
+        }),
+        response: z.discriminatedUnion('success', [
+            zErrorResponse,
+            z.object({
+                success: z.literal(true),
+                row: rowModel.and(z.object({ id: z.number() }))
+            }),
+        ]),
+    });
+
+    const POST: DataTableApiHandler = async(request, { params }) => {
+        return executeAction(request, postInterface, async (innerRequest, props) => {
+            if (!implementation.create)
+                throw new Error('Cannot handle POST requests without a create handler');
+
+            await implementation.accessCheck?.('create', props);
+            return implementation.create(innerRequest, props);
+        });
+    };
 
     // ---------------------------------------------------------------------------------------------
     // PUT
     // ---------------------------------------------------------------------------------------------
     // TODO
 
-    return { GET };
+    return { GET, POST };
 }

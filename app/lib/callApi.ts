@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
-import type { CreateAdviceDefinition } from '@app/api/nardo/createAdvice';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
@@ -14,7 +13,6 @@ import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
-import type { ListNardoDefinition } from '@app/api/nardo/route';
 import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
@@ -26,6 +24,8 @@ import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
+
+import type { NardoEndpoints } from '@app/api/nardo/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -43,7 +43,7 @@ export type ApiEndpoints = {
         '/api/admin/content': ListContentDefinition,
         '/api/admin/content/:id': GetContentDefinition,
         '/api/admin/outbox/:id': GetOutboxDefinition,
-        '/api/nardo': ListNardoDefinition,
+        '/api/nardo': NardoEndpoints['list'],
     },
     'post': {
         '/api/admin/content': CreateContentDefinition,
@@ -57,7 +57,7 @@ export type ApiEndpoints = {
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
-        '/api/nardo': CreateAdviceDefinition,
+        '/api/nardo': NardoEndpoints['create'],
 
         // TODO: Move to GET when `writeToSearchParams` can deal with arrays:
         '/api/admin/outbox': ListOutboxDefinition,

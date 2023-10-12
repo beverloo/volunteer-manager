@@ -3,13 +3,16 @@
 
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { GridColDef, GridPaginationModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid } from '@mui/x-data-grid';
 
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 import { type ApiEndpoints, callApi } from '@lib/callApi';
 
@@ -27,19 +30,19 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
      * Whether new rows can be deleted. When set, this will display a _create_ icon in the header
      * of the first column. Creation will send a POST request to the server.
      */
-    enableCreate?: [Endpoint extends keyof ApiEndpoints['post'] ? boolean : false];
+    enableCreate?: Endpoint extends keyof ApiEndpoints['post'] ? boolean : false;
 
     /**
      * Whether rows can be deleted. When set, this will display a _delete_ icon as the first column
      * of every row. Deletion will only happen after the user confirms the operation.
      */
-    enableDelete?: [`${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false];
+    enableDelete?: `${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false;
 
     /**
      * Whether rows can be updated. When set, rows can be double clicked to move to edit mode, after
      * which the full row will be sent to the server using a PUT request.
      */
-    enableUpdate?: [`${Endpoint}/:id` extends keyof ApiEndpoints['put'] ? boolean : false];
+    enableUpdate?: `${Endpoint}/:id` extends keyof ApiEndpoints['put'] ? boolean : false;
 
     /**
      * The endpoint through which the remote data table can exercise operations. The following
@@ -82,6 +85,11 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
          */
         sort: 'asc' | 'desc' | null;
     };
+
+    /**
+     * Subject describing what each row in the table is representing. Defaults to "item".
+     */
+    subject?: string;
 }
 
 /**
@@ -95,22 +103,79 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { sort } = props;
+    const { enableCreate, sort } = props;
+    const subject = props.subject ?? 'item';
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(true);
+
+    const [ rowCount, setRowCount ] = useState<number>(0);
+    const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (C)reate new rows
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const handleCreate = useCallback(async () => {
+        setError(undefined);
+        try {
+            const response = await callApi('post', props.endpoint as any, {
+                // TODO: context
+            });
+
+            if (response.success) {
+                setRowCount(rowCount => rowCount + 1 );
+                setRows(rows => [ response.row, ...rows ]);
+
+                // TODO: The new row should be opened in edit mode.
+
+            } else {
+                setError(response.error ?? `Unable to create a new ${subject}`);
+            }
+        } catch (error: any) {
+            setError(`Unable to create a new ${subject} (${error.message})`);
+        }
+    }, [ props.endpoint, subject ]);
+
+    const columns = useMemo(() => {
+        if (!enableCreate)
+            return props.columns;
+
+        const columns: GridColDef<RowModel>[] = [];
+        for (const column of props.columns) {
+            if (column.field !== 'id') {
+                columns.push(column);
+                continue;
+            }
+
+            let renderHeader: GridColDef['renderHeader'] = undefined;
+            if (enableCreate) {
+                renderHeader = () => {
+                    return (
+                        <Tooltip title={`Create a new ${subject}`}>
+                            <IconButton size="small" onClick={handleCreate}>
+                                <AddCircleIcon color="success" fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    );
+                };
+            }
+
+            columns.push({
+                ...column,
+                renderHeader,
+            });
+        }
+
+        return columns;
+
+    }, [ enableCreate, handleCreate, props.columns, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (R)ead existing rows
     // ---------------------------------------------------------------------------------------------
 
-    // TODO: Support `page`
+    // TODO: Support `filter`
 
     const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
         page: 0,
@@ -137,9 +202,6 @@ export function RemoteDataTable<
         }
     }, [ /* no deps */ ]);
 
-    const [ rowCount, setRowCount ] = useState<number>();
-    const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
-
     useEffect(() => {
         setError(undefined);
 
@@ -149,21 +211,23 @@ export function RemoteDataTable<
             // TODO: filtering
             pagination: paginationModel,
             ...( sortModel ? { sort: sortModel[0] } : { /* no sort applied */ } ),
-
-            ...props.endpointParams,
         } as any);
 
         requestPromise
             .then((response: any) => {
-                setRowCount(response.rowCount);
-                setRows(response.rows);
+                if (response.success) {
+                    setRowCount(response.rowCount);
+                    setRows(response.rows);
+                } else {
+                    setError(response.error ?? 'Unable to fetch the information');
+                }
             })
             .catch(error => {
                 setError(`Unable to fetch the information (${error.message})`)
             })
             .finally(() => setLoading(false));
 
-    }, [ paginationModel, props.endpoint, props.endpointParams, sortModel ]);
+    }, [ paginationModel, props.endpoint, sortModel ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (U)pdate existing rows
@@ -178,8 +242,6 @@ export function RemoteDataTable<
     // TODO
 
     // ---------------------------------------------------------------------------------------------
-
-    const columns = props.columns;
 
     return (
         <>

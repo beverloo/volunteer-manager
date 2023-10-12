@@ -1,14 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import type { DataTableListEndpoint } from '../createDataTableApi';
+import type { DataTableEndpoints } from '../createDataTableApi';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { createAdvice, kCreateAdviceDefinition } from './createAdvice';
 import { createDataTableApi } from '../createDataTableApi';
-import { executeAction } from '@app/api/Action';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tNardo, tUsers } from '@lib/database';
 
 /**
@@ -49,20 +47,45 @@ const kNardoContext = z.never();
 /**
  * Export type definitions so that the Nardo DataTable API can be used in `callApi()`.
  */
-export type ListNardoDefinition =
-    DataTableListEndpoint<typeof kNardoRowModel, typeof kNardoContext>;
+export type NardoEndpoints = DataTableEndpoints<typeof kNardoRowModel, typeof kNardoContext>;
 
 /**
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */
-export const { GET } = createDataTableApi(kNardoRowModel, kNardoContext, {
-    accessCheck: (action) => {
+export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
+    accessCheck: (action, props) => {
         switch (action) {
+            case 'create':
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin',
+                    privilege: Privilege.SystemNardoAccess,
+                });
+
+                break
+
             case 'list':
                 // always allowed
                 break;
         }
+    },
+
+    create: async (request, props) => {
+        //const insertId = await db.insertInto(tNardo)
+        //    .set({
+        //        nardoAdvice: 'Nardo!',
+        //        nardoAuthorId: props.user!.userId,
+        //    })
+        //    .returningLastInsertedId()
+        //    .executeInsert();
+
+        return {
+            success: true,
+            row: {
+                id: Math.floor(Math.random() * (2500000 - 1000000) + 100000),
+                advice: 'Nardo!',
+            },
+        };
     },
 
     list: async ({ pagination, sort }, props) => {
@@ -94,10 +117,3 @@ export const { GET } = createDataTableApi(kNardoRowModel, kNardoContext, {
         }
     },
 });
-
-/**
- * POST /api/admin/nardo
- */
-export async function POST(request: NextRequest): Promise<Response> {
-    return executeAction(request, kCreateAdviceDefinition, createAdvice);
-}

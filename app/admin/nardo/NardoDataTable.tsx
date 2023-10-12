@@ -39,6 +39,7 @@ export function NardoDataTable() {
             field: 'authorName',
             headerName: 'Author',
             sortable: true,
+            filterable: true,
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
@@ -64,7 +65,7 @@ export function NardoDataTable() {
     if (true) {
 
         return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}}
-                                pageSize={5} />;
+                                enableCreate subject="piece of advice" />;
 
     } else {
         const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {
