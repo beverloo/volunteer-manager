@@ -55,7 +55,7 @@ export type NardoEndpoints = DataTableEndpoints<typeof kNardoRowModel, typeof kN
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */
 export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
-    accessCheck(action, props) {
+    accessCheck(request, action, props) {
         switch (action) {
             case 'create':
                 executeAccessCheck(props.authenticationContext, {

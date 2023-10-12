@@ -62,14 +62,18 @@ export function NardoDataTable() {
 
     const router = useRouter();
 
-    if (true) {
+    if (false) {
 
         return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}}
                                 enableCreate subject="piece of advice" />;
 
     } else {
         const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {
-            return await callApi('post', '/api/nardo', { /* no parameters */ });
+            const response = await callApi('post', '/api/nardo', { /* no parameters */ });
+            if (!response.success)
+                throw new Error('Unable to create a new row');
+
+            return response.row;
         }, [ /* no deps */ ]);
 
         const commitDelete = useCallback!(async (row: GridValidRowModel): Promise<void> => {
@@ -99,10 +103,7 @@ export function NardoDataTable() {
                 sortDirection = request.sortModel[0].sort;
             }
 
-            const response = await callApi('get', '/api/nardo', {
-                page: request.page,
-                sort, sortDirection,
-            });
+            const response = await callApi('get', '/api/nardo', { /* none */ });
 
             if (!response.success)
                 throw new Error('Unable to add a row to the database.');
