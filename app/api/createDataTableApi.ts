@@ -32,10 +32,25 @@ type DataTableContext<Context extends ZodTypeAny> =
 /**
  * Request and response expected for GET requests with the purpose of listing rows.
  */
-type DataTableListHandlerRequest<Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
+type DataTableListHandlerRequest<RowModel extends AnyZodObject,
+                                 Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
     // TODO: filtering
     // TODO: pagination
-    // TODO: sorting
+
+    /**
+     * Sort that should be applied to the data. Must be complete when included.
+     */
+    sort?: {
+        /**
+         * Field on which the results should be sorted. These must be included in the `RowModel`.
+         */
+        field: keyof z.infer<RowModel>;
+
+        /**
+         * Direction in which the results should be sorted.
+         */
+        sort: 'asc' | 'desc' | null;
+    };
 };
 
 type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse | {
@@ -59,7 +74,7 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
  * `callApi()` compatible endpoint definition for DataTable List requests.
  */
 export type DataTableListEndpoint<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
-    request: DataTableListHandlerRequest<Context>,
+    request: DataTableListHandlerRequest<RowModel, Context>,
     response: DataTableListHandlerResponse<RowModel>,
 };
 
@@ -82,7 +97,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      *
      * @handles `/endpoint`
      */
-    list(request: DataTableListHandlerRequest<Context>, props: ActionProps)
+    list(request: DataTableListHandlerRequest<RowModel, Context>, props: ActionProps)
         : Promise<DataTableListHandlerResponse<RowModel>>;
 
     // TODO: update
@@ -112,6 +127,14 @@ type DataTableApiHandlers = {
 }
 
 /**
+ * Retrieves a strongly typed array of the keys included in the given `obj`.
+ * @see https://github.com/colinhacks/zod/discussions/839
+ */
+function getTypedObjectKeys<K extends string>(obj: Record<K, any>): K[] {
+    return Object.keys(obj) as K[];
+}
+
+/**
  * Creates the routing implementation for a DataTable API handler. Creates the route handlers as are
  * needed for the `DELETE`, `GET`, `POST` and `PUT` request methods.
  *
@@ -124,8 +147,6 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     context: Context,
     implementation: DataTableApi<RowModel, Context>): DataTableApiHandlers
 {
-    const zContext = context instanceof ZodNever ? z.strictObject({ /* omit */ })
-                                                 : z.object({ context });
     const zErrorResponse = z.object({
         success: z.literal(false),
         error: z.string().optional(),
@@ -145,7 +166,13 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             // TODO: context
             // TODO: filtering
             // TODO: pagination
-            // TODO: sorting
+            sort: z.object({
+                field: z.enum([
+                    getTypedObjectKeys(rowModel.shape)[0],
+                    ...getTypedObjectKeys(rowModel.shape)
+                ]),
+                sort: z.enum([ 'asc', 'desc' ]).nullable(),
+            }).optional(),
         }),
         response: z.discriminatedUnion('success', [
             zErrorResponse,

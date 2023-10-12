@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridColDef, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid } from '@mui/x-data-grid';
 
 import Alert from '@mui/material/Alert';
@@ -60,7 +60,23 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
      * pagination, sorting and filtering are not relevant here, as <RemoteDataTable> will add them.
      */
     endpointParams:
-        Omit<ApiEndpoints['get'][Endpoint]['request'], 'page' | 'sort' | 'sortDirection'>;
+        Omit<ApiEndpoints['get'][Endpoint]['request'], 'sort'>;
+
+    /**
+     * Default sort that should be applied to the table. May be overridden by the users unless the
+     * column definition explicitly disallows sorting.
+     */
+    sort?: {
+        /**
+         * Field on which the results should be sorted.
+         */
+        field: keyof RowModel;
+
+        /**
+         * Direction in which the results should be sorted.
+         */
+        sort: 'asc' | 'desc' | null;
+    };
 }
 
 /**
@@ -74,6 +90,8 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
+    const { sort } = props;
+
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(true);
 
@@ -88,13 +106,38 @@ export function RemoteDataTable<
     // ---------------------------------------------------------------------------------------------
 
     // TODO: Support `page`
-    // TODO: Support `sort`
-    // TODO: Support `sortDirection`
+
+    const [ sortModel, setSortModel ] =
+        useState<GridSortModel | undefined>(sort ? [ sort as GridSortItem ] : undefined);
+
+    const handleSortModelChange = useCallback((model: GridSortModel) => {
+        if (!!model.length) {
+            setSortModel([
+                {
+                    field: model[0].field,
+                    sort: model[0].sort ?? null,
+                }
+            ]);
+        } else {
+            setSortModel(undefined);
+        }
+    }, [ /* no deps */ ]);
 
     const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
     useEffect(() => {
         setError(undefined);
-        callApi('get', props.endpoint, props.endpointParams as any)
+
+        // TODO: Remove `as any` when all applicable APIs have been updated to the Data Table API.
+        const requestPromise = callApi('get', props.endpoint, {
+            // TODO: context
+            // TODO: filtering
+            // TODO: pagination
+            ...( sortModel ? { sort: sortModel[0] } : { /* no sort applied */ } ),
+
+            ...props.endpointParams,
+        } as any);
+
+        requestPromise
             .then((response: any) => {
                 setRows(response.rows);
             })
@@ -103,7 +146,7 @@ export function RemoteDataTable<
             })
             .finally(() => setLoading(false));
 
-    }, [ props.endpoint, props.endpointParams ]);
+    }, [ props.endpoint, props.endpointParams, sortModel ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (U)pdate existing rows
@@ -129,6 +172,8 @@ export function RemoteDataTable<
                 </Alert>
             </Collapse>
             <DataGrid columns={columns} rows={rows}
+                      sortingMode="server"
+                      sortModel={sortModel} onSortModelChange={handleSortModelChange}
                       autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
                       loading={loading} />
         </>
