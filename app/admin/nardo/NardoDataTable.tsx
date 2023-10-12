@@ -63,7 +63,8 @@ export function NardoDataTable() {
 
     if (true) {
 
-        return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}} />;
+        return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}}
+                                pageSize={5} />;
 
     } else {
         const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {

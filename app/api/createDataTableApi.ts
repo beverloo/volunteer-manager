@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { NextRequest, NextResponse } from 'next/server';
-import { type AnyZodObject, type ZodTypeAny, ZodBoolean, ZodNever, z, type ZodNeverDef } from 'zod';
+import { NextRequest } from 'next/server';
+import { type AnyZodObject, type ZodTypeAny, ZodNever, z } from 'zod';
 
 import { type ActionProps, executeAction } from './Action';
 
@@ -35,7 +35,21 @@ type DataTableContext<Context extends ZodTypeAny> =
 type DataTableListHandlerRequest<RowModel extends AnyZodObject,
                                  Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
     // TODO: filtering
-    // TODO: pagination
+
+    /**
+     * Pagination that should be applied to the row selection.
+     */
+    pagination?: {
+        /**
+         * Current page number to display. Zero-based, i.e. the first page is page 0.
+         */
+        page: number;
+
+        /**
+         * The number of rows that should be displayed per table.
+         */
+        pageSize: number;
+    };
 
     /**
      * Sort that should be applied to the data. Must be complete when included.
@@ -165,7 +179,10 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
         request: z.object({
             // TODO: context
             // TODO: filtering
-            // TODO: pagination
+            pagination: z.object({
+                page: z.coerce.number(),
+                pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),
+            }).optional(),
             sort: z.object({
                 field: z.enum([
                     getTypedObjectKeys(rowModel.shape)[0],

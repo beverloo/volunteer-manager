@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { GridColDef, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid } from '@mui/x-data-grid';
 
 import Alert from '@mui/material/Alert';
@@ -63,6 +63,11 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
         Omit<ApiEndpoints['get'][Endpoint]['request'], 'sort'>;
 
     /**
+     * The default number of rows that can be displayed per page. Defaults to 50.
+     */
+    pageSize?: 10 | 25 | 50 | 100;
+
+    /**
      * Default sort that should be applied to the table. May be overridden by the users unless the
      * column definition explicitly disallows sorting.
      */
@@ -107,6 +112,15 @@ export function RemoteDataTable<
 
     // TODO: Support `page`
 
+    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
+        page: 0,
+        pageSize: props.pageSize ?? 50,
+    });
+
+    const handlePaginationModelChange = useCallback((model: GridPaginationModel) => {
+        setPaginationModel(model);
+    }, [ /* no deps */ ]);
+
     const [ sortModel, setSortModel ] =
         useState<GridSortModel | undefined>(sort ? [ sort as GridSortItem ] : undefined);
 
@@ -123,7 +137,9 @@ export function RemoteDataTable<
         }
     }, [ /* no deps */ ]);
 
+    const [ rowCount, setRowCount ] = useState<number>();
     const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
+
     useEffect(() => {
         setError(undefined);
 
@@ -131,7 +147,7 @@ export function RemoteDataTable<
         const requestPromise = callApi('get', props.endpoint, {
             // TODO: context
             // TODO: filtering
-            // TODO: pagination
+            pagination: paginationModel,
             ...( sortModel ? { sort: sortModel[0] } : { /* no sort applied */ } ),
 
             ...props.endpointParams,
@@ -139,6 +155,7 @@ export function RemoteDataTable<
 
         requestPromise
             .then((response: any) => {
+                setRowCount(response.rowCount);
                 setRows(response.rows);
             })
             .catch(error => {
@@ -146,7 +163,7 @@ export function RemoteDataTable<
             })
             .finally(() => setLoading(false));
 
-    }, [ props.endpoint, props.endpointParams, sortModel ]);
+    }, [ paginationModel, props.endpoint, props.endpointParams, sortModel ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (U)pdate existing rows
@@ -171,9 +188,15 @@ export function RemoteDataTable<
                     {error}
                 </Alert>
             </Collapse>
-            <DataGrid columns={columns} rows={rows}
+            <DataGrid columns={columns} rows={rows} rowCount={rowCount}
+
+                      pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
+                      paginationModel={paginationModel}
+                      onPaginationModelChange={handlePaginationModelChange}
+
                       sortingMode="server"
                       sortModel={sortModel} onSortModelChange={handleSortModelChange}
+
                       autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
                       loading={loading} />
         </>

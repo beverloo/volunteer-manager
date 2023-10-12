@@ -65,9 +65,8 @@ export const { GET } = createDataTableApi(kNardoRowModel, kNardoContext, {
         }
     },
 
-    list: async ({ sort }, props) => {
+    list: async ({ pagination, sort }, props) => {
         // TODO: Implement filtering
-        // TODO: Implement pagination
 
         const publicView = !can(props.user, Privilege.SystemNardoAccess);
         const results = await db.selectFrom(tNardo)
@@ -82,6 +81,8 @@ export const { GET } = createDataTableApi(kNardoRowModel, kNardoContext, {
                 date: tNardo.nardoAuthorDate,
             })
             .orderByFromStringIfValue(sort ? `${sort.field} ${sort.sort}` : null)
+            .limit(pagination ? pagination.pageSize : 50)
+                .offsetIfValue(pagination ? pagination.page * pagination.pageSize : 0)
             .executeSelectPage();
 
         return {
