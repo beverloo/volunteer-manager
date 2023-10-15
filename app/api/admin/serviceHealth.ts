@@ -81,7 +81,7 @@ async function runEmailHealthCheck(user: User): Promise<Response> {
     try {
         const client = await createEmailClient();
         const message = client.createMessage()
-            .setTo('peter@animecon.nl')
+            .setTo(user.username!)
             .setSubject('Volunteer Manager integration test')
             .setMarkdown('Test message from the **AnimeCon Volunteer Manager**');
 
