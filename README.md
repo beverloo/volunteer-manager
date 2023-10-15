@@ -1,5 +1,28 @@
 # AnimeCon Volunteer Manager
-_Description tbc_
+This repository contains the [AnimeCon](https://animecon.nl/) Volunteer Manager, through which the
+Crew, Crew Care, Festival Host and Steward teams will be managed. The following features are
+available in the current version:
+
+  * Multi-tenant landing page referring visitors to all active events,
+  * Registration portal for information backed by a CMS, allowing visitors to apply to join,
+    * Once approved, volunteers can express their hotel and training preferences. When confirmed by
+      a volunteering lead, they will receive real-time confirmation.
+  * Administration area for managing the volunteers,
+    * Several dashboards summarising the current status of an event's organisation,
+    * Flexible event management for any number of in-flight events at once,
+      * Automatic e-mail generation for mutations that directly impact volunteers,
+      * Separated application and volunteer management systems, per team, per event,
+      * Hotel booking management including support for non-volunteers and warnings,
+      * Training scheduling management including support for non-volunteers and warnings,
+    * Full accountability through extensive logging, including any and all outgoing messages.
+    * Powerful permission management based on assigned roles and expressly granted privileges,
+    * Direct integration with our friends at [Del a Rie Advies](https://delarieadvies.nl).
+
+The Volunteer Manager has integrations with [AnPlan](https://animecon.nl/),
+[Google Cloud](https://cloud.google.com) and the
+[Google Vertex AI API](https://cloud.google.com/vertex-ai/docs/reference/rest) for sourcing event
+information and implementing certain functionality. A MySQL (or MariaDB) database is used, for which
+we use the excellent [ts-sql-query](https://ts-sql-query.readthedocs.io/en/stable/) library.
 
 ## Building and deploying
 
