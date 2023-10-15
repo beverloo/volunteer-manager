@@ -27,6 +27,34 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
 
 /**
+ * Props accepted by the <AvailabilityButton> component.
+ */
+interface AvailabilityButtonProps {
+    /** no props exist yet */
+}
+
+/**
+ * The <AvailabilityButton> component displays the status of the volunteer's availability, both in
+ * regards to their presence at the location and events they would like to attend.
+ *
+ * This button deals with a number of situations:
+ *   (1) The volunteer is not able to indicate their preferences yet.
+ */
+function AvailabilityButton(props: AvailabilityButtonProps) {
+    const primary = 'When will you be available during the event?';
+    const secondary = 'The program has not been published yet…';
+
+    return (
+        <ListItemButton disabled sx={{ pl: 4 }}>
+            <ListItemIcon>
+                <RadioButtonUncheckedIcon color="warning" />
+            </ListItemIcon>
+            <ListItemText primary={primary} secondary={secondary} />
+        </ListItemButton>
+    );
+}
+
+/**
  * Props accepted by the <HotelStatusButton> component.
  */
 interface HotelStatusButtonProps {
@@ -337,6 +365,8 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             </ListItemIcon>
                             <ListItemText primary="Your application has been accepted!" />
                         </ListItem>
+
+                        <AvailabilityButton />
 
                         { displayHotel &&
                             <HotelStatusButton bookings={registration.hotelBookings}
