@@ -54,7 +54,6 @@
     "set.prototype.symmetricdifference": "^1.1.0",
     "simple-sha256": "^1.1.0",
     "ts-sql-query": "^1.56.0",
-    "tss-react": "^4.9.2",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
