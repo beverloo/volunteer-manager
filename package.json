@@ -8,6 +8,7 @@
     "sync-db": "node ts-sql.build.mjs",
     "build": "next build",
     "serve": "next dev",
+    "serve-custom": "node server.js",
     "lint": "next lint",
     "test": "jest",
     "test:e2e": "playwright test --reporter=html"
