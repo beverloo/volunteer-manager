@@ -17,7 +17,16 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
+import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
+
+/**
+ * Whether the volunteer's application `status` is still pending.
+ */
+function isApplicationPending(status: RegistrationStatus): boolean {
+    return status === RegistrationStatus.Registered ||
+           status === RegistrationStatus.Rejected;
+}
 
 /**
  * Props accepted by the <EventRecentChanges> component.
@@ -40,6 +49,12 @@ export interface EventRecentChangesProps {
          */
         userId: number;
         team: string;
+
+        /**
+         * Registration status of this volunteer. Applications are shown, but will have to be linked
+         * to another place compared to regular volunteers.
+         */
+        status: RegistrationStatus;
 
         /**
          * Textual description of the update - what changed?
@@ -68,7 +83,10 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
             <Divider />
             <Stack direction="column" divider={ <Divider flexItem /> }>
                 { props.changes.map((change, index) => {
-                    const href = `./${props.event.slug}/${change.team}/volunteers/${change.userId}`;
+                    const href =
+                        isApplicationPending(change.status)
+                            ? `./${props.event.slug}/${change.team}/applications`
+                            : `./${props.event.slug}/${change.team}/volunteers/${change.userId}`;
 
                     return (
                         <Stack key={index} direction="row" justifyContent="space-between"

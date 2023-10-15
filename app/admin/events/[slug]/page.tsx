@@ -123,12 +123,14 @@ async function getRecentChanges(eventId: number) {
             .on(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
             .and(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
         .where(tUsersEvents.eventId.equals(eventId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
         .select({
             userId: tUsersEvents.userId,
             name: tUsers.firstName,
             team: tTeams.teamEnvironment,
+            teamName: tTeams.teamName,
+            status: tUsersEvents.registrationStatus,
 
+            applicationCreated: tUsersEvents.registrationDate,
             hotelPreferencesUpdated: hotelsPreferencesJoin.hotelPreferencesUpdated,
             trainingPreferencesUpdated: trainingsAssignmentsJoin.preferenceUpdated,
         })
@@ -136,11 +138,28 @@ async function getRecentChanges(eventId: number) {
 
     const changes: EventRecentChangesProps['changes'] = [];
     for (const preferenceUpdate of preferenceUpdates) {
+        if (!!preferenceUpdate.applicationCreated) {
+            changes.push({
+                name: preferenceUpdate.name,
+                userId: preferenceUpdate.userId,
+                team: preferenceUpdate.team,
+                status: preferenceUpdate.status,
+
+                update: `applied to join the ${preferenceUpdate.teamName}`,
+                date: preferenceUpdate.applicationCreated
+            });
+        }
+
+        if (preferenceUpdate.status !== RegistrationStatus.Accepted)
+            continue;
+
         if (!!preferenceUpdate.hotelPreferencesUpdated) {
             changes.push({
                 name: preferenceUpdate.name,
                 userId: preferenceUpdate.userId,
                 team: preferenceUpdate.team,
+                status: preferenceUpdate.status,
+
                 update: 'updated their hotel preferences',
                 date: preferenceUpdate.hotelPreferencesUpdated
             });
@@ -151,6 +170,8 @@ async function getRecentChanges(eventId: number) {
                 name: preferenceUpdate.name,
                 userId: preferenceUpdate.userId,
                 team: preferenceUpdate.team,
+                status: preferenceUpdate.status,
+
                 update: 'updated their training preferences',
                 date: preferenceUpdate.trainingPreferencesUpdated
             });
