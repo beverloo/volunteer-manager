@@ -24,6 +24,7 @@ import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 import { volunteerContactInfo, kVolunteerContactInfoDefinition } from '../volunteerContactInfo';
 import { volunteerList, kVolunteerListDefinition } from '../volunteerList';
 import { volunteerRoles, kVolunteerRolesDefinition } from '../volunteerRoles';
+import { volunteerTeams, kVolunteerTeamsDefinition } from '../volunteerTeams';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -77,6 +78,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kVolunteerListDefinition, volunteerList);
         case 'volunteer-roles':
             return executeAction(request, kVolunteerRolesDefinition, volunteerRoles);
+        case 'volunteer-teams':
+            return executeAction(request, kVolunteerTeamsDefinition, volunteerTeams);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

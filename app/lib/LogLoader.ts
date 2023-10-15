@@ -83,6 +83,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
         return `Updated their role to ${role} for an event`;
     },
+    [LogType.AdminEventTeamUpdate]: (source, target, { sourceTeam, targetTeam }) => {
+        return `Moved ${target?.name} from the ${sourceTeam} to the ${targetTeam}`;
+    },
     [LogType.AdminEventTrainingAssignment]: (source, target, { event }) => {
         return target ? `Updated ${target.name}'s training assignment for ${event}`
                       : `Updated a training assignment for ${event}`;

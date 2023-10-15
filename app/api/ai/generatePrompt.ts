@@ -7,6 +7,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
 import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
+import { ChangeTeamPromptBuilder } from './prompts/ChangeTeamPromptBuilder';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
@@ -63,7 +64,15 @@ export const kGeneratePromptDefinition = z.object({
             team: z.string(),
         }).optional(),
 
-        // TODO: change-team
+        /**
+         * Parameters that can be passed when the `type` equals `change-team`.
+         */
+        changeTeam: z.object({
+            userId: z.number(),
+            event: z.string(),
+            currentTeam: z.string(),
+            updatedTeam: z.string(),
+        }).optional(),
 
         /**
          * Parameters that can be passed when the `type` equals `reinstate-participation`.
@@ -161,9 +170,9 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                 userId, request.cancelParticipation);
             break;
 
-            // -------------------------------------------------------------------------------------
-            // TODO: change-team
-            // -------------------------------------------------------------------------------------
+        case 'change-team':
+            generator = new ChangeTeamPromptBuilder(userId, request.changeTeam);
+            break;
 
         case 'reinstate-participation':
             generator = new ReinstateParticipationVolunteerPromptBuilder(

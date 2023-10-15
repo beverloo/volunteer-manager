@@ -24,6 +24,7 @@ import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
+import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { NardoEndpoints } from '@app/api/nardo/route';
 
@@ -50,6 +51,7 @@ export type ApiEndpoints = {
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/training': TrainingDefinition,
+        '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,

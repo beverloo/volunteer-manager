@@ -12,11 +12,19 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import LoadingButton from '@mui/lab/LoadingButton';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Paper from '@mui/material/Paper';
+import PeopleIcon from '@mui/icons-material/People';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -24,6 +32,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { User } from '@lib/auth/User';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
+import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -31,6 +40,8 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { issueServerAction } from '@lib/issueServerAction';
 import { callApi } from '@lib/callApi';
+
+type TeamsForVolunteer = VolunteerTeamsDefinition['response']['teams'];
 
 /**
  * Props accepted by the <ChangeRoleDialog> dialog.
@@ -135,6 +146,181 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
             </Collapse>
 
         </SettingDialog>
+    );
+}
+
+/**
+ * Props accepted by the <ChangeTeamDialog> component.
+ */
+interface ChangeTeamDialogProps {
+    /**
+     * Whether the signed in volunteer is allowed to make silent changes to participation.
+     */
+    allowSilent?: boolean;
+
+    /**
+     * Unique slug of the team that the volunteer currently participates in.
+     */
+    currentTeam: string;
+
+    /**
+     * The unique slug of the event the change is being made for.
+     */
+    event: string;
+
+    /**
+     * Callback function that should be called when the dialog is being closed.
+     */
+    onClose: (refresh?: boolean) => void;
+
+    /**
+     * Whether the dialog is currently open.
+     */
+    open?: boolean;
+
+    /**
+     * The teams relevant for the current volunteer, including their current one.
+     */
+    teams: NonNullable<TeamsForVolunteer>;
+
+    /**
+     * The volunteer for whom this dialog is being displayed.
+     */
+    volunteer: VolunteerHeaderProps['volunteer'];
+}
+
+/**
+ * The <ChangeTeamDialog> component allows event administrators to change the team of volunteers who
+ * signed up to participate in a particular event. Team changes come with mandatory messages.
+ */
+function ChangeTeamDialog(props: ChangeTeamDialogProps) {
+    const { allowSilent, event, onClose, open, volunteer } = props;
+    const teams = props.teams ?? [];
+
+    const router = useRouter();
+    const [ selectedTeam, setSelectedTeam ] =
+        useState<ChangeTeamDialogProps['teams'][number] | undefined>();
+
+    // ---------------------------------------------------------------------------------------------
+
+    const handleClose = useCallback(() => {
+        onClose();
+        setTimeout(() => {
+            setSelectedTeam(undefined);
+        }, 300);
+    }, [ onClose ]);
+
+    const handleSubmit = useCallback(async (subject?: string, message?: string) => {
+        try {
+            if (!selectedTeam)
+                return { error: 'No team has been selected' };
+
+            const response = await callApi('post', '/api/admin/volunteer-teams', {
+                userId: volunteer.userId,
+                event,
+
+                update: {
+                    currentTeam: props.currentTeam,
+                    updatedTeam: selectedTeam.teamSlug,
+                    subject, message,
+                },
+            });
+
+            if (response.success) {
+                const targetUrl =
+                    `/admin/events/${event}/${selectedTeam.teamSlug}/volunteers/${volunteer.userId}`
+
+                setTimeout(() => router.push(targetUrl), 1250);
+
+                return {
+                    success: `${volunteer.firstName} has been moved to the ${selectedTeam.teamName}`
+                };
+            } else {
+                return { error: response.error ?? 'Something went wrong' };
+            }
+        } catch (error: any) {
+            return { error: error.message };
+        }
+    }, [ event, props.currentTeam, router, selectedTeam, volunteer ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    if (selectedTeam) {
+        return (
+            <CommunicationDialog title={`Change ${volunteer.firstName}'s team`}
+                                 open={props.open} onClose={handleClose}
+                                 confirmLabel="Change team" allowSilent={allowSilent} description={
+                                     <>
+                                         You're about to change
+                                         <strong> {volunteer.firstName}</strong>'s team to the
+                                         <strong> {selectedTeam.teamName}</strong>.
+                                     </>
+                                 } apiParams={{
+                                     type: 'change-team',
+                                     changeTeam: {
+                                         userId: volunteer.userId,
+                                         event: props.event,
+                                         currentTeam: props.currentTeam,
+                                         updatedTeam: selectedTeam.teamSlug,
+                                     },
+                                 }} onSubmit={handleSubmit} />
+        );
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    return (
+        <Dialog open={!!open} onClose={handleClose} fullWidth>
+            <DialogTitle>
+                Change team
+            </DialogTitle>
+            <DialogContent>
+                <Typography>
+                    You can change the team that <strong>{volunteer.firstName}</strong> participates
+                    in during this event to the following. Not all teams may be available.
+                </Typography>
+                <List dense>
+                    { teams.map((team, index) => {
+                        let secondary: string | undefined = undefined;
+                        switch (team.status) {
+                            case 'Accepted':
+                                secondary = `${volunteer.firstName} is currently part of this team`;
+                                break;
+
+                            case 'Cancelled':
+                                secondary = `${volunteer.firstName} cancelled their participation `
+                                    + 'in this team, and can be reinstated';
+                                break;
+
+                            case 'Registered':
+                                secondary = `${volunteer.firstName} already applied to join this `
+                                    + 'team, which can be approved';
+                                break;
+
+                            case 'Rejected':
+                                secondary = `${volunteer.firstName} was rejected for this team, `
+                                    + 'which can be reconsidered';
+                                break;
+
+                            case 'Unregistered':
+                                // No secondary message necessary - they can join this team.
+                                break;
+                        }
+
+                        return (
+                            <ListItemButton key={index} disabled={team.status !== 'Unregistered'}
+                                            onClick={ () => setSelectedTeam(team) }>
+                                <ListItemIcon>
+                                    <PeopleIcon htmlColor={team.teamColour} />
+                                </ListItemIcon>
+                                <ListItemText primaryTypographyProps={{ variant: 'subtitle2' }}
+                                              primary={team.teamName} secondary={secondary} />
+                            </ListItemButton>
+                        );
+                    }) }
+                </List>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -273,6 +459,35 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
         setRolesOpen(true);
     }, [ roles, setRoles, setRolesLoading, setRolesOpen, team ]);
 
+    // ---------------------------------------------------------------------------------------------
+    // Change team
+    // ---------------------------------------------------------------------------------------------
+
+    const [ teamsForVolunteer, setTeamsForVolunteer ] = useState<TeamsForVolunteer>();
+    const [ teamsLoading, setTeamsLoading ] = useState<boolean>(false);
+    const [ teamsOpen, setTeamsOpen ] = useState<boolean>(false);
+
+    const handleTeamsClose = useCallback(() => setTeamsOpen(false), [ setTeamsOpen ]);
+    const handleTeamsOpen = useCallback(async () => {
+        if (!teamsForVolunteer) {
+            setTeamsLoading(true);
+            try {
+                const response = await callApi('post', '/api/admin/volunteer-teams', {
+                    event: event.slug,
+                    userId: volunteer.userId,
+                });
+
+                setTeamsForVolunteer(response.teams);
+                console.log(response.teams);
+            } finally {
+                setTeamsLoading(false);
+            }
+        }
+        setTeamsOpen(true);
+    }, [ event, teamsForVolunteer, volunteer ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     const navigateToAccount = useCallback(() => {
         router.push(`/admin/volunteers/${volunteer.userId}`)
     }, [ router, volunteer ] );
@@ -311,6 +526,12 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                         <LoadingButton startIcon={ <ManageAccountsIcon /> }
                                        onClick={handleRolesOpen} loading={rolesLoading}>
                             Change role
+                        </LoadingButton> }
+
+                    { can(user, Privilege.EventAdministrator) &&
+                        <LoadingButton startIcon={ <PeopleIcon /> }
+                                       onClick={handleTeamsOpen} loading={teamsLoading}>
+                            Change team
                         </LoadingButton> }
 
                 </Stack>
@@ -352,6 +573,10 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
             <ChangeRoleDialog onClose={handleRolesClose} open={roles && rolesOpen}
                               roles={roles!} volunteer={volunteer} eventId={event.id}
                               teamId={team.id} />
+
+            <ChangeTeamDialog onClose={handleTeamsClose} open={teamsForVolunteer && teamsOpen}
+                              teams={teamsForVolunteer!} allowSilent={allowSilent}
+                              volunteer={volunteer} event={event.slug} currentTeam={team.slug} />
 
         </Paper>
     );
