@@ -4,13 +4,14 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import type { ActionProps } from '../Action';
-import { Privilege } from '@lib/auth/Privileges';
-import { LogSeverity, RegistrationStatus } from '@lib/database/Types';
+import { type ActionProps, noAccess } from '../Action';
+import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
+import { createEmailClient } from '@lib/integrations/email';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tEventsTeams, tEvents, tTeamsRoles, tTeams, tUsersEvents } from '@lib/database';
-import { Log, LogType } from '@lib/Log';
+import db, { tEventsTeams, tEvents, tTeamsRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-teams.
@@ -178,6 +179,34 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
             .and(tUsersEvents.eventId.equals(event.eventId))
             .and(tUsersEvents.teamId.equals(verifiedCurrentTeam.teamId))
         .executeUpdate();
+
+    const { subject, message } = request.update;
+    if (!subject || !message || /* null check= */ !props.user) {
+        if (!can(props.user, Privilege.VolunteerSilentMutations))
+            noAccess();
+
+    } else {
+        const username = await db.selectFrom(tUsers)
+            .where(tUsers.userId.equals(request.userId))
+            .selectOneColumn(tUsers.username)
+            .executeSelectOne();
+
+        if (!username)
+            return { success: false, error: 'Unable to inform the user' };
+
+        const client = await createEmailClient();
+        const emailMessage = client.createMessage()
+            .setTo(username)
+            .setSubject(subject)
+            .setText(message);
+
+        await client.safeSendMessage({
+            message: emailMessage,
+            sender: `${props.user.firstName} ${props.user.lastName} (AnimeCon)`,
+            sourceUser: props.user,
+            targetUser: request.userId,
+        });
+    }
 
     if (affectedRows > 0) {
         await Log({
