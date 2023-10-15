@@ -16,9 +16,19 @@ interface PlaywrightUserFields {
     activated: boolean;
 
     /**
+     * Type of authentication that was used for this user.
+     */
+    authType: AuthType;
+
+    /**
      * The SHA256-hashed password that the user can sign in with.
      */
     password: string;
+
+    /**
+     * The session token that's active for this user.
+     */
+    sessionToken: number;
 }
 
 /**
@@ -31,22 +41,27 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         firstName: 'PWUSER',
 
         activated: true,
+        authType: AuthType.password,
         password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
+        sessionToken: 1,
     },
     {
-        userId: 1000003,
+        userId: 1000001,
         username: 'playwright-access-code@animecon.nl',
 
         activated: true,
+        authType: AuthType.code,
         password: 'cccd34d95dc5294d17177274e6a7b25a569fda7d823f2aa59ba63dfba9f8e013',  // 8765
-        //authType: AuthType.code,
+        sessionToken: 1,
     },
     {
         userId: 1000002,
         username: 'playwright-unactivated@animecon.nl',
 
-        password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
         activated: false,
+        authType: AuthType.password,
+        password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
+        sessionToken: 1,
     }
 ];
 
@@ -85,7 +100,7 @@ export class PlaywrightHooks {
                 continue;
 
             return {
-                authType: AuthType.password,
+                authType: playwrightUser.authType,
                 events: new Map(),
                 user: {
                     userId: 999999,
@@ -115,6 +130,19 @@ export class PlaywrightHooks {
         }
 
         return undefined;
+    }
+
+    /**
+     * Hook for `getUserSessionToken` in `//app/lib/auth/Authentication.ts`.
+     */
+    static getUserSessionToken(user: User | number): number | null {
+        const userId = typeof user === 'number' ? user : user.userId;
+        for (const playwrightUser of kPlaywrightUsers) {
+            if (playwrightUser.userId === userId)
+                return playwrightUser.sessionToken;
+        }
+
+        return null;
     }
 
     /**

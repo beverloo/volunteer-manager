@@ -2,6 +2,7 @@
 e2e/reports/
 e2e/results/
 node_modules/
+playwright-report/
 .env.development
 .env.production
 screenshot.png

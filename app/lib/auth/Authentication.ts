@@ -140,13 +140,10 @@ export async function authenticateUser(params: AuthenticateUserParams)
         });
 
     let authenticationQuery: ReturnType<typeof authenticationBaseSelect['executeSelectNoneOrOne']>;
-    let includeAuthType = false;
 
     switch (params.type) {
         case 'password':
             const securelyHashedPassword = await securePasswordHash(params.sha256Password);
-
-            includeAuthType = true;
             authenticationQuery = authenticationBaseSelect
                 .where(tUsers.username.equals(params.username))
                     .and(tUsers.activated.equals(/* true= */ 1))
@@ -222,6 +219,9 @@ export async function authenticateUser(params: AuthenticateUserParams)
  * security of their account, so it won't be included in the regular User type.
  */
 export async function getUserSessionToken(user: User | number): Promise<number | null> {
+    if (PlaywrightHooks.isActive())
+        return PlaywrightHooks.getUserSessionToken(user);
+
     return db.selectFrom(tUsers)
         .where(tUsers.userId.equals(typeof user === 'number' ? user : user.userId))
         .selectOneColumn(tUsers.sessionToken)
