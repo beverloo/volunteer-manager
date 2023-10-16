@@ -60,7 +60,7 @@ export default function ContentEditorMdx(props: ContentEditorMdxProps) {
                        plugins={[
                            diffSourcePlugin({ diffMarkdown: props.markdown }),
                            headingsPlugin(),
-                           imagePlugin(),
+                           //imagePlugin(),
                            jsxPlugin({ jsxComponentDescriptors }),
                            linkPlugin(),
                            listsPlugin(),
