@@ -18,6 +18,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { deepmerge } from '@mui/utils';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
@@ -50,12 +51,24 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         mt: 0,
         mr: '-0.5px' /* ... */
     },
-    photo: {
-        backgroundImage: 'url(/images/stewards.team/photo-landing-1.jpg)',
+
+    photoInline: {
+        display: { xs: 'none', md: 'block' },
+        position: 'relative',
+
         backgroundPosition: 'top left',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         borderBottomRightRadius: 4,
+        alignSelf: 'stretch',
+    },
+
+    photoCard: {
+        height: '145px',
+
+        backgroundPosition: 'top left',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
         alignSelf: 'stretch',
     },
 };
@@ -68,6 +81,11 @@ export interface WelcomePageProps {
      * List of event slugs to which the user has administrative access, if any.
      */
     adminAccess: string[];
+
+    /**
+     * Name of the environment that's being loaded.
+     */
+    environment: string;
 
     /**
      * The events (zero or more) the current visitor has access to. The events should be sorted in
@@ -108,7 +126,7 @@ export interface WelcomePageProps {
  * towards the Admin and Statistics apps.
  */
 export function WelcomePage(props: WelcomePageProps) {
-    const { user } = props;
+    const { environment, user } = props;
 
     const additionalEvents: EventDataWithEnvironment[] = [];
 
@@ -132,6 +150,8 @@ export function WelcomePage(props: WelcomePageProps) {
     }
 
     const shouldHighlight = (value: boolean) => value ? 'contained' : 'outlined';
+
+    const landingStyle = { backgroundImage: `url('/images/${environment}/landing.jpg')` };
 
     const hiddenIcon =
         <Tooltip title="Access is limited to certain volunteers">
@@ -196,7 +216,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
                         </Stack>
                     </Grid>
-                    <Grid xs={0} md={7} sx={kStyles.photo}>
+                    <Grid xs={0} md={7} sx={deepmerge(kStyles.photoInline, landingStyle)}>
                         { /* TODO: Multiple photos per environment */ }
                     </Grid>
                 </Grid>
@@ -205,6 +225,10 @@ export function WelcomePage(props: WelcomePageProps) {
 
             { /* Section: Further content */ }
             <Grid container spacing={2} sx={{ mt: 2 }}>
+                <Grid xs={12} md={0} sx={{ display: { xs: 'block', md: 'none' } }}>
+                    <Card elevation={2} sx={deepmerge(kStyles.photoCard, landingStyle)} />
+                </Grid>
+
                 { !!adminAccess.size &&
                     <Grid xs={12} md={4}>
                         <Card elevation={2}>

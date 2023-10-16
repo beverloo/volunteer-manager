@@ -55,6 +55,7 @@ export default async function RootPage() {
     return (
         <RegistrationLayout environment={environment}>
             <WelcomePage adminAccess={adminAccess}
+                         environment={environment.environmentName}
                          events={eventDatas}
                          user={user}
                          registrationEvent={registrationEventData}
