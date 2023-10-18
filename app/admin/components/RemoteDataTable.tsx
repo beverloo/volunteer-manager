@@ -5,8 +5,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { GridColDef, GridPaginationModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
-import { DataGrid } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel, GridRowModesModel, GridSortItem,
+    GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
+import { DataGrid, GridRowModes } from '@mui/x-data-grid';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alert from '@mui/material/Alert';
@@ -17,7 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { type ApiEndpoints, callApi } from '@lib/callApi';
 
 /**
- *
+ * Type describing a column definition in the DataTable API.
  */
 export type RemoteDataTableColumn<RowModel extends GridValidRowModel> = GridColDef<RowModel>;
 
@@ -80,13 +81,6 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     endpoint: Endpoint;
 
     /**
-     * Additional parameters that should be passed to the endpoint. The internal params for enabling
-     * pagination and sorting are not relevant here, as <RemoteDataTable> will add them.
-     */
-    endpointParams:
-        Omit<ApiEndpoints['get'][Endpoint]['request'], 'pagination' | 'sort'>;
-
-    /**
      * The default number of rows that can be displayed per page. Defaults to 50.
      */
     pageSize?: 10 | 25 | 50 | 100;
@@ -115,6 +109,7 @@ export function RemoteDataTable<
     const [ loading, setLoading ] = useState<boolean>(true);
 
     const [ rowCount, setRowCount ] = useState<number>(0);
+    const [ rowModesModel, setRowModesModel ] = useState<GridRowModesModel>({ });
     const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
 
     // ---------------------------------------------------------------------------------------------
@@ -124,15 +119,26 @@ export function RemoteDataTable<
     const handleCreate = useCallback(async () => {
         setError(undefined);
         try {
+            if (!enableCreate)
+                throw new Error(`creating a new ${subject} is not supported`);
+
             const response = await callApi('post', props.endpoint as any, {
                 // TODO: context
             });
 
             if (response.success) {
+                const focusField = props.columns.length > 1 ? props.columns[1].field : undefined;
+
                 setRowCount(rowCount => rowCount + 1 );
                 setRows(rows => [ response.row, ...rows ]);
 
-                // TODO: The new row should be opened in edit mode.
+                setRowModesModel(model => ({
+                    ...model,
+                    [response.row.id]: {
+                        fieldToFocus: focusField,
+                        mode: GridRowModes.Edit,
+                    }
+                }));
 
             } else {
                 setError(response.error ?? `Unable to create a new ${subject}`);
@@ -140,7 +146,7 @@ export function RemoteDataTable<
         } catch (error: any) {
             setError(`Unable to create a new ${subject} (${error.message})`);
         }
-    }, [ props.endpoint, subject ]);
+    }, [ enableCreate, props.columns, props.endpoint, subject ]);
 
     const columns = useMemo(() => {
         if (!enableCreate)
@@ -190,7 +196,7 @@ export function RemoteDataTable<
     }, [ /* no deps */ ]);
 
     const [ sortModel, setSortModel ] =
-        useState<GridSortModel | undefined>([ props.defaultSort as GridSortItem ]);
+        useState<GridSortModel>([ props.defaultSort as GridSortItem ]);
 
     const handleSortModelChange = useCallback((model: GridSortModel) => {
         if (!!model.length) {
@@ -201,9 +207,9 @@ export function RemoteDataTable<
                 }
             ]);
         } else {
-            setSortModel(undefined);
+            setSortModel([ props.defaultSort as GridSortItem ]);
         }
-    }, [ /* no deps */ ]);
+    }, [ props.defaultSort ]);
 
     useEffect(() => {
         setError(undefined);
@@ -212,7 +218,7 @@ export function RemoteDataTable<
         const requestPromise = callApi('get', props.endpoint, {
             // TODO: context
             pagination: paginationModel,
-            ...( sortModel ? { sort: sortModel[0] } : { /* no sort applied */ } ),
+            sort: sortModel[0],
         } as any);
 
         requestPromise
@@ -253,6 +259,7 @@ export function RemoteDataTable<
                 </Alert>
             </Collapse>
             <DataGrid columns={columns} rows={rows} rowCount={rowCount}
+                      rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
 
                       pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
                       paginationModel={paginationModel}

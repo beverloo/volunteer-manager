@@ -63,9 +63,9 @@ export function NardoDataTable() {
 
     const router = useRouter();
 
-    if (false) {
+    if (true) {
 
-        return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}}
+        return <RemoteDataTable columns={columns} endpoint="/api/nardo"
                                 defaultSort={{ field: 'date', sort: 'desc' }}
                                 enableCreate subject="piece of advice" />;
 
