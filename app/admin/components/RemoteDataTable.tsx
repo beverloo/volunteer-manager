@@ -102,7 +102,7 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { enableCreate } = props;
+    const { enableCreate, enableUpdate } = props;
     const subject = props.subject ?? 'item';
 
     const [ error, setError ] = useState<string | undefined>();
@@ -120,7 +120,7 @@ export function RemoteDataTable<
         setError(undefined);
         try {
             if (!enableCreate)
-                throw new Error(`creating a new ${subject} is not supported`);
+                throw new Error('create actions are not supported for this type');
 
             const response = await callApi('post', props.endpoint as any, {
                 // TODO: context
@@ -241,7 +241,29 @@ export function RemoteDataTable<
     // Capability: (U)pdate existing rows
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const handleUpdate = useCallback(async (newRow: RowModel, oldRow: RowModel) => {
+        setError(undefined);
+        try {
+            if (!enableUpdate)
+                throw new Error('updates actions are not supported for this type');
+
+            const response = await callApi('put', `${props.endpoint}/:id` as any, {
+                id: newRow.id,
+                // TODO: context
+                row: newRow,
+            });
+
+            if (response.success)
+                return newRow;
+
+            setError(response.error ?? `Unable to update a ${subject}`);
+            return oldRow;
+
+        } catch (error: any) {
+            setError(`Unable to update a ${subject} (${error.message})`);
+            return oldRow;
+        }
+    }, [ enableUpdate, props.endpoint, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (D)elete existing rows
@@ -260,6 +282,7 @@ export function RemoteDataTable<
             </Collapse>
             <DataGrid columns={columns} rows={rows} rowCount={rowCount}
                       rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
+                      processRowUpdate={handleUpdate}
 
                       pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
                       paginationModel={paginationModel}

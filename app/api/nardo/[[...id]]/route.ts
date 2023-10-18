@@ -64,10 +64,11 @@ export type NardoRowModel = z.infer<typeof kNardoRowModel>;
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */
-export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
+export const { GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoContext, {
     accessCheck(request, action, props) {
         switch (action) {
             case 'create':
+            case 'update':
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin',
                     privilege: Privilege.SystemNardoAccess,
@@ -133,7 +134,20 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
         }
     },
 
+    async update({ row }, props) {
+        const affectedRows = await db.update(tNardo)
+            .set({
+                nardoAdvice: row.advice,
+            })
+            .where(tNardo.nardoId.equals(row.id))
+                .and(tNardo.nardoVisible.equals(/* true= */ 1))
+            .executeUpdate();
+
+        return { success: !!affectedRows };
+    },
+
     async writeLog(request, mutation, props) {
+        console.log('Nardo mutation: ', mutation);
         return;
 
         await Log({
@@ -155,17 +169,6 @@ type RouteParams = { params: { id: string; } };
 export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<Response> {
     if (Object.hasOwn(params, 'id'))
         return executeAction(request, kDeleteAdviceDefinition, deleteAdvice, params);
-
-    return NextResponse.json({ success: false }, { status: 404 });
-}
-
-
-/**
- * PUT /api/nardo/:id
- */
-export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
-    if (Object.hasOwn(params, 'id'))
-        return executeAction(request, kUpdateAdviceDefinition, updateAdvice, params);
 
     return NextResponse.json({ success: false }, { status: 404 });
 }

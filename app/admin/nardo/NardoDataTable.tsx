@@ -12,8 +12,8 @@ import { default as MuiLink } from '@mui/material/Link';
 
 import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
 
-import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
-import type { NardoRowModel } from '@app/api/nardo/route';
+import type { DataTableRowRequest } from '@app/admin/DataTable';
+import type { NardoRowModel } from '@app/api/nardo/[[...id]]/route';
 import { DataTable } from '../DataTable';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
@@ -67,7 +67,7 @@ export function NardoDataTable() {
 
         return <RemoteDataTable columns={columns} endpoint="/api/nardo"
                                 defaultSort={{ field: 'date', sort: 'desc' }}
-                                enableCreate subject="piece of advice" />;
+                                enableCreate enableUpdate subject="piece of advice" />;
 
     } else {
         const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {
@@ -86,8 +86,8 @@ export function NardoDataTable() {
             newRow: GridValidRowModel, oldRow: GridValidRowModel): Promise<GridValidRowModel> =>
         {
             const response = await callApi('put', '/api/nardo/:id', {
-                id: newRow.id,
-                advice: newRow.advice,
+                id: -1,
+                row: {} as any,
             });
 
             if (response.success)

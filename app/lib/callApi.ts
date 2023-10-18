@@ -18,7 +18,6 @@ import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
-import type { UpdateAdviceDefinition } from '@app/api/nardo/updateAdvice';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
@@ -26,7 +25,7 @@ import type { UpdateContentDefinition } from '@app/api/admin/content/updateConte
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
-import type { NardoEndpoints } from '@app/api/nardo/route';
+import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -74,7 +73,7 @@ export type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
-        '/api/nardo/:id': UpdateAdviceDefinition,
+        '/api/nardo/:id': NardoEndpoints['update'],
     },
 };
 

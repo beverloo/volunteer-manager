@@ -33,6 +33,9 @@ type DataTableContext<Context extends ZodTypeAny> =
 /**
  * Request and response expected for POST requests with the purpose of creating rows.
  */
+type DataTableCreateHandlerRequest<Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
+};
+
 type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse |
     {
         /**
@@ -100,19 +103,45 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
 };
 
 /**
+ * Request and response expected for PUT requests with the purpose of updating rows.
+ */
+type DataTableUpdateHandlerRequest<RowModel extends AnyZodObject,
+                                   Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
+    /**
+     * Unique ID of the row that's about to be updated. Also contained within the `row`.
+     */
+    id: number;
+
+    /**
+     * The row that should be updated.
+     */
+    row: z.infer<RowModel> & { id: number; };
+};
+
+type DataTableUpdateHandlerResponse = DataTableHandlerErrorResponse | {
+    /**
+     * Whether the operation could be completed successfully.
+     */
+    success: true,
+};
+
+/**
  * `callApi()` compatible endpoint definitions for the generated APIs.
  */
 export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
     create: {
-        request: { /* todo */ },
+        request: DataTableCreateHandlerRequest<Context>,
         response: DataTableCreateHandlerResponse<RowModel>,
     },
     list: {
         request: DataTableListHandlerRequest<RowModel, Context>,
         response: DataTableListHandlerResponse<RowModel>,
     },
+    update: {
+        request: DataTableUpdateHandlerRequest<RowModel, Context>,
+        response: DataTableUpdateHandlerResponse,
+    },
 };
-
 
 /**
  * Abstract interface describing the Data Table API that has to be implemented by each customer.
@@ -124,7 +153,8 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      *
      * @todo Include `context` in the `request`
      */
-    accessCheck?(request: any, action: 'create' | 'list', props: ActionProps): Promise<void> | void;
+    accessCheck?(request: any, action: 'create' | 'list' | 'update', props: ActionProps)
+        : Promise<void> | void;
 
     /**
      * Creates a new row in the database, and returns the `RowModel` for the new row. An ID must
@@ -132,7 +162,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      *
      * @todo Include `context` in the `request`
      */
-    create?(request: any, props: ActionProps)
+    create?(request: DataTableCreateHandlerRequest<Context>, props: ActionProps)
         : Promise<DataTableCreateHandlerResponse<RowModel>>;
 
     // TODO: delete
@@ -146,7 +176,12 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
     list(request: DataTableListHandlerRequest<RowModel, Context>, props: ActionProps)
         : Promise<DataTableListHandlerResponse<RowModel>>;
 
-    // TODO: update
+    /**
+     * Updates a given row in the database. The full to-be-updated row must be given, including the
+     * fields that are not editable. The row ID is mandatory in this request.
+     */
+    update?(request: DataTableUpdateHandlerRequest<RowModel, Context>, props: ActionProps)
+        : Promise<DataTableUpdateHandlerResponse>;
 
     /**
      * Called when a mutation has occurred in case the implementation wants to log the fact that
@@ -154,7 +189,8 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      *
      * @todo Include `context` in the `request`
      */
-    writeLog?(request: any, mutation: 'Created', props: ActionProps): Promise<void> | void;
+    writeLog?(request: any, mutation: 'Created' | 'Updated', props: ActionProps)
+        : Promise<void> | void;
 }
 
 /**
@@ -176,7 +212,7 @@ type DataTableApiHandlers = {
     //DELETE: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     GET: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     POST: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
-    //PUT: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
+    PUT: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
 }
 
 /**
@@ -275,13 +311,41 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                 await implementation.writeLog?.(innerRequest, 'Created', props);
 
             return response;
-        });
+        }, params);
     };
 
     // ---------------------------------------------------------------------------------------------
     // PUT
     // ---------------------------------------------------------------------------------------------
-    // TODO
 
-    return { GET, POST };
+    const putInterface = z.object({
+        request: z.object({
+            id: z.coerce.number(),
+            // TODO: context
+            row: rowModel.required().and(z.object({ id: z.number() })),
+        }),
+        response: z.discriminatedUnion('success', [
+            zErrorResponse,
+            z.object({
+                success: z.literal(true),
+            }),
+        ]),
+    });
+
+    const PUT: DataTableApiHandler = async(request, { params }) => {
+        return executeAction(request, putInterface, async (innerRequest, props) => {
+            if (!implementation.update)
+                throw new Error('Cannot handle PUT requests without an update handler');
+
+            await implementation.accessCheck?.(innerRequest, 'update', props);
+
+            const response = await implementation.update(innerRequest, props);
+            if (response.success)
+                await implementation.writeLog?.(innerRequest, 'Updated', props);
+
+            return response;
+        }, params);
+    };
+
+    return { GET, POST, PUT };
 }
