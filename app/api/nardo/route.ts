@@ -51,6 +51,11 @@ const kNardoContext = z.never();
 export type NardoEndpoints = DataTableEndpoints<typeof kNardoRowModel, typeof kNardoContext>;
 
 /**
+ * Export type definition for the Nardo DataTable API's Row Model.
+ */
+export type NardoRowModel = z.infer<typeof kNardoRowModel>;
+
+/**
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */

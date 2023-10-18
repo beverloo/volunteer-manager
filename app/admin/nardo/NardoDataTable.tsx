@@ -10,9 +10,10 @@ import { useRouter } from 'next/navigation';
 import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 
-import { RemoteDataTable } from '../components/RemoteDataTable';
+import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
 
 import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
+import type { NardoRowModel } from '@app/api/nardo/route';
 import { DataTable } from '../DataTable';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
@@ -21,7 +22,7 @@ import { dayjs } from '@lib/DateTime';
  * The <NardoDataTable> component displays
  */
 export function NardoDataTable() {
-    const columns: DataTableColumn[] = useMemo(() => ([
+    const columns: RemoteDataTableColumn<NardoRowModel>[] = useMemo(() => ([
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -65,6 +66,7 @@ export function NardoDataTable() {
     if (false) {
 
         return <RemoteDataTable columns={columns} endpoint="/api/nardo" endpointParams={{}}
+                                defaultSort={{ field: 'date', sort: 'desc' }}
                                 enableCreate subject="piece of advice" />;
 
     } else {
@@ -112,7 +114,7 @@ export function NardoDataTable() {
 
         }, [ /* no deps */ ]);
 
-        return <DataTable dense onRequestRows={onRequestRows} columns={columns}
+        return <DataTable dense onRequestRows={onRequestRows} columns={columns as any}
                           commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
                           initialSortItem={ { field: 'date', sort: 'desc' }} messageSubject="advice"
                           pageSize={100} pageSizeOptions={[ 100 ]} />;

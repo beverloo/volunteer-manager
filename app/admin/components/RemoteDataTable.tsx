@@ -17,6 +17,11 @@ import Tooltip from '@mui/material/Tooltip';
 import { type ApiEndpoints, callApi } from '@lib/callApi';
 
 /**
+ *
+ */
+export type RemoteDataTableColumn<RowModel extends GridValidRowModel> = GridColDef<RowModel>;
+
+/**
  * Props accepted by the <RemoteDataTable> component.
  */
 interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
@@ -24,7 +29,23 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     /**
      * Columns accepted by the data table.
      */
-    columns: GridColDef<RowModel>[];
+    columns: RemoteDataTableColumn<RowModel>[];
+
+    /**
+     * Default sort that should be applied to the table. May be overridden by the users unless the
+     * column definition explicitly disallows sorting.
+     */
+    defaultSort: {
+        /**
+         * Field on which the results should be sorted.
+         */
+        field: keyof RowModel;
+
+        /**
+         * Direction in which the results should be sorted.
+         */
+        sort: 'asc' | 'desc' | null;
+    };
 
     /**
      * Whether new rows can be deleted. When set, this will display a _create_ icon in the header
@@ -71,22 +92,6 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     pageSize?: 10 | 25 | 50 | 100;
 
     /**
-     * Default sort that should be applied to the table. May be overridden by the users unless the
-     * column definition explicitly disallows sorting.
-     */
-    sort?: {
-        /**
-         * Field on which the results should be sorted.
-         */
-        field: keyof RowModel;
-
-        /**
-         * Direction in which the results should be sorted.
-         */
-        sort: 'asc' | 'desc' | null;
-    };
-
-    /**
      * Subject describing what each row in the table is representing. Defaults to "item".
      */
     subject?: string;
@@ -103,7 +108,7 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { enableCreate, sort } = props;
+    const { enableCreate } = props;
     const subject = props.subject ?? 'item';
 
     const [ error, setError ] = useState<string | undefined>();
@@ -185,7 +190,7 @@ export function RemoteDataTable<
     }, [ /* no deps */ ]);
 
     const [ sortModel, setSortModel ] =
-        useState<GridSortModel | undefined>(sort ? [ sort as GridSortItem ] : undefined);
+        useState<GridSortModel | undefined>([ props.defaultSort as GridSortItem ]);
 
     const handleSortModelChange = useCallback((model: GridSortModel) => {
         if (!!model.length) {
