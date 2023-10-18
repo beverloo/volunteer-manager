@@ -15,7 +15,7 @@ import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Overview page showing all users who volunteered at at least one of the AnimeCon events, displayed
- * in a <DataTable> component. Provides access to individual user pages.
+ * in a Data Table. Provides access to individual user pages.
  */
 export default async function VolunteersPage() {
     await requireAuthenticationContext({
@@ -34,7 +34,7 @@ export default async function VolunteersPage() {
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .select({
-            id: tUsers.userId,  // `id` is required by <DataTable>
+            id: tUsers.userId,
             username: tUsers.username,
             name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
             teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),

@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography';
 import type { ContentScope } from './ContentScope';
 import type { DataTableColumn, DataTableRowRequest } from '../DataTable';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
-import { DataTable } from '../DataTable';
+import { OLD_DataTable } from '../DataTable';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -201,8 +201,8 @@ export function ContentList(props: ContentListProps) {
 
     return (
         <>
-            <DataTable columns={columns} onRequestRows={fetchContent} dense disableFooter
-                       initialSortItem={{ field: 'path', sort: 'asc' }} />
+            <OLD_DataTable columns={columns} onRequestRows={fetchContent} dense disableFooter
+                           initialSortItem={{ field: 'path', sort: 'asc' }} />
             <ConfirmationDialog onClose={requestDeleteClose} onConfirm={handleDelete}
                                 open={confirmationOpen}
                                 title="Are you sure you want to delete this?">

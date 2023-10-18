@@ -15,7 +15,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { DataTableColumn } from '@app/admin/DataTable';
-import { DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 import { dayjs } from '@lib/DateTime';
 
@@ -171,7 +171,7 @@ export function EventList(props: EventListProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 AnimeCon Events
             </Typography>
-            <DataTable dense disableFooter columns={columns} rows={props.events} />
+            <OLD_DataTable dense disableFooter columns={columns} rows={props.events} />
         </Paper>
     );
 }

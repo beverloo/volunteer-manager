@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
-import { DataTable } from '../../DataTable';
+import { OLD_DataTable } from '../../DataTable';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -115,7 +115,7 @@ export function OutboxDataTable() {
         });
     }, [ /* no deps */ ]);
 
-    return <DataTable dense onRequestRows={onRequestRows} columns={columns}
-                      initialSortItem={ { field: 'date', sort: 'desc' }}
-                      pageSize={50} pageSizeOptions={[ 25, 50, 100 ]} />;
+    return <OLD_DataTable dense onRequestRows={onRequestRows} columns={columns}
+                          initialSortItem={ { field: 'date', sort: 'desc' }}
+                          pageSize={50} pageSizeOptions={[ 25, 50, 100 ]} />;
 }

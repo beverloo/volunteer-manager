@@ -25,7 +25,7 @@ import { useGridApiContext } from '@mui/x-data-grid';
 import type { HotelBooking, HotelRequest } from './HotelBookings';
 import type { HotelConfigurationEntry } from './HotelConfiguration';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
 import { callApi } from '@lib/callApi';
@@ -469,9 +469,9 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                     : 'hotel room form' }
                 , after which we consider the booking as confirmed.
             </Alert>
-            <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       messageSubject="assignment" rows={bookings} columns={columns}
-                       dense disableFooter pageSize={50} pageSizeOptions={[ 50 ]} />
+            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
+                           messageSubject="assignment" rows={bookings} columns={columns}
+                           dense disableFooter pageSize={50} pageSizeOptions={[ 50 ]} />
             <Collapse in={warnings.length > 0}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
                     <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>

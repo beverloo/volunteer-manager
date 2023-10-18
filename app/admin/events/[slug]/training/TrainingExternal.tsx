@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingExtraDefinition } from '@app/api/admin/trainingExtra';
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -206,9 +206,9 @@ export function TrainingExternal(props: TrainingExternalProps) {
                 This table enables you to add people who would like to participate in the training
                 sessions, but are not part of our teams.
             </Alert>
-            <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       messageSubject="participant" rows={props.participants} columns={columns}
-                       disableFooter dense />
+            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
+                           messageSubject="participant" rows={props.participants} columns={columns}
+                           disableFooter dense />
         </Paper>
     );
 }

@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography';
 import type { DataTableColumn } from '@app/admin/DataTable';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
-import { DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable } from '@app/admin/DataTable';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -206,7 +206,8 @@ export function TeamSettings(props: TeamSettingsProps) {
                 Double click to edit the settings for <strong>{event.shortName}</strong> associated
                 with a particular team.
             </Alert>
-            <DataTable dense disableFooter columns={columns} rows={teams} commitEdit={handleEdit} />
+            <OLD_DataTable dense disableFooter columns={columns} rows={teams}
+                           commitEdit={handleEdit} />
         </Paper>
     );
 }

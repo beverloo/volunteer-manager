@@ -14,12 +14,12 @@ import type {
 
 import type { SxProps, Theme } from '@mui/system';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Box from '@mui/material/Box';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -208,7 +208,7 @@ export type DataTableProps<RowModel extends GridValidRowModel = GridValidRowMode
  * defaults across the Volunteer Manager. It provides a simpler model to access the behaviour while
  * maintaining the key strenghts of the DataGrid.
  */
-export function DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
+export function OLD_DataTable<RowModel extends GridValidRowModel>(props: DataTableProps<RowModel>) {
     const { commitAdd, commitDelete, commitEdit } = props;
     const { dense, disableFooter, enableFilter } = props;
 

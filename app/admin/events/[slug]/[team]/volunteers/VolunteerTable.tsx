@@ -17,7 +17,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
@@ -66,7 +66,7 @@ export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
 
     /**
      * Information about the volunteers that should be displayed in the table. Transformations will
-     * be used to add interaction to the <DataTable>.
+     * be used to add interaction to the Data Table.
      */
     volunteers: VolunteerInfo[];
 }
@@ -227,9 +227,9 @@ export function VolunteerTable(props: VolunteerTableProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 {props.title} ({props.volunteers.length} people)
             </Typography>
-            <DataTable columns={columns} rows={props.volunteers}
-                       pageSize={props.volunteers.length}
-                       dense disableFooter enableFilter />
+            <OLD_DataTable columns={columns} rows={props.volunteers}
+                           pageSize={props.volunteers.length}
+                           dense disableFooter enableFilter />
         </Paper>
     )
 }

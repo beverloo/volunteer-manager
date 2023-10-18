@@ -10,7 +10,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 import type { RegistrationStatus } from '@lib/database/Types';
 
@@ -144,7 +144,7 @@ export function Participation(props: ParticipationProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Participation
             </Typography>
-            <DataTable dense disableFooter rows={participation} columns={columns} />
+            <OLD_DataTable dense disableFooter rows={participation} columns={columns} />
         </Paper>
     );
 }

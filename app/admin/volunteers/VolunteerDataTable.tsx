@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
-import { DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable } from '@app/admin/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 
 /**
@@ -124,5 +124,5 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
-    return <DataTable dense columns={columns} rows={props.volunteers} {...props} />
+    return <OLD_DataTable dense columns={columns} rows={props.volunteers} {...props} />
 }

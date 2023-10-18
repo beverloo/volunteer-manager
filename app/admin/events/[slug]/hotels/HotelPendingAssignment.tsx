@@ -12,7 +12,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { HotelRequest } from './HotelBookings';
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -98,8 +98,8 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Pending assignment
             </Typography>
-            <DataTable rows={requests} columns={columns} disableFooter dense
-                       pageSize={50} pageSizeOptions={[ 50 ]} />
+            <OLD_DataTable rows={requests} columns={columns} disableFooter dense
+                           pageSize={50} pageSizeOptions={[ 50 ]} />
         </Paper>
     );
 }

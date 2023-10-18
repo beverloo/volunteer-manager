@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -182,9 +182,9 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
                     ? 'Training information has been published to volunteers.'
                     : 'Training information has not yet been published to volunteers.' }
             </PublishAlert>
-            <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       messageSubject="training" rows={props.trainings} columns={columns}
-                       disableFooter dense />
+            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
+                           messageSubject="training" rows={props.trainings} columns={columns}
+                           disableFooter dense />
         </Paper>
     );
 }

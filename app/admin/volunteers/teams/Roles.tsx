@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import type { DataTableColumn } from '@app/admin/DataTable';
 import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
-import { DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable } from '@app/admin/DataTable';
 import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadge';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -36,7 +36,7 @@ export interface RolesProps {
 
 /**
  * The <Roles> component represents the roles that exist in the Volunteer Manager. Each role has a
- * few basic settings that can be manipulated as a <DataTable>.
+ * few basic settings that can be manipulated as a Data Table.
  */
 export function Roles(props: RolesProps) {
     const { roles } = props;
@@ -142,8 +142,8 @@ export function Roles(props: RolesProps) {
             <Alert severity="info" sx={{ mb: 2 }}>
                 This table is editable, and can be used to update the settings for each role.
             </Alert>
-            <DataTable dense disableFooter commitEdit={commitEdit}
-                       columns={columns} rows={roles} />
+            <OLD_DataTable dense disableFooter commitEdit={commitEdit}
+                           columns={columns} rows={roles} />
         </Paper>
     );
 }

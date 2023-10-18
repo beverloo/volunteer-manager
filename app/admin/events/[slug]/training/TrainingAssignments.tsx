@@ -19,7 +19,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -266,8 +266,8 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                 Preferences must be indicated by volunteers and cannot be updated here. Assignments
                 will be tentative until the confirmation box is checked.
             </Alert>
-            <DataTable columns={columns} rows={props.assignments} commitEdit={commitEdit}
-                       pageSize={100} pageSizeOptions={[100]} disableFooter dense />
+            <OLD_DataTable columns={columns} rows={props.assignments} commitEdit={commitEdit}
+                           pageSize={100} pageSizeOptions={[100]} disableFooter dense />
             <Collapse in={warnings.length > 0}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
                     <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>

@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import type { HotelDefinition } from '@app/api/admin/hotel';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
-import { type DataTableColumn, DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -197,9 +197,9 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
                     ? 'Hotel room information has been published to volunteers.'
                     : 'Hotel room information has not yet been published to volunteers.' }
             </PublishAlert>
-            <DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                       messageSubject="hotel room" rows={props.rooms} columns={columns}
-                       disableFooter dense pageSize={50} pageSizeOptions={[ 50 ]} />
+            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
+                           messageSubject="hotel room" rows={props.rooms} columns={columns}
+                           disableFooter dense pageSize={50} pageSizeOptions={[ 50 ]} />
         </Paper>
     );
 }
