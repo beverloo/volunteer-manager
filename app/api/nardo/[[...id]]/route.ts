@@ -3,10 +3,15 @@
 
 import { z } from 'zod';
 
-import type { DataTableEndpoints } from '../createDataTableApi';
+import { NextRequest, NextResponse } from 'next/server';
+import { executeAction } from '@app/api/Action';
+
+import { deleteAdvice, kDeleteAdviceDefinition } from '../deleteAdvice';
+import { updateAdvice, kUpdateAdviceDefinition } from '../updateAdvice';
+
+import { type DataTableEndpoints, createDataTableApi } from '../../createDataTableApi';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { createDataTableApi } from '../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tNardo, tUsers } from '@lib/database';
 
@@ -77,19 +82,26 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
     },
 
     async create(request, props) {
-        //const insertId = await db.insertInto(tNardo)
-        //    .set({
-        //        nardoAdvice: 'Nardo!',
-        //        nardoAuthorId: props.user!.userId,
-        //    })
-        //    .returningLastInsertedId()
-        //    .executeInsert();
+        const kDefaultAdvice = 'Nardo!';
+
+        const dbInstance = db;
+        const insertId = await dbInstance.insertInto(tNardo)
+            .set({
+                nardoAdvice: 'Nardo!',
+                nardoAuthorId: props.user!.userId,
+                nardoAuthorDate: dbInstance.currentTimestamp(),
+            })
+            .returningLastInsertedId()
+            .executeInsert();
 
         return {
             success: true,
             row: {
-                id: Math.floor(Math.random() * (2500000 - 1000000) + 100000),
-                advice: 'Nardo!',
+                id: insertId,
+                advice: kDefaultAdvice,
+                authorName: `${props.user!.firstName} ${props.user!.lastName}`,
+                authorUserId: props.user!.userId,
+                date: (new Date()).toISOString(),
             },
         };
     },
@@ -122,6 +134,8 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
     },
 
     async writeLog(request, mutation, props) {
+        return;
+
         await Log({
             type: LogType.AdminNardoMutation,
             sourceUser: props.user!.userId,
@@ -129,3 +143,29 @@ export const { GET, POST } = createDataTableApi(kNardoRowModel, kNardoContext, {
         });
     },
 });
+
+/**
+ * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
+ */
+type RouteParams = { params: { id: string; } };
+
+/**
+ * DELETE /api/nardo/:id
+ */
+export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<Response> {
+    if (Object.hasOwn(params, 'id'))
+        return executeAction(request, kDeleteAdviceDefinition, deleteAdvice, params);
+
+    return NextResponse.json({ success: false }, { status: 404 });
+}
+
+
+/**
+ * PUT /api/nardo/:id
+ */
+export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
+    if (Object.hasOwn(params, 'id'))
+        return executeAction(request, kUpdateAdviceDefinition, updateAdvice, params);
+
+    return NextResponse.json({ success: false }, { status: 404 });
+}

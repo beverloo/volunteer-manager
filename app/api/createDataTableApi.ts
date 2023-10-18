@@ -274,7 +274,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             if (response.success)
                 await implementation.writeLog?.(innerRequest, 'Created', props);
 
-            return implementation.create(innerRequest, props);
+            return response;
         });
     };
 
