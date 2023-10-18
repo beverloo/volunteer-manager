@@ -28,14 +28,12 @@ type DataTableHandlerErrorResponse = {
  * when ZodNever is used instead of a more descriptive context type.
  */
 type DataTableContext<Context extends ZodTypeAny> =
-    Context extends ZodNever ? { /* omit the context */ } : { context: z.infer<Context> };
+    { /* TODO: Support context */ };
 
 /**
  * Request and response expected for POST requests with the purpose of creating rows.
  */
-type DataTableCreateHandlerRequest<Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
-};
-
+type DataTableCreateHandlerRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {};
 type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse |
     {
         /**
@@ -50,10 +48,27 @@ type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHa
     };
 
 /**
+ * Request and response expected for DELETE requests with the purpose of deleting rows.
+ */
+type DataTableDeleteHandlerRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {
+    /**
+     * Unique ID of the row that's about to be deleted.
+     */
+    id: number;
+};
+
+type DataTableDeleteHandlerResponse = DataTableHandlerErrorResponse | {
+    /**
+     * Whether the operation could be completed successfully.
+     */
+    success: true,
+};
+
+/**
  * Request and response expected for GET requests with the purpose of listing rows.
  */
 type DataTableListHandlerRequest<RowModel extends AnyZodObject,
-                                 Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
+                                 Context extends ZodTypeAny> = DataTableContext<Context> & {
     /**
      * Pagination that should be applied to the row selection.
      */
@@ -106,9 +121,10 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
  * Request and response expected for PUT requests with the purpose of updating rows.
  */
 type DataTableUpdateHandlerRequest<RowModel extends AnyZodObject,
-                                   Context extends ZodTypeAny> = /* DataTableContext<Context> & */ {
+                                   Context extends ZodTypeAny> = DataTableContext<Context> & {
     /**
-     * Unique ID of the row that's about to be updated. Also contained within the `row`.
+     * Unique ID of the row that's about to be updated. Also contained within the `row`, whereas it
+     * has been verified that the values are identical.
      */
     id: number;
 
@@ -133,6 +149,10 @@ export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends Zo
         request: DataTableCreateHandlerRequest<Context>,
         response: DataTableCreateHandlerResponse<RowModel>,
     },
+    delete: {
+        request: DataTableDeleteHandlerRequest<Context>,
+        response: DataTableDeleteHandlerResponse,
+    },
     list: {
         request: DataTableListHandlerRequest<RowModel, Context>,
         response: DataTableListHandlerResponse<RowModel>,
@@ -150,22 +170,24 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
     /**
      * Execute an access check for the given `action`. The `props` and `context` may be consulted
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
-     *
-     * @todo Include `context` in the `request`
      */
-    accessCheck?(request: any, action: 'create' | 'list' | 'update', props: ActionProps)
+    accessCheck?(request: DataTableContext<Context>,
+                 action: 'create' | 'delete' | 'list' | 'update', props: ActionProps)
         : Promise<void> | void;
 
     /**
      * Creates a new row in the database, and returns the `RowModel` for the new row. An ID must
      * be included as it's expected by the `<RemoteDataTable>` interface.
-     *
-     * @todo Include `context` in the `request`
      */
     create?(request: DataTableCreateHandlerRequest<Context>, props: ActionProps)
         : Promise<DataTableCreateHandlerResponse<RowModel>>;
 
-    // TODO: delete
+    /**
+     * Deletes the row included in the `request`. Delete actions return no data other than a success
+     * flag, and optionally a message when an error occurs.
+     */
+    delete?(request: DataTableDeleteHandlerRequest<Context>, props: ActionProps)
+        : Promise<DataTableDeleteHandlerResponse>;
 
     /**
      * Implements the ability to retrieve the rows that should be displayed in the data table. The
@@ -186,10 +208,8 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
     /**
      * Called when a mutation has occurred in case the implementation wants to log the fact that
      * this action has taken place. This call will be _awaited_ for.
-     *
-     * @todo Include `context` in the `request`
      */
-    writeLog?(request: any, mutation: 'Created' | 'Updated', props: ActionProps)
+    writeLog?(request: any, mutation: 'Created' | 'Deleted' | 'Updated', props: ActionProps)
         : Promise<void> | void;
 }
 
@@ -209,7 +229,7 @@ type DataTableApiHandler =
  * that can be exported from the route handler of one of these APIs.
  */
 type DataTableApiHandlers = {
-    //DELETE: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
+    DELETE: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     GET: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     POST: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
     PUT: (request: NextRequest, params: DataTableApiHandlerParams) => Promise<Response>;
@@ -244,7 +264,34 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
     // DELETE
     // ---------------------------------------------------------------------------------------------
-    // TODO
+
+    const deleteInterface = z.object({
+        request: z.object({
+            id: z.coerce.number(),
+            // TODO: context
+        }),
+        response: z.discriminatedUnion('success', [
+            zErrorResponse,
+            z.object({
+                success: z.literal(true),
+            }),
+        ]),
+    });
+
+    const DELETE: DataTableApiHandler = async(request, { params }) => {
+        return executeAction(request, deleteInterface, async (innerRequest, props) => {
+            if (!implementation.delete)
+                throw new Error('Cannot handle DELETE requests without a delete handler');
+
+            await implementation.accessCheck?.(innerRequest, 'delete', props);
+
+            const response = await implementation.delete(innerRequest, props);
+            if (response.success)
+                await implementation.writeLog?.(innerRequest, 'Deleted', props);
+
+            return response;
+        }, params);
+    };
 
     // ---------------------------------------------------------------------------------------------
     // GET
@@ -337,6 +384,9 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             if (!implementation.update)
                 throw new Error('Cannot handle PUT requests without an update handler');
 
+            if (innerRequest.id !== innerRequest.row.id)
+                throw new Error('ID mismatch between the route and the contained row');
+
             await implementation.accessCheck?.(innerRequest, 'update', props);
 
             const response = await implementation.update(innerRequest, props);
@@ -347,5 +397,5 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
         }, params);
     };
 
-    return { GET, POST, PUT };
+    return { DELETE, GET, POST, PUT };
 }

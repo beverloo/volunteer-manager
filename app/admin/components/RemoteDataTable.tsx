@@ -5,14 +5,21 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { GridColDef, GridPaginationModel, GridRowModesModel, GridSortItem,
-    GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel, GridRenderCellParams, GridRowModesModel,
+    GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid, GridRowModes } from '@mui/x-data-grid';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import { type ApiEndpoints, callApi } from '@lib/callApi';
@@ -102,7 +109,7 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { enableCreate, enableUpdate } = props;
+    const { enableCreate, enableDelete, enableUpdate } = props;
     const subject = props.subject ?? 'item';
 
     const [ error, setError ] = useState<string | undefined>();
@@ -111,6 +118,9 @@ export function RemoteDataTable<
     const [ rowCount, setRowCount ] = useState<number>(0);
     const [ rowModesModel, setRowModesModel ] = useState<GridRowModesModel>({ });
     const [ rows, setRows ] = useState<RowModel[]>([ /* no rows */]);
+
+    const [ deleteCandidate, setDeleteCandidate ] = useState<number | undefined>();
+    const [ deleteLoading, setDeleteLoading ] = useState<boolean>(false);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (C)reate new rows
@@ -149,7 +159,7 @@ export function RemoteDataTable<
     }, [ enableCreate, props.columns, props.endpoint, subject ]);
 
     const columns = useMemo(() => {
-        if (!enableCreate)
+        if (!enableCreate && !enableDelete)
             return props.columns;
 
         const columns: GridColDef<RowModel>[] = [];
@@ -157,6 +167,20 @@ export function RemoteDataTable<
             if (column.field !== 'id') {
                 columns.push(column);
                 continue;
+            }
+
+            let renderCell: GridColDef['renderCell'] = undefined;
+            if (enableDelete) {
+                renderCell = (params: GridRenderCellParams) => {
+                    return (
+                        <Tooltip title={`Delete this ${subject}`}>
+                            <IconButton onClick={ () => setDeleteCandidate(params.row.id) }
+                                        size="small">
+                                <DeleteForeverIcon color="error" fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    );
+                };
             }
 
             let renderHeader: GridColDef['renderHeader'] = undefined;
@@ -174,13 +198,14 @@ export function RemoteDataTable<
 
             columns.push({
                 ...column,
+                renderCell,
                 renderHeader,
             });
         }
 
         return columns;
 
-    }, [ enableCreate, handleCreate, props.columns, subject ]);
+    }, [ enableCreate, handleCreate, enableDelete, props.columns, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (R)ead existing rows
@@ -269,7 +294,35 @@ export function RemoteDataTable<
     // Capability: (D)elete existing rows
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const handleDelete = useCallback(async () => {
+        setDeleteLoading(true);
+        setError(undefined);
+        try {
+            if (!enableDelete)
+                throw new Error('deleting actions are not supported for this type');
+
+            if (!deleteCandidate)
+                throw new Error('lost context of the delete candidate');
+
+            const response = await callApi('delete', `${props.endpoint}/:id` as any, {
+                id: deleteCandidate,
+                // TODO: context
+            });
+
+            if (response.success) {
+                setRows(oldRows => oldRows.filter(row => row.id !== deleteCandidate));
+            } else {
+                setError(response.error ?? `Unable to delete a ${subject}`);
+            }
+        } catch (error: any) {
+            setError(`Unable to delete a ${subject} (${error.message})`);
+        } finally {
+            setDeleteCandidate(undefined);
+            setDeleteLoading(false);
+        }
+    }, [ deleteCandidate, enableDelete, props.endpoint, subject ]);
+
+    const resetDeleteCandidate = useCallback(() => setDeleteCandidate(undefined), []);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -280,6 +333,7 @@ export function RemoteDataTable<
                     {error}
                 </Alert>
             </Collapse>
+
             <DataGrid columns={columns} rows={rows} rowCount={rowCount}
                       rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
                       processRowUpdate={handleUpdate}
@@ -293,6 +347,23 @@ export function RemoteDataTable<
 
                       autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
                       loading={loading} />
+
+            <Dialog open={!!deleteCandidate} onClose={resetDeleteCandidate}>
+                <DialogTitle>
+                    Delete this {subject}?
+                </DialogTitle>
+                <DialogContent>
+                    Are you sure that you want to remove this {subject}? This action can't be
+                    undone once you confirm its deletion.
+                </DialogContent>
+                <DialogActions sx={{ p: 2, pt: 0 }}>
+                    <Button onClick={resetDeleteCandidate}>Cancel</Button>
+                    <LoadingButton onClick={handleDelete} loading={deleteLoading}
+                                   variant="contained">
+                        Delete
+                    </LoadingButton>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

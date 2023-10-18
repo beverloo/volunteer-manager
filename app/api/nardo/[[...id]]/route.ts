@@ -3,12 +3,6 @@
 
 import { z } from 'zod';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { executeAction } from '@app/api/Action';
-
-import { deleteAdvice, kDeleteAdviceDefinition } from '../deleteAdvice';
-import { updateAdvice, kUpdateAdviceDefinition } from '../updateAdvice';
-
 import { type DataTableEndpoints, createDataTableApi } from '../../createDataTableApi';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -64,10 +58,11 @@ export type NardoRowModel = z.infer<typeof kNardoRowModel>;
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
  * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
  */
-export const { GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoContext, {
+export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoContext, {
     accessCheck(request, action, props) {
         switch (action) {
             case 'create':
+            case 'delete':
             case 'update':
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin',
@@ -105,6 +100,18 @@ export const { GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoConte
                 date: (new Date()).toISOString(),
             },
         };
+    },
+
+    async delete({ id }, props) {
+        const affectedRows = await db.update(tNardo)
+            .set({
+                nardoVisible: /* false= */ 0,
+            })
+            .where(tNardo.nardoId.equals(id))
+                .and(tNardo.nardoVisible.equals(/* true= */ 1))
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async list({ pagination, sort }, props) {
@@ -147,9 +154,6 @@ export const { GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoConte
     },
 
     async writeLog(request, mutation, props) {
-        console.log('Nardo mutation: ', mutation);
-        return;
-
         await Log({
             type: LogType.AdminNardoMutation,
             sourceUser: props.user!.userId,
@@ -157,18 +161,3 @@ export const { GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoConte
         });
     },
 });
-
-/**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { id: string; } };
-
-/**
- * DELETE /api/nardo/:id
- */
-export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<Response> {
-    if (Object.hasOwn(params, 'id'))
-        return executeAction(request, kDeleteAdviceDefinition, deleteAdvice, params);
-
-    return NextResponse.json({ success: false }, { status: 404 });
-}

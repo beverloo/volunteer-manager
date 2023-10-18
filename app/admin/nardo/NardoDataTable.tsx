@@ -4,25 +4,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 
 import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
 
-import type { DataTableRowRequest } from '@app/admin/DataTable';
 import type { NardoRowModel } from '@app/api/nardo/[[...id]]/route';
-import { DataTable } from '../DataTable';
-import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
 /**
  * The <NardoDataTable> component displays
  */
 export function NardoDataTable() {
-    const columns: RemoteDataTableColumn<NardoRowModel>[] = useMemo(() => ([
+    const columns: RemoteDataTableColumn<NardoRowModel>[] = [
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -59,64 +54,9 @@ export function NardoDataTable() {
 
             renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD'),
         },
-    ]), [ /* no deps */ ]);
+    ];
 
-    const router = useRouter();
-
-    if (true) {
-
-        return <RemoteDataTable columns={columns} endpoint="/api/nardo"
-                                defaultSort={{ field: 'date', sort: 'desc' }}
-                                enableCreate enableUpdate subject="piece of advice" />;
-
-    } else {
-        const commitAdd = useCallback!(async (): Promise<GridValidRowModel> => {
-            const response = await callApi('post', '/api/nardo', { /* no parameters */ });
-            if (!response.success)
-                throw new Error('Unable to create a new row');
-
-            return response.row;
-        }, [ /* no deps */ ]);
-
-        const commitDelete = useCallback!(async (row: GridValidRowModel): Promise<void> => {
-            await callApi('delete', '/api/nardo/:id', { id: row.id });
-        }, [ /* no deps */ ]);
-
-        const commitEdit = useCallback!(async (
-            newRow: GridValidRowModel, oldRow: GridValidRowModel): Promise<GridValidRowModel> =>
-        {
-            const response = await callApi('put', '/api/nardo/:id', {
-                id: -1,
-                row: {} as any,
-            });
-
-            if (response.success)
-                router.refresh();
-
-            return response.success ? newRow : oldRow;
-        }, [ router ]);
-
-        const onRequestRows = useCallback!(async (request: DataTableRowRequest) => {
-            let sort: 'advice' | 'authorName' | 'date' = 'date';
-            let sortDirection: 'asc' | 'desc' | null | undefined = 'desc';
-
-            if (request.sortModel.length > 0) {
-                sort = request.sortModel[0].field as any;
-                sortDirection = request.sortModel[0].sort;
-            }
-
-            const response = await callApi('get', '/api/nardo', { /* none */ });
-
-            if (!response.success)
-                throw new Error('Unable to add a row to the database.');
-
-            return response;
-
-        }, [ /* no deps */ ]);
-
-        return <DataTable dense onRequestRows={onRequestRows} columns={columns as any}
-                          commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                          initialSortItem={ { field: 'date', sort: 'desc' }} messageSubject="advice"
-                          pageSize={100} pageSizeOptions={[ 100 ]} />;
-    }
+    return <RemoteDataTable columns={columns} endpoint="/api/nardo"
+                            defaultSort={{ field: 'date', sort: 'desc' }}
+                            enableCreate enableDelete enableUpdate subject="piece of advice" />;
 }
