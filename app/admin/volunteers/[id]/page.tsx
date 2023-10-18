@@ -76,6 +76,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             id: tUsersEvents.eventId.multiply(1000).add(tUsersEvents.teamId),
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
+            eventStartTime: tEvents.eventStartTime,
             status: tUsersEvents.registrationStatus,
             role: tRoles.roleName,
             team: tTeams.teamName,
@@ -83,7 +84,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             teamDarkThemeColour: tTeams.teamColourDarkTheme,
             teamLightThemeColour: tTeams.teamColourLightTheme,
         })
-        .orderBy(tEvents.eventStartTime, 'desc')
+        .orderBy('eventStartTime', 'desc')
         .executeSelectMany();
 
     if (!account || !participation)

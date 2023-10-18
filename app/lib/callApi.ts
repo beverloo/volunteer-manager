@@ -5,7 +5,6 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
-import type { DeleteAdviceDefinition } from '@app/api/nardo/deleteAdvice';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
@@ -66,7 +65,7 @@ export type ApiEndpoints = {
     'delete': {
         '/api/admin/content/:id': DeleteContentDefinition,
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
-        '/api/nardo/:id': DeleteAdviceDefinition,
+        '/api/nardo/:id': NardoEndpoints['delete'],
     },
     'put': {
         '/api/admin/content/:id': UpdateContentDefinition,

@@ -10,7 +10,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 import type { RegistrationStatus } from '@lib/database/Types';
 
@@ -32,6 +32,11 @@ export interface ParticipationInfo {
      * Slug of the event, to enable deep linking to their participation.
      */
     eventSlug: string;
+
+    /**
+     * Date and time on which the event started.
+     */
+    eventStartTime: Date;
 
     /**
      * Status of their participation, one of { Registered, Accepted, Rejected, Cancelled }.
@@ -86,7 +91,7 @@ export interface ParticipationProps {
 export function Participation(props: ParticipationProps) {
     const { participation, userId } = props;
 
-    const columns: DataTableColumn[] = [
+    const columns: DataTableColumn<ParticipationInfo>[] = [
         {
             field: 'eventShortName',
             headerName: 'Event',
@@ -144,7 +149,8 @@ export function Participation(props: ParticipationProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Participation
             </Typography>
-            <OLD_DataTable dense disableFooter rows={participation} columns={columns} />
+            <DataTable disableFooter rows={participation} columns={columns}
+                       defaultSort={{ field: 'eventStartTime', sort: 'asc' }} />
         </Paper>
     );
 }

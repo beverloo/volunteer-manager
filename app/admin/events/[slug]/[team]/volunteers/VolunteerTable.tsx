@@ -17,7 +17,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
+import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
@@ -78,7 +78,7 @@ export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
 export function VolunteerTable(props: VolunteerTableProps) {
     const kVolunteerBase = `/admin/events/${props.params.slug}/${props.params.team}/volunteers/`;
 
-    const columns: DataTableColumn[] = [
+    const columns: DataTableColumn<VolunteerInfo>[] = [
         {
             field: 'id',
             headerName: '',
@@ -227,9 +227,8 @@ export function VolunteerTable(props: VolunteerTableProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 {props.title} ({props.volunteers.length} people)
             </Typography>
-            <OLD_DataTable columns={columns} rows={props.volunteers}
-                           pageSize={props.volunteers.length}
-                           dense disableFooter enableFilter />
+            <DataTable columns={columns} rows={props.volunteers} disableFooter enableFilter
+                       defaultSort={{ field: 'name', sort: 'asc' }}/>
         </Paper>
     )
 }
