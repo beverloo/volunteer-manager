@@ -3,16 +3,12 @@
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
-import type { CreateContentDefinition } from '@app/api/admin/content/createContent';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
-import type { DeleteContentDefinition } from '@app/api/admin/content/deleteContent';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
-import type { GetContentDefinition } from '@app/api/admin/content/getContent';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
-import type { ListContentDefinition } from '@app/api/admin/content/listContent';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
@@ -20,10 +16,10 @@ import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPrefe
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
-import type { UpdateContentDefinition } from '@app/api/admin/content/updateContent';
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
+import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 
 /**
@@ -39,13 +35,13 @@ type ApiResponseType<T> = T extends { response: object } ? T['response'] : void;
  */
 export type ApiEndpoints = {
     'get': {
-        '/api/admin/content': ListContentDefinition,
-        '/api/admin/content/:id': GetContentDefinition,
+        '/api/admin/content': ContentEndpoints['list'],
+        '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
     'post': {
-        '/api/admin/content': CreateContentDefinition,
+        '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/training': TrainingDefinition,
@@ -63,12 +59,12 @@ export type ApiEndpoints = {
         '/api/admin/outbox': ListOutboxDefinition,
     },
     'delete': {
-        '/api/admin/content/:id': DeleteContentDefinition,
+        '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
     'put': {
-        '/api/admin/content/:id': UpdateContentDefinition,
+        '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,

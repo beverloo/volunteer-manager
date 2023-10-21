@@ -13,7 +13,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { ContentScope } from './ContentScope';
+import type { ContentScope } from '@app/api/admin/content/[[...id]]/route';
 import { SubmitCollapse } from '../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
@@ -59,16 +59,18 @@ export function ContentCreate(props: ContentCreateProps) {
         setLoading(true);
         setError(undefined);
         try {
-            const result = await callApi('post', '/api/admin/content', {
-                scope: props.scope,
-                path: data.path,
-                title: data.title,
+            const response = await callApi('post', '/api/admin/content', {
+                context: props.scope,
+                row: {
+                    path: data.path,
+                    title: data.title,
+                },
             });
 
-            if (result.error)
-                setError(result.error);
-            else if (result.id)
-                router.push(`./content/${result.id}`);
+            if (response.success)
+                router.push(`./content/${response.row.id}`);
+            else
+                setError(response.error ?? 'Unable to create the new content');
         } catch (error: any) {
             setError(error.message);
         } finally {

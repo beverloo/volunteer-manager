@@ -4,10 +4,12 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { createRef, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
@@ -16,7 +18,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { MDXEditorMethods } from '@mdxeditor/editor';
-import type { ContentScope } from './ContentScope';
+import type { ContentRowModel, ContentScope } from '@app/api/admin/content/[[...id]]/route';
 import { callApi } from '@lib/callApi';
 import { validateContentPath } from './ContentCreate';
 
@@ -70,16 +72,23 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
 
             const response = await callApi('put', '/api/admin/content/:id', {
                 id: props.contentId,
-                scope: props.scope,
-                content: ref.current.getMarkdown(),
-                path: data.path,
-                title: data.title,
+                context: props.scope,
+                row: {
+                    id: props.contentId,
+                    content: ref.current.getMarkdown(),
+                    path: data.path,
+                    title: data.title,
+                    updatedOn: 0,  // ignored
+                    updatedBy: '',  // ignored
+                    updatedByUserId: 0,  // ignored
+                    protected: false,  // ignored
+                },
             });
 
-            if (response.error)
-                setError(response.error);
             if (response.success)
                 setSuccess('The changes have been saved');
+            else
+                setError(response.error ?? 'The changes could not be saved');
         } catch (error: any) {
             setError(error.message);
         } finally {
@@ -87,7 +96,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
         }
     }, [ props.contentId, props.scope, ref ]);
 
-    const [ defaultValues, setDefaultValues ] = useState<any>();
+    const [ defaultValues, setDefaultValues ] = useState<ContentRowModel>();
 
     const [ contentProtected, setContentProtected ] = useState<boolean>(false);
     const [ markdown, setMarkdown ] = useState<string>();
@@ -95,12 +104,16 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
     useEffect(() => {
         callApi('get', '/api/admin/content/:id', {
             id: props.contentId,
-            scope: props.scope
+            context: props.scope
         }).then(response => {
-            setDefaultValues(response);
+            if (response.success) {
+                setDefaultValues(response.row);
 
-            setContentProtected(!!response.protected);
-            setMarkdown(response.content);
+                setContentProtected(!!response.row.protected);
+                setMarkdown(response.row.content);
+            } else {
+                setError(response.error ?? 'Unable to load the content from the server');
+            }
         });
     }, [ props.contentId, props.scope ]);
 
@@ -108,6 +121,11 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
         return (
             <Paper sx={{ p: 2 }}>
                 {props.children}
+                <Collapse in={!!error}>
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+                </Collapse>
                 <Skeleton variant="text" animation="wave" width="80%" height={16} />
                 <Skeleton variant="text" animation="wave" width="60%" height={16} />
                 <Skeleton variant="text" animation="wave" width="70%" height={16} />
