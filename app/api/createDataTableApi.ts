@@ -305,6 +305,15 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     context: Context,
     implementation: DataTableApi<RowModel, Context>): DataTableApiHandlers
 {
+    let zContext = context;
+    if (zContext instanceof ZodNever) {
+        // TypeScript thinks that the `instanceof` conditionals are truthy and thus ends up with an
+        // incorrect definition for `zContext`. Using just `context` plainly does not work as the
+        // NEVER type cannot be combined with an object. It works fine in practice.
+        // @ts-ignore
+        zContext = z.object({});
+    }
+
     const zErrorResponse = z.object({
         success: z.literal(false),
         error: z.string().optional(),
@@ -315,7 +324,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const deleteInterface = z.object({
-        request: context.and(z.object({
+        request: zContext.and(z.object({
             id: z.coerce.number(),
         })),
         response: z.discriminatedUnion('success', [
@@ -348,12 +357,12 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const getInterface = z.object({
         request: z.union([
             // get:
-            context.and(z.object({
+            zContext.and(z.object({
                 id: z.coerce.number(),
             })),
 
             // list:
-            context.and(z.object({
+            zContext.and(z.object({
                 pagination: z.object({
                     page: z.coerce.number(),
                     pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),
@@ -408,7 +417,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const postInterface = z.object({
-        request: context.and(z.object({
+        request: zContext.and(z.object({
             row: rowModel.partial(),
         })),
         response: z.discriminatedUnion('success', [
@@ -442,7 +451,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const putInterface = z.object({
-        request: context.and(z.object({
+        request: zContext.and(z.object({
             id: z.coerce.number(),
             row: rowModel.required().and(z.object({ id: z.number() })),
         })),
