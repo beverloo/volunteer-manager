@@ -30,10 +30,19 @@ import { type ApiEndpoints, callApi } from '@lib/callApi';
 export type RemoteDataTableColumn<RowModel extends GridValidRowModel> = GridColDef<RowModel>;
 
 /**
+ * Context expected by the remote data table. Automatically inferred based on the endpoint. No
+ * context must be passed when the endpoint does not expect any.
+ */
+type RemoteDataTableContext<Endpoint extends keyof ApiEndpoints['get']> =
+    ApiEndpoints['get'][Endpoint]['request'] extends { context: unknown }
+        ? { context: ApiEndpoints['get'][Endpoint]['request']['context'] }
+        : { /* no context is assumed */ };
+
+/**
  * Props accepted by the <RemoteDataTable> component.
  */
-interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
-                               RowModel extends GridValidRowModel> {
+type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
+                          RowModel extends GridValidRowModel> = RemoteDataTableContext<Endpoint> & {
     /**
      * Columns accepted by the data table.
      */
@@ -113,7 +122,10 @@ export function RemoteDataTable<
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
     const { enableCreate, enableDelete, enableUpdate } = props;
+
     const subject = props.subject ?? 'item';
+    const context = useMemo(() =>
+        'context' in props ? { context: props.context } : { /* no context */}, [ props ]);
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(true);
@@ -136,7 +148,7 @@ export function RemoteDataTable<
                 throw new Error('create actions are not supported for this type');
 
             const response = await callApi('post', props.endpoint as any, {
-                // TODO: context
+                ...context,
                 row: { /* no default fields */ },
             });
 
@@ -160,7 +172,7 @@ export function RemoteDataTable<
         } catch (error: any) {
             setError(`Unable to create a new ${subject} (${error.message})`);
         }
-    }, [ enableCreate, props.columns, props.endpoint, subject ]);
+    }, [ context, enableCreate, props.columns, props.endpoint, subject ]);
 
     const columns = useMemo(() => {
         if (!enableCreate && !enableDelete)
@@ -254,7 +266,7 @@ export function RemoteDataTable<
 
         // TODO: Remove `as any` when all applicable APIs have been updated to the Data Table API.
         const requestPromise = callApi('get', props.endpoint, {
-            // TODO: context
+            ...context,
             pagination: paginationModel,
             sort: sortModel[0],
         } as any);
@@ -273,7 +285,7 @@ export function RemoteDataTable<
             })
             .finally(() => setLoading(false));
 
-    }, [ paginationModel, props.endpoint, sortModel ]);
+    }, [ context, paginationModel, props.endpoint, sortModel ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (U)pdate existing rows
@@ -287,7 +299,7 @@ export function RemoteDataTable<
 
             const response = await callApi('put', `${props.endpoint}/:id` as any, {
                 id: newRow.id,
-                // TODO: context
+                ...context,
                 row: newRow,
             });
 
@@ -301,7 +313,7 @@ export function RemoteDataTable<
             setError(`Unable to update a ${subject} (${error.message})`);
             return oldRow;
         }
-    }, [ enableUpdate, props.endpoint, subject ]);
+    }, [ context, enableUpdate, props.endpoint, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (D)elete existing rows
@@ -319,7 +331,7 @@ export function RemoteDataTable<
 
             const response = await callApi('delete', `${props.endpoint}/:id` as any, {
                 id: deleteCandidate,
-                // TODO: context
+                ...context,
             });
 
             if (response.success) {
@@ -333,7 +345,7 @@ export function RemoteDataTable<
             setDeleteCandidate(undefined);
             setDeleteLoading(false);
         }
-    }, [ deleteCandidate, enableDelete, props.endpoint, subject ]);
+    }, [ context, deleteCandidate, enableDelete, props.endpoint, subject ]);
 
     const resetDeleteCandidate = useCallback(() => setDeleteCandidate(undefined), []);
 

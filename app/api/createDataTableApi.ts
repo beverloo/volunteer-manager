@@ -28,7 +28,7 @@ type DataTableHandlerErrorResponse = {
  * when ZodNever is used instead of a more descriptive context type.
  */
 type DataTableContext<Context extends ZodTypeAny> =
-    { /* TODO: Support context */ };
+    Context extends ZodNever ? { /* no context */ } : z.infer<Context>;
 
 /**
  * Request and response expected for POST requests with the purpose of creating rows.
@@ -315,10 +315,9 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const deleteInterface = z.object({
-        request: z.object({
+        request: context.and(z.object({
             id: z.coerce.number(),
-            // TODO: context
-        }),
+        })),
         response: z.discriminatedUnion('success', [
             zErrorResponse,
             z.object({
@@ -349,14 +348,12 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const getInterface = z.object({
         request: z.union([
             // get:
-            z.object({
+            context.and(z.object({
                 id: z.coerce.number(),
-                // TODO: context
-            }),
+            })),
 
             // list:
-            z.object({
-                // TODO: context
+            context.and(z.object({
                 pagination: z.object({
                     page: z.coerce.number(),
                     pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),
@@ -368,7 +365,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                     ]),
                     sort: z.enum([ 'asc', 'desc' ]).nullable(),
                 }).optional(),
-            }),
+            })),
         ]),
         response: z.union([
             zErrorResponse,
@@ -411,10 +408,9 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const postInterface = z.object({
-        request: z.object({
-            // TODO: context
+        request: context.and(z.object({
             row: rowModel.partial(),
-        }),
+        })),
         response: z.discriminatedUnion('success', [
             zErrorResponse,
             z.object({
@@ -432,8 +428,10 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             await implementation.accessCheck?.(innerRequest, 'create', props);
 
             const response = await implementation.create(innerRequest, props);
-            if (response.success)
-                await implementation.writeLog?.({ id: response.row.id }, 'Created', props);
+            if (response.success) {
+                await implementation.writeLog?.(
+                    { ...innerRequest, id: response.row.id }, 'Created', props);
+            }
 
             return response;
         }, params);
@@ -444,11 +442,10 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const putInterface = z.object({
-        request: z.object({
+        request: context.and(z.object({
             id: z.coerce.number(),
-            // TODO: context
             row: rowModel.required().and(z.object({ id: z.number() })),
-        }),
+        })),
         response: z.discriminatedUnion('success', [
             zErrorResponse,
             z.object({
