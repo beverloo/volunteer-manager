@@ -1927,6 +1927,12 @@ tables:
   type: BASE TABLE
   comment: ""
   columns:
+  - name: export_log_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
   - name: export_id
     type: int(8) unsigned
     nullable: false
@@ -1959,17 +1965,34 @@ tables:
     columns:
     - export_id
     comment: ""
-  constraints: []
+  - name: PRIMARY
+    def: PRIMARY KEY (export_log_id) USING BTREE
+    table: exports_logs
+    columns:
+    - export_log_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (export_log_id)
+    table: exports_logs
+    referencedTable: null
+    columns:
+    - export_log_id
+    referencedColumns: []
+    comment: ""
   triggers: []
   def: |-
     CREATE TABLE `exports_logs` (
+      `export_log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `export_id` int(8) unsigned NOT NULL,
       `access_date` datetime NOT NULL DEFAULT current_timestamp(),
       `access_ip_address` varchar(64) NOT NULL,
       `access_user_agent` text NOT NULL,
       `access_user_id` int(8) unsigned DEFAULT NULL,
+      PRIMARY KEY (`export_log_id`),
       KEY `export_id` (`export_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE
   comment: ""

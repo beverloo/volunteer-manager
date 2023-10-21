@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { ExportAccess } from './ExportAccess';
 import { ExportMetadata } from './ExportMetadata';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -53,6 +54,23 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
     if (!data)
         notFound();
 
+    const usersJoin = tUsers.forUseInLeftJoin();
+
+    const views = await db.selectFrom(tExportsLogs)
+        .leftJoin(usersJoin)
+            .on(usersJoin.userId.equals(tExportsLogs.accessUserId))
+        .where(tExportsLogs.exportId.equals(parseInt(props.params.id, 10)))
+        .select({
+            id: tExportsLogs.exportLogId,
+            date: tExportsLogs.accessDate,
+            userIp: tExportsLogs.accessIpAddress,
+            userAgent: tExportsLogs.accessUserAgent,
+
+            userId: tExportsLogs.accessUserId,
+            userName: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
+        })
+        .executeSelectMany();
+
     return (
         <>
             <Paper sx={{ p: 2 }}>
@@ -65,7 +83,7 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
                 </Alert>
                 <ExportMetadata metadata={data} />
             </Paper>
-            { /* TODO: Export access log */ }
+            <ExportAccess views={views} />
         </>
     )
 }
