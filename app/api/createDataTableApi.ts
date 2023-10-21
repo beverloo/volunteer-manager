@@ -64,12 +64,19 @@ type DataTableDeleteHandlerRequest<Context extends ZodTypeAny> = DataTableContex
     id: number;
 };
 
-type DataTableDeleteHandlerResponse = DataTableHandlerErrorResponse | {
-    /**
-     * Whether the operation could be completed successfully.
-     */
-    success: true,
-};
+type DataTableDeleteHandlerResponse<RowModel extends AnyZodObject> =
+    DataTableHandlerErrorResponse | {
+        /**
+         * Whether the operation could be completed successfully.
+         */
+        success: true,
+
+        /**
+         * The row that the existing entry should be replaced with, if any. This may be a partial
+         * response, all other fields will be maintained when it is.
+         */
+        replacementRow?: Partial<z.infer<RowModel>>;
+    };
 
 /**
  * Request and response expected for GET requests with the purpose of retrieving a single row.
@@ -190,7 +197,7 @@ export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends Zo
     },
     delete: {
         request: DataTableDeleteHandlerRequest<Context>,
-        response: DataTableDeleteHandlerResponse,
+        response: DataTableDeleteHandlerResponse<RowModel>,
     },
     get: {
         request: DataTableGetHandlerRequest<Context>,
@@ -230,7 +237,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * flag, and optionally a message when an error occurs.
      */
     delete?(request: DataTableDeleteHandlerRequest<Context>, props: ActionProps)
-        : Promise<DataTableDeleteHandlerResponse>;
+        : Promise<DataTableDeleteHandlerResponse<RowModel>>;
 
     /**
      * Retrieves a single row from the data source, as opposed to listing all of the rows. The
@@ -331,6 +338,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             zErrorResponse,
             z.object({
                 success: z.literal(true),
+                replacementRow: rowModel.partial().optional(),
             }),
         ]),
     });

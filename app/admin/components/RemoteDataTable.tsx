@@ -338,7 +338,20 @@ export function RemoteDataTable<
             });
 
             if (response.success) {
-                setRows(oldRows => oldRows.filter(row => row.id !== deleteCandidate));
+                setRows(oldRows => {
+                    if (!response.replacementRow)
+                        return oldRows.filter(row => row.id !== deleteCandidate);
+
+                    return oldRows.map(oldRow => {
+                        if (oldRow.id !== deleteCandidate)
+                            return oldRow;
+
+                        return {
+                            ...oldRow,
+                            ...response.replacementRow,
+                        };
+                    });
+                });
             } else {
                 setError(response.error ?? `Unable to delete a ${subject}`);
             }
