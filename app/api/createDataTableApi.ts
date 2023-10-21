@@ -171,6 +171,16 @@ type DataTableUpdateHandlerResponse = DataTableHandlerErrorResponse | {
 };
 
 /**
+ * Request context that can be shared with the `writeLog` function.
+ */
+type DataTableWriteLogRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {
+    /**
+     * Unique ID of the created or mutated row.
+     */
+    id: number;
+};
+
+/**
  * `callApi()` compatible endpoint definitions for the generated APIs.
  */
 export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
@@ -247,7 +257,8 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * Called when a mutation has occurred in case the implementation wants to log the fact that
      * this action has taken place. This call will be _awaited_ for.
      */
-    writeLog?(request: any, mutation: 'Created' | 'Deleted' | 'Updated', props: ActionProps)
+    writeLog?(request: DataTableWriteLogRequest<Context>,
+              mutation: 'Created' | 'Deleted' | 'Updated', props: ActionProps)
         : Promise<void> | void;
 }
 
@@ -422,7 +433,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
 
             const response = await implementation.create(innerRequest, props);
             if (response.success)
-                await implementation.writeLog?.(innerRequest, 'Created', props);
+                await implementation.writeLog?.({ id: response.row.id }, 'Created', props);
 
             return response;
         }, params);
