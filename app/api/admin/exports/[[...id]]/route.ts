@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
@@ -8,6 +9,7 @@ import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
 
 /**
@@ -100,6 +102,58 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
             check: 'admin',
             privilege: Privilege.VolunteerDataExports,
         });
+    },
+
+    async create({ row }, props) {
+        if (!row.type || !row.justification || !row.expirationDate || !row.expirationViews)
+            return { success: false, error: 'Not all required fields were provided' };
+
+        const event = await getEventBySlug(row.event!);
+        if (!event)
+            return { success: false, error: 'An invalid event was provided' };
+
+        const slug = uuid().replaceAll('-', '').slice(0, 16);
+        if (!slug || slug.length !== 16)
+            return { success: false, error: 'Unable to generate an export slug' };
+
+        const expirationDate = new Date(row.expirationDate);
+
+        const dbInstance = db;
+        const insertId = await dbInstance.insertInto(tExports)
+            .set({
+                exportSlug: slug,
+                exportEventId: event.eventId,
+                exportType: row.type,
+                exportJustification: row.justification,
+                exportCreatedDate: dbInstance.currentDateTime(),
+                exportCreatedUserId: props.user!.userId,
+                exportExpirationDate: expirationDate,
+                exportExpirationViews: row.expirationViews,
+                exportEnabled: /* true= */ 1,
+            })
+            .returningLastInsertedId()
+            .executeInsert();
+
+        if (!insertId)
+            return { success: false, error: 'xx' };
+
+        return {
+            success: true,
+            row: {
+                id: insertId,
+                slug: slug,
+                event: row.event!,
+                type: row.type,
+                justification: row.justification,
+                createdOn: (new Date).toISOString(),
+                createdBy: `${props.user!.firstName} ${props.user!.lastName}`,
+                createdByUserId: props.user!.userId,
+                expirationDate: expirationDate.toISOString(),
+                expirationViews: row.expirationViews,
+                views: 0,
+                enabled: true,
+            },
+        };
     },
 
     async delete({ id }) {

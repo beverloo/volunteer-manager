@@ -9,9 +9,11 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { ExportCreatePanel } from './ExportCreatePanel';
 import { ExportTable } from './ExportTable';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEvents } from '@lib/database';
 
 /**
  * The <VolunteersExportsPage> component is the page that allows data to be exported. Every data
@@ -24,6 +26,15 @@ export default async function VolunteersExportsPage() {
         privilege: Privilege.VolunteerDataExports,
     });
 
+    const events = await db.selectFrom(tEvents)
+        .where(tEvents.eventHidden.equals(/* false= */ 0))
+        .select({
+            id: tEvents.eventSlug,
+            label: tEvents.eventShortName,
+        })
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectMany();
+
     return (
         <>
             <Paper sx={{ p: 2 }}>
@@ -32,7 +43,7 @@ export default async function VolunteersExportsPage() {
                 </Typography>
                 <Alert severity="warning" sx={{ mb: 2 }}>
                     This page allows you to export potentially sensitive data to share with the
-                    broader organisation and our vendors. You, <strong>{user.firstName}</strong>,
+                    broader organisation and our vendors. <strong>{user.firstName}</strong>, you
                     are responsible for making sure that this happens in line with our{' '}
                     <MuiLink component={Link} href="/privacy">
                         GDPR & Data Sharing Policies
@@ -40,7 +51,7 @@ export default async function VolunteersExportsPage() {
                 </Alert>
                 <ExportTable />
             </Paper>
-            { /* TODO: Create export */ }
+            <ExportCreatePanel events={events} />
         </>
     )
 }

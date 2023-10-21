@@ -6,6 +6,7 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ExportsRowModel } from '@app/api/admin/exports/[[...id]]/route';
@@ -56,11 +57,30 @@ export function ExportTable() {
         },
         {
             field: 'expirationDate',
-            headerName: 'Expiration date',
+            headerName: 'Expiration time',
             sortable: true,
             flex: 1,
 
-            renderCell: params => dayjs(params.value).format('YYYY-MM-DD (HH:mm:ss)'),
+            renderCell: params => {
+                const today = dayjs();
+                const value = dayjs(params.value);
+
+                if (value.isBefore(today)) {
+                    return (
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            expired
+                        </Typography>
+                    );
+                } else {
+                    return (
+                        <Tooltip title={value.format('YYYY-MM-DD [at] HH:mm:ss')}>
+                            <Typography variant="body2">
+                                {value.from(today)}
+                            </Typography>
+                        </Tooltip>
+                    );
+                }
+            },
         },
         {
             field: 'expirationViews',

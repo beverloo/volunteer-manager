@@ -45,6 +45,7 @@ export type ApiEndpoints = {
     'post': {
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
+        '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/training': TrainingDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
