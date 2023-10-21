@@ -65,6 +65,28 @@ type DataTableDeleteHandlerResponse = DataTableHandlerErrorResponse | {
 };
 
 /**
+ * Request and response expected for GET requests with the purpose of retrieving a single row.
+ */
+type DataTableGetHandlerRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {
+    /**
+     * Unique ID of the row that's about to be deleted.
+     */
+    id: number;
+};
+
+type DataTableGetHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse | {
+    /**
+     * Whether the operation could be completed successfully.
+     */
+    success: true;
+
+    /**
+     * The row that was retrieved.
+     */
+    row: z.infer<RowModel>;
+};
+
+/**
  * Request and response expected for GET requests with the purpose of listing rows.
  */
 type DataTableListHandlerRequest<RowModel extends AnyZodObject,
@@ -153,6 +175,10 @@ export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends Zo
         request: DataTableDeleteHandlerRequest<Context>,
         response: DataTableDeleteHandlerResponse,
     },
+    get: {
+        request: DataTableGetHandlerRequest<Context>,
+        response: DataTableGetHandlerResponse<RowModel>,
+    },
     list: {
         request: DataTableListHandlerRequest<RowModel, Context>,
         response: DataTableListHandlerResponse<RowModel>,
@@ -172,7 +198,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
      */
     accessCheck?(request: DataTableContext<Context>,
-                 action: 'create' | 'delete' | 'list' | 'update', props: ActionProps)
+                 action: 'create' | 'delete' | 'get' | 'list' | 'update', props: ActionProps)
         : Promise<void> | void;
 
     /**
@@ -190,12 +216,17 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
         : Promise<DataTableDeleteHandlerResponse>;
 
     /**
+     * Retrieves a single row from the data source, as opposed to listing all of the rows. The
+     * `request` includes the necessasry parameter (`id`) to share the requested unique ID.
+     */
+    get?(request: DataTableGetHandlerRequest<Context>, props: ActionProps)
+        : Promise<DataTableGetHandlerResponse<RowModel>>;
+
+    /**
      * Implements the ability to retrieve the rows that should be displayed in the data table. The
      * `request` includes the necessary parameters to support pagination and sorting.
-     *
-     * @handles `/endpoint`
      */
-    list(request: DataTableListHandlerRequest<RowModel, Context>, props: ActionProps)
+    list?(request: DataTableListHandlerRequest<RowModel, Context>, props: ActionProps)
         : Promise<DataTableListHandlerResponse<RowModel>>;
 
     /**
@@ -298,22 +329,39 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     // ---------------------------------------------------------------------------------------------
 
     const getInterface = z.object({
-        request: z.object({
-            // TODO: context
-            pagination: z.object({
-                page: z.coerce.number(),
-                pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),
-            }).optional(),
-            sort: z.object({
-                field: z.enum([
-                    getTypedObjectKeys(rowModel.shape)[0],
-                    ...getTypedObjectKeys(rowModel.shape)
-                ]),
-                sort: z.enum([ 'asc', 'desc' ]).nullable(),
-            }).optional(),
-        }),
-        response: z.discriminatedUnion('success', [
+        request: z.union([
+            // get:
+            z.object({
+                id: z.coerce.number(),
+                // TODO: context
+            }),
+
+            // list:
+            z.object({
+                // TODO: context
+                pagination: z.object({
+                    page: z.coerce.number(),
+                    pageSize: z.enum([ '10', '25', '50', '100' ]).transform(v => parseInt(v)),
+                }).optional(),
+                sort: z.object({
+                    field: z.enum([
+                        getTypedObjectKeys(rowModel.shape)[0],
+                        ...getTypedObjectKeys(rowModel.shape)
+                    ]),
+                    sort: z.enum([ 'asc', 'desc' ]).nullable(),
+                }).optional(),
+            }),
+        ]),
+        response: z.union([
             zErrorResponse,
+
+            // get:
+            z.object({
+                success: z.literal(true),
+                row: rowModel,
+            }),
+
+            // list:
             z.object({
                 success: z.literal(true),
                 rowCount: z.number(),
@@ -324,8 +372,19 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
 
     const GET: DataTableApiHandler = async(request, { params }) => {
         return executeAction(request, getInterface, async (innerRequest, props) => {
-            await implementation.accessCheck?.(innerRequest, 'list', props);
-            return implementation.list(innerRequest, props);
+            if ('id' in innerRequest) {
+                if (!implementation.get)
+                    throw new Error('Cannot handle GET(:id) requests without a get handler');
+
+                await implementation.accessCheck?.(innerRequest, 'get', props);
+                return implementation.get(innerRequest, props);
+            } else {
+                if (!implementation.list)
+                    throw new Error('Cannot handle GET requests without a list handler');
+
+                await implementation.accessCheck?.(innerRequest, 'list', props);
+                return implementation.list(innerRequest, props);
+            }
         }, params);
     };
 
