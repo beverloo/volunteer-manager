@@ -64,6 +64,9 @@ interface RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     /**
      * Whether rows can be deleted. When set, this will display a _delete_ icon as the first column
      * of every row. Deletion will only happen after the user confirms the operation.
+     *
+     * When a `protected` field is included in the `RowModel`, it will be checked for truthiness to
+     * determine whether individual rows should be excluded from being removed.
      */
     enableDelete?: `${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false;
 
@@ -172,6 +175,15 @@ export function RemoteDataTable<
             let renderCell: GridColDef['renderCell'] = undefined;
             if (enableDelete) {
                 renderCell = (params: GridRenderCellParams) => {
+                    if (!!params.row.protected) {
+                        return (
+                            <Tooltip title={`This ${subject} cannot be deleted`}>
+                                <DeleteForeverIcon color="disabled" fontSize="small"
+                                                   sx={{ ml: '5px' }} />
+                            </Tooltip>
+                        );
+                    }
+
                     return (
                         <Tooltip title={`Delete this ${subject}`}>
                             <IconButton onClick={ () => setDeleteCandidate(params.row.id) }
