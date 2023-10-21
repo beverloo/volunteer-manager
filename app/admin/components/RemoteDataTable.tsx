@@ -137,6 +137,7 @@ export function RemoteDataTable<
 
             const response = await callApi('post', props.endpoint as any, {
                 // TODO: context
+                row: { /* no default fields */ },
             });
 
             if (response.success) {

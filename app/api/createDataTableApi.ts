@@ -33,7 +33,14 @@ type DataTableContext<Context extends ZodTypeAny> =
 /**
  * Request and response expected for POST requests with the purpose of creating rows.
  */
-type DataTableCreateHandlerRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {};
+type DataTableCreateHandlerRequest<Context extends ZodTypeAny, RowModel extends AnyZodObject> =
+    DataTableContext<Context> & {
+        /**
+         * Partial row containing the values that should seed the new row.
+         */
+        row: Partial<z.infer<RowModel>>;
+    };
+
 type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse |
     {
         /**
@@ -168,7 +175,7 @@ type DataTableUpdateHandlerResponse = DataTableHandlerErrorResponse | {
  */
 export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
     create: {
-        request: DataTableCreateHandlerRequest<Context>,
+        request: DataTableCreateHandlerRequest<Context, RowModel>,
         response: DataTableCreateHandlerResponse<RowModel>,
     },
     delete: {
@@ -205,7 +212,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * Creates a new row in the database, and returns the `RowModel` for the new row. An ID must
      * be included as it's expected by the `<RemoteDataTable>` interface.
      */
-    create?(request: DataTableCreateHandlerRequest<Context>, props: ActionProps)
+    create?(request: DataTableCreateHandlerRequest<Context, RowModel>, props: ActionProps)
         : Promise<DataTableCreateHandlerResponse<RowModel>>;
 
     /**
@@ -395,6 +402,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const postInterface = z.object({
         request: z.object({
             // TODO: context
+            row: rowModel.partial(),
         }),
         response: z.discriminatedUnion('success', [
             zErrorResponse,
