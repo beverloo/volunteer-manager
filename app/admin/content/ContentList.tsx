@@ -46,6 +46,8 @@ export function ContentList(props: ContentListProps) {
             headerName: '',
             sortable: false,
             width: 50,
+
+            isProtected: params => !!params.row.protected,
         },
         {
             field: 'path',

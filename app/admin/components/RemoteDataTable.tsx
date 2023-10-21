@@ -5,8 +5,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { GridColDef, GridPaginationModel, GridRenderCellParams, GridRowModesModel,
-    GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
+    GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid, GridRowModes } from '@mui/x-data-grid';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -27,7 +27,13 @@ import { type ApiEndpoints, callApi } from '@lib/callApi';
 /**
  * Type describing a column definition in the DataTable API.
  */
-export type RemoteDataTableColumn<RowModel extends GridValidRowModel> = GridColDef<RowModel>;
+export type RemoteDataTableColumn<RowModel extends GridValidRowModel> = GridColDef<RowModel> & {
+    /**
+     * Callback that will be invoked for each row when `enableDelete` is set, to verify whether the
+     * given row, included in the `params`, is protected and thus cannot be removed.
+     */
+    isProtected?: (params: GridCellParams<RowModel>) => boolean;
+};
 
 /**
  * Context expected by the remote data table. Automatically inferred based on the endpoint. No
@@ -73,9 +79,6 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     /**
      * Whether rows can be deleted. When set, this will display a _delete_ icon as the first column
      * of every row. Deletion will only happen after the user confirms the operation.
-     *
-     * When a `protected` field is included in the `RowModel`, it will be checked for truthiness to
-     * determine whether individual rows should be excluded from being removed.
      */
     enableDelete?: `${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false;
 
@@ -188,7 +191,7 @@ export function RemoteDataTable<
             let renderCell: GridColDef['renderCell'] = undefined;
             if (enableDelete) {
                 renderCell = (params: GridRenderCellParams) => {
-                    if (!!params.row.protected) {
+                    if (column.isProtected && column.isProtected(params)) {
                         return (
                             <Tooltip title={`This ${subject} cannot be deleted`}>
                                 <DeleteForeverIcon color="disabled" fontSize="small"
