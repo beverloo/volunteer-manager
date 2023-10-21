@@ -12,6 +12,15 @@ export enum AuthType {
 }
 
 /**
+ * Type of export that a particular entry describes.
+ * @see Table `exports`
+ */
+export enum ExportType {
+    Training = 'Training',
+    Volunteers = 'Volunteers',
+}
+
+/**
  * Type of content that's stored within the storage buffer.
  * @see Table `storage`
  */

@@ -97,6 +97,10 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `${mutation} an extra participant to ${eventName} trainings`;
     },
 
+    [LogType.AdminExportMutation]: (source, target, { eventName, type, mutation }) => {
+        return `${mutation} a ${type.replace(/s$/, '').toLowerCase()} data export for ${eventName}`;
+    },
+
     [LogType.AdminHotelAssignVolunteer]: (source, target, { event }) => {
         return `Assigned ${target?.name} to a hotel room for ${event}`;
     },

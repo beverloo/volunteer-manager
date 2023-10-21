@@ -31,6 +31,7 @@ export enum LogType {
     AdminEventTrainingAssignment = 'admin-event-training-assignment',
     AdminEventTrainingMutation = 'admin-event-training',
     AdminEventTrainingExtraMutation = 'admin-event-training-extra',
+    AdminExportMutation = 'admin-export-mutation',
     AdminHotelAssignVolunteer = 'admin-hotel-assign-volunteer',
     AdminHotelAssignVolunteerDelete = 'admin-hotel-assign-volunteer-delete',
     AdminHotelBookingCreate = 'admin-hotel-booking-create',

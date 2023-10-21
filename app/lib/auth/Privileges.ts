@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 20
+ * Next setting: 1 << 21
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -37,6 +37,7 @@ export enum Privilege {
 
     // Privileges captured by VolunteerAdministrator:
     VolunteerAvatarManagement           = 1 << 6,
+    VolunteerDataExports                = 1 << 20,
     VolunteerSilentMutations            = 1 << 15,
 };
 
@@ -87,6 +88,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
 
     [Privilege.VolunteerAdministrator]: [
         Privilege.VolunteerAvatarManagement,
+        Privilege.VolunteerDataExports,
         Privilege.VolunteerSilentMutations,
     ],
 };
@@ -140,6 +142,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
 
     [Privilege.VolunteerAdministrator]: 'Special access',
     [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
+    [Privilege.VolunteerDataExports]: 'Volunteer access',
     [Privilege.VolunteerSilentMutations]: 'Volunteer access',
 };
 
@@ -169,6 +172,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
     [Privilege.VolunteerAvatarManagement]: 'Avatar management',
+    [Privilege.VolunteerDataExports]: 'Data exports',
     [Privilege.VolunteerSilentMutations]: 'Silent changes',
 };
 
@@ -184,5 +188,6 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
 
     [Privilege.SystemOutboxAccess]: 'Access to all sent e-mails and their content',
 
+    [Privilege.VolunteerDataExports]: 'Allows exporting volunteer PII',
     [Privilege.VolunteerSilentMutations]: 'Make changes without informing the volunteer',
 };

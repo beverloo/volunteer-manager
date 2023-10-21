@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { ExportTable } from './ExportTable';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -20,7 +21,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function VolunteersExportsPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        privilege: Privilege.VolunteerDataExports,
     });
 
     return (
@@ -29,7 +30,7 @@ export default async function VolunteersExportsPage() {
                 <Typography variant="h5" sx={{ mb: 1 }}>
                     Exports
                 </Typography>
-                <Alert severity="warning">
+                <Alert severity="warning" sx={{ mb: 2 }}>
                     This page allows you to export potentially sensitive data to share with the
                     broader organisation and our vendors. You, <strong>{user.firstName}</strong>,
                     are responsible for making sure that this happens in line with our{' '}
@@ -37,8 +38,8 @@ export default async function VolunteersExportsPage() {
                         GDPR & Data Sharing Policies
                     </MuiLink>.
                 </Alert>
+                <ExportTable />
             </Paper>
-            { /* TODO: Active exports */ }
             { /* TODO: Create export */ }
         </>
     )

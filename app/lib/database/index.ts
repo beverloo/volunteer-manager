@@ -4,6 +4,8 @@
 import { ContentTable } from './scheme/ContentTable';
 import { EventsTable } from './scheme/EventsTable';
 import { EventsTeamsTable } from './scheme/EventsTeamsTable';
+import { ExportsLogsTable } from './scheme/ExportsLogsTable';
+import { ExportsTable } from './scheme/ExportsTable';
 import { HotelsTable } from './scheme/HotelsTable';
 import { HotelsAssignmentsTable } from './scheme/HotelsAssignmentsTable';
 import { HotelsBookingsTable } from './scheme/HotelsBookingsTable';
@@ -33,6 +35,8 @@ import { UsersTable } from './scheme/UsersTable';
 export const tContent = new ContentTable;
 export const tEvents = new EventsTable;
 export const tEventsTeams = new EventsTeamsTable;
+export const tExports = new ExportsTable;
+export const tExportsLogs = new ExportsLogsTable;
 export const tHotels = new HotelsTable;
 export const tHotelsAssignments = new HotelsAssignmentsTable;
 export const tHotelsBookings = new HotelsBookingsTable;

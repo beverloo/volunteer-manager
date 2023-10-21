@@ -17,7 +17,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function VolunteersExportDetailsPage(props: NextRouterParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        privilege: Privilege.VolunteerDataExports,
     });
 
     return (

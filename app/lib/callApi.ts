@@ -20,6 +20,7 @@ import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
+import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 
 /**
@@ -37,6 +38,7 @@ export type ApiEndpoints = {
     'get': {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
+        '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
@@ -60,6 +62,7 @@ export type ApiEndpoints = {
     },
     'delete': {
         '/api/admin/content/:id': ContentEndpoints['delete'],
+        '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
