@@ -48,6 +48,8 @@ export interface VolunteerInfo {
  */
 async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo | undefined> {
     const numericUnverifiedId = parseInt(unverifiedId, 10);
+    if (isNaN(numericUnverifiedId))
+        return undefined;
 
     const account = await db.selectFrom(tUsers)
         .where(tUsers.userId.equals(numericUnverifiedId))
@@ -139,8 +141,12 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
  * database, and using this as the page title. MysQL connections are pooled.
  */
 export async function generateMetadata(props: NextRouterParams<'id'>): Promise<Metadata> {
+    const userId = parseInt(props.params.id, 10);
+    if (isNaN(userId))
+        return { /* no updates */ };
+
     const user = await db.selectFrom(tUsers)
-        .where(tUsers.userId.equals(parseInt(props.params.id, 10)))
+        .where(tUsers.userId.equals(userId))
         .select({ name: tUsers.firstName.concat(' ').concat(tUsers.lastName) })
         .executeSelectNoneOrOne();
 
