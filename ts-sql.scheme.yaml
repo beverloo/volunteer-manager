@@ -1712,100 +1712,6 @@ tables:
       KEY `event_id` (`event_id`),
       KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: exports
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: export_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: export_slug
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_event_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_type
-    type: enum('Training','Volunteers')
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_justification
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_created_date
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_created_user_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_expiration_date
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_expiration_views
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: export_enabled
-    type: tinyint(1) unsigned
-    nullable: false
-    default: "1"
-    comment: ""
-  indexes:
-  - name: export_slug
-    def: KEY export_slug (export_slug) USING BTREE
-    table: exports
-    columns:
-    - export_slug
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (export_id) USING BTREE
-    table: exports
-    columns:
-    - export_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (export_id)
-    table: exports
-    referencedTable: null
-    columns:
-    - export_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `exports` (
-      `export_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `export_slug` varchar(16) NOT NULL,
-      `export_event_id` int(8) unsigned NOT NULL,
-      `export_type` enum('Training','Volunteers') NOT NULL,
-      `export_justification` text NOT NULL,
-      `export_created_date` datetime NOT NULL,
-      `export_created_user_id` int(8) unsigned NOT NULL,
-      `export_expiration_date` datetime NOT NULL,
-      `export_expiration_views` int(8) unsigned NOT NULL,
-      `export_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
-      PRIMARY KEY (`export_id`),
-      KEY `export_slug` (`export_slug`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
   comment: ""
@@ -1992,6 +1898,100 @@ tables:
       `access_user_id` int(8) unsigned DEFAULT NULL,
       PRIMARY KEY (`export_log_id`),
       KEY `export_id` (`export_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: exports
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: export_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: export_slug
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_type
+    type: enum('Credits','Trainings','Volunteers')
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_justification
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_created_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_created_user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_expiration_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_expiration_views
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: export_enabled
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: export_slug
+    def: KEY export_slug (export_slug) USING BTREE
+    table: exports
+    columns:
+    - export_slug
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (export_id) USING BTREE
+    table: exports
+    columns:
+    - export_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (export_id)
+    table: exports
+    referencedTable: null
+    columns:
+    - export_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `exports` (
+      `export_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `export_slug` varchar(16) NOT NULL,
+      `export_event_id` int(8) unsigned NOT NULL,
+      `export_type` enum('Credits','Trainings','Volunteers') NOT NULL,
+      `export_justification` text NOT NULL,
+      `export_created_date` datetime NOT NULL,
+      `export_created_user_id` int(8) unsigned NOT NULL,
+      `export_expiration_date` datetime NOT NULL,
+      `export_expiration_views` int(8) unsigned NOT NULL,
+      `export_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
+      PRIMARY KEY (`export_id`),
+      KEY `export_slug` (`export_slug`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE

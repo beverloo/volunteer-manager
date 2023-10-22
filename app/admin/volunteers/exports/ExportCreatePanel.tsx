@@ -32,7 +32,8 @@ const kAvailabilityOptions = [
  * Options that can be selected for the type of data that should be exported.
  */
 const kTypeOptions = [
-    { id: 'Training', label: 'Training participation' },
+    { id: 'Credits', label: 'Credit reel consent' },
+    { id: 'Trainings', label: 'Training participation' },
     { id: 'Volunteers', label: 'Volunteer list' },
 ];
 
