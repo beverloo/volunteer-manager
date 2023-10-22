@@ -20,7 +20,7 @@ import { AuthenticationContext, AuthenticationContextManager } from './Authentic
  * that should by dynamically sized according to the viewport, contained within an <a> element which
  * should be activated when a user clicks on the logo.
  */
-const kLogoContainerStyles: React.CSSProperties = {
+export const kLogoContainerStyles: React.CSSProperties = {
     cursor: 'pointer',
     pointerEvents: 'none',
     width: '256px',
