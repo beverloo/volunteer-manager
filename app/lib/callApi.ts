@@ -5,6 +5,7 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
+import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
@@ -56,6 +57,7 @@ export type ApiEndpoints = {
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
+        '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
 
         // TODO: Move to GET when `writeToSearchParams` can deal with arrays:

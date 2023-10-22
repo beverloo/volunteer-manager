@@ -36,7 +36,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
         .where(tExports.exportSlug.equals(props.params.slug))
         .select({
-            id: tExports.exportId,
+            slug: tExports.exportSlug,  // do not expose the `id` as these are incremental
 
             eventId: tExports.exportEventId,
             eventName: tEvents.eventShortName,

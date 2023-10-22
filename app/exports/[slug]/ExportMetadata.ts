@@ -8,9 +8,9 @@ import type { ExportType } from '@lib/database/Types';
  */
 export interface ExportMetadata {
     /**
-     * Unique ID of the export as it exists in the database.
+     * Unique slug of the export as it exists in the database.
      */
-    id: number;
+    slug: string;
 
     /**
      * Unique ID of the event that this export is associated with.
