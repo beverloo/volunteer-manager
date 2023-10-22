@@ -5,14 +5,32 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
-import { ExportType } from '@lib/database/Types';
-import db, { tEvents, tExports, tExportsLogs } from '@lib/database';
+import { ExportType, RegistrationStatus } from '@lib/database/Types';
+import db, { tEvents, tExports, tExportsLogs, tRoles, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Data export type definition for credit reel consent.
  */
 const kCreditsDataExport = z.object({
-    // todo
+    /**
+     * Array of volunteers who have declined inclusion in the credit reel.
+     */
+    declined: z.array(z.string()),
+
+    /**
+     * Array of roles & associated volunteers who want to be included in the credit reel.
+     */
+    included: z.array(z.object({
+        /**
+         * Name of the role this group of volunteers belongs to.
+         */
+        role: z.string(),
+
+        /**
+         * Volunteers who are to be listed as part of this role.
+         */
+        volunteers: z.array(z.string()),
+    })),
 });
 
 /**
@@ -83,7 +101,7 @@ type Response = ExportsDefinition['response'];
  * Threshold, in milliseconds, within which reloads of the data will be ignored for logging
  * purposes. This ensures that fast subsequent access does not needlessly affect view limits.
  */
-const kReloadIgnoreThreshold = 3 /* = minutes */ * 60 * 1000;
+const kReloadIgnoreThreshold = 5 /* = minutes */ * 60 * 1000;
 
 /**
  * API through which volunteers can update their training preferences.
@@ -102,7 +120,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
         .where(tExports.exportSlug.equals(request.slug))
             .and(tExports.exportEnabled.equals(/* true= */ 1))
-            .and(tExports.exportCreatedDate.lessThan(dbInstance.currentDateTime()))
+            .and(tExports.exportExpirationDate.greaterThan(dbInstance.currentDateTime()))
         .select({
             id: tExports.exportId,
             eventId: tExports.exportEventId,
@@ -135,7 +153,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 exportId: metadata.id,
                 accessDate: dbInstance.currentDateTime(),
                 accessIpAddress: props.ip,
-                accessUserAgent: '--todo--',
+                accessUserAgent: props.requestHeaders.get('user-agent') ?? '(unknown)',
                 accessUserId: props.user?.userId,
             })
             .executeInsert();
@@ -145,7 +163,54 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
     let credits: CreditsDataExport | undefined = undefined;
     if (metadata.type === ExportType.Credits) {
-        // todo
+        credits = { declined: [], included: [] };
+
+        const volunteers = await db.selectFrom(tUsersEvents)
+            .innerJoin(tUsers)
+                .on(tUsers.userId.equals(tUsersEvents.userId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
+            .where(tUsersEvents.eventId.equals(metadata.eventId))
+                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .select({
+                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                role: tRoles.roleName,
+                included: tUsersEvents.includeCredits.valueWhenNull(/* true= */ 1),
+            })
+            .orderBy(tRoles.roleOrder, 'asc')
+            .orderBy(tRoles.roleName, 'asc')
+            .orderBy('name', 'asc')
+            .executeSelectMany();
+
+        let currentRoleGroup: string[] = [];
+        let currentRole: string | null = null;
+
+        for (const volunteer of volunteers) {
+            if (!volunteer.included) {
+                credits.declined.push(volunteer.name);
+            } else {
+                if (currentRole !== volunteer.role) {
+                    if (currentRole && currentRoleGroup.length > 0) {
+                        credits.included.push({
+                            role: currentRole,
+                            volunteers: currentRoleGroup
+                        });
+                    }
+
+                    currentRoleGroup = [];
+                    currentRole = volunteer.role;
+                }
+
+                currentRoleGroup.push(volunteer.name);
+            }
+        }
+
+        if (currentRole && currentRoleGroup.length > 0) {
+            credits.included.push({
+                role: currentRole,
+                volunteers: currentRoleGroup
+            });
+        }
     }
 
     let trainings: TrainingsDataExport | undefined = undefined;
