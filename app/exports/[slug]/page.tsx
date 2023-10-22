@@ -64,7 +64,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
     const accessible = metadata.enabled && metadata.accessDateValid && metadata.accessViewsValid;
 
     return (
-        <ExportLayout>
+        <ExportLayout eventName={metadata.eventName}>
             { !!accessible && <ExportAvailable metadata={metadata} /> }
             { !accessible && <ExportUnavailable metadata={metadata} /> }
         </ExportLayout>
@@ -72,5 +72,5 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
 }
 
 export const metadata: Metadata = {
-    title: 'Data export | AnimeCon Volunteer Manager',
+    title: 'AnimeCon Volunteering Teams | Data Exports',
 };
