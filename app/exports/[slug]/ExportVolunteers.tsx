@@ -3,9 +3,43 @@
 
 'use client';
 
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Table from '@mui/material/Table';
 
 import type { VolunteersDataExport } from '@app/api/exports/route';
+
+/**
+ * Formats the given `gender` from the format we store it in, to the format AnPlan expects it in.
+ */
+function formatGender(gender: string): string {
+    switch (gender) {
+        case 'Female':
+            return 'f';
+        case 'Male':
+            return 'm';
+        default:
+            return 'o';
+    }
+}
+
+/**
+ * Formats the given `shirtFit` from the format we store it in, to the format AnPlan expects it in.
+ */
+function formatShirtFit(shirtFit?: string): string {
+    switch (shirtFit) {
+        case 'Girly':
+            return 'y';
+        case 'Regular':
+            return 'n';
+        default:
+            return '';
+    }
+}
 
 /**
  * Props accepted by the <ExportVolunteers> component.
@@ -23,9 +57,45 @@ export interface ExportVolunteersProps {
  * is included in the export.
  */
 export function ExportVolunteers(props: ExportVolunteersProps) {
+    const { volunteers } = props;
+
     return (
         <Paper sx={{ p: 2 }}>
-            (to be implemented)
+            <Alert severity="info" sx={{ mb: 1 }}>
+                This table can be copied and pasted into Google Sheets and Microsoft Excel. Only
+                confirmed participants are included.
+            </Alert>
+            <Table size="small">
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Department</TableCell>
+                        <TableCell>Role</TableCell>
+                        <TableCell>E-mail</TableCell>
+                        <TableCell>First name</TableCell>
+                        <TableCell>Prefix</TableCell>
+                        <TableCell>Last name</TableCell>
+                        <TableCell>Gender (m/f/o)</TableCell>
+                        <TableCell>Age</TableCell>
+                        <TableCell>T-shirt size</TableCell>
+                        <TableCell>Girly fit (y/n)</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    { volunteers && volunteers.map((volunteer, index) =>
+                        <TableRow key={index}>
+                            <TableCell>{volunteer.department}</TableCell>
+                            <TableCell>{volunteer.role}</TableCell>
+                            <TableCell>{volunteer.email}</TableCell>
+                            <TableCell>{volunteer.firstName}</TableCell>
+                            <TableCell>{volunteer.prefix}</TableCell>
+                            <TableCell>{volunteer.lastName}</TableCell>
+                            <TableCell>{formatGender(volunteer.gender)}</TableCell>
+                            <TableCell>{volunteer.age}</TableCell>
+                            <TableCell>{volunteer.shirtSize}</TableCell>
+                            <TableCell>{formatShirtFit(volunteer.shirtFit)}</TableCell>
+                        </TableRow> )}
+                </TableBody>
+            </Table>
         </Paper>
     );
 }

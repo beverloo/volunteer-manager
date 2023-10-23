@@ -72,11 +72,60 @@ const kTrainingsDataExport = z.object({
 });
 
 /**
- * Data export type definition for volunteer participation.
+ * Data export type definition for volunteer participation. This follows the structure that is
+* preferred by the AnimeCon Desk team.
  */
-const kVolunteersDataExport = z.object({
-    // todo
-});
+const kVolunteersDataExport = z.array(z.object({
+    /**
+     * Department that the volunteer is part of.
+     */
+    department: z.string(),
+
+    /**
+     * Role that the volunteer has been assigned within that department.
+     */
+    role: z.string(),
+
+    /**
+     * E-mail address through which the volunteer should receive their ticket.
+     */
+    email: z.string(),
+
+    /**
+     * The volunteer's first name.
+     */
+    firstName: z.string(),
+
+    /**
+     * The volunteer's prefix, if any.
+     */
+    prefix: z.string(),
+
+    /**
+     * The volunteer's last name.
+     */
+    lastName: z.string(),
+
+    /**
+     * The volunteer's gender.
+     */
+    gender: z.string(),
+
+    /**
+     * Age of the volunteer at time of the convention.
+     */
+    age: z.number().optional(),
+
+    /**
+     * Size of the shirt they would like. Not validated, as we validate this plenty elsewhere.
+     */
+    shirtSize: z.string().optional(),
+
+    /**
+     * Fit of the shirt they would like. "Regular" or "Girly".
+     */
+    shirtFit: z.string().optional(),
+}));
 
 /**
  * Export the aforementioned type definitions for use elsewhere in the Volunteer Manager.
@@ -156,6 +205,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             id: tExports.exportId,
             eventId: tExports.exportEventId,
             eventName: tEvents.eventShortName,
+            eventStartTime: tEvents.eventStartTime,
             type: tExports.exportType,
 
             maximumViews: tExports.exportExpirationViews,
@@ -309,7 +359,48 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
     let volunteers: VolunteersDataExport | undefined = undefined;
     if (metadata.type === ExportType.Volunteers) {
-        // todo
+        volunteers = [];
+
+        const volunteerList = await db.selectFrom(tUsersEvents)
+            .innerJoin(tUsers)
+                .on(tUsers.userId.equals(tUsersEvents.userId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
+            .where(tUsersEvents.eventId.equals(metadata.eventId))
+                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .select({
+                role: tRoles.roleName,
+                username: tUsers.username,
+                firstName: tUsers.firstName,
+                lastName: tUsers.lastName,
+                gender: tUsers.gender,
+                birthdate: tUsers.birthdate,
+                shirtSize: tUsersEvents.shirtSize,
+                shirtFit: tUsersEvents.shirtFit,
+            })
+            .orderBy(tRoles.roleOrder, 'asc')
+            .orderBy(tUsers.lastName, 'asc')
+            .orderBy(tUsers.firstName, 'asc')
+            .executeSelectMany();
+
+        for (const volunteer of volunteerList) {
+            let age: number | undefined = undefined;
+            if (volunteer.birthdate)
+                age = dayjs(metadata.eventStartTime).diff(volunteer.birthdate, 'years');
+
+            volunteers.push({
+                department: 'HR & Security',
+                role: volunteer.role,
+                email: volunteer.username!,
+                firstName: volunteer.firstName,
+                prefix: '',
+                lastName: volunteer.lastName,
+                gender: volunteer.gender,
+                age,
+                shirtSize: volunteer.shirtSize,
+                shirtFit: volunteer.shirtFit,
+            });
+        }
     }
 
     return {
