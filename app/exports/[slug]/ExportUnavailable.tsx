@@ -41,7 +41,7 @@ export interface ExportUnavailableProps {
  */
 export function ExportUnavailable(props: ExportUnavailableProps) {
     return (
-        <Paper sx={{ p: 2, width: '75%', textAlign: 'center' }}>
+        <Paper sx={{ p: 2, textAlign: 'center' }}>
             Unfortunately the data you have requested no longer is available
             {determineReason(props.metadata)}. Please contact the person who shared it with you
             in case you still need access, or{' '}

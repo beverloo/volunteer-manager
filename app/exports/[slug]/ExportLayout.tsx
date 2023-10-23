@@ -35,38 +35,41 @@ export function ExportLayout(props: React.PropsWithChildren<ExportLayoutProps>) 
     ]);
 
     return (
-        <Box component={Stack} direction="column" alignItems="center" justifyContent="center"
-             sx={{
-                 p: 2,
-                 minHeight: '100vh',
-                 backgroundColor:
-                    theme => theme.palette.mode === 'light' ? '#ECEFF1' : '#424242',
-             }} spacing={2}>
+        <Stack direction="column" alignItems="center" justifyContent="center"
+               sx={{
+                   p: 2,
+                   minHeight: '100vh',
+                   backgroundColor:
+                       theme => theme.palette.mode === 'light' ? '#ECEFF1' : '#424242',
+               }}>
 
-            <Container component="header" sx={{ textAlign: 'center' }}>
-                <Link href="/" style={{ display: 'inline-block' }}>
-                    <object type="image/svg+xml" style={kLogoContainerStyles}
-                            data={'/images/logo.svg?' + params} />
-                </Link>
-            </Container>
+            <Stack direction="column" alignItems="stretch" justifyContent="center"
+                   sx={{ minWidth: '85%', maxWidth: 'min-content' }} spacing={2}>
 
-            {props.children}
+                <Box component="header" sx={{ alignSelf: 'center' }}>
+                    <Link href="/" style={{ display: 'inline-block' }}>
+                        <object type="image/svg+xml" style={kLogoContainerStyles}
+                                data={'/images/logo.svg?' + params} />
+                    </Link>
+                </Box>
 
-            <Typography variant="body1" sx={{
-                p: 1,
-                width: '75%',
-                textAlign: 'center',
-                color: 'text.primary',
-            }}>
-                {props.eventName} —{' '}
-                <MuiLink component={Link} href="/privacy">
-                    Privacy Policy
-                </MuiLink> —{' '}
-                <MuiLink component={Link} href="mailto:crew@animecon.nl">
-                    crew@animecon.nl
-                </MuiLink>
-            </Typography>
+                {props.children}
 
-        </Box>
-    )
+                <Typography variant="body1"
+                            sx={{ p: 1, textAlign: 'center', color: 'text.primary' }}>
+
+                    {props.eventName} —{' '}
+                    <MuiLink component={Link} href="/privacy">
+                        Privacy Policy
+                    </MuiLink> —{' '}
+                    <MuiLink component={Link} href="mailto:crew@animecon.nl">
+                        crew@animecon.nl
+                    </MuiLink>
+
+                </Typography>
+
+            </Stack>
+
+        </Stack>
+    );
 }

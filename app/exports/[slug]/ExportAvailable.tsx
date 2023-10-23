@@ -11,6 +11,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import type { CreditsDataExport, TrainingsDataExport, VolunteersDataExport } from '@app/api/exports/route';
 import type { ExportMetadata } from './ExportMetadata';
@@ -81,20 +82,19 @@ export function ExportAvailable(props: ExportAvailableProps) {
         }
     }, [ metadata.slug ]);
 
-    const width = '75%';
     return (
         <>
-            <Paper sx={{ p: 2, width, textAlign: 'center', textWrap: 'balance' }}>
+            <Paper sx={{ p: 2, textAlign: 'center', textWrap: 'balance' }}>
                 {metadata.userName} shared information about {metadata.eventName} {description}{' '}
                 with you. Please treat this information carefully and let us know immediately if you
                 received this in error.
             </Paper>
-            <Collapse in={!!error} sx={{ width }} unmountOnExit>
+            <Collapse in={!!error} unmountOnExit>
                 <Alert elevation={1} severity="error" sx={{ px: 2, py: 1 }}>
                     {error}
                 </Alert>
             </Collapse>
-            <Collapse in={!credits && !trainings && !volunteers} sx={{ width }} unmountOnExit>
+            <Collapse in={!credits && !trainings && !volunteers} unmountOnExit>
                 <Paper component={Stack} alignItems="center" sx={{ p: 2 }}>
                     <LoadingButton loading={loading} variant="contained" onClick={handleAccessData}
                                    startIcon={ <LaunchIcon /> }>
@@ -102,13 +102,13 @@ export function ExportAvailable(props: ExportAvailableProps) {
                     </LoadingButton>
                 </Paper>
             </Collapse>
-            <Collapse in={!!credits} sx={{ width }} unmountOnExit>
+            <Collapse in={!!credits} unmountOnExit>
                 <ExportCredits credits={credits!} />
             </Collapse>
-            <Collapse in={!!trainings} sx={{ width }} unmountOnExit>
+            <Collapse in={!!trainings} unmountOnExit>
                 <ExportTrainings trainings={trainings!} />
             </Collapse>
-            <Collapse in={!!volunteers} sx={{ width }} unmountOnExit>
+            <Collapse in={!!volunteers} unmountOnExit>
                 <ExportVolunteers volunteers={volunteers!} />
             </Collapse>
         </>
