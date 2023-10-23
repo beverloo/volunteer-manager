@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
  */
 export function AdminPageContainer(props: React.PropsWithChildren) {
     return (
-        <Stack direction="column" spacing={2} sx={{ flexGrow: 1 }}>
+        <Stack direction="column" spacing={2} sx={{ flexGrow: 1, minWidth: 0 }}>
             {props.children}
         </Stack>
     );
