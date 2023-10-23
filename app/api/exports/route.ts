@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus } from '@lib/database/Types';
+import { LogSeverity, LogType, Log } from '@lib/Log';
 import { dayjs } from '@lib/DateTime';
 
 import db, { tEvents, tExports, tExportsLogs, tRoles, tTrainings, tTrainingsAssignments,
@@ -239,7 +240,15 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             })
             .executeInsert();
 
-        // TODO: Log in regular logs?
+        await Log({
+            type: LogType.ExportDataAccess,
+            sourceUser: props.user,
+            data: {
+                event: metadata.eventName,
+                type: metadata.type,
+                ip: props.ip,
+            }
+        });
     }
 
     let credits: CreditsDataExport | undefined = undefined;

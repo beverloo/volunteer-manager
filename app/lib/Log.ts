@@ -62,6 +62,7 @@ export enum LogType {
     ApplicationTrainingPreferences = 'application-training-preferences',
     DatabaseError = 'database-error',
     EventApplication = 'event-application',
+    ExportDataAccess = 'export-data-access',
 }
 
 /**

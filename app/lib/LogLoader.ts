@@ -180,6 +180,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Database error: "${normalizedQuery}"…`;
     },
     [LogType.EventApplication]: (source, target, { event }) => `Applied to participate in ${event}`,
+    [LogType.ExportDataAccess]: (source, target, { event, type }) => {
+        return `Accessed exported ${event} ${type} data`;
+    },
 };
 
 /**
