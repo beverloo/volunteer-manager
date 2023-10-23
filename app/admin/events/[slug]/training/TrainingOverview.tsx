@@ -1,19 +1,26 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+'use client';
+
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import IconButton from '@mui/material/IconButton';
+import ShareIcon from '@mui/icons-material/Share';
+import Stack from '@mui/material/Stack';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { dayjs } from '@lib/DateTime';
@@ -62,6 +69,11 @@ export interface TrainingOverviewProps {
      * Confirmed participation in trainings that can be shown in a tabular view.
      */
     confirmations: TrainingConfirmation[];
+
+    /**
+     * Whether a link to the data export tool should be displayed on the page.
+     */
+    enableExport?: boolean;
 }
 
 /**
@@ -99,15 +111,31 @@ export function TrainingOverview(props: TrainingOverviewProps) {
 
     }, [ props.confirmations ]);
 
+    const router = useRouter();
+    const handleExportButton = useCallback((event: React.MouseEvent) => {
+        event.stopPropagation();
+        router.push('/admin/volunteers/exports');
+    }, [ router ])
+
     return (
         <Accordion disableGutters sx={{ mt: 2, '& >:first-child': { mt: 2 } }}>
             <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
-                <Typography variant="h5">
-                    Confirmed participation
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({totalCount})
+                <Stack direction="row" alignItems="center" justifyContent="space-between"
+                       spacing={2} sx={{ flexGrow: 1, pr: 2 }}>
+                    <Typography variant="h5">
+                        Confirmed participation
+                        <Typography component="span" variant="h5" color="action.active"
+                                    sx={{ pl: 1 }}>
+                            ({totalCount})
+                        </Typography>
                     </Typography>
-                </Typography>
+                    { !!props.enableExport &&
+                        <Tooltip title="Export participation">
+                            <IconButton onClick={handleExportButton}>
+                                <ShareIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip> }
+                </Stack>
             </AccordionSummary>
             <AccordionDetails>
                 <Table size="small" sx={{ marginTop: '-8px' }}>

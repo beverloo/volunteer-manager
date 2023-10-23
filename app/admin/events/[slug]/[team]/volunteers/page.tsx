@@ -4,10 +4,11 @@
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles, tSchedule,
+import db, { tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles, tSchedule,
     tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
 
 /**
@@ -16,7 +17,7 @@ import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, t
  * who have event administrator permission can "import" any volunteer into this event.
  */
 export default async function VolunteersPage(props: NextRouterParams<'slug' | 'team'>) {
-    const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;
     const scheduleJoin = tSchedule.forUseInLeftJoin();
@@ -164,9 +165,11 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
     // Step (5): Actually display the page \o/
     // ---------------------------------------------------------------------------------------------
 
+    const enableExport = can(user, Privilege.VolunteerDataExports);
+
     return (
         <>
-            <VolunteerTable title={`${event.shortName} ${team.name}`}
+            <VolunteerTable title={`${event.shortName} ${team.name}`} enableExport={enableExport}
                             volunteers={[ ...acceptedVolunteers.values() ]} {...props} />
             { cancelledVolunteers.length > 0 &&
                 <CancelledVolunteers volunteers={cancelledVolunteers} /> }

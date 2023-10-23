@@ -199,10 +199,12 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         return dayjs(lhs.date).isBefore(rhs.date) ? -1 : 1;
     });
 
+    const enableExport = can(user, Privilege.VolunteerDataExports);
+
     return (
         <>
             <Collapse in={trainingConfirmationCount > 0} sx={{ mt: '-16px !important' }}>
-                <TrainingOverview confirmations={confirmations} />
+                <TrainingOverview confirmations={confirmations} enableExport={enableExport} />
             </Collapse>
             <Collapse in={event.publishTrainings && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>

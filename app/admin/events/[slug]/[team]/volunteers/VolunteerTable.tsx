@@ -4,15 +4,18 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import HotelIcon from '@mui/icons-material/Hotel';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import ShareIcon from '@mui/icons-material/Share';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -59,6 +62,11 @@ export interface VolunteerInfo {
  * Props accepted by the <VolunteerTable> component.
  */
 export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
+    /**
+     * Whether a link to the data export tool should be displayed on the page.
+     */
+    enableExport?: boolean;
+
     /**
      * Title that should be given to this page.
      */
@@ -222,11 +230,25 @@ export function VolunteerTable(props: VolunteerTableProps) {
         }
     ];
 
+    const router = useRouter();
+    const handleExportButton = useCallback(() => {
+        router.push('/admin/volunteers/exports');
+    }, [ router ])
+
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
-                {props.title} ({props.volunteers.length} people)
-            </Typography>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}
+                   sx={{ mb: 1 }}>
+                <Typography variant="h5">
+                    {props.title} ({props.volunteers.length} people)
+                </Typography>
+                { !!props.enableExport &&
+                    <Tooltip title="Export volunteer list">
+                        <IconButton onClick={handleExportButton}>
+                            <ShareIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip> }
+            </Stack>
             <DataTable columns={columns} rows={props.volunteers} disableFooter enableFilter
                        defaultSort={{ field: 'name', sort: 'asc' }}/>
         </Paper>
