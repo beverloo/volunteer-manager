@@ -6,7 +6,10 @@ import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus } from '@lib/database/Types';
-import db, { tEvents, tExports, tExportsLogs, tRoles, tUsers, tUsersEvents } from '@lib/database';
+import { dayjs } from '@lib/DateTime';
+
+import db, { tEvents, tExports, tExportsLogs, tRoles, tTrainings, tTrainingsAssignments,
+    tTrainingsExtra, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Data export type definition for credit reel consent.
@@ -37,7 +40,35 @@ const kCreditsDataExport = z.object({
  * Data export type definition for training participation.
  */
 const kTrainingsDataExport = z.object({
-    // todo
+    /**
+     * Array of dates & associated volunteers who will participate in our training sessions.
+     */
+    sessions: z.array(z.object({
+        /**
+         * Date and time on which the training will commence.
+         */
+        date: z.string(),
+
+        /**
+         * Array of the volunteers who will participate in this training session.
+         */
+        volunteers: z.array(z.object({
+            /**
+             * Name of the volunteer.
+             */
+            name: z.string(),
+
+            /**
+             * E-mail address through which the volunteer can be reached.
+             */
+            email: z.string(),
+
+            /**
+             * Birthdate on which the volunteer was born. (YYYY-MM-DD)
+             */
+            birthdate: z.string(),
+        })),
+    })),
 });
 
 /**
@@ -215,7 +246,65 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
     let trainings: TrainingsDataExport | undefined = undefined;
     if (metadata.type === ExportType.Trainings) {
-        // todo
+        trainings = { sessions: [] };
+
+        const trainingsExtraJoin = tTrainingsExtra.forUseInLeftJoin();
+        const usersJoin = tUsers.forUseInLeftJoin();
+
+        const participants = await db.selectFrom(tTrainingsAssignments)
+            .innerJoin(tTrainings)
+                .on(tTrainings.trainingId.equals(tTrainingsAssignments.assignmentTrainingId))
+            .leftJoin(trainingsExtraJoin)
+                .on(trainingsExtraJoin.trainingExtraId.equals(
+                    tTrainingsAssignments.assignmentExtraId))
+            .leftJoin(usersJoin)
+                .on(usersJoin.userId.equals(tTrainingsAssignments.assignmentUserId))
+            .where(tTrainingsAssignments.eventId.equals(metadata.eventId))
+                .and(tTrainingsAssignments.assignmentConfirmed.equals(/* true= */ 1))
+            .select({
+                date: tTrainings.trainingStart,
+                name: trainingsExtraJoin.trainingExtraName.valueWhenNull(
+                    usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
+                email: trainingsExtraJoin.trainingExtraEmail.valueWhenNull(usersJoin.username),
+                birthdate: trainingsExtraJoin.trainingExtraBirthdate.valueWhenNull(
+                    usersJoin.birthdate),
+            })
+            .orderBy('date', 'asc')
+            .orderBy('name', 'asc')
+            .executeSelectMany();
+
+        let currentVolunteers: TrainingsDataExport['sessions'][number]['volunteers'] = [];
+        let currentDate: string | null = null;
+
+        for (const participant of participants) {
+            const participationDate = dayjs(participant.date).format('YYYY-MM-DD');
+            if (currentDate !== participationDate) {
+                if (currentDate && currentVolunteers.length > 0) {
+                    trainings.sessions.push({
+                        date: currentDate,
+                        volunteers: currentVolunteers,
+                    });
+                }
+
+                currentDate = participationDate;
+                currentVolunteers = [];
+            }
+
+            currentVolunteers.push({
+                name: participant.name ?? '(unknown)',
+                email: participant.email ?? 'crew@animecon.nl',
+                birthdate: participant.birthdate
+                    ? dayjs(participant.birthdate).format('YYYY-MM-DD')
+                    : '2030-01-01',
+            });
+        }
+
+        if (currentDate && currentVolunteers.length > 0) {
+            trainings.sessions.push({
+                date: currentDate,
+                volunteers: currentVolunteers,
+            });
+        }
     }
 
     let volunteers: VolunteersDataExport | undefined = undefined;

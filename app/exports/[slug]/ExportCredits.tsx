@@ -63,7 +63,7 @@ export function ExportCredits(props: ExportCreditsProps) {
                     </Paper> }
                 { credits && credits.included.length > 0 &&
                     <Paper sx={{ p: 2 }}>
-                        <Alert severity="info">
+                        <Alert severity="info" sx={{ mb: 1 }}>
                             The following volunteers <strong>do</strong> want to be included. This
                             list is for your information—AnPlan should be considered leading.
                         </Alert>
