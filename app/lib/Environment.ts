@@ -101,6 +101,16 @@ export async function getEnvironment(environmentName: string): Promise<Environme
 }
 
 /**
+ * Returns an iterator containing all environments that are known to the Volunteer Manager.
+ */
+export async function getEnvironmentIterator(): Promise<Iterable<Environment>> {
+    if (!globalEnvironmentCache)
+        await loadEnvironmentsFromDatabase();
+
+    return globalEnvironmentCache!.values();
+}
+
+/**
  * Determines what the current environment is based on the origin that content is being served from.
  * Will return "undefined" in case no appropriate environment can be found.
  */

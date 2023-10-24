@@ -1238,6 +1238,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: challenge
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: activated
     type: tinyint(1)
     nullable: false
@@ -1277,6 +1282,7 @@ tables:
       `phone_number` varchar(32) DEFAULT NULL,
       `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
+      `challenge` text DEFAULT NULL,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
       `session_token` int(4) unsigned NOT NULL DEFAULT 1,
       PRIMARY KEY (`user_id`)
@@ -1993,6 +1999,100 @@ tables:
       PRIMARY KEY (`export_id`),
       KEY `export_slug` (`export_slug`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_passkeys
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_passkey_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_id
+    type: blob
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_created
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: credential_origin
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_public_key
+    type: blob
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_device_type
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_backed_up
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: credential_last_used
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: counter
+    type: bigint(8)
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: user_id
+    def: KEY user_id (user_id) USING BTREE
+    table: users_passkeys
+    columns:
+    - user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (user_passkey_id) USING BTREE
+    table: users_passkeys
+    columns:
+    - user_passkey_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (user_passkey_id)
+    table: users_passkeys
+    referencedTable: null
+    columns:
+    - user_passkey_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users_passkeys` (
+      `user_passkey_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` int(8) unsigned NOT NULL,
+      `credential_id` blob NOT NULL,
+      `credential_created` datetime NOT NULL DEFAULT current_timestamp(),
+      `credential_origin` varchar(64) NOT NULL,
+      `credential_public_key` blob NOT NULL,
+      `credential_device_type` text NOT NULL,
+      `credential_backed_up` tinyint(1) NOT NULL,
+      `credential_last_used` datetime DEFAULT NULL,
+      `counter` bigint(8) NOT NULL,
+      PRIMARY KEY (`user_passkey_id`),
+      KEY `user_id` (`user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE
   comment: ""

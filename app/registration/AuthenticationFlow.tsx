@@ -10,6 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import type { User } from '@lib/auth/User';
 import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
+import { IdentityPasskeysDialog } from './authentication/IdentityPasskeysDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LoginPasswordUpdateDialog } from './authentication/LoginPasswordUpdateDialog';
 import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
@@ -79,7 +80,7 @@ type AuthenticationFlowState =
     'register' | 'register-confirm' | 'register-complete' |
 
     // (3) The user is signed in to their account already, and can sign out.
-    'identity';
+    'identity' | 'identity-passkeys';
 
 /**
  * Props accepted by the <AuthenticationFlow> component.
@@ -302,6 +303,8 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
+    const onRequestPasskeys = useCallback(() => setAuthFlowState('identity-passkeys'), []);
+
     const onRequestSignOut = useCallback(async () => {
         const response = await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { });
 
@@ -350,8 +353,11 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                                         registrationRequest={registrationRequest} /> }
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
+                                onRequestPasskeys={onRequestPasskeys}
                                 onSignOut={onRequestSignOut}
                                 user={user} /> }
+            { (authFlowState === 'identity-passkeys' && user) &&
+                <IdentityPasskeysDialog onClose={onRequestClose} user={user} /> }
         </Dialog>
     );
 }

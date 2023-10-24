@@ -3,6 +3,7 @@
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
+import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { ExportsDefinition } from '@app/api/exports/route';
@@ -11,6 +12,7 @@ import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
+import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
@@ -51,6 +53,8 @@ export type ApiEndpoints = {
         '/api/admin/training': TrainingDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
+        '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
+        '/api/auth/passkeys/register': RegisterPasskeyDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/event/application': ApplicationDefinition,

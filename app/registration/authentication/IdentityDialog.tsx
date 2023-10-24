@@ -33,6 +33,11 @@ interface IdentityDialogProps {
     onClose: () => void;
 
     /**
+     * To be invoked when the user's passkey settings should be displayed.
+     */
+    onRequestPasskeys: () => void;
+
+    /**
      * To be invoked when the user wants to sign out of their account. Requires an API call.
      */
     onSignOut: () => Promise<void>;
@@ -50,7 +55,7 @@ interface IdentityDialogProps {
  * they participated, kind of as a collectable.
  */
 export function IdentityDialog(props: IdentityDialogProps) {
-    const { onClose, onSignOut, user } = props;
+    const { onClose, onRequestPasskeys, onSignOut, user } = props;
     const router = useRouter();
 
     // TODO: Badges
@@ -134,7 +139,7 @@ export function IdentityDialog(props: IdentityDialogProps) {
                     { !!browserSupportsWebAuthn() &&
                         <Grid xs={12} md={4}>
                             <LoadingButton loading={false} variant="outlined" fullWidth
-                                           onClick={handleDisplayNotImplemented}
+                                           onClick={onRequestPasskeys}
                                            startIcon={ <FingerprintIcon /> }>
                                 Passkeys
                             </LoadingButton>

@@ -19,6 +19,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     phoneNumber = this.optionalColumnWithDefaultValue('phone_number', 'string');
     avatarId = this.optionalColumnWithDefaultValue('avatar_id', 'int');
     privileges = this.columnWithDefaultValue('privileges', 'bigint');
+    challenge = this.optionalColumnWithDefaultValue('challenge', 'string');
     activated = this.columnWithDefaultValue('activated', 'int');
     sessionToken = this.columnWithDefaultValue('session_token', 'int');
 

@@ -27,6 +27,7 @@ import { TrainingsAssignmentsTable } from './scheme/TrainingsAssignmentsTable';
 import { TrainingsExtraTable } from './scheme/TrainingsExtraTable';
 import { UsersAuthTable } from './scheme/UsersAuthTable';
 import { UsersEventsTable } from './scheme/UsersEventsTable';
+import { UsersPasskeysTable } from './scheme/UsersPasskeysTable';
 import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
 
@@ -58,6 +59,7 @@ export const tTrainingsAssignments = new TrainingsAssignmentsTable;
 export const tTrainingsExtra = new TrainingsExtraTable;
 export const tUsersAuth = new UsersAuthTable;
 export const tUsersEvents = new UsersEventsTable;
+export const tUsersPasskeys = new UsersPasskeysTable;
 export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new UsersTable;
 
