@@ -1,15 +1,21 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Collapse from '@mui/material/Collapse';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
+import PasswordIcon from '@mui/icons-material/Password';
 import Typography from '@mui/material/Typography';
 
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
@@ -90,6 +96,12 @@ export function IdentityDialog(props: IdentityDialogProps) {
 
     }, [ router ]);
 
+    const [ notImplemented, setNotImplemented ] = useState<boolean>(false);
+
+    const handleDisplayNotImplemented = useCallback(() => {
+        setNotImplemented(true);
+    }, [ /* no deps */ ]);
+
     return (
         <>
             <DialogContent>
@@ -108,6 +120,38 @@ export function IdentityDialog(props: IdentityDialogProps) {
                             You are signed in to your account.
                         </Typography>
                     </Grid>
+
+                    <Grid xs={12}>
+                        <Divider />
+                    </Grid>
+
+                    <Grid xs={12} md={4}>
+                        <Button variant="outlined" fullWidth startIcon={ <AccountCircleIcon /> }
+                                onClick={handleDisplayNotImplemented}>
+                            Account
+                        </Button>
+                    </Grid>
+                    { !!browserSupportsWebAuthn() &&
+                        <Grid xs={12} md={4}>
+                            <LoadingButton loading={false} variant="outlined" fullWidth
+                                           onClick={handleDisplayNotImplemented}
+                                           startIcon={ <FingerprintIcon /> }>
+                                Passkeys
+                            </LoadingButton>
+                        </Grid> }
+                    <Grid xs={12} md={4}>
+                        <Button variant="outlined" fullWidth startIcon={ <PasswordIcon /> }
+                                onClick={handleDisplayNotImplemented}>
+                            Password
+                        </Button>
+                    </Grid>
+
+                    <Grid component={Collapse} in={!!notImplemented} unmountOnExit xs={12}>
+                        <Alert severity="warning">
+                            This option is not available yet, sorry!
+                        </Alert>
+                    </Grid>
+
                 </Grid>
                 <Divider sx={{ pt: 2, mb: -1 }} />
             </DialogContent>
