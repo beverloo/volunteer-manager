@@ -9,6 +9,42 @@ import db, { tUsersPasskeys, tUsers } from '@lib/database';
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
 
 /**
+ * Description of a credential within our system.
+ */
+export interface Credential {
+    /**
+     * Unique ID of the credential as it has been stored in the database.
+     */
+    passkeyId: number;
+
+    /**
+     * Date on which the credential was created.
+     */
+    created: Date;
+
+    /**
+     * Date on which the credential was last used to sign in to an account.
+     */
+    lastUsed?: Date;
+}
+
+/**
+ * Retrieves the credentials associated with the given `user`.
+ */
+export async function retrieveCredentials(user: User): Promise<Credential[]> {
+    return db.selectFrom(tUsersPasskeys)
+        .select({
+            passkeyId: tUsersPasskeys.userPasskeyId,
+            created: tUsersPasskeys.credentialCreated,
+            lastUsed: tUsersPasskeys.credentialLastUsed,
+        })
+        .where(tUsersPasskeys.userId.equals(user.userId))
+        .orderBy(tUsersPasskeys.credentialLastUsed, 'desc nulls last')
+        .orderBy(tUsersPasskeys.credentialCreated, 'asc')
+        .executeSelectMany();
+}
+
+/**
  * Stores the given `registration` in the database associated with the `user`.
  */
 export async function storePasskeyRegistration(user: User, registration: PasskeyRegistration)

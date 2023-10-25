@@ -5,12 +5,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../../Action';
 
 import { createChallenge, kCreateChallengeDefinition } from '../createChallenge';
+import { listPasskeys, kListPasskeysDefinition } from '../listPasskeys';
 import { registerPasskey, kRegisterPasskeyDefinition } from '../registerPasskey';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
  */
 type RouteParams = { params: { action: string } };
+
+/**
+ * The /api/auth/passkeys endpoint exposes the ability for a user to manage their passkeys.
+ */
+export async function GET(request: NextRequest, { params }: RouteParams): Promise<Response> {
+    const action = Object.hasOwn(params, 'action') ? params.action : null;
+    switch (action) {
+        case 'list':
+            return executeAction(request, kListPasskeysDefinition, listPasskeys);
+    }
+
+    return NextResponse.json({ success: false }, { status: 404 });
+}
+
 
 /**
  * The /api/auth/passkeys endpoint exposes the ability for a user to manage their passkeys.

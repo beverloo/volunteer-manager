@@ -12,6 +12,7 @@ import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
+import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
@@ -43,6 +44,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
     'post': {
