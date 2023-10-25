@@ -28,6 +28,11 @@ export interface Credential {
     passkeyId: number;
 
     /**
+     * Name that was assigned to the passkey. Indicated by the client, potentially untrusted.
+     */
+    name?: string;
+
+    /**
      * Date on which the credential was created.
      */
     created: Date;
@@ -45,6 +50,7 @@ export async function retrieveCredentials(user: User): Promise<Credential[]> {
     return db.selectFrom(tUsersPasskeys)
         .select({
             passkeyId: tUsersPasskeys.userPasskeyId,
+            name: tUsersPasskeys.credentialName,
             created: tUsersPasskeys.credentialCreated,
             lastUsed: tUsersPasskeys.credentialLastUsed,
         })
@@ -57,13 +63,14 @@ export async function retrieveCredentials(user: User): Promise<Credential[]> {
 /**
  * Stores the given `registration` in the database associated with the `user`.
  */
-export async function storePasskeyRegistration(user: User, registration: PasskeyRegistration)
-    : Promise<void>
+export async function storePasskeyRegistration(
+    user: User, name: string | undefined, registration: PasskeyRegistration): Promise<void>
 {
     await db.insertInto(tUsersPasskeys)
         .set({
             userId: user.userId,
             credentialId: registration.credentialID,
+            credentialName: name,
             credentialOrigin: registration.origin,
             credentialPublicKey: registration.credentialPublicKey,
             credentialDeviceType: registration.credentialDeviceType,

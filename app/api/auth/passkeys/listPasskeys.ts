@@ -66,7 +66,7 @@ export async function listPasskeys(request: Request, props: ActionProps): Promis
 
     const credentials = await retrieveCredentials(props.user);
     const passkeys = credentials.map(credential => {
-        const label = `Passkey #${credential.passkeyId}`;
+        const label = credential.name ?? `Passkey #${credential.passkeyId}`;
 
         let description = `Created on ${dayjs(credential.created).format('DD/MM/YYYY')}`;
         if (credential.lastUsed)

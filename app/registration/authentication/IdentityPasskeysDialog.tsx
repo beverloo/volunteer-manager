@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Bowser from 'bowser';
 import { useCallback, useEffect, useState } from 'react';
 import { startRegistration } from '@simplewebauthn/browser';
 
@@ -30,6 +31,18 @@ import type { User } from '@lib/auth/User';
 import { callApi } from '@lib/callApi';
 
 type Passkeys = ListPasskeysDefinition['response']['passkeys'];
+
+/**
+ * Creates a friendly name for the passkey that's about to be created. We use the Bowser library to
+ * extract the user's browser and platform, which they will generally not have too many of.
+ */
+function createFriendlyPasskeyName(): string | undefined {
+    if (!globalThis.window || !globalThis.window?.navigator?.userActivation)
+        return undefined;
+
+    const browser = Bowser.parse(globalThis.window.navigator.userAgent);
+    return `${browser.browser.name ?? 'Unknown'} on ${browser.os.name ?? 'a device'}`;
+}
 
 /**
  * Props accepted by the <IdentityPasskeysDialog> component.
@@ -69,7 +82,11 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
                 throw new Error(challenge.error ?? 'Unable to create a passkey challenge');
 
             const registration = await startRegistration(challenge.options);
-            const response = await callApi('post', '/api/auth/passkeys/register', { registration });
+            const response = await callApi('post', '/api/auth/passkeys/register', {
+                name: createFriendlyPasskeyName(),
+                registration
+            });
+
             if (!response.success)
                 throw new Error(response.error ?? 'Unable to register the passkey');
 

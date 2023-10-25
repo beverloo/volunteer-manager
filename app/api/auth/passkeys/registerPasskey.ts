@@ -16,6 +16,11 @@ import { retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
 export const kRegisterPasskeyDefinition = z.object({
     request: z.object({
         /**
+         * Name to associate with this passkey. Optional.
+         */
+        name: z.string().optional(),
+
+        /**
          * The registration that was created by the browser in response to the offered challenge.
          */
         registration: z.any(),
@@ -69,7 +74,7 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
         if (!verification.verified || !verification.registrationInfo)
             return { success: false, error: 'The passkey registration could not be verified' };
 
-        await storePasskeyRegistration(props.user, verification.registrationInfo);
+        await storePasskeyRegistration(props.user, request.name, verification.registrationInfo);
         await storeUserChallenge(props.user, /* reset the challenge= */ null);
 
         await Log({
