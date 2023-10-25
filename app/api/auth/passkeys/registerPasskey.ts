@@ -44,10 +44,15 @@ type Request = RegisterPasskeyDefinition['request'];
 type Response = RegisterPasskeyDefinition['response'];
 
 /**
+ * The domain used for local development of the Volunteer Manager.
+ */
+export const kLocalDevelopmentDomain = 'localhost';
+
+/**
  * The origin on which local development for the Volunteer Manager takes place. Passkey responses
  * for this origin are being accepted as well, to make it possible to end-to-end test the flow.
  */
-const kLocalDevelopmentOrigin = 'http://localhost:3000';
+export const kLocalDevelopmentOrigin = 'http://localhost:3000';
 
 /**
  * Verifies the registration response and registers the new passkey when sound.

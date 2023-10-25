@@ -8,10 +8,12 @@ import db, { tUsersPasskeys, tUsers } from '@lib/database';
 
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
 
+type UserLike = { userId: number };
+
 /**
  * Deletes the `passkeyId` from the `user`'s profile.
  */
-export async function deleteCredential(user: User, passkeyId: number): Promise<boolean> {
+export async function deleteCredential(user: UserLike, passkeyId: number): Promise<boolean> {
     return await db.deleteFrom(tUsersPasskeys)
         .where(tUsersPasskeys.userId.equals(user.userId))
             .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
@@ -33,6 +35,21 @@ export interface Credential {
     name?: string;
 
     /**
+     * The credential's ID which was assigned by the authenticator.
+     */
+    credentialId: Uint8Array;
+
+    /**
+     * The public key that's associated with this credential.
+     */
+    credentialPublicKey: Uint8Array;
+
+    /**
+     * The counter indicated by the authenticator.
+     */
+    counter: bigint;
+
+    /**
      * Date on which the credential was created.
      */
     created: Date;
@@ -46,11 +63,14 @@ export interface Credential {
 /**
  * Retrieves the credentials associated with the given `user`.
  */
-export async function retrieveCredentials(user: User): Promise<Credential[]> {
+export async function retrieveCredentials(user: UserLike): Promise<Credential[]> {
     return db.selectFrom(tUsersPasskeys)
         .select({
             passkeyId: tUsersPasskeys.userPasskeyId,
             name: tUsersPasskeys.credentialName,
+            credentialId: tUsersPasskeys.credentialId,
+            credentialPublicKey: tUsersPasskeys.credentialPublicKey,
+            counter: tUsersPasskeys.counter,
             created: tUsersPasskeys.credentialCreated,
             lastUsed: tUsersPasskeys.credentialLastUsed,
         })
@@ -61,10 +81,26 @@ export async function retrieveCredentials(user: User): Promise<Credential[]> {
 }
 
 /**
+ * Updates the counter and marks the given `passkeyId` as having been used.
+ */
+export async function updateCredentialCounter(
+    user: UserLike, passkeyId: number, counter: bigint): Promise<void>
+{
+    await db.update(tUsersPasskeys)
+        .set({
+            credentialLastUsed: db.currentDateTime(),
+            counter,
+        })
+        .where(tUsersPasskeys.userId.equals(user.userId))
+            .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
+        .executeUpdate();
+}
+
+/**
  * Stores the given `registration` in the database associated with the `user`.
  */
 export async function storePasskeyRegistration(
-    user: User, name: string | undefined, registration: PasskeyRegistration): Promise<void>
+    user: UserLike, name: string | undefined, registration: PasskeyRegistration): Promise<void>
 {
     await db.insertInto(tUsersPasskeys)
         .set({
@@ -83,7 +119,7 @@ export async function storePasskeyRegistration(
 /**
  * Retrieves the most recent challenge that was created for the given `user`.
  */
-export async function retrieveUserChallenge(user: User): Promise<string | null> {
+export async function retrieveUserChallenge(user: UserLike): Promise<string | null> {
     return db.selectFrom(tUsers)
         .selectOneColumn(tUsers.challenge)
         .where(tUsers.userId.equals(user.userId))
@@ -93,7 +129,7 @@ export async function retrieveUserChallenge(user: User): Promise<string | null> 
 /**
  * Stores the `challenge` as the most recent challenge that was created for the `user`.
  */
-export async function storeUserChallenge(user: User, challenge: string | null): Promise<void> {
+export async function storeUserChallenge(user: UserLike, challenge: string | null): Promise<void> {
     await db.update(tUsers)
         .set({ challenge })
         .where(tUsers.userId.equals(user.userId))

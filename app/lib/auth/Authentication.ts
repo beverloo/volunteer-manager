@@ -15,27 +15,6 @@ import db, { tEvents, tRoles, tStorage, tTeams, tUsers, tUsersAuth, tUsersEvents
     from '../database';
 
 /**
- * Fetches authentication data for a particular user. Will be relayed to the frontend allowing them
- * to sign in to their account, preferably using passkeys.
- */
-export interface AuthenticationData {
-    /**
-     * Whether the account has been activated already.
-     */
-    activated: boolean;
-
-    /**
-     * Bytes containing the credential Id using which the user has registered.
-     */
-    credentialId?: string;
-
-    /**
-     * Bytes containing the public key using which the user has registered.
-     */
-    publicKey?: string;
-}
-
-/**
  * Interface containing all the information that must be known when creating a new account.
  */
 interface AccountCreationData {
@@ -214,11 +193,13 @@ export async function authenticateUser(params: AuthenticateUserParams)
     return { authType, events, user };
 }
 
+type UserLike = { userId: number };
+
 /**
  * Returns the current session token from the `user`. This is a value that's quite important to the
  * security of their account, so it won't be included in the regular User type.
  */
-export async function getUserSessionToken(user: User | number): Promise<number | null> {
+export async function getUserSessionToken(user: UserLike | number): Promise<number | null> {
     if (PlaywrightHooks.isActive())
         return PlaywrightHooks.getUserSessionToken(user);
 
@@ -263,30 +244,22 @@ export async function createAccount(data: AccountCreationData): Promise<number |
     return userId;
 }
 
+type ValidUserData = { userId: number; activated: boolean };
+
 /**
- * Gets the authentication data for the given `username` from the database. A return value of
- * `undefined` means that the user could not be found, whereas every other return value means
- * that the user exists, and possibly registered using a passkey.
+ * Returns whether the given `username` belongs to an activated account.
  */
-export async function getAuthenticationData(username: string)
-    : Promise<AuthenticationData | undefined>
-{
+export async function isValidActivatedUser(username: string): Promise<ValidUserData | undefined> {
     if (PlaywrightHooks.isActive())
-        return PlaywrightHooks.getAuthenticationData(username);
+        return PlaywrightHooks.isUserActivated(username);
 
-    const user = await db.selectFrom(tUsers)
-        .select({ activated: tUsers.activated })
+    return await db.selectFrom(tUsers)
+        .select({
+            userId: tUsers.userId,
+            activated: tUsers.activated.equals(/* true= */ 1)
+        })
         .where(tUsers.username.equals(username))
-        .executeSelectNoneOrOne();
-
-    if (!user)
-        return undefined;
-
-    return {
-        activated: !!user.activated,
-        credentialId: undefined,  // TODO: Support WebAuthn
-        publicKey: undefined,  // TODO: Support WebAuthn
-    };
+        .executeSelectNoneOrOne() ?? undefined;
 }
 
 /**

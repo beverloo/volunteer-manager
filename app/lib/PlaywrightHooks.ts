@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { AuthenticationContext } from './auth/AuthenticationContext';
-import type { AuthenticationData, AuthenticateUserParams } from './auth/Authentication';
+import type { AuthenticateUserParams } from './auth/Authentication';
 import type { User } from '@lib/auth/User';
 import { AuthType } from './database/Types';
 
@@ -121,12 +121,15 @@ export class PlaywrightHooks {
     /**
      * Hook for `getAuthenticationData` in `//app/lib/auth/Authentication.ts`.
      */
-    static getAuthenticationData(username: string): AuthenticationData | undefined {
+    static isUserActivated(username: string): { userId: number; activated: boolean } | undefined {
         for (const playwrightUser of kPlaywrightUsers) {
             if (playwrightUser.username !== username)
                 continue;
 
-            return { activated: playwrightUser.activated };
+            return {
+                userId: playwrightUser.userId!,
+                activated: playwrightUser.activated,
+            };
         }
 
         return undefined;
@@ -135,7 +138,7 @@ export class PlaywrightHooks {
     /**
      * Hook for `getUserSessionToken` in `//app/lib/auth/Authentication.ts`.
      */
-    static getUserSessionToken(user: User | number): number | null {
+    static getUserSessionToken(user: { userId: number } | number): number | null {
         const userId = typeof user === 'number' ? user : user.userId;
         for (const playwrightUser of kPlaywrightUsers) {
             if (playwrightUser.userId === userId)

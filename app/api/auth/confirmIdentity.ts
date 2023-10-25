@@ -1,10 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { generateAuthenticationOptions } from '@simplewebauthn/server';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { getAuthenticationData } from '@lib/auth/Authentication';
+import { isValidActivatedUser } from '@lib/auth/Authentication';
+import { retrieveCredentials } from './passkeys/PasskeyUtils';
+import { storeUserChallenge } from './passkeys/PasskeyUtils';
 
 /**
  * Interface definition for the ConfirmIdentity API, exposed through /api/auth/confirm-identity.
@@ -28,7 +31,10 @@ export const kConfirmIdentityDefinition = z.object({
          */
         activated: z.boolean().optional(),
 
-        // TODO: Include WebAuthn data
+        /**
+         * Authentication options to use with WebAuthn passkey identification.
+         */
+        authenticationOptions: z.any().optional(),
     }),
 });
 
@@ -43,13 +49,28 @@ type Response = ConfirmIdentityDefinition['response'];
  * sign in without relying on their password.
  */
 export async function confirmIdentity(request: Request, props: ActionProps): Promise<Response> {
-    const authenticationData = await getAuthenticationData(request.username);
-    if (!authenticationData)
+    const user = await isValidActivatedUser(request.username);
+    if (!user)
         return { success: false };
+
+    let authenticationOptions = undefined;
+
+    const credentials = await retrieveCredentials(user);
+    if (credentials) {
+        authenticationOptions = await generateAuthenticationOptions({
+            allowCredentials: credentials.map(credential => ({
+                id: credential.credentialId,
+                type: 'public-key',
+            })),
+            userVerification: 'preferred',
+        });
+
+        await storeUserChallenge(user, authenticationOptions.challenge);
+    }
 
     return {
         success: true,
-        activated: !!authenticationData.activated,
-        // TODO: Include WebAuthn data
+        activated: user.activated,
+        authenticationOptions
     }
 }

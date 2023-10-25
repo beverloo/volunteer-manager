@@ -14,6 +14,7 @@ export { LogSeverity };
 export enum LogType {
     AccountActivate = 'account-activate',
     AccountIdentifyAccessCode = 'account-identify-access-code',
+    AccountIdentifyPasskey = 'account-identify-passkey',
     AccountIdentifyPassword = 'account-identify-password',
     AccountPasskeyCreate = 'account-passkey-create',
     AccountPasskeyDelete = 'account-passkey-delete',

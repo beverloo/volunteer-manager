@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -27,6 +28,7 @@ import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
 import type { RegisterDefinition } from '@app/api/auth/register';
+import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
@@ -193,14 +195,30 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
 
         setUsername(username);
 
-        if (response.success && response.activated)
-            setAuthFlowState('login-password');
-        else if (response.success && !response.activated)
-            setAuthFlowState('activation-reminder');
-        else
-            setAuthFlowState('register');
+        if (response.success && response.activated) {
+            if (response.authenticationOptions && browserSupportsWebAuthn()) {
+                try {
+                    const result = await startAuthentication(response.authenticationOptions);
+                    const verification = await issueServerAction<SignInPasskeyDefinition>(
+                        '/api/auth/sign-in-passkey', { username, verification: result });
 
-    }, []);
+                    if (verification.success) {
+                        router.refresh();
+                        onRequestClose(/* forceState= */ 'identity');
+                    } else if (verification.error) {
+                        console.error('Unable to use a passkey:', verification.error);
+                    }
+                } catch (error: any) {
+                    console.error('Unable to use a passkey:', error);
+                }
+            }
+            setAuthFlowState('login-password');
+        } else if (response.success && !response.activated) {
+            setAuthFlowState('activation-reminder');
+        } else {
+            setAuthFlowState('register');
+        }
+    }, [ onRequestClose, router ]);
 
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'login-password' and 'login-password-update' state:
