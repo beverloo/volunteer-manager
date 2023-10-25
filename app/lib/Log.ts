@@ -16,6 +16,7 @@ export enum LogType {
     AccountIdentifyAccessCode = 'account-identify-access-code',
     AccountIdentifyPassword = 'account-identify-password',
     AccountPasskeyCreate = 'account-passkey-create',
+    AccountPasskeyDelete = 'account-passkey-delete',
     AccountPasswordResetRequest = 'account-password-reset-request',
     AccountPasswordReset = 'account-password-reset',
     AccountPasswordUpdate = 'account-password-update',

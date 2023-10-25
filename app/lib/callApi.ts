@@ -6,6 +6,7 @@ import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/crea
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
+import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePasskey';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
@@ -73,6 +74,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/auth/passkeys/delete': DeletePasskeyDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
     'put': {

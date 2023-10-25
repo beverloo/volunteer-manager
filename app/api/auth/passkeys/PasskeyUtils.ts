@@ -9,6 +9,16 @@ import db, { tUsersPasskeys, tUsers } from '@lib/database';
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
 
 /**
+ * Deletes the `passkeyId` from the `user`'s profile.
+ */
+export async function deleteCredential(user: User, passkeyId: number): Promise<boolean> {
+    return await db.deleteFrom(tUsersPasskeys)
+        .where(tUsersPasskeys.userId.equals(user.userId))
+            .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
+        .executeDelete() > 0;
+}
+
+/**
  * Description of a credential within our system.
  */
 export interface Credential {

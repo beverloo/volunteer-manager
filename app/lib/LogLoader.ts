@@ -60,6 +60,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AccountIdentifyAccessCode]: 'Signed in using an access code',
     [LogType.AccountIdentifyPassword]: 'Signed in using a password',
     [LogType.AccountPasskeyCreate]: 'Created a passkey for their account',
+    [LogType.AccountPasskeyDelete]: 'Deleted a passkey from their account',
     [LogType.AccountPasswordResetRequest]: 'Requested their password to be reset',
     [LogType.AccountPasswordReset]: 'Reset their password',
     [LogType.AccountPasswordUpdate]: 'Updated their password',

@@ -20,6 +20,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -52,6 +53,7 @@ interface IdentityPasskeysDialogProps {
 export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
     const { onClose, user } = props;
 
+    const [ counter, setCounter ] = useState<number>(0);
     const [ error, setError ] = useState<string | undefined>();
     const [ success, setSuccess ] = useState<string | undefined>();
 
@@ -71,7 +73,7 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
             if (!response.success)
                 throw new Error(response.error ?? 'Unable to register the passkey');
 
-            // TODO: Renew the list of passkeys that exist for the user
+            setCounter(oldValue => oldValue + 1);
             setSuccess('The new passkey was successfully created!');
 
         } catch (error: any) {
@@ -82,7 +84,39 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
 
     }, [ /* no dependencies */ ]);
 
-    // TODO: Delete
+    const [ deletionCandidate, setDeletionCandidate ] = useState<number | undefined>();
+    const [ deletionLoading, setDeletionLoading ] = useState<boolean>(false);
+
+    const handleConfirmDeletePasskey = useCallback(async (passkeyId: number) => {
+        setDeletionCandidate(passkeyId);
+    }, [ /* no dependencies */ ]);
+
+    const handleDeletePasskey = useCallback(async () => {
+        setDeletionLoading(true);
+        setError(undefined);
+        setSuccess(undefined);
+        if (!deletionCandidate) {
+            setError('We forgot which passkey you want to delete, sorry!');
+            return;
+        }
+
+        try {
+            const response = await callApi('delete', '/api/auth/passkeys/delete', {
+                id: deletionCandidate,
+            });
+
+            if (!response.success)
+                throw new Error(response.error ?? 'Unable to delete the passkey');
+
+            setCounter(oldValue => oldValue + 1);
+            setDeletionCandidate(undefined);
+            setSuccess('The passkey has been deleted from your account.');
+        } catch (error: any) {
+            setError(error.message);
+        } finally {
+            setDeletionLoading(false);
+        }
+    }, [ deletionCandidate ]);
 
     const [ passkeysLoading, setPasskeysLoading ] = useState<boolean>(false);
     const [ passkeys, setPasskeys ] = useState<Passkeys>();
@@ -97,7 +131,7 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
         }).catch(error => {
             setError(error.message);
         }).finally(() => setPasskeysLoading(false));
-    }, [ user.userId ]);
+    }, [ counter, user.userId ]);
 
     return (
         <>
@@ -133,20 +167,32 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
                             <ListItemText primary={passkey.label} secondary={passkey.description} />
                             <ListItemSecondaryAction>
                                 <Tooltip title="Delete this passkey">
-                                    <IconButton>
+                                    <IconButton onClick={
+                                        () => handleConfirmDeletePasskey(passkey.id) }>
                                         <HighlightOffIcon color="error" />
                                     </IconButton>
                                 </Tooltip>
                             </ListItemSecondaryAction>
                         </ListItem> )}
 
-                    <ListItemButton onClick={handleCreatePasskey}>
+                    <ListItemButton onClick={handleCreatePasskey} disabled={!!creationLoading}>
                         <ListItemIcon>
                             <AddCircleIcon color="success" />
                         </ListItemIcon>
                         <ListItemText primary="Create a new passkey" />
                     </ListItemButton>
                 </List>
+                <Collapse in={!!deletionCandidate}>
+                    <Alert severity="warning" sx={{ mt: 2 }} action={
+                        <LoadingButton color="error" size="small" onClick={handleDeletePasskey}
+                                       loading={deletionLoading}>
+                            Yes
+                        </LoadingButton> }>
+
+                        Are you sure that you want to delete Passkey #{deletionCandidate}?
+
+                    </Alert>
+                </Collapse>
                 <Collapse in={!!success}>
                     <Alert severity="success" sx={{ mt: 2 }}>
                         {success}
