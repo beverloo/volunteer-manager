@@ -10,7 +10,8 @@ import { Log, LogType, LogSeverity } from '@lib/Log';
 import { determineEnvironment, getEnvironmentIterator } from '@lib/Environment';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
-import { retrieveCredentials, retrieveUserChallenge, updateCredentialCounter } from './passkeys/PasskeyUtils';
+import { retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
+    from './passkeys/PasskeyUtils';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
 import { kLocalDevelopmentDomain, kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
@@ -116,6 +117,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
         if (!verification.verified)
             return { success: false, error: 'Unable ot verify the authentication response' };
 
+        await storeUserChallenge(user, /* reset= */ null);
         await updateCredentialCounter(
             user, authenticatorPasskeyId, BigInt(verification.authenticationInfo.newCounter));
 

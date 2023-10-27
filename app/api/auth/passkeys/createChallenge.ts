@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../../Action';
 import { determineEnvironment } from '@lib/Environment';
-import { storeUserChallenge } from './PasskeyUtils';
+import { retrieveCredentials, storeUserChallenge } from './PasskeyUtils';
 
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
@@ -50,6 +50,8 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
     if (!environment)
         notFound();
 
+    const credentials = await retrieveCredentials(props.user) ?? [];
+
     const options = await generateRegistrationOptions({
         rpName: `AnimeCon ${environment.environmentTitle}`,
         rpID: environment.environmentName,
@@ -57,7 +59,10 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
         userName: props.user.username,
         userDisplayName: `${props.user.firstName} ${props.user.lastName}`,
         attestationType: 'none',
-        // TODO: `excludeCredentials`
+        excludeCredentials: credentials.map(credential => ({
+            id: credential.credentialId,
+            type: 'public-key',
+        })),
     });
 
     // Don't use the "relying party identifier": it defaults to the current domain, which is the

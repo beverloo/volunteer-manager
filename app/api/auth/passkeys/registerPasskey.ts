@@ -66,6 +66,7 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
         return { success: false, error: 'You are not currently in a passkey registration flow' };
 
     const environments = await getEnvironmentIterator();
+    const environmentDomains = [ ...environments ].map(environment => environment.environmentName);
     const environmentOrigins = [ ...environments ].map(environment =>
         `https://${environment.environmentName}`);
 
@@ -74,13 +75,14 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
             response: request.registration,
             expectedChallenge,
             expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
+            expectedRPID: [ ...environmentDomains, kLocalDevelopmentDomain ],
         });
 
         if (!verification.verified || !verification.registrationInfo)
             return { success: false, error: 'The passkey registration could not be verified' };
 
         await storePasskeyRegistration(props.user, request.name, verification.registrationInfo);
-        await storeUserChallenge(props.user, /* reset the challenge= */ null);
+        await storeUserChallenge(props.user, /* reset= */ null);
 
         await Log({
             type: LogType.AccountPasskeyCreate,
