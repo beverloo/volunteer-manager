@@ -56,7 +56,7 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
     if (passwordResetRequest) {
         const { user } = await authenticateUser({ type: 'session', ...passwordResetRequest });
         if (user) {
-            await updateUserPassword(user.userId, request.password);
+            await updateUserPassword(user.userId, request.password, /* incrementSession= */ true);
 
             const sessionToken = await getUserSessionToken(user);
             if (!sessionToken)

@@ -51,7 +51,9 @@ type Response = PasswordResetDefinition['response'];
  * @param userId Unique ID of the user whose password should be updated
  * @param hashedPassword SHA-256 representation of the user's new password.
  */
-export async function updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
+export async function updateUserPassword(
+    userId: number, hashedPassword: string, incrementSession: boolean): Promise<void>
+{
     if (PlaywrightHooks.isActive())
         return;  // no need to actually update a password
 
@@ -75,12 +77,14 @@ export async function updateUserPassword(userId: number, hashedPassword: string)
             .executeInsert();
 
         // (3) Increment the user's session token, invalidating all other sessions.
-        await dbInstance.update(tUsers)
-            .set({
-                sessionToken: tUsers.sessionToken.add(1),
-            })
-            .where(tUsers.userId.equals(userId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
+        if (incrementSession) {
+            await dbInstance.update(tUsers)
+                .set({
+                    sessionToken: tUsers.sessionToken.add(1),
+                })
+                .where(tUsers.userId.equals(userId))
+                .executeUpdate(/* min= */ 0, /* max= */ 1);
+        }
     });
 }
 
@@ -94,7 +98,7 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
     if (passwordResetRequest) {
         const { user } = await authenticateUser({ type: 'session', ... passwordResetRequest });
         if (user) {
-            await updateUserPassword(user.userId, request.password);
+            await updateUserPassword(user.userId, request.password, /* incrementSession= */ true);
 
             const sessionToken = await getUserSessionToken(user);
             if (!sessionToken)

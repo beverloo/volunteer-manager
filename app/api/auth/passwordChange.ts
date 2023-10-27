@@ -61,7 +61,7 @@ export async function passwordChange(request: Request, props: ActionProps): Prom
     if (!authenticationAttempt || !authenticationAttempt.user)
         return { success: false, error: 'That is not your current password…' };
 
-    await updateUserPassword(props.user.userId, request.newPassword);
+    await updateUserPassword(props.user.userId, request.newPassword, /* incrementSession= */ false);
     await Log({
         type: LogType.AccountPasswordUpdate,
         sourceUser: props.user,
