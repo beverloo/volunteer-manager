@@ -54,7 +54,7 @@ export interface BlobInfo {
     /**
      * The bytes that should be stored in the database.
      */
-    bytes: Uint8Array;
+    bytes: Buffer;
 
     /**
      * Mime type of the information that's being stored. (E.g. "image/png")

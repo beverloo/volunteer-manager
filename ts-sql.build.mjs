@@ -101,7 +101,7 @@ do {
         },
 
         fieldMappings: [
-            // Blob types will be represented as a Uint8Array, which is the type that the underlying
+            // Blob types will be represented as a Buffer, which is the type that the underlying
             // MariaDB library uses on the transport layer anyway. Type adapters are defined in the
             // DBConnection implementation in /app/lib/database/Connection.ts.
             {
@@ -110,7 +110,7 @@ do {
                     type: {
                         kind: 'custom',
                         dbType: { name: 'Blob' },
-                        tsType: { name: 'Uint8Array' },
+                        tsType: { name: 'Buffer' },
                     },
                 },
             },
