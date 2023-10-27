@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import { ClientProviders } from './ClientProviders';
 import { determineEnvironment } from '@lib/Environment';
@@ -11,10 +11,17 @@ import { determineEnvironment } from '@lib/Environment';
  * will be swapped out in the <head> section of the <RootLayout /> component.
  */
 export const metadata: Metadata = {
-    colorScheme: 'only light',
     description: 'Volunteer portal for the AnimeCon conventions',
     robots: 'noindex, nofollow',
     title: 'AnimeCon Volunteering Teams',
+};
+
+/**
+ * Default viewport configuration for the application.
+ */
+export const viewport: Viewport = {
+    // TODO: Dynamically generate the theme colour based on the environment
+    colorScheme: 'only light',
 };
 
 /**
