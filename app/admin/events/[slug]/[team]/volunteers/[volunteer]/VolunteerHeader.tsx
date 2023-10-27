@@ -478,7 +478,6 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                 });
 
                 setTeamsForVolunteer(response.teams);
-                console.log(response.teams);
             } finally {
                 setTeamsLoading(false);
             }
