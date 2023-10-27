@@ -16,6 +16,7 @@ import { signInPasskey, kSignInPasskeyDefinition } from '../signInPasskey';
 import { signInPassword, kSignInPasswordDefinition } from '../signInPassword';
 import { signInPasswordUpdate, kSignInPasswordUpdateDefinition } from '../signInPasswordUpdate';
 import { signOut, kSignOutDefinition } from '../signOut';
+import { updateAccount, kUpdateAccountDefinition } from '../updateAccount';
 import { updateAvatar, kUpdateAvatarDefinition } from '../updateAvatar';
 
 /**
@@ -54,6 +55,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kSignInPasswordUpdateDefinition, signInPasswordUpdate);
         case 'sign-out':
             return executeAction(request, kSignOutDefinition, signOut);
+        case 'update-account':
+            return executeAction(request, kUpdateAccountDefinition, updateAccount);
         case 'update-avatar':
             return executeAction(request, kUpdateAvatarDefinition, updateAvatar);
     }

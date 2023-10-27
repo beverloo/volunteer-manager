@@ -4,9 +4,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import {
-    type FieldValues, CheckboxElement, DatePickerElement, FormContainer, SelectElement,
-    TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, CheckboxElement, FormContainer } from 'react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -21,16 +19,8 @@ import Typography from '@mui/material/Typography';
 
 import type { RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
+import { RegisterForm } from './RegisterForm';
 import { dayjs } from '@lib/DateTime';
-
-/**
- * The options we'll present to users when having to pick their gender.
- */
-export const kGenderOptions = [
-    { id: 'Female', label: 'Female' },
-    { id: 'Male', label: 'Male' },
-    { id: 'Other', label: 'Other' },
-];
 
 /**
  * Interface describing the information contained within a registration request. Will be shared with
@@ -117,41 +107,12 @@ export function RegisterDialog(props: RegisterDialogProps) {
                     </DialogContentText>
                 </Collapse>
                 <Grid container spacing={2} sx={{ pt: 2 }}>
-                    <Grid xs={6}>
-                        <TextFieldElement name="firstName" label="First name" type="text"
-                                          fullWidth size="small" required
-                                          autoFocus autoComplete="given-name" />
-                    </Grid>
-                    <Grid xs={6}>
-                        <TextFieldElement name="lastName" label="Last name" type="text"
-                                          fullWidth size="small" required
-                                          autoComplete="family-name" />
-                    </Grid>
-
-                    <Grid xs={12} md={6}>
-                        <SelectElement name="gender" label="Gender" options={kGenderOptions}
-                                       fullWidth size="small" required />
-                    </Grid>
-
-                    <Grid xs={12} md={6}>
-                        <DatePickerElement name="rawBirthdate" label="Date of birth"
-                                           disableFuture disableHighlightToday openTo="year"
-                                           inputProps={{ fullWidth: true, size: 'small' }}
-                                           required />
-                    </Grid>
-
-                    <Grid xs={12}>
-                        <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
-                                          fullWidth size="small" required
-                                          autoComplete="tel" />
-                    </Grid>
-
+                    <RegisterForm />
                     <Grid xs={12}>
                         <PasswordField name="password" label="Password" type="password"
                                        fullWidth size="small" required
                                        autoComplete="new-password" />
                     </Grid>
-
                     <Grid xs={12} sx={{ pt: 0 }}>
                         <CheckboxElement name="gdpr" size="small" label={gdprLabel} required />
                     </Grid>

@@ -18,6 +18,7 @@ import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerP
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
+import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
@@ -59,6 +60,7 @@ export type ApiEndpoints = {
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
         '/api/auth/passkeys/register': RegisterPasskeyDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
+        '/api/auth/update-account': UpdateAccountDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,

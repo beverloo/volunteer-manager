@@ -67,6 +67,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AccountPasswordUpdate]: 'Updated their password',
     [LogType.AccountRegister]: 'Created their account',
     [LogType.AccountUpdateAvatar]: 'Uploaded a new avatar',
+    [LogType.AccountUpdate]: 'Updated their account information',
     [LogType.AdminAccessVolunteerInfo]: (source, target) => {
         return `Accessed contact information for ${target?.name}`;
     },

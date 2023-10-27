@@ -11,6 +11,7 @@ import Dialog from '@mui/material/Dialog';
 import type { User } from '@lib/auth/User';
 import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
+import { IdentityAccountDialog } from './authentication/IdentityAccountDialog';
 import { IdentityPasskeysDialog } from './authentication/IdentityPasskeysDialog';
 import { IdentityPasswordDialog } from './authentication/IdentityPasswordDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
@@ -81,7 +82,7 @@ type AuthenticationFlowState =
     'register' | 'register-confirm' | 'register-complete' |
 
     // (3) The user is signed in to their account already, & can manage their account and sign out.
-    'identity' | 'identity-passkeys' | 'identity-password';
+    'identity' | 'identity-account' | 'identity-passkeys' | 'identity-password';
 
 /**
  * Props accepted by the <AuthenticationFlow> component.
@@ -319,6 +320,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // ---------------------------------------------------------------------------------------------
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
+    const onRequestAccount = useCallback(() => setAuthFlowState('identity-account'), []);
     const onRequestPasskeys = useCallback(() => setAuthFlowState('identity-passkeys'), []);
     const onRequestPassword = useCallback(() => setAuthFlowState('identity-password'), []);
 
@@ -382,10 +384,13 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
                                         registrationRequest={registrationRequest} /> }
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
+                                onRequestAccount={onRequestAccount}
                                 onRequestPasskeys={onRequestPasskeys}
                                 onRequestPassword={onRequestPassword}
                                 onSignOut={onRequestSignOut}
                                 user={user} /> }
+            { (authFlowState === 'identity-account' && user) &&
+                <IdentityAccountDialog onClose={onRequestClose} /> }
             { (authFlowState === 'identity-passkeys' && user) &&
                 <IdentityPasskeysDialog onClose={onRequestClose} /> }
             { (authFlowState === 'identity-password' && user) &&

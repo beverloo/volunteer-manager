@@ -18,7 +18,7 @@ import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VolunteerInfo } from './page';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
-import { kGenderOptions } from '@app/registration/authentication/RegisterDialog';
+import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 
 /**
  * Props accepted by the <Information> component.

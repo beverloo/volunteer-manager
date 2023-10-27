@@ -10,46 +10,18 @@ import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
 import db, { tUsers } from '@lib/database';
 
+import { kAccountFields } from '../auth/updateAccount';
+
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/update-volunteer.
  */
 export const kUpdateVolunteerDefinition = z.object({
-    request: z.object({
+    request: kAccountFields.and(z.object({
         /**
          * ID of the user for whom information is being updated.
          */
         userId: z.number(),
-
-        /**
-         * The volunteer's first name. Will override the current first name.
-         */
-        firstName: z.string(),
-
-        /**
-         * The volunteer's last name. Will override the current last name.
-         */
-        lastName: z.string(),
-
-        /**
-         * The volunteer's username. Must be unique, even after being updated.
-         */
-        username: z.string().optional(),
-
-        /**
-         * The volunteer's gender. Arbitrary string.
-         */
-        gender: z.string(),
-
-        /**
-         * Date on which the user was born. (YYYY-MM-DD)
-         */
-        birthdate: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/).optional(),
-
-        /**
-         * Phone number of the user, in an undefined format.
-         */
-        phoneNumber: z.string().optional(),
-    }),
+    })),
     response: z.strictObject({
         /**
          * Whether the updates were stored successfully.

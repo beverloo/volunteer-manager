@@ -23,6 +23,7 @@ export enum LogType {
     AccountPasswordUpdate = 'account-password-update',
     AccountRegister = 'account-register',
     AccountUpdateAvatar = 'account-update-avatar',
+    AccountUpdate = 'account-update',
     AdminAccessVolunteerInfo = 'admin-access-volunteer-info',
     AdminContentMutation = 'admin-content-mutation',
     AdminEventApplication = 'admin-event-application',

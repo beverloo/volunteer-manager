@@ -6,9 +6,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import Collapse from '@mui/material/Collapse';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
@@ -31,6 +29,11 @@ interface IdentityDialogProps {
      * To be invoked when the form should be closed, e.g. by being cancelled.
      */
     onClose: () => void;
+
+    /**
+     * To be invoked when the user's account settings should be displayed.
+     */
+    onRequestAccount: () => void;
 
     /**
      * To be invoked when the user's passkey settings should be displayed.
@@ -60,7 +63,7 @@ interface IdentityDialogProps {
  * they participated, kind of as a collectable.
  */
 export function IdentityDialog(props: IdentityDialogProps) {
-    const { onClose, onRequestPasskeys, onRequestPassword, onSignOut, user } = props;
+    const { onClose, onSignOut, user } = props;
     const router = useRouter();
 
     // TODO: Badges
@@ -106,12 +109,6 @@ export function IdentityDialog(props: IdentityDialogProps) {
 
     }, [ router ]);
 
-    const [ notImplemented, setNotImplemented ] = useState<boolean>(false);
-
-    const handleDisplayNotImplemented = useCallback(() => {
-        setNotImplemented(true);
-    }, [ /* no deps */ ]);
-
     return (
         <>
             <DialogContent>
@@ -137,29 +134,23 @@ export function IdentityDialog(props: IdentityDialogProps) {
 
                     <Grid xs={12} md={4}>
                         <Button variant="outlined" fullWidth startIcon={ <AccountCircleIcon /> }
-                                onClick={handleDisplayNotImplemented}>
+                                onClick={props.onRequestAccount}>
                             Account
                         </Button>
                     </Grid>
                     { !!browserSupportsWebAuthn() &&
                         <Grid xs={12} md={4}>
                             <LoadingButton loading={false} variant="outlined" fullWidth
-                                           onClick={onRequestPasskeys}
+                                           onClick={props.onRequestPasskeys}
                                            startIcon={ <FingerprintIcon /> }>
                                 Passkeys
                             </LoadingButton>
                         </Grid> }
                     <Grid xs={12} md={4}>
                         <Button variant="outlined" fullWidth startIcon={ <PasswordIcon /> }
-                                onClick={onRequestPassword}>
+                                onClick={props.onRequestPassword}>
                             Password
                         </Button>
-                    </Grid>
-
-                    <Grid component={Collapse} in={!!notImplemented} unmountOnExit xs={12}>
-                        <Alert severity="warning">
-                            This option is not available yet, sorry!
-                        </Alert>
                     </Grid>
 
                 </Grid>
