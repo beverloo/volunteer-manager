@@ -12,6 +12,12 @@ import { determineEnvironment } from '@lib/Environment';
  */
 export const metadata: Metadata = {
     description: 'Volunteer portal for the AnimeCon conventions',
+    icons: [
+        {
+            rel: 'icon',
+            url: '/favicon.ico',
+        }
+    ],
     robots: 'noindex, nofollow',
     title: 'AnimeCon Volunteering Teams',
 };
@@ -22,6 +28,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
     // TODO: Dynamically generate the theme colour based on the environment
     colorScheme: 'only light',
+    initialScale: 1,
+    width: 'device-width',
 };
 
 /**
@@ -33,9 +41,7 @@ export default async function RootLayout(props: React.PropsWithChildren) {
 
     return (
         <html lang="en">
-            <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
-            </head>
+            <head></head>
             <body>
                 <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
                     {props.children}
