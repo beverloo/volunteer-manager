@@ -65,9 +65,9 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
     if (!expectedChallenge)
         return { success: false, error: 'You are not currently in a passkey registration flow' };
 
-    const environments = await getEnvironmentIterator();
-    const environmentDomains = [ ...environments ].map(environment => environment.environmentName);
-    const environmentOrigins = [ ...environments ].map(environment =>
+    const environments = [ ...await getEnvironmentIterator() ];
+    const environmentDomains = environments.map(environment => environment.environmentName);
+    const environmentOrigins = environments.map(environment =>
         `https://${environment.environmentName}`);
 
     try {

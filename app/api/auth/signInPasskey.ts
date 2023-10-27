@@ -80,9 +80,9 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     if (!challenge || !credentials.length || !sessionToken)
         return { success: false, error: 'Unable to load the challenge and credential' };
 
-    const environments = await getEnvironmentIterator();
-    const environmentDomains = [ ...environments ].map(environment => environment.environmentName);
-    const environmentOrigins = [ ...environments ].map(environment =>
+    const environments = [ ...await getEnvironmentIterator() ];
+    const environmentDomains = environments.map(environment => environment.environmentName);
+    const environmentOrigins = environments.map(environment =>
         `https://${environment.environmentName}`);
 
     try {
