@@ -12,6 +12,7 @@ import type { User } from '@lib/auth/User';
 import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { IdentityPasskeysDialog } from './authentication/IdentityPasskeysDialog';
+import { IdentityPasswordDialog } from './authentication/IdentityPasswordDialog';
 import { LoginPasswordDialog } from './authentication/LoginPasswordDialog';
 import { LoginPasswordUpdateDialog } from './authentication/LoginPasswordUpdateDialog';
 import { LostPasswordCompleteDialog } from './authentication/LostPasswordCompleteDialog';
@@ -25,6 +26,7 @@ import { issueServerAction } from '@lib/issueServerAction';
 import { validatePassword } from './authentication/PasswordField';
 
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
+import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
 import type { RegisterDefinition } from '@app/api/auth/register';
@@ -66,23 +68,20 @@ type AuthenticationFlowState =
     // (1) Default state: The user has to enter their username.
     'username' |
 
-    // (2a) There exists a user with the given username that has passkey credentials.
-    // TODO
-
-    // (2b) There exists a user with the given username, but no passkey credentials.
+    // (2a) There exists a user with the given username, but no passkey credentials.
     'login-password' | 'login-password-update' |
 
-    // (2c) There exists a user with the given username, but the user has lost their credentials.
+    // (2b) There exists a user with the given username, but the user has lost their credentials.
     'lost-password' | 'lost-password-reset' | 'lost-password-complete' |
 
-    // (2d) There exists a user with the given username, but the account has not been activated yet.
+    // (2c) There exists a user with the given username, but the account has not been activated yet.
     'activation-reminder' |
 
-    // (2e) There does not exist a user with the given username.
+    // (2d) There does not exist a user with the given username.
     'register' | 'register-confirm' | 'register-complete' |
 
-    // (3) The user is signed in to their account already, and can sign out.
-    'identity' | 'identity-passkeys';
+    // (3) The user is signed in to their account already, & can manage their account and sign out.
+    'identity' | 'identity-passkeys' | 'identity-password';
 
 /**
  * Props accepted by the <AuthenticationFlow> component.
@@ -128,6 +127,7 @@ export interface AuthenticationFlowProps {
  * a dozen states:
  *
  * - Identification using access codes, followed by a forced password reset,
+ * - Identification using passkeys,
  * - Identification using passwords,
  * - Recovery of lost passwords, including a password reset,
  * - Registration of new accounts, including verification of their e-mail address.
@@ -135,8 +135,6 @@ export interface AuthenticationFlowProps {
  * Any passwords entered during the authentication flow will be hashed using SHA-256 prior to being
  * send to the server. The server will apply an additional hash over the password prior to storing
  * it, to make sure that the hashes cannot be reversed.
- *
- * TODO: Support identification using passkeys
  */
 export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const { onClose, open, passwordResetRequest, registrationRedirectUrl,
@@ -322,6 +320,19 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'identity' state:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasskeys = useCallback(() => setAuthFlowState('identity-passkeys'), []);
+    const onRequestPassword = useCallback(() => setAuthFlowState('identity-password'), []);
+
+    const onRequestPasswordChange = useCallback(
+        async (currentPlaintextPassword: string, newPlaintextPassword: string) => {
+            validatePassword(newPlaintextPassword, /* throwOnFailure= */ true);
+            const response = await issueServerAction<PasswordChangeDefinition>(
+                '/api/auth/password-change', {
+                    currentPassword: await SHA256HashPassword(currentPlaintextPassword),
+                    newPassword: await SHA256HashPassword(newPlaintextPassword),
+                });
+
+            return !!response.success;
+        }, [ /* no dependencies */ ]);
 
     const onRequestSignOut = useCallback(async () => {
         const response = await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { });
@@ -372,10 +383,14 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             { (authFlowState === 'identity' && user) &&
                 <IdentityDialog onClose={onRequestClose}
                                 onRequestPasskeys={onRequestPasskeys}
+                                onRequestPassword={onRequestPassword}
                                 onSignOut={onRequestSignOut}
                                 user={user} /> }
             { (authFlowState === 'identity-passkeys' && user) &&
-                <IdentityPasskeysDialog onClose={onRequestClose} user={user} /> }
+                <IdentityPasskeysDialog onClose={onRequestClose} /> }
+            { (authFlowState === 'identity-password' && user) &&
+                <IdentityPasswordDialog onClose={onRequestClose}
+                                        onSubmit={onRequestPasswordChange} /> }
         </Dialog>
     );
 }

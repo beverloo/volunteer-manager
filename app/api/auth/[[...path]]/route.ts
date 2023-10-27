@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import { confirmIdentity, kConfirmIdentityDefinition } from '../confirmIdentity';
+import { passwordChange, kPasswordChangeDefinition } from '../passwordChange';
 import { passwordReset, kPasswordResetDefinition } from '../passwordReset';
 import { passwordResetRequest, kPasswordResetRequestDefinition } from '../passwordResetRequest';
 import { passwordResetVerify, kPasswordResetVerifyDefinition } from '../passwordResetVerify';
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     switch (action) {
         case 'confirm-identity':
             return executeAction(request, kConfirmIdentityDefinition, confirmIdentity);
+        case 'password-change':
+            return executeAction(request, kPasswordChangeDefinition, passwordChange);
         case 'password-reset':
             return executeAction(request, kPasswordResetDefinition, passwordReset);
         case 'password-reset-request':

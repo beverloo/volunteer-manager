@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -24,10 +25,8 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
-import type { User } from '@lib/auth/User';
 import { callApi } from '@lib/callApi';
 
 type Passkeys = ListPasskeysDefinition['response']['passkeys'];
@@ -52,11 +51,6 @@ interface IdentityPasskeysDialogProps {
      * To be invoked when the form should be closed, e.g. by being cancelled.
      */
     onClose: () => void;
-
-    /**
-     * Information about the signed in user. This dialog is only available to signed in users.
-     */
-    user: User;
 }
 
 /**
@@ -64,7 +58,7 @@ interface IdentityPasskeysDialogProps {
  * one for their current device, in case they don't have any yet.
  */
 export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
-    const { onClose, user } = props;
+    const { onClose } = props;
 
     const [ counter, setCounter ] = useState<number>(0);
     const [ error, setError ] = useState<string | undefined>();
@@ -148,16 +142,16 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
         }).catch(error => {
             setError(error.message);
         }).finally(() => setPasskeysLoading(false));
-    }, [ counter, user.userId ]);
+    }, [ counter ]);
 
     return (
         <>
             <DialogTitle>Manage passkeys</DialogTitle>
             <DialogContent>
-                <Typography>
+                <DialogContentText>
                     Passkeys are a more convenient and safer alternative to passwords. You can have
                     multiple associated with your AnimeCon Volunteer account.
-                </Typography>
+                </DialogContentText>
                 <List disablePadding sx={{
                     mt: 1,
                     border: '1px solid transparent',

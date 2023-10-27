@@ -38,6 +38,11 @@ interface IdentityDialogProps {
     onRequestPasskeys: () => void;
 
     /**
+     * To be invoked when the user's password settings should be displayed.
+     */
+    onRequestPassword: () => void;
+
+    /**
      * To be invoked when the user wants to sign out of their account. Requires an API call.
      */
     onSignOut: () => Promise<void>;
@@ -55,7 +60,7 @@ interface IdentityDialogProps {
  * they participated, kind of as a collectable.
  */
 export function IdentityDialog(props: IdentityDialogProps) {
-    const { onClose, onRequestPasskeys, onSignOut, user } = props;
+    const { onClose, onRequestPasskeys, onRequestPassword, onSignOut, user } = props;
     const router = useRouter();
 
     // TODO: Badges
@@ -146,7 +151,7 @@ export function IdentityDialog(props: IdentityDialogProps) {
                         </Grid> }
                     <Grid xs={12} md={4}>
                         <Button variant="outlined" fullWidth startIcon={ <PasswordIcon /> }
-                                onClick={handleDisplayNotImplemented}>
+                                onClick={onRequestPassword}>
                             Password
                         </Button>
                     </Grid>
