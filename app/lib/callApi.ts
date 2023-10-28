@@ -28,6 +28,7 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
+import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -46,6 +47,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/admin/retention': RetentionEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
@@ -82,6 +84,7 @@ export type ApiEndpoints = {
     'put': {
         '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
+        '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],

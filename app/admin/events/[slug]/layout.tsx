@@ -10,6 +10,7 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
+import RepeatIcon from '@mui/icons-material/Repeat';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { User } from '@lib/auth/User';
@@ -21,7 +22,6 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
-
 
 /**
  * Fetch the information about the event identified by `eventSlug` that is applicable to the given
@@ -164,6 +164,12 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     icon: <FeedOutlinedIcon />,
                     label: 'Content',
                     url: `/admin/events/${slug}/${team.slug}/content`,
+                },
+                {
+                    icon: <RepeatIcon />,
+                    label: 'Retention',
+                    privilege: Privilege.EventRetentionManagement,
+                    url: `/admin/events/${slug}/${team.slug}/retention`,
                 },
                 {
                     icon: <PersonIcon />,
