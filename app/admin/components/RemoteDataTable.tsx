@@ -395,7 +395,7 @@ export function RemoteDataTable<
 
             <DataGrid columns={columns} rows={rows} rowCount={rowCount}
                       rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
-                      processRowUpdate={handleUpdate}
+                      processRowUpdate={handleUpdate} editMode={enableUpdate ? 'row' : undefined}
 
                       pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
                       paginationModel={paginationModel}

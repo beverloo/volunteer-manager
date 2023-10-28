@@ -314,7 +314,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             return;
 
         await Log({
-            type: LogType.AccountActivate,
+            type: LogType.AdminEventRetentionUpdate,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             targetUser: /* rowId = userId = */ id,

@@ -85,7 +85,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `${published ? 'Published' : 'Unpublished'} ${type} information for ${event}`;
     },
     [LogType.AdminEventRetentionUpdate]: (source, target, { event }) => {
-        return `Updated the retention status for ${target?.name} during ${event}`;
+        return `Updated ${event} retention for ${target?.name}`;
     },
     [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
         return `Updated their role to ${role} for an event`;
