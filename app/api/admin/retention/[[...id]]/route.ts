@@ -40,7 +40,7 @@ const kRetentionRowModel = z.object({
     /**
      * Status of this volunteer in regards to retention planning.
      */
-    status: z.enum([ 'Unknown', 'Claimed', 'Contacted', 'Declined', 'Applied', 'Retained' ]),
+    status: z.enum([ 'Unknown', 'Contacting', 'Declined', 'Applied', 'Retained' ]),
 
     /**
      * Slug of the team they have applied to if they participate in this event.
@@ -104,8 +104,7 @@ const kRetentionSortOrder = {
     'Unknown': 0,
 
     // In progress:
-    'Claimed': 1,
-    'Contacted': 2,
+    'Contacting': 2,
     'Applied': 3,
 
     // Finished:
@@ -239,7 +238,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                             break;
                     }
                 }
-            } else if (volunteer.retentionStatus) {
+            } else if (!!volunteer.retentionStatus) {
                 status = volunteer.retentionStatus;
             }
 
@@ -286,7 +285,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
         let status: any = null;
         if (row.status === 'Unknown' && !!retentionAssigneeId)
-            status = 'Claimed';
+            status = 'Contacting';
         else if (row.status !== 'Unknown' && !!retentionAssigneeId)
             status = row.status;
 

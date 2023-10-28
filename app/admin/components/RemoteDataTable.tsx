@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
     GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
@@ -114,6 +115,11 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     pageSize?: 10 | 25 | 50 | 100;
 
     /**
+     * Whether the router should be refreshed when an update has been committed.
+     */
+    refreshOnUpdate?: boolean;
+
+    /**
      * Subject describing what each row in the table is representing. Defaults to "item".
      */
     subject?: string;
@@ -130,11 +136,13 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { enableCreate, enableDelete, enableUpdate } = props;
+    const { enableCreate, enableDelete, enableUpdate, refreshOnUpdate } = props;
 
     const subject = props.subject ?? 'item';
     const context = useMemo(() =>
         'context' in props ? { context: props.context } : { /* no context */}, [ props ]);
+
+    const router = useRouter();
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(true);
@@ -312,8 +320,12 @@ export function RemoteDataTable<
                 row: newRow,
             });
 
-            if (response.success)
+            if (response.success) {
+                if (!!refreshOnUpdate)
+                    router.refresh();
+
                 return newRow;
+            }
 
             setError(response.error ?? `Unable to update a ${subject}`);
             return oldRow;
@@ -322,7 +334,7 @@ export function RemoteDataTable<
             setError(`Unable to update a ${subject} (${error.message})`);
             return oldRow;
         }
-    }, [ context, enableUpdate, props.endpoint, subject ]);
+    }, [ context, enableUpdate, props.endpoint, refreshOnUpdate, router, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (D)elete existing rows

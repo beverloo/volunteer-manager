@@ -2,14 +2,16 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@lib/database/Types';
+import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
+import { RetentionOutreachList } from './RetentionOutreachList';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tRoles, tUsersEvents, tUsers } from '@lib/database';
+import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * The retention page displays a recruiting tool to understand how participants from the past two
@@ -17,6 +19,27 @@ import db, { tRoles, tUsersEvents, tUsers } from '@lib/database';
  */
 export default async function EventTeamRetentionPage(props: NextRouterParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+
+    const usersEventJoin = tUsersEvents.forUseInLeftJoin();
+
+    const assignedVolunteers = await db.selectFrom(tRetention)
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tRetention.userId))
+        .leftJoin(usersEventJoin)
+            .on(usersEventJoin.userId.equals(tRetention.userId))
+            .and(usersEventJoin.eventId.equals(tRetention.eventId))
+        .where(tRetention.eventId.equals(event.id))
+            .and(tRetention.teamId.equals(team.id))
+            .and(tRetention.retentionStatus.notEquals(RetentionStatus.Declined))
+            .and(tRetention.retentionAssigneeId.equals(user.userId))
+            .and(usersEventJoin.registrationStatus.isNull())
+        .select({
+            id: tRetention.userId,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            email: tUsers.username,
+            phoneNumber: tUsers.phoneNumber,
+        })
+        .executeSelectMany();
 
     const leaders = await db.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
@@ -33,7 +56,9 @@ export default async function EventTeamRetentionPage(props: NextRouterParams<'sl
 
     return (
         <>
-            { /* TODO: Volunteer-specific TODO list */ }
+            <Collapse in={!!assignedVolunteers.length} unmountOnExit>
+                <RetentionOutreachList assignedVolunteers={assignedVolunteers} />
+            </Collapse>
             <Paper sx={{ p: 2 }}>
                 <Typography variant="h5">
                     {team.name.replace(/s$/, '')} retention

@@ -57,8 +57,7 @@ export enum RegistrationStatus {
  * @see Table `retention`
  */
 export enum RetentionStatus {
-    Claimed = 'Claimed',
-    Contacted = 'Contacted',
+    Contacting = 'Contacting',
     Declined = 'Declined',
 }
 

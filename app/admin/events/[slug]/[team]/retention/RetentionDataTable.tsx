@@ -90,7 +90,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
             flex: 1,
 
             type: 'singleSelect',
-            valueOptions: [ 'Unknown', 'Claimed', 'Contacted', 'Declined' ],
+            valueOptions: [ 'Unknown', 'Contacting', 'Declined' ],
 
             renderCell: params => {
                 let color: 'success' | 'warning' | 'error' | undefined = undefined;
@@ -101,14 +101,9 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                         explanation = 'They have not been contacted yet';
                         break;
 
-                    case 'Claimed':
+                    case 'Contacting':
                         color = 'warning';
-                        explanation = 'Someone will be contacting them';
-                        break;
-
-                    case 'Contacted':
-                        color = 'warning';
-                        explanation = 'They have been contacted';
+                        explanation = 'Someone is contacting them';
                         break;
 
                     case 'Declined':
@@ -118,7 +113,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
                     case 'Applied':
                         color = 'success';
-                        explanation = 'They want to help out again!';
+                        explanation = 'They have applied to help out again!';
                         break;
 
                     case 'Retained':
@@ -155,7 +150,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
-                         context={{ event: props.event, team: props.team }}
+                         context={{ event: props.event, team: props.team }} refreshOnUpdate
                          defaultSort={{ field: 'id', sort: 'asc' }} pageSize={100} disableFooter />
     );
 }
