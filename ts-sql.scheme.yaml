@@ -1718,6 +1718,72 @@ tables:
       KEY `event_id` (`event_id`),
       KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: retention
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: retention_status
+    type: enum('Claimed','Contacted','Declined')
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: retention_assignee_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: retention_notes
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (user_id, event_id, team_id) USING BTREE
+    table: retention
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (user_id, event_id, team_id)
+    table: retention
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `retention` (
+      `user_id` int(8) unsigned NOT NULL,
+      `event_id` int(8) unsigned NOT NULL,
+      `team_id` int(8) unsigned NOT NULL,
+      `retention_status` enum('Claimed','Contacted','Declined') DEFAULT NULL,
+      `retention_assignee_id` int(8) unsigned DEFAULT NULL,
+      `retention_notes` text DEFAULT NULL,
+      PRIMARY KEY (`user_id`,`event_id`,`team_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
   comment: ""

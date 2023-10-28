@@ -53,6 +53,16 @@ export enum RegistrationStatus {
 }
 
 /**
+ * Status of reaching out regarding a volunteer's retention.
+ * @see Table `retention`
+ */
+export enum RetentionStatus {
+    Claimed = 'Claimed',
+    Contacted = 'Contacted',
+    Declined = 'Declined',
+}
+
+/**
  * The badges that can be assigned to individual roles.
  * @see Table `roles`
  */

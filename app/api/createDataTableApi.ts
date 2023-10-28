@@ -461,7 +461,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const putInterface = z.object({
         request: zContext.and(z.object({
             id: z.coerce.number(),
-            row: rowModel.required().and(z.object({ id: z.number() })),
+            row: rowModel.and(z.object({ id: z.number() })),
         })),
         response: z.discriminatedUnion('success', [
             zErrorResponse,

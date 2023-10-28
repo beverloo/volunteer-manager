@@ -30,6 +30,7 @@ export enum LogType {
     AdminEventCreate = 'admin-event-create',
     AdminEventHotelMutation = 'admin-event-hotel',
     AdminEventPublishInfo = 'admin-event-publish-info',
+    AdminEventRetentionUpdate = 'admin-event-retention-update',
     AdminEventRoleUpdate = 'admin-event-role-update',
     AdminEventTeamUpdate = 'admin-event-team-update',
     AdminEventTrainingAssignment = 'admin-event-training-assignment',

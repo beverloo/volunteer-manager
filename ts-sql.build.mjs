@@ -120,6 +120,7 @@ do {
             ...[
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
+                { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },
                 { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
                 { field: [ 'services_logs', 'service_log_result' ], type: 'ServiceLogResult '},

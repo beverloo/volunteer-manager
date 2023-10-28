@@ -71,6 +71,12 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     };
 
     /**
+     * Whether the table should be displayed without its regular footer, which by default contains
+     * the pagination selection configurable by the user.
+     */
+    disableFooter?: boolean;
+
+    /**
      * Whether new rows can be deleted. When set, this will display a _create_ icon in the header
      * of the first column. Creation will send a POST request to the server.
      */
@@ -387,7 +393,7 @@ export function RemoteDataTable<
                       sortModel={sortModel} onSortModelChange={handleSortModelChange}
 
                       autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
-                      loading={loading} />
+                      loading={loading} hideFooter={!!props.disableFooter} />
 
             <Dialog open={!!deleteCandidate} onClose={resetDeleteCandidate}>
                 <DialogTitle>
