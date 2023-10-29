@@ -13,6 +13,7 @@ import { EventGenderDistributionGraph } from '../graphs/EventGenderDistributionG
 import { EventHotelParticipationGraph } from '../graphs/EventHotelParticipationGraph';
 import { EventInboundRetentionGraph } from '../graphs/EventInboundRetentionGraph';
 import { EventRollingRetentionGraph } from '../graphs/EventRollingRetentionGraph';
+import { EventStatusRetentionGraph } from '../graphs/EventStatusRentionGraph';
 import { EventTrainingParticipationGraph } from '../graphs/EventTrainingParticipationGraph';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
@@ -78,6 +79,9 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
                 <Suspense fallback={ <DashboardGraphFallback title="Inbound retention" /> }>
                     <EventInboundRetentionGraph eventId={event.eventId} teamId={environment.id}
                                                 eventStartTime={event.startTime} />
+                </Suspense>
+                <Suspense fallback={ <DashboardGraphFallback title="Inbound applications" /> }>
+                    <EventStatusRetentionGraph eventId={event.eventId} teamId={environment.id} />
                 </Suspense>
             </DashboardContainer>
             <DashboardContainer title={`Participation (${event.shortName})`}>
