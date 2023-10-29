@@ -53,9 +53,9 @@ export interface AdminHeaderEventEntry {
     label: string;
 
     /**
-     * URL to which the user should be navigated when clicking on the event.
+     * Unique slug that identifies the event in URLs.
      */
-    url: string;
+    slug: string;
 }
 
 /**
@@ -124,7 +124,7 @@ export function AdminHeader(props: AdminHeaderProps) {
                       onClose={requestMenuClose}>
 
                     { events.map((event, index) =>
-                        <MenuItem key={index} component={Link} href={event.url}
+                        <MenuItem key={index} component={Link} href={`/admin/events/${event.slug}`}
                                   onClick={requestMenuClose}>
                             <ListItemIcon>
                                 { event.done && <TaskAltIcon color="disabled" fontSize="small" /> }

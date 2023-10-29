@@ -13,7 +13,7 @@ import db, { tEvents, tRoles, tUsersEvents } from '@lib/database';
  * Retrieves the events to display in the administration area header that the given `user` has
  * access to. Should be limited to the four most recent events they had a role in at most.
  */
-async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEventEntry[]> {
+export async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEventEntry[]> {
     const isEventAdministrator = can(user, Privilege.EventAdministrator);
 
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
@@ -40,7 +40,7 @@ async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEventEntry
         events.push({
             done: !!row.done,
             label: row.eventShortName,
-            url: `/admin/events/${row.eventSlug}`,
+            slug: row.eventSlug,
         });
     }
 

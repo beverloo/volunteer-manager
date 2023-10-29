@@ -4,8 +4,11 @@
 import { notFound } from 'next/navigation';
 
 import { DashboardNavigation  } from './DashboardNavigation';
+import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
+import { getHeaderEventsForUser } from '@app/admin/layout';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import Stack from '@mui/material/Stack';
 
@@ -21,14 +24,20 @@ interface StatisticsLayoutProps {
  * specific wrapper and a header pointing to the different statistics the user has access to.
  */
 export default async function StatisticsLayout(props: StatisticsLayoutProps) {
+    const authenticationContext = await requireAuthenticationContext({
+        privilege: Privilege.Statistics,
+    });
+
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
 
+    const events = await getHeaderEventsForUser(authenticationContext.user);
+
     return (
         <RegistrationLayout environment={environment}>
             <Stack direction="column" spacing={2}>
-                <DashboardNavigation />
+                <DashboardNavigation events={events} />
                 {props.children}
             </Stack>
         </RegistrationLayout>
