@@ -3,6 +3,7 @@
 
 import { type DashboardBarGraphSeries, DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { getIndexedColor } from '../ColorUtils';
 import db, { tEvents, tUsersEvents, tUsers } from '@lib/database';
 
 /**
@@ -68,9 +69,11 @@ export async function EventAgeDistributionGraph(props: { eventId: number; teamId
     const labels = [ ...groupedData.keys() ].map(v => `${v}`);
     const series: DashboardBarGraphSeries = [];
 
+    let colorIndex = 0;
     for (const gender of Object.keys(genders)) {
         const genderSeries: DashboardBarGraphSeries[number] = {
             type: 'bar',
+            color: getIndexedColor(colorIndex++),
             label: gender,
             data: []
         };

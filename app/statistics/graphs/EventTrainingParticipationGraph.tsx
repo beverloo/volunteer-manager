@@ -3,6 +3,7 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { computeColor } from '../ColorUtils';
 import db, { tRoles, tTrainingsAssignments, tUsersEvents } from '@lib/database';
 
 /**
@@ -45,16 +46,19 @@ export async function EventTrainingParticipationGraph(props: { eventId: number; 
     const data = [
         {
             id: 0,
+            color: computeColor('error'),
             label: 'Not eligible',
             value: notEligibleCount,
         },
         {
             id: 1,
+            color: computeColor('warning'),
             label: 'Skipped',
             value: eligibleCount,
         },
         {
             id: 2,
+            color: computeColor('success'),
             label: 'Participated',
             value: participatedCount,
         }

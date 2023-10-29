@@ -3,6 +3,7 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { getIndexedColor } from '../ColorUtils';
 import db, { tUsersEvents, tUsers } from '@lib/database';
 
 /**
@@ -35,6 +36,7 @@ export async function EventGenderDistributionGraph(props: { eventId: number; tea
 
     const data = distribution.map(({ label, value }, index) => ({
         label, value,
+        color: getIndexedColor(index),
         id: index,
     }));
 

@@ -3,7 +3,8 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
-import db, { tEvents, tUsersEvents } from '@lib/database';
+import { computeColor } from '../ColorUtils';
+import db, { tUsersEvents } from '@lib/database';
 
 /**
  * Graph that displays retention status of this event, i.e. rejected and cancelled volunteers.
@@ -50,21 +51,25 @@ export async function EventStatusRetentionGraph(props: { eventId: number; teamId
     const data = [
         {
             id: 0,
+            color: computeColor('success'),
             value: acceptedCount,
             label: 'Accepted',
         },
         {
             id: 1,
+            color: computeColor('error', 0, 2),
             value: cancelledCount,
             label: 'Cancelled',
         },
         {
             id: 2,
+            color: computeColor('error', 1, 2),
             value: rejectedCount,
             label: 'Rejected',
         },
         {
             id: 3,
+            color: computeColor('warning'),
             value: pendingCount,
             label: 'Unanswered',
         }

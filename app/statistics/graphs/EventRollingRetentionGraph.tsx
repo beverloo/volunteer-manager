@@ -3,6 +3,7 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { computeColor } from '../ColorUtils';
 import db, { tEvents, tUsersEvents } from '@lib/database';
 
 /**
@@ -63,21 +64,25 @@ export async function EventRollingRetentionGraph(props: EventRollingRetentionGra
     const data = [
         {
             id: 0,
+            color: computeColor('success', 1, 2),
             value: retainedSameTeamCount,
             label: 'Retained',
         },
         {
             id: 1,
+            color: computeColor('success', 0, 2),
             value: retainedDifferentTeamCount,
             label: 'Different team',
         },
         {
             id: 2,
+            color: computeColor('error'),
             value: unretainedCount,
             label: 'Unretained',
         },
         {
             id: 3,
+            color: computeColor('warning'),
             value: rejectedCount,
             label: 'Rejected',
         },

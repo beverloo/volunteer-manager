@@ -3,6 +3,7 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { computeColor } from '../ColorUtils';
 import db, { tHotelsAssignments, tHotelsBookings, tRoles, tUsersEvents } from '@lib/database';
 
 /**
@@ -49,16 +50,19 @@ export async function EventHotelParticipationGraph(props: { eventId: number; tea
     const data = [
         {
             id: 0,
+            color: computeColor('error'),
             label: 'Not eligible',
             value: notEligibleCount,
         },
         {
             id: 1,
+            color: computeColor('warning'),
             label: 'No booking',
             value: eligibleCount,
         },
         {
             id: 2,
+            color: computeColor('success'),
             label: 'Room booked',
             value: bookedCount,
         }

@@ -3,6 +3,7 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { computeColor } from '../ColorUtils';
 import { dayjs } from '@lib/DateTime';
 import db, { tEvents, tUsersEvents } from '@lib/database';
 
@@ -84,26 +85,31 @@ export async function EventInboundRetentionGraph(props: EventInboundRetentionGra
     const data = [
         {
             id: 0,
+            color: computeColor('error'),
             value: recruitedCount,
             label: 'New recruits',
         },
         {
             id: 1,
+            color: computeColor('warning'),
             value: retainedDifferentTeam,
             label: 'Different team',
         },
         {
             id: 2,
+            color: computeColor('success', 2, 3),
             value: retained1YCount,
             label: 'Retained (Y/Y)',
         },
         {
             id: 3,
+            color: computeColor('success', 1, 3),
             value: retained3YCount,
             label: 'Retained (<= 3Y)',
         },
         {
             id: 4,
+            color: computeColor('success', 0, 3),
             value: retainedEverCount,
             label: 'Retained (> 3Y)',
         }

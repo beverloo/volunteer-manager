@@ -14,21 +14,6 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 /**
- * Colors to use in the graph. Canonical throughout the dashboard.
- */
-const kGraphColors = [
-    '#b30000',
-    '#ebdc78',
-    '#7c1158',
-    '#8be04e',
-    '#4421af',
-    '#5ad45a',
-    '#1a53ff',
-    '#00b7c7',
-    '#0d88e6',
-];
-
-/**
  * Props accepted by the <DashboardGraph> component, regardless of presentation.
  */
 interface DashboardGraphBaseProps {
@@ -78,8 +63,7 @@ interface DashboardBarGraphProps {
  */
 function DashboardBarGraph(props: DashboardBarGraphProps) {
     return (
-        <BarChart series={props.data} xAxis={ [{ data: props.labels, scaleType: 'band' }] }
-                  colors={kGraphColors} />
+        <BarChart series={props.data} xAxis={ [{ data: props.labels, scaleType: 'band' }] } />
     );
 }
 
@@ -103,7 +87,7 @@ interface DashboardPieGraphProps {
  */
 function DashboardPieGraph(props: DashboardPieGraphProps) {
     return (
-        <PieChart series={[ { data: props.data }] } colors={kGraphColors} />
+        <PieChart series={[ { data: props.data }] } />
     );
 }
 
