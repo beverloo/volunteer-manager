@@ -7,10 +7,12 @@ import { Suspense } from 'react';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { DashboardContainer } from '../DashboardContainer';
-import { DashboardGraphFallback, DashboardGraph } from '../DashboardGraph';
+import { DashboardGraphFallback } from '../DashboardGraph';
 import { EventAgeDistributionGraph } from '../graphs/EventAgeDistributionGraph';
 import { EventGenderDistributionGraph } from '../graphs/EventGenderDistributionGraph';
-import { Privilege } from '@lib/auth/Privileges';
+import { EventHotelParticipationGraph } from '../graphs/EventHotelParticipationGraph';
+import { EventTrainingParticipationGraph } from '../graphs/EventTrainingParticipationGraph';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
 import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -41,19 +43,18 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
 
     // Check (3): Require the signed in user to have access to the event data.
     if (!authenticationContext.events.has(eventSlug)) {
-        if (!eventEnvironmentData.enableContent)
+        const eventAdministrator = can(authenticationContext.user, Privilege.EventAdministrator);
+        if (!eventAdministrator && !eventEnvironmentData.enableContent)
             notFound();
     }
 
     // Demographics
     //
     //   TODO: Role distribution
-    //   TODO: T-shirt size distribution
     //
     // Participation
     //
     //   TODO: Contribution (hours/shifts)
-    //   TODO: Facility usage (hotel/training)
     //   TODO: Preferences (hours/timing)
     //   TODO: Retention
     //
@@ -69,7 +70,13 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
                 </Suspense>
             </DashboardContainer>
             <DashboardContainer title={`Participation (${event.shortName})`}>
-                { /* TODO: No graphs yet */ }
+                <Suspense fallback={ <DashboardGraphFallback title="Hotel room bookings" /> }>
+                    <EventHotelParticipationGraph eventId={event.eventId} teamId={environment.id} />
+                </Suspense>
+                <Suspense fallback={ <DashboardGraphFallback title="Training participation" /> }>
+                    <EventTrainingParticipationGraph eventId={event.eventId}
+                                                     teamId={environment.id} />
+                </Suspense>
             </DashboardContainer>
         </>
     )

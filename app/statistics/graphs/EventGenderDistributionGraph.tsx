@@ -40,7 +40,7 @@ export async function EventGenderDistributionGraph(props: { eventId: number; tea
 
     let conclusion: string | undefined = undefined;
     if (totalCount > 0)
-        conclusion = `${Math.round((maleCount / totalCount) * 10000) / 100}% of the team are males`;
+        conclusion = `${Math.round((maleCount / totalCount) * 10000) / 100}% of the team are male`;
 
     return <DashboardGraph title="Gender distribution" presentation="pie" data={data}
                            conclusion={conclusion} />;
