@@ -26,21 +26,36 @@ export async function EventAgeDistributionGraph(props: { eventId: number; teamId
             count: dbInstance.count(tUsersEvents.userId),
         })
         .groupBy('age', 'gender')
-        .orderBy('age', 'asc')
         .orderBy('gender', 'asc')
         .executeSelectMany();
 
-    let minimumAge: number | undefined = Number.MAX_SAFE_INTEGER;
-    let maximumAge: number | undefined = Number.MIN_SAFE_INTEGER;
+    const ageDistribution: number[] = [];
     const genders: Record<string, number> = {};
 
+    let minimumAge: number | undefined = Number.MAX_SAFE_INTEGER;
+    let maximumAge: number | undefined = Number.MIN_SAFE_INTEGER;
+
     for (const { age, gender } of distribution) {
+        ageDistribution.push(age);
         genders[gender] = 0;
 
         if (minimumAge > age)
             minimumAge = age;
         if (maximumAge < age)
             maximumAge = age;
+    }
+
+    let averageAge, medianAge = 0;
+
+    if (ageDistribution.length > 0) {
+        ageDistribution.sort();
+
+        const half = Math.floor(ageDistribution.length / 2);
+
+        averageAge = ageDistribution.reduce((sum, age) => sum + age, 0) / ageDistribution.length;
+        medianAge =
+            ageDistribution.length % 2 ? ageDistribution[half]
+                                       : (ageDistribution[half - 1] + ageDistribution[half]) / 2;
     }
 
     const groupedData = new Map<number, Record<string, number>>();
@@ -66,6 +81,10 @@ export async function EventAgeDistributionGraph(props: { eventId: number; teamId
         series.push(genderSeries);
     }
 
-    return <DashboardGraph title="Age distribution" presentation="bar" data={series}
-                           labels={labels} />;
+    const conclusion =
+        `average: ${Math.round((averageAge ?? 0) * 100) / 100}, ` +
+        `median: ${Math.round((medianAge ?? 0) * 100) / 100}`;
+
+    return <DashboardGraph title="Age distribution" presentation="bar" data={series} labels={labels}
+                           conclusion={conclusion} />;
 }

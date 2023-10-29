@@ -3,6 +3,7 @@
 
 'use client';
 
+import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
@@ -16,18 +17,26 @@ import { PieChart } from '@mui/x-charts/PieChart';
  * Colors to use in the graph. Canonical throughout the dashboard.
  */
 const kGraphColors = [
-    '#003f5c',
-    '#444e86',
-    '#955196',
-    '#dd5182',
-    '#ff6e54',
-    '#ffa600',
+    '#b30000',
+    '#ebdc78',
+    '#7c1158',
+    '#8be04e',
+    '#4421af',
+    '#5ad45a',
+    '#1a53ff',
+    '#00b7c7',
+    '#0d88e6',
 ];
 
 /**
  * Props accepted by the <DashboardGraph> component, regardless of presentation.
  */
 interface DashboardGraphBaseProps {
+    /**
+     * Optional conclusion to display on top of the chart.
+     */
+    conclusion?: string;
+
     /**
      * Whether the graph should be full width, otherwise we might stack them aside.
      */
@@ -103,14 +112,21 @@ function DashboardPieGraph(props: DashboardPieGraphProps) {
  * between the <DashboardGraph> and the <DashboardGraphFallback> components.
  */
 function DashboardGraphContainer(props: React.PropsWithChildren<DashboardGraphBaseProps>) {
-    const { children, fullWidth, title } = props;
+    const { children, conclusion, fullWidth, title } = props;
 
     return (
         <Grid xs={12} md={fullWidth ? 12 : 6} sx={{ aspectRatio: 2 }}>
-            { title &&
-                <Typography textAlign="center" variant="h6" sx={{ pb: 1 }}>
-                    {title}
-                </Typography> }
+            { (!!title || !!conclusion) &&
+                <Box sx={{ pb: 1 }}>
+                    { !!title &&
+                        <Typography textAlign="center" variant="h6">
+                            {title}
+                        </Typography> }
+                    { !!conclusion &&
+                        <Typography component="p" textAlign="center" variant="caption">
+                            ( <em>{conclusion}</em> )
+                        </Typography> }
+                </Box> }
             { children }
         </Grid>
     );
@@ -128,7 +144,8 @@ export type DashboardGraphProps = React.PropsWithChildren<DashboardGraphBaseProp
  */
 export function DashboardGraph(props: DashboardGraphProps) {
     return (
-        <DashboardGraphContainer fullWidth={props.fullWidth} title={props.title}>
+        <DashboardGraphContainer conclusion={props.conclusion} fullWidth={props.fullWidth}
+                                 title={props.title}>
             { props.presentation === 'bar' && <DashboardBarGraph {...props} /> }
             { props.presentation === 'pie' && <DashboardPieGraph {...props} /> }
             { props.children }
@@ -141,7 +158,8 @@ export function DashboardGraph(props: DashboardGraphProps) {
  */
 export function DashboardGraphFallback(props: DashboardGraphBaseProps) {
     return (
-        <DashboardGraphContainer fullWidth={props.fullWidth} title={props.title}>
+        <DashboardGraphContainer fullWidth={props.fullWidth} title={props.title}
+                                 conclusion="loading…">
             <Stack alignItems="center" justifyContent="center" sx={{ height: '100%' }}>
                 <CircularProgress color="primary" />
             </Stack>

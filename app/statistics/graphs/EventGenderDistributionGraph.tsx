@@ -24,10 +24,24 @@ export async function EventGenderDistributionGraph(props: { eventId: number; tea
         .orderBy(tUsers.gender, 'asc')
         .executeSelectMany();
 
+    let maleCount: number = 0;
+    let totalCount: number = 0;
+
+    for (const { label, value } of distribution) {
+        totalCount += value;
+        if (label === 'Male')
+            maleCount += value;
+    }
+
     const data = distribution.map(({ label, value }, index) => ({
         label, value,
         id: index,
     }));
 
-    return <DashboardGraph title="Gender distribution" presentation="pie" data={data} />;
+    let conclusion: string | undefined = undefined;
+    if (totalCount > 0)
+        conclusion = `${Math.round((maleCount / totalCount) * 10000) / 100}% of the team are males`;
+
+    return <DashboardGraph title="Gender distribution" presentation="pie" data={data}
+                           conclusion={conclusion} />;
 }
