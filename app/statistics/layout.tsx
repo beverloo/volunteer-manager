@@ -7,7 +7,7 @@ import { DashboardNavigation  } from './DashboardNavigation';
 import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
-import { getHeaderEventsForUser } from '@app/admin/layout';
+import { getHeaderEventsForUser } from '@app/admin/AdminUtils';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import Stack from '@mui/material/Stack';

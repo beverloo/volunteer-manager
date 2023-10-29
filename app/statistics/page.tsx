@@ -4,7 +4,6 @@
 import type { Metadata } from 'next';
 
 import { DashboardContainer } from './DashboardContainer';
-import { DashboardGraph } from './DashboardGraph';
 import { determineEnvironment } from '@lib/Environment';
 
 /**
@@ -19,20 +18,7 @@ export default async function StatisticsOverviewPage() {
     return (
         <>
             <DashboardContainer title={title}>
-                <DashboardGraph fullWidth>
-                    Graph 1
-                </DashboardGraph>
-                <DashboardGraph>
-                    Graph 2
-                </DashboardGraph>
-                <DashboardGraph>
-                    Graph 3
-                </DashboardGraph>
-            </DashboardContainer>
-            <DashboardContainer title={title}>
-                <DashboardGraph fullWidth>
-                    Graph 4
-                </DashboardGraph>
+                { /* TODO: Add graphs */ }
             </DashboardContainer>
         </>
     )
