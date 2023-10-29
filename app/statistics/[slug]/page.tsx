@@ -11,6 +11,8 @@ import { DashboardGraphFallback } from '../DashboardGraph';
 import { EventAgeDistributionGraph } from '../graphs/EventAgeDistributionGraph';
 import { EventGenderDistributionGraph } from '../graphs/EventGenderDistributionGraph';
 import { EventHotelParticipationGraph } from '../graphs/EventHotelParticipationGraph';
+import { EventInboundRetentionGraph } from '../graphs/EventInboundRetentionGraph';
+import { EventRollingRetentionGraph } from '../graphs/EventRollingRetentionGraph';
 import { EventTrainingParticipationGraph } from '../graphs/EventTrainingParticipationGraph';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
@@ -56,7 +58,6 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
     //
     //   TODO: Contribution (hours/shifts)
     //   TODO: Preferences (hours/timing)
-    //   TODO: Retention
     //
 
     return (
@@ -67,6 +68,16 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
                 </Suspense>
                 <Suspense fallback={ <DashboardGraphFallback title="Gender distribution" /> }>
                     <EventGenderDistributionGraph eventId={event.eventId} teamId={environment.id} />
+                </Suspense>
+            </DashboardContainer>
+            <DashboardContainer title={`Retention (${event.shortName})`}>
+                <Suspense fallback={ <DashboardGraphFallback title="Y/Y retention" /> }>
+                    <EventRollingRetentionGraph eventId={event.eventId} teamId={environment.id}
+                                                eventStartTime={event.startTime} />
+                </Suspense>
+                <Suspense fallback={ <DashboardGraphFallback title="Inbound retention" /> }>
+                    <EventInboundRetentionGraph eventId={event.eventId} teamId={environment.id}
+                                                eventStartTime={event.startTime} />
                 </Suspense>
             </DashboardContainer>
             <DashboardContainer title={`Participation (${event.shortName})`}>
