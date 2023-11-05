@@ -12,6 +12,7 @@ import { EventAgeDistributionGraph } from '../graphs/EventAgeDistributionGraph';
 import { EventGenderDistributionGraph } from '../graphs/EventGenderDistributionGraph';
 import { EventHotelParticipationGraph } from '../graphs/EventHotelParticipationGraph';
 import { EventInboundRetentionGraph } from '../graphs/EventInboundRetentionGraph';
+import { EventRoleDistributionGraph } from '../graphs/EventRoleDistributionGraph';
 import { EventRollingRetentionGraph } from '../graphs/EventRollingRetentionGraph';
 import { EventStatusRetentionGraph } from '../graphs/EventStatusRentionGraph';
 import { EventTrainingParticipationGraph } from '../graphs/EventTrainingParticipationGraph';
@@ -51,10 +52,6 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
             notFound();
     }
 
-    // Demographics
-    //
-    //   TODO: Role distribution
-    //
     // Participation
     //
     //   TODO: Contribution (hours/shifts)
@@ -69,6 +66,9 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
                 </Suspense>
                 <Suspense fallback={ <DashboardGraphFallback title="Gender distribution" /> }>
                     <EventGenderDistributionGraph eventId={event.eventId} teamId={environment.id} />
+                </Suspense>
+                <Suspense fallback={ <DashboardGraphFallback title="Role distribution" /> }>
+                    <EventRoleDistributionGraph eventId={event.eventId} teamId={environment.id} />
                 </Suspense>
             </DashboardContainer>
             <DashboardContainer title={`Retention (${event.shortName})`}>

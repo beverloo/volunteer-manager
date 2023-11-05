@@ -4,7 +4,6 @@
 import { notFound } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
-import Collapse from '@mui/material/Collapse';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
