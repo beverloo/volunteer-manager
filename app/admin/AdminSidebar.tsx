@@ -101,7 +101,7 @@ interface AdminSidebarMenuButtonItem {
  * Interface that defines the additional options for menu entries that are a parent of a sub-menu.
  * These cannot have a URL (as they are collapsable) and cannot show a badge either.
  */
-interface AdminSidebarMenuSubMenuItem {
+export interface AdminSidebarMenuSubMenuItem {
     /**
      * Whether the menu should be open by default. Defaults to false.
      */

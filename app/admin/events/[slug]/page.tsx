@@ -262,6 +262,7 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
 
     const advice = await db.selectFrom(tNardo)
         .selectOneColumn(tNardo.nardoAdvice)
+        .where(tNardo.nardoVisible.equals(/* true= */ 1))
         .orderBy(db.rawFragment`RAND()`)
         .limit(1)
         .executeSelectNoneOrOne() ?? undefined;

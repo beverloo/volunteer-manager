@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 22
+ * Next setting: 1 << 23
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -25,6 +25,7 @@ export enum Privilege {
     EventRegistrationOverride           = 1 << 3,
     EventRetentionManagement            = 1 << 21,
     EventScheduleOverride               = 1 << 4,
+    EventSupportingTeams                = 1 << 22,
     EventTrainingManagement             = 1 << 13,
     EventVolunteerApplicationOverrides  = 1 << 14,
     EventVolunteerContactInfo           = 1 << 11,
@@ -75,6 +76,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventRegistrationOverride,
         Privilege.EventRetentionManagement,
         Privilege.EventScheduleOverride,
+        Privilege.EventSupportingTeams,
         Privilege.EventTrainingManagement,
         Privilege.EventVolunteerApplicationOverrides,
         Privilege.EventVolunteerContactInfo,
@@ -132,6 +134,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventRetentionManagement]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
+    [Privilege.EventSupportingTeams]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
     [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
     [Privilege.EventVolunteerContactInfo]: 'Event access',
@@ -163,6 +166,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventRetentionManagement]: 'Multi-event retention access',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
+    [Privilege.EventSupportingTeams]: 'Manage first aid & security',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
     [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
     [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',

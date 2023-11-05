@@ -7,16 +7,19 @@ import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
-import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
+import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSidebar }
+    from '../../AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -68,6 +71,8 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 name: teamsJoin.teamName,
                 slug: teamsJoin.teamEnvironment,
                 color: teamsJoin.teamColourLightTheme,
+                managesFirstAid: teamsJoin.teamManagesFirstAid.equals(/* true= */ 1),
+                managesSecurity: teamsJoin.teamManagesSecurity.equals(/* true= */ 1),
                 pendingApplications: pendingApplicationsJoin.applications,
             }),
             user: {
@@ -148,6 +153,26 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     ];
 
     for (const team of info.teams) {
+        const firstAidEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
+        if (team.managesFirstAid) {
+            firstAidEntry.push({
+                icon: <LocalHospitalIcon />,
+                label: 'First aid',
+                url: `/admin/events/${slug}/${team.slug}/first-aid`,
+                privilege: Privilege.EventSupportingTeams,
+            });
+        }
+
+        const securityEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
+        if (team.managesSecurity) {
+            securityEntry.push({
+                icon: <SecurityIcon />,
+                label: 'Security',
+                url: `/admin/events/${slug}/${team.slug}/security`,
+                privilege: Privilege.EventSupportingTeams,
+            });
+        }
+
         volunteersMenu.push({
             icon: <PeopleIcon htmlColor={team.color} />,
             label: team.name!,
@@ -165,12 +190,14 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     label: 'Content',
                     url: `/admin/events/${slug}/${team.slug}/content`,
                 },
+                ...firstAidEntry,
                 {
                     icon: <RepeatIcon />,
                     label: 'Retention',
                     privilege: Privilege.EventRetentionManagement,
                     url: `/admin/events/${slug}/${team.slug}/retention`,
                 },
+                ...securityEntry,
                 {
                     icon: <PersonIcon />,
                     label: 'Volunteers',

@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation';
 
 import type { User } from '@lib/auth/User';
+import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
@@ -98,6 +99,16 @@ export interface PageInfoWithTeam extends PageInfo {
         id: number;
 
         /**
+         * Whether this team is responsible for managing the first aid team.
+         */
+        managesFirstAid: boolean;
+
+        /**
+         * Whether this team is responsible for managing the security team.
+         */
+        managesSecurity: boolean;
+
+        /**
          * Name of the team as it can be represented in the user interface.
          */
         name: string;
@@ -114,19 +125,22 @@ type PageInfoWithTeamParams = { slug: string; team: string; };
 
 /**
  * Verifies that the current user has access to the current page, and returns information about the
- * user and page appropriate to the amount of information passed in the `params` argument.
+ * user and page appropriate to the amount of information passed in the `params` argument. The
+ * page can optionally be guarded behind a given `privilege` as well.
  */
-export async function verifyAccessAndFetchPageInfo(params: PageInfoWithTeamParams)
-    : Promise<PageInfoWithTeam | never>;
-export async function verifyAccessAndFetchPageInfo(params: PageInfoParams)
-    : Promise<PageInfo | never>;
+export async function verifyAccessAndFetchPageInfo(
+    params: PageInfoWithTeamParams, privilege?: Privilege): Promise<PageInfoWithTeam | never>;
+export async function verifyAccessAndFetchPageInfo(
+    params: PageInfoParams, privilege?: Privilege): Promise<PageInfo | never>;
 
-export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?: string })
-    : Promise<(PageInfo | PageInfoWithTeam) | never>
+export async function verifyAccessAndFetchPageInfo(
+    params: { slug: string, team?: string }, privilege?: Privilege)
+        : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
     const { user } = await requireAuthenticationContext({
         check: 'admin-event',
         event: params.slug,
+        privilege
     });
 
     // ---------------------------------------------------------------------------------------------
@@ -186,6 +200,8 @@ export async function verifyAccessAndFetchPageInfo(params: { slug: string, team?
             id: tTeams.teamId,
             name: tTeams.teamName,
             slug: tTeams.teamEnvironment,
+            managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
+            managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),
         })
         .executeSelectNoneOrOne();
 
