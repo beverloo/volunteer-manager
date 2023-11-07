@@ -18,6 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
@@ -59,13 +60,32 @@ export function RefundsHeader(props: RefundsHeaderProps) {
     const handleSettingsUpdate = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
-            // TODO: Implement this function.
+            const refundsStartTime =
+                data.refundsStartTime ? dayjs(data.refundsStartTime).toISOString() : undefined;
+            const refundsEndTime =
+                data.refundsEndTime ? dayjs(data.refundsEndTime).toISOString() : undefined;
+
+            const response = await issueServerAction<UpdateEventDefinition>(
+                '/api/admin/update-event',
+                {
+                    event: event.slug,
+                    eventRefunds: {
+                        refundsStartTime,
+                        refundsEndTime,
+                    },
+                });
+
+            if (response.success) {
+                setInvalidated(false);
+            } else {
+                setError('The refund settings could not be updated by the server.');
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ /* no deps */ ]);
+    }, [ event.slug ]);
 
     const [ published, setPublished ] = useState<boolean>(event.publishRefunds);
 

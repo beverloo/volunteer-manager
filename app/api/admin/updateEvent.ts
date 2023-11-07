@@ -4,10 +4,10 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import type { ActionProps } from '../Action';
+import { noAccess, type ActionProps } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
@@ -43,6 +43,14 @@ export const kUpdateEventDefinition = z.object({
             endTime: z.string(),
             location: z.string().optional(),
             hotelRoomForm: z.string().optional(),
+        }).optional(),
+
+        /**
+         * Event refund settings that should be updated, if any.
+         */
+        eventRefunds: z.object({
+            refundsStartTime: z.string().optional(),
+            refundsEndTime: z.string().optional(),
         }).optional(),
 
         /**
@@ -171,6 +179,37 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 sourceUser: props.user,
                 data: {
                     action: 'event settings',
+                    event: event.shortName,
+                }
+            });
+        }
+
+        return { success: !!affectedRows };
+    }
+
+    if (request.eventRefunds !== undefined) {
+        if (!can(props.user, Privilege.Refunds))
+            noAccess();
+
+        const eventRefundsStartTime =
+            request.eventRefunds.refundsStartTime ? new Date(request.eventRefunds.refundsStartTime)
+                                                  : null;
+        const eventRefundsEndTime =
+            request.eventRefunds.refundsEndTime ? new Date(request.eventRefunds.refundsEndTime)
+                                                : null;
+
+        const affectedRows = await db.update(tEvents)
+            .set({ eventRefundsStartTime, eventRefundsEndTime })
+            .where(tEvents.eventId.equals(event.eventId))
+            .executeUpdate();
+
+        if (affectedRows > 0) {
+            await Log({
+                type: LogType.AdminUpdateEvent,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                data: {
+                    action: 'ticket refund settings',
                     event: event.shortName,
                 }
             });
