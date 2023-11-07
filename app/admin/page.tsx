@@ -28,7 +28,7 @@ async function fetchBirthdays(user: User) {
     const currentDate = new Date();
 
     const currentMonth = currentDate.getMonth();
-    const upcomingMonth = (currentDate.getMonth() + 1) % 11;
+    const upcomingMonth = (currentDate.getMonth() + 1) % 12;
 
     // Only show birthdays for volunteers who helped out in the past X years:
     const thresholdDate = new Date(currentDate.getFullYear() - /* years= */ 3, 0, 1, 0, 0, 0);
