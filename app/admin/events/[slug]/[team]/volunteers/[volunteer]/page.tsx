@@ -7,12 +7,13 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tHotelsPreferences, tRoles, tStorage, tTrainingsAssignments, tUsers, tUsersEvents }
+import db, { tHotelsPreferences, tRefunds, tRoles, tStorage, tTrainingsAssignments, tUsers, tUsersEvents }
     from '@lib/database';
 
 import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
+import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
@@ -99,6 +100,24 @@ export default async function EventVolunteerPage(props: RouterParams) {
         );
     }
 
+    let refundRequest: React.ReactNode = undefined;
+    if (can(user, Privilege.Refunds)) {
+        const refund = await db.selectFrom(tRefunds)
+            .where(tRefunds.userId.equals(volunteer.userId))
+                .and(tRefunds.eventId.equals(event.id))
+            .select({
+                ticketNumber: tRefunds.refundTicketNumber,
+                accountIban: tRefunds.refundAccountIban,
+                accountName: tRefunds.refundAccountName,
+            })
+            .executeSelectNoneOrOne() ?? undefined;
+
+        refundRequest = (
+            <ApplicationRefundRequest eventSlug={event.slug} refund={refund}
+                                      volunteerUserId={volunteer.userId} />
+        );
+    }
+
     let trainingManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventTrainingManagement) && !!volunteer.isTrainingEligible) {
         const trainingOptions = await getTrainingOptions(event.id);
@@ -133,6 +152,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
             {hotelManagement}
+            {refundRequest}
             {trainingManagement}
             { can(user, Privilege.EventVolunteerApplicationOverrides) &&
                 <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
