@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
@@ -59,10 +60,10 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
             refundsEndTime: dayjs(refundAvailability.refundsEndTime).format('dddd, MMMM D'),
         };
 
-        if (currentTime.isBefore(refundAvailability.refundsStartTime)) {
+        if (currentTime.isBefore(refundAvailability.refundsStartTime, 'day')) {
             state = 'too-early';
             content = await getStaticContent([ ...contentPath, 'refund-early' ], substitutions);
-        } else if (currentTime.isAfter(refundAvailability.refundsEndTime)) {
+        } else if (currentTime.isAfter(refundAvailability.refundsEndTime, 'day')) {
             state = 'too-late';
             content = await getStaticContent([ ...contentPath, 'refund-late' ], substitutions);
         } else {
@@ -74,9 +75,9 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
     return (
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
-            { !!registration.refund &&
-                <RefundConfirmation confirmed={registration.refund.confirmed}
-                                    requested={registration.refund.requested} /> }
+            <Collapse in={!!registration.refund} unmountOnExit>
+                <RefundConfirmation refund={registration.refund} />
+            </Collapse>
             { (!!registration.refund || state === 'available') &&
                 <RefundRequest eventSlug={event.slug}
                                readOnly={state !== 'available'}

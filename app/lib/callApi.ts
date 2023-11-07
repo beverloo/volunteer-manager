@@ -14,6 +14,7 @@ import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
+import type { RefundRequestDefinition } from '@app/api/event/refundRequest';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
@@ -67,6 +68,7 @@ export type ApiEndpoints = {
         '/api/event/application': ApplicationDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
+        '/api/event/refund-request': RefundRequestDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],

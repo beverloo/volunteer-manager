@@ -67,13 +67,20 @@ export function RefundRequest(props: RefundRequestProps) {
             if (readOnly)
                 throw new Error('Your preferences have been locked in already.');
 
-            const response = { success: true };
+            const response = await callApi('post', '/api/event/refund-request', {
+                event: props.eventSlug,
+                request: {
+                    ticketNumber: data.ticketNumber,
+                    accountIban: data.accountIban,
+                    accountName: data.accountName,
+                },
+            });
 
             if (response.success) {
-                setSuccess('Your preferences have been updated!');
+                setSuccess('Your request has been received!');
                 router.refresh();
             } else {
-                //setError(response.error);
+                setError(response.error ?? 'Oops! We were not able to store your refund request.');
             }
         } catch (error: any) {
             setError(error.message);

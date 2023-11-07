@@ -9,7 +9,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
-import db, {  tTrainingsAssignments } from '@lib/database';
+import db, { tTrainingsAssignments } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/event/training-preferences.

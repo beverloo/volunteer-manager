@@ -160,6 +160,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated the permissions of ${target?.name}`;
     },
     [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
+    [LogType.AdminUpdateRefundRequest]: (source, target, { event }) => {
+        return `Updated ticket refund settings for ${target?.name}`;
+    },
     [LogType.AdminUpdateRole]: (source, target, { role }) => `Updated the ${role} role settings`,
     [LogType.AdminUpdateTeam]: (source, target, { team }) => `Updated the ${team} team settings`,
     [LogType.AdminUpdateTrainingPreferences]: (source, target, { event }) => {
@@ -178,6 +181,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
+    },
+    [LogType.ApplicationRefundRequest]: (source, target, { event }) => {
+        return `Requested a refund for their ${event} ticket`;
     },
     [LogType.ApplicationTrainingPreferences]: (source, target, { event }) => {
         return `Updated their training preferences for ${event}`;

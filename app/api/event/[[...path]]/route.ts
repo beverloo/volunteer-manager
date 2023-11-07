@@ -7,6 +7,7 @@ import { executeAction } from '../../Action';
 import { application, kApplicationDefinition } from '../application';
 import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
 import { hotels, kHotelsDefinition } from '../hotels';
+import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
 import { trainingPreferences, kTrainingPreferencesDefinition } from '../trainingPreferences';
 import { trainings, kTrainingsDefinition } from '../trainings';
 
@@ -28,6 +29,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kHotelPreferencesDefinition, hotelPreferences);
         case 'hotels':
             return executeAction(request, kHotelsDefinition, hotels);
+        case 'refund-request':
+            return executeAction(request, kRefundRequestDefinition, refundRequest);
         case 'training-preferences':
             return executeAction(request, kTrainingPreferencesDefinition, trainingPreferences);
         case 'trainings':

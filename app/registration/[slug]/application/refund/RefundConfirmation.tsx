@@ -5,6 +5,7 @@
 
 import Typography from '@mui/material/Typography';
 
+import type { RegistrationRefund } from '@lib/Registration';
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
 import { dayjs } from '@lib/DateTime';
 
@@ -13,14 +14,9 @@ import { dayjs } from '@lib/DateTime';
  */
 export interface RefundConfirmationProps {
     /**
-     * Date on which the refund was confirmed, if any.
+     * The refund request that we're displaying a confirmation for, if any.
      */
-    confirmed?: Date;
-
-    /**
-     * Date on which the refund had been requested, if any.
-     */
-    requested: Date;
+    refund?: RegistrationRefund;
 }
 
 /**
@@ -28,15 +24,20 @@ export interface RefundConfirmationProps {
  * submitted, differentiating between a requested refund and an issued refund.
  */
 export function RefundConfirmation(props: RefundConfirmationProps) {
+    if (!props.refund)
+        return <></>;
+
+    const { confirmed, requested } = props.refund;
+
     const secondary: string =
-        `You requested the refund on ${dayjs(props.requested).format('dddd, MMMM D')}.`;
+        `You requested the refund on ${dayjs(requested).format('dddd, MMMM D')}.`;
 
     let primary: string = '';
     let tertiary: string | undefined;
 
-    if (!!props.confirmed) {
+    if (!!confirmed) {
         primary = 'Your refund has been confirmed!';
-        tertiary = `We issued the refund on ${dayjs(props.confirmed).format('dddd, MMMM D')}.`;
+        tertiary = `We issued the refund on ${dayjs(confirmed).format('dddd, MMMM D')}.`;
     } else {
         primary = 'Your request has been received';
     }

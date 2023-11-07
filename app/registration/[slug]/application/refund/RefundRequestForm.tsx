@@ -46,7 +46,7 @@ export function RefundRequestForm(props: RefundRequestFormProps) {
                                   fullWidth size="small" disabled={readOnly} onChange={onChange} />
             </Grid>
             <Grid xs={12} md={6}>
-                <TextFieldElement name="accountName" label="Bank account name" required
+                <TextFieldElement name="accountName" label="Bank account holder name" required
                                   fullWidth size="small" disabled={readOnly} onChange={onChange} />
             </Grid>
         </Grid>
