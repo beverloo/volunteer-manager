@@ -231,7 +231,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         }
     },
 
-    async update({ context, id, row }) {
+    async update({ context, id, row }, props) {
         // (1) Fetch whether the existing content is protected, in which case we do not allow the
         //     path to be updated. Failing to do that check could break the system.
         const existingContent = await db.selectFrom(tContent)
@@ -271,6 +271,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentPath: row.path,
                 contentTitle: row.title,
                 content: row.content,
+                revisionAuthorId: props.user!.userId,
+                revisionDate: db.currentTimestamp(),
             })
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
