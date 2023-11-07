@@ -75,7 +75,7 @@ export function EventSettings(props: EventSettingsProps) {
         ...event,
         startTime: dayjs(event.startTime),
         endTime: dayjs(event.endTime),
-    }
+    };
 
     return (
         <Paper sx={{ p: 2 }}>

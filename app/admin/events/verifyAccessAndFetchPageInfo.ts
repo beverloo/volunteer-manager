@@ -39,6 +39,11 @@ export interface PageInfo {
         publishHotels: boolean;
 
         /**
+         * Whether information about refunds should be published to volunteers.
+         */
+        publishRefunds: boolean;
+
+        /**
          * Whether information about the trainings has been published to volunteers.
          */
         publishTrainings: boolean;
@@ -72,6 +77,16 @@ export interface PageInfo {
          * Time at which the final shifts of the event will finish.
          */
         endTime: Date;
+
+        /**
+         * Date and time starting which volunteers can request refunds, if any.
+         */
+        refundsStartTime?: Date;
+
+        /**
+         * Date and time until which volunteers can request refunds, if any.
+         */
+        refundsEndTime?: Date;
 
         /**
          * Link to the hotel room form where bookings should be made.
@@ -169,10 +184,13 @@ export async function verifyAccessAndFetchPageInfo(
             slug: tEvents.eventSlug,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,
+            refundsStartTime: tEvents.eventRefundsStartTime,
+            refundsEndTime: tEvents.eventRefundsEndTime,
             location: tEvents.eventLocation,
             hotelRoomForm: tEvents.eventHotelRoomForm,
             publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
+            publishRefunds: tEvents.publishRefunds.equals(/* true= */ 1),
             publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),
 
             // For internal use:

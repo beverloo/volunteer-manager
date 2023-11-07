@@ -31,7 +31,8 @@ export interface PublishAlertProps
 }
 
 /**
- * The <PublishAlert> component can be used to
+ * The <PublishAlert> component can be used to control visibility of particular information to
+ * volunteers.
  */
 export const PublishAlert = styled((props: React.PropsWithChildren<PublishAlertProps>) => {
     const { children, onClick, published, ...rest } = props;

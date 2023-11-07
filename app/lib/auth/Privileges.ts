@@ -7,10 +7,11 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 23
+ * Next setting: 1 << 24
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
+    Refunds                             = 1 << 23,
     Statistics                          = 1 << 1,
 
     // Privileges regarding access in the administrative area.
@@ -66,6 +67,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventAdministrator,
         Privilege.SystemAdministrator,
         Privilege.VolunteerAdministrator,
+        Privilege.Refunds,
         Privilege.Statistics,
     ],
 
@@ -125,6 +127,7 @@ export function expand(privileges: Privileges): Privileges {
  */
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
+    [Privilege.Refunds]: 'Special access',
     [Privilege.Statistics]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
@@ -157,6 +160,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
+    [Privilege.Refunds]: 'Refund requests',
     [Privilege.Statistics]: 'Statistics',
 
     [Privilege.EventAdministrator]: 'Event administrator',
@@ -189,6 +193,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
  */
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Grants all privileges',
+    [Privilege.Refunds]: 'Grants access to financial information',
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',

@@ -8,6 +8,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
@@ -134,6 +135,12 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             label: 'Hotels',
             privilege: Privilege.EventHotelManagement,
             url: `/admin/events/${slug}/hotels`,
+        },
+        {
+            icon: <MonetizationOnIcon />,
+            label: 'Refunds',
+            privilege: Privilege.Refunds,
+            url: `/admin/events/${slug}/refunds`,
         },
         {
             icon: <HistoryEduIcon />,

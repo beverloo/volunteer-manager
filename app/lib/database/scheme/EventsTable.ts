@@ -17,11 +17,14 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventHidden = this.columnWithDefaultValue('event_hidden', 'int');
     eventStartTime = this.column('event_start_time', 'localDateTime');
     eventEndTime = this.column('event_end_time', 'localDateTime');
+    eventRefundsStartTime = this.optionalColumnWithDefaultValue('event_refunds_start_time', 'localDateTime');
+    eventRefundsEndTime = this.optionalColumnWithDefaultValue('event_refunds_end_time', 'localDateTime');
     eventLocation = this.optionalColumnWithDefaultValue('event_location', 'string');
     eventHotelRoomForm = this.optionalColumnWithDefaultValue('event_hotel_room_form', 'string');
     eventIdentityId = this.optionalColumnWithDefaultValue('event_identity_id', 'int');
     publishAvailability = this.columnWithDefaultValue('publish_availability', 'int');
     publishHotels = this.columnWithDefaultValue('publish_hotels', 'int');
+    publishRefunds = this.columnWithDefaultValue('publish_refunds', 'int');
     publishTrainings = this.columnWithDefaultValue('publish_trainings', 'int');
 
     constructor() {

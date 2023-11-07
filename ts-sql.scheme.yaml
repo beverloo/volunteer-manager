@@ -1730,6 +1730,76 @@ tables:
       KEY `event_id` (`event_id`),
       KEY `assignment_user_id` (`assignment_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: refunds
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: refund_ticket_number
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: refund_account_iban
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: refund_account_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: refund_requested
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: refund_confirmed
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (user_id, event_id) USING BTREE
+    table: refunds
+    columns:
+    - user_id
+    - event_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (user_id, event_id)
+    table: refunds
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `refunds` (
+      `user_id` int(8) unsigned NOT NULL,
+      `event_id` int(8) unsigned NOT NULL,
+      `refund_ticket_number` varchar(32) DEFAULT NULL,
+      `refund_account_iban` varchar(32) NOT NULL,
+      `refund_account_name` varchar(64) NOT NULL,
+      `refund_requested` datetime NOT NULL DEFAULT current_timestamp(),
+      `refund_confirmed` datetime DEFAULT NULL,
+      PRIMARY KEY (`user_id`,`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
   comment: ""
@@ -2705,6 +2775,16 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: event_refunds_start_time
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: event_refunds_end_time
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: event_location
     type: text
     nullable: true
@@ -2726,6 +2806,11 @@ tables:
     default: "0"
     comment: ""
   - name: publish_hotels
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: publish_refunds
     type: tinyint(1)
     nullable: false
     default: "0"
@@ -2762,11 +2847,14 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `event_refunds_start_time` datetime DEFAULT NULL,
+      `event_refunds_end_time` datetime DEFAULT NULL,
       `event_location` text DEFAULT NULL,
       `event_hotel_room_form` text DEFAULT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
       `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
       `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
+      `publish_refunds` tinyint(1) NOT NULL DEFAULT 0,
       `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
