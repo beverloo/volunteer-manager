@@ -18,8 +18,10 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { issueServerAction } from '@lib/issueServerAction';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -68,11 +70,16 @@ export function RefundsHeader(props: RefundsHeaderProps) {
     const [ published, setPublished ] = useState<boolean>(event.publishRefunds);
 
     const handleRefundPublicationChange = useCallback(async () => {
-        // TODO: Implement this function.
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setPublished(published => !published);
+        const response = await issueServerAction<UpdatePublicationDefinition>(
+            '/api/admin/update-publication', {
+                event: event.slug,
+                publishRefunds: !published,
+            });
 
-    }, [ /* no deps */ ]);
+        if (response.success) {
+            setPublished(published => !published);
+        }
+    }, [ event.slug, published ]);
 
     const defaultValues = {
         ...event,
@@ -102,8 +109,8 @@ export function RefundsHeader(props: RefundsHeaderProps) {
                 associated settings is limited on a need to know basis.
             </Alert>
             <PublishAlert onClick={handleRefundPublicationChange} published={published}>
-                { !!published && 'Availability of refunds is currently advertised to volunteers.' }
-                { !published && 'Availability of refunds is not advertised to volunteers.' }
+                { !!published && 'Availability of refunds is advertised to volunteers.' }
+                { !published && 'Availability of refunds is hidden from volunteers.' }
             </PublishAlert>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSettingsUpdate}>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
