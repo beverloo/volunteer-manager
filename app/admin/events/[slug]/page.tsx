@@ -15,7 +15,7 @@ import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
     tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences,
-    tNardo } from '@lib/database';
+    tNardo, tRefunds } from '@lib/database';
 
 /**
  * Returns metadata about the event that's being shown, including hotel & training status and
@@ -109,6 +109,7 @@ async function getParticipatingTeams(eventId: number) {
  */
 async function getRecentChanges(eventId: number) {
     const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
+    const refundsJoin = tRefunds.forUseInLeftJoin();
     const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
 
     const preferenceUpdates = await db.selectFrom(tUsersEvents)
@@ -119,6 +120,9 @@ async function getRecentChanges(eventId: number) {
         .leftJoin(hotelsPreferencesJoin)
             .on(hotelsPreferencesJoin.userId.equals(tUsersEvents.userId))
             .and(hotelsPreferencesJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(refundsJoin)
+            .on(refundsJoin.userId.equals(tUsersEvents.userId))
+            .and(refundsJoin.eventId.equals(tUsersEvents.eventId))
         .leftJoin(trainingsAssignmentsJoin)
             .on(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
             .and(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
@@ -132,19 +136,23 @@ async function getRecentChanges(eventId: number) {
 
             applicationCreated: tUsersEvents.registrationDate,
             hotelPreferencesUpdated: hotelsPreferencesJoin.hotelPreferencesUpdated,
+            refundRequestUpdated: refundsJoin.refundRequested,
             trainingPreferencesUpdated: trainingsAssignmentsJoin.preferenceUpdated,
         })
         .executeSelectMany();
 
     const changes: EventRecentChangesProps['changes'] = [];
     for (const preferenceUpdate of preferenceUpdates) {
+        const commonChange = {
+            name: preferenceUpdate.name,
+            userId: preferenceUpdate.userId,
+            team: preferenceUpdate.team,
+            status: preferenceUpdate.status,
+        };
+
         if (!!preferenceUpdate.applicationCreated) {
             changes.push({
-                name: preferenceUpdate.name,
-                userId: preferenceUpdate.userId,
-                team: preferenceUpdate.team,
-                status: preferenceUpdate.status,
-
+                ...commonChange,
                 update: `applied to join the ${preferenceUpdate.teamName}`,
                 date: preferenceUpdate.applicationCreated
             });
@@ -155,23 +163,23 @@ async function getRecentChanges(eventId: number) {
 
         if (!!preferenceUpdate.hotelPreferencesUpdated) {
             changes.push({
-                name: preferenceUpdate.name,
-                userId: preferenceUpdate.userId,
-                team: preferenceUpdate.team,
-                status: preferenceUpdate.status,
-
+                ...commonChange,
                 update: 'updated their hotel preferences',
                 date: preferenceUpdate.hotelPreferencesUpdated
             });
         }
 
+        if (!!preferenceUpdate.refundRequestUpdated) {
+            changes.push({
+                ...commonChange,
+                update: 'requested their ticket to be refunded',
+                date: preferenceUpdate.refundRequestUpdated
+            });
+        }
+
         if (!!preferenceUpdate.trainingPreferencesUpdated) {
             changes.push({
-                name: preferenceUpdate.name,
-                userId: preferenceUpdate.userId,
-                team: preferenceUpdate.team,
-                status: preferenceUpdate.status,
-
+                ...commonChange,
                 update: 'updated their training preferences',
                 date: preferenceUpdate.trainingPreferencesUpdated
             });
