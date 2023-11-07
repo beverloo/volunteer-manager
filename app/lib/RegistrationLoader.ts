@@ -5,8 +5,8 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { tEvents, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles,
-    tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments, tUsers, tUsersEvents }
+import db, { tEvents, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds,
+    tRoles, tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments, tUsers, tUsersEvents }
     from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
@@ -23,7 +23,7 @@ export async function getRegistration(environmentName: string, event: Event, use
 
     const hotelsJoin = tHotels.forUseInLeftJoin();
     const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
-
+    const refundsJoin = tRefunds.forUseInLeftJoin();
     const trainingsAssignedJoin = tTrainings.forUseInLeftJoinAs('t1');
     const trainingsPreferenceJoin = tTrainings.forUseInLeftJoinAs('t2');
     const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
@@ -43,6 +43,9 @@ export async function getRegistration(environmentName: string, event: Event, use
                 .and(hotelsPreferencesJoin.teamId.equals(tUsersEvents.teamId))
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(hotelsPreferencesJoin.hotelId))
+        .leftJoin(refundsJoin)
+            .on(refundsJoin.userId.equals(tUsersEvents.userId))
+                .and(refundsJoin.eventId.equals(tUsersEvents.eventId))
         .leftJoin(trainingsAssignmentsJoin)
             .on(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
             .and(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
@@ -74,6 +77,14 @@ export async function getRegistration(environmentName: string, event: Event, use
                 sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
                 sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
                 updated: hotelsPreferencesJoin.hotelPreferencesUpdated,
+            },
+
+            refund: {
+                ticketNumber: refundsJoin.refundTicketNumber,
+                accountIban: refundsJoin.refundAccountIban,
+                accountName: refundsJoin.refundAccountName,
+                requested: refundsJoin.refundRequested,
+                confirmed: refundsJoin.refundConfirmed,
             },
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),

@@ -27,6 +27,14 @@ export interface RegistrationDatabaseRow {
         updated?: Date;
     };
 
+    refund?: {
+        ticketNumber?: string;
+        accountIban: string;
+        accountName: string;
+        requested: Date;
+        confirmed?: Date;
+    },
+
     trainingAvailable: boolean;
     trainingEligible: boolean;
     training?: {
@@ -112,6 +120,36 @@ export interface RegistrationHotelBooking {
      * The people they will be sharing the room with, if any.
      */
     sharing: string[];
+}
+
+/**
+ * Information about the volunteer's ticket refund request, if any.
+ */
+export interface RegistrationRefund {
+    /**
+     * The volunteer's ticket number, when known.
+     */
+    ticketNumber?: string;
+
+    /**
+     * The volunteer's bank account IBAN number.
+     */
+    accountIban: string;
+
+    /**
+     * The volunteer's bank account holder name.
+     */
+    accountName: string;
+
+    /**
+     * Date on which the refund has been requested.
+     */
+    requested: Date;
+
+    /**
+     * Date on which the refund has been confirmed, if any.
+     */
+    confirmed?: Date;
 }
 
 /**
@@ -218,6 +256,15 @@ export interface RegistrationData {
     hotelBookings: RegistrationHotelBooking[];
 
     // ---------------------------------------------------------------------------------------------
+    // Refunds
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * The refund preferences that the volunteer has indicated, together with confirmation status.
+     */
+    refund?: RegistrationRefund;
+
+    // ---------------------------------------------------------------------------------------------
     // Trainings
     // ---------------------------------------------------------------------------------------------
 
@@ -270,6 +317,8 @@ export class Registration implements RegistrationData {
     get hotelPreferences() { return this.#registration.hotelPreferences; }
     get hotelBookings() { return this.#hotelBookings; }
 
+    get refund() { return this.#registration.refund; }
+
     get trainingAvailable() { return this.#registration.trainingAvailable; }
     get trainingEligible() { return this.#registration.trainingEligible; }
     get training() { return this.#registration.training; }
@@ -294,6 +343,8 @@ export class Registration implements RegistrationData {
             hotelEligible: this.hotelEligible,
             hotelPreferences: this.hotelPreferences,
             hotelBookings: this.#hotelBookings,
+
+            refund: this.refund,
 
             trainingAvailable: this.trainingAvailable,
             trainingEligible: this.trainingEligible,
