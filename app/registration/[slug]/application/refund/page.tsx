@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
 import { Markdown } from '@components/Markdown';
-import { RefundStatus } from './RefundStatus';
+import { RefundConfirmation } from './RefundConfirmation';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
 import { dayjs } from '@lib/DateTime';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
@@ -74,8 +74,8 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
             { !!registration.refund &&
-                <RefundStatus confirmed={registration.refund.confirmed}
-                              requested={registration.refund.requested} /> }
+                <RefundConfirmation confirmed={registration.refund.confirmed}
+                                    requested={registration.refund.requested} /> }
             { (!!registration.refund || state === 'available') &&
                 <p>Form goes here...</p> }
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>

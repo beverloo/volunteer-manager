@@ -3,16 +3,15 @@
 
 'use client';
 
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
 import { dayjs } from '@lib/DateTime';
 
 /**
- * Props accepted by the <RefundStatus> component.
+ * Props accepted by the <RefundConfirmation> component.
  */
-export interface RefundStatusProps {
+export interface RefundConfirmationProps {
     /**
      * Date on which the refund was confirmed, if any.
      */
@@ -25,10 +24,10 @@ export interface RefundStatusProps {
 }
 
 /**
- * The <RefundStatus> component displays the status of a refund request that the volunteer has
+ * The <RefundConfirmation> component displays the status of a refund request that the volunteer has
  * submitted, differentiating between a requested refund and an issued refund.
  */
-export function RefundStatus(props: RefundStatusProps) {
+export function RefundConfirmation(props: RefundConfirmationProps) {
     const secondary: string =
         `You requested the refund on ${dayjs(props.requested).format('dddd, MMMM D')}.`;
 
