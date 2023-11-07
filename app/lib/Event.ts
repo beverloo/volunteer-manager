@@ -11,6 +11,7 @@ export interface EventDatabaseRow {
     eventSlug: string;
     eventStartTime: Date;
     eventEndTime: Date;
+    eventEnableRefunds?: number;
     environments: {
         environment?: string,
         enableContent?: number;
@@ -53,6 +54,11 @@ export interface EventData {
      * End time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
      */
     endTime: string;
+
+    /**
+     * Whether the ability for volunteers to request a refund is advertised.
+     */
+    enableRefunds: boolean;
 }
 
 /**
@@ -144,7 +150,7 @@ export class Event implements EventData {
     get slug() { return this.#event.eventSlug; }
     get startTime() { return this.#event.eventStartTime.toISOString(); }
     get endTime() { return this.#event.eventEndTime.toISOString(); }
-
+    get enableRefunds() { return !!this.#event.eventEnableRefunds; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain EventData object:
@@ -163,6 +169,7 @@ export class Event implements EventData {
             slug: this.slug,
             startTime: this.startTime,
             endTime: this.endTime,
+            enableRefunds: this.enableRefunds,
         };
 
         if (!environmentName)

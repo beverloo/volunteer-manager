@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
-import type { RegistrationData, RegistrationTraining } from '@lib/Registration';
+import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
@@ -164,6 +164,78 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
                     <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
                 </Tooltip> }
 
+        </ListItemButton>
+    );
+}
+
+/**
+ * Props accepted by the <RefundStatusButton> component.
+ */
+interface RefundStatusButtonProps {
+    /**
+     * Whether the button should be enabled by default, i.e. has information been published?
+     */
+    enabled: boolean;
+
+    /**
+     * Whether the volunteer has the ability to override normal access restrictions.
+     */
+    override: boolean;
+
+    /**
+     * Information about the volunteer's refund request, if any.
+     */
+    refund?: RegistrationRefund;
+}
+
+/**
+ * The <RefundStatusButton> component displays the volunteer's ability to request a refund for the
+ * ticket they purchased in the past event. Visibility of this button is separate from accessibility
+ * of the page, as is covered in our data and privacy policies.
+ *
+ * This button deals with a number of situations:
+ *   (1) The volunteer has been issued a refund.
+ *   (2) The volunteer has requested a refund.
+ *   (3) The volunteer is able to request a refund.
+ *   (3) The volunteer is able to request a refund because of an override.
+ */
+function RefundStatusButton(props: RefundStatusButtonProps) {
+    const { enabled, override, refund } = props;
+
+    let primary: string | undefined = undefined;
+    let secondary: string | undefined = undefined;
+
+    if (!!refund) {
+        // (1) The volunteer has been issued a refund.
+        if (!!refund.confirmed) {
+            const confirmationDate = dayjs(refund.confirmed).format('dddd, MMMM D');
+
+            primary = 'Your ticket has been refunded!';
+            secondary = `We issued your refund on ${confirmationDate}`;
+        }
+
+        // (2) The volunteer has requested a refund.
+        else {
+            primary = 'You have requested a ticket refund';
+            secondary = 'We\'ve received your request and will confirm it soon';
+        }
+    } else {
+        // (3) The volunteer is able to request a refund.
+        // (4) The volunteer is able to request a refund because of an override.
+        primary = 'You will receive a free ticket next year!';
+        secondary = 'Thank you for your help. You could request a refund instead';
+    }
+
+    return (
+        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }} href="./application/refund">
+            <ListItemIcon>
+                <TaskAltIcon color="success" />
+            </ListItemIcon>
+            <ListItemText primary={primary} secondary={secondary} />
+            { (!enabled && override) &&
+                <Tooltip title="Access is limited to refund managers">
+                    <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
+                </Tooltip> }
         </ListItemButton>
     );
 }
@@ -334,6 +406,10 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     const displayHotel = registration.hotelEligible || !!registration.hotelPreferences ||
                          registration.hotelBookings.length > 0;
 
+    // Display and enablement of the ticket refund option.
+    const displayRefundWithOverride =
+        registration.refund || event.enableRefunds || can(user, Privilege.Refunds);
+
     // Display and enablement of training preferences.
     const displayTraining = registration.trainingEligible || !!registration.training;
 
@@ -380,6 +456,11 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                                       can(user, Privilege.EventTrainingManagement)
                                                   }
                                                   training={registration.training} /> }
+
+                        { displayRefundWithOverride &&
+                            <RefundStatusButton enabled={event.enableRefunds}
+                                                override={can(user, Privilege.Refunds)}
+                                                refund={registration.refund} /> }
 
                         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                                         disabled={!enableScheduleWithOverride}
