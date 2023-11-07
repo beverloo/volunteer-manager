@@ -161,7 +161,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
     [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [LogType.AdminUpdateRefundRequest]: (source, target, { event }) => {
-        return `Updated ticket refund settings for ${target?.name}`;
+        return `Updated ticket refund settings for ${target?.name} during ${event}`;
     },
     [LogType.AdminUpdateRole]: (source, target, { role }) => `Updated the ${role} role settings`,
     [LogType.AdminUpdateTeam]: (source, target, { team }) => `Updated the ${team} team settings`,
