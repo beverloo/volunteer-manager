@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RefundsHeader } from './RefundsHeader';
+import { RefundsTable } from './RefundsTable';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
@@ -26,7 +27,7 @@ export default async function EventRefundsPage(props: NextRouterParams<'slug'>) 
     return (
         <>
             <RefundsHeader enableExport={enableExport} event={event} />
-            { /* TODO: Refund table */ }
+            <RefundsTable event={event.slug} />
         </>
     );
 }

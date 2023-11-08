@@ -133,6 +133,10 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `${mutation} an excellent piece of Del a Rie Advies`;
     },
 
+    [LogType.AdminRefundMutation]: (source, target, { event }) => {
+        return `Updated ${target?.name}'s refund status for ${event}`;
+    },
+
     [LogType.AdminResetAccessCode]: (source, target, data) => {
         return `Created a new access code for ${target?.name}`;
     },

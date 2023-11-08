@@ -44,6 +44,7 @@ export enum LogType {
     AdminHotelBookingUpdate = 'admin-hotel-booking-update',
     AdminImpersonateVolunteer = 'admin-impersonate-volunteer',
     AdminNardoMutation = 'admin-nardo-mutation',
+    AdminRefundMutation = 'admin-refund-mutation',
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',

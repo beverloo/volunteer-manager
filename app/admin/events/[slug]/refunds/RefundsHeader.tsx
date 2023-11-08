@@ -3,11 +3,13 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, DateTimePickerElement, FormContainer } from 'react-hook-form-mui';
 
+import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Unstable_Grid2';
 import IconButton from '@mui/material/IconButton';
@@ -101,52 +103,71 @@ export function RefundsHeader(props: RefundsHeaderProps) {
         }
     }, [ event.slug, published ]);
 
+    const href = `/registration/${event.slug}/application/refund`;
+
     const defaultValues = {
         ...event,
         refundsStartTime: event.refundsStartTime ? dayjs(event.refundsStartTime) : undefined,
-        refundsEndTime: event.refundsStartTime ? dayjs(event.refundsStartTime) : undefined,
+        refundsEndTime: event.refundsEndTime ? dayjs(event.refundsEndTime) : undefined,
     }
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-                <Typography variant="h5">
-                    Refund requests
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({event.shortName})
+        <>
+            <Paper sx={{ p: 2 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center"
+                       spacing={2}>
+                    <Typography variant="h5">
+                        Refund requests
+                        <Typography component="span" variant="h5" color="action.active"
+                                    sx={{ pl: 1 }}>
+                            ({event.shortName})
+                        </Typography>
                     </Typography>
-                </Typography>
-                { !!props.enableExport &&
-                    <Tooltip title="Export refund requests">
-                        <IconButton onClick={handleExportButton}>
-                            <ShareIcon fontSize="small" />
-                        </IconButton>
-                    </Tooltip> }
-            </Stack>
-            <Alert severity="warning" sx={{ mt: 1, mb: 2 }}>
-                Volunteers can request their ticket to be refunded, for which they have to share
-                <strong> financial information</strong> with us. Access to these requests and the
-                associated settings is limited on a need to know basis.
-            </Alert>
-            <PublishAlert onClick={handleRefundPublicationChange} published={published}>
-                { !!published && 'Availability of refunds is advertised to volunteers.' }
-                { !published && 'Availability of refunds is hidden from volunteers.' }
-            </PublishAlert>
-            <FormContainer defaultValues={defaultValues} onSuccess={handleSettingsUpdate}>
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid xs={6}>
-                        <DateTimePickerElement name="refundsStartTime" label="Accept refunds from"
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               onChange={handleChange} textReadOnly />
+                    { !!props.enableExport &&
+                        <Tooltip title="Export refund requests">
+                            <IconButton onClick={handleExportButton}>
+                                <ShareIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip> }
+                </Stack>
+                <Alert severity="info" sx={{ mt: 1 }}>
+                    Volunteers can request their ticket to be refunded, which involves sharing
+                    financial information. Access to these requests and settings is need to know.
+                </Alert>
+            </Paper>
+            <Paper sx={{ p: 2 }}>
+                <PublishAlert onClick={handleRefundPublicationChange} published={published}>
+                    { !!published &&
+                        <>
+                            Availability of refunds is <strong>advertised</strong> to volunteers.
+                        </> }
+                    { !published &&
+                        <>
+                            Availability of refunds is <strong>not advertised</strong> to
+                            volunteers, however,{' '}
+                            <MuiLink component={Link} href={href}>the request form</MuiLink>{' '}
+                            remains accessible.
+                        </> }
+                </PublishAlert>
+                <FormContainer defaultValues={defaultValues} onSuccess={handleSettingsUpdate}>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid xs={6}>
+                            <DateTimePickerElement name="refundsStartTime"
+                                                   label="Accept refunds from"
+                                                   inputProps={{ fullWidth: true, size: 'small' }}
+                                                   onChange={handleChange} textReadOnly />
+                        </Grid>
+                        <Grid xs={6}>
+                            <DateTimePickerElement name="refundsEndTime"
+                                                   label="Accept refunds until"
+                                                   inputProps={{ fullWidth: true, size: 'small' }}
+                                                   onChange={handleChange} textReadOnly />
+                        </Grid>
                     </Grid>
-                    <Grid xs={6}>
-                        <DateTimePickerElement name="refundsEndTime" label="Accept refunds until"
-                                               inputProps={{ fullWidth: true, size: 'small' }}
-                                               onChange={handleChange} textReadOnly />
-                    </Grid>
-                </Grid>
-                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }}/>
-            </FormContainer>
-        </Paper>
+                    <SubmitCollapse error={error} loading={loading} open={invalidated}
+                                    sx={{ mt: 2 }}/>
+                </FormContainer>
+            </Paper>
+        </>
     );
 }
