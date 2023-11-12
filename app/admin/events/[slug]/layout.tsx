@@ -161,7 +161,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
 
     for (const team of info.teams) {
         const firstAidEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
-        if (team.managesFirstAid && false) {
+        if (team.managesFirstAid) {
             firstAidEntry.push({
                 icon: <LocalHospitalIcon />,
                 label: 'First aid',
@@ -171,7 +171,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
         }
 
         const securityEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
-        if (team.managesSecurity && false) {
+        if (team.managesSecurity) {
             securityEntry.push({
                 icon: <SecurityIcon />,
                 label: 'Security',

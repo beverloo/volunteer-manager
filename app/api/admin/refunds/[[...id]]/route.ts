@@ -163,6 +163,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
             type: LogType.AdminRefundMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            targetUser: id,
             data: {
                 event: event?.shortName,
             },
