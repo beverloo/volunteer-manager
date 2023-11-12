@@ -4,13 +4,16 @@
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 
+import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
-import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { executeAccessCheck, type AuthenticationContext, and } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
+
+import { kExportTypePrivilege } from '@app/admin/volunteers/exports/ExportPrivileges';
 
 /**
  * Row model for a data export.
@@ -93,6 +96,19 @@ export type ExportsEndpoints = DataTableEndpoints<typeof kExportRowModel, typeof
 export type ExportsRowModel = z.infer<typeof kExportRowModel>;
 
 /**
+ * Exports an additional access check for the given `event` and `type`.
+ */
+function executeActionCheckForEventAndType(
+    authenticationContext: AuthenticationContext, event: Event, type: ExportType): void | never
+{
+    executeAccessCheck(authenticationContext, {
+        check: 'admin-event',
+        event: event.slug,
+        privilege: and(Privilege.VolunteerDataExports, kExportTypePrivilege[type]),
+    });
+}
+
+/**
  * The Export API is implemented as a regular, editable DataTable API. All operations are only
  * available to people with the VolunteerDataExport privilege.
  */
@@ -111,6 +127,8 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
         const event = await getEventBySlug(row.event!);
         if (!event)
             return { success: false, error: 'An invalid event was provided' };
+
+        executeActionCheckForEventAndType(props.authenticationContext, event, row.type);
 
         const slug = uuid().replaceAll('-', '').slice(0, 16);
         if (!slug || slug.length !== 16)
@@ -173,7 +191,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
         };
     },
 
-    async list({ pagination, sort }) {
+    async list({ pagination, sort }, props) {
         const dbInstance = db;
 
         const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
@@ -204,10 +222,13 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 .offsetIfValue(pagination ? pagination.page * pagination.pageSize : null)
             .executeSelectPage();
 
+        // Only make available exports of data types that the volunteer is allowed to access.
+        const exportData = data.filter(row => can(props.user, kExportTypePrivilege[row.type]));
+
         return {
             success: true,
             rowCount: count,
-            rows: data.map(row => ({
+            rows: exportData.map(row => ({
                 ...row,
                 createdOn: row.createdOn.toISOString(),
                 expirationDate: row.expirationDate.toISOString(),

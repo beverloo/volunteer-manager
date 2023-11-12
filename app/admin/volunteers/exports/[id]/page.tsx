@@ -11,16 +11,18 @@ import Typography from '@mui/material/Typography';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ExportAccess } from './ExportAccess';
 import { ExportMetadata } from './ExportMetadata';
-import { Privilege } from '@lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
+
+import { kExportTypePrivilege } from '../ExportPrivileges';
 
 /**
  * The <VolunteersExportDetailsPage> component is the page that displays detailed information about
  * a particular data export. This includes both metadata and access logs.
  */
 export default async function VolunteersExportDetailsPage(props: NextRouterParams<'id'>) {
-    await requireAuthenticationContext({
+    const { user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerDataExports,
     });
@@ -51,7 +53,7 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
         .groupBy(tExports.exportId)
         .executeSelectNoneOrOne();
 
-    if (!data)
+    if (!data || !can(user, kExportTypePrivilege[data.type]))
         notFound();
 
     const usersJoin = tUsers.forUseInLeftJoin();

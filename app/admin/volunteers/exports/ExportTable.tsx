@@ -40,7 +40,7 @@ export function ExportTable() {
 
             renderCell: params =>
                 <MuiLink component={Link} href={`./exports/${params.row.id}`}>
-                    {params.value} {params.row.type}
+                    {params.value} {params.row.type}{' '}
                     ({params.row.justification})
                 </MuiLink>,
         },

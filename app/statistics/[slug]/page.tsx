@@ -22,7 +22,6 @@ import { determineEnvironment } from '@lib/Environment';
 import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-
 /**
  * Statistics specific to a particular event. The `slug` will be validated as one of the unique
  * event slugs we have stored in the database.

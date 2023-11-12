@@ -146,7 +146,7 @@ export function RefundsHeader(props: RefundsHeaderProps) {
                             Availability of refunds is <strong>not advertised</strong> to
                             volunteers, however,{' '}
                             <MuiLink component={Link} href={href}>the request form</MuiLink>{' '}
-                            remains accessible.
+                            remains linkable.
                         </> }
                 </PublishAlert>
                 <FormContainer defaultValues={defaultValues} onSuccess={handleSettingsUpdate}>
