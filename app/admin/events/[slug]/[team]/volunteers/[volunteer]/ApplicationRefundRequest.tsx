@@ -3,19 +3,17 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer } from 'react-hook-form-mui';
-
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
+import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { RefundRequestForm } from '@app/registration/[slug]/application/refund/RefundRequestForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
+import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationRefundRequest> component.
@@ -54,6 +52,10 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    const handleClear = useCallback(async () => {
+        return { error: 'Not yet implemented...' };
+    }, [ /* no deps */ ]);
+
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
@@ -90,13 +92,8 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Refund request
-                <Tooltip title="Restricted to the refund permission">
-                    <LockOpenIcon color="warning" fontSize="small"
-                                  sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
-                </Tooltip>
-            </Typography>
+            <PaperHeader title="Refund request" privilege={Privilege.Refunds}
+                         onClear={handleClear} subject="refund request" sx={{ mb: 2 }} />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <RefundRequestForm onChange={handleChange} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />

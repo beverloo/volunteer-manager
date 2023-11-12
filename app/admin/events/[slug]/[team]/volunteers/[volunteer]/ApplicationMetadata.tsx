@@ -10,14 +10,13 @@ import { type FieldValues, DateTimePickerElement, FormContainer, SelectElement }
     from 'react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
+import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
+import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Options for a binary select box. They look better on the page than checkboxes.
@@ -123,13 +122,8 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: 1 }}>
-                Application information
-                <Tooltip title="Restricted to the application override permission">
-                    <LockOpenIcon color="warning" fontSize="small"
-                                  sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
-                </Tooltip>
-            </Typography>
+            <PaperHeader title="Application information" sx={{ mb: 1 }}
+                         privilege={Privilege.EventVolunteerApplicationOverrides} />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
                     <Grid xs={12}>

@@ -9,15 +9,14 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import { dayjs } from '@lib/DateTime';
 
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
 import type { HotelPreferencesProps } from '@app/registration/[slug]/application/hotel/HotelPreferences';
 import { HotelPreferencesForm } from '@app/registration/[slug]/application/hotel/HotelPreferencesForm';
+import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
+import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationHotelPreferences> component.
@@ -82,6 +81,10 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    const handleClear = useCallback(async () => {
+        return { error: 'Not yet implemented...' };
+    }, [ /* no deps */ ]);
+
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
@@ -117,13 +120,8 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Hotel preferences
-                <Tooltip title="Restricted to the hotel management permission">
-                    <LockOpenIcon color="warning" fontSize="small"
-                                  sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
-                </Tooltip>
-            </Typography>
+            <PaperHeader title="Hotel preferences" privilege={Privilege.EventHotelManagement}
+                         onClear={handleClear} subject="hotel preferences" sx={{ mb: 2 }} />
             <FormContainer formContext={form} onSuccess={handleSubmit}>
                 <HotelPreferencesForm eventDate={eventDate} form={form as any}
                                       hotelOptions={hotelOptions} onChange={handleChange} />

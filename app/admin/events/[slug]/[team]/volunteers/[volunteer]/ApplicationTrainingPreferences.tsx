@@ -7,15 +7,13 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer } from 'react-hook-form-mui';
-
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Paper from '@mui/material/Paper';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
+import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { TrainingPreferencesForm } from '@app/registration/[slug]/application/training/TrainingPreferencesForm';
 import { callApi } from '@lib/callApi';
+import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationTrainingPreferences> component.
@@ -61,6 +59,10 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    const handleClear = useCallback(async () => {
+        return { error: 'Not yet implemented...' };
+    }, [ /* no deps */ ]);
+
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
@@ -99,13 +101,8 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
 
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Training preferences
-                <Tooltip title="Restricted to the training management permission">
-                    <LockOpenIcon color="warning" fontSize="small"
-                                  sx={{ verticalAlign: 'middle', mb: 0.25, ml: 1 }} />
-                </Tooltip>
-            </Typography>
+            <PaperHeader title="Training preferences" privilege={Privilege.EventTrainingManagement}
+                         onClear={handleClear} subject="training preferences" sx={{ mb: 2 }} />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <TrainingPreferencesForm onChange={handleChange}
                                          trainingOptions={trainingOptions} />

@@ -4,7 +4,7 @@
 'use client';
 
 import Box, { type BoxProps } from '@mui/material/Box';
-import Collapse, { collapseClasses } from '@mui/material/Collapse';
+import Collapse from '@mui/material/Collapse';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';

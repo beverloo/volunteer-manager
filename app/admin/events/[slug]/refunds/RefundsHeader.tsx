@@ -12,16 +12,12 @@ import { type FieldValues, DateTimePickerElement, FormContainer } from 'react-ho
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import ShareIcon from '@mui/icons-material/Share';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
+import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
@@ -114,22 +110,8 @@ export function RefundsHeader(props: RefundsHeaderProps) {
     return (
         <>
             <Paper sx={{ p: 2 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center"
-                       spacing={2}>
-                    <Typography variant="h5">
-                        Refund requests
-                        <Typography component="span" variant="h5" color="action.active"
-                                    sx={{ pl: 1 }}>
-                            ({event.shortName})
-                        </Typography>
-                    </Typography>
-                    { !!props.enableExport &&
-                        <Tooltip title="Export refund requests">
-                            <IconButton onClick={handleExportButton}>
-                                <ShareIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip> }
-                </Stack>
+                <PaperHeader title="Refund requests" subtitle={event.shortName}
+                             onExport={!!props.enableExport ? handleExportButton : undefined} />
                 <Alert severity="info" sx={{ mt: 1 }}>
                     Volunteers can request their ticket to be refunded, which involves sharing
                     financial information. Access to these requests and settings is need to know.
