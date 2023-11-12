@@ -8,7 +8,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRoles, tSchedule,
+import db, { tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles, tSchedule,
     tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
 
 /**
@@ -20,6 +20,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;
+
+    const refundsJoin = tRefunds.forUseInLeftJoin();
     const scheduleJoin = tSchedule.forUseInLeftJoin();
 
     // ---------------------------------------------------------------------------------------------
@@ -31,6 +33,9 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
+        .leftJoin(refundsJoin)
+            .on(refundsJoin.eventId.equals(tUsersEvents.eventId))
+                .and(refundsJoin.userId.equals(tUsersEvents.userId))
         .leftJoin(scheduleJoin)
             .on(scheduleJoin.eventId.equals(event.id)
                 .and(scheduleJoin.userId.equals(tUsersEvents.userId))
@@ -53,6 +58,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
                     scheduleJoin.scheduleTimeStart.getTime())),
 
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+            refundRequested: refundsJoin.refundRequested.isNotNull(),
+            refundConfirmed: refundsJoin.refundConfirmed.isNotNull(),
             trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
                 tRoles.roleTrainingEligible),
         })

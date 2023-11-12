@@ -13,6 +13,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import HotelIcon from '@mui/icons-material/Hotel';
 import IconButton from '@mui/material/IconButton';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import Paper from '@mui/material/Paper';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import ShareIcon from '@mui/icons-material/Share';
@@ -53,6 +54,9 @@ export interface VolunteerInfo {
 
     hotelEligible?: number;
     hotelStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
+
+    refundRequested?: boolean;
+    refundConfirmed?: boolean;
 
     trainingEligible?: number;
     trainingStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
@@ -144,7 +148,6 @@ export function VolunteerTable(props: VolunteerTableProps) {
             sortable: false,
             flex: 1,
 
-            // TODO: Display status icons for registration status (hotel etc.)
             renderCell: (params: GridRenderCellParams) => {
                 let hotelIcon: React.ReactNode = undefined;
                 switch (params.row.hotelStatus) {
@@ -179,6 +182,21 @@ export function VolunteerTable(props: VolunteerTableProps) {
                             </Tooltip>
                         );
                         break;
+                }
+
+                let refundIcon: React.ReactNode = undefined;
+                if (!!params.row.refundRequested && !!params.row.refundConfirmed) {
+                    refundIcon = (
+                        <Tooltip title="Ticket refund issued">
+                            <MonetizationOnIcon color="success" fontSize="small" />
+                        </Tooltip>
+                    );
+                } else if (!!params.row.refundRequested) {
+                    refundIcon = (
+                        <Tooltip title="Ticket refund requested">
+                            <MonetizationOnIcon color="warning" fontSize="small" />
+                        </Tooltip>
+                    );
                 }
 
                 let trainingIcon: React.ReactNode = undefined;
@@ -219,6 +237,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                 return (
                     <Stack direction="row" spacing={1}>
                         {hotelIcon}
+                        {refundIcon}
                         {trainingIcon}
                         { !params.row.date &&
                             <Tooltip title="Registration date missing">
