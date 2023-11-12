@@ -9,7 +9,7 @@ import { ExportType, RegistrationStatus } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { dayjs } from '@lib/DateTime';
 
-import db, { tEvents, tExports, tExportsLogs, tRoles, tTrainings, tTrainingsAssignments,
+import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
     tTrainingsExtra, tUsers, tUsersEvents } from '@lib/database';
 
 /**
@@ -34,6 +34,41 @@ const kCreditsDataExport = z.object({
          * Volunteers who are to be listed as part of this role.
          */
         volunteers: z.array(z.string()),
+    })),
+});
+
+/**
+ * Data export type definition for refund requests.
+ */
+const kRefundsDataExport = z.object({
+    /**
+     * Array of the refund requests that were issued for this event.
+     */
+    requests: z.array(z.object({
+        /**
+         * Date and time on which the refund request was received.
+         */
+        date: z.string(),
+
+        /**
+         * Full name of the volunteer who requested the refund.
+         */
+        name: z.string(),
+
+        /**
+         * Ticket number (optional) of the volunteer's purchased ticket.
+         */
+        ticketNumber: z.string().optional(),
+
+        /**
+         * Account IBAN to which the refund should be issued.
+         */
+        accountIban: z.string(),
+
+        /**
+         * Accound holder name of the account to which the refund should be issued.
+         */
+        accountName: z.string(),
     })),
 });
 
@@ -132,6 +167,7 @@ const kVolunteersDataExport = z.array(z.object({
  * Export the aforementioned type definitions for use elsewhere in the Volunteer Manager.
  */
 export type CreditsDataExport = z.infer<typeof kCreditsDataExport>;
+export type RefundsDataExport = z.infer<typeof kRefundsDataExport>;
 export type TrainingsDataExport = z.infer<typeof kTrainingsDataExport>;
 export type VolunteersDataExport = z.infer<typeof kVolunteersDataExport>;
 
@@ -160,6 +196,11 @@ const kExportsDefinition = z.object({
          * Credit reel consent data export, when the `slug` describes that kind of export.
          */
         credits: kCreditsDataExport.optional(),
+
+        /**
+         * Refund request data export, when the `slug` desccribes that kind of export.
+         */
+        refunds: kRefundsDataExport.optional(),
 
         /**
          * Training participation data export, when the `slug` desccribes that kind of export.
@@ -303,6 +344,38 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         }
     }
 
+    let refunds: RefundsDataExport | undefined = undefined;
+    if (metadata.type === ExportType.Refunds) {
+        refunds = { requests: [] };
+
+        const refundRequests = await db.selectFrom(tUsersEvents)
+            .innerJoin(tRefunds)
+                .on(tRefunds.eventId.equals(tUsersEvents.eventId))
+                .and(tRefunds.userId.equals(tUsersEvents.userId))
+            .innerJoin(tUsers)
+                .on(tUsers.userId.equals(tUsersEvents.userId))
+            .where(tUsersEvents.eventId.equals(metadata.eventId))
+            .select({
+                date: tRefunds.refundRequested,
+                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                ticketNumber: tRefunds.refundTicketNumber,
+                accountIban: tRefunds.refundAccountIban,
+                accountName: tRefunds.refundAccountName,
+            })
+            .orderBy('name', 'asc')
+            .executeSelectMany();
+
+        for (const request of refundRequests) {
+            refunds.requests.push({
+                date: request.date.toISOString(),
+                name: request.name,
+                ticketNumber: request.ticketNumber,
+                accountIban: request.accountIban,
+                accountName: request.accountName,
+            });
+        }
+    }
+
     let trainings: TrainingsDataExport | undefined = undefined;
     if (metadata.type === ExportType.Trainings) {
         trainings = { sessions: [] };
@@ -414,7 +487,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
     return {
         success: true,
-        credits, trainings, volunteers,
+        credits, refunds, trainings, volunteers,
     };
 }
 

@@ -11,11 +11,13 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 
-import type { CreditsDataExport, TrainingsDataExport, VolunteersDataExport } from '@app/api/exports/route';
+import type { CreditsDataExport, RefundsDataExport, TrainingsDataExport, VolunteersDataExport }
+    from '@app/api/exports/route';
+
 import type { ExportMetadata } from './ExportMetadata';
 import { ExportCredits } from './ExportCredits';
+import { ExportRefunds } from './ExportRefunds';
 import { ExportTrainings } from './ExportTrainings';
 import { ExportType } from '@lib/database/Types';
 import { ExportVolunteers } from './ExportVolunteers';
@@ -44,6 +46,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
         case ExportType.Credits:
             description = 'credit real consent';
             break;
+        case ExportType.Refunds:
+            description = 'ticket refund requests';
+            break;
         case ExportType.Trainings:
             description = 'training participation';
             break;
@@ -55,6 +60,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
     }
 
     const [ credits, setCredits ] = useState<CreditsDataExport | undefined>();
+    const [ refunds, setRefunds ] = useState<RefundsDataExport | undefined>();
     const [ trainings, setTrainings ] = useState<TrainingsDataExport | undefined>();
     const [ volunteers, setVolunteers ] = useState<VolunteersDataExport | undefined>();
 
@@ -70,6 +76,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
 
             if (response.success) {
                 setCredits(response.credits);
+                setRefunds(response.refunds);
                 setTrainings(response.trainings);
                 setVolunteers(response.volunteers);
             } else {
@@ -104,6 +111,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
             </Collapse>
             <Collapse in={!!credits} unmountOnExit>
                 <ExportCredits credits={credits!} />
+            </Collapse>
+            <Collapse in={!!refunds} unmountOnExit>
+                <ExportRefunds refunds={refunds!} />
             </Collapse>
             <Collapse in={!!trainings} unmountOnExit>
                 <ExportTrainings trainings={trainings!} />

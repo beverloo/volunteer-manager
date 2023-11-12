@@ -17,6 +17,7 @@ export enum AuthType {
  */
 export enum ExportType {
     Credits = 'Credits',
+    Refunds = 'Refunds',
     Trainings = 'Trainings',
     Volunteers = 'Volunteers',
 }
