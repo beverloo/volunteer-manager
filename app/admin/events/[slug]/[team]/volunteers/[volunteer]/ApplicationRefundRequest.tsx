@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
@@ -47,12 +47,24 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
     const { refund } = props;
 
     const router = useRouter();
+    const form = useForm({
+        defaultValues: {
+            ticketNumber: refund?.ticketNumber,
+            accountIban: refund?.accountIban,
+            accountName: refund?.accountName,
+        }
+    });
 
     const [ error, setError ] = useState<string | undefined>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
+        //form.reset({
+        //    ticketNumber: null!,
+        //    accountIban: null!,
+        //    accountName: null!,
+        //});
         return { error: 'Not yet implemented...' };
     }, [ /* no deps */ ]);
 
@@ -84,17 +96,11 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
         }
     }, [ props.eventSlug, props.volunteerUserId, router ]);
 
-    const defaultValues = {
-        ticketNumber: refund?.ticketNumber,
-        accountIban: refund?.accountIban,
-        accountName: refund?.accountName,
-    };
-
     return (
         <Paper sx={{ p: 2 }}>
             <PaperHeader title="Refund request" privilege={Privilege.Refunds}
                          onClear={handleClear} subject="refund request" sx={{ mb: 2 }} />
-            <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
+            <FormContainer formContext={form} onSuccess={handleSubmit}>
                 <RefundRequestForm onChange={handleChange} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
             </FormContainer>

@@ -3,10 +3,10 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
@@ -54,12 +54,20 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
     const { trainingOptions, training } = props;
 
     const router = useRouter();
+    const form = useForm({
+        defaultValues: {
+            ...(!training ? {}
+                          : (training.preference === undefined ? { training: /* skip= */ 0 }
+                                                               : { training: training.preference }))
+        },
+    });
 
     const [ error, setError ] = useState<string | undefined>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
+        //form.reset({ training: null! });
         return { error: 'Not yet implemented...' };
     }, [ /* no deps */ ]);
 
@@ -90,20 +98,11 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
         }
     }, [ props.eventSlug, props.teamSlug, props.volunteerUserId, router ]);
 
-    const defaultValues = useMemo(() => {
-        if (!training)
-            return { /* no preferences */ };
-        else if (training.preference === undefined)
-            return { training: /* skip= */ 0 };
-        else
-            return { training: training.preference };
-    }, [ training ]);
-
     return (
         <Paper sx={{ p: 2 }}>
             <PaperHeader title="Training preferences" privilege={Privilege.EventTrainingManagement}
                          onClear={handleClear} subject="training preferences" sx={{ mb: 2 }} />
-            <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
+            <FormContainer formContext={form} onSuccess={handleSubmit}>
                 <TrainingPreferencesForm onChange={handleChange}
                                          trainingOptions={trainingOptions} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />

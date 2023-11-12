@@ -31,7 +31,7 @@ interface PaperHeaderClearButtonProps {
     /**
      * The subject of the contents of this section.
      * @example 'Are you sure that you want to clear the {subject}'
-     * @default 'item'
+     * @default 'section'
      */
     subject?: string;
 
@@ -53,7 +53,7 @@ function PaperHeaderClearButton(props: PaperHeaderClearButtonProps) {
 
     return (
         <>
-            <Tooltip title="Clear this section">
+            <Tooltip title={`Clear the ${subject}`}>
                 <IconButton onClick={ () => setConfirmationOpen(true) } size="small">
                     <ClearIcon fontSize="small" />
                 </IconButton>
@@ -100,7 +100,7 @@ export interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxP
  */
 export const PaperHeader = styled((props: PaperHeaderProps) => {
     const { title, subtitle, privilege, onClear, onExport, ...containerProps } = props;
-    const subject = props.subject ?? 'item';
+    const subject = props.subject ?? 'section';
 
     return (
         <Box component={Stack} direction="row" justifyContent="space-between" alignItems="center"

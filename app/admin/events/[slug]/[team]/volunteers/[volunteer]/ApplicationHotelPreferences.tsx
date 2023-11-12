@@ -82,6 +82,14 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
+        //form.reset({
+        //    interested: null!,
+        //    hotelId: null!,
+        //    sharingPeople: null!,
+        //    sharingPreferences: null!,
+        //    checkIn: null!,
+        //    checkOut: null!,
+        //});
         return { error: 'Not yet implemented...' };
     }, [ /* no deps */ ]);
 
