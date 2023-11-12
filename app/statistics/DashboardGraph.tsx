@@ -9,8 +9,9 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { BarSeriesType } from '@mui/x-charts';
+import type { BarSeriesType, LineSeriesType } from '@mui/x-charts';
 import { BarChart } from '@mui/x-charts/BarChart';
+import { LineChart } from '@mui/x-charts/LineChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 
 /**
@@ -31,6 +32,40 @@ interface DashboardGraphBaseProps {
      * Optional title to display at the top of the chart. May be omitted.
      */
     title?: string;
+}
+
+/**
+ * Data type describing the data to be passed to the area chart.
+ */
+export type DashboardAreaGraphSeries = LineSeriesType[];
+
+/**
+ * Props accepted by the <DashboardGraph> component when displaying an area chart.
+ */
+interface DashboardAreaGraphProps {
+    /**
+     * Presentation type of the graph.
+     */
+    presentation: 'area';
+
+    /**
+     * The data that should be displayed on the dashboard.
+     */
+    data: DashboardAreaGraphSeries;
+
+    /**
+     * Labels that should be shown on the area graph.
+     */
+    labels: string[];
+}
+
+/**
+ * Component that will render behaviour specific to area charts.
+ */
+function DashboardAreaGraph(props: DashboardAreaGraphProps) {
+    return (
+        <LineChart series={props.data} xAxis={ [{ data: props.labels, scaleType: 'point' }] } />
+    );
 }
 
 /**
@@ -120,7 +155,7 @@ function DashboardGraphContainer(props: React.PropsWithChildren<DashboardGraphBa
  * Props accepted by the <DashboardGraph> component, specific to presentation.
  */
 export type DashboardGraphProps = React.PropsWithChildren<DashboardGraphBaseProps> &
-    (DashboardBarGraphProps | DashboardPieGraphProps);
+    (DashboardAreaGraphProps | DashboardBarGraphProps | DashboardPieGraphProps);
 
 /**
  * Individual graph container that should be displayed on the dashboard. Should have a single child
@@ -130,6 +165,7 @@ export function DashboardGraph(props: DashboardGraphProps) {
     return (
         <DashboardGraphContainer conclusion={props.conclusion} fullWidth={props.fullWidth}
                                  title={props.title}>
+            { props.presentation === 'area' && <DashboardAreaGraph {...props} /> }
             { props.presentation === 'bar' && <DashboardBarGraph {...props} /> }
             { props.presentation === 'pie' && <DashboardPieGraph {...props} /> }
             { props.children }

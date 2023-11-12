@@ -6,7 +6,7 @@ import * as d3 from 'd3-scale-chromatic';
 /**
  * Intention of the data point that should be communicated by this colour.
  */
-type ColorIntention = 'error' | 'success' | 'warning';
+type ColorIntention = 'disabled' | 'error' | 'info' | 'success' | 'warning';
 
 /**
  * Computes a purposeful colour. When `index` and `total` are omitted a bright default colour will
@@ -27,8 +27,12 @@ export function computeColor(intention: ColorIntention, index?: number, total?: 
         rangePosition = kRangeMinimum + ((index / (total - 1)) * (kRangeMaximum - kRangeMinimum));
 
     switch (intention) {
+        case 'disabled':
+            return d3.interpolateGreys(0.35);
         case 'error':
             return d3.interpolateReds(rangePosition);
+        case 'info':
+            return d3.interpolateBlues(rangePosition);
         case 'warning':
             return d3.interpolateOranges(rangePosition - /* for contrast= */ 0.15);
         case 'success':

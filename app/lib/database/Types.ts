@@ -76,8 +76,8 @@ export enum RoleBadge {
  * @see Table `schedule`
  */
 export enum ScheduleType {
-    Shift = 'Shift',
-    Unavailable = 'Unavailable',
+    Shift = 'shift',
+    Unavailable = 'unavailable',
 }
 
 /**

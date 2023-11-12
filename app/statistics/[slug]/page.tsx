@@ -9,6 +9,7 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { DashboardContainer } from '../DashboardContainer';
 import { DashboardGraphFallback } from '../DashboardGraph';
 import { EventAgeDistributionGraph } from '../graphs/EventAgeDistributionGraph';
+import { EventAvailabilityTimeSeriesGraph } from '../graphs/EventAvailabilityTimeSeriesGraph';
 import { EventGenderDistributionGraph } from '../graphs/EventGenderDistributionGraph';
 import { EventHotelParticipationGraph } from '../graphs/EventHotelParticipationGraph';
 import { EventInboundRetentionGraph } from '../graphs/EventInboundRetentionGraph';
@@ -91,6 +92,11 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
                 <Suspense fallback={ <DashboardGraphFallback title="Training participation" /> }>
                     <EventTrainingParticipationGraph eventId={event.eventId}
                                                      teamId={environment.id} />
+                </Suspense>
+                <Suspense fallback={ <DashboardGraphFallback fullWidth
+                                                             title="Volunteer availability" /> }>
+                    <EventAvailabilityTimeSeriesGraph eventId={event.eventId}
+                                                      teamId={environment.id} />
                 </Suspense>
             </DashboardContainer>
         </>
