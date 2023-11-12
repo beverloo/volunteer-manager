@@ -233,7 +233,7 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
             </ListItemIcon>
             <ListItemText primary={primary} secondary={secondary} />
             { (!enabled && override) &&
-                <Tooltip title="Access is limited to refund managers">
+                <Tooltip title="Visibility is limited to refund managers">
                     <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
                 </Tooltip> }
         </ListItemButton>

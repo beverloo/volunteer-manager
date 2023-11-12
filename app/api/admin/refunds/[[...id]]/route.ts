@@ -126,6 +126,8 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
                 confirmed: tRefunds.refundConfirmed.isNotNull(),
             })
             .where(tRefunds.eventId.equals(event.eventId))
+            .orderBy('confirmed', 'asc')
+            .orderBy('name', 'asc')
             .executeSelectPage();
 
         return {
@@ -149,7 +151,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
                 refundConfirmed: row.confirmed ? dbInstance.currentDateTime() : null
             })
             .where(tRefunds.eventId.equals(event.eventId))
-                .and(tRefunds.userId.equals(props.user!.userId))
+                .and(tRefunds.userId.equals(id))
             .executeUpdate();
 
         return { success: !!affectedRows };
