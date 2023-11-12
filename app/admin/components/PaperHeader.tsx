@@ -133,4 +133,4 @@ export const PaperHeader = styled((props: PaperHeaderProps) => {
                 </Stack> }
         </Box>
     );
-})();
+})({ /* no styles */ });
