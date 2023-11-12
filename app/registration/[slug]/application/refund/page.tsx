@@ -82,9 +82,11 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
                 <RefundRequest eventSlug={event.slug}
                                readOnly={state !== 'available'}
                                refund={registration.refund} /> }
-            <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
-                « Back to your registration
-            </MuiLink>
+            <Box sx={{ pt: 2 }}>
+                <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
+                    « Back to your registration
+                </MuiLink>
+            </Box>
         </Box>
     );
 }

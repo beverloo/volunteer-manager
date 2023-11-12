@@ -96,7 +96,7 @@ export function RefundRequest(props: RefundRequestProps) {
     };
 
     return (
-        <Box sx={{ mt: 1, mb: 2 }}>
+        <Box sx={{ mt: 1 }}>
             <Typography variant="h5" sx={ readOnly ? {} : { mb: 1 } }>
                 Request a ticket refund
             </Typography>
