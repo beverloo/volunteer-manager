@@ -4,6 +4,7 @@
 'use client';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TableBody from '@mui/material/TableBody';
@@ -14,6 +15,7 @@ import Table from '@mui/material/Table';
 import Typography from '@mui/material/Typography';
 
 import type { RefundsDataExport } from '@app/api/exports/route';
+import { useSelectElementText } from './useSelectElementText';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -33,6 +35,8 @@ export interface ExportRefundsProps {
 export function ExportRefunds(props: ExportRefundsProps) {
     const { refunds } = props;
 
+    const { elementRef, handleSelect } = useSelectElementText<HTMLTableElement>();
+
     return (
         <Stack direction="column" spacing={2}>
             { !!refunds &&
@@ -40,10 +44,14 @@ export function ExportRefunds(props: ExportRefundsProps) {
                     <Typography variant="h5" sx={{ mb: 1 }}>
                         Ticket refund requests
                     </Typography>
-                    <Alert severity="info" sx={{ mb: 1 }}>
+                    <Alert severity="info" sx={{ mb: 1 }}
+                           action={
+                               <Button onClick={handleSelect} size="small" color="info">
+                                   Select all
+                               </Button> }>
                         This table can be copied and pasted into Google Sheets and Microsoft Excel.
                     </Alert>
-                    <Table size="small">
+                    <Table ref={elementRef} size="small">
                         <TableHead>
                             <TableRow>
                                 <TableCell>Volunteer</TableCell>

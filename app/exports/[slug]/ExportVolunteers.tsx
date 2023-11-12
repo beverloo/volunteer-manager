@@ -4,6 +4,7 @@
 'use client';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,6 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
 import type { VolunteersDataExport } from '@app/api/exports/route';
+import { useSelectElementText } from './useSelectElementText';
 
 /**
  * Formats the given `gender` from the format we store it in, to the format AnPlan expects it in.
@@ -59,13 +61,19 @@ export interface ExportVolunteersProps {
 export function ExportVolunteers(props: ExportVolunteersProps) {
     const { volunteers } = props;
 
+    const { elementRef, handleSelect } = useSelectElementText<HTMLTableElement>();
+
     return (
         <Paper sx={{ p: 2 }}>
-            <Alert severity="info" sx={{ mb: 1 }}>
+            <Alert severity="info" sx={{ mb: 1 }}
+                   action={
+                       <Button onClick={handleSelect} size="small" color="info">
+                           Select all
+                       </Button> }>
                 This table can be copied and pasted into Google Sheets and Microsoft Excel. Only
                 confirmed participants are included.
             </Alert>
-            <Table size="small">
+            <Table ref={elementRef} size="small">
                 <TableHead>
                     <TableRow>
                         <TableCell>Department</TableCell>
