@@ -82,16 +82,28 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
-        //form.reset({
-        //    interested: null!,
-        //    hotelId: null!,
-        //    sharingPeople: null!,
-        //    sharingPreferences: null!,
-        //    checkIn: null!,
-        //    checkOut: null!,
-        //});
-        return { error: 'Not yet implemented...' };
-    }, [ /* no deps */ ]);
+        const response = await callApi('post', '/api/event/hotel-preferences', {
+            environment: props.teamSlug,
+            event: props.eventSlug,
+            preferences: /* clear= */ false,
+            adminOverrideUserId: props.volunteerUserId,
+        });
+
+        if (!response.success)
+            return { error: response.error ?? 'Unable to clear the hotel preferences' };
+
+        form.reset({
+            interested: null!,
+            hotelId: null!,
+            sharingPeople: null!,
+            sharingPreferences: null!,
+            checkIn: null!,
+            checkOut: null!,
+        });
+
+        return true;
+
+    }, [ form, props.eventSlug, props.teamSlug, props.volunteerUserId ]);
 
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {

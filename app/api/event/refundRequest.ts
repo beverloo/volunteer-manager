@@ -22,13 +22,14 @@ export const kRefundRequestDefinition = z.object({
         event: z.string(),
 
         /**
-         * Ticket refund request that they would like to be issued.
+         * Ticket refund request that they would like to be issued. The literal "false" can be
+         * passed by administrators to clear the preference instead.
          */
-        request: z.object({
+        request: z.literal(false).or(z.object({
             ticketNumber: z.string().optional(),
             accountIban: z.string().min(1),
             accountName: z.string().min(1),
-        }),
+        })),
 
         /**
          * Property that allows administrators to push updates on behalf of other users.
@@ -92,6 +93,31 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
             return { success: false, error: 'Sorry, refunds are not being accepted yet.' };
         if (currentTime.isAfter(refundAvailability.refundsEndTime, 'day'))
             return { success: false, error: 'Sorry, refunds are not being accepted anymore.' };
+    }
+
+    // Case (0): The administrator might want to clear the refund request.
+    if (!request.request) {
+        if (!request.adminOverrideUserId)
+            return { success: false, error: 'Your request can only be updated' };
+
+        const affectedRows = await db.deleteFrom(tRefunds)
+            .where(tRefunds.userId.equals(subjectUserId))
+                .and(tRefunds.eventId.equals(event.eventId))
+            .executeDelete();
+
+        if (!!affectedRows) {
+            await Log({
+                type: LogType.AdminClearRefundRequest,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: request.adminOverrideUserId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
+
+        return { success: !!affectedRows };
     }
 
     const dbInstance = db;

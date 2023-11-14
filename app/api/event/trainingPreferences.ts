@@ -27,11 +27,12 @@ export const kTrainingPreferencesDefinition = z.object({
         event: z.string(),
 
         /**
-         * Preferences that the volunteer would like to share with us.
+         * Preferences that the volunteer would like to share with us. The literal "false" can be
+         * passed by administrators to clear the preference instead.
          */
-        preferences: z.object({
+        preferences: z.literal(false).or(z.object({
             training: z.number(),
-        }),
+        })),
 
         /**
          * Property that allows administrators to push updates on behalf of other users.
@@ -87,6 +88,31 @@ export async function trainingPreferences(request: Request, props: ActionProps):
 
     if (!registration.trainingAvailable && !can(props.user, Privilege.EventTrainingManagement))
         return { success: false, error: 'Trainings cannot be booked yet, sorry!' };
+
+    // Case (0): The administrator may want to clear the training preferences.
+    if (!request.preferences) {
+        if (!request.adminOverrideUserId)
+            return { success: false, error: 'Your request can only be updated' };
+
+        const affectedRows = await db.deleteFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.assignmentUserId.equals(subjectUserId))
+                .and(tTrainingsAssignments.eventId.equals(event.eventId))
+            .executeDelete();
+
+        if (!!affectedRows) {
+            await Log({
+                type: LogType.AdminClearTrainingPreferences,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: request.adminOverrideUserId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
+
+        return { success: !!affectedRows };
+    }
 
     let preferenceTrainingId: number | null = null;
     if (request.preferences.training >= 1)

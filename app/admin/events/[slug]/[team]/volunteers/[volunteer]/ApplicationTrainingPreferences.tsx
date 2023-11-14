@@ -67,9 +67,20 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
-        //form.reset({ training: null! });
-        return { error: 'Not yet implemented...' };
-    }, [ /* no deps */ ]);
+        const response = await callApi('post', '/api/event/training-preferences', {
+            environment: props.teamSlug,
+            event: props.eventSlug,
+            preferences: /* clear= */ false,
+            adminOverrideUserId: props.volunteerUserId,
+        });
+
+        if (!response.success)
+            return { error: response.error ?? 'Unable to clear the refund request' };
+
+        form.reset({ training: null! });
+        return true;
+
+    }, [ form, props.eventSlug, props.teamSlug, props.volunteerUserId ]);
 
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {

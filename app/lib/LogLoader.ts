@@ -71,6 +71,15 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminAccessVolunteerInfo]: (source, target) => {
         return `Accessed contact information for ${target?.name}`;
     },
+    [LogType.AdminClearHotelPreferences]: (source, target, { event }) => {
+        return `Cleared ${target?.name}'s hotel preferences for ${event}`;
+    },
+    [LogType.AdminClearRefundRequest]: (source, target, { event }) => {
+        return `Cleared ${target?.name}'s refund request for ${event}`;
+    },
+    [LogType.AdminClearTrainingPreferences]: (source, target, { event }) => {
+        return `Cleared ${target?.name}'s training preferences for ${event}`;
+    },
     [LogType.AdminContentMutation]: (source, target, { mutation, context }) => {
         return `${mutation} page ${context}`;
     },

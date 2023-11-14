@@ -28,9 +28,10 @@ export const kHotelPreferencesDefinition = z.object({
 
         /**
          * Preferences that the volunteer would like to share with us. A potentially partial set of
-         * options, in case no hotel room is preferred at all.
+         * options, in case no hotel room is preferred at all. The literal "false" can be passed by
+         * administrators to clear the preferences instead.
          */
-        preferences: z.object({
+        preferences: z.literal(false).or(z.object({
             /**
              * Whether the volunteer is interested in getting a hotel room.
              */
@@ -60,7 +61,7 @@ export const kHotelPreferencesDefinition = z.object({
              * Date on which they would like to check out of their hotel room.
              */
             checkOut: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/).optional(),
-        }),
+        })),
 
         /**
          * Property that allows administrators to push updates on behalf of other users.
@@ -134,6 +135,32 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
     if (!team || !team.enabled)
         return { success: false, error: 'This team does not participate in this event' };
+
+    // Case (0): The preferences should be cleared rather than amended.
+    if (!request.preferences) {
+        if (!request.adminOverrideUserId)
+            return { success: false, error: 'Your preferences can only be updated' };
+
+        const affectedRows = await db.deleteFrom(tHotelsPreferences)
+            .where(tHotelsPreferences.userId.equals(subjectUserId))
+                .and(tHotelsPreferences.eventId.equals(event.eventId))
+                .and(tHotelsPreferences.teamId.equals(team.id))
+            .executeDelete();
+
+        if (!!affectedRows) {
+            await Log({
+                type: LogType.AdminClearHotelPreferences,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: request.adminOverrideUserId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
+
+        return { success: !!affectedRows };
+    }
 
     let update: {
         hotelId: number | null,

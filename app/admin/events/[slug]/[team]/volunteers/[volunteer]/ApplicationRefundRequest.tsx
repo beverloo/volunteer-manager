@@ -60,13 +60,24 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClear = useCallback(async () => {
-        //form.reset({
-        //    ticketNumber: null!,
-        //    accountIban: null!,
-        //    accountName: null!,
-        //});
-        return { error: 'Not yet implemented...' };
-    }, [ /* no deps */ ]);
+        const response = await callApi('post', '/api/event/refund-request', {
+            event: props.eventSlug,
+            request: /* clear= */ false,
+            adminOverrideUserId: props.volunteerUserId,
+        });
+
+        if (!response.success)
+            return { error: response.error ?? 'Unable to clear the refund request' };
+
+        form.reset({
+            ticketNumber: null!,
+            accountIban: null!,
+            accountName: null!,
+        });
+
+        return true;
+
+    }, [ form, props.eventSlug, props.volunteerUserId ]);
 
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
