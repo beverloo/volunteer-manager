@@ -58,21 +58,19 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
             token: passwordResetData.sessionToken,
         });
 
-        const messageContent = await getStaticContent([ 'message', 'lost-password' ]);
-        if (messageContent) {
-            const sender = 'AnimeCon Volunteering Teams';
-            const passwordResetLink =
-                `https://${props.origin}/?password-reset-request=${passwordResetRequest}`;
+        const sender = 'AnimeCon Volunteering Teams';
+        const messageContent = await getStaticContent([ 'message', 'lost-password' ], {
+            link: `https://${props.origin}/?password-reset-request=${passwordResetRequest}`,
+            name: passwordResetData.firstName,
+            sender,
+        });
 
+        if (messageContent) {
             const client = await createEmailClient();
             const message = client.createMessage()
                 .setTo(request.username)
                 .setSubject(messageContent.title)
-                .setMarkdown(messageContent.markdown, /* substitutions= */ {
-                    'link': passwordResetLink,
-                    'name': passwordResetData.firstName,
-                    'sender': sender,
-                });
+                .setMarkdown(messageContent.markdown);
 
             await client.safeSendMessage({
                 sender, message,

@@ -96,17 +96,11 @@ export class EmailMessage {
      * Sets the Markdown content of this message to the given `markdown` string. Since Markdown is
      * human readable, it will also be the text version. Returns this instance of MailMessage.
      */
-    setMarkdown(markdown: string, substitutions?: Record<string, string>): EmailMessage {
-        let substitutedMarkdown = markdown;
-        if (substitutions) {
-            for (const [ key, value ] of Object.entries(substitutions))
-                substitutedMarkdown = substitutedMarkdown.replaceAll(`{${key}}`, value);
-        }
-
-        this.#options.html = marked.parse(substitutedMarkdown);
+    setMarkdown(markdown: string): EmailMessage {
+        this.#options.html = marked.parse(markdown);
 
         if (!Object.hasOwn(this.#options, 'text'))
-            this.#options.text = substitutedMarkdown;
+            this.#options.text = markdown;
 
         return this;
     }

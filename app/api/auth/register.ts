@@ -92,10 +92,6 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     if (!request.gdpr)
         return { success: false, error: 'You must accept our GDPR & privacy policies.' };
 
-    const messageContent = await getStaticContent([ 'message', 'registration' ]);
-    if (!messageContent)
-        return { success: false, error: 'Unable to accept registrations, no message content.' };
-
     const userId = await createAccount({
         username: request.username,
         password: request.password,
@@ -109,24 +105,25 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     if (!userId)
         return { success: false, error: 'The server was unable to create an account.' };
 
+    const sender = 'AnimeCon Volunteering Teams';
     const registrationRequest = await sealRegistrationRequest({
         id: userId,
         redirectUrl: request.redirectUrl,
     });
 
     // Send an e-mail to the user containing their registration verification link.
-    {
-        const sender = 'AnimeCon Volunteering Teams';
+    const messageContent = await getStaticContent([ 'message', 'registration' ], {
+        link: `https://${props.origin}/?registration-request=${registrationRequest}`,
+        name: request.firstName,
+        sender,
+    });
 
+    if (messageContent) {
         const client = await createEmailClient();
         const message = client.createMessage()
             .setTo(request.username)
             .setSubject(messageContent.title)
-            .setMarkdown(messageContent.markdown, /* substitutions= */ {
-                'link': `https://${props.origin}/?registration-request=${registrationRequest}`,
-                'name': request.firstName,
-                'sender': sender,
-            });
+            .setMarkdown(messageContent.markdown);
 
         await client.safeSendMessage({
             sender, message,
