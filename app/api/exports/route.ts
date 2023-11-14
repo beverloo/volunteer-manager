@@ -5,12 +5,12 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
-import { ExportType, RegistrationStatus } from '@lib/database/Types';
+import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { dayjs } from '@lib/DateTime';
 
 import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
-    tTrainingsExtra, tUsers, tUsersEvents } from '@lib/database';
+    tTrainingsExtra, tUsers, tUsersEvents, tVendors } from '@lib/database';
 
 /**
  * Data export type definition for credit reel consent.
@@ -443,6 +443,9 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     if (metadata.type === ExportType.Volunteers) {
         volunteers = [];
 
+        // What is the department that all our volunteers should be part of?
+        const kDepartment = 'HR & Security';
+
         const volunteerList = await db.selectFrom(tUsersEvents)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tUsersEvents.userId))
@@ -471,7 +474,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 age = dayjs(metadata.eventStartTime).diff(volunteer.birthdate, 'years');
 
             volunteers.push({
-                department: 'HR & Security',
+                department: kDepartment,
                 role: volunteer.role,
                 email: volunteer.username!,
                 firstName: volunteer.firstName,
@@ -481,6 +484,41 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 age,
                 shirtSize: volunteer.shirtSize,
                 shirtFit: volunteer.shirtFit,
+            });
+        }
+
+        const vendorList = await db.selectFrom(tVendors)
+            .where(tVendors.eventId.equals(metadata.eventId))
+                .and(tVendors.vendorVisible.equals(/* true= */ 1))
+                .and(tVendors.vendorTeam.in([ VendorTeam.FirstAid ]))
+            .select({
+                team: tVendors.vendorTeam,
+                firstName: tVendors.vendorFirstName,
+                lastName: tVendors.vendorLastName,
+                gender: tVendors.vendorGender,
+                shirtFit: tVendors.vendorShirtFit,
+                shirtSize: tVendors.vendorShirtSize,
+            })
+            .orderBy(tVendors.vendorLastName, 'asc')
+            .orderBy(tVendors.vendorFirstName, 'asc')
+            .executeSelectMany();
+
+        const kVendorTeamToRoleMapping: { [k in VendorTeam]: string } = {
+            [VendorTeam.FirstAid]: 'First Aid',
+            [VendorTeam.Security]: 'Security',
+        };
+
+        for (const vendor of vendorList) {
+            volunteers.push({
+                department: kDepartment,
+                role: kVendorTeamToRoleMapping[vendor.team],
+                email: 'peter@animecon.nl',
+                firstName: vendor.firstName,
+                prefix: '',
+                lastName: vendor.lastName,
+                gender: vendor.gender,
+                shirtSize: vendor.shirtSize,
+                shirtFit: vendor.shirtFit,
             });
         }
     }
