@@ -129,6 +129,10 @@ do {
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },
                 { field: [ 'users_events', 'shirt_fit' ], type: 'ShirtFit' },
                 { field: [ 'users_events', 'shirt_size' ], type: 'ShirtSize' },
+                { field: [ 'vendors', 'vendor_gender' ], type: 'VendorGender' },
+                { field: [ 'vendors', 'vendor_shirt_fit' ], type: 'ShirtFit' },
+                { field: [ 'vendors', 'vendor_shirt_size' ], type: 'ShirtSize' },
+                { field: [ 'vendors', 'vendor_team' ], type: 'VendorTeam' },
 
             ].map(({ field, type }) => ({
                 tableName: field[0],

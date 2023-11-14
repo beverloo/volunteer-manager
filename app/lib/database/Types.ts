@@ -94,6 +94,8 @@ export enum ServiceLogResult {
 
 /**
  * Fit of a t-shirt that a volunteer has requested in a registration.
+ * @see Table `users_events`
+ * @see Table `vendors`
  */
 export enum ShirtFit {
     Regular = 'Regular',
@@ -102,6 +104,8 @@ export enum ShirtFit {
 
 /**
  * Size of a t-shirt that a volunteer has requested in a registration.
+ * @see Table `users_events`
+ * @see Table `vendors`
  */
 export enum ShirtSize {
     XS = 'XS',
@@ -112,4 +116,23 @@ export enum ShirtSize {
     XXL = 'XXL',
     '3XL' = '3XL',
     '4XL' = '4XL',
+}
+
+/**
+ * Gender of a vendor, simplified display.
+ * @see Table `vendors`
+ */
+export enum VendorGender {
+    Female = 'Female',
+    Other = 'Other',
+    Male = 'Male',
+}
+
+/**
+ * The team that a vendor can be part of.
+ * @see Table `vendors`
+ */
+export enum VendorTeam {
+    FirstAid = 'first-aid',
+    Security = 'security',
 }

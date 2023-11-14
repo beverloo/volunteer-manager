@@ -9,6 +9,8 @@ import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
+import { VendorTable } from './VendorTable';
+import { VendorTeam } from '@lib/database/Types';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -34,9 +36,10 @@ export default async function EventTeamFirstAidPage(props: NextRouterParams<'slu
                 <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
                     This page allows you to manage the <strong>first aid vendor team</strong>, who
                     are responsible for keeping our visitors and volunteers alive and well. We need
-                    to know their full name in order to issue a valid ticket.
+                    to know their full name in order to issue a valid ticket, and optionally their
+                    t-shirt preferences when it is appropriate to grant one.
                 </Alert>
-                { /* TODO: Vendor table */ }
+                <VendorTable event={event.slug} team={VendorTeam.FirstAid} />
             </Paper>
             { /* TODO: Timeline */ }
         </>

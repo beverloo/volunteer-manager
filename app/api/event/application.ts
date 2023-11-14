@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { ShirtFit, ShirtSize } from '@lib/database/Types';
 import { createEmailClient } from '@lib/integrations/email';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -45,12 +46,12 @@ export const kApplicationProperties = {
     /**
      * Fit for the t-shirt that the volunteer would like to receive as a thank you.
      */
-    tshirtFit: z.enum([ 'Regular', 'Girly' ]),
+    tshirtFit: z.nativeEnum(ShirtFit),
 
     /**
      * Size of the t-shirt that the volunteer would like to receive as a thank you.
      */
-    tshirtSize: z.enum([ 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL' ]),
+    tshirtSize: z.nativeEnum(ShirtSize),
 };
 
 /**

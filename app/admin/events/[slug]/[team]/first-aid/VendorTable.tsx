@@ -1,0 +1,83 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import type { VendorRowModel } from '@app/api/admin/vendors/[[...id]]/route';
+import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
+import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Types';
+
+/**
+ * Props accepted by the <VendorTable> component.
+ */
+export interface VendorTableProps {
+    /**
+     * Unique slug of the event for which the table is being displayed.
+     */
+    event: string;
+
+    /**
+     * Name of the vendor team for which data is being shown.
+     */
+    team: VendorTeam;
+}
+
+/**
+ * The <VendorTable> displays an editable table with the details of a particular vendor team.
+ */
+export function VendorTable(props: VendorTableProps) {
+    const columns: RemoteDataTableColumn<VendorRowModel>[] = [
+        {
+            field: 'id',
+            headerName: 'ID',
+            sortable: false,
+            editable: false,
+            width: 50,
+        },
+        {
+            field: 'firstName',
+            headerName: 'First name',
+            editable: true,
+            flex: 3,
+        },
+        {
+            field: 'lastName',
+            headerName: 'Last name',
+            editable: true,
+            flex: 3,
+        },
+        {
+            field: 'gender',
+            headerName: 'Gender',
+            editable: true,
+            flex: 2,
+
+            type: 'singleSelect',
+            valueOptions: Object.values(VendorGender),
+        },
+        {
+            field: 'shirtSize',
+            headerName: 'T-shirt size',
+            editable: true,
+            flex: 2,
+
+            type: 'singleSelect',
+            valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtSize) ],
+        },
+        {
+            field: 'shirtFit',
+            headerName: 'T-shirt fit',
+            editable: true,
+            flex: 2,
+
+            type: 'singleSelect',
+            valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtFit) ],
+        }
+    ];
+
+    return (
+        <RemoteDataTable columns={columns} endpoint="/api/admin/vendors" context={props}
+                         enableCreate enableDelete enableUpdate
+                         defaultSort={{ field: 'firstName', sort: 'asc' }} disableFooter />
+    );
+}

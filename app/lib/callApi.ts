@@ -31,6 +31,7 @@ import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
+import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -51,6 +52,7 @@ export type ApiEndpoints = {
         '/api/admin/outbox/:id': GetOutboxDefinition,
         '/api/admin/refunds': RefundRequestEndpoints['list'],
         '/api/admin/retention': RetentionEndpoints['list'],
+        '/api/admin/vendors': VendorEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
@@ -60,6 +62,7 @@ export type ApiEndpoints = {
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/training': TrainingDefinition,
+        '/api/admin/vendors': VendorEndpoints['create'],
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
@@ -82,6 +85,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/admin/vendors/:id': VendorEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
@@ -90,6 +94,7 @@ export type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
+        '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],
