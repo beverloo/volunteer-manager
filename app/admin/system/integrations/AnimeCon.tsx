@@ -5,11 +5,13 @@
 
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -42,9 +44,15 @@ export interface GoogleProps {
 export function AnimeCon(props: GoogleProps) {
     const { settings } = props;
 
+    const router = useRouter();
+
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
+
+    const requestQueryApi = useCallback(() => {
+        router.push('./integrations/animecon');
+    }, [ router ]);
 
     const doInvalidate = useCallback(() => setInvalidated(true), [ setInvalidated ]);
     const requestSubmit = useCallback(async (data: FieldValues) => {
@@ -67,7 +75,11 @@ export function AnimeCon(props: GoogleProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 AnimeCon
             </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
+            <Alert severity="info" sx={{ mb: 2 }} action={
+                <Button color="inherit" size="small" onClick={requestQueryApi}>
+                    Query API
+                </Button>
+            }>
                 Event and program information is obtained through the AnimeCon API (
                 <MuiLink component={Link} href="https://github.com/AnimeNL/rest-api">source</MuiLink>),
                 for which we identify using a service account.

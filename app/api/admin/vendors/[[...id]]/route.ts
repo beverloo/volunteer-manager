@@ -211,7 +211,6 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
             type: LogType.AdminVendorMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
-            targetUser: id,
             data: {
                 event: event?.shortName,
                 mutation,
