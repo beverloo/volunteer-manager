@@ -8,7 +8,7 @@
     "sync-db": "node ts-sql.build.mjs",
     "build": "next build",
     "serve": "next dev",
-    "serve-custom": "node server.js",
+    "serve-with-scheduler": "cross-env APP_USE_SCHEDULER=1 next dev",
     "lint": "next lint",
     "test": "jest",
     "test:e2e": "playwright test --reporter=html"
@@ -75,6 +75,7 @@
     "@types/react-avatar-editor": "^13.0.2",
     "@types/react-dom": "^18.2.15",
     "@types/uuid": "^9.0.7",
+    "cross-env": "^7.0.3",
     "encoding": "^0.1.13",
     "eslint": "8.54.0",
     "eslint-config-next": "14.0.3",

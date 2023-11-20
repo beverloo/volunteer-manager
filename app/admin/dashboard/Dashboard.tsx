@@ -9,6 +9,7 @@ import type { DatabaseStatus } from './DatabaseCard';
 import { AccessibleEventCard, type AccessibleEvent } from './AccessibleEventCard';
 import { BirthdayCard, type Birthday } from './BirthdayCard';
 import { DatabaseCard } from './DatabaseCard';
+import { SchedulerCard, type SchedulerStatus } from './SchedulerCard';
 
 /**
  * Props accepted by the <Dashboard> component.
@@ -30,6 +31,11 @@ export interface DashboardProps {
     databaseStatus?: DatabaseStatus;
 
     /**
+     * Status of the scheduler at time of the current request.
+     */
+    schedulerStatus?: SchedulerStatus;
+
+    /**
      * The birthdays that happen in the upcoming month.
      */
     upcomingBirthdays: Birthday[];
@@ -49,6 +55,7 @@ export function Dashboard(props: DashboardProps) {
             { props.accessibleEvents.map((accessibleEvent, index) =>
                 <AccessibleEventCard key={index} accessibleEvent={accessibleEvent} /> )}
             { props.databaseStatus && <DatabaseCard status={props.databaseStatus} /> }
+            { props.schedulerStatus && <SchedulerCard status={props.schedulerStatus} /> }
         </Masonry>
     );
 }

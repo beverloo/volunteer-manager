@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 
 import type { Birthday } from './dashboard/BirthdayCard';
 import type { DatabaseStatus } from './dashboard/DatabaseCard';
+import type { SchedulerStatus } from './dashboard/SchedulerCard';
 import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
@@ -14,6 +15,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { globalConnectionPool } from '@lib/database/Connection';
+import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
 
 /**
  * Fetches the upcoming birthdays from the database for the given `user`. The considered volunteers
@@ -87,6 +89,22 @@ export default async function AdminPage() {
         };
     }
 
+    let schedulerStatus: SchedulerStatus | undefined;
+    if (can(user, Privilege.SystemAdministrator)) {
+        let timeSinceLastExecutionMs: number | undefined = undefined;
+        if (globalScheduler.lastExecution !== undefined) {
+            const diffNs = process.hrtime.bigint() - globalScheduler.lastExecution;
+            const diffMs = diffNs / 1000n / 1000n;
+
+            timeSinceLastExecutionMs = Number(diffMs);
+        }
+
+        schedulerStatus = {
+            executionCount: Number(globalScheduler.executionCount),
+            timeSinceLastExecutionMs,
+        };
+    }
+
     const storageJoin = tStorage.forUseInLeftJoin();
 
     const accessibleEvents = await db.selectFrom(tEvents)
@@ -107,7 +125,8 @@ export default async function AdminPage() {
     return (
         <TopLevelLayout>
             <Dashboard accessibleEvents={accessibleEvents} currentBirthdays={currentBirthdays}
-                       upcomingBirthdays={upcomingBirthdays} databaseStatus={databaseStatus} />
+                       upcomingBirthdays={upcomingBirthdays} databaseStatus={databaseStatus}
+                       schedulerStatus={schedulerStatus} />
         </TopLevelLayout>
     );
 }
