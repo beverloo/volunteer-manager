@@ -16,11 +16,6 @@ import { kStyles } from '../registration/RegistrationHeader';
  */
 export interface DashboardContainerProps {
     /**
-     * The child components that should be rendered within the container.
-     */
-    children: React.ReactNode;
-
-    /**
      * Title that should be displayed at the top of the container, if any.
      */
     title?: string;
@@ -30,7 +25,7 @@ export interface DashboardContainerProps {
  * The <DashboardContainer> component is a MUI Paper panel with a header describing what it contains
  * and one or more graphs (injected as children) displaying the actual data.
  */
-export function DashboardContainer(props: DashboardContainerProps) {
+export function DashboardContainer(props: React.PropsWithChildren<DashboardContainerProps>) {
     return (
         <Paper elevation={2}>
             { props.title &&
