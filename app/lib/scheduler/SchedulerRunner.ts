@@ -63,6 +63,9 @@ export class SchedulerRunner {
      */
     attachScheduler(scheduler: Scheduler): void {
         this.#schedulers.add(scheduler);
+
+        // TODO: Queue the task instead so that it doesn't execute when the runner is disabled.
+        scheduler.invoke({ taskName: 'PopulateSchedulerTask' });
     }
 
     /**
