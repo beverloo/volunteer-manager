@@ -89,6 +89,11 @@ export interface PageInfo {
         refundsEndTime?: Date;
 
         /**
+         * Unique Id of this festival as indicated in AnPlan.
+         */
+        festivalId?: number;
+
+        /**
          * Link to the hotel room form where bookings should be made.
          */
         hotelRoomForm?: string;
@@ -187,6 +192,7 @@ export async function verifyAccessAndFetchPageInfo(
             refundsStartTime: tEvents.eventRefundsStartTime,
             refundsEndTime: tEvents.eventRefundsEndTime,
             location: tEvents.eventLocation,
+            festivalId: tEvents.eventFestivalId,
             hotelRoomForm: tEvents.eventHotelRoomForm,
             publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),

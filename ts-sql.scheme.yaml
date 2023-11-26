@@ -2795,6 +2795,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: event_festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
   - name: event_identity_id
     type: int(8) unsigned
     nullable: true
@@ -2851,6 +2856,7 @@ tables:
       `event_refunds_end_time` datetime DEFAULT NULL,
       `event_location` text DEFAULT NULL,
       `event_hotel_room_form` text DEFAULT NULL,
+      `event_festival_id` int(8) unsigned NOT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
       `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
       `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,

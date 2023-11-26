@@ -11,9 +11,9 @@ import { createAnimeConClient } from '@lib/integrations/animecon';
 import TextField from '@mui/material/TextField';
 
 /**
- * Year filter to apply to the `activities` endpoint.
+ * Festival Id filter to apply to the `activities` endpoint.
  */
-const kActivitiesYearFilter = '202306';
+const kActivitiesFestivalIdFilter = /* AnimeCon 2023= */ 624;
 
 /**
  * Year filter to apply to the `timeslots` endpoint.
@@ -47,7 +47,7 @@ export async function AnimeConStreamingApiResult(props: AnimeConStreamingApiResu
         let result: Activity[] | ActivityType[] | FloorApi[] | Timeslot[];
         switch (props.endpoint) {
             case 'activities.json':
-                result = await client.getActivities({ year: kActivitiesYearFilter });
+                result = await client.getActivities({ festivalId: kActivitiesFestivalIdFilter });
                 break;
 
             case 'activity-types.json':

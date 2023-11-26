@@ -56,6 +56,7 @@ export function EventSettings(props: EventSettingsProps) {
                         startTime: dayjs(data.startTime).toISOString(),
                         endTime: dayjs(data.endTime).toISOString(),
                         location: data.location,
+                        festivalId: data.festivalId,
                         hotelRoomForm: data.hotelRoomForm,
                     },
                 });
@@ -89,7 +90,11 @@ export function EventSettings(props: EventSettingsProps) {
                         <TextFieldElement name="location" label="Location"
                                           fullWidth size="small" onChange={handleChange} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid xs={6}>
+                        <TextFieldElement name="festivalId" label="AnPlan Festival ID" type="number"
+                                          fullWidth size="small" onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={6}>
                         <TextFieldElement name="hotelRoomForm" label="Hotel room form URL"
                                           fullWidth size="small" onChange={handleChange} />
                     </Grid>
