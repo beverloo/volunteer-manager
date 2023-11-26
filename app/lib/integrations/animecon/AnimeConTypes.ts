@@ -116,6 +116,7 @@ export type Timeslot = z.infer<typeof kTimeslotDefinition>;
 export const kActivityDefinition = z.object({
     id: z.number(),
     year: z.string(),  // ...
+    festivalId: z.number(),
     title: z.string(),
     sponsor: z.string().nullable(),
     host: z.string().optional().nullable(),
