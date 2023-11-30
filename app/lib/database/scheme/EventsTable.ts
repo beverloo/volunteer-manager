@@ -21,7 +21,7 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventRefundsEndTime = this.optionalColumnWithDefaultValue('event_refunds_end_time', 'localDateTime');
     eventLocation = this.optionalColumnWithDefaultValue('event_location', 'string');
     eventHotelRoomForm = this.optionalColumnWithDefaultValue('event_hotel_room_form', 'string');
-    eventFestivalId = this.column('event_festival_id', 'int');
+    eventFestivalId = this.optionalColumnWithDefaultValue('event_festival_id', 'int');
     eventIdentityId = this.optionalColumnWithDefaultValue('event_identity_id', 'int');
     publishAvailability = this.columnWithDefaultValue('publish_availability', 'int');
     publishHotels = this.columnWithDefaultValue('publish_hotels', 'int');

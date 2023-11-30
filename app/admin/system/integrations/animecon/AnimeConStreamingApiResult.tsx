@@ -47,7 +47,10 @@ export async function AnimeConStreamingApiResult(props: AnimeConStreamingApiResu
         let result: Activity[] | ActivityType[] | FloorApi[] | Timeslot[];
         switch (props.endpoint) {
             case 'activities.json':
-                result = await client.getActivities({ festivalId: kActivitiesFestivalIdFilter });
+                result = await client.getActivities({
+                    festivalId: kActivitiesFestivalIdFilter,
+                    'activityType.visible': true,
+                });
                 break;
 
             case 'activity-types.json':

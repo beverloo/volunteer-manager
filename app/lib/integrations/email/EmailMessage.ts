@@ -97,7 +97,7 @@ export class EmailMessage {
      * human readable, it will also be the text version. Returns this instance of MailMessage.
      */
     setMarkdown(markdown: string): EmailMessage {
-        this.#options.html = marked.parse(markdown);
+        this.#options.html = marked.parse(markdown) as string;
 
         if (!Object.hasOwn(this.#options, 'text'))
             this.#options.text = markdown;
