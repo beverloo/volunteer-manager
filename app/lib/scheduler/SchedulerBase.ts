@@ -56,6 +56,7 @@ export abstract class SchedulerBase implements Scheduler {
     get invocationCount() { return this.#invocationCount; }
     get lastExecution() { return this.#lastExecution; }
     get lastInvocation() { return this.#lastInvocation; }
+    get taskQueueSize() { return this.#taskQueue.size(); }
     get taskRunner() { return this.#taskRunner; }
 
     /**

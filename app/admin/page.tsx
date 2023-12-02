@@ -99,9 +99,20 @@ export default async function AdminPage() {
             timeSinceLastExecutionMs = Number(diffMs);
         }
 
+        let timeSinceLastInvocationMs: number | undefined = undefined;
+        if (globalScheduler.lastInvocation !== undefined) {
+            const diffNs = process.hrtime.bigint() - globalScheduler.lastInvocation;
+            const diffMs = diffNs / 1000n / 1000n;
+
+            timeSinceLastInvocationMs = Number(diffMs);
+        }
+
         schedulerStatus = {
             executionCount: Number(globalScheduler.executionCount),
+            invocationCount: Number(globalScheduler.invocationCount),
             timeSinceLastExecutionMs,
+            timeSinceLastInvocationMs,
+            pendingTasks: globalScheduler.taskQueueSize,
         };
     }
 

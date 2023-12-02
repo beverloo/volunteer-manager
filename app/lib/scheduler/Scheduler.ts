@@ -35,6 +35,11 @@ export interface Scheduler {
     get lastInvocation(): bigint | undefined;
 
     /**
+     * Returns the number of tasks that currently reside in the task queue.
+     */
+    get taskQueueSize(): number;
+
+    /**
      * Returns the task runner that has been created for this scheduler instance.
      */
     get taskRunner(): SchedulerTaskRunner;

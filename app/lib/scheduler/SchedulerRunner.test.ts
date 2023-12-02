@@ -26,6 +26,9 @@ describe('SchedulerRunner', () => {
             expect(firstScheduler.executionCount).toBe(0n);
             expect(secondScheduler.executionCount).toBe(0n);
 
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(0);
+
             expect(firstScheduler.populated).toBeFalse();
             expect(secondScheduler.populated).toBeFalse();
         }
@@ -34,11 +37,17 @@ describe('SchedulerRunner', () => {
         {
             runner.attachScheduler(firstScheduler);
 
+            expect(firstScheduler.taskQueueSize).toBe(1);
+            expect(secondScheduler.taskQueueSize).toBe(0);
+
             await jest.advanceTimersToNextTimerAsync();
 
             expect(runner.active).toBeTrue();
             expect(firstScheduler.executionCount).toBe(1n);
             expect(secondScheduler.executionCount).toBe(0n);
+
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(0);
 
             expect(firstScheduler.populated).toBeTrue();
             expect(secondScheduler.populated).toBeFalse();
@@ -48,11 +57,17 @@ describe('SchedulerRunner', () => {
         {
             runner.attachScheduler(secondScheduler);
 
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(1);
+
             await jest.advanceTimersToNextTimerAsync();
 
             expect(runner.active).toBeTrue();
             expect(firstScheduler.executionCount).toBe(2n);
             expect(secondScheduler.executionCount).toBe(1n);
+
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(0);
 
             expect(firstScheduler.populated).toBeTrue();
             expect(secondScheduler.populated).toBeTrue();
@@ -62,11 +77,17 @@ describe('SchedulerRunner', () => {
         {
             runner.detachScheduler(firstScheduler);
 
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(0);
+
             await jest.advanceTimersToNextTimerAsync();
 
             expect(runner.active).toBeTrue();
             expect(firstScheduler.executionCount).toBe(2n);
             expect(secondScheduler.executionCount).toBe(2n);
+
+            expect(firstScheduler.taskQueueSize).toBe(0);
+            expect(secondScheduler.taskQueueSize).toBe(0);
 
             expect(firstScheduler.populated).toBeTrue();
             expect(secondScheduler.populated).toBeTrue();

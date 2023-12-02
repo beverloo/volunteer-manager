@@ -20,10 +20,14 @@ describe('SchedulerBase', () => {
         scheduler.queueTask({ taskName: 'MySecondTask' }, /* delayMs= */ 15);  // order: 3
         scheduler.queueTask({ taskName: 'MySecondTask' }, /* delayMs= */ 30);  // order: 6
 
+        expect(scheduler.taskQueueSize).toBe(6);
+
         while (resultArray.length < 6) {
             await new Promise(resolve => setTimeout(resolve, /* ms= */ 5));
             await scheduler.execute();
         }
+
+        expect(scheduler.taskQueueSize).toBe(0);
 
         expect(resultArray).toStrictEqual(
             [ 'first', 'first', 'second', 'second', 'first', 'second' ]);
@@ -41,12 +45,18 @@ describe('SchedulerBase', () => {
         scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 15);
         scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 20);
 
+        expect(scheduler.taskQueueSize).toBe(4);
+
         while (resultCounter < 2) {
             await new Promise(resolve => setTimeout(resolve, /* ms= */ 5));
             await scheduler.execute();
         }
 
+        expect(scheduler.taskQueueSize).toBe(2);
+
         scheduler.clearTasks();
+
+        expect(scheduler.taskQueueSize).toBe(0);
 
         for (let iteration = 0; iteration < 4; ++iteration) {
             await new Promise(resolve => setTimeout(resolve, /* ms= */ 5));

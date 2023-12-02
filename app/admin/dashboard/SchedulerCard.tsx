@@ -6,14 +6,15 @@
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
 import { dayjs } from '@lib/DateTime';
 
 /**
- * Formatter used to display the execution count number.
+ * Formatter used to display the execution and invocation count numbers.
  */
-const kExecutionCountFormatter = new Intl.NumberFormat('en-US');
+const kCounterFormatter = new Intl.NumberFormat('en-US');
 
 /**
  * Representation of the status of the Volunteer Manager scheduler.
@@ -25,9 +26,24 @@ export interface SchedulerStatus {
     executionCount: number;
 
     /**
+     * Number of tasks that have been invoked by the scheduler.
+     */
+    invocationCount: number;
+
+    /**
      * Number of milliseconds since the last execution of the scheduler.
      */
     timeSinceLastExecutionMs?: number;
+
+    /**
+     * Number of milliseconds since the last invocation from the scheduler.
+     */
+    timeSinceLastInvocationMs?: number;
+
+    /**
+     * The number of tasks that are currently pending in the scheduler.
+     */
+    pendingTasks: number;
 }
 
 /**
@@ -45,11 +61,18 @@ export interface SchedulerCardProps {
  */
 export function SchedulerCard(props: SchedulerCardProps) {
     const { executionCount, timeSinceLastExecutionMs } = props.status;
+    const { invocationCount, timeSinceLastInvocationMs } = props.status;
 
     let lastExecutionTime: string | undefined;
     if (!!timeSinceLastExecutionMs) {
         const executionTime = dayjs().subtract(timeSinceLastExecutionMs, 'milliseconds');
         lastExecutionTime = executionTime.format('YYYY-MM-DD [at] HH:mm:ss');
+    }
+
+    let lastInvocationTime: string | undefined;
+    if (!!timeSinceLastInvocationMs) {
+        const invocationTime = dayjs().subtract(timeSinceLastInvocationMs, 'milliseconds');
+        lastInvocationTime = invocationTime.format('YYYY-MM-DD [at] HH:mm:ss');
     }
 
     return (
@@ -66,9 +89,18 @@ export function SchedulerCard(props: SchedulerCardProps) {
                     </Typography> }
                 { (!!executionCount && !!lastExecutionTime) &&
                     <Typography variant="body2" sx={{ py: 1 }} suppressHydrationWarning>
-                        {kExecutionCountFormatter.format(executionCount)} total executions. Last
-                        execution happened on {lastExecutionTime}.
+                        Most recent scheduler run on {lastExecutionTime}; {executionCount} total
+                        run{executionCount === 1 ? '' : 's'}.
                     </Typography> }
+                { (!!invocationCount && !!lastInvocationTime) &&
+                    <>
+                        <Divider />
+                        <Typography variant="body2" sx={{ py: 1 }} suppressHydrationWarning>
+                            Last task invoked on {lastInvocationTime}; {invocationCount} total task
+                            invocation{invocationCount === 1 ? '' : 's'},
+                            {' '}{props.status.pendingTasks} tasks pending.
+                        </Typography>
+                    </> }
             </CardContent>
         </Card>
     )
