@@ -28,4 +28,31 @@ describe('SchedulerBase', () => {
         expect(resultArray).toStrictEqual(
             [ 'first', 'first', 'second', 'second', 'first', 'second' ]);
     });
+
+    it('has the ability to clear all scheduled tasks', async () => {
+        const scheduler = new MockScheduler();
+
+        let resultCounter = 0;
+
+        scheduler.registerTask('MyTask', async () => { resultCounter++; });
+
+        scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 5);
+        scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 10);
+        scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 15);
+        scheduler.queueTask({ taskName: 'MyTask' }, /* delayMs= */ 20);
+
+        while (resultCounter < 2) {
+            await new Promise(resolve => setTimeout(resolve, /* ms= */ 5));
+            await scheduler.execute();
+        }
+
+        scheduler.clearTasks();
+
+        for (let iteration = 0; iteration < 4; ++iteration) {
+            await new Promise(resolve => setTimeout(resolve, /* ms= */ 5));
+            await scheduler.execute();
+        }
+
+        expect(resultCounter).toBe(2);  // unchanged
+    });
 });

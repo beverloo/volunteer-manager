@@ -59,10 +59,17 @@ export abstract class SchedulerBase implements Scheduler {
     get taskRunner() { return this.#taskRunner; }
 
     /**
+     * Clears all tasks from the scheduler. No further tasks will be invoked until one is queued.
+     */
+    clearTasks(): void {
+        this.#taskQueue.clear();
+    }
+
+    /**
      * Queues the given `task` to be executed by the scheduler after the given `delayMs`, which is
      * given in milliseconds. Returns immediately. May be executed from a NextJS environment.
      */
-    queueTask(task: TaskIdentifier, delayMs: number) {
+    queueTask(task: TaskIdentifier, delayMs: number): void {
         const currentTimeNs = process.hrtime.bigint();
         const delayNs = BigInt(delayMs) * 1000n * 1000n;
 

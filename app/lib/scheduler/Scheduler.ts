@@ -52,6 +52,11 @@ export interface Scheduler {
     invoke(task: TaskIdentifier): Promise<void>;
 
     /**
+     * Clears all tasks from the scheduler. No further tasks will be invoked until one is queued.
+     */
+    clearTasks(): void;
+
+    /**
      * Queues the given `task` to be executed by the scheduler after the given `delay`, which is
      * given in milliseconds. Returns immediately. May be executed from a NextJS environment.
      */
