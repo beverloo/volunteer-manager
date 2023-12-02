@@ -124,6 +124,7 @@ describe('Client', () => {
                 {
                     'id': 42614,
                     'year': '202306',
+                    'festivalId': 624,
                     'title': 'The Japanese Whisky Bar',
                     'sponsor': null,
                     'visible': true,

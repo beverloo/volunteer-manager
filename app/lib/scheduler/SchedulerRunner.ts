@@ -9,17 +9,17 @@ import type { Scheduler } from './Scheduler';
  * Maximum exception multiplier. The multiplier will be doubled each time an exception is thrown
  * when executing a scheduler. The maximum walltime is this multiplied by the interval.
  */
-const kMaximumExceptionMultiplier = 64;
+export const kMaximumExceptionMultiplier = 64;
 
 /**
  * Interval, in milliseconds, at which the schedulers should be invoked.
  */
-const kSchedulerRunnerIntervalMs = 1000;
+export const kSchedulerRunnerIntervalMs = 1000;
 
 /**
  * Private Symbol preventing direct instantiation of the SchedulerRunner class.
  */
-const kSchedulerRunnerPrivateSymbol = Symbol('SchedulerRunner');
+const kSchedulerRunnerPrivateSymbol: unique symbol = Symbol('SchedulerRunner');
 
 /**
  * Global instance of the SchedulerRunner. Will be created by `SchedulerRunner::getInstance()`.
@@ -35,6 +35,13 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms ?? 8)
  * The SchedulerRunner executes each of the schedulers at a given interval.
  */
 export class SchedulerRunner {
+    /**
+     * Returns a new instance of the scheduler runner, must only be used for testing.
+     */
+    static createInstanceForTesting(): SchedulerRunner {
+        return new SchedulerRunner(kSchedulerRunnerPrivateSymbol);
+    }
+
     /**
      * Returns the global instance of the Volunteer Manager's Scheduler.
      */
@@ -56,6 +63,22 @@ export class SchedulerRunner {
         this.#abortController = undefined;
         this.#exceptionPenaltyMultiplier = 1;
         this.#schedulers = new Set();
+    }
+
+    /**
+     * Gets whether the runner is presently active.
+     */
+    get active() { return !!this.#abortController; }
+
+    /**
+     * Aborts the runner. Existing invocations will not be reconsidered, however future invocations
+     * will. Returns immediately.
+     */
+    abort() {
+        if (!this.#abortController)
+            throw new Error('Only active scheduler runners can be aborted');
+
+        this.#abortController.abort();
     }
 
     /**
