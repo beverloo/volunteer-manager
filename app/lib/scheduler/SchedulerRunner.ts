@@ -36,6 +36,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms ?? 8)
  */
 export class SchedulerRunner {
     /**
+     * Name of the task that will be used to populate a scheduler when it's being attached to the
+     * `SchedulerRunner`. This task will be queued automatically and immediately.
+     */
+    static PopulateTaskName = 'PopulateSchedulerTask';
+
+    /**
      * Returns a new instance of the scheduler runner, must only be used for testing.
      */
     static createInstanceForTesting(): SchedulerRunner {
@@ -87,8 +93,9 @@ export class SchedulerRunner {
     attachScheduler(scheduler: Scheduler): void {
         this.#schedulers.add(scheduler);
 
-        // TODO: Queue the task instead so that it doesn't execute when the runner is disabled.
-        scheduler.invoke({ taskName: 'PopulateSchedulerTask' });
+        // Automatically schedule the population task that will refresh the internal status of the
+        // scheduler based on the current database configuration.
+        scheduler.queueTask({ taskName: SchedulerRunner.PopulateTaskName }, /* delayMs= */ 0);
     }
 
     /**

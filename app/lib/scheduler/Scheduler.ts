@@ -4,6 +4,11 @@
 import type { SchedulerTaskRunner } from './SchedulerTaskRunner';
 
 /**
+ * Unique identifier for a task that is to be executed by the scheduler.
+ */
+export type TaskIdentifier = { taskId: number } | { taskName: string };
+
+/**
  * Interface that describes the methods that must be available on a Scheduler implementation.
  */
 export interface Scheduler {
@@ -44,8 +49,11 @@ export interface Scheduler {
      * Invokes the task identified by the given `task`. This will issue a call to the execution API
      * to bring us back to the Next.js environment the Volunteer Manager runs in.
      */
-    invoke(task: { taskId: number } | { taskName: string }): Promise<void>;
+    invoke(task: TaskIdentifier): Promise<void>;
 
-    // TODO: queueRepeatingTask
-    // TODO: queueTask
+    /**
+     * Queues the given `task` to be executed by the scheduler after the given `delay`, which is
+     * given in milliseconds. Returns immediately. May be executed from a NextJS environment.
+     */
+    queueTask(task: TaskIdentifier, delayMs: number): void;
 }

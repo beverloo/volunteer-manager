@@ -63,6 +63,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@datastructures-js/priority-queue": "^6.3.0",
     "@playwright/test": "^1.40.1",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/cookie": "^0.6.0",

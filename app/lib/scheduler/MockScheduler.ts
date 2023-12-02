@@ -1,41 +1,58 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Scheduler } from './Scheduler';
-import { SchedulerTaskRunner } from './SchedulerTaskRunner';
+import type { TaskIdentifier } from './Scheduler';
+import { SchedulerBase } from './SchedulerBase';
+import { SchedulerRunner } from './SchedulerRunner';
+
+/**
+ * Type describing a task that can be registered with the mock scheduler.
+ */
+type TaskFunction = () => Promise<void>;
 
 /**
  * Mock implementation of the scheduler which is to be used in testing environments. Provides access
  * to historic invocations and use that allows it to be introspected.
  */
-export class MockScheduler implements Scheduler {
-    #executionCount: bigint;
-    #invocationCount: bigint;
-    #lastExecution?: bigint;
-    #lastInvocation?: bigint;
+export class MockScheduler extends SchedulerBase {
+    #populated: boolean = false;
+    #registeredTasks: Map<string, TaskFunction> = new Map;
 
-    #taskRunner: SchedulerTaskRunner;
+    /**
+     * Gets whether the scheduler has been populated with tasks. This will be initiated by the
+     * runner when the `PopulateSchedulerTask` task is scheduled.
+     */
+    get populated() { return this.#populated; }
 
-    constructor() {
-        this.#executionCount = 0n;
-        this.#invocationCount = 0n;
-        this.#lastExecution = undefined;
-        this.#lastInvocation = undefined;
+    /**
+     * Invokes the singular task identified by the given `task`. In the mock scheduler we only
+     * support named tasks right now.
+     */
+    async invoke(task: TaskIdentifier): Promise<void> {
+        if ('taskId' in task)
+            throw new Error(`The MockScheduler only supports named tasks (got: ${task.taskId})`);
 
-        this.#taskRunner = new SchedulerTaskRunner(this);
+        const taskName = task.taskName;
+
+        if (!this.#registeredTasks.has(taskName)) {
+            if (taskName === SchedulerRunner.PopulateTaskName)
+                this.#populated = true;
+            else
+                throw new Error(`The MockScheduler does not know the given task ("${taskName}")`);
+        } else {
+            const handler = this.#registeredTasks.get(taskName)!;
+            await handler();
+        }
     }
 
-    get executionCount() { return this.#executionCount; }
-    get invocationCount() { return this.#invocationCount; }
-    get lastExecution() { return this.#lastExecution; }
-    get lastInvocation() { return this.#lastInvocation; }
-    get taskRunner() { return this.#taskRunner; }
+    /**
+     * Registers the task identified by the given `taskName` to be handled by the given `handler`.
+     * Tasks may only be registered once, known tasks will throw an exception.
+     */
+    registerTask(taskName: string, handler: TaskFunction): void {
+        if (this.#registeredTasks.has(taskName))
+            throw new Error(`The given task ("${taskName}") has already been registered`);
 
-    async execute(): Promise<void> {
-        this.#executionCount++;
-    }
-
-    async invoke(task: { taskId: number; } | { taskName: string; }): Promise<void> {
-
+        this.#registeredTasks.set(taskName, handler);
     }
 }
