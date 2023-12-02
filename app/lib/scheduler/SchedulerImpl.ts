@@ -3,6 +3,7 @@
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
 import { SchedulerBase } from './SchedulerBase';
+import { SchedulerRunner } from './SchedulerRunner';
 
 declare module globalThis {
     let animeConScheduler: Scheduler;
@@ -25,6 +26,14 @@ const kSchedulerPassword = process.env.APP_SCHEDULER_PASSWORD;
  * although the server will have to be restarted when the SchedulerImpl behaviour changes.
  */
 globalThis.animeConScheduler ??= new class extends SchedulerBase {
+    constructor() {
+        super();
+
+        // Automatically attach the global scheduler to the scheduler runner, so that it will be
+        // invoked at a configured cadence to execute any pending tasks.
+        SchedulerRunner.getInstance().attachScheduler(this);
+    }
+
     /**
      * Invokes the singular task identified by the given `taskId`. This is done by issuing a fetch
      * to a Next.js-backed API for consistency with the rest of the Volunteer Manager.
