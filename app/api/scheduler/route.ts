@@ -35,7 +35,12 @@ const kSchedulerDefinition = z.object({
             taskName: z.string(),
         }),
     ])),
-    response: z.object({ /* no response information */ }),
+    response: z.object({
+        /**
+         * Whether the task run was successful.
+         */
+        success: z.boolean(),
+    }),
 });
 
 export type SchedulerDefinition = z.infer<typeof kSchedulerDefinition>;
@@ -56,8 +61,11 @@ async function scheduler(request: Request, props: ActionProps): Promise<Response
     if (!kSchedulerPassword?.length || request.password !== kSchedulerPassword)
         noAccess();
 
-    await globalScheduler.taskRunner.executeTask(request);
-    return { /* no response information */ };
+    const success = await globalScheduler.taskRunner.executeTask(
+        'taskId' in request ? { taskId: request.taskId }
+                            : { taskName: request.taskName });
+
+    return { success };
 }
 
 // The /api/scheduler route only provides a single API - call it straight away.

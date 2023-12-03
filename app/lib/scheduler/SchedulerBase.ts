@@ -4,7 +4,7 @@
 import { type ICompare, PriorityQueue } from '@datastructures-js/priority-queue';
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
-import { SchedulerTaskRunner } from './SchedulerTaskRunner';
+import { TaskRunner } from './TaskRunner';
 
 /**
  * Information stored for a task that's due to be invoked at a particular time.
@@ -40,7 +40,7 @@ export abstract class SchedulerBase implements Scheduler {
     #lastInvocation?: bigint;
 
     #taskQueue: PriorityQueue<QueuedTask>;
-    #taskRunner: SchedulerTaskRunner;
+    #taskRunner: TaskRunner;
 
     constructor() {
         this.#executionCount = 0n;
@@ -49,7 +49,7 @@ export abstract class SchedulerBase implements Scheduler {
         this.#lastInvocation = undefined;
 
         this.#taskQueue = new PriorityQueue(QueuedTaskComparator);
-        this.#taskRunner = new SchedulerTaskRunner(this);
+        this.#taskRunner = new TaskRunner(this);
     }
 
     get executionCount() { return this.#executionCount; }

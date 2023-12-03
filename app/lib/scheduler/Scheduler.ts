@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { SchedulerTaskRunner } from './SchedulerTaskRunner';
+import type { TaskRunner } from './TaskRunner';
 
 /**
  * Unique identifier for a task that is to be executed by the scheduler.
@@ -42,7 +42,7 @@ export interface Scheduler {
     /**
      * Returns the task runner that has been created for this scheduler instance.
      */
-    get taskRunner(): SchedulerTaskRunner;
+    get taskRunner(): TaskRunner;
 
     /**
      * Executes the scheduler and flushes all pending tasks. Any new tasks issued while execution is

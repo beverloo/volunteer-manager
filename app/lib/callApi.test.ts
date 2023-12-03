@@ -70,7 +70,7 @@ describe('callApi', () => {
 
         const response = await callApi('delete', '/api/admin/content/:id', {
             id: 42,
-            scope: {
+            context: {
                 eventId: 1,
                 teamId: 2,
             }
@@ -80,7 +80,7 @@ describe('callApi', () => {
         expect(latestRequestInput).toEqual('/api/admin/content/42');
 
         expect(latestRequestInit).not.toBeUndefined();
-        expect(latestRequestInit?.body).toEqual('{"scope":{"eventId":1,"teamId":2}}');
+        expect(latestRequestInit?.body).toEqual('{"context":{"eventId":1,"teamId":2}}');
         expect(latestRequestInit?.headers).toEqual({
             'Content-Type': 'application/json',
         });

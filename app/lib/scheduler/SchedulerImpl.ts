@@ -39,6 +39,9 @@ globalThis.animeConScheduler ??= new class extends SchedulerBase {
      * to a Next.js-backed API for consistency with the rest of the Volunteer Manager.
      */
     async invoke(task: TaskIdentifier): Promise<void> {
+        // TODO: The `kSchedulerEndpoint` endpoint returns a success status for execution of the
+        // task. When this is set to `false` we might very well want to re-schedule the task.
+
         await fetch(kSchedulerEndpoint, {
             method: 'POST',
             headers: {
