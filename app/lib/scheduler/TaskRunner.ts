@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
+import { kTaskRegistry } from './TaskRegistry';
 
 /**
  * The task runner is able to execute individual tasks, and maintains detailed logging information
@@ -32,9 +33,25 @@ export class TaskRunner {
      * Executes the named `taskName` with the given `params`. The task will be obtained from the
      * TaskRegistry, from which the given `params` will be validated.
      */
-    async executeNamedTask(taskName: string, params: object): Promise<boolean> {
-        // TODO: Validate the `params` specific to the `taskName`
-        // TODO: Actually invoke the `taskName`
-        return true;
+    async executeNamedTask(taskName: string, params: unknown): Promise<boolean> {
+        if (!Object.hasOwn(kTaskRegistry, taskName))
+            return false;
+
+        try {
+            const taskConstructor = kTaskRegistry[taskName as keyof typeof kTaskRegistry];
+            const task = new taskConstructor();
+
+            if (task.isSimpleTask())
+                return task.execute();
+
+            if (task.isComplexTask()) {
+                const validatedParams = task.validate(params);
+                return task.execute(validatedParams);
+            }
+        } catch (error: any) {
+            // TODO: Proper error handling.
+        }
+
+        return false;
     }
 }

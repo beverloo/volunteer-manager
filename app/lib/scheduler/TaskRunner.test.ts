@@ -7,12 +7,24 @@ describe('TaskRunner', () => {
     it('should be able to execute built-in named tasks', async () => {
         const scheduler = new MockScheduler();
 
+        // (1) Simple tasks
+        {
+            const result = await scheduler.taskRunner.executeTask({ taskName: 'NoopTask' });
+            expect(result).toBeTrue();
+        }
 
+        // (2) Complex tasks
+        {
+            const result = await scheduler.taskRunner.executeTask({ taskName: 'NoopComplexTask' });
+            expect(result).toBeFalse();  // change detector test for parameter support
+        }
     });
 
     it('should reject tasks when they refer to an invalid built-in named task', async () => {
         const scheduler = new MockScheduler();
 
+        const result = await scheduler.taskRunner.executeTask({ taskName: 'InvalidTask' });
+        expect(result).toBeFalse();
     });
 
     it('should validate the parameters for a task ahead of executing it', async () => {
