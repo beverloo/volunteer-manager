@@ -125,6 +125,7 @@ do {
                 { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
                 { field: [ 'services_logs', 'service_log_result' ], type: 'ServiceLogResult '},
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
+                { field: [ 'tasks', 'task_invocation_result' ], type: 'TaskResult' },
                 { field: [ 'users_auth', 'auth_type' ], type: 'AuthType' },
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },
                 { field: [ 'users_events', 'shirt_fit' ], type: 'ShirtFit' },

@@ -119,6 +119,19 @@ export enum ShirtSize {
 }
 
 /**
+ * Possible results that can occur when running tasks.
+ */
+export enum TaskResult {
+    TaskSuccess = 'TaskSuccess',
+    TaskException = 'TaskException',
+    TaskFailure = 'TaskFailure',
+    InvalidNamedTask = 'InvalidNamedTask',
+    InvalidParameters = 'InvalidParameters',
+    InvalidTaskId = 'InvalidTaskId',
+    UnknownFailure = 'UnknownFailure',
+}
+
+/**
  * Gender of a vendor, simplified display.
  * @see Table `vendors`
  */

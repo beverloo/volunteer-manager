@@ -2569,6 +2569,82 @@ tables:
       `nardo_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`nardo_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: tasks
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: task_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: task_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: task_params
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: task_scheduled_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    extraDef: on update current_timestamp()
+    comment: ""
+  - name: task_scheduled_interval_ms
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: task_invocation_result
+    type: enum('TaskSuccess','TaskException','TaskFailure','InvalidNamedTask','InvalidParameters','UnknownFailure')
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: task_invocation_logs
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: task_invocation_time_ms
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (task_id) USING BTREE
+    table: tasks
+    columns:
+    - task_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (task_id)
+    table: tasks
+    referencedTable: null
+    columns:
+    - task_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `tasks` (
+      `task_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `task_name` varchar(64) NOT NULL,
+      `task_params` text NOT NULL,
+      `task_scheduled_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+      `task_scheduled_interval_ms` int(8) unsigned DEFAULT NULL,
+      `task_invocation_result` enum('TaskSuccess','TaskException','TaskFailure','InvalidNamedTask','InvalidParameters','UnknownFailure') DEFAULT NULL,
+      `task_invocation_logs` text DEFAULT NULL,
+      `task_invocation_time_ms` int(8) unsigned DEFAULT NULL,
+      PRIMARY KEY (`task_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

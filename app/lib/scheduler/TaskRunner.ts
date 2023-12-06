@@ -4,6 +4,7 @@
 import { ZodError } from 'zod';
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
+import { TaskContext } from './TaskContext';
 import { TaskResult } from './Task';
 import { kTaskRegistry } from './TaskRegistry';
 
@@ -25,30 +26,36 @@ export class TaskRunner {
      */
     async executeTask(task: TaskIdentifier, params?: unknown): Promise<TaskResult> {
         if ('taskName' in task)
-            return this.executeNamedTask(task.taskName, params);
+            return this.executeNamedTask(TaskContext.forEphemeralTask(task.taskName, params));
 
-        // TODO: Fetch the necessary information for `task.taskId` from the database.
-        // TODO: Call `executeNamedTask` once the associated task name has been identified.
-        return TaskResult.UnknownFailure;
+        const context = await TaskContext.forStaticTask(task.taskId, params);
+        if (!context)
+            return TaskResult.InvalidTaskId;
+
+        const result = this.executeNamedTask(context);
+        // TODO: Write `result` and whatever is known to the `context` to the database. w/ transact
+        // TODO: Reschedule the task to be executed again when an interval is known.
+
+        return result;
     }
 
     /**
-     * Executes the named `taskName` with the given `params`. The task will be obtained from the
-     * TaskRegistry, from which the given `params` will be validated.
+     * Executes the task described by the given `context`. Parameters, when given, will be validated
+     * against their scheme.
      */
-    async executeNamedTask(taskName: string, params: unknown): Promise<TaskResult> {
-        if (!Object.hasOwn(kTaskRegistry, taskName))
+    private async executeNamedTask(context: TaskContext): Promise<TaskResult> {
+        if (!Object.hasOwn(kTaskRegistry, context.taskName))
             return TaskResult.InvalidNamedTask;
 
         try {
-            const taskConstructor = kTaskRegistry[taskName as keyof typeof kTaskRegistry];
+            const taskConstructor = kTaskRegistry[context.taskName as keyof typeof kTaskRegistry];
             const task = new taskConstructor();
 
             let result: boolean | undefined;
             if (task.isSimpleTask()) {
                 result = await task.execute();
             } else if (task.isComplexTask()) {
-                const validatedParams = task.validate(params);
+                const validatedParams = task.validate(context.params);
                 result = await task.execute(validatedParams);
             } else {
                 return TaskResult.UnknownFailure;

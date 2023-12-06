@@ -1,17 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-/**
- * Possible results that can occur when running tasks.
- */
-export enum TaskResult {
-    TaskSuccess = 'TaskSuccess',
-    TaskException = 'TaskException',
-    TaskFailure = 'TaskFailure',
-    InvalidNamedTask = 'InvalidNamedTask',
-    InvalidParameters = 'InvalidParameters',
-    UnknownFailure = 'UnknownFailure',
-};
+import { TaskResult } from '../database/Types';
+export { TaskResult };
 
 /**
  * Abstract class describing a task that can be owned by the `TaskRegistry` and executed using the
