@@ -2,6 +2,18 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
+ * Possible results that can occur when running tasks.
+ */
+export enum TaskResult {
+    TaskSuccess = 'TaskSuccess',
+    TaskException = 'TaskException',
+    TaskFailure = 'TaskFailure',
+    InvalidNamedTask = 'InvalidNamedTask',
+    InvalidParameters = 'InvalidParameters',
+    UnknownFailure = 'UnknownFailure',
+};
+
+/**
  * Abstract class describing a task that can be owned by the `TaskRegistry` and executed using the
  * `TaskRunner`. It implements basic functionality minimising the per-task implementation cost.
  */

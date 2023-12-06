@@ -5,6 +5,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
+import { TaskResult } from '@lib/scheduler/Task';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
 
 /**
@@ -65,7 +66,9 @@ async function scheduler(request: Request, props: ActionProps): Promise<Response
         'taskId' in request ? { taskId: request.taskId }
                             : { taskName: request.taskName });
 
-    return { success };
+    return {
+        success: success === TaskResult.TaskSuccess,
+    };
 }
 
 // The /api/scheduler route only provides a single API - call it straight away.

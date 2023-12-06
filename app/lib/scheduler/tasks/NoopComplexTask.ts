@@ -10,9 +10,9 @@ import { TaskWithParams } from '../Task';
  */
 const kNoopComplexTaskParamScheme = z.object({
     /**
-     * Input that shall be given to this task.
+     * Whether execution of the task should succeed.
      */
-    input: z.number(),
+    succeed: z.boolean(),
 });
 
 /**
@@ -30,6 +30,6 @@ export class NoopComplexTask extends TaskWithParams<TaskParams> {
     }
 
     override async execute(params: TaskParams): Promise<boolean> {
-        return true;
+        return params.succeed;
     }
 }
