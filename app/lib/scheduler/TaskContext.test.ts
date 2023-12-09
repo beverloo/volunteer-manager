@@ -15,6 +15,9 @@ describe('TaskContext', () => {
         const context = TaskContext.forEphemeralTask('MyTask', { /* no params */ });
 
         context.log.debug('Some detail happened', 1, 2, 3);
+
+        context.log.startTime = process.hrtime.bigint();
+
         context.log.info('Something did happen', 'a', 'b', 'c');
         context.log.warning('Something almost went wrong', true, false, false);
         context.log.error('Something went wrong');
@@ -23,22 +26,27 @@ describe('TaskContext', () => {
         expect(context.log.entries).toHaveLength(5);
 
         expect(context.log.entries[0].severity).toEqual(TaskLogSeverity.Debug);
+        expect(context.log.entries[0].time).toBeUndefined();
         expect(context.log.entries[0].message).toEqual('Some detail happened');
         expect(context.log.entries[0].data).toContainAllValues([ 1, 2, 3 ]);
 
         expect(context.log.entries[1].severity).toEqual(TaskLogSeverity.Info);
+        expect(context.log.entries[1].time).toBeGreaterThan(0);
         expect(context.log.entries[1].message).toEqual('Something did happen');
         expect(context.log.entries[1].data).toContainAllValues([ 'a', 'b', 'c' ]);
 
         expect(context.log.entries[2].severity).toEqual(TaskLogSeverity.Warning);
+        expect(context.log.entries[2].time).toBeGreaterThan(context.log.entries[1].time!);
         expect(context.log.entries[2].message).toEqual('Something almost went wrong');
         expect(context.log.entries[2].data).toContainAllValues([ true, false, false ]);
 
         expect(context.log.entries[3].severity).toEqual(TaskLogSeverity.Error);
+        expect(context.log.entries[3].time).toBeGreaterThan(context.log.entries[2].time!);
         expect(context.log.entries[3].message).toEqual('Something went wrong');
         expect(context.log.entries[3].data).toHaveLength(0);
 
         expect(context.log.entries[4].severity).toEqual(TaskLogSeverity.Exception);
+        expect(context.log.entries[4].time).toBeGreaterThan(context.log.entries[3].time!);
         expect(context.log.entries[4].message).toEqual('Something went very wrong');
         expect(context.log.entries[4].data).toHaveLength(1);
         expect(context.log.entries[4].data[0].message).toEqual('Oh no!');

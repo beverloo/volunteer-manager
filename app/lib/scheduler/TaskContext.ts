@@ -30,6 +30,7 @@ export enum TaskLogSeverity {
  */
 interface TaskLogEntry {
     severity: TaskLogSeverity;
+    time?: number;
     message: string;
     data: any[];
 }
@@ -40,15 +41,32 @@ interface TaskLogEntry {
  */
 class TaskLogger {
     #logs: TaskLogEntry[] = [];
+    #startTime?: bigint;
+
+    /**
+     * Returns the current task runtime as a number, or undefined when the task has not started yet.
+     */
+    private currentRuntimeMs(): number | undefined {
+        if (!this.#startTime)
+            return undefined;
+
+        return Number(process.hrtime.bigint() - this.#startTime) / 1000 / 1000;
+    }
 
     /**
      * Returns the entries that have been written so far, in order.
      */
     get entries(): readonly TaskLogEntry[] { return this.#logs; }
 
+    /**
+     * Sets the task's start time, for relative tracking of log timing information.
+     */
+    set startTime(value: bigint) { this.#startTime = value; }
+
     debug(message: string, ...args: any[]) {
         this.#logs.push({
             severity: TaskLogSeverity.Debug,
+            time: this.currentRuntimeMs(),
             data: args, message,
         });
     }
@@ -56,6 +74,7 @@ class TaskLogger {
     info(message: string, ...args: any[]) {
         this.#logs.push({
             severity: TaskLogSeverity.Info,
+            time: this.currentRuntimeMs(),
             data: args, message,
         });
     }
@@ -63,6 +82,7 @@ class TaskLogger {
     warning(message: string, ...args: any[]) {
         this.#logs.push({
             severity: TaskLogSeverity.Warning,
+            time: this.currentRuntimeMs(),
             data: args, message,
         });
     }
@@ -70,6 +90,7 @@ class TaskLogger {
     error(message: string, ...args: any[]) {
         this.#logs.push({
             severity: TaskLogSeverity.Error,
+            time: this.currentRuntimeMs(),
             data: args, message,
         });
     }
@@ -77,6 +98,7 @@ class TaskLogger {
     exception(message: string, ...args: any[]) {
         this.#logs.push({
             severity: TaskLogSeverity.Exception,
+            time: this.currentRuntimeMs(),
             data: args, message,
         });
     }
@@ -161,7 +183,7 @@ export class TaskContext {
         if (!this.#executionStart || !this.#executionFinished)
             return undefined;
 
-        return Number((this.#executionFinished - this.#executionStart) / 1000n / 1000n);
+        return Number(this.#executionFinished - this.#executionStart) / 1000 / 1000;
     }
 
     /**
