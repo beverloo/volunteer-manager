@@ -12,7 +12,7 @@ describe('TaskRunner', () => {
     interface InstallTaskContextOptions {
         taskName: string;
         params?: unknown;
-        interval?: number;
+        intervalMs?: number;
     }
 
     function installTaskContext(taskId: number, options?: InstallTaskContextOptions) {
@@ -25,7 +25,7 @@ describe('TaskRunner', () => {
             return {
                 taskName: options.taskName,
                 params: JSON.stringify(options.params ?? { /* no parameters */ }),
-                interval: options.interval ?? null,
+                intervalMs: options.intervalMs ?? null,
             };
         });
     }
@@ -104,7 +104,22 @@ describe('TaskRunner', () => {
     });
 
     it('should be able to automatically reschedule repeating tasks', async () => {
-        // TODO: Implement this test.
+        const scheduler = new MockScheduler;
+        const taskRunner = TaskRunner.getOrCreateForScheduler(scheduler);
+
+        expect(scheduler.taskQueueSize).toEqual(0);
+
+        installTaskContext(100, {
+            taskName: 'NoopTask',
+            intervalMs: 1000,
+        });
+
+        expect(scheduler.taskQueueSize).toEqual(0);
+
+        const result = await taskRunner.executeTask({ taskId: 100 });
+        expect(result).toEqual(TaskResult.TaskSuccess);
+
+        expect(scheduler.taskQueueSize).toEqual(1);
     });
 
     it('should reject tasks when the given taskId is not known to the database', async () => {

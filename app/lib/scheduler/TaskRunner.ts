@@ -53,7 +53,7 @@ export class TaskRunner {
         const result = await this.executeNamedTask(context);
         context.markTaskExecutionFinished();
 
-        await context.finalize(result);
+        await context.finalize(this.#scheduler, result);
         return result;
     }
 

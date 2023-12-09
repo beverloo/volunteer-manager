@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Scheduler } from './Scheduler';
 import { TaskResult } from './Task';
 import db, { tTasks } from '@lib/database';
 
@@ -215,8 +216,10 @@ export class TaskContext {
      * simply declaring victory in case of ephemeral tasks. Will automatically reschedule the task
      * to be exeucted when an interval has been given.
      */
-    async finalize(result: TaskResult) {
+    async finalize(scheduler: Scheduler, result: TaskResult) {
         // TODO: Write static information to the database (result, logs, execution time).
-        // TODO: Reschedule the task if an interval is known.
+
+        if (!!this.#configuration.intervalMs)
+            scheduler.queueTask({ taskId: -1 }, /* delayMs= */ this.#configuration.intervalMs);
     }
 }
