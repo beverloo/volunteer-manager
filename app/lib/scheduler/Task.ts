@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { TaskContext } from './TaskContext';
 import { TaskResult } from '../database/Types';
 export { TaskResult };
 
@@ -9,11 +10,18 @@ export { TaskResult };
  * `TaskRunner`. It implements basic functionality minimising the per-task implementation cost.
  */
 abstract class TaskBase {
+    #context: TaskContext;
     #acceptsParams: boolean;
 
-    protected constructor(acceptsParams: boolean) {
+    protected constructor(context: TaskContext, acceptsParams: boolean) {
+        this.#context = context;
         this.#acceptsParams = acceptsParams;
     }
+
+    /**
+     * Returns the logger that can be used for this task execution.
+     */
+    get log() { return this.#context.log; }
 
     /**
      * Returns whether `this` represents a simple task, i.e. one without parameters.
@@ -30,8 +38,8 @@ abstract class TaskBase {
  * Abstract class to extend when the task is not expecting to take any parameters.
  */
 export abstract class Task extends TaskBase {
-    constructor() {
-        super(/* acceptsParams= */ false);
+    constructor(context: TaskContext) {
+        super(context, /* acceptsParams= */ false);
     }
 
     /**
@@ -45,8 +53,8 @@ export abstract class Task extends TaskBase {
  * validated prior to being passed to the `execute()` method.
  */
 export abstract class TaskWithParams<ParamsType> extends TaskBase {
-    constructor() {
-        super(/* acceptsParams= */ true);
+    constructor(context: TaskContext) {
+        super(context, /* acceptsParams= */ true);
     }
 
     /**

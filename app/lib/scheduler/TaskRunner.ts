@@ -32,10 +32,11 @@ export class TaskRunner {
         if (!context)
             return TaskResult.InvalidTaskId;
 
-        const result = this.executeNamedTask(context);
-        // TODO: Write `result` and whatever is known to the `context` to the database. w/ transact
-        // TODO: Reschedule the task to be executed again when an interval is known.
+        context.markTaskExecutionStart();
+        const result = await this.executeNamedTask(context);
+        context.markTaskExecutionFinished();
 
+        await context.finalize(result);
         return result;
     }
 
@@ -49,7 +50,7 @@ export class TaskRunner {
 
         try {
             const taskConstructor = kTaskRegistry[context.taskName as keyof typeof kTaskRegistry];
-            const task = new taskConstructor();
+            const task = new taskConstructor(context);
 
             let result: boolean | undefined;
             if (task.isSimpleTask()) {
@@ -68,7 +69,7 @@ export class TaskRunner {
             if (error instanceof ZodError)
                 return TaskResult.InvalidParameters;
 
-            // TODO: Proper error handling.
+            context.log.exception(error.message, error);
             return TaskResult.TaskException;
         }
     }
