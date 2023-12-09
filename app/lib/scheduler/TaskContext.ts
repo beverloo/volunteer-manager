@@ -2,7 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Scheduler } from './Scheduler';
+import type { kTaskRegistry } from './TaskRegistry';
+
 import { TaskResult } from './Task';
+import { scheduleTask } from '@lib/scheduler';
 import db, { tTasks } from '@lib/database';
 
 /**
@@ -219,8 +222,6 @@ export class TaskContext {
      */
     async finalize(scheduler: Scheduler, result: TaskResult) {
         if (!!this.#configuration.taskId) {
-            let subsequentTaskId: number | undefined;
-
             const dbInstance = db;
             await dbInstance.transaction(async () => {
                 await dbInstance.update(tTasks)
@@ -233,28 +234,14 @@ export class TaskContext {
                     .executeUpdate();
 
                 if (!!this.#configuration.intervalMs) {
-                    const interval = dbInstance.const(this.#configuration.intervalMs * 1000, 'int');
-                    const taskScheduledDateFragment =
-                        dbInstance.fragmentWithType('localDateTime', 'required').sql`
-                            CURRENT_TIMESTAMP() + INTERVAL ${interval} MICROSECOND`;
-
-                    subsequentTaskId = await dbInstance.insertInto(tTasks)
-                        .set({
-                            taskName: this.#configuration.taskName,
-                            taskParams: JSON.stringify(this.#configuration.params),
-                            taskScheduledIntervalMs: this.#configuration.intervalMs,
-                            taskScheduledDate: taskScheduledDateFragment,
-                        })
-                        .returningLastInsertedId()
-                        .executeInsert();
+                    await scheduleTask({
+                        taskName: this.#configuration.taskName as keyof typeof kTaskRegistry,
+                        params: this.#configuration.params,
+                        delayMs: this.#configuration.intervalMs,
+                        intervalMs: this.#configuration.intervalMs,
+                    }, scheduler);
                 }
             });
-
-            if (!!this.#configuration.intervalMs && !!subsequentTaskId) {
-                scheduler.queueTask(
-                    { taskId: subsequentTaskId },
-                    /* delayMs= */ this.#configuration.intervalMs);
-            }
         } else if (!!this.#configuration.intervalMs) {
             scheduler.queueTask(
                 { taskName: this.#configuration.taskName },

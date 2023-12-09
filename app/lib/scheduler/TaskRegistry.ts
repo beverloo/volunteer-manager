@@ -15,3 +15,8 @@ export const kTaskRegistry = {
     NoopTask,
     PopulateSchedulerTask,
 };
+
+/**
+ * Type containing the task names that are known to the scheduler.
+ */
+export type RegisteredTasks = keyof typeof kTaskRegistry;
