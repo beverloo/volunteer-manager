@@ -4,6 +4,7 @@
 import { NoopComplexTask } from './tasks/NoopComplexTask';
 import { NoopTask } from './tasks/NoopTask';
 import { PopulateSchedulerTask } from './tasks/PopulateSchedulerTask';
+import { SendEmailTask } from './tasks/SendEmailTask';
 
 /**
  * Object containing all tasks known to the AnimeCon Volunteer Manager. Each task must extend either
@@ -14,6 +15,7 @@ export const kTaskRegistry = {
     NoopComplexTask,
     NoopTask,
     PopulateSchedulerTask,
+    SendEmailTask,
 };
 
 /**

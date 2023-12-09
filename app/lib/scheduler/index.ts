@@ -36,7 +36,7 @@ interface TaskRequest<ParamsType = unknown> {
  * the database and will enjoy full debugging information in the administration area.
  */
 export async function scheduleTask<ParamsType = unknown>(
-    task: TaskRequest<ParamsType>, scheduler?: Scheduler): Promise<void>
+    task: TaskRequest<ParamsType>, scheduler?: Scheduler): Promise<number>
 {
     const dbInstance = db;
 
@@ -57,4 +57,6 @@ export async function scheduleTask<ParamsType = unknown>(
 
     const actualScheduler = scheduler ?? globalScheduler;
     actualScheduler.queueTask({ taskId }, task.delayMs);
+
+    return taskId;
 }

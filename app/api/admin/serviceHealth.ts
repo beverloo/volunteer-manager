@@ -6,10 +6,13 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
+import { TaskResult } from '@lib/database/Types';
 import { createAnimeConClient } from '@lib/integrations/animecon';
-import { createEmailClient } from '@lib/integrations/email';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import db, { tTasks } from '@lib/database';
+
 
 /**
  * The services for which health check can be carried out.
@@ -79,27 +82,44 @@ async function runAnimeConHealthCheck(): Promise<Response> {
  */
 async function runEmailHealthCheck(user: User): Promise<Response> {
     try {
-        const client = await createEmailClient();
-        const message = client.createMessage()
-            .setTo(user.username!)
-            .setSubject('Volunteer Manager integration test')
-            .setMarkdown('Test message from the **AnimeCon Volunteer Manager**');
-
-        const result = await client.sendMessage({
+        const taskId = await SendEmailTask.Schedule({
             sender: 'AnimeCon Volunteer Manager',
-            message,
-            sourceUser: user,
-            targetUser: /* Peter= */ 1,
+            message: {
+                to: user.username!,
+                subject: 'Volunteer Manager integration test',
+                markdown: 'Test message from the **AnimeCon Volunteer Manager**',
+            },
+            attribution: {
+                sourceUserId: user.userId,
+                targetUserId: user.userId,
+            },
         });
 
-        if (!result.messageId)
-            throw new Error(`Unexpected result, missing message Id: ${result.messageId}`);
+        const kMaximumAttempts = 10;
 
-        return {
-            status: 'success',
-            service: 'Email',
-            message: 'The integration is functional (connection verified)',
-        };
+        let taskResult: TaskResult | null = null;
+        for (let attempt = 0; attempt < kMaximumAttempts; ++attempt) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            taskResult = await db.selectFrom(tTasks)
+                .selectOneColumn(tTasks.taskInvocationResult)
+                .where(tTasks.taskId.equals(taskId))
+                .executeSelectNoneOrOne();
+
+            if (taskResult)
+                break;
+        }
+
+        if (taskResult === TaskResult.TaskSuccess) {
+            return {
+                status: 'success',
+                service: 'Email',
+                message: 'The integration is functional (task executed successfully)',
+            }
+        } else if (!!taskResult) {
+            throw new Error(`The SendEmailTask did not complete successfully ("${taskResult}")`);
+        } else {
+            throw new Error('The SendEmailTask has not finished executing yet');
+        }
     } catch (error: any) {
         return {
             status: 'error',

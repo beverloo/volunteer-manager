@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
 import { TaskContext } from './TaskContext';
-import { TaskResult } from './Task';
+import { TaskResult, TaskWithParams } from './Task';
 import { kTaskRegistry } from './TaskRegistry';
 
 /**
@@ -73,8 +73,9 @@ export class TaskRunner {
             if (task.isSimpleTask()) {
                 result = await task.execute();
             } else if (task.isComplexTask()) {
-                const validatedParams = task.validate(context.params);
-                result = await task.execute(validatedParams);
+                const complexTask = task as TaskWithParams<unknown>;
+                const validatedParams = complexTask.validate(context.params);
+                result = await complexTask.execute(validatedParams);
             } else {
                 return TaskResult.UnknownFailure;
             }
