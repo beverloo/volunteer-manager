@@ -128,6 +128,7 @@ export class TaskContext {
             .where(tTasks.taskId.equals(taskId))
                 .and(tTasks.taskInvocationResult.isNull())
             .select({
+                taskId: tTasks.taskId,
                 taskName: tTasks.taskName,
                 params: tTasks.taskParams,
                 intervalMs: tTasks.taskScheduledIntervalMs,
@@ -194,7 +195,7 @@ export class TaskContext {
         if (!!this.#executionStart)
             throw new Error('Task execution has already started, unable to restart');
 
-        this.#executionStart = process.hrtime.bigint();
+        this.#executionStart = this.#logger.startTime = process.hrtime.bigint();
     }
 
     /**
@@ -217,9 +218,47 @@ export class TaskContext {
      * to be exeucted when an interval has been given.
      */
     async finalize(scheduler: Scheduler, result: TaskResult) {
-        // TODO: Write static information to the database (result, logs, execution time).
+        if (!!this.#configuration.taskId) {
+            let subsequentTaskId: number | undefined;
 
-        if (!!this.#configuration.intervalMs)
-            scheduler.queueTask({ taskId: -1 }, /* delayMs= */ this.#configuration.intervalMs);
+            const dbInstance = db;
+            await dbInstance.transaction(async () => {
+                await dbInstance.update(tTasks)
+                    .set({
+                        taskInvocationResult: result,
+                        taskInvocationLogs: JSON.stringify(this.#logger.entries),
+                        taskInvocationTimeMs: this.runtimeMs,
+                    })
+                    .where(tTasks.taskId.equals(this.#configuration.taskId!))
+                    .executeUpdate();
+
+                if (!!this.#configuration.intervalMs) {
+                    const interval = dbInstance.const(this.#configuration.intervalMs * 1000, 'int');
+                    const taskScheduledDateFragment =
+                        dbInstance.fragmentWithType('localDateTime', 'required').sql`
+                            CURRENT_TIMESTAMP() + INTERVAL ${interval} MICROSECOND`;
+
+                    subsequentTaskId = await dbInstance.insertInto(tTasks)
+                        .set({
+                            taskName: this.#configuration.taskName,
+                            taskParams: JSON.stringify(this.#configuration.params),
+                            taskScheduledIntervalMs: this.#configuration.intervalMs,
+                            taskScheduledDate: taskScheduledDateFragment,
+                        })
+                        .returningLastInsertedId()
+                        .executeInsert();
+                }
+            });
+
+            if (!!this.#configuration.intervalMs && !!subsequentTaskId) {
+                scheduler.queueTask(
+                    { taskId: subsequentTaskId },
+                    /* delayMs= */ this.#configuration.intervalMs);
+            }
+        } else if (!!this.#configuration.intervalMs) {
+            scheduler.queueTask(
+                { taskName: this.#configuration.taskName },
+                /* delayMs= */ this.#configuration.intervalMs);
+        }
     }
 }

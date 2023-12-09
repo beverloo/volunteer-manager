@@ -20,7 +20,7 @@ export class TasksTable extends Table<DBConnection, 'TasksTable'> {
     taskScheduledIntervalMs = this.optionalColumnWithDefaultValue('task_scheduled_interval_ms', 'int');
     taskInvocationResult = this.optionalColumnWithDefaultValue<TaskResult>('task_invocation_result', 'enum', 'TaskResult');
     taskInvocationLogs = this.optionalColumnWithDefaultValue('task_invocation_logs', 'string');
-    taskInvocationTimeMs = this.optionalColumnWithDefaultValue('task_invocation_time_ms', 'int');
+    taskInvocationTimeMs = this.optionalColumnWithDefaultValue('task_invocation_time_ms', 'double');
 
     constructor() {
         super('tasks');

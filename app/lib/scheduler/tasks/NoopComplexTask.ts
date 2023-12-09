@@ -13,6 +13,11 @@ const kNoopComplexTaskParamScheme = z.object({
      * Whether execution of the task should succeed.
      */
     succeed: z.boolean(),
+
+    /**
+     * Whether a log entry should be written while executing this task.
+     */
+    logs: z.boolean().optional(),
 });
 
 /**
@@ -30,6 +35,9 @@ export class NoopComplexTask extends TaskWithParams<TaskParams> {
     }
 
     override async execute(params: TaskParams): Promise<boolean> {
+        if (!!params.logs)
+            this.log.info('Parameters=', params);
+
         return params.succeed;
     }
 }
