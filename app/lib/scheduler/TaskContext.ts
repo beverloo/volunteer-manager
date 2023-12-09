@@ -17,7 +17,7 @@ interface TaskConfiguration {
 /**
  * Severity level of an entry logged during task execution.
  */
-enum TaskLogSeverity {
+export enum TaskLogSeverity {
     Debug = 'Debug',
     Info = 'Info',
     Warning = 'Warning',
@@ -40,6 +40,11 @@ interface TaskLogEntry {
  */
 class TaskLogger {
     #logs: TaskLogEntry[] = [];
+
+    /**
+     * Returns the entries that have been written so far, in order.
+     */
+    get entries(): readonly TaskLogEntry[] { return this.#logs; }
 
     debug(message: string, ...args: any[]) {
         this.#logs.push({
@@ -148,6 +153,16 @@ export class TaskContext {
      * Returns the logger that can be used for this task execution.
      */
     get log(): TaskLogger { return this.#logger; }
+
+    /**
+     * Returns the runtime of the task once execuction has finished, indicated in milliseconds.
+     */
+    get runtimeMs(): number | undefined {
+        if (!this.#executionStart || !this.#executionFinished)
+            return undefined;
+
+        return Number((this.#executionFinished - this.#executionStart) / 1000n / 1000n);
+    }
 
     /**
      * Marks that task execution has begun. Will throw if exeuction has already started.
