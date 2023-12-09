@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
 import { TaskResult } from '@lib/scheduler/Task';
+import { TaskRunner } from '@lib/scheduler/TaskRunner';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
 
 /**
@@ -62,7 +63,8 @@ async function scheduler(request: Request, props: ActionProps): Promise<Response
     if (!kSchedulerPassword?.length || request.password !== kSchedulerPassword)
         noAccess();
 
-    const success = await globalScheduler.taskRunner.executeTask(
+    const taskRunner = TaskRunner.getOrCreateForScheduler(globalScheduler);
+    const success = await taskRunner.executeTask(
         'taskId' in request ? { taskId: request.taskId }
                             : { taskName: request.taskName });
 

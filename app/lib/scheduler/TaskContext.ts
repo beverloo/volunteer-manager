@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { TaskResult } from './Task';
-//import db, { tTasks } from '@lib/database';
+import db, { tTasks } from '@lib/database';
 
 /**
  * Configuration that exists for any given task.
@@ -96,8 +96,6 @@ export class TaskContext {
      * does not exist in the database, or has already been executed.
      */
     static async forStaticTask(taskId: number, params: unknown) {
-        const task: any = undefined;
-        /**
         const task = await db.selectFrom(tTasks)
             .where(tTasks.taskId.equals(taskId))
                 .and(tTasks.taskInvocationResult.isNull())
@@ -107,7 +105,7 @@ export class TaskContext {
                 intervalMs: tTasks.taskScheduledIntervalMs,
             })
             .executeSelectNoneOrOne();
-        */
+
         if (!task)
             return undefined;  // the task does not exist in the database, or has already ran
 

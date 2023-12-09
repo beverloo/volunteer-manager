@@ -9,13 +9,30 @@ import { TaskResult } from './Task';
 import { kTaskRegistry } from './TaskRegistry';
 
 /**
+ * Global cache for the task runner instances. One task runner will be lazily created for each
+ * scheduler that exists. Instances can be obtained through `TaskRunner::getOrCreateForScheduler()`.
+ */
+const globalTaskRunnerCache: WeakMap<Scheduler, TaskRunner> = new WeakMap;
+
+/**
  * The task runner is able to execute individual tasks, and maintains detailed logging information
  * on the runtime and success rates. Task runners are strongly associated with a scheduler.
  */
 export class TaskRunner {
     #scheduler: Scheduler;
 
-    constructor(scheduler: Scheduler) {
+    /**
+     * Returns the task runner for the given `scheduler`. A single task runner instance will be
+     * created per scheduler, stored in the `globalTaskRunnerCache`.
+     */
+    static getOrCreateForScheduler(scheduler: Scheduler) {
+        if (!globalTaskRunnerCache.has(scheduler))
+            globalTaskRunnerCache.set(scheduler, new TaskRunner(scheduler));
+
+        return globalTaskRunnerCache.get(scheduler)!;
+    }
+
+    private constructor(scheduler: Scheduler) {
         this.#scheduler = scheduler;
     }
 
