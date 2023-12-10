@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { kTaskFormatFn } from '@lib/scheduler/TaskRegistry';
 import db, { tTasks } from '@lib/database';
 
 /**
@@ -88,6 +89,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
                 id: tTasks.taskId,
                 date: tTasks.taskScheduledDate,
                 task: tTasks.taskName,
+                params: tTasks.taskParams,
                 executionInterval: tTasks.taskScheduledIntervalMs,
                 executionTime: tTasks.taskInvocationTimeMs,
             })
@@ -100,11 +102,20 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
             success: true,
             rowCount: tasks.count,
             rows: tasks.data.map(row => {
+
+                let taskName = row.task;
+                if (Object.hasOwn(kTaskFormatFn, row.task)) {
+                    try {
+                        const params = JSON.parse(row.params ?? /* no params */ '{}');
+                        taskName = kTaskFormatFn[row.task as keyof typeof kTaskFormatFn](params);
+                    } catch (e) { /* no failure handling */ }
+                }
+
                 return {
                     id: row.id,
                     state: 'pending',
                     date: row.date.toISOString(),
-                    task: row.task,
+                    task: taskName,
                     executionInterval: row.executionInterval,
                     executionTime: row.executionTime,
                 } as const;

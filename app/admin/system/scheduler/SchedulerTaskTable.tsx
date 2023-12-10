@@ -78,7 +78,7 @@ export function SchedulerTaskTable() {
         },
         {
             field: 'date',
-            headerName: 'Date',
+            headerName: 'Scheduled for…',
             sortable: false,
             flex: 1,
 

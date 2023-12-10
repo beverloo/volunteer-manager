@@ -22,3 +22,18 @@ export const kTaskRegistry = {
  * Type containing the task names that are known to the scheduler.
  */
 export type RegisteredTasks = keyof typeof kTaskRegistry;
+
+/**
+ * Function defining the formatter for a particular task.
+ */
+type TaskFormatFn = (params: any) => string;
+
+/**
+ * Registry of of the known tasks, each with a function that enables formatting their purpose.
+ */
+export const kTaskFormatFn: { [k in RegisteredTasks]: TaskFormatFn } = {
+    NoopComplexTask: () => 'No-op task (complex)',
+    NoopTask: () => 'No-op task',
+    PopulateSchedulerTask: () => 'Populate scheduler task',
+    SendEmailTask: params => `Send e-mail task (to: ${params.message.to})`,
+};
