@@ -37,21 +37,21 @@ export function SchedulerTaskTable() {
                     case 'pending':
                         return (
                             <Tooltip title="The task has not executed yet">
-                                <RadioButtonUncheckedIcon color="disabled" />
+                                <RadioButtonUncheckedIcon color="disabled" fontSize="small" />
                             </Tooltip>
                         );
 
                     case 'success':
                         return (
                             <Tooltip title="The task executed successfully">
-                                <TaskAltIcon color="success" />
+                                <TaskAltIcon color="success" fontSize="small" />
                             </Tooltip>
                         );
 
                     case 'warning':
                         return (
                             <Tooltip title="The task executed with a warning">
-                                <TaskAltIcon color="warning" />
+                                <TaskAltIcon color="warning" fontSize="small" />
                             </Tooltip>
                         );
 
@@ -59,22 +59,11 @@ export function SchedulerTaskTable() {
                     default:
                         return (
                             <Tooltip title="The task execution failed">
-                                <TaskAltIcon color="error" />
+                                <TaskAltIcon color="error" fontSize="small" />
                             </Tooltip>
                         );
                 }
             },
-        },
-        {
-            field: 'task',
-            headerName: 'Task',
-            sortable: false,
-            flex: 1,
-
-            renderCell: params =>
-                <MuiLink component={Link} href={`./scheduler/task/${params.row.id}`}>
-                    {params.value}
-                </MuiLink>,
         },
         {
             field: 'date',
@@ -85,6 +74,17 @@ export function SchedulerTaskTable() {
             renderCell: params => dayjs(params.value).format('YYYY-MM-DD HH:mm:ss'),
         },
         {
+            field: 'task',
+            headerName: 'Task',
+            sortable: false,
+            flex: 2,
+
+            renderCell: params =>
+                <MuiLink component={Link} href={`./scheduler/task/${params.row.id}`}>
+                    {params.value}
+                </MuiLink>,
+        },
+        {
             field: 'executionInterval',
             headerName: '',
             sortable: false,
@@ -92,8 +92,13 @@ export function SchedulerTaskTable() {
             width: 50,
 
             renderCell: params => {
-                if (!params.value)
-                    return <FiberManualRecordIcon color="disabled" fontSize="small" />;
+                if (!params.value) {
+                    return (
+                        <Tooltip title="One-off task">
+                            <FiberManualRecordIcon color="disabled" fontSize="small" />
+                        </Tooltip>
+                    );
+                }
 
                 return (
                     <Tooltip title={`Repeats every ${params.value}ms`}>
@@ -115,6 +120,8 @@ export function SchedulerTaskTable() {
                             n/a
                         </Typography>
                     );
+                } else if (params.value < 10) {
+                    return `${Math.round(params.value * 10) / 10}ms`;
                 } else if (params.value < 1000) {
                     return `${Math.round(params.value)}ms`;
                 } else if (params.value < 60000) {
@@ -136,7 +143,7 @@ export function SchedulerTaskTable() {
                 an e-mail) in the background, either as a one-off or at a configured interval.
             </Alert>
             <RemoteDataTable columns={columns} endpoint="/api/admin/scheduler"
-                             defaultSort={{ field: 'date', sort: 'desc' }} />
+                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={25} />
         </Paper>
     );
 }

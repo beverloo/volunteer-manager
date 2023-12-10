@@ -1,13 +1,18 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { NextRequest } from 'next/server';
+import { executeAction } from '@app/api/Action';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { Privilege } from '@lib/auth/Privileges';
+import { TaskResult } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { kTaskFormatFn } from '@lib/scheduler/TaskRegistry';
 import db, { tTasks } from '@lib/database';
+
+import { scheduleTask, kScheduleTaskDefinition } from '../scheduleTask';
 
 /**
  * Row model an entry from the scheduler.
@@ -90,6 +95,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
                 date: tTasks.taskScheduledDate,
                 task: tTasks.taskName,
                 params: tTasks.taskParams,
+                executionResult: tTasks.taskInvocationResult,
                 executionInterval: tTasks.taskScheduledIntervalMs,
                 executionTime: tTasks.taskInvocationTimeMs,
             })
@@ -102,7 +108,6 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
             success: true,
             rowCount: tasks.count,
             rows: tasks.data.map(row => {
-
                 let taskName = row.task;
                 if (Object.hasOwn(kTaskFormatFn, row.task)) {
                     try {
@@ -111,9 +116,18 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
                     } catch (e) { /* no failure handling */ }
                 }
 
+                let state: SchedulerRowModel['state'] = 'pending';
+                if (!!row.executionResult) {
+                    if (row.executionResult === TaskResult.TaskSuccess) {
+                        state = 'success';  // TODO: Recognise warnings?
+                    } else {
+                        state = 'failure';
+                    }
+                }
+
                 return {
                     id: row.id,
-                    state: 'pending',
+                    state,
                     date: row.date.toISOString(),
                     task: taskName,
                     executionInterval: row.executionInterval,
@@ -123,3 +137,10 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
         }
     },
 });
+
+/**
+ * POST /api/admin/scheduler
+ */
+export async function POST(request: NextRequest): Promise<Response> {
+    return executeAction(request, kScheduleTaskDefinition, scheduleTask);
+}

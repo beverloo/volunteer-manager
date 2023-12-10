@@ -16,6 +16,7 @@ import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
 import type { RefundRequestDefinition } from '@app/api/event/refundRequest';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
+import type { ScheduleTaskDefinition } from '@app/api/admin/scheduler/scheduleTask';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
@@ -64,6 +65,7 @@ export type ApiEndpoints = {
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
+        '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/training': TrainingDefinition,
         '/api/admin/vendors': VendorEndpoints['create'],
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
