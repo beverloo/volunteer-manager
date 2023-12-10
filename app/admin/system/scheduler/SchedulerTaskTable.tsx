@@ -1,0 +1,142 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import Link from 'next/link';
+
+import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import LoopIcon from '@mui/icons-material/Loop';
+import Paper from '@mui/material/Paper';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+
+import type { SchedulerRowModel } from '@app/api/admin/scheduler/[[...id]]/route';
+import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
+import { dayjs } from '@lib/DateTime';
+
+/**
+ * The <SchedulerTaskTable> component displays a data table with the pending and past tasks that
+ * were executed by the scheduler. This component does not take any props.
+ */
+export function SchedulerTaskTable() {
+    const columns: RemoteDataTableColumn<SchedulerRowModel>[] = [
+        {
+            field: 'state',
+            headerName: '',
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            renderCell: params => {
+                switch (params.value) {
+                    case 'pending':
+                        return (
+                            <Tooltip title="The task has not executed yet">
+                                <RadioButtonUncheckedIcon color="disabled" />
+                            </Tooltip>
+                        );
+
+                    case 'success':
+                        return (
+                            <Tooltip title="The task executed successfully">
+                                <TaskAltIcon color="success" />
+                            </Tooltip>
+                        );
+
+                    case 'warning':
+                        return (
+                            <Tooltip title="The task executed with a warning">
+                                <TaskAltIcon color="warning" />
+                            </Tooltip>
+                        );
+
+                    case 'error':
+                    default:
+                        return (
+                            <Tooltip title="The task execution failed">
+                                <TaskAltIcon color="error" />
+                            </Tooltip>
+                        );
+                }
+            },
+        },
+        {
+            field: 'task',
+            headerName: 'Task',
+            sortable: false,
+            flex: 1,
+
+            renderCell: params =>
+                <MuiLink component={Link} href={`./scheduler/task/${params.row.id}`}>
+                    {params.value}
+                </MuiLink>,
+        },
+        {
+            field: 'date',
+            headerName: 'Date',
+            sortable: false,
+            flex: 1,
+
+            renderCell: params => dayjs(params.value).format('YYYY-MM-DD HH:mm:ss'),
+        },
+        {
+            field: 'executionInterval',
+            headerName: '',
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            renderCell: params => {
+                if (!params.value)
+                    return <FiberManualRecordIcon color="disabled" fontSize="small" />;
+
+                return (
+                    <Tooltip title={`Repeats every ${params.value}ms`}>
+                        <LoopIcon color="success" fontSize="small" />
+                    </Tooltip>
+                );
+            },
+        },
+        {
+            field: 'executionTime',
+            headerName: 'Time',
+            sortable: false,
+            width: 100,
+
+            renderCell: params => {
+                if (!params.value) {
+                    return (
+                        <Typography sx={{ color: 'text.disabled' }} variant="body2">
+                            n/a
+                        </Typography>
+                    );
+                } else if (params.value < 1000) {
+                    return `${Math.round(params.value)}ms`;
+                } else if (params.value < 60000) {
+                    return `${Math.round(params.value / 1000)}s`;
+                } else {
+                    return `${Math.round(params.value / 60000)}m`;
+                }
+            },
+        }
+    ];
+
+    return (
+        <Paper sx={{ p: 2 }}>
+            <Typography variant="h5">
+                System scheduler
+            </Typography>
+            <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
+                The <strong>system scheduler</strong> is the component to run tasks (such as sending
+                an e-mail) in the background, either as a one-off or at a configured interval.
+            </Alert>
+            <RemoteDataTable columns={columns} endpoint="/api/admin/scheduler"
+                             defaultSort={{ field: 'date', sort: 'desc' }} />
+        </Paper>
+    );
+}

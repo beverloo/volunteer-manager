@@ -31,6 +31,7 @@ import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
+import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
 
 /**
@@ -52,6 +53,8 @@ export type ApiEndpoints = {
         '/api/admin/outbox/:id': GetOutboxDefinition,
         '/api/admin/refunds': RefundRequestEndpoints['list'],
         '/api/admin/retention': RetentionEndpoints['list'],
+        '/api/admin/scheduler': SchedulerEndpoints['list'],
+        '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
         '/api/admin/vendors': VendorEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
