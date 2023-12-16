@@ -34,6 +34,11 @@ const kLocationOptions = [
  */
 export interface GoogleSettings {
     /**
+     * API Key through which Generative AI functionality can be used.
+     */
+    apiKey: string;
+
+    /**
      * The credential that should be used for communicating with Google APIs.
      */
     credential: string;
@@ -77,6 +82,7 @@ export function Google(props: GoogleProps) {
         try {
             await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
                 google: {
+                    apiKey: data.apiKey,
                     credential: data.credential,
                     location: data.location,
                     projectId: data.projectId,
@@ -101,7 +107,11 @@ export function Google(props: GoogleProps) {
             </Alert>
             <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={12}>
+                    <Grid xs={6}>
+                        <TextFieldElement name="apiKey" label="API Key" fullWidth
+                                          size="small" onChange={handleInvalidate} />
+                    </Grid>
+                    <Grid xs={6}>
                         <TextFieldElement name="credential" label="Credential" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>

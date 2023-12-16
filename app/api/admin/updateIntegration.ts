@@ -44,6 +44,7 @@ export const kUpdateIntegrationDefinition = z.object({
          * Google settings that should be updated.
          */
         google: z.object({
+            apiKey: z.string(),
             credential: z.string(),
             location: z.string(),
             projectId: z.string(),
@@ -113,6 +114,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
     if (request.google) {
         await writeSettings({
+            'integration-google-apikey': request.google.apiKey,
             'integration-google-credentials': request.google.credential,
             'integration-google-location': request.google.location,
             'integration-google-project-id': request.google.projectId,

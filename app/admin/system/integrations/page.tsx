@@ -9,6 +9,7 @@ import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Privilege } from '@lib/auth/Privileges';
 import { VertexAI, type VertexAISettings } from './VertexAI';
+import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -39,6 +40,7 @@ export default async function IntegrationsPage() {
         'integration-email-smtp-password',
 
         // Google:
+        'integration-google-apikey',
         'integration-google-credentials',
         'integration-google-location',
         'integration-google-project-id',
@@ -69,13 +71,14 @@ export default async function IntegrationsPage() {
     };
 
     const googleSettings: GoogleSettings = {
+        apiKey: settings['integration-google-apikey'] ?? '',
         credential: settings['integration-google-credentials'] ?? '',
         location: settings['integration-google-location'] ?? '',
         projectId: settings['integration-google-project-id'] ?? '',
     };
 
     const vertexSettings: VertexAISettings = {
-        model: settings['integration-vertex-model'] ?? 'text-bison@001',
+        model: settings['integration-vertex-model'] ?? VertexSupportedModels['text-bison'],
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
         tokenLimit: settings['integration-vertex-token-limit'] ?? 256,
         topK: settings['integration-vertex-top-k'] ?? 40,

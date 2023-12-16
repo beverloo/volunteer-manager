@@ -43,6 +43,7 @@ type SettingsMap = {
     'integration-email-smtp-password': string;
 
     // Google:
+    'integration-google-apikey': string;
     'integration-google-credentials': string;
     'integration-google-location': string;
     'integration-google-project-id': string;
