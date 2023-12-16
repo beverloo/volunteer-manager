@@ -4,6 +4,7 @@
 import { default as aiplatform, helpers } from '@google-cloud/aiplatform';
 
 import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient';
+import { VertexSupportedModels } from './VertexSupportedModels';
 
 /**
  * Publisher of the PaLM 2 model, as it makes no sense to train our own.
@@ -19,7 +20,7 @@ export interface VertexAISettings {
      *
      * @see https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models
      */
-    model: 'text-bison' | 'text-bison@001';
+    model: VertexSupportedModels;
 
     /**
      * Temperature controls the degree of randomness in token selection. Lower temperatures are good
@@ -84,6 +85,23 @@ export class VertexAIClient {
      * LLM, including instructions towards the answer that is expected from the model.
      */
     async predictText(prompt: string): Promise<string | undefined> {
+        switch (this.#settings.model) {
+            case 'text-bison':
+            case 'text-bison@001':
+            case 'text-bison@002':
+                return this.predictTextBison(prompt);
+
+            // TODO: Gemini
+        }
+
+        throw new Error(`Unrecognised model specified for prediction: ${this.#settings.model}`);
+    }
+
+    /**
+     * Predicts responses to the given `prompt` using the Google Bison model. The response will be
+     * returned as a string when successful; `undefined` will be returned in all other cases.
+     */
+    private async predictTextBison(prompt: string): Promise<string | undefined> {
         const promptArray = Array.isArray(prompt) ? prompt : [ prompt ];
 
         const client = this.createClient();

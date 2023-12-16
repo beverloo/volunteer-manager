@@ -5,7 +5,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextareaAutosizeElement,
+import { type FieldValues, FormContainer, TextareaAutosizeElement, SelectElement,
     SliderElement } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
@@ -24,6 +24,7 @@ import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VertexAISettings } from '@lib/integrations/vertexai/VertexAIClient';
 import { PlaceholderPaper } from '../../components/PlaceholderPaper';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
+import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { issueServerAction } from '@lib/issueServerAction';
 
 export type { VertexAISettings };
@@ -83,6 +84,11 @@ function ServiceSettings(props: ServiceSettingsProps) {
         }
     }, [ onSave, settings ]);
 
+    const onModelChange = useCallback((value: VertexSupportedModels) => {
+        setInvalidated(true);
+        onChange({ ...settings, model: value });
+    }, [ onChange, settings ]);
+
     const onTemperatureChange = useCallback((event: unknown, value: number | number[]) => {
         setInvalidated(true);
         onChange({ ...settings, temperature: Array.isArray(value) ? value[0] : value });
@@ -103,9 +109,21 @@ function ServiceSettings(props: ServiceSettingsProps) {
         onChange({ ...settings, topP: Array.isArray(value) ? value[0] : value });
     }, [ onChange, settings ]);
 
+    const modelOptions = Object.values(VertexSupportedModels).map(model => ({
+        id: model,
+        label: model,
+    }));
+
     return (
         <FormContainer defaultValues={settings} onSuccess={onRequestSave}>
             <Grid container spacing={2}>
+                <Grid xs={6}>
+                    <SelectElement name="model" label="Model" size="small" fullWidth
+                                   onChange={onModelChange} options={modelOptions} />
+                </Grid>
+                <Grid xs={6}>
+                    { /* safety settings? */ }
+                </Grid>
                 <Grid xs={6}>
                     <SliderElement name="temperature" label="Temperature" size="small"
                                    min={0} max={1} step={0.05}

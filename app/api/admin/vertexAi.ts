@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { Privilege } from '@lib/auth/Privileges';
+import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { readSettings } from '@lib/Settings';
@@ -13,7 +14,7 @@ import { readSettings } from '@lib/Settings';
  * The Vertex AI settings object. Shared across multiple API calls.
  */
 export const kVertexAiSettings = z.object({
-    model: z.enum([ 'text-bison', 'text-bison@001' ]),
+    model: z.nativeEnum(VertexSupportedModels),
     temperature: z.number().gte(0).lte(1),
     tokenLimit: z.number().gte(1).lte(1024),
     topK: z.number().gte(1).lte(40),

@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { VertexSupportedModels } from './integrations/vertexai/VertexSupportedModels';
 import db, { tSettings } from '@lib/database';
 
 /**
@@ -47,7 +48,7 @@ type SettingsMap = {
     'integration-google-project-id': string;
 
     // Google Vertex AI:
-    'integration-vertex-model': 'text-bison' | 'text-bison@001';
+    'integration-vertex-model': VertexSupportedModels;
     'integration-vertex-temperature': number;
     'integration-vertex-token-limit': number;
     'integration-vertex-top-k': number;
