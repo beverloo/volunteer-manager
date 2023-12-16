@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata, Viewport } from 'next';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 
 import { ClientProviders } from './ClientProviders';
 import { determineEnvironment } from '@lib/Environment';
@@ -43,9 +44,11 @@ export default async function RootLayout(props: React.PropsWithChildren) {
         <html lang="en">
             <head></head>
             <body>
-                <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
-                    {props.children}
-                </ClientProviders>
+                <AppRouterCacheProvider>
+                    <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
+                        {props.children}
+                    </ClientProviders>
+                </AppRouterCacheProvider>
             </body>
         </html>
     );

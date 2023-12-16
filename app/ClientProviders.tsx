@@ -3,16 +3,11 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-
 import type { PaletteMode } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { CacheProvider } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ThemeProvider } from '@mui/material/styles';
-import createCache from '@emotion/cache';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { createCachedTheme } from './ClientTheme';
@@ -54,56 +49,12 @@ export function ClientProviders(props: React.PropsWithChildren<ClientProvidersPr
         paletteMode === 'auto' ? (systemPrefersDarkColorScheme ? 'dark' : 'light')
                                : paletteMode;
 
-    //
-    const { emotionCache, cycleUpdatedRules } = useMemo(() => {
-        const emotionCache = createCache({ key: 'mui' });
-        emotionCache.compat = true;
-
-        const originalEmotionCacheInsert = emotionCache.insert;
-
-        let inserted: string[] = [];
-        emotionCache.insert = (...args) => {
-            const serialized = args[1];
-            if (!emotionCache.inserted.hasOwnProperty(serialized.name))
-                inserted.push(serialized.name);
-
-            return originalEmotionCacheInsert(...args);
-        }
-
-        const cycleUpdatedRules = () => {
-            const updatedRules = inserted;
-            inserted = [];
-
-            return updatedRules;
-        };
-
-        return { emotionCache, cycleUpdatedRules };
-    }, [ /* no deps */ ]);
-
-    useServerInsertedHTML(() => {
-        const updatedRules = cycleUpdatedRules();
-        if (!updatedRules.length)
-            return null;
-
-        const rules = [];
-        for (const updatedRule of updatedRules)
-            rules.push(emotionCache.inserted[updatedRule]);
-
-        return <style key={emotionCache.key}
-                      data-emotion={`${emotionCache.key} ${updatedRules.join(' ')}`}
-                      dangerouslySetInnerHTML={{
-                          __html: rules.join(''),
-                      }} />;
-    });
-
     return (
-        <CacheProvider value={emotionCache}>
-            <ThemeProvider theme={createCachedTheme(themeColours, effectiveDarkModeState)}>
-                <CssBaseline />
-                <LocalizationProvider dateAdapter={AdapterDayjs} dateLibInstance={dayjs}>
-                    {props.children}
-                </LocalizationProvider>
-            </ThemeProvider>
-        </CacheProvider>
+        <ThemeProvider theme={createCachedTheme(themeColours, effectiveDarkModeState)}>
+            <CssBaseline />
+            <LocalizationProvider dateAdapter={AdapterDayjs} dateLibInstance={dayjs}>
+                {props.children}
+            </LocalizationProvider>
+        </ThemeProvider>
     )
 }
