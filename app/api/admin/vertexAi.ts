@@ -64,6 +64,7 @@ export async function vertexAi(request: Request, props: ActionProps): Promise<Re
 
     const defaultSettings = await readSettings([
         // Google:
+        'integration-google-apikey',
         'integration-google-credentials',
         'integration-google-location',
         'integration-google-project-id',
@@ -77,6 +78,7 @@ export async function vertexAi(request: Request, props: ActionProps): Promise<Re
     ]);
 
     const client = await createVertexAIClient({
+        apiKey: defaultSettings['integration-google-apikey']!,
         credentials: defaultSettings['integration-google-credentials']!,
         location: defaultSettings['integration-google-location']!,
         projectId: defaultSettings['integration-google-project-id']!,

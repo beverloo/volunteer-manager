@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { default as aiplatform, helpers } from '@google-cloud/aiplatform';
+import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
 
 import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient';
 import { VertexSupportedModels } from './VertexSupportedModels';
@@ -91,10 +92,53 @@ export class VertexAIClient {
             case 'text-bison@002':
                 return this.predictTextBison(prompt);
 
-            // TODO: Gemini
+            case 'gemini-pro':
+                return this.predictTextGemini(prompt);
         }
 
         throw new Error(`Unrecognised model specified for prediction: ${this.#settings.model}`);
+    }
+
+    /**
+     * Predicts responses to the given `prompt` using the Google Gemini model. The response will be
+     * returned as a string when successful; `undefined` will be returned in all other cases.
+     */
+    private async predictTextGemini(prompt: string): Promise<string | undefined> {
+        const client = new GoogleGenerativeAI(this.#googleClient.apiKey);
+        const model = client.getGenerativeModel({
+            model: this.#settings.model,
+            generationConfig: {
+                maxOutputTokens: this.#settings.tokenLimit,
+                temperature: this.#settings.temperature,
+                topK: this.#settings.topK,
+                topP: this.#settings.topP,
+            },
+            // TODO: SafetySetting[]
+        });
+
+        const result = await model.generateContent({
+            contents: [
+                {
+                    role: 'USER',
+                    parts: [
+                        {
+                            text: prompt,
+                        }
+                    ]
+                }
+            ],
+        });
+
+        /**
+         * Action(/api/admin/vertex-ai) threw an Exception:
+         *     GoogleGenerativeAIError:
+         *         [400 Bad Request] User location is not supported for the API use.
+         *
+         * Thanks Google. Let's wait until it's available.
+         */
+        console.log(result);
+
+        return undefined;
     }
 
     /**

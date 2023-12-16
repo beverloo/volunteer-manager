@@ -5,6 +5,7 @@
  * Enumeration of the models that are supported by the Vertex AI API.
  */
 export enum VertexSupportedModels {
+    'gemini-pro' = 'gemini-pro',
     'text-bison' = 'text-bison',
     'text-bison@001' = 'text-bison@001',
     'text-bison@002' = 'text-bison@002',

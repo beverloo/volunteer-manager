@@ -11,6 +11,7 @@ import { readSettings } from '@lib/Settings';
 export async function createGoogleClient(settings?: GoogleClientSettings): Promise<GoogleClient> {
     if (!settings) {
         const configuration = await readSettings([
+            'integration-google-apikey',
             'integration-google-credentials',
             'integration-google-location',
             'integration-google-project-id',
@@ -24,6 +25,7 @@ export async function createGoogleClient(settings?: GoogleClientSettings): Promi
         }
 
         settings = {
+            apiKey: configuration['integration-google-apikey']!,
             credentials: configuration['integration-google-credentials']!,
             location: configuration['integration-google-location']!,
             projectId: configuration['integration-google-project-id']!,

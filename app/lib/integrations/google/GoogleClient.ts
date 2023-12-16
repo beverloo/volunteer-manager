@@ -7,6 +7,11 @@
  */
 export interface GoogleClientSettings {
     /**
+     * API key owned by the `projectId` through which Generative API functionality can be used.
+     */
+    apiKey: string;
+
+    /**
      * Credentials through which computation resources owned by the `projectId` can be used.
      */
     credentials: string;
@@ -33,6 +38,7 @@ export class GoogleClient implements GoogleClientSettings {
         this.#settings = settings;
     }
 
+    get apiKey() { return this.#settings.apiKey; }
     get credentials() { return this.#settings.credentials; }
     get location() { return this.#settings.location; }
     get projectId() { return this.#settings.projectId; }

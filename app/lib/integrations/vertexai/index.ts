@@ -14,6 +14,7 @@ export async function createVertexAIClient(settings?: VertexAIClientSettings)
     if (!settings) {
         const configuration = await readSettings([
             // Google:
+            'integration-google-apikey',
             'integration-google-credentials',
             'integration-google-location',
             'integration-google-project-id',
@@ -34,6 +35,7 @@ export async function createVertexAIClient(settings?: VertexAIClientSettings)
         }
 
         settings = {
+            apiKey: configuration['integration-google-apikey']!,
             credentials: configuration['integration-google-credentials']!,
             location: configuration['integration-google-location']!,
             projectId: configuration['integration-google-project-id']!,
