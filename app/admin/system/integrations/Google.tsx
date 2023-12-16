@@ -26,7 +26,7 @@ const kLocationOptions = [
     //{ id: 'europe-west2', label: 'London (europe-west2)' },
     //{ id: 'europe-west4', label: 'Amsterdam (europe-west4)' },
     { id: 'us-central1', label: 'Iowa (us-central1)' },
-    //{ id: 'us-west1', label: 'Oregon (us-west1)' },
+    { id: 'us-west1', label: 'Oregon (us-west1)' },
 ];
 
 /**
