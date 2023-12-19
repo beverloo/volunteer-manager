@@ -1,8 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { GoogleAuth } from 'google-auth-library';
+import { VertexAI } from '@google-cloud/vertexai';
 import { default as aiplatform, helpers } from '@google-cloud/aiplatform';
-import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
 
 import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient';
 import { VertexSupportedModels } from './VertexSupportedModels';
@@ -104,16 +105,29 @@ export class VertexAIClient {
      * returned as a string when successful; `undefined` will be returned in all other cases.
      */
     private async predictTextGemini(prompt: string): Promise<string | undefined> {
-        const client = new GoogleGenerativeAI(this.#googleClient.apiKey);
-        const model = client.getGenerativeModel({
+        const client = new VertexAI({
+            project: this.#googleClient.projectId,
+            location: this.#googleClient.location,
+        });
+
+        // https://github.com/googleapis/nodejs-vertexai/issues/75
+        {
+            const anyClientPreview = client.preview as any;
+            anyClientPreview.googleAuth = new GoogleAuth({
+                credentials: JSON.parse(this.#googleClient.credentials),
+                scopes: 'https://www.googleapis.com/auth/cloud-platform',
+            });
+        }
+
+        const model = client.preview.getGenerativeModel({
             model: this.#settings.model,
-            generationConfig: {
-                maxOutputTokens: this.#settings.tokenLimit,
+            generation_config: {
+                max_output_tokens: this.#settings.tokenLimit,
                 temperature: this.#settings.temperature,
-                topK: this.#settings.topK,
-                topP: this.#settings.topP,
+                top_k: this.#settings.topK,
+                top_p: this.#settings.topP,
             },
-            // TODO: SafetySetting[]
+            // TODO: `safety_settings`
         });
 
         const result = await model.generateContent({
@@ -129,14 +143,16 @@ export class VertexAIClient {
             ],
         });
 
-        /**
-         * Action(/api/admin/vertex-ai) threw an Exception:
-         *     GoogleGenerativeAIError:
-         *         [400 Bad Request] User location is not supported for the API use.
-         *
-         * Thanks Google. Let's wait until it's available.
-         */
-        console.log(result);
+        // Deal with the response. Surely there ought to be a nicer way of validating the response,
+        // rather than assuming that it's correct. For now this will do however.
+        if (typeof result === 'object' && Object.hasOwn(result, 'response')) {
+            const response = result.response;
+            if (Array.isArray(response.candidates) && response.candidates.length >= 1) {
+                const candidate = response.candidates[0];
+                if (candidate.content?.parts?.length >= 1)
+                    return candidate.content.parts[0].text;
+            }
+        }
 
         return undefined;
     }
