@@ -8,8 +8,8 @@ import { type ActionProps, noAccess } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
-import { createEmailClient } from '@lib/integrations/email';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kApplicationProperties } from '../event/application';
@@ -219,17 +219,17 @@ export async function updateApplication(request: Request, props: ActionProps): P
                     noAccess();
 
             } else {
-                const client = await createEmailClient();
-                const emailMessage = client.createMessage()
-                    .setTo(username)
-                    .setSubject(subject)
-                    .setText(message);
-
-                await client.safeSendMessage({
-                    message: emailMessage,
+                await SendEmailTask.Schedule({
                     sender: `${props.user.firstName} ${props.user.lastName} (AnimeCon)`,
-                    sourceUser: props.user,
-                    targetUser: request.userId,
+                    message: {
+                        to: username,
+                        subject: subject,
+                        markdown: message,
+                    },
+                    attribution: {
+                        sourceUserId: props.user.userId,
+                        targetUserId: request.userId,
+                    },
                 });
             }
         }

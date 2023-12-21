@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-import { createEmailClient } from '@lib/integrations/email';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { getStaticContent } from '@lib/Content';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import db, { tUsers } from '@lib/database';
@@ -66,15 +66,17 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
         });
 
         if (messageContent) {
-            const client = await createEmailClient();
-            const message = client.createMessage()
-                .setTo(request.username)
-                .setSubject(messageContent.title)
-                .setMarkdown(messageContent.markdown);
-
-            await client.safeSendMessage({
-                sender, message,
-                targetUser: passwordResetData.userId,
+            await SendEmailTask.Schedule({
+                sender,
+                message: {
+                    to: request.username,
+                    subject: messageContent.title,
+                    markdown: messageContent.markdown,
+                },
+                attribution: {
+                    sourceUserId: passwordResetData.userId,
+                    targetUserId: passwordResetData.userId,
+                },
             });
 
             await Log({

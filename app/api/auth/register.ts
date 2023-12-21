@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
-import { createEmailClient } from '@lib/integrations/email';
 import { getStaticContent } from '@lib/Content';
 import { sealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 
@@ -119,15 +119,17 @@ export async function register(request: Request, props: ActionProps): Promise<Re
     });
 
     if (messageContent) {
-        const client = await createEmailClient();
-        const message = client.createMessage()
-            .setTo(request.username)
-            .setSubject(messageContent.title)
-            .setMarkdown(messageContent.markdown);
-
-        await client.safeSendMessage({
-            sender, message,
-            targetUser: userId,
+        await SendEmailTask.Schedule({
+            sender,
+            message: {
+                to: request.username,
+                subject: messageContent.title,
+                markdown: messageContent.markdown,
+            },
+            attribution: {
+                sourceUserId: userId,
+                targetUserId: userId,
+            },
         });
     }
 

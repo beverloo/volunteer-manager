@@ -6,8 +6,8 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';
-import { createEmailClient } from '@lib/integrations/email';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -176,8 +176,6 @@ export async function application(request: Request, props: ActionProps): Promise
         // -----------------------------------------------------------------------------------------
 
         if (!request.adminOverride) {
-            const client = await createEmailClient();
-
             // In context of: message/application-confirmation
             // In context of: message/application-received
             const substitutions = {
@@ -195,28 +193,31 @@ export async function application(request: Request, props: ActionProps): Promise
                 await getStaticContent([ 'message', 'application-received' ], substitutions);
 
             if (applicationConfirmation) {
-                const message = client.createMessage()
-                    .setTo(props.user.username!)
-                    .setSubject(applicationConfirmation.title)
-                    .setMarkdown(applicationConfirmation.markdown);
-
-                await client.safeSendMessage({
-                    message,
+                await SendEmailTask.Schedule({
                     sender: `AnimeCon ${teamTitle}`,
-                    targetUser: props.user,
+                    message: {
+                        to: props.user.username!,
+                        subject: applicationConfirmation.title,
+                        markdown: applicationConfirmation.markdown,
+                    },
+                    attribution: {
+                        sourceUserId: userId,
+                        targetUserId: userId,
+                    },
                 });
             }
 
             if (applicationReceived) {
-                const message = client.createMessage()
-                    .setTo('crew@animecon.nl')
-                    .setSubject(applicationReceived.title)
-                    .setMarkdown(applicationReceived.markdown);
-
-                await client.safeSendMessage({
-                    message,
+                await SendEmailTask.Schedule({
                     sender: `AnimeCon ${teamTitle}`,
-                    sourceUser: props.user,
+                    message: {
+                        to: 'crew@animecon.nl',
+                        subject: applicationReceived.title,
+                        markdown: applicationReceived.markdown,
+                    },
+                    attribution: {
+                        sourceUserId: props.user.userId,
+                    },
                 });
             }
         }
