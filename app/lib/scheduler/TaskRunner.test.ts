@@ -209,6 +209,48 @@ describe('TaskRunner', () => {
         expect(logs[0].data).toEqual([ { succeed: true, logs: true } ]);
     });
 
+    it('should be able to have tasks modify their interval if they so desire', async () => {
+        const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
+
+        installTaskContext(100, {
+            taskName: 'NoopComplexTask',
+            params: { succeed: true, intervalMs: 60000 },
+            intervalMs: 120000,
+        });
+
+        const updatePromise = expectTaskUpdate(/* expectSchedule= */ true);
+        const result = await taskRunner.executeTask({ taskId: 100 });
+        expect(result).toEqual(TaskResult.TaskSuccess);
+
+        const update = await updatePromise;
+        expect(update.taskId).toEqual(100);
+        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(update.scheduledTaskName).toEqual('NoopComplexTask');
+        expect(update.scheduledTaskParams).toEqual('{"succeed":true,"intervalMs":60000}');
+        expect(update.scheduledTaskIntervalMs).toEqual(60000);
+    });
+
+    it('should be able to have tasks cancel their repetition if they so desire', async () => {
+        const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
+
+        installTaskContext(100, {
+            taskName: 'NoopComplexTask',
+            params: { succeed: true, intervalMs: /* cancel= */ null },
+            intervalMs: 120000,
+        });
+
+        const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
+        const result = await taskRunner.executeTask({ taskId: 100 });
+        expect(result).toEqual(TaskResult.TaskSuccess);
+
+        const update = await updatePromise;
+        expect(update.taskId).toEqual(100);
+        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(Object.hasOwn(update, 'scheduledTaskName')).toBeFalse();
+        expect(Object.hasOwn(update, 'scheduledTaskParams')).toBeFalse();
+        expect(Object.hasOwn(update, 'scheduledTaskIntervalMs')).toBeFalse();
+    });
+
     it('should reject tasks when the given taskId is not known to the database', async () => {
         const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
 

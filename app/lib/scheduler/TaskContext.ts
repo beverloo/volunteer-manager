@@ -157,12 +157,14 @@ export class TaskContext {
     #configuration: TaskConfiguration;
     #executionStart?: bigint;
     #executionFinished?: bigint;
+    #intervalMs?: number;
     #logger: TaskLogger;
 
     private constructor(configuration: TaskConfiguration) {
         this.#configuration = configuration;
         this.#executionStart = undefined;
         this.#executionFinished = undefined;
+        this.#intervalMs = configuration.intervalMs;
         this.#logger = new TaskLogger;
     }
 
@@ -175,6 +177,11 @@ export class TaskContext {
      * Returns the parameters with which the task should be executed. Optional.
      */
     get params(): unknown { return this.#configuration.params; }
+
+    /**
+     * The interval at which the task will execute next, only exposed for testing purposes.
+     */
+    get intervalMsForTesting(): number | undefined { return this.#intervalMs; }
 
     /**
      * Returns the logger that can be used for this task execution.
@@ -216,6 +223,14 @@ export class TaskContext {
     }
 
     /**
+     * Updates the interval to `intervalMs` in case this is a repeating task. `undefined` can be
+     * passed to stop repeating the task altogether.
+     */
+    setIntervalForRepeatingTask(intervalMs?: number): void {
+        this.#intervalMs = intervalMs;
+    }
+
+    /**
      * Finalizes the task by writing the execution log to the database for static tasks, or by
      * simply declaring victory in case of ephemeral tasks. Will automatically reschedule the task
      * to be exeucted when an interval has been given.
@@ -233,19 +248,19 @@ export class TaskContext {
                     .where(tTasks.taskId.equals(this.#configuration.taskId!))
                     .executeUpdate();
 
-                if (!!this.#configuration.intervalMs) {
+                if (!!this.#intervalMs) {
                     await scheduleTask({
                         taskName: this.#configuration.taskName as keyof typeof kTaskRegistry,
                         params: this.#configuration.params,
-                        delayMs: this.#configuration.intervalMs,
-                        intervalMs: this.#configuration.intervalMs,
+                        delayMs: this.#intervalMs,
+                        intervalMs: this.#intervalMs,
                     }, scheduler);
                 }
             });
-        } else if (!!this.#configuration.intervalMs) {
+        } else if (!!this.#intervalMs) {
             scheduler.queueTask(
                 { taskName: this.#configuration.taskName },
-                /* delayMs= */ this.#configuration.intervalMs);
+                /* delayMs= */ this.#intervalMs);
         }
     }
 }

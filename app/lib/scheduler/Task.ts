@@ -19,6 +19,11 @@ abstract class TaskBase {
     }
 
     /**
+     * Gives access to the full task context. Must only be used for testing purposes.
+     */
+    get contextForTesting() { return this.#context; }
+
+    /**
      * Returns the logger that can be used for this task execution.
      */
     get log() { return this.#context.log; }
@@ -32,6 +37,14 @@ abstract class TaskBase {
      * Returns whether `this` represents a complex task, i.e. one that accepts parameters.
      */
     isComplexTask(): this is TaskWithParams<unknown> { return !!this.#acceptsParams; }
+
+    /**
+     * Updates the interval to `intervalMs` in case this is a repeating task. `undefined` can be
+     * passed to stop repeating the task altogether.
+     */
+    setIntervalForRepeatingTask(intervalMs?: number) {
+        this.#context.setIntervalForRepeatingTask(intervalMs);
+    }
 }
 
 /**

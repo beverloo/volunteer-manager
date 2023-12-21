@@ -15,6 +15,11 @@ const kNoopComplexTaskParamScheme = z.object({
     succeed: z.boolean(),
 
     /**
+     * The interval at which the task should repeat itself, if any.
+     */
+    intervalMs: z.number().nullish(),
+
+    /**
      * Whether a log entry should be written while executing this task.
      */
     logs: z.boolean().optional(),
@@ -37,6 +42,9 @@ export class NoopComplexTask extends TaskWithParams<TaskParams> {
     override async execute(params: TaskParams): Promise<boolean> {
         if (!!params.logs)
             this.log.info('Parameters=', params);
+
+        if (params.intervalMs !== undefined)
+            this.setIntervalForRepeatingTask(params.intervalMs ?? undefined);
 
         return params.succeed;
     }
