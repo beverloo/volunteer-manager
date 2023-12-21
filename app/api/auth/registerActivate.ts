@@ -6,6 +6,8 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
+import { determineEnvironment } from '@lib/Environment';
+import { getEventsForUser } from '@lib/EventLoader';
 import { unsealRegistrationRequest } from '@lib/auth/RegistrationRequest';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 import db, { tUsers } from '@lib/database';
@@ -34,6 +36,11 @@ export const kRegisterActivateDefinition = z.object({
         firstName: z.string().optional(),
 
         /**
+         * When successful, the name of the team to which the volunteer applied.
+         */
+        teamName: z.string().optional(),
+
+        /**
          * When successful and available, the URL the user should be redirected to after activation.
          */
         redirectUrl: z.string().optional(),
@@ -53,6 +60,10 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     const registrationRequest = await unsealRegistrationRequest(request.registrationRequest);
     if (!registrationRequest)
         return { success: false };  // invalid or expired registration request
+
+    const environment = await determineEnvironment();
+    if (!environment)
+        return { success: false };  // invalid environment?
 
     const unactivatedUser = await db.selectFrom(tUsers)
         .where(tUsers.userId.equals(registrationRequest.id))
@@ -86,9 +97,24 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
         data: { ip: props.ip },
     });
 
+    const availableEvents = await getEventsForUser(environment.environmentName, user);
+
+    let applicationUrl: string | undefined;
+    for (const availableEvent of availableEvents) {
+        const eventEnvironmentData = availableEvent.getEnvironmentData(environment.environmentName);
+        if (!eventEnvironmentData)
+            continue;  // the current team does not participate in this event
+
+        if (!eventEnvironmentData.enableRegistration)
+            continue;  // this event does not currently accept applications
+
+        applicationUrl = `/registration/${availableEvent.slug}/application`;
+    }
+
     return {
         success: true,
         firstName: user.firstName,
-        redirectUrl: registrationRequest.redirectUrl,
+        teamName: environment?.environmentTitle,
+        redirectUrl: applicationUrl ?? registrationRequest.redirectUrl,
     };
 }

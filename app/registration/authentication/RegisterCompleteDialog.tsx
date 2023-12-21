@@ -38,6 +38,8 @@ export function RegisterCompleteDialog(props: RegisterCompleteDialogProps) {
     const { onClose, registrationRequest } = props;
 
     const [ firstName, setFirstName ] = useState<string | undefined>();
+    const [ teamName, setTeamName ] = useState<string | undefined>();
+
     const [ redirectUrl, setRedirectUrl ] = useState<string | undefined>();
 
     const [ requestValid, setRequestValid ] = useState<boolean | undefined>(undefined);
@@ -58,6 +60,7 @@ export function RegisterCompleteDialog(props: RegisterCompleteDialogProps) {
                 setRequestValid(response.success);
 
                 setFirstName(response.firstName);
+                setTeamName(response.teamName);
                 setRedirectUrl(response.redirectUrl);
 
             }, 500);
@@ -76,17 +79,21 @@ export function RegisterCompleteDialog(props: RegisterCompleteDialogProps) {
                 <>
                     <DialogContent>
                         <DialogContentText>
-                            Your account has been created, <strong>{firstName}</strong>, and you
-                            have been signed in to your account.&nbsp;
-                            { redirectUrl && 'You can now continue with your application 😊' }
-                            { !redirectUrl && 'You should consider participating in an event 😊' }
+                            Your account has been created, {firstName}, and you have been signed in
+                            straight away. <strong>Remember that you need to apply to help out as
+                            a volunteer!</strong>
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={onRequestClose} variant="contained">
-                            { redirectUrl && 'Continue' }
-                            { !redirectUrl && 'Close' }
-                        </Button>
+                        { !!redirectUrl  &&
+                            <Button onClick={onRequestClose} variant="contained" fullWidth
+                                    color="primary" sx={{ mb: 1, ml: 1 }}>
+                                Join the {teamName ?? 'AnimeCon Team'} today!
+                            </Button> }
+                        { !redirectUrl &&
+                            <Button onClick={onRequestClose} variant="contained">
+                                Close
+                            </Button> }
                     </DialogActions>
                 </> }
             { requestValid === false &&
