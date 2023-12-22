@@ -13,40 +13,26 @@ export class ImportActivitiesTask extends Task {
     /**
      * The default interval for the import task, when no precise granularity can be decided upon.
      */
-    static readonly kIntervalDefault = /* 1 week= */ 7 * 86400 * 1000;
+    static readonly kIntervalMaximum = /* 1 week= */ 7 * 86400 * 1000;
 
     /**
-     * Interval, in milliseconds, for this task to execute at in the final four months.
+     * Intervals for the tasks based on the number of days until the event happens.
      */
-    static readonly kIntervalFinalFourMonths = /* 3 days= */ 3 * 86400 * 1000;
-
-    /**
-     * Interval, in milliseconds, for this task to execute at in the final two months.
-     */
-    static readonly kIntervalFinalTwoMonths = /* 1 day= */ 1 * 86400 * 1000;
-
-    /**
-     * Interval, in milliseconds, for this task to execute at in the final month.
-     */
-    static readonly kIntervalFinalMonth = /* 6 hours= */ 6 * 3600 * 1000;
-
-    /**
-     * Interval, in milliseconds, for this task to execute at in the final two weeks.
-     */
-    static readonly kIntervalFinalTwoWeeks = /* 15 minutes= */ 900 * 1000;
-
-    /**
-     * Maximum interval that will be applied when there are no upcoming events, in milliseconds.
-     */
-    static readonly kIntervalNoUpcomingEvents = /* 1 week= */ 7 * 86400 * 1000;
+    static readonly kIntervalConfiguration = [
+        { maximumDays: /* 2 weeks= */   14, intervalMs: /* 15 minutes= */     900 * 1000 },
+        { maximumDays: /* 4 weeks= */   28, intervalMs: /* 1 hour= */        3600 * 1000 },
+        { maximumDays: /* 8 weeks= */   56, intervalMs: /* 6 hours= */   6 * 3600 * 1000 },
+        { maximumDays: /* 12 weeks= */  84, intervalMs: /* 12 hours= */ 12 * 3600 * 1000 },
+        { maximumDays: /* 24 weeks= */ 168, intervalMs: /* 24 hours= */ 24 * 3600 * 1000 },
+    ];
 
     // ---------------------------------------------------------------------------------------------
 
     override async execute(): Promise<boolean> {
         const upcomingEvent = await this.selectCurrentOrUpcomingEventWithFestivalId();
         if (!upcomingEvent) {
-            this.log.warning('There are no upcoming events with a "festivalId" -- skipping.');
-            this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalNoUpcomingEvents);
+            this.log.info('Interval: No future events with a festivalId, using maximum interval.');
+            this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
             return true;
         }
 
@@ -65,21 +51,24 @@ export class ImportActivitiesTask extends Task {
     // ---------------------------------------------------------------------------------------------
 
     updateTaskIntervalForFestivalDate(endTime: Date): void {
-        const differenceInDays = dayjs(endTime).diff(dayjs(), 'days', /* float= */ true);
+        const differenceInDays = dayjs(endTime).diff(dayjs(), 'days');
+        if (differenceInDays < 0) {
+            this.log.info('Interval: The event happened in the past, using maximum interval.');
+            this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
+            return;
+        }
 
-        let intervalMs = ImportActivitiesTask.kIntervalDefault;
-        if (differenceInDays < 0)
-            intervalMs = ImportActivitiesTask.kIntervalNoUpcomingEvents;
-        else if (differenceInDays < 14)
-            intervalMs = ImportActivitiesTask.kIntervalFinalTwoWeeks;
-        else if (differenceInDays < 30.25)
-            intervalMs = ImportActivitiesTask.kIntervalFinalMonth;
-        else if (differenceInDays < 60.50)
-            intervalMs = ImportActivitiesTask.kIntervalFinalTwoMonths;
-        else if (differenceInDays < 121)
-            intervalMs = ImportActivitiesTask.kIntervalFinalFourMonths;
+        for (const { maximumDays, intervalMs } of ImportActivitiesTask.kIntervalConfiguration) {
+            if (differenceInDays > maximumDays)
+                continue;
 
-        this.setIntervalForRepeatingTask(intervalMs);
+            this.log.info(`Interval: Updating to ${intervalMs}ms (days=${differenceInDays})`);
+            this.setIntervalForRepeatingTask(intervalMs);
+            return;
+        }
+
+        this.log.info('Interval: The event is still very far out, using maximum interval.');
+        this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
     }
 
     private async selectCurrentOrUpcomingEventWithFestivalId() {

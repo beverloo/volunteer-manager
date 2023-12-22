@@ -34,10 +34,10 @@ describe('ImportActivitiesTask', () => {
         expect(result).toBeTrue();
 
         expect(task.log.entries).toHaveLength(1);
-        expect(task.log.entries[0].message).toInclude('no upcoming events');
+        expect(task.log.entries[0].message).toInclude('No future events');
 
         expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalNoUpcomingEvents);
+            ImportActivitiesTask.kIntervalMaximum);
     });
 
     it('should scale the task interval based on duration until the festival', async () => {
@@ -46,34 +46,20 @@ describe('ImportActivitiesTask', () => {
 
         expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
 
-        // (1) More than four months
-        task.updateTaskIntervalForFestivalDate(dayjs().add(5, 'months').toDate());
-        expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalDefault);
+        // Confirm that the configured intervals will be applied as expected.
+        for (const { maximumDays, intervalMs } of ImportActivitiesTask.kIntervalConfiguration) {
+            task.updateTaskIntervalForFestivalDate(dayjs().add(maximumDays, 'days').toDate());
+            expect(task.contextForTesting.intervalMsForTesting).toBe(intervalMs);
+        }
 
-        // (2) More than two months
-        task.updateTaskIntervalForFestivalDate(dayjs().add(3, 'months').toDate());
+        // Confirm that events that won't happen for at least 9 months won't update frequently.
+        task.updateTaskIntervalForFestivalDate(dayjs().add(1, 'year').toDate());
         expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalFinalFourMonths);
+            ImportActivitiesTask.kIntervalMaximum);
 
-        // (3) More than one month
-        task.updateTaskIntervalForFestivalDate(dayjs().add(35, 'days').toDate());
-        expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalFinalTwoMonths);
-
-        // (4) More than two weeks
-        task.updateTaskIntervalForFestivalDate(dayjs().add(15, 'days').toDate());
-        expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalFinalMonth);
-
-        // (5) Less than (or equal to) two weeks
-        task.updateTaskIntervalForFestivalDate(dayjs().add(7, 'days').toDate());
-        expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalFinalTwoWeeks);
-
-        // (6) Event in the past (possible due to timezone stuff)
+        // Confirm that events that have already happened won't update frequently.
         task.updateTaskIntervalForFestivalDate(dayjs().subtract(1, 'day').toDate());
         expect(task.contextForTesting.intervalMsForTesting).toBe(
-            ImportActivitiesTask.kIntervalNoUpcomingEvents);
+            ImportActivitiesTask.kIntervalMaximum);
     });
 });
