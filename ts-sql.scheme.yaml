@@ -2569,6 +2569,234 @@ tables:
       `nardo_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`nardo_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: activities
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: activity_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_title
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_description
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_url
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_price
+    type: double
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_max_visitors
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_type_adults_only
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_type_competition
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_type_cosplay
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_type_event
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_type_game_room
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_type_video
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_visible
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_visible_reason
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (activity_id) USING BTREE
+    table: activities
+    columns:
+    - activity_id
+    comment: ""
+  - name: activity_id
+    def: UNIQUE KEY activity_id (activity_id, activity_festival_id) USING BTREE
+    table: activities
+    columns:
+    - activity_id
+    - activity_festival_id
+    comment: ""
+  constraints:
+  - name: activity_id
+    type: UNIQUE
+    def: UNIQUE KEY activity_id (activity_id, activity_festival_id)
+    table: activities
+    referencedTable: null
+    columns:
+    - activity_id
+    - activity_festival_id
+    referencedColumns: []
+    comment: ""
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (activity_id)
+    table: activities
+    referencedTable: null
+    columns:
+    - activity_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `activities` (
+      `activity_id` int(8) unsigned NOT NULL,
+      `activity_festival_id` int(8) unsigned NOT NULL,
+      `activity_title` text NOT NULL,
+      `activity_description` text DEFAULT NULL,
+      `activity_url` text DEFAULT NULL,
+      `activity_price` double DEFAULT NULL,
+      `activity_max_visitors` int(8) DEFAULT NULL,
+      `activity_type_adults_only` tinyint(1) NOT NULL,
+      `activity_type_competition` tinyint(1) NOT NULL,
+      `activity_type_cosplay` tinyint(1) NOT NULL,
+      `activity_type_event` tinyint(1) NOT NULL,
+      `activity_type_game_room` tinyint(1) NOT NULL,
+      `activity_type_video` tinyint(1) NOT NULL,
+      `activity_visible` tinyint(1) NOT NULL,
+      `activity_visible_reason` text DEFAULT NULL,
+      `activity_created` datetime NOT NULL,
+      `activity_updated` datetime NOT NULL,
+      `activity_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`activity_id`),
+      UNIQUE KEY `activity_id` (`activity_id`,`activity_festival_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: activities_timeslots
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: activity_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_start_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_end_time
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_location_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_location_name
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: timeslot_id
+    def: KEY timeslot_id (timeslot_id) USING BTREE
+    table: activities_timeslots
+    columns:
+    - timeslot_id
+    comment: ""
+  - name: timeslot_location_id
+    def: KEY timeslot_location_id (timeslot_location_id) USING BTREE
+    table: activities_timeslots
+    columns:
+    - timeslot_location_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (activity_id) USING BTREE
+    table: activities_timeslots
+    columns:
+    - activity_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (activity_id)
+    table: activities_timeslots
+    referencedTable: null
+    columns:
+    - activity_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `activities_timeslots` (
+      `activity_id` int(8) unsigned NOT NULL,
+      `timeslot_id` int(8) unsigned NOT NULL,
+      `timeslot_start_time` datetime NOT NULL,
+      `timeslot_end_time` datetime NOT NULL,
+      `timeslot_location_id` int(8) unsigned NOT NULL,
+      `timeslot_location_name` text NOT NULL,
+      PRIMARY KEY (`activity_id`),
+      KEY `timeslot_id` (`timeslot_id`),
+      KEY `timeslot_location_id` (`timeslot_location_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""
@@ -3025,7 +3253,7 @@ tables:
       `task_invocation_logs` text DEFAULT NULL,
       `task_invocation_time_ms` double DEFAULT NULL,
       PRIMARY KEY (`task_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:
