@@ -28,6 +28,11 @@ const kImportActivitiesTaskParamScheme = z.object({
 type TaskParams = z.infer<typeof kImportActivitiesTaskParamScheme>;
 
 /**
+ * Severities that can be assigned to an individual mutation.
+ */
+type MutationSeverity = 'Low' | 'Moderate' | 'Important';
+
+/**
  * Mutations are expressed as a set of queries (created by the `compareActivities` method) together
  * with a list of changes. The list deliberately is inspectable to enable testing.
  */
@@ -39,7 +44,7 @@ interface Mutations {
         activityId: number;
         activityTimeslotId?: number;
         mutation: 'Created' | 'Updated' | 'Deleted';
-        severity: 'Low' | 'Moderate' | 'Important';
+        severity: MutationSeverity;
     }[];
 }
 
@@ -156,6 +161,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityDescription: currentActivity.description,
                         activityUrl: currentActivity.url,
                         activityPrice: currentActivity.price,
+                        activityHelpNeeded: 0,  // TODO: Store this field when the API exposes it
                         activityMaxVisitors: currentActivity.maxVisitors,
                         activityTypeAdultsOnly: currentActivity.activityType?.adultsOnly ? 1 : 0,
                         activityTypeCompetition: currentActivity.activityType?.competition ? 1 : 0,
@@ -173,7 +179,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 mutations.mutations.push({
                     activityId: currentActivity.id,
                     mutation: 'Created',
-                    severity: 'Moderate',
+                    severity: this.maybeEscalateMutationSeverity(currentActivity, 'Moderate'),
                 });
 
             } else {
@@ -190,7 +196,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 mutations.mutations.push({
                     activityId: storedActivity.id,
                     mutation: 'Deleted',
-                    severity: 'Moderate',
+                    severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
                 });
             }
         }
@@ -221,6 +227,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 description: tActivities.activityDescription,
                 url: tActivities.activityUrl,
                 price: tActivities.activityPrice,
+                helpNeeded: tActivities.activityHelpNeeded,
                 maxVisitors: tActivities.activityMaxVisitors,
                 visible: tActivities.activityVisible,
                 visibleReason: tActivities.activityVisibleReason,
@@ -247,6 +254,19 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    maybeEscalateMutationSeverity(
+        activity: Activity | StoredActivity, baseSeverity: MutationSeverity): MutationSeverity
+    {
+        // The severity of mutations gets escalated when the "help needed" flag has been set on an
+        // event, which signals that explicit action from our team is requested.
+        if ('helpNeeded' in activity && activity.helpNeeded === 1)
+            return 'Important';
+
+        // TODO: Consider the `helpNeeded` field in `Activity` when the API exposes it.
+
+        return baseSeverity;
+    }
 
     updateTaskIntervalForFestivalDate(endTime: Date): void {
         const differenceInDays = dayjs(endTime).diff(dayjs(), 'days');

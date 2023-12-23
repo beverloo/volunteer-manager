@@ -28,6 +28,7 @@ describe('ImportActivitiesTask', () => {
             description: undefined,
             url: undefined,
             price: undefined,
+            helpNeeded: 0,
             maxVisitors: undefined,
             visible: 1,
             visibleReason: undefined,
@@ -249,6 +250,26 @@ describe('ImportActivitiesTask', () => {
 
         // Confirm that the task remains as a one-off task.
         expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
+    });
+
+    it('should have the ability to escalate the severity level of a mutation', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const regularActivity = createSimpleActivity({ id: 100 });
+        const regularStoredActivity = createStoredActivity({ id: 100 }, [ /* no timeslots */ ]);
+
+        // TODO: Add `helpNeededActivity` when the API has been updated.
+        const helpNeededStoredActivity = createStoredActivity(
+            { id: 101, helpNeeded: 1 }, [ /* no timeslots */ ]);
+
+        expect(task.maybeEscalateMutationSeverity(regularActivity, 'Moderate')).toBe('Moderate');
+        expect(task.maybeEscalateMutationSeverity(regularStoredActivity, 'Moderate'))
+            .toBe('Moderate');
+
+        // TODO: Check for `helpNeededActivity` when the API has been updated.
+        expect(task.maybeEscalateMutationSeverity(helpNeededStoredActivity, 'Moderate'))
+            .toBe('Important');
     });
 
     it('should be able to identify additions to the program', () => {

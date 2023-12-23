@@ -2603,6 +2603,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: activity_help_needed
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
   - name: activity_max_visitors
     type: int(8)
     nullable: true
@@ -2706,6 +2711,7 @@ tables:
       `activity_description` text DEFAULT NULL,
       `activity_url` text DEFAULT NULL,
       `activity_price` double DEFAULT NULL,
+      `activity_help_needed` tinyint(1) NOT NULL,
       `activity_max_visitors` int(8) DEFAULT NULL,
       `activity_type_adults_only` tinyint(1) NOT NULL,
       `activity_type_competition` tinyint(1) NOT NULL,

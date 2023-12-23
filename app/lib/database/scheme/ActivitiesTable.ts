@@ -16,6 +16,7 @@ export class ActivitiesTable extends Table<DBConnection, 'ActivitiesTable'> {
     activityDescription = this.optionalColumnWithDefaultValue('activity_description', 'string');
     activityUrl = this.optionalColumnWithDefaultValue('activity_url', 'string');
     activityPrice = this.optionalColumnWithDefaultValue('activity_price', 'double');
+    activityHelpNeeded = this.column('activity_help_needed', 'int');
     activityMaxVisitors = this.optionalColumnWithDefaultValue('activity_max_visitors', 'int');
     activityTypeAdultsOnly = this.column('activity_type_adults_only', 'int');
     activityTypeCompetition = this.column('activity_type_competition', 'int');
