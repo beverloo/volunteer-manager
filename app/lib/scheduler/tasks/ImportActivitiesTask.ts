@@ -6,11 +6,13 @@ import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
 import symmetricDifference from 'set.prototype.symmetricdifference';
 import { z } from 'zod';
 
+import type { Activity, Location, Timeslot } from '@lib/integrations/animecon';
 import { ActivityType } from '@lib/database/Types';
-import { type Activity, type Timeslot, createAnimeConClient } from '@lib/integrations/animecon';
 import { TaskWithParams } from '../Task';
+import { createAnimeConClient } from '@lib/integrations/animecon';
 import { dayjs } from '@lib/DateTime';
-import db, { tActivities, tActivitiesTimeslots, tEvents } from '@lib/database';
+import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tEvents }
+    from '@lib/database';
 
 /**
  * Parameter scheme applying to the `ImportActivitiesTask`.
@@ -29,6 +31,12 @@ const kImportActivitiesTaskParamScheme = z.object({
 type TaskParams = z.infer<typeof kImportActivitiesTaskParamScheme>;
 
 /**
+ * What are the table definitions in which mutations can be made by this task?
+ */
+type MutationTableTypes =
+    typeof tActivities | typeof tActivitiesLocations | typeof tActivitiesTimeslots;
+
+/**
  * Severities that can be assigned to an individual mutation.
  */
 type MutationSeverity = 'Low' | 'Moderate' | 'Important';
@@ -38,15 +46,25 @@ type MutationSeverity = 'Low' | 'Moderate' | 'Important';
  * with a list of changes. The list deliberately is inspectable to enable testing.
  */
 interface Mutations {
-    created: ExecutableInsert<typeof tActivities | typeof tActivitiesTimeslots>[],
-    updated: ExecutableUpdate<typeof tActivities | typeof tActivitiesTimeslots>[],
-    deleted: ExecutableUpdate<typeof tActivities | typeof tActivitiesTimeslots>[],
+    created: ExecutableInsert<MutationTableTypes>[],
+    updated: ExecutableUpdate<MutationTableTypes>[],
+    deleted: ExecutableUpdate<MutationTableTypes>[],
     mutations: {
-        activityId: number;
+        activityId?: number;
         activityTimeslotId?: number;
+        locationId?: number;
+
         mutation: 'Created' | 'Updated' | 'Deleted';
         severity: MutationSeverity;
     }[];
+}
+
+/**
+ * Type describing an individual stored location.
+ */
+export interface StoredLocation {
+    id: number;
+    name: string;
 }
 
 /**
@@ -129,6 +147,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInStoredProgram = new Map<number, StoredActivity>();
+        const seenLocationsInStoredProgram = new Map<number, StoredLocation>();
         const seenTimeslotsInStoredProgram = new Map<number, StoredTimeslot>();
 
         const timeslotToStoredActivity = new Map<number, StoredActivity>();
@@ -138,6 +157,13 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             for (const storedTimeslot of storedActivity.timeslots) {
                 seenTimeslotsInStoredProgram.set(storedTimeslot.id, storedTimeslot);
                 timeslotToStoredActivity.set(storedTimeslot.id, storedActivity);
+
+                if (!seenLocationsInStoredProgram.has(storedTimeslot.locationId)) {
+                    seenLocationsInStoredProgram.set(storedTimeslot.locationId, {
+                        id: storedTimeslot.locationId,
+                        name: storedTimeslot.locationName,
+                    });
+                }
             }
         }
 
@@ -146,6 +172,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInCurrentProgram = new Map<number, Activity>();
+        const seenLocationsInCurrentProgram = new Map<number, Location>();
         const seenTimeslotsInCurrentProgram = new Map<number, Timeslot>();
 
         const timeslotToCurrentActivity = new Map<number, Activity>();
@@ -155,6 +182,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             for (const currentTimeslot of currentActivity.timeslots) {
                 seenTimeslotsInCurrentProgram.set(currentTimeslot.id, currentTimeslot);
                 timeslotToCurrentActivity.set(currentTimeslot.id, currentActivity);
+
+                if (!seenLocationsInCurrentProgram.has(currentTimeslot.location.id)) {
+                    seenLocationsInCurrentProgram.set(
+                        currentTimeslot.location.id, currentTimeslot.location);
+                }
             }
         }
 
@@ -221,6 +253,52 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             }
         }
 
+        const addedOrRemovedLocations = symmetricDifference(
+            new Set([ ...seenLocationsInStoredProgram.keys() ]),
+            new Set([ ...seenLocationsInCurrentProgram.keys() ]));
+
+        for (const locationId of addedOrRemovedLocations) {
+            if (!seenLocationsInStoredProgram.has(locationId)) {
+                const currentLocation = seenLocationsInCurrentProgram.get(locationId);
+                if (!currentLocation)
+                    throw new Error('Unrecognised new entry in seenLocationsInCurrentProgram');
+
+                mutations.created.push(dbInstance.insertInto(tActivitiesLocations)
+                    .set({
+                        locationId: currentLocation.id,
+                        locationType: ActivityType.Program,
+                        locationName: currentLocation.useName ?? currentLocation.name,
+                        locationCreated: dbInstance.currentDateTime(),
+                        locationUpdated: dbInstance.currentDateTime(),
+                        locationDeleted: undefined,
+                    }));
+
+                mutations.mutations.push({
+                    locationId: locationId,
+                    mutation: 'Created',
+                    severity: 'Moderate',
+                });
+
+            } else {
+                const storedLocation = seenLocationsInStoredProgram.get(locationId);
+                if (!storedLocation)
+                    throw new Error('Unrecognised removed entry in seenLocationsInStoredProgram');
+
+                mutations.deleted.push(dbInstance.update(tActivitiesLocations)
+                    .set({
+                        locationDeleted: dbInstance.currentDateTime(),
+                    })
+                    .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
+
+                mutations.mutations.push({
+                    locationId: locationId,
+                    mutation: 'Deleted',
+                    severity: 'Moderate',
+                });
+            }
+        }
+
+
         const addedOrRemovedTimeslots = symmetricDifference(
             new Set([ ...seenTimeslotsInStoredProgram.keys() ]),
             new Set([ ...seenTimeslotsInCurrentProgram.keys() ]));
@@ -241,7 +319,6 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
                         timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
-                        timeslotLocationName: currentTimeslot.location.name,
                         timeslotCreated: dbInstance.currentDateTime(),
                         timeslotUpdated: dbInstance.currentDateTime(),
                         timeslotDeleted: undefined,
@@ -250,6 +327,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 mutations.mutations.push({
                     activityId: currentActivity.id,
                     activityTimeslotId: currentTimeslot.id,
+
                     mutation: 'Created',
                     severity: this.maybeEscalateMutationSeverity(currentActivity, 'Moderate'),
                 });
@@ -270,6 +348,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 mutations.mutations.push({
                     activityId: storedActivity.id,
                     activityTimeslotId: storedTimeslot.id,
+
                     mutation: 'Deleted',
                     severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
                 });
@@ -292,6 +371,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             .innerJoin(tActivitiesTimeslots)
                 .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
                 .and(tActivitiesTimeslots.timeslotType.equals(ActivityType.Program))
+            .innerJoin(tActivitiesLocations)
+                .on(tActivitiesLocations.locationId.equals(tActivitiesTimeslots.timeslotLocationId))
+                .and(tActivitiesLocations.locationType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
                 .and(tActivities.activityType.equals(ActivityType.Program))
             .select({
@@ -323,7 +405,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     startTime: tActivitiesTimeslots.timeslotStartTime,
                     endTime: tActivitiesTimeslots.timeslotEndTime,
                     locationId: tActivitiesTimeslots.timeslotLocationId,
-                    locationName: tActivitiesTimeslots.timeslotLocationName,
+                    locationName: tActivitiesLocations.locationName,
                 }),
             })
             .groupBy(tActivities.activityId)
