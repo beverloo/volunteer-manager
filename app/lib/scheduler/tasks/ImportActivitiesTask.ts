@@ -6,6 +6,7 @@ import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
 import symmetricDifference from 'set.prototype.symmetricdifference';
 import { z } from 'zod';
 
+import { ActivityType } from '@lib/database/Types';
 import { type Activity, type Timeslot, createAnimeConClient } from '@lib/integrations/animecon';
 import { TaskWithParams } from '../Task';
 import { dayjs } from '@lib/DateTime';
@@ -175,6 +176,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         activityId: currentActivity.id,
                         activityFestivalId: currentActivity.festivalId,
+                        activityType: ActivityType.Program,
                         activityTitle: currentActivity.title,
                         activityDescription: currentActivity.description,
                         activityUrl: currentActivity.url,
@@ -235,6 +237,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         activityId: currentActivity.id,
                         timeslotId: currentTimeslot.id,
+                        timeslotType: ActivityType.Program,
                         timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
                         timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
@@ -288,7 +291,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         return await db.selectFrom(tActivities)
             .innerJoin(tActivitiesTimeslots)
                 .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
+                .and(tActivitiesTimeslots.timeslotType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
+                .and(tActivities.activityType.equals(ActivityType.Program))
             .select({
                 id: tActivities.activityId,
                 created: tActivities.activityCreated,

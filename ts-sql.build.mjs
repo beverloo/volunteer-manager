@@ -118,6 +118,8 @@ do {
             // Enumerations are all defined in `app/lib/database/types.ts`, and are manually added
             // to the field mappings to this effect. Each column needs to be specified separately.
             ...[
+                { field: [ 'activities', 'activity_type' ], type: 'ActivityType' },
+                { field: [ 'activities_timeslots', 'timeslot_type' ], type: 'ActivityType' },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },

@@ -2583,6 +2583,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: activity_type
+    type: enum('Program','Internal')
+    nullable: false
+    default: null
+    comment: ""
   - name: activity_title
     type: text
     nullable: false
@@ -2707,6 +2712,7 @@ tables:
     CREATE TABLE `activities` (
       `activity_id` int(8) unsigned NOT NULL,
       `activity_festival_id` int(8) unsigned NOT NULL,
+      `activity_type` enum('Program','Internal') NOT NULL,
       `activity_title` text NOT NULL,
       `activity_description` text DEFAULT NULL,
       `activity_url` text DEFAULT NULL,
@@ -2738,6 +2744,11 @@ tables:
     comment: ""
   - name: timeslot_id
     type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_type
+    type: enum('Program','Internal')
     nullable: false
     default: null
     comment: ""
@@ -2810,6 +2821,7 @@ tables:
     CREATE TABLE `activities_timeslots` (
       `activity_id` int(8) unsigned NOT NULL,
       `timeslot_id` int(8) unsigned NOT NULL,
+      `timeslot_type` enum('Program','Internal') NOT NULL,
       `timeslot_start_time` datetime NOT NULL,
       `timeslot_end_time` datetime NOT NULL,
       `timeslot_location_id` int(8) unsigned NOT NULL,

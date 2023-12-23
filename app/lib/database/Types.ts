@@ -2,6 +2,16 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
+ * Type of entry in the database program tables.
+ * @see Table `activities`
+ * @see Table `activities_timeslots`
+ */
+export enum ActivityType {
+    Program = 'Program',
+    Internal = 'Internal',
+}
+
+/**
  * Type of authentication credential that is stored in the value column.
  * @see Table `users_auth`
  */
