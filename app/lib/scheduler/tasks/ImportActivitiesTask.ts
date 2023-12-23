@@ -1,44 +1,29 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { ExecutableInsert } from 'ts-sql-query/expressions/insert';
+import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
+import symmetricDifference from 'set.prototype.symmetricdifference';
+
 import { type Activity, createAnimeConClient } from '@lib/integrations/animecon';
 import { Task } from '../Task';
 import { dayjs } from '@lib/DateTime';
 import db, { tActivities, tActivitiesTimeslots, tEvents } from '@lib/database';
 
 /**
- * Interface describing the database representation of a stored activity on our end.
+ * Mutations are expressed as a set of queries (created by the `compareActivities` method) together
+ * with a list of changes. The list deliberately is inspectable to enable testing.
  */
-export interface StoredActivity {
-    id: number;
-    created: Date;
-    updated: Date;
-    deleted?: Date;
-
-    title: string;
-    description?: string;
-    url?: string;
-    price?: number;
-    maxVisitors?: number;
-    visible: number;
-    visibleReason?: string;
-
-    type: {
-        adultsOnly: number;
-        competition: number;
-        cosplay: number;
-        event: number;
-        gameRoom: number;
-        video: number;
-    },
-
-    timeslots: {
-        id: number;
-        startTime: Date;
-        endTime: Date;
-        locationId: number;
-        locationName: string;
-    }[],
+interface Mutations {
+    created: ExecutableInsert<typeof tActivities | typeof tActivitiesTimeslots>[],
+    updated: ExecutableUpdate<typeof tActivities | typeof tActivitiesTimeslots>[],
+    deleted: ExecutableUpdate<typeof tActivities | typeof tActivitiesTimeslots>[],
+    mutations: {
+        activityId: number;
+        activityTimeslotId?: number;
+        mutation: 'Created' | 'Updated' | 'Deleted';
+        severity: 'Low' | 'Moderate' | 'Important';
+    }[];
 }
 
 /**
@@ -90,12 +75,103 @@ export class ImportActivitiesTask extends Task {
         // information to make sure that the information in our database is up-to-date.
         const storedActivities = await this.fetchActivitiesFromDatabase(festivalId!);
 
-        // TODO: Synchronise the API's activities with our database state.
-        // - Create new activities
-        // - Update existing activities
-        // - Mark deleted activities as deleted
+        // Run the comparison. This yields the created, updated and deleted activities, together
+        // with a list of mutations that will independently be written to the database.
+        const mutations = this.compareActivities(currentActivities, storedActivities);
+
+        // TODO: Update the database based on the given `mutations`.
 
         return true;
+    }
+
+    compareActivities(currentActivities: Activity[], storedActivities: StoredActivity[]) {
+        const mutations: Mutations = {
+            created: [],
+            updated: [],
+            deleted: [],
+            mutations: [],
+        };
+
+        const dbInstance = db;
+
+        // -----------------------------------------------------------------------------------------
+        // Step 1: Gather IDs of entities in the stored program
+        // -----------------------------------------------------------------------------------------
+
+        const seenActivitiesInStoredProgram = new Map<number, StoredActivity>();
+        for (const storedActivity of storedActivities)
+            seenActivitiesInStoredProgram.set(storedActivity.id, storedActivity);
+
+        // -----------------------------------------------------------------------------------------
+        // Step 2: Gather IDs of entities in the current program
+        // -----------------------------------------------------------------------------------------
+
+        const seenActivitiesInCurrentProgram = new Map<number, Activity>();
+        for (const currentActivity of currentActivities)
+            seenActivitiesInCurrentProgram.set(currentActivity.id, currentActivity);
+
+        // -----------------------------------------------------------------------------------------
+        // Step 3: Identify program additions and removals
+        // -----------------------------------------------------------------------------------------
+
+        const addedOrRemovedActivities = symmetricDifference(
+            new Set([ ...seenActivitiesInStoredProgram.keys() ]),
+            new Set([ ...seenActivitiesInCurrentProgram.keys() ]));
+
+        for (const id of addedOrRemovedActivities) {
+            if (!seenActivitiesInStoredProgram.has(id)) {
+                const currentActivity = seenActivitiesInCurrentProgram.get(id);
+                if (!currentActivity)
+                    throw new Error('Unrecognised new entry in seenActivitiesInCurrentProgram');
+
+                mutations.created.push(db.insertInto(tActivities)
+                    .set({
+                        activityId: currentActivity.id,
+                        activityFestivalId: currentActivity.festivalId,
+                        activityTitle: currentActivity.title,
+                        activityDescription: currentActivity.description,
+                        activityUrl: currentActivity.url,
+                        activityPrice: currentActivity.price,
+                        activityMaxVisitors: currentActivity.maxVisitors,
+                        activityTypeAdultsOnly: currentActivity.activityType?.adultsOnly ? 1 : 0,
+                        activityTypeCompetition: currentActivity.activityType?.competition ? 1 : 0,
+                        activityTypeCosplay: currentActivity.activityType?.cosplay ? 1 : 0,
+                        activityTypeEvent: currentActivity.activityType?.event ? 1 : 0,
+                        activityTypeGameRoom: currentActivity.activityType?.gameRoom ? 1 : 0,
+                        activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
+                        activityVisible: currentActivity.visible ? 1 : 0,
+                        activityVisibleReason: currentActivity.reasonInvisible,
+                        activityCreated: dbInstance.currentDateTime(),
+                        activityUpdated: dbInstance.currentDateTime(),
+                        activityDeleted: undefined,
+                    }));
+
+                mutations.mutations.push({
+                    activityId: currentActivity.id,
+                    mutation: 'Created',
+                    severity: 'Moderate',
+                });
+
+            } else {
+                const storedActivity = seenActivitiesInStoredProgram.get(id);
+                if (!storedActivity)
+                    throw new Error('Unrecognised removed entry in seenActivitiesInStoredProgram');
+
+                mutations.deleted.push(db.update(tActivities)
+                    .set({
+                        activityDeleted: dbInstance.currentDateTime(),
+                    })
+                    .where(tActivities.activityId.equals(storedActivity.id)));
+
+                mutations.mutations.push({
+                    activityId: storedActivity.id,
+                    mutation: 'Deleted',
+                    severity: 'Moderate',
+                });
+            }
+        }
+
+        return mutations;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -105,7 +181,7 @@ export class ImportActivitiesTask extends Task {
         return client.getActivities({ festivalId });
     }
 
-    async fetchActivitiesFromDatabase(festivalId: number): Promise<StoredActivity[]> {
+    async fetchActivitiesFromDatabase(festivalId: number) {
         const dbInstance = db;
         return await db.selectFrom(tActivities)
             .innerJoin(tActivitiesTimeslots)
@@ -146,6 +222,8 @@ export class ImportActivitiesTask extends Task {
             .executeSelectMany();
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     updateTaskIntervalForFestivalDate(endTime: Date): void {
         const differenceInDays = dayjs(endTime).diff(dayjs(), 'days');
         if (differenceInDays < 0) {
@@ -180,3 +258,10 @@ export class ImportActivitiesTask extends Task {
             .executeSelectNoneOrOne();
     }
 }
+
+/**
+ * Interface describing the database representation of a stored activity on our end. Driven by the
+ * implementation as opposed to being an explicit definition.
+ */
+export type StoredActivity =
+    Awaited<ReturnType<ImportActivitiesTask['fetchActivitiesFromDatabase']>>[number];
