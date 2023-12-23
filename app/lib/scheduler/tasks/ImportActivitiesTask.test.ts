@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Activity, Floor, Location, Timeslot } from '@lib/integrations/animecon';
-import { ImportActivitiesTask, type StoredActivity } from './ImportActivitiesTask';
+import { ImportActivitiesTask, type StoredActivity, type StoredTimeslot } from './ImportActivitiesTask';
 import { TaskContext } from '../TaskContext';
 import { dayjs } from '@lib/DateTime';
 import { useMockConnection } from '@lib/database/Connection';
@@ -13,8 +13,7 @@ describe('ImportActivitiesTask', () => {
     const mockConnection = useMockConnection();
 
     type PartialStoredActivity = PartialWithRequiredId<Omit<StoredActivity, 'id' | 'timeslots'>>;
-    type PartialStoredTimeslot =
-        PartialWithRequiredId<Omit<StoredActivity['timeslots'][number], 'id'>>;
+    type PartialStoredTimeslot = PartialWithRequiredId<Omit<StoredTimeslot, 'id'>>;
 
     function createStoredActivity(
         activity: PartialStoredActivity, timeslots: PartialStoredTimeslot[]): StoredActivity
@@ -277,11 +276,52 @@ describe('ImportActivitiesTask', () => {
             /* no festival= */ undefined, /* skipDb= */ true);
 
         const mutations = task.compareActivities([
-            createSimpleActivity({ id: 100 }),
-            createSimpleActivity({ id: 101 })
+            createSimpleActivity({
+                id: 100,
+                timeslots: [ createSimpleTimeslot({ id: 1100 }) ]
+            }),
+            createSimpleActivity({
+                id: 101,
+                timeslots: [ createSimpleTimeslot({ id: 1101 }) ]
+            })
         ], [
-            createStoredActivity({ id: 100 }, [ /* no timeslots */ ]),
-            // Note: ID `101` is missing
+            createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
+            // Note: ID `101` (w/ timeslot `1101`) are missing
+        ]);
+
+        expect(mutations.created).toHaveLength(2);  // activity + timeslot
+        expect(mutations.updated).toHaveLength(0);
+        expect(mutations.deleted).toHaveLength(0);
+
+        expect(mutations.mutations).toHaveLength(2);
+        expect(mutations.mutations[0]).toEqual({
+            activityId: 101,
+            mutation: 'Created',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            activityId: 101,
+            activityTimeslotId: 1101,
+            mutation: 'Created',
+            severity: 'Moderate',
+        });
+    });
+
+    it('should be able to identify additions to timeslots in the program', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({ id: 1100 }),
+                    createSimpleTimeslot({ id: 1101 }),
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
         ]);
 
         expect(mutations.created).toHaveLength(1);
@@ -290,14 +330,11 @@ describe('ImportActivitiesTask', () => {
 
         expect(mutations.mutations).toHaveLength(1);
         expect(mutations.mutations[0]).toEqual({
-            activityId: 101,
+            activityId: 100,
+            activityTimeslotId: 1101,
             mutation: 'Created',
             severity: 'Moderate',
         });
-    });
-
-    it('should be able to identify additions to timeslots in the program', () => {
-        // TODO: Implement me.
     });
 
     it('should be able to identify updates to the program', () => {
@@ -313,11 +350,49 @@ describe('ImportActivitiesTask', () => {
             /* no festival= */ undefined, /* skipDb= */ true);
 
         const mutations = task.compareActivities([
-            createSimpleActivity({ id: 100 }),
+            createSimpleActivity({
+                id: 100,
+                timeslots: [ createSimpleTimeslot({ id: 1100 }) ]
+            }),
             // Note: ID `101` is missing
         ], [
-            createStoredActivity({ id: 100 }, [ /* no timeslots */ ]),
-            createStoredActivity({ id: 101 }, [ /* no timeslots */ ]),
+            createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
+            createStoredActivity({ id: 101 }, /* timeslots= */ [ { id: 1101 } ]),
+        ]);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(0);
+        expect(mutations.deleted).toHaveLength(2);  // activity + timeslot
+
+        expect(mutations.mutations).toHaveLength(2);
+        expect(mutations.mutations[0]).toEqual({
+            activityId: 101,
+            mutation: 'Deleted',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            activityId: 101,
+            activityTimeslotId: 1101,
+            mutation: 'Deleted',
+            severity: 'Moderate',
+        });
+    });
+
+    it('should be able to identify removed timeslots from the program', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({ id: 1100 }),
+                    // Note: ID `1101` is missing
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 }, { id: 1101 } ]),
         ]);
 
         expect(mutations.created).toHaveLength(0);
@@ -326,14 +401,11 @@ describe('ImportActivitiesTask', () => {
 
         expect(mutations.mutations).toHaveLength(1);
         expect(mutations.mutations[0]).toEqual({
-            activityId: 101,
+            activityId: 100,
+            activityTimeslotId: 1101,
             mutation: 'Deleted',
             severity: 'Moderate',
         });
-    });
-
-    it('should be able to identify removed timeslots from the program', () => {
-        // TODO: Implement me.
     });
 
     it('should be able to run the task end-to-end with various mutations', async () => {

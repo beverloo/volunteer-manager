@@ -2761,6 +2761,21 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: timeslot_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: timeslot_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
   indexes:
   - name: timeslot_id
     def: KEY timeslot_id (timeslot_id) USING BTREE
@@ -2799,6 +2814,9 @@ tables:
       `timeslot_end_time` datetime NOT NULL,
       `timeslot_location_id` int(8) unsigned NOT NULL,
       `timeslot_location_name` text NOT NULL,
+      `timeslot_created` datetime NOT NULL,
+      `timeslot_updated` datetime NOT NULL,
+      `timeslot_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`activity_id`),
       KEY `timeslot_id` (`timeslot_id`),
       KEY `timeslot_location_id` (`timeslot_location_id`)

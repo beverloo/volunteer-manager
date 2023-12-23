@@ -6,7 +6,7 @@ import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
 import symmetricDifference from 'set.prototype.symmetricdifference';
 import { z } from 'zod';
 
-import { type Activity, createAnimeConClient } from '@lib/integrations/animecon';
+import { type Activity, type Timeslot, createAnimeConClient } from '@lib/integrations/animecon';
 import { TaskWithParams } from '../Task';
 import { dayjs } from '@lib/DateTime';
 import db, { tActivities, tActivitiesTimeslots, tEvents } from '@lib/database';
@@ -128,16 +128,34 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInStoredProgram = new Map<number, StoredActivity>();
-        for (const storedActivity of storedActivities)
+        const seenTimeslotsInStoredProgram = new Map<number, StoredTimeslot>();
+
+        const timeslotToStoredActivity = new Map<number, StoredActivity>();
+
+        for (const storedActivity of storedActivities) {
             seenActivitiesInStoredProgram.set(storedActivity.id, storedActivity);
+            for (const storedTimeslot of storedActivity.timeslots) {
+                seenTimeslotsInStoredProgram.set(storedTimeslot.id, storedTimeslot);
+                timeslotToStoredActivity.set(storedTimeslot.id, storedActivity);
+            }
+        }
 
         // -----------------------------------------------------------------------------------------
         // Step 2: Gather IDs of entities in the current program
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInCurrentProgram = new Map<number, Activity>();
-        for (const currentActivity of currentActivities)
+        const seenTimeslotsInCurrentProgram = new Map<number, Timeslot>();
+
+        const timeslotToCurrentActivity = new Map<number, Activity>();
+
+        for (const currentActivity of currentActivities) {
             seenActivitiesInCurrentProgram.set(currentActivity.id, currentActivity);
+            for (const currentTimeslot of currentActivity.timeslots) {
+                seenTimeslotsInCurrentProgram.set(currentTimeslot.id, currentTimeslot);
+                timeslotToCurrentActivity.set(currentTimeslot.id, currentActivity);
+            }
+        }
 
         // -----------------------------------------------------------------------------------------
         // Step 3: Identify program additions and removals
@@ -147,13 +165,13 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             new Set([ ...seenActivitiesInStoredProgram.keys() ]),
             new Set([ ...seenActivitiesInCurrentProgram.keys() ]));
 
-        for (const id of addedOrRemovedActivities) {
-            if (!seenActivitiesInStoredProgram.has(id)) {
-                const currentActivity = seenActivitiesInCurrentProgram.get(id);
+        for (const activityId of addedOrRemovedActivities) {
+            if (!seenActivitiesInStoredProgram.has(activityId)) {
+                const currentActivity = seenActivitiesInCurrentProgram.get(activityId);
                 if (!currentActivity)
                     throw new Error('Unrecognised new entry in seenActivitiesInCurrentProgram');
 
-                mutations.created.push(db.insertInto(tActivities)
+                mutations.created.push(dbInstance.insertInto(tActivities)
                     .set({
                         activityId: currentActivity.id,
                         activityFestivalId: currentActivity.festivalId,
@@ -183,11 +201,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 });
 
             } else {
-                const storedActivity = seenActivitiesInStoredProgram.get(id);
+                const storedActivity = seenActivitiesInStoredProgram.get(activityId);
                 if (!storedActivity)
                     throw new Error('Unrecognised removed entry in seenActivitiesInStoredProgram');
 
-                mutations.deleted.push(db.update(tActivities)
+                mutations.deleted.push(dbInstance.update(tActivities)
                     .set({
                         activityDeleted: dbInstance.currentDateTime(),
                     })
@@ -195,6 +213,60 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     activityId: storedActivity.id,
+                    mutation: 'Deleted',
+                    severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
+                });
+            }
+        }
+
+        const addedOrRemovedTimeslots = symmetricDifference(
+            new Set([ ...seenTimeslotsInStoredProgram.keys() ]),
+            new Set([ ...seenTimeslotsInCurrentProgram.keys() ]));
+
+        for (const timeslotId of addedOrRemovedTimeslots) {
+            if (!seenTimeslotsInStoredProgram.has(timeslotId)) {
+                const currentActivity = timeslotToCurrentActivity.get(timeslotId);
+                const currentTimeslot = seenTimeslotsInCurrentProgram.get(timeslotId);
+
+                if (!currentActivity || !currentTimeslot)
+                    throw new Error('Unrecognised new entry in seenTimeslotsInCurrentProgram');
+
+                mutations.created.push(dbInstance.insertInto(tActivitiesTimeslots)
+                    .set({
+                        activityId: currentActivity.id,
+                        timeslotId: currentTimeslot.id,
+                        timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
+                        timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
+                        timeslotLocationId: currentTimeslot.location.id,
+                        timeslotLocationName: currentTimeslot.location.name,
+                        timeslotCreated: dbInstance.currentDateTime(),
+                        timeslotUpdated: dbInstance.currentDateTime(),
+                        timeslotDeleted: undefined,
+                    }));
+
+                mutations.mutations.push({
+                    activityId: currentActivity.id,
+                    activityTimeslotId: currentTimeslot.id,
+                    mutation: 'Created',
+                    severity: this.maybeEscalateMutationSeverity(currentActivity, 'Moderate'),
+                });
+
+            } else {
+                const storedActivity = timeslotToStoredActivity.get(timeslotId);
+                const storedTimeslot = seenTimeslotsInStoredProgram.get(timeslotId);
+
+                if (!storedActivity || !storedTimeslot)
+                    throw new Error('Unrecognised removed entry in seenTimeslotsInStoredProgram');
+
+                mutations.deleted.push(dbInstance.update(tActivitiesTimeslots)
+                    .set({
+                        timeslotDeleted: dbInstance.currentDateTime(),
+                    })
+                    .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
+
+                mutations.mutations.push({
+                    activityId: storedActivity.id,
+                    activityTimeslotId: storedTimeslot.id,
                     mutation: 'Deleted',
                     severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
                 });
@@ -315,3 +387,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
  */
 export type StoredActivity =
     Awaited<ReturnType<ImportActivitiesTask['fetchActivitiesFromDatabase']>>[number];
+
+/**
+ * Type describing an individual stored timeslot.
+ */
+export type StoredTimeslot = StoredActivity['timeslots'][number];

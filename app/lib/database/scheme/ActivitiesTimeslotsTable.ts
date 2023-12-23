@@ -16,6 +16,9 @@ export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTim
     timeslotEndTime = this.column('timeslot_end_time', 'localDateTime');
     timeslotLocationId = this.column('timeslot_location_id', 'int');
     timeslotLocationName = this.column('timeslot_location_name', 'string');
+    timeslotCreated = this.column('timeslot_created', 'localDateTime');
+    timeslotUpdated = this.column('timeslot_updated', 'localDateTime');
+    timeslotDeleted = this.optionalColumnWithDefaultValue('timeslot_deleted', 'localDateTime');
 
     constructor() {
         super('activities_timeslots');
