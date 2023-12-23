@@ -4,11 +4,28 @@
 import type { ExecutableInsert } from 'ts-sql-query/expressions/insert';
 import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
 import symmetricDifference from 'set.prototype.symmetricdifference';
+import { z } from 'zod';
 
 import { type Activity, createAnimeConClient } from '@lib/integrations/animecon';
-import { Task } from '../Task';
+import { TaskWithParams } from '../Task';
 import { dayjs } from '@lib/DateTime';
 import db, { tActivities, tActivitiesTimeslots, tEvents } from '@lib/database';
+
+/**
+ * Parameter scheme applying to the `ImportActivitiesTask`.
+ */
+const kImportActivitiesTaskParamScheme = z.object({
+    /**
+     * The specific festival Id to import activities for. Optional - will default to the nearest
+     * upcoming festival. The task will be forced to be a one-off when set.
+     */
+    festivalId: z.number().optional(),
+});
+
+/**
+ * Type definition of the parameter scheme, to be used by TypeScript.
+ */
+type TaskParams = z.infer<typeof kImportActivitiesTaskParamScheme>;
 
 /**
  * Mutations are expressed as a set of queries (created by the `compareActivities` method) together
@@ -30,7 +47,7 @@ interface Mutations {
  * This task is responsible for importing activities from AnPlan into our own database. The active
  * festival IDs will be read from the database, upon which the right APIs will be invoked.
  */
-export class ImportActivitiesTask extends Task {
+export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     /**
      * The default interval for the import task, when no precise granularity can be decided upon.
      */
@@ -49,8 +66,12 @@ export class ImportActivitiesTask extends Task {
 
     // ---------------------------------------------------------------------------------------------
 
-    override async execute(): Promise<boolean> {
-        const upcomingEvent = await this.selectCurrentOrUpcomingEventWithFestivalId();
+    override validate(params: unknown): TaskParams | never {
+        return kImportActivitiesTaskParamScheme.parse(params);
+    }
+
+    override async execute(params: TaskParams): Promise<boolean> {
+        const upcomingEvent = await this.selectCurrentOrUpcomingEventWithFestivalId(params);
         if (!upcomingEvent) {
             this.log.info('Interval: No future events with a festivalId, using maximum interval.');
             this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
@@ -59,9 +80,12 @@ export class ImportActivitiesTask extends Task {
 
         const { festivalEndTime, festivalId } = upcomingEvent;
 
-        // The interval of this task depends on how close we are to the festival. The following
-        // function will scale the task interval appropriate to this.
-        this.updateTaskIntervalForFestivalDate(festivalEndTime);
+        // The interval of this task depends on how close we are to the festival, and will only be
+        // set when no explicit `festivalId` was passed in this task's `params`.
+        if (!params.festivalId)
+            this.updateTaskIntervalForFestivalDate(festivalEndTime);
+        else
+            this.setIntervalForRepeatingTask(/* no interval= */ undefined);
 
         // Fetch the activities from the AnimeCon API. This may throw an exception, in which case
         // the task execution will be considered unsuccessful -- which is fine.
@@ -245,16 +269,22 @@ export class ImportActivitiesTask extends Task {
         this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
     }
 
-    private async selectCurrentOrUpcomingEventWithFestivalId() {
-        return await db.selectFrom(tEvents)
-            .where(tEvents.eventEndTime.greaterOrEquals(db.currentDateTime()))
-                .and(tEvents.eventFestivalId.isNotNull())
-                .and(tEvents.eventHidden.equals(/* false= */ 0))
+    private async selectCurrentOrUpcomingEventWithFestivalId(params: TaskParams) {
+        const baseQuery = db.selectFrom(tEvents)
             .select({
                 festivalEndTime: tEvents.eventEndTime,
                 festivalId: tEvents.eventFestivalId,
             })
-            .limit(/* only the first upcoming event= */ 1)
+            .limit(/* only the first (upcoming) event= */ 1);
+
+        if (!!params.festivalId) {
+            return baseQuery.where(tEvents.eventFestivalId.equals(params.festivalId))
+                .executeSelectNoneOrOne();
+        }
+
+        return baseQuery.where(tEvents.eventFestivalId.isNotNull())
+            .and(tEvents.eventEndTime.greaterOrEquals(db.currentDateTime()))
+            .and(tEvents.eventHidden.equals(/* false= */ 0))
             .executeSelectNoneOrOne();
     }
 }

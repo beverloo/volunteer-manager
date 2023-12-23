@@ -139,7 +139,8 @@ describe('ImportActivitiesTask', () => {
             }
         };
 
-        expect(task.isSimpleTask()).toBeTrue();  // validate params if this fails
+        expect(task.isComplexTask()).toBeTrue();
+        expect(() => task.validate({ /* no params */ })).not.toThrow();
 
         if (!skipDb) {
             mockConnection.expect('selectOneRow', () => {
@@ -160,7 +161,7 @@ describe('ImportActivitiesTask', () => {
         const task = createImportActivitiesTaskForFestival(/* no festival= */ undefined);
         expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
 
-        const result = await task.execute();
+        const result = await task.execute({ /* no params */ });
         expect(result).toBeTrue();
 
         expect(task.log.entries).toHaveLength(1);
@@ -176,7 +177,7 @@ describe('ImportActivitiesTask', () => {
             festivalId: 101,
         });
 
-        const result = await task.execute();
+        const result = await task.execute({ /* no params */ });
         expect(result).toBeTrue();
 
         expect(task.log.entries).toHaveLength(2);
@@ -205,6 +206,49 @@ describe('ImportActivitiesTask', () => {
         task.updateTaskIntervalForFestivalDate(dayjs().subtract(1, 'day').toDate());
         expect(task.contextForTesting.intervalMsForTesting).toBe(
             ImportActivitiesTask.kIntervalMaximum);
+    });
+
+    it('should be able to deal with a hardcoded festival Id for a one-off import', async () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
+
+        // Confirm that, by default, no festival Id will be passed in the select query.
+        mockConnection.expect('selectOneRow', (query, params) => {
+            expect(params).toHaveLength(2);
+            expect(params[0]).toBe(/* false= */ 0);
+            expect(params[1]).toBe(/* limit= */ 1);
+
+            return {
+                festivalEndTime: dayjs().add(100, 'days').toDate(),
+                festivalId: 101,
+            };
+        });
+
+        const implicitFestivalResult = await task.execute({ /* no params */ });
+        expect(implicitFestivalResult).toBeTrue();
+
+        // Confirm that a task interval is set based on duration until the festival.
+        expect(task.contextForTesting.intervalMsForTesting).not.toBeUndefined();
+
+        // Confirm that, when an explicit festival Id is given, it's passed to the select query.
+        mockConnection.expect('selectOneRow', (query, params) => {
+            expect(params).toHaveLength(2);
+            expect(params[0]).toBe(/* festivalId= */ 9001);
+            expect(params[1]).toBe(/* limit= */ 1);
+
+            return {
+                festivalEndTime: dayjs().add(100, 'days').toDate(),
+                festivalId: 9001,
+            };
+        });
+
+        const explicitFestivalResult = await task.execute({ festivalId: 9001 });
+        expect(explicitFestivalResult).toBeTrue();
+
+        // Confirm that the task remains as a one-off task.
+        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
     });
 
     it('should be able to identify additions to the program', () => {
