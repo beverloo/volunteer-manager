@@ -55,6 +55,7 @@ interface Mutations {
         locationId?: number;
 
         mutation: 'Created' | 'Updated' | 'Deleted';
+        mutatedFields?: string[];
         severity: MutationSeverity;
     }[];
 }
@@ -66,6 +67,21 @@ export interface StoredLocation {
     id: number;
     name: string;
 }
+
+/**
+ * Type describing what has updated, if anything. The `fields` may be empty if no updates happened.
+ */
+type UpdateInfo = { fields: string[], severity: MutationSeverity; };
+
+/**
+ * Severity levels that can be assigned to updates of individual fields. Used to determine the
+ * severity of the overall mutation.
+ */
+const kUpdateSeverityLevel = {
+    Low: 1,
+    Moderate: 10,
+    Important: 100,
+};
 
 /**
  * This task is responsible for importing activities from AnPlan into our own database. The active
@@ -225,7 +241,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityVisibleReason: currentActivity.reasonInvisible,
                         activityCreated: dbInstance.currentDateTime(),
                         activityUpdated: dbInstance.currentDateTime(),
-                        activityDeleted: undefined,
+                        activityDeleted: null,
                     }));
 
                 mutations.mutations.push({
@@ -253,6 +269,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             }
         }
 
+        // -----------------------------------------------------------------------------------------
+
         const addedOrRemovedLocations = symmetricDifference(
             new Set([ ...seenLocationsInStoredProgram.keys() ]),
             new Set([ ...seenLocationsInCurrentProgram.keys() ]));
@@ -270,7 +288,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationName: currentLocation.useName ?? currentLocation.name,
                         locationCreated: dbInstance.currentDateTime(),
                         locationUpdated: dbInstance.currentDateTime(),
-                        locationDeleted: undefined,
+                        locationDeleted: null,
                     }));
 
                 mutations.mutations.push({
@@ -298,6 +316,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             }
         }
 
+        // -----------------------------------------------------------------------------------------
 
         const addedOrRemovedTimeslots = symmetricDifference(
             new Set([ ...seenTimeslotsInStoredProgram.keys() ]),
@@ -321,7 +340,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         timeslotLocationId: currentTimeslot.location.id,
                         timeslotCreated: dbInstance.currentDateTime(),
                         timeslotUpdated: dbInstance.currentDateTime(),
-                        timeslotDeleted: undefined,
+                        timeslotDeleted: null,
                     }));
 
                 mutations.mutations.push({
@@ -355,7 +374,84 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             }
         }
 
+        // -----------------------------------------------------------------------------------------
+        // Step 4: Identify updates to the program
+        // -----------------------------------------------------------------------------------------
+
+        for (const storedActivity of seenActivitiesInStoredProgram.values()) {
+            const currentActivity = seenActivitiesInCurrentProgram.get(storedActivity.id);
+            if (!currentActivity)
+                continue;
+
+            const update = this.compareActivity(storedActivity, currentActivity);
+            if (!update.fields.length)
+                continue;  // the `storedActivity` is still up-to-date
+
+            // TODO: Update the database representation with `currentActivity`.
+        }
+
+        for (const storedLocation of seenLocationsInStoredProgram.values()) {
+            const currentLocation = seenLocationsInCurrentProgram.get(storedLocation.id);
+            if (!currentLocation)
+                continue;
+
+            const update = this.compareLocation(storedLocation, currentLocation);
+            if (!update.fields.length)
+                continue;  // the `storedLocation` is still up-to-date
+
+            mutations.updated.push(dbInstance.update(tActivitiesLocations)
+                .set({
+                    locationName: currentLocation.useName ?? currentLocation.name,
+                    locationUpdated: dbInstance.currentDateTime(),
+                    locationDeleted: null,
+                })
+                .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
+
+            mutations.mutations.push({
+                locationId: storedLocation.id,
+                mutation: 'Updated',
+                mutatedFields: update.fields,
+                severity: update.severity,
+            });
+        }
+
+        for (const storedTimeslot of seenTimeslotsInStoredProgram.values()) {
+            const currentTimeslot = seenTimeslotsInCurrentProgram.get(storedTimeslot.id);
+            if (!currentTimeslot)
+                continue;
+
+            const update = this.compareTimeslot(storedTimeslot, currentTimeslot);
+            if (!update.fields.length)
+                continue;  // the `storedTimeslot` is still up-to-date
+
+            // TODO: Update the database representation with `currentTimeslot`.
+        }
+
         return mutations;
+    }
+
+    compareActivity(storedActivity: StoredActivity, currentActivity: Activity): UpdateInfo {
+        return { fields: [], severity: 'Low' };
+    }
+
+    compareLocation(storedLocation: StoredLocation, currentLocation: Location): UpdateInfo {
+        const updatedFields: string[] = [];
+        let updatedFieldsWeight: number = 0;
+
+        const currentName = currentLocation.useName ?? currentLocation.name;
+        if (storedLocation.name !== currentName) {
+            updatedFields.push('name');
+            updatedFieldsWeight += kUpdateSeverityLevel.Low;
+        }
+
+        return {
+            fields: updatedFields,
+            severity: this.updateWeightToSeverityLevel(updatedFieldsWeight),
+        };
+    }
+
+    compareTimeslot(storedTimeslot: StoredTimeslot, currentTimeslot: Timeslot): UpdateInfo {
+        return { fields: [], severity: 'Low' };
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -413,6 +509,15 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    updateWeightToSeverityLevel(weight: number): MutationSeverity {
+        if (weight < kUpdateSeverityLevel.Moderate)
+            return 'Low';
+        else if (weight < kUpdateSeverityLevel.Important)
+            return 'Moderate';
+        else
+            return 'Important';
+    }
 
     maybeEscalateMutationSeverity(
         activity: Activity | StoredActivity, baseSeverity: MutationSeverity): MutationSeverity

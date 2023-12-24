@@ -379,7 +379,44 @@ describe('ImportActivitiesTask', () => {
     });
 
     it('should be able to identify updates to locations in the program', () => {
-        // TODO: Implement me.
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1100,
+                        location: createSimpleLocation({
+                            id: 11100,
+                            name: 'Internal Name',
+                            useName: 'Public Name',
+                        }),
+                    })
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [
+                {
+                    id: 1100,
+                    locationId: 11100,
+                    locationName: 'Old Name',
+                }
+            ]),
+        ]);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(1);
+        expect(mutations.deleted).toHaveLength(0);
+
+        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations[0]).toEqual({
+            locationId: 11100,
+            mutation: 'Updated',
+            mutatedFields: [ 'name' ],
+            severity: 'Low',
+        });
     });
 
     it('should be able to identify updates to timeslots in the program', () => {
