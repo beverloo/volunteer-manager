@@ -36,6 +36,11 @@ export const kUpdateRoleDefinition = z.object({
         roleOrder: z.number(),
 
         /**
+         * The number of events the volunteer can indicate they really want to attend.
+         */
+        availabilityEventLimit: z.number(),
+
+        /**
          * Whether this role grants administrative access to a particular event.
          */
         adminAccess: z.boolean(),
@@ -78,6 +83,7 @@ export async function updateRole(request: Request, props: ActionProps): Promise<
             roleName: request.roleName,
             roleBadge: request.roleBadge,
             roleOrder: request.roleOrder,
+            roleAvailabilityEventLimit: request.availabilityEventLimit,
             roleAdminAccess: request.adminAccess ? 1 : 0,
             roleHotelEligible: request.hotelEligible ? 1 : 0,
             roleTrainingEligible: request.trainingEligible ? 1 : 0,

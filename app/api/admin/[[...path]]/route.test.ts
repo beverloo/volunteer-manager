@@ -96,6 +96,7 @@ describe('API Endpoints: /api/admin', () => {
             roleBadge: undefined,
             roleOrder: 1,
             adminAccess: false,
+            availabilityEventLimit: 3,
             hotelEligible: false,
             trainingEligible: true,
         },

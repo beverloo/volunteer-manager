@@ -56,6 +56,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             roleName: tRoles.roleName,
             registrationDate: tUsersEvents.registrationDate,
             registrationStatus: tUsersEvents.registrationStatus,
+            availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             hotelEligible: tUsersEvents.hotelEligible,
             trainingEligible: tUsersEvents.trainingEligible,
             credits: tUsersEvents.includeCredits,

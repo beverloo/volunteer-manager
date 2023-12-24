@@ -51,6 +51,11 @@ export const kUpdateApplicationDefinition = z.object({
             registrationDate: z.string().optional(),
 
             /**
+             * The number of events the volunteer can indicate they really want to attend.
+             */
+            availabilityEventLimit: z.number().min(0).max(100).optional(),
+
+            /**
              * Whether this volunteer is eligible for a hotel room beyond conventional rules.
              */
             hotelEligible: z.number().optional(),
@@ -171,6 +176,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
         affectedRows = await db.update(tUsersEvents)
             .set({
+                availabilityEventLimit: request.metadata.availabilityEventLimit,
                 hotelEligible: request.metadata.hotelEligible,
                 trainingEligible: request.metadata.trainingEligible,
                 registrationDate:

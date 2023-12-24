@@ -59,7 +59,7 @@ export function Roles(props: RolesProps) {
             headerName: 'Role',
             editable: true,
             sortable: true,
-            flex: 2,
+            flex: 3,
         },
         {
             field: 'roleBadge',
@@ -78,12 +78,21 @@ export function Roles(props: RolesProps) {
             valueOptions: [ '(none)', ...Object.keys(VolunteerBadgeVariant) ],
         },
         {
+            field: 'availabilityEventLimit',
+            headerName: 'Event flag limit',
+            description: 'Number of events they can flag wanting to attend',
+            editable: true,
+            type: 'number',
+            flex: 1,
+        },
+        {
             field: 'adminAccess',
             headerName: 'Admin',
             description: 'Whether this role grants admin access to an event',
             editable: true,
             sortable: false,
             type: 'boolean',
+            flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
@@ -97,6 +106,7 @@ export function Roles(props: RolesProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
+            flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />

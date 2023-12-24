@@ -62,7 +62,9 @@ export async function getRegistration(environmentName: string, event: Event, use
             status: tUsersEvents.registrationStatus,
 
             availabilityAvailable: tEvents.publishAvailability.equals(/* true= */ 1),
-            availabilityEligible: dbInstance.true(),
+            availabilityEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
+                tRoles.roleAvailabilityEventLimit),
+
             // TODO: `availability`
 
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),

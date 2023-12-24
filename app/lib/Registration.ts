@@ -11,7 +11,7 @@ export interface RegistrationDatabaseRow {
     status: RegistrationStatus;
 
     availabilityAvailable: boolean;
-    availabilityEligible: boolean;
+    availabilityEventLimit: number;
     // TODO: `availability`
 
     hotelAvailable: boolean;
@@ -227,6 +227,11 @@ export interface RegistrationData {
     availabilityEligible: boolean;
 
     /**
+     * Maximum number of events that the volunteer can flag as wanting to attend.
+     */
+    availabilityEventLimit: number;
+
+    /**
      * The preferences the volunteer has provided regarding their availability.
      */
     availability: undefined;
@@ -309,7 +314,8 @@ export class Registration implements RegistrationData {
     get status() { return this.#registration.status; }
 
     get availabilityAvailable() { return this.#registration.availabilityAvailable; }
-    get availabilityEligible() { return this.#registration.availabilityEligible; }
+    get availabilityEligible() { return this.#registration.availabilityEventLimit > 0; }
+    get availabilityEventLimit() { return this.#registration.availabilityEventLimit; }
     get availability() { return undefined; }
 
     get hotelAvailable() { return this.#registration.hotelAvailable; }
@@ -337,6 +343,7 @@ export class Registration implements RegistrationData {
 
             availabilityAvailable: this.availabilityAvailable,
             availabilityEligible: this.availabilityEligible,
+            availabilityEventLimit: this.availabilityEventLimit,
             availability: this.availability,
 
             hotelAvailable: this.hotelAvailable,

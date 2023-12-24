@@ -17,6 +17,7 @@ export class RolesTable extends Table<DBConnection, 'RolesTable'> {
     roleName = this.column('role_name', 'string');
     roleBadge = this.optionalColumnWithDefaultValue<RoleBadge>('role_badge', 'enum', 'RoleBadge');
     roleOrder = this.columnWithDefaultValue('role_order', 'int');
+    roleAvailabilityEventLimit = this.column('role_availability_event_limit', 'int');
     roleAdminAccess = this.columnWithDefaultValue('role_admin_access', 'int');
     roleHotelEligible = this.columnWithDefaultValue('role_hotel_eligible', 'int');
     roleTrainingEligible = this.columnWithDefaultValue('role_training_eligible', 'int');

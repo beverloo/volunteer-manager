@@ -31,6 +31,7 @@ export default async function VolunteersTeamsPage() {
             roleName: tRoles.roleName,
             roleBadge: tRoles.roleBadge,
             roleOrder: tRoles.roleOrder,
+            availabilityEventLimit: tRoles.roleAvailabilityEventLimit,
             adminAccess: tRoles.roleAdminAccess.equals(/* true= */ 1),
             hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
             trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),

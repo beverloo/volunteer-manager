@@ -336,6 +336,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: role_availability_event_limit
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
   - name: role_admin_access
     type: tinyint(1)
     nullable: false
@@ -375,6 +380,7 @@ tables:
       `role_name` varchar(32) NOT NULL,
       `role_badge` enum('Staff','Senior','Host') DEFAULT NULL,
       `role_order` int(4) NOT NULL DEFAULT 0,
+      `role_availability_event_limit` int(8) unsigned NOT NULL,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
@@ -1399,6 +1405,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: availability_event_limit
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: preference_hours
     type: int(4) unsigned
     nullable: true
@@ -1526,6 +1537,7 @@ tables:
       `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
       `hotel_eligible` tinyint(1) unsigned DEFAULT NULL,
       `training_eligible` tinyint(1) unsigned DEFAULT NULL,
+      `availability_event_limit` int(8) unsigned DEFAULT NULL,
       `preference_hours` int(4) unsigned DEFAULT NULL,
       `preference_timing_start` int(4) unsigned DEFAULT NULL,
       `preference_timing_end` int(4) unsigned DEFAULT NULL,

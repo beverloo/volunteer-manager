@@ -6,7 +6,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, DateTimePickerElement, FormContainer, SelectElement }
+import { type FieldValues, DateTimePickerElement, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
@@ -56,6 +56,11 @@ export interface ApplicationMetadataProps {
         registrationDate?: Date;
 
         /**
+         * The number of events the volunteer can indicate they really want to attend. May be NULL.
+         */
+        availabilityEventLimit?: number;
+
+        /**
          * Whether this volunteer is eligible for a hotel room beyond conventional rules.
          */
         hotelEligible?: number;
@@ -95,6 +100,8 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
                     registrationDate:
                         data.registrationDate ? data.registrationDate.toISOString()
                                               : undefined,
+                    availabilityEventLimit:
+                        data.availabilityEventLimit ? data.availabilityEventLimit : undefined,
                     hotelEligible:
                         [ 0, 1 ].includes(data.hotelEligible) ? data.hotelEligible : undefined,
                     trainingEligible:
@@ -115,10 +122,11 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
     }, [ event, router, team, volunteer.userId ]);
 
     const defaultValues = useMemo(() => ({
+        availabilityEventLimit: volunteer.availabilityEventLimit,
         hotelEligible: volunteer.hotelEligible,
         trainingEligible: volunteer.trainingEligible,
         registrationDate: volunteer.registrationDate ? dayjs(volunteer.registrationDate) : null
-    }), [ volunteer.registrationDate, volunteer.hotelEligible, volunteer.trainingEligible ]);
+    }), [ volunteer ]);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -126,10 +134,15 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
                          privilege={Privilege.EventVolunteerApplicationOverrides} />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
-                    <Grid xs={12}>
+                    <Grid xs={6}>
                         <DateTimePickerElement name="registrationDate" label="Registration date"
                                                inputProps={{ fullWidth: true, size: 'small' }}
                                                onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="availabilityEventLimit" type="number"
+                                          label="Availability event limit override"
+                                          fullWidth size="small" onChange={handleChange} />
                     </Grid>
 
                     <Grid xs={6}>
