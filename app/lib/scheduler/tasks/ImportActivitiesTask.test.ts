@@ -526,4 +526,124 @@ describe('ImportActivitiesTask', () => {
     it('should be able to run the task end-to-end with various mutations', async () => {
         // TODO: Implement me.
     });
+
+    it('should be able to comprehensively compare fields', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        // Individual comparisons:
+        expect(task.compareField(/* stored= */ 0, /* current= */ true)).toBeFalse();
+        expect(task.compareField(/* stored= */ 1, /* current= */ true)).toBeTrue();
+        expect(task.compareField(/* stored= */ 0, /* current= */ false)).toBeTrue();
+        expect(task.compareField(/* stored= */ 1, /* current= */ false)).toBeFalse();
+        expect(task.compareField(/* stored= */ 42, /* current= */ 42)).toBeTrue();
+        expect(task.compareField(/* stored= */ 42, /* current= */ 9001)).toBeFalse();
+        expect(task.compareField(/* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
+        expect(task.compareField(/* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
+        expect(task.compareField(/* stored= */ NaN, /* current= */ NaN)).toBeTrue();
+
+        expect(() => task.compareField(/* stored= */ 'Foo', /* current= */ 42)).toThrow();
+        expect(() => task.compareField(/* stored= */ 42, /* current= */ 'Foo')).toThrow();
+        expect(() => task.compareField(/* stored= */ [], /* current= */ [])).toThrow();
+        expect(() => task.compareField(/* stored= */ {}, /* current= */ {})).toThrow();
+
+        // Comprehensive comparisons:
+        {
+            const lowSeverityUpdates = task.compareFields([
+                {
+                    name: 'first',
+                    weight: /* Low= */ 1,
+                    stored: 'Original Value',
+                    current: 'Updated Value',
+                },
+                {
+                    name: 'second',
+                    weight: /* Moderate= */ 10,
+                    stored: 1,
+                    current: true,
+                }
+            ]);
+
+            expect(lowSeverityUpdates.fields).toContainAllValues([ 'first' ]);
+            expect(lowSeverityUpdates.severity).toBe('Low');
+        }
+
+        {
+            const moderateSeverityUpdates = task.compareFields([
+                {
+                    name: 'first',
+                    weight: /* Low= */ 1,
+                    stored: 42,
+                    current: 101,
+                },
+                {
+                    name: 'second',
+                    weight: /* Moderate= */ 10,
+                    stored: 0,
+                    current: true,
+                },
+                {
+                    name: 'third',
+                    weight: /* Important= */ 100,
+                    stored: 'Value',
+                    current: 'Value',
+                }
+            ]);
+
+            expect(moderateSeverityUpdates.fields).toContainAllValues([ 'first', 'second' ]);
+            expect(moderateSeverityUpdates.severity).toBe('Moderate');
+        }
+
+        {
+            const importantSeverifyUpdates = task.compareFields([
+                {
+                    name: 'first',
+                    weight: /* Low= */ 1,
+                    stored: 'Value',
+                    current: 'Value',
+                },
+                {
+                    name: 'second',
+                    weight: /* Moderate= */ 10,
+                    stored: 0,
+                    current: false,
+                },
+                {
+                    name: 'third',
+                    weight: /* Important= */ 100,
+                    stored: 1,
+                    current: false,
+                }
+            ]);
+
+            expect(importantSeverifyUpdates.fields).toContainAllValues([ 'third' ]);
+            expect(importantSeverifyUpdates.severity).toBe('Important');
+        }
+
+        {
+            const noUpdates = task.compareFields([
+                {
+                    name: 'first',
+                    weight: /* Low= */ 1,
+                    stored: 1,
+                    current: true,
+                },
+                {
+                    name: 'second',
+                    weight: /* Moderate= */ 10,
+                    stored: 42,
+                    current: 42,
+                },
+                {
+                    name: 'third',
+                    weight: /* Important= */ 100,
+                    stored: 'Value',
+                    current: 'Value',
+                }
+            ]);
+
+            expect(noUpdates.fields).toHaveLength(0);
+            expect(noUpdates.severity).toBe('Low');
+        }
+    });
 });

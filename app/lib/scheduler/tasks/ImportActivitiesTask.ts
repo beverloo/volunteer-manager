@@ -74,6 +74,16 @@ export interface StoredLocation {
 type UpdateInfo = { fields: string[], severity: MutationSeverity; };
 
 /**
+ * Type describing the comparison for an individual field between the stored and current values.
+ */
+type UpdateField = { name: string; weight: number; } &
+    (
+        { stored: number; current: boolean } |
+        { stored: number; current: number } |
+        { stored: string; current: string }
+    );
+
+/**
  * Severity levels that can be assigned to updates of individual fields. Used to determine the
  * severity of the overall mutation.
  */
@@ -430,28 +440,71 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         return mutations;
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     compareActivity(storedActivity: StoredActivity, currentActivity: Activity): UpdateInfo {
         return { fields: [], severity: 'Low' };
     }
 
     compareLocation(storedLocation: StoredLocation, currentLocation: Location): UpdateInfo {
-        const updatedFields: string[] = [];
-        let updatedFieldsWeight: number = 0;
-
-        const currentName = currentLocation.useName ?? currentLocation.name;
-        if (storedLocation.name !== currentName) {
-            updatedFields.push('name');
-            updatedFieldsWeight += kUpdateSeverityLevel.Low;
-        }
-
-        return {
-            fields: updatedFields,
-            severity: this.updateWeightToSeverityLevel(updatedFieldsWeight),
-        };
+        return this.compareFields([
+            {
+                name: 'name',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedLocation.name,
+                current: currentLocation.useName ?? currentLocation.name,
+            }
+        ]);
     }
 
     compareTimeslot(storedTimeslot: StoredTimeslot, currentTimeslot: Timeslot): UpdateInfo {
         return { fields: [], severity: 'Low' };
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    compareFields(fields: UpdateField[]): UpdateInfo {
+        const update = {
+            fields: [ /* no fields yet */ ] as string[],
+            weight: 0,
+        };
+
+        for (const { name, weight, stored, current } of fields) {
+            if (this.compareField(stored, current))
+                continue;
+
+            update.fields.push(name);
+            update.weight += weight;
+        }
+
+        return {
+            fields: update.fields,
+            severity: this.updateWeightToSeverityLevel(update.weight),
+        };
+    }
+
+    //compareField(storedField: number, currentField: boolean): boolean;
+    //compareField(storedField: number, currentField: number): boolean;
+    //compareField(storedField: string, currentField: string): boolean;
+    compareField(storedField: unknown, currentField: unknown): boolean {
+        if (typeof storedField === 'number') {
+            if (typeof currentField === 'boolean') {
+                return !!storedField === currentField;
+            } else if (typeof currentField === 'number') {
+                if (Number.isNaN(storedField) && Number.isNaN(currentField))
+                    return true;
+                return storedField === currentField;
+            } else {
+                throw new Error(`Unexpected field type in "currentField": ${typeof currentField}`);
+            }
+        } else if (typeof storedField === 'string') {
+            if (typeof currentField === 'string')
+                return storedField === currentField;
+            else
+                throw new Error(`Unexpected field type in "currentField": ${typeof currentField}`);
+        } else {
+            throw new Error(`Unexpected field type in "storedField": ${typeof storedField}`);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
