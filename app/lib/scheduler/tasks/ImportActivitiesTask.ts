@@ -434,7 +434,24 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             if (!update.fields.length)
                 continue;  // the `storedTimeslot` is still up-to-date
 
-            // TODO: Update the database representation with `currentTimeslot`.
+            // TODO: `timeslot_start_time`
+            // TODO: `timeslot_end_time`
+
+            mutations.updated.push(dbInstance.update(tActivitiesTimeslots)
+                .set({
+                    timeslotLocationId: currentTimeslot.location.id,
+                    timeslotUpdated: dbInstance.currentDateTime(),
+                    timeslotDeleted: null,
+                })
+                .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
+
+            mutations.mutations.push({
+                // TODO: `activityId`
+                activityTimeslotId: storedTimeslot.id,
+                mutation: 'Updated',
+                mutatedFields: update.fields,
+                severity: update.severity,
+            });
         }
 
         return mutations;
@@ -458,7 +475,16 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     }
 
     compareTimeslot(storedTimeslot: StoredTimeslot, currentTimeslot: Timeslot): UpdateInfo {
-        return { fields: [], severity: 'Low' };
+        return this.compareFields([
+            // TODO: `timeslot_start_time`
+            // TODO: `timeslot_end_time`
+            {
+                name: 'location',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: storedTimeslot.locationId,
+                current: currentTimeslot.location.id,
+            },
+        ]);
     }
 
     // ---------------------------------------------------------------------------------------------

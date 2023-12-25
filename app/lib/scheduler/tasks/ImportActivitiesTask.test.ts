@@ -334,13 +334,21 @@ describe('ImportActivitiesTask', () => {
         ]);
 
         expect(mutations.created).toHaveLength(1);
-        expect(mutations.updated).toHaveLength(0);  // TODO: Expect a timeslot update to be issued
+        expect(mutations.updated).toHaveLength(1);
         expect(mutations.deleted).toHaveLength(0);
 
-        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations).toHaveLength(2);
         expect(mutations.mutations[0]).toEqual({
             locationId: 11101,
             mutation: 'Created',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            // TODO: `activityId`
+            activityTimeslotId: 1101,
+            mutation: 'Updated',
+            mutatedFields: [ 'location' ],
             severity: 'Moderate',
         });
     });
@@ -420,7 +428,47 @@ describe('ImportActivitiesTask', () => {
     });
 
     it('should be able to identify updates to timeslots in the program', () => {
-        // TODO: Implement me.
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1100,
+                        location: createSimpleLocation({ id: 11100 }),
+                    }),
+                    createSimpleTimeslot({
+                        id: 1101,
+                        location: createSimpleLocation({ id: 11100 }),  // <-- updated location
+                    }),
+                    createSimpleTimeslot({
+                        id: 1102,
+                        location: createSimpleLocation({ id: 11101 }),
+                    })
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [
+                { id: 1100, locationId: 11100 },
+                { id: 1101, locationId: 11101 },  // <-- old location
+                { id: 1102, locationId: 11101 },
+            ]),
+        ]);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(1);
+        expect(mutations.deleted).toHaveLength(0);
+
+        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations[0]).toEqual({
+            // TODO: `activityId`
+            activityTimeslotId: 1101,
+            mutation: 'Updated',
+            mutatedFields: [ 'location' ],
+            severity: 'Moderate',
+        });
     });
 
     it('should be able to identify removals from the program', () => {
@@ -483,13 +531,21 @@ describe('ImportActivitiesTask', () => {
         ]);
 
         expect(mutations.created).toHaveLength(0);
-        expect(mutations.updated).toHaveLength(0);  // TODO: Expect a timeslot update to be issued
+        expect(mutations.updated).toHaveLength(1);
         expect(mutations.deleted).toHaveLength(1);
 
-        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations).toHaveLength(2);
         expect(mutations.mutations[0]).toEqual({
             locationId: 11101,
             mutation: 'Deleted',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            // TODO: `activityId`
+            activityTimeslotId: 1101,
+            mutation: 'Updated',
+            mutatedFields: [ 'location' ],
             severity: 'Moderate',
         });
     });
