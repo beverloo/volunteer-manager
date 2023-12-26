@@ -219,13 +219,18 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         for (const storedActivity of storedActivities) {
             seenActivitiesInStoredProgram.set(storedActivity.id, storedActivity);
             for (const storedTimeslot of storedActivity.timeslots) {
+                if (!storedTimeslot.id || !storedTimeslot.locationId) {
+                    this.log.warning(`Invalid timeslot found for activity=${storedActivity.id}`);
+                    continue;
+                }
+
                 seenTimeslotsInStoredProgram.set(storedTimeslot.id, storedTimeslot);
                 timeslotToStoredActivity.set(storedTimeslot.id, storedActivity);
 
                 if (!seenLocationsInStoredProgram.has(storedTimeslot.locationId)) {
                     seenLocationsInStoredProgram.set(storedTimeslot.locationId, {
                         id: storedTimeslot.locationId,
-                        name: storedTimeslot.locationName,
+                        name: storedTimeslot.locationName!,
                     });
                 }
             }
@@ -406,7 +411,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 const storedActivity = timeslotToStoredActivity.get(timeslotId);
                 const storedTimeslot = seenTimeslotsInStoredProgram.get(timeslotId);
 
-                if (!storedActivity || !storedTimeslot)
+                if (!storedActivity || !storedTimeslot || !storedTimeslot.id)
                     throw new Error('Unrecognised removed entry in seenTimeslotsInStoredProgram');
 
                 mutations.deleted.push(dbInstance.update(tActivitiesTimeslots)
@@ -494,7 +499,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         }
 
         for (const storedTimeslot of seenTimeslotsInStoredProgram.values()) {
-            const currentTimeslot = seenTimeslotsInCurrentProgram.get(storedTimeslot.id);
+            const currentTimeslot = seenTimeslotsInCurrentProgram.get(storedTimeslot.id!);
             if (!currentTimeslot)
                 continue;
 
@@ -510,7 +515,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     timeslotUpdated: dbInstance.currentDateTime(),
                     timeslotDeleted: null,
                 })
-                .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
+                .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id!)));
 
             mutations.mutations.push({
                 activityId: timeslotToCurrentActivity.get(currentTimeslot.id)?.id,
