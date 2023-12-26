@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import LoopIcon from '@mui/icons-material/Loop';
 import Paper from '@mui/material/Paper';
@@ -59,7 +60,7 @@ export function SchedulerTaskTable() {
                     default:
                         return (
                             <Tooltip title="The task execution failed">
-                                <TaskAltIcon color="error" fontSize="small" />
+                                <ErrorOutlineIcon color="error" fontSize="small" />
                             </Tooltip>
                         );
                 }
