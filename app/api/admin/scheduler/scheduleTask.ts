@@ -21,6 +21,11 @@ export const kScheduleTaskDefinition = z.object({
         taskName: z.string(),
 
         /**
+         * The parameters that should be passed to the task, if any.
+         */
+        taskParams: z.any(),
+
+        /**
          * Delay that should be applied to the task, in milliseconds.
          */
         delayMs: z.number(),
@@ -57,7 +62,7 @@ export async function scheduleTask(request: Request, props: ActionProps): Promis
 
     await actuallyScheduleTask({
         taskName: request.taskName as keyof typeof kTaskRegistry,
-        params: { /* no params */ },
+        params: request.taskParams,
         delayMs: request.delayMs,
         intervalMs: /* no interval= */ undefined,
     });
