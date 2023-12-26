@@ -158,9 +158,15 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // with a list of mutations that will independently be written to the database.
         const mutations = this.compareActivities(currentActivities, storedActivities, dbInstance);
 
+        this.log.info(`New program entries: ${mutations.created.length}`);
+        this.log.info(`Updated program entries: ${mutations.updated.length}`);
+        this.log.info(`Deleted program entries: ${mutations.deleted.length}`);
+
         // When there is at least one mutation, update the database with all mutations in a single
         // transaction. The mutation logs will be written to the database as well.
         if (mutations.mutations.length > 0) {
+            this.log.info(`Total updates: ${mutations.mutations.length}`);
+
             await dbInstance.transaction(async () => {
                 for (const createQuery of mutations.created)
                     await createQuery.executeInsert();
@@ -173,6 +179,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     await dbInstance.insertInto(tActivitiesLogs)
                         .values(mutations.mutations.map(mutation => ({
                             festivalId: festivalId!,
+                            activityId: mutation.activityId,
+                            timeslotId: mutation.activityTimeslotId,
+                            locationId: mutation.locationId,
                             mutation: mutation.mutation,
                             mutationFields: mutation.mutatedFields?.join(', '),
                             mutationSeverity: mutation.severity,
@@ -182,11 +191,6 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 }
             });
         }
-
-        this.log.info(`New program entries: ${mutations.created.length}`);
-        this.log.info(`Updated program entries: ${mutations.updated.length}`);
-        this.log.info(`Deleted program entries: ${mutations.deleted.length}`);
-        this.log.info(`Total updates: ${mutations.mutations.length}`);
 
         return true;
     }
@@ -718,13 +722,18 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
     async fetchActivitiesFromDatabase(festivalId: number) {
         const dbInstance = db;
+
+        const activitiesTimeslotsJoin = tActivitiesTimeslots.forUseInLeftJoin();
+        const activitiesLocationsJoin = tActivitiesLocations.forUseInLeftJoin();
+
         return await db.selectFrom(tActivities)
-            .innerJoin(tActivitiesTimeslots)
-                .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
-                .and(tActivitiesTimeslots.timeslotType.equals(ActivityType.Program))
-            .innerJoin(tActivitiesLocations)
-                .on(tActivitiesLocations.locationId.equals(tActivitiesTimeslots.timeslotLocationId))
-                .and(tActivitiesLocations.locationType.equals(ActivityType.Program))
+            .leftJoin(activitiesTimeslotsJoin)
+                .on(activitiesTimeslotsJoin.activityId.equals(tActivities.activityId))
+                .and(activitiesTimeslotsJoin.timeslotType.equals(ActivityType.Program))
+            .leftJoin(activitiesLocationsJoin)
+                .on(activitiesLocationsJoin.locationId.equals(
+                    activitiesTimeslotsJoin.timeslotLocationId))
+                .and(activitiesLocationsJoin.locationType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
                 .and(tActivities.activityType.equals(ActivityType.Program))
             .select({
@@ -752,11 +761,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 },
 
                 timeslots: dbInstance.aggregateAsArray({
-                    id: tActivitiesTimeslots.timeslotId,
-                    startTime: tActivitiesTimeslots.timeslotStartTime,
-                    endTime: tActivitiesTimeslots.timeslotEndTime,
-                    locationId: tActivitiesTimeslots.timeslotLocationId,
-                    locationName: tActivitiesLocations.locationName,
+                    id: activitiesTimeslotsJoin.timeslotId,
+                    startTime: activitiesTimeslotsJoin.timeslotStartTime,
+                    endTime: activitiesTimeslotsJoin.timeslotEndTime,
+                    locationId: activitiesTimeslotsJoin.timeslotLocationId,
+                    locationName: activitiesLocationsJoin.locationName,
                 }),
             })
             .groupBy(tActivities.activityId)
