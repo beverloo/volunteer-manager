@@ -25,6 +25,11 @@ const kImportActivitiesTaskParamScheme = z.object({
      * upcoming festival. The task will be forced to be a one-off when set.
      */
     festivalId: z.number().optional(),
+
+    /**
+     * Whether mutation logs should be skipped when updating state in the database.
+     */
+    skipMutationLogs: z.boolean().optional(),
 });
 
 /**
@@ -164,15 +169,17 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 for (const deleteQuery of mutations.deleted)
                     await deleteQuery.executeUpdate();
 
-                await dbInstance.insertInto(tActivitiesLogs)
-                    .values(mutations.mutations.map(mutation => ({
-                        festivalId: festivalId!,
-                        mutation: mutation.mutation,
-                        mutationFields: mutation.mutatedFields?.join(', '),
-                        mutationSeverity: mutation.severity,
-                        mutationDate: dbInstance.currentDateTime(),
-                    })))
-                    .executeInsert();
+                if (!params.skipMutationLogs) {
+                    await dbInstance.insertInto(tActivitiesLogs)
+                        .values(mutations.mutations.map(mutation => ({
+                            festivalId: festivalId!,
+                            mutation: mutation.mutation,
+                            mutationFields: mutation.mutatedFields?.join(', '),
+                            mutationSeverity: mutation.severity,
+                            mutationDate: dbInstance.currentDateTime(),
+                        })))
+                        .executeInsert();
+                }
             });
         }
 
