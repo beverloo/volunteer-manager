@@ -3,6 +3,7 @@
 
 import { ActivitiesTable } from './scheme/ActivitiesTable';
 import { ActivitiesLocationsTable } from './scheme/ActivitiesLocationsTable';
+import { ActivitiesLogsTable } from './scheme/ActivitiesLogsTable';
 import { ActivitiesTimeslotsTable } from './scheme/ActivitiesTimeslotsTable';
 import { ContentTable } from './scheme/ContentTable';
 import { EventsTable } from './scheme/EventsTable';
@@ -42,6 +43,7 @@ import { VendorsTable } from './scheme/VendorsTable';
 // matches that proposed by `ts-sql-query`, i.e. `FooTable` becomes `tFoo`.
 export const tActivities = new ActivitiesTable;
 export const tActivitiesLocations = new ActivitiesLocationsTable;
+export const tActivitiesLogs = new ActivitiesLogsTable;
 export const tActivitiesTimeslots = new ActivitiesTimeslotsTable;
 export const tContent = new ContentTable;
 export const tEvents = new EventsTable;

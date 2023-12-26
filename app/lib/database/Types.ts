@@ -53,6 +53,26 @@ export enum LogSeverity {
 }
 
 /**
+ * The type of (activity) mutation that happened in the AnPlan program.
+ * @see Table `activities_logs`
+ */
+export enum Mutation {
+    Created = 'Created',
+    Updated = 'Updated',
+    Deleted = 'Deleted',
+}
+
+/**
+ * The severity of the (activity) mutation that happened in the AnPlan program.
+ * @see Table `activities_logs`
+ */
+export enum MutationSeverity {
+    Low = 'Low',
+    Moderate = 'Moderate',
+    Important = 'Important',
+}
+
+/**
  * Status of a volunteer's registration to an event.
  * @see Table `users_events`
  */

@@ -2903,6 +2903,92 @@ tables:
       `location_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`location_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: activities_logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: timeslot_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: location_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation
+    type: enum('Created','Updated','Deleted')
+    nullable: false
+    default: null
+    comment: ""
+  - name: mutation_fields
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_severity
+    type: enum('Low','Moderate','Important')
+    nullable: false
+    default: null
+    comment: ""
+  - name: mutation_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: activity_id
+    def: KEY activity_id (activity_id) USING BTREE
+    table: activities_logs
+    columns:
+    - activity_id
+    comment: ""
+  - name: festival_id
+    def: KEY festival_id (festival_id) USING BTREE
+    table: activities_logs
+    columns:
+    - festival_id
+    comment: ""
+  - name: location_id
+    def: KEY location_id (location_id) USING BTREE
+    table: activities_logs
+    columns:
+    - location_id
+    comment: ""
+  - name: timeslot_id
+    def: KEY timeslot_id (timeslot_id) USING BTREE
+    table: activities_logs
+    columns:
+    - timeslot_id
+    comment: ""
+  constraints: []
+  triggers: []
+  def: |-
+    CREATE TABLE `activities_logs` (
+      `festival_id` int(8) unsigned NOT NULL,
+      `activity_id` int(8) unsigned DEFAULT NULL,
+      `timeslot_id` int(8) unsigned DEFAULT NULL,
+      `location_id` int(8) unsigned DEFAULT NULL,
+      `mutation` enum('Created','Updated','Deleted') NOT NULL,
+      `mutation_fields` text DEFAULT NULL,
+      `mutation_severity` enum('Low','Moderate','Important') NOT NULL,
+      `mutation_date` datetime NOT NULL,
+      KEY `festival_id` (`festival_id`),
+      KEY `activity_id` (`activity_id`),
+      KEY `timeslot_id` (`timeslot_id`),
+      KEY `location_id` (`location_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

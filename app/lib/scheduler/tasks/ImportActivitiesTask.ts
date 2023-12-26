@@ -11,7 +11,9 @@ import { ActivityType } from '@lib/database/Types';
 import { TaskWithParams } from '../Task';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 import { dayjs } from '@lib/DateTime';
-import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tEvents }
+
+import { Mutation, MutationSeverity } from '@lib/database/Types';
+import db, { tActivities, tActivitiesLocations, tActivitiesLogs, tActivitiesTimeslots, tEvents }
     from '@lib/database';
 
 /**
@@ -37,11 +39,6 @@ type MutationTableTypes =
     typeof tActivities | typeof tActivitiesLocations | typeof tActivitiesTimeslots;
 
 /**
- * Severities that can be assigned to an individual mutation.
- */
-type MutationSeverity = 'Low' | 'Moderate' | 'Important';
-
-/**
  * Mutations are expressed as a set of queries (created by the `compareActivities` method) together
  * with a list of changes. The list deliberately is inspectable to enable testing.
  */
@@ -54,7 +51,7 @@ interface Mutations {
         activityTimeslotId?: number;
         locationId?: number;
 
-        mutation: 'Created' | 'Updated' | 'Deleted';
+        mutation: Mutation;
         mutatedFields?: string[];
         severity: MutationSeverity;
     }[];
@@ -149,24 +146,54 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // information to make sure that the information in our database is up-to-date.
         const storedActivities = await this.fetchActivitiesFromDatabase(festivalId!);
 
+        // Use a single database connection for all further operations...
+        const dbInstance = db;
+
         // Run the comparison. This yields the created, updated and deleted activities, together
         // with a list of mutations that will independently be written to the database.
-        const mutations = this.compareActivities(currentActivities, storedActivities);
+        const mutations = this.compareActivities(currentActivities, storedActivities, dbInstance);
 
-        // TODO: Update the database based on the given `mutations`.
+        // When there is at least one mutation, update the database with all mutations in a single
+        // transaction. The mutation logs will be written to the database as well.
+        if (mutations.mutations.length > 0) {
+            await dbInstance.transaction(async () => {
+                for (const createQuery of mutations.created)
+                    await createQuery.executeInsert();
+                for (const updateQuery of mutations.updated)
+                    await updateQuery.executeUpdate();
+                for (const deleteQuery of mutations.deleted)
+                    await deleteQuery.executeUpdate();
+
+                await dbInstance.insertInto(tActivitiesLogs)
+                    .values(mutations.mutations.map(mutation => ({
+                        festivalId: festivalId!,
+                        mutation: mutation.mutation,
+                        mutationFields: mutation.mutatedFields?.join(', '),
+                        mutationSeverity: mutation.severity,
+                        mutationDate: dbInstance.currentDateTime(),
+                    })))
+                    .executeInsert();
+            });
+        }
+
+        this.log.info(`New program entries: ${mutations.created.length}`);
+        this.log.info(`Updated program entries: ${mutations.updated.length}`);
+        this.log.info(`Deleted program entries: ${mutations.deleted.length}`);
+        this.log.info(`Total updates: ${mutations.mutations.length}`);
 
         return true;
     }
 
-    compareActivities(currentActivities: Activity[], storedActivities: StoredActivity[]) {
+    compareActivities(
+        currentActivities: Activity[], storedActivities: StoredActivity[], dbInstance?: typeof db)
+    {
+        dbInstance ??= db;
         const mutations: Mutations = {
             created: [],
             updated: [],
             deleted: [],
             mutations: [],
         };
-
-        const dbInstance = db;
 
         // -----------------------------------------------------------------------------------------
         // Step 1: Gather IDs of entities in the stored program
@@ -256,8 +283,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     activityId: currentActivity.id,
-                    mutation: 'Created',
-                    severity: this.maybeEscalateMutationSeverity(currentActivity, 'Moderate'),
+                    mutation: Mutation.Created,
+                    severity: this.maybeEscalateMutationSeverity(
+                        currentActivity, MutationSeverity.Moderate),
                 });
 
             } else {
@@ -273,8 +301,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     activityId: storedActivity.id,
-                    mutation: 'Deleted',
-                    severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
+                    mutation: Mutation.Deleted,
+                    severity: this.maybeEscalateMutationSeverity(
+                        storedActivity, MutationSeverity.Moderate),
                 });
             }
         }
@@ -303,8 +332,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     locationId: locationId,
-                    mutation: 'Created',
-                    severity: 'Moderate',
+                    mutation: Mutation.Created,
+                    severity: MutationSeverity.Moderate,
                 });
 
             } else {
@@ -320,8 +349,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     locationId: locationId,
-                    mutation: 'Deleted',
-                    severity: 'Moderate',
+                    mutation: Mutation.Deleted,
+                    severity: MutationSeverity.Moderate,
                 });
             }
         }
@@ -357,8 +386,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityId: currentActivity.id,
                     activityTimeslotId: currentTimeslot.id,
 
-                    mutation: 'Created',
-                    severity: this.maybeEscalateMutationSeverity(currentActivity, 'Moderate'),
+                    mutation: Mutation.Created,
+                    severity: this.maybeEscalateMutationSeverity(
+                        currentActivity, MutationSeverity.Moderate),
                 });
 
             } else {
@@ -378,8 +408,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityId: storedActivity.id,
                     activityTimeslotId: storedTimeslot.id,
 
-                    mutation: 'Deleted',
-                    severity: this.maybeEscalateMutationSeverity(storedActivity, 'Moderate'),
+                    mutation: Mutation.Deleted,
+                    severity: this.maybeEscalateMutationSeverity(
+                        storedActivity, MutationSeverity.Moderate),
                 });
             }
         }
@@ -420,7 +451,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.mutations.push({
                 activityId: storedActivity.id,
-                mutation: 'Updated',
+                mutation: Mutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -445,7 +476,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.mutations.push({
                 locationId: storedLocation.id,
-                mutation: 'Updated',
+                mutation: Mutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -473,7 +504,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             mutations.mutations.push({
                 activityId: timeslotToCurrentActivity.get(currentTimeslot.id)?.id,
                 activityTimeslotId: storedTimeslot.id,
-                mutation: 'Updated',
+                mutation: Mutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -729,11 +760,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
     updateWeightToSeverityLevel(weight: number): MutationSeverity {
         if (weight < kUpdateSeverityLevel.Moderate)
-            return 'Low';
+            return MutationSeverity.Low;
         else if (weight < kUpdateSeverityLevel.Important)
-            return 'Moderate';
+            return MutationSeverity.Moderate;
         else
-            return 'Important';
+            return MutationSeverity.Important;
     }
 
     maybeEscalateMutationSeverity(
@@ -742,7 +773,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // The severity of mutations gets escalated when the "help needed" flag has been set on an
         // event, which signals that explicit action from our team is requested.
         if ('helpNeeded' in activity && activity.helpNeeded === 1)
-            return 'Important';
+            return MutationSeverity.Important;
 
         // TODO: Consider the `helpNeeded` field in `Activity` when the API exposes it.
 

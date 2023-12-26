@@ -3,6 +3,7 @@
 
 import type { Activity, Floor, Location, Timeslot } from '@lib/integrations/animecon';
 import { ImportActivitiesTask, type StoredActivity, type StoredTimeslot } from './ImportActivitiesTask';
+import { MutationSeverity } from '@lib/database/Types';
 import { TaskContext } from '../TaskContext';
 import { dayjs } from '@lib/DateTime';
 import { useMockConnection } from '@lib/database/Connection';
@@ -262,13 +263,14 @@ describe('ImportActivitiesTask', () => {
         const helpNeededStoredActivity = createStoredActivity(
             { id: 101, helpNeeded: 1 }, [ /* no timeslots */ ]);
 
-        expect(task.maybeEscalateMutationSeverity(regularActivity, 'Moderate')).toBe('Moderate');
-        expect(task.maybeEscalateMutationSeverity(regularStoredActivity, 'Moderate'))
-            .toBe('Moderate');
+        expect(task.maybeEscalateMutationSeverity(regularActivity, MutationSeverity.Moderate))
+            .toBe(MutationSeverity.Moderate);
+        expect(task.maybeEscalateMutationSeverity(regularStoredActivity, MutationSeverity.Moderate))
+            .toBe(MutationSeverity.Moderate);
 
         // TODO: Check for `helpNeededActivity` when the API has been updated.
-        expect(task.maybeEscalateMutationSeverity(helpNeededStoredActivity, 'Moderate'))
-            .toBe('Important');
+        expect(task.maybeEscalateMutationSeverity(
+            helpNeededStoredActivity, MutationSeverity.Moderate)).toBe(MutationSeverity.Important);
     });
 
     it('should be able to identify additions to the program', () => {

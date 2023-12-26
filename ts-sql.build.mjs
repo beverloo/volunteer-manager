@@ -120,6 +120,8 @@ do {
             ...[
                 { field: [ 'activities', 'activity_type' ], type: 'ActivityType' },
                 { field: [ 'activities_locations', 'location_type' ], type: 'ActivityType' },
+                { field: [ 'activities_logs', 'mutation' ], type: 'Mutation' },
+                { field: [ 'activities_logs', 'mutation_severity' ], type: 'MutationSeverity' },
                 { field: [ 'activities_timeslots', 'timeslot_type' ], type: 'ActivityType' },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
