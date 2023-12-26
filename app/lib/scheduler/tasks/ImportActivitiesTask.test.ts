@@ -383,7 +383,71 @@ describe('ImportActivitiesTask', () => {
     });
 
     it('should be able to identify updates to activities in the program', () => {
-        // TODO: Implement me.
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                title: 'New title',
+                description: 'New description',
+                url: null,
+                price: null,
+                // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+                maxVisitors: 25,
+                activityType: {
+                    adultsOnly: false,
+                    competition: false,
+                    cosplay: true,
+                    event: true,
+                    gameRoom: false,
+                    video: false,
+                } as any,
+                visible: false,
+                reasonInvisible: 'Cancelled',
+            }),
+        ], [
+            createStoredActivity({
+                id: 100,
+                title: 'Old title',
+                description: undefined,
+                url: undefined,
+                price: 100.25,
+                // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+                maxVisitors: 20,
+                type: {
+                    adultsOnly: 1,
+                    competition: 0,
+                    cosplay: 1,
+                    event: 0,
+                    gameRoom: 0,
+                    video: 0,
+                },
+                visible: 1,
+                visibleReason: undefined,
+            }, /* timeslots= */ [ { id: 1100 } ]),
+        ]);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(1);
+        expect(mutations.deleted).toHaveLength(0);
+
+        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations[0]).toEqual({
+            activityId: 100,
+            mutation: 'Updated',
+            mutatedFields: [
+                'title',
+                'description',
+                'price',
+                'max visitors',
+                '18+ flag',
+                'event flag',
+                'visibility',
+                'visibility reason',
+            ],
+            severity: 'Moderate',
+        });
     });
 
     it('should be able to identify updates to locations in the program', () => {
@@ -594,29 +658,20 @@ describe('ImportActivitiesTask', () => {
         });
     });
 
-    it('should be able to run the task end-to-end with various mutations', async () => {
-        // TODO: Implement me.
-    });
-
     it('should be able to comprehensively compare fields', () => {
         const task = createImportActivitiesTaskForFestival(
             /* no festival= */ undefined, /* skipDb= */ true);
 
         // Individual comparisons:
-        expect(task.compareField(/* stored= */ 0, /* current= */ true)).toBeFalse();
-        expect(task.compareField(/* stored= */ 1, /* current= */ true)).toBeTrue();
-        expect(task.compareField(/* stored= */ 0, /* current= */ false)).toBeTrue();
-        expect(task.compareField(/* stored= */ 1, /* current= */ false)).toBeFalse();
-        expect(task.compareField(/* stored= */ 42, /* current= */ 42)).toBeTrue();
-        expect(task.compareField(/* stored= */ 42, /* current= */ 9001)).toBeFalse();
-        expect(task.compareField(/* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
-        expect(task.compareField(/* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
-        expect(task.compareField(/* stored= */ NaN, /* current= */ NaN)).toBeTrue();
-
-        expect(() => task.compareField(/* stored= */ 'Foo', /* current= */ 42)).toThrow();
-        expect(() => task.compareField(/* stored= */ 42, /* current= */ 'Foo')).toThrow();
-        expect(() => task.compareField(/* stored= */ [], /* current= */ [])).toThrow();
-        expect(() => task.compareField(/* stored= */ {}, /* current= */ {})).toThrow();
+        expect(task.compareField('boolean', /* stored= */ 0, /* current= */ true)).toBeFalse();
+        expect(task.compareField('boolean', /* stored= */ 1, /* current= */ true)).toBeTrue();
+        expect(task.compareField('boolean', /* stored= */ 0, /* current= */ false)).toBeTrue();
+        expect(task.compareField('boolean', /* stored= */ 1, /* current= */ false)).toBeFalse();
+        expect(task.compareField('number', /* stored= */ 42, /* current= */ 42)).toBeTrue();
+        expect(task.compareField('number', /* stored= */ 42, /* current= */ 9001)).toBeFalse();
+        expect(task.compareField('string', /* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
+        expect(task.compareField('string', /* stored= */ 'Foo', /* current= */ 'Foo')).toBeTrue();
+        expect(task.compareField('number', /* stored= */ NaN, /* current= */ NaN)).toBeTrue();
 
         // Comprehensive comparisons:
         {
@@ -626,12 +681,14 @@ describe('ImportActivitiesTask', () => {
                     weight: /* Low= */ 1,
                     stored: 'Original Value',
                     current: 'Updated Value',
+                    comparison: 'string',
                 },
                 {
                     name: 'second',
                     weight: /* Moderate= */ 10,
                     stored: 1,
                     current: true,
+                    comparison: 'boolean',
                 }
             ]);
 
@@ -646,18 +703,21 @@ describe('ImportActivitiesTask', () => {
                     weight: /* Low= */ 1,
                     stored: 42,
                     current: 101,
+                    comparison: 'number',
                 },
                 {
                     name: 'second',
                     weight: /* Moderate= */ 10,
                     stored: 0,
                     current: true,
+                    comparison: 'boolean',
                 },
                 {
                     name: 'third',
                     weight: /* Important= */ 100,
                     stored: 'Value',
                     current: 'Value',
+                    comparison: 'string',
                 }
             ]);
 
@@ -672,18 +732,21 @@ describe('ImportActivitiesTask', () => {
                     weight: /* Low= */ 1,
                     stored: 'Value',
                     current: 'Value',
+                    comparison: 'string',
                 },
                 {
                     name: 'second',
                     weight: /* Moderate= */ 10,
                     stored: 0,
                     current: false,
+                    comparison: 'boolean',
                 },
                 {
                     name: 'third',
                     weight: /* Important= */ 100,
                     stored: 1,
                     current: false,
+                    comparison: 'boolean',
                 }
             ]);
 
@@ -698,18 +761,21 @@ describe('ImportActivitiesTask', () => {
                     weight: /* Low= */ 1,
                     stored: 1,
                     current: true,
+                    comparison: 'boolean',
                 },
                 {
                     name: 'second',
                     weight: /* Moderate= */ 10,
                     stored: 42,
                     current: 42,
+                    comparison: 'number',
                 },
                 {
                     name: 'third',
                     weight: /* Important= */ 100,
                     stored: 'Value',
                     current: 'Value',
+                    comparison: 'string',
                 }
             ]);
 

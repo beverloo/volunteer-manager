@@ -78,9 +78,9 @@ type UpdateInfo = { fields: string[], severity: MutationSeverity; };
  */
 type UpdateField = { name: string; weight: number; } &
     (
-        { stored: number; current: boolean } |
-        { stored: number; current: number } |
-        { stored: string; current: string }
+        { comparison: 'boolean'; stored?: number; current?: boolean } |
+        { comparison: 'number'; stored?: number; current?: number | null } |
+        { comparison: 'string'; stored?: string; current?: string | null }
     );
 
 /**
@@ -397,7 +397,33 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             if (!update.fields.length)
                 continue;  // the `storedActivity` is still up-to-date
 
-            // TODO: Update the database representation with `currentActivity`.
+            mutations.updated.push(dbInstance.update(tActivities)
+                .set({
+                    activityTitle: currentActivity.title,
+                    activityDescription: currentActivity.description,
+                    activityUrl: currentActivity.url,
+                    activityPrice: currentActivity.price,
+                    // TODO: Update the `helpNeeded` field in `Activity` when the API exposes it.
+                    activityMaxVisitors: currentActivity.maxVisitors,
+                    activityTypeAdultsOnly: currentActivity.activityType?.adultsOnly ? 1 : 0,
+                    activityTypeCompetition: currentActivity.activityType?.competition ? 1 : 0,
+                    activityTypeCosplay: currentActivity.activityType?.cosplay ? 1 : 0,
+                    activityTypeEvent: currentActivity.activityType?.event ? 1 : 0,
+                    activityTypeGameRoom: currentActivity.activityType?.gameRoom ? 1 : 0,
+                    activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
+                    activityVisible: currentActivity.visible ? 1 : 0,
+                    activityVisibleReason: currentActivity.reasonInvisible,
+                    activityUpdated: dbInstance.currentDateTime(),
+                    activityDeleted: null,
+                })
+                .where(tActivities.activityId.equals(storedActivity.id)));
+
+            mutations.mutations.push({
+                activityId: storedActivity.id,
+                mutation: 'Updated',
+                mutatedFields: update.fields,
+                severity: update.severity,
+            });
         }
 
         for (const storedLocation of seenLocationsInStoredProgram.values()) {
@@ -459,7 +485,100 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     // ---------------------------------------------------------------------------------------------
 
     compareActivity(storedActivity: StoredActivity, currentActivity: Activity): UpdateInfo {
-        return { fields: [], severity: 'Low' };
+        return this.compareFields([
+            {
+                name: 'title',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.title,
+                current: currentActivity.title,
+                comparison: 'string',
+            },
+            {
+                name: 'description',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.description,
+                current: currentActivity.description,
+                comparison: 'string',
+            },
+            {
+                name: 'url',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.url,
+                current: currentActivity.url,
+                comparison: 'string',
+            },
+            {
+                name: 'price',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.price,
+                current: currentActivity.price,
+                comparison: 'number',
+            },
+            // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+            {
+                name: 'max visitors',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.maxVisitors,
+                current: currentActivity.maxVisitors,
+                comparison: 'number',
+            },
+            {
+                name: '18+ flag',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: storedActivity.type.adultsOnly,
+                current: currentActivity.activityType?.adultsOnly,
+                comparison: 'boolean',
+            },
+            {
+                name: 'competition flag',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.type.competition,
+                current: currentActivity.activityType?.competition,
+                comparison: 'boolean',
+            },
+            {
+                name: 'cosplay flag',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.type.cosplay,
+                current: currentActivity.activityType?.cosplay,
+                comparison: 'boolean',
+            },
+            {
+                name: 'event flag',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.type.event,
+                current: currentActivity.activityType?.event,
+                comparison: 'boolean',
+            },
+            {
+                name: 'gameroom flag',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.type.gameRoom,
+                current: currentActivity.activityType?.gameRoom,
+                comparison: 'boolean',
+            },
+            {
+                name: 'video flag',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.type.video,
+                current: currentActivity.activityType?.video,
+                comparison: 'boolean',
+            },
+            {
+                name: 'visibility',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: storedActivity.visible,
+                current: currentActivity.visible,
+                comparison: 'boolean',
+            },
+            {
+                name: 'visibility reason',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.visibleReason,
+                current: currentActivity.reasonInvisible,
+                comparison: 'string',
+            },
+        ]);
     }
 
     compareLocation(storedLocation: StoredLocation, currentLocation: Location): UpdateInfo {
@@ -469,6 +588,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 weight: kUpdateSeverityLevel.Low,
                 stored: storedLocation.name,
                 current: currentLocation.useName ?? currentLocation.name,
+                comparison: 'string',
             }
         ]);
     }
@@ -480,18 +600,21 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 weight: kUpdateSeverityLevel.Moderate,
                 stored: dayjs(storedTimeslot.startTime).utc().format(),
                 current: dayjs(currentTimeslot.dateStartsAt).utc().format(),
+                comparison: 'string',
             },
             {
                 name: 'end time',
                 weight: kUpdateSeverityLevel.Moderate,
                 stored: dayjs(storedTimeslot.endTime).utc().format(),
                 current: dayjs(currentTimeslot.dateEndsAt).utc().format(),
+                comparison: 'string',
             },
             {
                 name: 'location',
                 weight: kUpdateSeverityLevel.Low,
                 stored: storedTimeslot.locationId,
                 current: currentTimeslot.location.id,
+                comparison: 'number',
             },
         ]);
     }
@@ -504,8 +627,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             weight: 0,
         };
 
-        for (const { name, weight, stored, current } of fields) {
-            if (this.compareField(stored, current))
+        for (const { name, weight, stored, current, comparison } of fields) {
+            if (this.compareField(comparison, stored, current))
                 continue;
 
             update.fields.push(name);
@@ -518,28 +641,34 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         };
     }
 
-    //compareField(storedField: number, currentField: boolean): boolean;
-    //compareField(storedField: number, currentField: number): boolean;
-    //compareField(storedField: string, currentField: string): boolean;
-    compareField(storedField: unknown, currentField: unknown): boolean {
-        if (typeof storedField === 'number') {
-            if (typeof currentField === 'boolean') {
-                return !!storedField === currentField;
-            } else if (typeof currentField === 'number') {
-                if (Number.isNaN(storedField) && Number.isNaN(currentField))
-                    return true;
-                return storedField === currentField;
-            } else {
-                throw new Error(`Unexpected field type in "currentField": ${typeof currentField}`);
-            }
-        } else if (typeof storedField === 'string') {
-            if (typeof currentField === 'string')
-                return storedField === currentField;
-            else
-                throw new Error(`Unexpected field type in "currentField": ${typeof currentField}`);
-        } else {
-            throw new Error(`Unexpected field type in "storedField": ${typeof storedField}`);
+    //compareField(comparison: 'boolean', storedField?: number, currentField: boolean): boolean;
+    //compareField(comparison: 'number', storedField?: number, currentField?: number): boolean;
+    //compareField(comparison: 'string', storedField?: string, currentField?: string): boolean;
+    compareField(
+        comparison: 'boolean' | 'number' | 'string', storedField: unknown, currentField: unknown)
+        : boolean
+    {
+        if (comparison === 'boolean')
+            return !!storedField === !!currentField;
+
+        if (Number.isNaN(storedField) && Number.isNaN(currentField))
+            return true;
+
+        if (storedField === undefined || storedField === null) {
+            if (currentField === undefined || currentField === null)
+                return true;  // both are nullish
+
+            return false;  // one is nullish, one has a value
         }
+
+        if (currentField === undefined || currentField === null) {
+            if (storedField === undefined || storedField === null)
+                return true;  // both are nullish
+
+            return false;  // one is nullish, one has a value
+        }
+
+        return storedField === currentField;
     }
 
     // ---------------------------------------------------------------------------------------------
