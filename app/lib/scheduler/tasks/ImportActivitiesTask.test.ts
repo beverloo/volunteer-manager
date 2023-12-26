@@ -19,8 +19,8 @@ describe('ImportActivitiesTask', () => {
         activity: PartialStoredActivity, timeslots: PartialStoredTimeslot[]): StoredActivity
     {
         return {
-            created: new Date('2023-12-23 12:00:00'),
-            updated: new Date('2023-12-23 12:00:00'),
+            created: new Date('2023-12-23T12:00:00+01:00'),
+            updated: new Date('2023-12-23T12:00:00+01:00'),
             deleted: undefined,
 
             title: 'Example activity',
@@ -42,8 +42,8 @@ describe('ImportActivitiesTask', () => {
             },
 
             timeslots: timeslots.map(timeslot => ({
-                startTime: new Date('2024-06-09 15:00:00'),
-                endTime: new Date('2024-06-09 15:30:00'),
+                startTime: new Date('2024-06-09T09:00:00+00:00'),
+                endTime: new Date('2024-06-09T09:30:00+00:00'),
                 locationId: 100,
                 locationName: 'Example location',
 
@@ -77,8 +77,8 @@ describe('ImportActivitiesTask', () => {
 
     function createSimpleTimeslot(timeslot: PartialWithRequiredId<Timeslot>): Timeslot {
         return {
-            dateStartsAt: '2024-06-09 10:00:00',
-            dateEndsAt: '2024-06-09 10:30:00',
+            dateStartsAt: '2024-06-09T10:00:00+01:00',
+            dateEndsAt: '2024-06-09T10:30:00+01:00',
             location: createSimpleLocation({ id: 100 }),
             ...timeslot,
         };
@@ -345,11 +345,11 @@ describe('ImportActivitiesTask', () => {
         });
 
         expect(mutations.mutations[1]).toEqual({
-            // TODO: `activityId`
+            activityId: 100,
             activityTimeslotId: 1101,
             mutation: 'Updated',
             mutatedFields: [ 'location' ],
-            severity: 'Moderate',
+            severity: 'Low',
         });
     });
 
@@ -437,6 +437,8 @@ describe('ImportActivitiesTask', () => {
                 timeslots: [
                     createSimpleTimeslot({
                         id: 1100,
+                        dateStartsAt: '2024-06-09T12:00:00+00:00',
+                        dateEndsAt: '2024-06-09T12:30:00+00:00',
                         location: createSimpleLocation({ id: 11100 }),
                     }),
                     createSimpleTimeslot({
@@ -451,23 +453,36 @@ describe('ImportActivitiesTask', () => {
             }),
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [
-                { id: 1100, locationId: 11100 },
+                {
+                    id: 1100,
+                    startTime: new Date('2024-06-09T13:30:00+01:00'),  // <-- moved by 30 minutes
+                    endTime: new Date('2024-06-09T13:00:00+01:00'),
+                    locationId: 11100
+                },
                 { id: 1101, locationId: 11101 },  // <-- old location
                 { id: 1102, locationId: 11101 },
             ]),
         ]);
 
         expect(mutations.created).toHaveLength(0);
-        expect(mutations.updated).toHaveLength(1);
+        expect(mutations.updated).toHaveLength(2);
         expect(mutations.deleted).toHaveLength(0);
 
-        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations).toHaveLength(2);
         expect(mutations.mutations[0]).toEqual({
-            // TODO: `activityId`
+            activityId: 100,
+            activityTimeslotId: 1100,
+            mutation: 'Updated',
+            mutatedFields: [ 'start time', 'end time' ],
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            activityId: 100,
             activityTimeslotId: 1101,
             mutation: 'Updated',
             mutatedFields: [ 'location' ],
-            severity: 'Moderate',
+            severity: 'Low',
         });
     });
 
@@ -542,11 +557,11 @@ describe('ImportActivitiesTask', () => {
         });
 
         expect(mutations.mutations[1]).toEqual({
-            // TODO: `activityId`
+            activityId: 100,
             activityTimeslotId: 1101,
             mutation: 'Updated',
             mutatedFields: [ 'location' ],
-            severity: 'Moderate',
+            severity: 'Low',
         });
     });
 

@@ -434,11 +434,10 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             if (!update.fields.length)
                 continue;  // the `storedTimeslot` is still up-to-date
 
-            // TODO: `timeslot_start_time`
-            // TODO: `timeslot_end_time`
-
             mutations.updated.push(dbInstance.update(tActivitiesTimeslots)
                 .set({
+                    timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
+                    timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
                     timeslotLocationId: currentTimeslot.location.id,
                     timeslotUpdated: dbInstance.currentDateTime(),
                     timeslotDeleted: null,
@@ -446,7 +445,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
 
             mutations.mutations.push({
-                // TODO: `activityId`
+                activityId: timeslotToCurrentActivity.get(currentTimeslot.id)?.id,
                 activityTimeslotId: storedTimeslot.id,
                 mutation: 'Updated',
                 mutatedFields: update.fields,
@@ -476,11 +475,21 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
     compareTimeslot(storedTimeslot: StoredTimeslot, currentTimeslot: Timeslot): UpdateInfo {
         return this.compareFields([
-            // TODO: `timeslot_start_time`
-            // TODO: `timeslot_end_time`
+            {
+                name: 'start time',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: dayjs(storedTimeslot.startTime).utc().format(),
+                current: dayjs(currentTimeslot.dateStartsAt).utc().format(),
+            },
+            {
+                name: 'end time',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: dayjs(storedTimeslot.endTime).utc().format(),
+                current: dayjs(currentTimeslot.dateEndsAt).utc().format(),
+            },
             {
                 name: 'location',
-                weight: kUpdateSeverityLevel.Moderate,
+                weight: kUpdateSeverityLevel.Low,
                 stored: storedTimeslot.locationId,
                 current: currentTimeslot.location.id,
             },
