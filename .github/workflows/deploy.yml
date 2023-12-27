@@ -20,6 +20,7 @@ jobs:
           git reset --hard
           git pull --rebase
           npm install
+          npm run-script test
           npm run-script build-prod
           docker system prune -f
           docker stop volunteer-manager-docker
