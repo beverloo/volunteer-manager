@@ -35,6 +35,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: enable_availability
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
   - name: enable_schedule
     type: tinyint(1)
     nullable: false
@@ -105,6 +110,7 @@ tables:
       `enable_team` tinyint(1) NOT NULL DEFAULT 0,
       `enable_content` tinyint(1) NOT NULL DEFAULT 0,
       `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_availability` tinyint(1) NOT NULL,
       `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
       `whatsapp_link` text DEFAULT NULL,
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`),

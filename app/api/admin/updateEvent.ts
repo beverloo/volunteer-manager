@@ -68,6 +68,7 @@ export const kUpdateEventDefinition = z.object({
             enableTeam: z.boolean(),
             enableContent: z.boolean(),
             enableRegistration: z.boolean(),
+            enableAvailability: z.boolean(),
             enableSchedule: z.boolean(),
             targetSize: z.number(),
             whatsappLink: z.string().optional(),
@@ -261,6 +262,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     enableTeam: request.team.enableTeam ? 1 : 0,
                     enableContent: request.team.enableContent ? 1 : 0,
                     enableRegistration: request.team.enableRegistration ? 1 : 0,
+                    enableAvailability: request.team.enableAvailability ? 1 : 0,
                     enableSchedule: request.team.enableSchedule ? 1 : 0,
                     whatsappLink: request.team.whatsappLink,
                 })

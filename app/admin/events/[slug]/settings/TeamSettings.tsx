@@ -54,6 +54,11 @@ export interface TeamSettings {
     enableRegistration?: boolean;
 
     /**
+     * Whether this team is able to indicate their availability preferences.
+     */
+    enableAvailability?: boolean;
+
+    /**
      * Whether volunteers in this team can access the volunteer portal.
      */
     enableSchedule?: boolean;
@@ -106,7 +111,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             headerName: 'Team',
             editable: false,
             sortable: false,
-            flex: 3,
+            flex: 2,
         },
         {
             field: 'targetSize',
@@ -162,6 +167,20 @@ export function TeamSettings(props: TeamSettingsProps) {
             },
         },
         {
+            field: 'enableAvailability',
+            headerName: 'Accept availability',
+            description: 'Are we accepting availability preferences?',
+            editable: true,
+            sortable: false,
+            type: 'boolean',
+            flex: 2,
+
+            renderCell: (params: GridRenderCellParams) => {
+                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
+                                      : <CancelIcon fontSize="small" color="error" />;
+            },
+        },
+        {
             field: 'whatsappLink',
             headerName: 'WhatsApp invite',
             description: 'WhatsApp group invite to share with the team',
@@ -183,6 +202,7 @@ export function TeamSettings(props: TeamSettingsProps) {
                 enableTeam: !!newRow.enableTeam,
                 enableContent: !!newRow.enableContent,
                 enableRegistration: !!newRow.enableRegistration,
+                enableAvailability: !!newRow.enableAvailability,
                 enableSchedule: !!newRow.enableSchedule,
                 targetSize: newRow.targetSize,
                 whatsappLink: newRow.whatsappLink,

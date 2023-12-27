@@ -30,7 +30,20 @@ import { dayjs } from '@lib/DateTime';
  * Props accepted by the <AvailabilityButton> component.
  */
 interface AvailabilityButtonProps {
-    /** no props exist yet */
+    /**
+     * Whether the button should be enabled by default, i.e. has the program been published yet?
+     */
+    enabled: boolean;
+
+    /**
+     * The number of events that the volunteer can indicate as wanting to attend.
+     */
+    eventLimit: number;
+
+    /**
+     * Whether the volunteer has the ability to override normal access restrictions.
+     */
+    override: boolean;
 }
 
 /**
@@ -38,18 +51,57 @@ interface AvailabilityButtonProps {
  * regards to their presence at the location and events they would like to attend.
  *
  * This button deals with a number of situations:
- *   (1) The volunteer is not able to indicate their preferences yet.
+ *   (1) The volunteer has indicated their availability preferences.
+ *   (2) The volunteer is able to indicate their preferences, but has not done so yet.
+ *   (3) The volunteer is not eligible to indicate their preferences.
+ *   (4) The volunteer is not able to indicate their preferences yet.
  */
 function AvailabilityButton(props: AvailabilityButtonProps) {
-    const primary = 'When will you be available during the event?';
-    const secondary = 'The program has not been published yet…';
+    const { enabled, eventLimit, override } = props;
+
+    let status: 'ineligible' | 'pending' | 'submitted';
+    let primary: string | undefined = undefined;
+    let secondary: string | undefined = undefined;
+
+    if (false || eventLimit === /* silence TypeScript= */ 901) {
+        // (1) The volunteer has indicated their availability preferences.
+        // TODO
+        status = 'submitted';
+    } else if (enabled && eventLimit > 0) {
+        // (2) The volunteer is able to indicate their preferences, but has not done so yet.
+        primary = 'When will you be available during the event?';
+        secondary = 'Please share your preferences with us whenever you can…';
+        status = 'pending';
+    } else if (enabled && eventLimit <= 0) {
+        // (3) The volunteer is not eligible to indicate their preferences.
+        primary = 'We expect you to be around during the event!';
+        secondary = 'You\'re not eligible to share availability preferences…';
+        status = 'ineligible';
+    } else {
+        // (4) The volunteer is not able to indicate their preferences yet.
+        primary = 'When will you be available during the event?';
+        secondary = 'The program has not been published yet…';
+        status = 'pending';
+    }
 
     return (
-        <ListItemButton disabled sx={{ pl: 4 }}>
+        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
+                        disabled={!enabled && !override}
+                        href="./application/availability">
+
             <ListItemIcon>
-                <RadioButtonUncheckedIcon color="warning" />
+                { status === 'submitted' && <TaskAltIcon color="success" /> }
+                { status === 'ineligible' && <RadioButtonUncheckedIcon color="success" /> }
+                { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
             </ListItemIcon>
+
             <ListItemText primary={primary} secondary={secondary} />
+
+            { (!enabled && override) &&
+                <Tooltip title="Access is limited to event managers">
+                    <VisibilityOffIcon color="warning" sx={{ mr: 2 }} />
+                </Tooltip> }
+
         </ListItemButton>
     );
 }
@@ -223,7 +275,7 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
         // (3) The volunteer is able to request a refund.
         // (4) The volunteer is able to request a refund because of an override.
         primary = 'You will receive a free ticket next year!';
-        secondary = 'Thank you for your help. You could request a refund instead';
+        secondary = 'Thank you for your help—you could request a refund';
     }
 
     return (
@@ -442,7 +494,9 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <ListItemText primary="Your application has been accepted!" />
                         </ListItem>
 
-                        <AvailabilityButton />
+                        <AvailabilityButton enabled={registration.availabilityAvailable}
+                                            eventLimit={registration.availabilityEventLimit}
+                                            override={can(user, Privilege.EventAdministrator)} />
 
                         { displayHotel &&
                             <HotelStatusButton bookings={registration.hotelBookings}

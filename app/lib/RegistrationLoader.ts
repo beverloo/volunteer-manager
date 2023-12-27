@@ -5,9 +5,9 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
-import db, { tEvents, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds,
-    tRoles, tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments, tUsers, tUsersEvents }
-    from './database';
+import db, { tEvents, tEventsTeams, tHotels, tHotelsAssignments, tHotelsBookings,
+    tHotelsPreferences, tRefunds, tRoles, tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments,
+    tUsers, tUsersEvents } from './database';
 
 type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
 
@@ -35,6 +35,9 @@ export async function getRegistration(environmentName: string, event: Event, use
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .and(tTeams.teamEnvironment.equals(environmentName))
+        .innerJoin(tEventsTeams)
+            .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
+            .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .leftJoin(hotelsPreferencesJoin)
@@ -61,7 +64,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             role: tRoles.roleName,
             status: tUsersEvents.registrationStatus,
 
-            availabilityAvailable: tEvents.publishAvailability.equals(/* true= */ 1),
+            availabilityAvailable: tEventsTeams.enableAvailability.equals(/* true= */ 1),
             availabilityEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
                 tRoles.roleAvailabilityEventLimit),
 
