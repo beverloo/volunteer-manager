@@ -7,10 +7,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { default as MuiLink } from '@mui/material/Link';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
@@ -18,62 +14,12 @@ import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
-import Tooltip from '@mui/material/Tooltip';
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import Typography from '@mui/material/Typography';
 
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
-
-import type { EmailLoggerSeverity } from '@lib/integrations/email/EmailLogger';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
+import { DetailedLogs } from './DetailedLogs';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
-
-/**
- * Displays an icon appropriate to the severity level of a log message.
- */
-function LogSeverity(props: { severity: EmailLoggerSeverity }) {
-    let icon: React.ReactNode = undefined;
-
-    switch (props.severity) {
-        case 'trace':
-        case 'debug':
-            icon = <CircleOutlinedIcon color="action" />;
-            break;
-
-        case 'info':
-            icon = <InfoOutlinedIcon color="info" />;
-            break;
-
-        case 'warn':
-            icon = <WarningOutlinedIcon color="warning" />;
-            break;
-
-        case 'error':
-        case 'fatal':
-            icon = <ErrorOutlinedIcon color="error" />;
-            break;
-    }
-
-    if (!icon)
-        return props.severity;
-
-    return <Tooltip title={props.severity}>{icon}</Tooltip>;
-}
-
-/**
- * Displays the time offset nicely formatted, relative to the starting time.
- */
-function LogTime(props: { time: number }) {
-    return (
-        <Typography variant="body2" sx={{ color: 'success.main' }}>
-            +{Math.round(props.time/10)/100}s
-        </Typography>
-    );
-}
 
 /**
  * Props accepted by the <OutboxMessage> component.
@@ -239,43 +185,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                         </TableRow> }
                 </Table>
             </TableContainer>
-            { !!logs.length &&
-                <Paper>
-                    <Accordion>
-                        <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
-                            <TroubleshootIcon color="info" sx={{ mr: 1.5 }} />
-                            Detailed logs
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Table sx={{ mt: -2 }}>
-                                <TableRow>
-                                    <TableCell component="th" width="100" align="center">
-                                        <strong>Severity</strong>
-                                    </TableCell>
-                                    <TableCell component="th" width="100" align="center">
-                                        <strong>Time</strong>
-                                    </TableCell>
-                                    <TableCell sx={{ whiteSpace: 'pre-line' }}>
-                                        <strong>Details</strong>
-                                    </TableCell>
-                                </TableRow>
-                                { logs.map((log: any, index: number) =>
-                                    <TableRow key={index}>
-                                        <TableCell align="center">
-                                            <LogSeverity severity={log.severity} />
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <LogTime time={log.time} />
-                                        </TableCell>
-                                        <TableCell sx={{ whiteSpace: 'pre-wrap',
-                                                         overflowWrap: 'anywhere' }}>
-                                            {JSON.stringify(log.params)}
-                                        </TableCell>
-                                    </TableRow> )}
-                            </Table>
-                        </AccordionDetails>
-                    </Accordion>
-                </Paper> }
+            { !!logs.length && <DetailedLogs logs={logs} /> }
         </>
     );
 }

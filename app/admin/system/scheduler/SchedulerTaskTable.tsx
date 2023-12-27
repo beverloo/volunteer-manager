@@ -81,7 +81,7 @@ export function SchedulerTaskTable() {
             flex: 2,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./scheduler/task/${params.row.id}`}>
+                <MuiLink component={Link} href={`./scheduler/${params.row.id}`}>
                     {params.value}
                 </MuiLink>,
         },
