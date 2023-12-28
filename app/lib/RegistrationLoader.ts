@@ -193,6 +193,7 @@ export async function createRegistration(
             preferenceHours: parseInt(application.serviceHours, 10),
             preferenceTimingStart, preferenceTimingEnd,
             preferences: application.preferences,
+            preferencesUpdated: dbInstance.currentDateTime(),
             fullyAvailable: !!application.availability ? 1 : 0,
             includeCredits: !!application.credits ? 1 : 0,
             includeSocials: !!application.socials ? 1 : 0,

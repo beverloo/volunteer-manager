@@ -135,6 +135,7 @@ async function getRecentChanges(eventId: number) {
             status: tUsersEvents.registrationStatus,
 
             applicationCreated: tUsersEvents.registrationDate,
+            availabilityPreferencesUpdated: tUsersEvents.preferencesUpdated,
             hotelPreferencesUpdated: hotelsPreferencesJoin.hotelPreferencesUpdated,
             refundRequestUpdated: refundsJoin.refundRequested,
             trainingPreferencesUpdated: trainingsAssignmentsJoin.preferenceUpdated,
@@ -160,6 +161,14 @@ async function getRecentChanges(eventId: number) {
 
         if (preferenceUpdate.status !== RegistrationStatus.Accepted)
             continue;
+
+        if (!!preferenceUpdate.availabilityPreferencesUpdated) {
+            changes.push({
+                ...commonChange,
+                update: 'updated their availability',
+                date: preferenceUpdate.availabilityPreferencesUpdated
+            });
+        }
 
         if (!!preferenceUpdate.hotelPreferencesUpdated) {
             changes.push({

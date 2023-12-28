@@ -140,12 +140,14 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     const [ preferenceTimingStart, preferenceTimingEnd ] =
         request.serviceTiming.split('-').map(v => parseInt(v, 10));
 
-    const affectedRows = await db.update(tUsersEvents)
+    const dbInstance = db;
+    const affectedRows = await dbInstance.update(tUsersEvents)
         .set({
             availabilityTimeslots: validatedTimeslots.join(','),
             preferenceHours: parseInt(request.serviceHours, 10),
             preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
+            preferencesUpdated: dbInstance.currentDateTime(),
         })
         .where(tUsersEvents.userId.equals(subjectUserId))
             .and(tUsersEvents.eventId.equals(event.eventId))

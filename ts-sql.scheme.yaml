@@ -1441,6 +1441,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: preferences_updated
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
   - name: fully_available
     type: tinyint(1)
     nullable: false
@@ -1554,6 +1559,7 @@ tables:
       `preference_timing_start` int(4) unsigned DEFAULT NULL,
       `preference_timing_end` int(4) unsigned DEFAULT NULL,
       `preferences` text DEFAULT NULL,
+      `preferences_updated` datetime NOT NULL DEFAULT current_timestamp(),
       `fully_available` tinyint(1) NOT NULL DEFAULT 1,
       `include_credits` tinyint(1) NOT NULL DEFAULT 1,
       `include_socials` tinyint(1) NOT NULL DEFAULT 1,
