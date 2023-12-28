@@ -9,7 +9,7 @@ import Box from '@mui/material/Box';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ActivityType } from '@lib/database/Types';
-import { EventPreferences, type EventEntry } from './EventPreferences';
+import { AvailabilityPreferences, type EventEntry } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
@@ -89,13 +89,13 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     return (
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
-            { /* TODO: Availability overview */ }
-            { /* TODO: Availability requests */ }
 
-            { registration.availabilityEventLimit > 0 &&
-                <EventPreferences environment={environment.environmentName} eventSlug={event.slug}
-                                  events={events} limit={registration.availabilityEventLimit}
-                                  selection={registration.availability.timeslots} /> }
+            { /* TODO: Availability overview */ }
+
+            <AvailabilityPreferences environment={environment.environmentName}
+                                     eventSlug={event.slug} events={events}
+                                     limit={registration.availabilityEventLimit}
+                                     selection={registration.availability.timeslots} />
 
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration

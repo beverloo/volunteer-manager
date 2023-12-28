@@ -37,9 +37,9 @@ export interface EventEntry {
 }
 
 /**
- * Props accepted by the <EventPreferences> component.
+ * Props accepted by the <AvailabilityPreferences> component.
  */
-export interface EventPreferencesProps {
+export interface AvailabilityPreferencesProps {
     /**
      * Name of the environment describing the team the volunteer is part of.
      */
@@ -67,10 +67,10 @@ export interface EventPreferencesProps {
 }
 
 /**
- * The <EventPreferences> component enables volunteers to indicate which events they really want to
- * attend. Each volunteer has a set maximum number of events to "reserve".
+ * The <AvailabilityPreferences> component enables volunteers to indicate which events they really
+ * want to attend. Each volunteer has a set maximum number of events to "reserve".
  */
-export function EventPreferences(props: EventPreferencesProps) {
+export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ success, setSuccess ] = useState<string | undefined>();
@@ -113,41 +113,42 @@ export function EventPreferences(props: EventPreferencesProps) {
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSavePreferences}>
-            <Box sx={{ mt: 1, mb: 2 }}>
-                <Typography variant="h5">
-                    Events that you want to attend
-                </Typography>
-                <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
-                    { [ ...Array(props.limit) ].map((_, index) =>
-                        <React.Fragment key={index}>
-                            <Grid xs={12} sm={4} md={3} lg={2} alignSelf="center">
-                                {index + 1}{kOrdinalFn(index + 1)} preference
-                            </Grid>
-                            <Grid xs={12} sm={8} md={9} lg={10}>
-                                <AutocompleteElement name={`preference_${index}`}
-                                                     autocompleteProps={{
-                                                         fullWidth: true,
-                                                         size: 'small',
-                                                     }}
-                                                     options={props.events} matchId />
-                            </Grid>
-                        </React.Fragment> )}
-                </Grid>
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <LoadingButton variant="contained" type="submit" startIcon={ <EventNoteIcon /> }
-                                   loading={loading}>
-                        Save preferences
-                    </LoadingButton>
-                    { !!success &&
-                        <Typography sx={{ color: 'success.main' }}>
-                            {success}
-                        </Typography> }
-                    { !!error &&
-                        <Typography sx={{ color: 'error.main' }}>
-                            {error}
-                        </Typography> }
-                </Stack>
-            </Box>
+            { props.limit > 0 &&
+                <Box sx={{ my: 1 }}>
+                    <Typography variant="h5">
+                        Events that you want to attend
+                    </Typography>
+                    <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
+                        { [ ...Array(props.limit) ].map((_, index) =>
+                            <React.Fragment key={index}>
+                                <Grid xs={12} sm={4} md={3} lg={2} alignSelf="center">
+                                    {index + 1}{kOrdinalFn(index + 1)} preference
+                                </Grid>
+                                <Grid xs={12} sm={8} md={9} lg={10}>
+                                    <AutocompleteElement name={`preference_${index}`}
+                                                         autocompleteProps={{
+                                                             fullWidth: true,
+                                                             size: 'small',
+                                                         }}
+                                                         options={props.events} matchId />
+                                </Grid>
+                            </React.Fragment> )}
+                    </Grid>
+                </Box> }
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
+                <LoadingButton variant="contained" type="submit" loading={loading}
+                                startIcon={ <EventNoteIcon /> }>
+                    Save preferences
+                </LoadingButton>
+                { !!success &&
+                    <Typography sx={{ color: 'success.main' }}>
+                        {success}
+                    </Typography> }
+                { !!error &&
+                    <Typography sx={{ color: 'error.main' }}>
+                        {error}
+                    </Typography> }
+            </Stack>
         </FormContainer>
     );
 }
