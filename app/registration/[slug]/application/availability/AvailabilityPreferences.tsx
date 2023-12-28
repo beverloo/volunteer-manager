@@ -61,6 +61,12 @@ export interface AvailabilityPreferencesProps {
     limit: number;
 
     /**
+     * Whether the preferences are locked. This generally is the case when we're too close to the
+     * event and changes to the schedule should not be made anymore.
+     */
+    locked?: boolean;
+
+    /**
      * Events that the volunteer has so far selected as wanting to attend.
      */
     selection: number[];
@@ -80,6 +86,9 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
         setLoading(true);
         setSuccess(undefined);
         try {
+            if (props.locked)
+                throw new Error('Please e-mail us for any further changes!');
+
             const eventPreferences: number[] = [];
             for (let index = 0; index < props.limit; ++index) {
                 if (!Object.hasOwn(data, `preference_${index}`))
@@ -105,7 +114,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, props.limit ]);
+    }, [ props.environment, props.eventSlug, props.limit, props.locked ]);
 
     const defaultValues = useMemo(() =>
         Object.fromEntries(props.selection.map((value, index) => [ `preference_${index}`, value ])),
@@ -127,6 +136,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                                 <Grid xs={12} sm={8} md={9} lg={10}>
                                     <AutocompleteElement name={`preference_${index}`}
                                                          autocompleteProps={{
+                                                             disabled: !!props.locked,
                                                              fullWidth: true,
                                                              size: 'small',
                                                          }}
@@ -135,20 +145,21 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                             </React.Fragment> )}
                     </Grid>
                 </Box> }
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
-                <LoadingButton variant="contained" type="submit" loading={loading}
-                                startIcon={ <EventNoteIcon /> }>
-                    Save preferences
-                </LoadingButton>
-                { !!success &&
-                    <Typography sx={{ color: 'success.main' }}>
-                        {success}
-                    </Typography> }
-                { !!error &&
-                    <Typography sx={{ color: 'error.main' }}>
-                        {error}
-                    </Typography> }
-            </Stack>
+            { !props.locked &&
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
+                    <LoadingButton variant="contained" type="submit" loading={loading}
+                                   startIcon={ <EventNoteIcon /> }>
+                        Save preferences
+                    </LoadingButton>
+                    { !!success &&
+                        <Typography sx={{ color: 'success.main' }}>
+                            {success}
+                        </Typography> }
+                    { !!error &&
+                        <Typography sx={{ color: 'error.main' }}>
+                            {error}
+                        </Typography> }
+                </Stack> }
         </FormContainer>
     );
 }
