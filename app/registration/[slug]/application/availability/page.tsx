@@ -86,6 +86,8 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     // ---------------------------------------------------------------------------------------------
 
+    // TODO: Figure out when to pass `readOnly` to <AvailabilityPreferences>.
+
     return (
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
@@ -95,8 +97,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
             <AvailabilityPreferences environment={environment.environmentName}
                                      eventSlug={event.slug} events={events}
                                      limit={registration.availabilityEventLimit}
-                                     preferences={registration.availability.preferences}
-                                     selection={registration.availability.timeslots} />
+                                     preferences={registration.availability} />
 
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration

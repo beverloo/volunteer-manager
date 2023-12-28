@@ -70,6 +70,9 @@ export async function getRegistration(environmentName: string, event: Event, use
             availability: {
                 preferences: tUsersEvents.preferences,
                 timeslots: tUsersEvents.availabilityTimeslots,
+                serviceHours: tUsersEvents.preferenceHours,
+                serviceTimingStart: tUsersEvents.preferenceTimingStart,
+                serviceTimingEnd: tUsersEvents.preferenceTimingEnd,
             },
 
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),

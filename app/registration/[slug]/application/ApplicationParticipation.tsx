@@ -3,7 +3,7 @@
 
 'use client';
 
-import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
+import { SelectElement, TextFieldElement, TextareaAutosizeElement } from 'react-hook-form-mui';
 
 import Grid, { type Grid2Props } from '@mui/material/Unstable_Grid2';
 
@@ -54,6 +54,50 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
 ];
 
 /**
+ * Props accepted by the <ApplicationAvailability> component.
+ */
+export interface ApplicationAvailabilityProps {
+    /**
+     * Callback to be invoked when the value of one of the form fields has changed.
+     */
+    onChange?: () => void;
+
+    /**
+     * Whether the form should be locked, i.e. for all fields to be disabled.
+     */
+    readOnly?: boolean;
+}
+
+/**
+ * The <ApplicationAvailability> component contains the necessary Grid rows to display a volunteer's
+ * preferences in regards to the number of shifts they'll serve, the timing of those shifts and
+ * further availability preferences they may have.
+ */
+export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
+    const { onChange, readOnly } = props;
+    return (
+        <>
+            <Grid xs={12} sm={6}>
+                <SelectElement name="serviceHours" label="Number of shifts" required
+                               options={kServiceHoursOptions} fullWidth size="small"
+                               onChange={onChange} disabled={readOnly} />
+            </Grid>
+            <Grid xs={12} sm={6}>
+                <SelectElement name="serviceTiming" label="Timing of shifts" required
+                               options={kServiceTimingOption} fullWidth size="small"
+                               onChange={onChange} disabled={readOnly}  />
+            </Grid>
+
+            <Grid xs={12}>
+                <TextareaAutosizeElement name="preferences" fullWidth size="small"
+                                         label="Anything we should know about?"
+                                         onChange={onChange} disabled={readOnly} />
+            </Grid>
+        </>
+    );
+}
+
+/**
  * Props accepted by the <ApplicationParticipation> component.
  */
 export interface ApplicationParticipationProps extends Omit<Grid2Props, 'container' | 'spacing'> {
@@ -83,22 +127,7 @@ export function ApplicationParticipation(props: ApplicationParticipationProps) {
                                options={kTShirtFitOptions} fullWidth size="small"
                                onChange={onChange} />
             </Grid>
-
-            <Grid xs={6}>
-                <SelectElement name="serviceHours" label="Number of shifts" required
-                               options={kServiceHoursOptions} fullWidth size="small"
-                               onChange={onChange} />
-            </Grid>
-            <Grid xs={6}>
-                <SelectElement name="serviceTiming" label="Timing of shifts" required
-                               options={kServiceTimingOption} fullWidth size="small"
-                               onChange={onChange} />
-            </Grid>
-
-            <Grid xs={12}>
-                <TextFieldElement name="preferences" fullWidth size="small" onChange={onChange}
-                                  label="Any preferences we should know about?" />
-            </Grid>
+            <ApplicationAvailability onChange={onChange} />
         </Grid>
     );
 }

@@ -14,6 +14,9 @@ export interface RegistrationDatabaseRow {
     availabilityEventLimit: number;
     availability?: {
         preferences?: string;
+        serviceHours?: number;
+        serviceTimingStart?: number;
+        serviceTimingEnd?: number;
         timeslots?: string;
     },
 
@@ -65,6 +68,16 @@ export interface RegistrationAvailability {
      * The list of timeslots that the volunteer would really like to attend.
      */
     timeslots: number[];
+
+    /**
+     * The maximum number of hours the volunteer would like to help out with.
+     */
+    serviceHours?: number;
+
+    /**
+     * The window during which the volunteer would prefer to help out.
+     */
+    serviceTiming?: string;
 }
 
 /**
@@ -316,14 +329,28 @@ export class Registration implements RegistrationData {
     constructor(registration: RegistrationDatabaseRow, hotelBookings: RegistrationHotelBooking[]) {
         this.#registration = registration;
 
-        let timeslots: number[] = [ /* no timeslots */ ];
-        if (!!registration.availability?.timeslots)
-            timeslots = registration.availability.timeslots.split(',').map(v => parseInt(v));
+        const { availability } = registration;
+        {
+            let timeslots: number[] = [ /* no timeslots */ ];
+            if (!!availability?.timeslots)
+                timeslots = availability.timeslots.split(',').map(v => parseInt(v));
 
-        this.#availability = {
-            preferences: registration.availability?.preferences,
-            timeslots
-        };
+            let serviceTiming: string | undefined;
+            if (typeof availability?.serviceTimingStart === 'number' &&
+                    typeof availability?.serviceTimingEnd === 'number') {
+                serviceTiming = [
+                    availability.serviceTimingStart,
+                    availability.serviceTimingEnd
+                ].join('-');
+            }
+
+            this.#availability = {
+                preferences: registration.availability?.preferences,
+                serviceHours: registration.availability?.serviceHours,
+                serviceTiming,
+                timeslots
+            };
+        }
 
         this.#hotelBookings = hotelBookings;
     }

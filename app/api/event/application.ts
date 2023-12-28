@@ -15,6 +15,16 @@ import { getStaticContent } from '@lib/Content';
 import db, { tTeams } from '@lib/database';
 
 /**
+ * Number of hours that the volunteer would like to help us out with.
+ */
+export const kServiceHoursProperty = z.enum([ '12', '16', '20', '24' ]);
+
+/**
+ * Timing of the shifts the volunteer would like to fulfill.
+ */
+export const kServiceTimingProperty = z.enum([ '8-20', '10-0', '14-3' ]);
+
+/**
  * Common properties that can be set or updated as part of applications.
  */
 export const kApplicationProperties = {
@@ -31,12 +41,12 @@ export const kApplicationProperties = {
     /**
      * Number of hours that the volunteer would like to help us out with.
      */
-    serviceHours: z.enum([ '12', '16', '20', '24' ]),
+    serviceHours: kServiceHoursProperty,
 
     /**
      * Timing of the shifts the volunteer would like to fulfill.
      */
-    serviceTiming: z.enum([ '8-20', '10-0', '14-3' ]),
+    serviceTiming: kServiceTimingProperty,
 
     /**
      * Whether the volunteer would like to join our social media channels.

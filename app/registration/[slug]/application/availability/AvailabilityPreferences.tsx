@@ -4,6 +4,7 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement,
     TextareaAutosizeElement } from 'react-hook-form-mui';
@@ -14,6 +15,10 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+import type { RegistrationAvailability } from '@lib/Registration';
+import { ApplicationAvailability } from '../ApplicationParticipation';
+import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -21,6 +26,12 @@ import { callApi } from '@lib/callApi';
  * @see https://stackoverflow.com/a/39466341
  */
 const kOrdinalFn = (n: number) => [ 'st', 'nd', 'rd' ][ ((n + 90) % 100 - 10) % 10 - 1 ] || 'th';
+
+/**
+ * Message to display to volunteers when their preferences have been marked as read-only.
+ */
+const kPreferencesLockedMarkdown =
+    '> We\'ve started drafting your schedule, and your preferences have been locked in.';
 
 /**
  * Individual event that can be selected as a preference by the volunteer.
@@ -62,20 +73,15 @@ export interface AvailabilityPreferencesProps {
     limit: number;
 
     /**
+     * The volunteer's current preferences, if any.
+     */
+    preferences: RegistrationAvailability;
+
+    /**
      * Whether the preferences are locked. This generally is the case when we're too close to the
      * event and changes to the schedule should not be made anymore.
      */
-    locked?: boolean;
-
-    /**
-     * The volunteer's current availability preferences, if any.
-     */
-    preferences?: string;
-
-    /**
-     * Events that the volunteer has so far selected as wanting to attend.
-     */
-    selection: number[];
+    readOnly?: boolean;
 }
 
 /**
@@ -83,6 +89,8 @@ export interface AvailabilityPreferencesProps {
  * want to attend. Each volunteer has a set maximum number of events to "reserve".
  */
 export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
+    const router = useRouter();
+
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
     const [ success, setSuccess ] = useState<string | undefined>();
@@ -92,7 +100,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
         setLoading(true);
         setSuccess(undefined);
         try {
-            if (props.locked)
+            if (props.readOnly)
                 throw new Error('Please e-mail us for any further changes!');
 
             const eventPreferences: number[] = [];
@@ -110,43 +118,48 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 event: props.eventSlug,
                 eventPreferences,
                 preferences: data.preferences,
+                serviceHours: `${data.serviceHours}` as any,
+                serviceTiming: data.serviceTiming,
             });
 
-            if (response.success)
+            if (response.success) {
                 setSuccess('Your preferences have been saved!');
-            else
+                router.refresh();
+            } else {
                 setError(response.error ?? 'Your preferences could not be saved!');
+            }
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, props.limit, props.locked ]);
+    }, [ props.environment, props.eventSlug, props.limit, props.readOnly, router ]);
 
     const defaultValues = useMemo(() => ({
-        preferences: props.preferences,
-        ...Object.fromEntries(props.selection.map((value, index) =>
+        preferences: props.preferences.preferences,
+        serviceHours: props.preferences.serviceHours,
+        serviceTiming: props.preferences.serviceTiming,
+        ...Object.fromEntries(props.preferences.timeslots.map((value, index) =>
             [ `preference_${index}`, value ])),
-    }), [ props.preferences, props.selection ]);
+    }), [ props.preferences ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSavePreferences}>
             <Box sx={{ my: 1 }}>
                 <Typography variant="h5">
-                    When will you be around?
+                    When will you be helping out?
                 </Typography>
-                <Stack direction="column" spacing={2} sx={{ mt: 2, mb: 2 }}>
-                    { /* TODO: SelectElement for shift timing */ }
-                    <TextareaAutosizeElement label="Anything we should know about?" fullWidth
-                                             size="small" name="preferences"
-                                             disabled={!!props.locked} />
-                </Stack>
+                { props.readOnly &&
+                    <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
+                <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
+                    <ApplicationAvailability readOnly={props.readOnly} />
+                </Grid>
             </Box>
 
             { props.limit > 0 &&
                 <Box sx={{ my: 1 }}>
                     <Typography variant="h5">
-                        Events that you want to attend
+                        Events that you plan to attend?
                     </Typography>
                     <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
                         { [ ...Array(props.limit) ].map((_, index) =>
@@ -157,7 +170,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                                 <Grid xs={12} sm={8} md={9} lg={10}>
                                     <AutocompleteElement name={`preference_${index}`}
                                                          autocompleteProps={{
-                                                             disabled: !!props.locked,
+                                                             disabled: !!props.readOnly,
                                                              fullWidth: true,
                                                              size: 'small',
                                                          }}
@@ -166,7 +179,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                             </React.Fragment> )}
                     </Grid>
                 </Box> }
-            { !props.locked &&
+            { !props.readOnly &&
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
                     <LoadingButton variant="contained" type="submit" loading={loading}
                                    startIcon={ <EventNoteIcon /> }>

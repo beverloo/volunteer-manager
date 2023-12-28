@@ -9,7 +9,9 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
-import db, { tActivities, tActivitiesTimeslots, tEventsTeams, tHotelsPreferences, tTeams, tUsersEvents } from '@lib/database';
+import db, { tActivities, tActivitiesTimeslots, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
+
+import { kServiceHoursProperty, kServiceTimingProperty } from './application';
 
 /**
  * Interface definition for the Availability API, exposed through
@@ -37,6 +39,16 @@ export const kAvailabilityPreferencesDefinition = z.object({
          * Preferences that a volunteer can indicate regarding their exact availability.
          */
         preferences: z.string().optional(),
+
+        /**
+         * Number of hours that the volunteer would like to help us out with.
+         */
+        serviceHours: kServiceHoursProperty,
+
+        /**
+         * Timing of the shifts the volunteer would like to fulfill.
+         */
+        serviceTiming: kServiceTimingProperty,
 
         /**
          * Property that allows administrators to push updates on behalf of other users.
@@ -125,9 +137,14 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             .executeSelectMany();
     }
 
+    const [ preferenceTimingStart, preferenceTimingEnd ] =
+        request.serviceTiming.split('-').map(v => parseInt(v, 10));
+
     const affectedRows = await db.update(tUsersEvents)
         .set({
             availabilityTimeslots: validatedTimeslots.join(','),
+            preferenceHours: parseInt(request.serviceHours, 10),
+            preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
         })
         .where(tUsersEvents.userId.equals(subjectUserId))
@@ -145,6 +162,9 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             sourceUser: props.user,
             data: {
                 event: event.shortName,
+                preferences: request.preferences,
+                serviceHours: request.serviceHours,
+                serviceTiming: request.serviceTiming,
                 timeslots: validatedTimeslots,
             },
         });
@@ -156,6 +176,9 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             targetUser: request.adminOverrideUserId,
             data: {
                 event: event.shortName,
+                preferences: request.preferences,
+                serviceHours: request.serviceHours,
+                serviceTiming: request.serviceTiming,
                 timeslots: validatedTimeslots,
             },
         });
