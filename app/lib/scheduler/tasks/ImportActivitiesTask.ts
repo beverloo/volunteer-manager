@@ -282,7 +282,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityDescription: currentActivity.description,
                         activityUrl: currentActivity.url,
                         activityPrice: currentActivity.price,
-                        activityHelpNeeded: 0,  // TODO: Store this field when the API exposes it
+                        activityHelpNeeded: currentActivity.helpNeeded ? 1 : 0,
                         activityMaxVisitors: currentActivity.maxVisitors,
                         activityTypeAdultsOnly: currentActivity.activityType?.adultsOnly ? 1 : 0,
                         activityTypeCompetition: currentActivity.activityType?.competition ? 1 : 0,
@@ -450,7 +450,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityDescription: currentActivity.description,
                     activityUrl: currentActivity.url,
                     activityPrice: currentActivity.price,
-                    // TODO: Update the `helpNeeded` field in `Activity` when the API exposes it.
+                    activityHelpNeeded: currentActivity.helpNeeded ? 1 : 0,
                     activityMaxVisitors: currentActivity.maxVisitors,
                     activityTypeAdultsOnly: currentActivity.activityType?.adultsOnly ? 1 : 0,
                     activityTypeCompetition: currentActivity.activityType?.competition ? 1 : 0,
@@ -561,7 +561,13 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 current: currentActivity.price,
                 comparison: 'number',
             },
-            // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+            {
+                name: 'help needed flag',
+                weight: kUpdateSeverityLevel.Important,
+                stored: storedActivity.helpNeeded,
+                current: currentActivity.helpNeeded,
+                comparison: 'boolean',
+            },
             {
                 name: 'max visitors',
                 weight: kUpdateSeverityLevel.Low,
@@ -793,10 +799,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     {
         // The severity of mutations gets escalated when the "help needed" flag has been set on an
         // event, which signals that explicit action from our team is requested.
-        if ('helpNeeded' in activity && activity.helpNeeded === 1)
+        if ('helpNeeded' in activity && !!activity.helpNeeded)
             return MutationSeverity.Important;
-
-        // TODO: Consider the `helpNeeded` field in `Activity` when the API exposes it.
 
         return baseSeverity;
     }

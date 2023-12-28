@@ -71,7 +71,9 @@ describe('ImportActivitiesTask', () => {
             name: 'Example location',
             useName: null,
             sponsor: null,
+            area: 'Example floor',
             floor: createSimpleFloor({ id: 10 }),
+            floorId: 1000,
             ...location,
         };
     }
@@ -107,6 +109,7 @@ describe('ImportActivitiesTask', () => {
             logisticsInfo: /* accessible but empty= */ null,
             financeInfo: /* accessible but empty= */ null,
             ticketsInfo: /* accessible but empty= */ null,
+            helpNeeded: false,
             largeImage: null,
             smallImage: null,
             activityType: null, // ...
@@ -259,7 +262,7 @@ describe('ImportActivitiesTask', () => {
         const regularActivity = createSimpleActivity({ id: 100 });
         const regularStoredActivity = createStoredActivity({ id: 100 }, [ /* no timeslots */ ]);
 
-        // TODO: Add `helpNeededActivity` when the API has been updated.
+        const helpNeededActivity = createSimpleActivity({ id: 101, helpNeeded: true });
         const helpNeededStoredActivity = createStoredActivity(
             { id: 101, helpNeeded: 1 }, [ /* no timeslots */ ]);
 
@@ -268,7 +271,8 @@ describe('ImportActivitiesTask', () => {
         expect(task.maybeEscalateMutationSeverity(regularStoredActivity, MutationSeverity.Moderate))
             .toBe(MutationSeverity.Moderate);
 
-        // TODO: Check for `helpNeededActivity` when the API has been updated.
+        expect(task.maybeEscalateMutationSeverity(
+            helpNeededActivity, MutationSeverity.Moderate)).toBe(MutationSeverity.Important);
         expect(task.maybeEscalateMutationSeverity(
             helpNeededStoredActivity, MutationSeverity.Moderate)).toBe(MutationSeverity.Important);
     });
@@ -395,7 +399,7 @@ describe('ImportActivitiesTask', () => {
                 description: 'New description',
                 url: null,
                 price: null,
-                // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+                helpNeeded: true,
                 maxVisitors: 25,
                 activityType: {
                     adultsOnly: false,
@@ -415,7 +419,7 @@ describe('ImportActivitiesTask', () => {
                 description: undefined,
                 url: undefined,
                 price: 100.25,
-                // TODO: Compare the `helpNeeded` field in `Activity` when the API exposes it.
+                helpNeeded: 0,
                 maxVisitors: 20,
                 type: {
                     adultsOnly: 1,
@@ -442,13 +446,14 @@ describe('ImportActivitiesTask', () => {
                 'title',
                 'description',
                 'price',
+                'help needed flag',
                 'max visitors',
                 '18+ flag',
                 'event flag',
                 'visibility',
                 'visibility reason',
             ],
-            severity: 'Moderate',
+            severity: 'Important',
         });
     });
 
