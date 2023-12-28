@@ -144,16 +144,10 @@ export async function updateApplication(request: Request, props: ActionProps): P
             event: request.event,
         });
 
-        const [ preferenceTimingStart, preferenceTimingEnd ] =
-            request.data.serviceTiming.split('-').map(v => parseInt(v, 10));
-
         affectedRows = await db.update(tUsersEvents)
             .set({
                 shirtFit: request.data.tshirtFit as any,
                 shirtSize: request.data.tshirtSize as any,
-                preferences: request.data.preferences,
-                preferenceHours: parseInt(request.data.serviceHours, 10),
-                preferenceTimingStart, preferenceTimingEnd,
                 includeCredits: request.data.credits ? 1 : 0,
                 includeSocials: request.data.socials ? 1 : 0,
             })

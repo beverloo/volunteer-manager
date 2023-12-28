@@ -10,6 +10,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tHotelsPreferences, tRefunds, tRoles, tStorage, tTrainingsAssignments, tUsers, tUsersEvents }
     from '@lib/database';
 
+import { ApplicationAvailability } from './ApplicationAvailability';
 import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
@@ -152,6 +153,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
+            <ApplicationAvailability event={event.slug} team={team.slug} volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}
             {trainingManagement}

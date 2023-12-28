@@ -12,6 +12,7 @@ import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
+import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import SaveIcon from '@mui/icons-material/Save';
@@ -22,7 +23,8 @@ import Typography from '@mui/material/Typography';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { User } from '@lib/auth/User';
 import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
-import { ApplicationParticipation } from '@app/registration/[slug]/application/ApplicationParticipation';
+import { ApplicationAvailabilityForm, ApplicationParticipationForm }
+    from '@app/registration/[slug]/application/ApplicationParticipation';
 import { callApi } from '@lib/callApi';
 import { issueServerAction } from '@lib/issueServerAction';
 
@@ -177,7 +179,7 @@ export function CreateApplication(props: CreateApplicationProps) {
                 environment: props.team.slug,
                 event: props.event.slug,
                 preferences: data.preferences,
-                serviceHours: data.serviceHours,
+                serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 socials: true,
                 tshirtFit: data.tshirtFit,
@@ -219,7 +221,10 @@ export function CreateApplication(props: CreateApplicationProps) {
                                                 excludeEventId={props.event?.id}
                                                 onVolunteerSelected={onVolunteerSelected} />
                 <Collapse in={!!selectedUserId}>
-                    <ApplicationParticipation sx={{ pt: 2 }} />
+                    <Grid container spacing={2} sx={{ pt: 2 }}>
+                        <ApplicationParticipationForm />
+                        <ApplicationAvailabilityForm />
+                    </Grid>
                     <Stack direction="row" spacing={2} sx={{ mt: 1, py: 1 }} alignItems="center">
                         <LoadingButton loading={loading} startIcon={ <SaveIcon /> } type="submit"
                                        variant="contained">

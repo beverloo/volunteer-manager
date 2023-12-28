@@ -12,6 +12,7 @@ import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import FaceIcon from '@mui/icons-material/Face';
+import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAvatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
@@ -21,11 +22,11 @@ import { lighten } from '@mui/system/colorManipulator';
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { User } from '@lib/auth/User';
+import { ApplicationParticipationForm, ApplicationAvailabilityForm } from './ApplicationParticipation';
 import { AuthenticationContext } from '../../AuthenticationContext';
 import { Avatar } from '@components/Avatar';
 import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
-import { ApplicationParticipation } from './ApplicationParticipation';
 
 /**
  * Default values we pre-fill for incoming applications. The vast majority of volunteers choose
@@ -134,7 +135,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
                 environment: event.environmentName,
                 event: event.slug,
                 preferences: data.preferences,
-                serviceHours: data.serviceHours,
+                serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 socials: !!data.socials,
                 tshirtFit: data.tshirtFit,
@@ -202,7 +203,10 @@ export function ApplicationPage(props: ApplicationPageProps) {
                 <Typography variant="h6">
                     Your participation
                 </Typography>
-                <ApplicationParticipation sx={{ pt: 1 }} />
+                <Grid container spacing={2} sx={{ pt: 1 }}>
+                    <ApplicationParticipationForm />
+                    <ApplicationAvailabilityForm />
+                </Grid>
 
                 <Typography variant="h6" sx={{ pt: 2 }}>
                     Just to check…

@@ -17,7 +17,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { RegistrationAvailability } from '@lib/Registration';
-import { ApplicationAvailability } from '../ApplicationParticipation';
+import { ApplicationAvailabilityForm } from '../ApplicationParticipation';
 import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
 
@@ -152,7 +152,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 { props.readOnly &&
                     <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
                 <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
-                    <ApplicationAvailability readOnly={props.readOnly} />
+                    <ApplicationAvailabilityForm readOnly={props.readOnly} />
                 </Grid>
             </Box>
 

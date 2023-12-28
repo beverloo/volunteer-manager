@@ -54,9 +54,9 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
 ];
 
 /**
- * Props accepted by the <ApplicationAvailability> component.
+ * Props accepted by the <ApplicationAvailabilityForm> component.
  */
-export interface ApplicationAvailabilityProps {
+export interface ApplicationAvailabilityFormProps {
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
@@ -69,11 +69,11 @@ export interface ApplicationAvailabilityProps {
 }
 
 /**
- * The <ApplicationAvailability> component contains the necessary Grid rows to display a volunteer's
- * preferences in regards to the number of shifts they'll serve, the timing of those shifts and
- * further availability preferences they may have.
+ * The <ApplicationAvailabilityForm> component contains the necessary Grid rows to display a
+ * volunteer's preferences in regards to the number of shifts they'll serve, the timing of those
+ * shifts and further availability preferences they may have.
  */
-export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
+export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormProps) {
     const { onChange, readOnly } = props;
     return (
         <>
@@ -98,9 +98,9 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
 }
 
 /**
- * Props accepted by the <ApplicationParticipation> component.
+ * Props accepted by the <ApplicationParticipationForm> component.
  */
-export interface ApplicationParticipationProps extends Omit<Grid2Props, 'container' | 'spacing'> {
+export interface ApplicationParticipationFormProps {
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
@@ -108,15 +108,14 @@ export interface ApplicationParticipationProps extends Omit<Grid2Props, 'contain
 }
 
 /**
- * The <ApplicationParticipation> component contains the necessary information that has to be filled
- * in by a volunteer prior to their application to be submittable. This code is shared between the
- * registration front-end and the application management section for admins.
+ * The <ApplicationParticipationForm> component contains the necessary information that has to be
+ * filled in by a volunteer prior to their application to be submittable. This code is shared
+ * between the registration front-end and the application management section for admins.
  */
-export function ApplicationParticipation(props: ApplicationParticipationProps) {
-    const { onChange, ...rest } = props;
-
+export function ApplicationParticipationForm(props: ApplicationParticipationFormProps) {
+    const { onChange } = props;
     return (
-        <Grid container spacing={2} {...rest}>
+        <>
             <Grid xs={6}>
                 <SelectElement name="tshirtSize" label="T-shirt size" required
                                options={kTShirtSizeOptions} fullWidth size="small"
@@ -127,7 +126,6 @@ export function ApplicationParticipation(props: ApplicationParticipationProps) {
                                options={kTShirtFitOptions} fullWidth size="small"
                                onChange={onChange} />
             </Grid>
-            <ApplicationAvailability onChange={onChange} />
-        </Grid>
+        </>
     );
 }

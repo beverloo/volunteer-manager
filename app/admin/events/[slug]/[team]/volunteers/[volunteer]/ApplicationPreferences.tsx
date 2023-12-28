@@ -11,7 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { ApplicationParticipation } from '@app/registration/[slug]/application/ApplicationParticipation';
+import { ApplicationParticipationForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
@@ -43,10 +43,6 @@ export interface ApplicationPreferencesProps {
     volunteer: {
         userId: number;
         credits: number;
-        preferences?: string;
-        serviceHours?: number;
-        preferenceTimingStart?: number;
-        preferenceTimingEnd?: number;
         socials: number;
         tshirtFit?: string;
         tshirtSize?: string;
@@ -75,9 +71,6 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
 
                 data: {
                     credits: !!data.credits,
-                    preferences: data.preferences,
-                    serviceHours: `${data.serviceHours}` as any,
-                    serviceTiming: data.serviceTiming,
                     socials: !!data.socials,
                     tshirtFit: data.tshirtFit,
                     tshirtSize: data.tshirtSize,
@@ -93,17 +86,14 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
         }
     }, [ event, team, volunteer.userId ]);
 
-    const serviceTiming = `${volunteer.preferenceTimingStart}-${volunteer.preferenceTimingEnd}`;
-    const defaultValues = { ...volunteer, serviceTiming };
-
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>
                 Preferences
             </Typography>
-            <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-                <ApplicationParticipation onChange={handleChange} />
-                <Grid container spacing={2} sx={{ mt: 1 }}>
+            <FormContainer defaultValues={volunteer} onSuccess={handleSubmit}>
+                <Grid container spacing={2}>
+                    <ApplicationParticipationForm onChange={handleChange} />
                     <Grid xs={6}>
                         <SelectElement name="credits" label="Include on the credit reel?"
                                        options={kSelectOptions} size="small" fullWidth

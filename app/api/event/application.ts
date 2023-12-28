@@ -34,21 +34,6 @@ export const kApplicationProperties = {
     credits: z.boolean(),
 
     /**
-     * Preferences the volunteer has indicated for during their participation.
-     */
-    preferences: z.string().optional(),
-
-    /**
-     * Number of hours that the volunteer would like to help us out with.
-     */
-    serviceHours: kServiceHoursProperty,
-
-    /**
-     * Timing of the shifts the volunteer would like to fulfill.
-     */
-    serviceTiming: kServiceTimingProperty,
-
-    /**
      * Whether the volunteer would like to join our social media channels.
      */
     socials: z.boolean(),
@@ -70,6 +55,21 @@ export const kApplicationProperties = {
 export const kApplicationDefinition = z.object({
     request: z.object({
         ...kApplicationProperties,
+
+        /**
+         * Preferences the volunteer has indicated for during their participation.
+         */
+        preferences: z.string().optional(),
+
+        /**
+         * Number of hours that the volunteer would like to help us out with.
+         */
+        serviceHours: kServiceHoursProperty,
+
+        /**
+         * Timing of the shifts the volunteer would like to fulfill.
+         */
+        serviceTiming: kServiceTimingProperty,
 
         /**
          * Whether the volunteer is fully available during the event.
