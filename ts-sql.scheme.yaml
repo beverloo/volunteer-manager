@@ -1416,6 +1416,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: availability_timeslots
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: preference_hours
     type: int(4) unsigned
     nullable: true
@@ -1544,6 +1549,7 @@ tables:
       `hotel_eligible` tinyint(1) unsigned DEFAULT NULL,
       `training_eligible` tinyint(1) unsigned DEFAULT NULL,
       `availability_event_limit` int(8) unsigned DEFAULT NULL,
+      `availability_timeslots` text DEFAULT NULL,
       `preference_hours` int(4) unsigned DEFAULT NULL,
       `preference_timing_start` int(4) unsigned DEFAULT NULL,
       `preference_timing_end` int(4) unsigned DEFAULT NULL,

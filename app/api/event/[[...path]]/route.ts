@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import { application, kApplicationDefinition } from '../application';
+import { availabilityPreferences, kAvailabilityPreferencesDefinition } from '../availabilityPreferences';
 import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
 import { hotels, kHotelsDefinition } from '../hotels';
 import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     switch (action) {
         case 'application':
             return executeAction(request, kApplicationDefinition, application);
+        case 'availability-preferences':
+            return executeAction(
+                request, kAvailabilityPreferencesDefinition, availabilityPreferences);
         case 'hotel-preferences':
             return executeAction(request, kHotelPreferencesDefinition, hotelPreferences);
         case 'hotels':

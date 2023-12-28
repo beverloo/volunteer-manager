@@ -45,7 +45,6 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     // ---------------------------------------------------------------------------------------------
 
     const events: EventEntry[] = [];
-    const selection: number[] = [ /* TODO: populate */ ];
 
     if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
         const maxDurationMinutes =
@@ -94,8 +93,9 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
             { /* TODO: Availability requests */ }
 
             { registration.availabilityEventLimit > 0 &&
-                <EventPreferences events={events} limit={registration.availabilityEventLimit}
-                                  selection={selection} /> }
+                <EventPreferences environment={environment.environmentName} eventSlug={event.slug}
+                                  events={events} limit={registration.availabilityEventLimit}
+                                  selection={registration.availability.timeslots} /> }
 
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration

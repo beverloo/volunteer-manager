@@ -160,6 +160,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated the generative AI ${setting}`;
     },
     [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
+    [LogType.AdminUpdateAvailabilityPreferences]: (source, target, { event }) => {
+        return `Updated their availability preferences for ${event}`;
+    },
     [LogType.AdminUpdateEvent]: (source, target, { action, event }) => {
         return `Updated ${action ?? 'settings'} for ${event}`;
     },
@@ -194,6 +197,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
     [LogType.AdminUpdateTeamVolunteerStatus]: (source, target, { action, event }) => {
         return `${action} ${target?.name}'s participation in ${event}`;
+    },
+    [LogType.ApplicationAvailabilityPreferences]: (source, target, { event }) => {
+        return `Updated their hotel preferences for ${event}`;
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;

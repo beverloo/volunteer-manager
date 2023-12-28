@@ -67,8 +67,9 @@ export async function getRegistration(environmentName: string, event: Event, use
             availabilityAvailable: tEventsTeams.enableAvailability.equals(/* true= */ 1),
             availabilityEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
                 tRoles.roleAvailabilityEventLimit),
-
-            // TODO: `availability`
+            availability: {
+                timeslots: tUsersEvents.availabilityTimeslots,
+            },
 
             hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(

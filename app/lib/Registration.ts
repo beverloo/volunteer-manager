@@ -12,7 +12,9 @@ export interface RegistrationDatabaseRow {
 
     availabilityAvailable: boolean;
     availabilityEventLimit: number;
-    // TODO: `availability`
+    availability?: {
+        timeslots?: string;
+    },
 
     hotelAvailable: boolean;
     hotelEligible: boolean;
@@ -47,6 +49,16 @@ export interface RegistrationDatabaseRow {
         assignedEndDate?: Date;
         assignedAddress?: string;
     };
+}
+
+/**
+ * Availability information stored as part of the volunteer's preferences.
+ */
+export interface RegistrationAvailability {
+    /**
+     * The list of timeslots that the volunteer would really like to attend.
+     */
+    timeslots: number[];
 }
 
 /**
@@ -229,7 +241,7 @@ export interface RegistrationData {
     /**
      * The preferences the volunteer has provided regarding their availability.
      */
-    availability: undefined;
+    availability: RegistrationAvailability;
 
     // ---------------------------------------------------------------------------------------------
     // Hotel reservations
@@ -294,10 +306,17 @@ export interface RegistrationData {
 export class Registration implements RegistrationData {
     #registration: RegistrationDatabaseRow;
 
+    #availability: RegistrationAvailability;
     #hotelBookings: RegistrationHotelBooking[];
 
     constructor(registration: RegistrationDatabaseRow, hotelBookings: RegistrationHotelBooking[]) {
         this.#registration = registration;
+
+        let timeslots: number[] = [ /* no timeslots */ ];
+        if (!!registration.availability?.timeslots)
+            timeslots = registration.availability.timeslots.split(',').map(v => parseInt(v));
+
+        this.#availability = { timeslots };
         this.#hotelBookings = hotelBookings;
     }
 
@@ -310,7 +329,7 @@ export class Registration implements RegistrationData {
 
     get availabilityAvailable() { return this.#registration.availabilityAvailable; }
     get availabilityEventLimit() { return this.#registration.availabilityEventLimit; }
-    get availability() { return undefined; }
+    get availability() { return this.#availability; }
 
     get hotelAvailable() { return this.#registration.hotelAvailable; }
     get hotelEligible() { return this.#registration.hotelEligible; }

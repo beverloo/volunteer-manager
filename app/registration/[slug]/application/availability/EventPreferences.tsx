@@ -13,6 +13,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { callApi } from '@lib/callApi';
 
 /**
  * Function used to generate the ordinal belonging to a particular number.
@@ -39,6 +40,16 @@ export interface EventEntry {
  * Props accepted by the <EventPreferences> component.
  */
 export interface EventPreferencesProps {
+    /**
+     * Name of the environment describing the team the volunteer is part of.
+     */
+    environment: string;
+
+    /**
+     * Slug of the event for which preferences are being displayed.
+     */
+    eventSlug: string;
+
     /**
      * Events that exist in the program. Only public events should be listed.
      */
@@ -69,15 +80,32 @@ export function EventPreferences(props: EventPreferencesProps) {
         setLoading(true);
         setSuccess(undefined);
         try {
-            // TODO: Store the volunteer's preferences in the database.
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            throw new Error('Not yet implemented.');
+            const eventPreferences: number[] = [];
+            for (let index = 0; index < props.limit; ++index) {
+                if (!Object.hasOwn(data, `preference_${index}`))
+                    continue;  // no value has been set
+
+                const eventId = data[`preference_${index}`];
+                if (typeof eventId === 'number' && !Number.isNaN(eventId))
+                    eventPreferences.push(eventId);
+            }
+
+            const response = await callApi('post', '/api/event/availability-preferences', {
+                environment: props.environment,
+                event: props.eventSlug,
+                eventPreferences,
+            });
+
+            if (response.success)
+                setSuccess('Your preferences have been saved!');
+            else
+                setError(response.error ?? 'Your preferences could not be saved!');
         } catch (error: any) {
             setError(error.message);
         } finally {
             setLoading(false);
         }
-    }, [ /* no deps */ ]);
+    }, [ props.environment, props.eventSlug, props.limit ]);
 
     const defaultValues = useMemo(() =>
         Object.fromEntries(props.selection.map((value, index) => [ `preference_${index}`, value ])),

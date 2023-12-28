@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
+import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabilityPreferences';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
@@ -76,6 +77,7 @@ export type ApiEndpoints = {
         '/api/auth/update-account': UpdateAccountDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/event/application': ApplicationDefinition,
+        '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,
         '/api/event/refund-request': RefundRequestDefinition,
