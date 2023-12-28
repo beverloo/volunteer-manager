@@ -13,6 +13,7 @@ export interface RegistrationDatabaseRow {
     availabilityAvailable: boolean;
     availabilityEventLimit: number;
     availability?: {
+        preferences?: string;
         timeslots?: string;
     },
 
@@ -55,6 +56,11 @@ export interface RegistrationDatabaseRow {
  * Availability information stored as part of the volunteer's preferences.
  */
 export interface RegistrationAvailability {
+    /**
+     * Specific preferences indicated by the volunteer, if any.
+     */
+    preferences?: string;
+
     /**
      * The list of timeslots that the volunteer would really like to attend.
      */
@@ -300,8 +306,6 @@ export interface RegistrationData {
  * Encapsulates the registration information for a particular volunteer at a particular event. This
  * instance can only be used on the server, use `toRegistrationData` to get the client-side
  * representation of the same information.
- *
- * TODO: Availability information
  */
 export class Registration implements RegistrationData {
     #registration: RegistrationDatabaseRow;
@@ -316,7 +320,11 @@ export class Registration implements RegistrationData {
         if (!!registration.availability?.timeslots)
             timeslots = registration.availability.timeslots.split(',').map(v => parseInt(v));
 
-        this.#availability = { timeslots };
+        this.#availability = {
+            preferences: registration.availability?.preferences,
+            timeslots
+        };
+
         this.#hotelBookings = hotelBookings;
     }
 

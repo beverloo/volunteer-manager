@@ -34,6 +34,11 @@ export const kAvailabilityPreferencesDefinition = z.object({
         eventPreferences: z.array(z.number()),
 
         /**
+         * Preferences that a volunteer can indicate regarding their exact availability.
+         */
+        preferences: z.string().optional(),
+
+        /**
          * Property that allows administrators to push updates on behalf of other users.
          */
         adminOverrideUserId: z.number().optional(),
@@ -123,6 +128,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     const affectedRows = await db.update(tUsersEvents)
         .set({
             availabilityTimeslots: validatedTimeslots.join(','),
+            preferences: request.preferences,
         })
         .where(tUsersEvents.userId.equals(subjectUserId))
             .and(tUsersEvents.eventId.equals(event.eventId))

@@ -95,6 +95,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
             <AvailabilityPreferences environment={environment.environmentName}
                                      eventSlug={event.slug} events={events}
                                      limit={registration.availabilityEventLimit}
+                                     preferences={registration.availability.preferences}
                                      selection={registration.availability.timeslots} />
 
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>

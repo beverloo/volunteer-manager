@@ -68,6 +68,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             availabilityEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
                 tRoles.roleAvailabilityEventLimit),
             availability: {
+                preferences: tUsersEvents.preferences,
                 timeslots: tUsersEvents.availabilityTimeslots,
             },
 

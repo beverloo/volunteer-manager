@@ -5,7 +5,8 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { type FieldValues, AutocompleteElement, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement,
+    TextareaAutosizeElement } from 'react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -67,6 +68,11 @@ export interface AvailabilityPreferencesProps {
     locked?: boolean;
 
     /**
+     * The volunteer's current availability preferences, if any.
+     */
+    preferences?: string;
+
+    /**
      * Events that the volunteer has so far selected as wanting to attend.
      */
     selection: number[];
@@ -103,6 +109,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 environment: props.environment,
                 event: props.eventSlug,
                 eventPreferences,
+                preferences: data.preferences,
             });
 
             if (response.success)
@@ -116,12 +123,26 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
         }
     }, [ props.environment, props.eventSlug, props.limit, props.locked ]);
 
-    const defaultValues = useMemo(() =>
-        Object.fromEntries(props.selection.map((value, index) => [ `preference_${index}`, value ])),
-    [ props.selection ]);
+    const defaultValues = useMemo(() => ({
+        preferences: props.preferences,
+        ...Object.fromEntries(props.selection.map((value, index) =>
+            [ `preference_${index}`, value ])),
+    }), [ props.preferences, props.selection ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSavePreferences}>
+            <Box sx={{ my: 1 }}>
+                <Typography variant="h5">
+                    When will you be around?
+                </Typography>
+                <Stack direction="column" spacing={2} sx={{ mt: 2, mb: 2 }}>
+                    { /* TODO: SelectElement for shift timing */ }
+                    <TextareaAutosizeElement label="Anything we should know about?" fullWidth
+                                             size="small" name="preferences"
+                                             disabled={!!props.locked} />
+                </Stack>
+            </Box>
+
             { props.limit > 0 &&
                 <Box sx={{ my: 1 }}>
                     <Typography variant="h5">
