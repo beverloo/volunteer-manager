@@ -80,6 +80,7 @@ export const kLocationDefinition = z.object({
     name: z.string(),
     useName: z.string().nullable(),
     sponsor: z.string().nullable(),
+    area: z.string().nullable(),
     floor: kFloorDefinition.optional(),
 });
 
