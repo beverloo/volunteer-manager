@@ -8,8 +8,6 @@ import { readSettings } from '@lib/Settings';
  * Re-export the primary types that consumers of this integration would interact with.
  */
 export { AnimeConClient };
-export { Program } from './Program';
-export { comparePrograms } from './ProgramComparison';
 export * from './AnimeConTypes';
 
 /**
