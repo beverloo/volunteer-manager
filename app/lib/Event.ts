@@ -9,6 +9,7 @@ export interface EventDatabaseRow {
     eventName: string;
     eventShortName: string;
     eventSlug: string;
+    eventFestivalId?: number;
     eventStartTime: Date;
     eventEndTime: Date;
     eventEnableRefunds?: number;
@@ -44,6 +45,11 @@ export interface EventData {
      * URL-safe slug that can be used to represent this event.
      */
     slug: string;
+
+    /**
+     * Internal AnPlan ID associated with this festival, if any.
+     */
+    festivalId?: number;
 
     /**
      * Start time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
@@ -148,6 +154,7 @@ export class Event implements EventData {
     get name() { return this.#event.eventName; }
     get shortName() { return this.#event.eventShortName; }
     get slug() { return this.#event.eventSlug; }
+    get festivalId() { return this.#event.eventFestivalId; }
     get startTime() { return this.#event.eventStartTime.toISOString(); }
     get endTime() { return this.#event.eventEndTime.toISOString(); }
     get enableRefunds() { return !!this.#event.eventEnableRefunds; }
@@ -162,11 +169,12 @@ export class Event implements EventData {
     toEventData(): EventData;
     toEventData(environmentName: string): EventDataWithEnvironment;
     toEventData(environmentName?: string) {
-        const eventData = {
+        const eventData: EventData = {
             id: this.id,
             name: this.name,
             shortName: this.shortName,
             slug: this.slug,
+            festivalId: this.festivalId,
             startTime: this.startTime,
             endTime: this.endTime,
             enableRefunds: this.enableRefunds,

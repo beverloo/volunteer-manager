@@ -222,11 +222,6 @@ export interface RegistrationData {
     availabilityAvailable: boolean;
 
     /**
-     * Whether the volunteer is eligible to indicate their availablity, not accounting overrides.
-     */
-    availabilityEligible: boolean;
-
-    /**
      * Maximum number of events that the volunteer can flag as wanting to attend.
      */
     availabilityEventLimit: number;
@@ -314,7 +309,6 @@ export class Registration implements RegistrationData {
     get status() { return this.#registration.status; }
 
     get availabilityAvailable() { return this.#registration.availabilityAvailable; }
-    get availabilityEligible() { return this.#registration.availabilityEventLimit > 0; }
     get availabilityEventLimit() { return this.#registration.availabilityEventLimit; }
     get availability() { return undefined; }
 
@@ -342,7 +336,6 @@ export class Registration implements RegistrationData {
             status: this.status,
 
             availabilityAvailable: this.availabilityAvailable,
-            availabilityEligible: this.availabilityEligible,
             availabilityEventLimit: this.availabilityEventLimit,
             availability: this.availability,
 

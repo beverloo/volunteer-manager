@@ -165,14 +165,14 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                 { !readOnly &&
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
                         <LoadingButton startIcon={ <HotelIcon /> } variant="contained"
-                                    loading={loading} type="submit">
+                                       loading={loading} type="submit">
                             Update my preferences
                         </LoadingButton>
-                        { success &&
+                        { !!success &&
                             <Typography sx={{ color: 'success.main' }}>
                                 {success}
                             </Typography> }
-                        { error &&
+                        { !!error &&
                             <Typography sx={{ color: 'error.main' }}>
                                 {error}
                             </Typography> }

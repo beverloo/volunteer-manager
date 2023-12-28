@@ -36,11 +36,6 @@ interface AvailabilityButtonProps {
     enabled: boolean;
 
     /**
-     * The number of events that the volunteer can indicate as wanting to attend.
-     */
-    eventLimit: number;
-
-    /**
      * Whether the volunteer has the ability to override normal access restrictions.
      */
     override: boolean;
@@ -53,33 +48,27 @@ interface AvailabilityButtonProps {
  * This button deals with a number of situations:
  *   (1) The volunteer has indicated their availability preferences.
  *   (2) The volunteer is able to indicate their preferences, but has not done so yet.
- *   (3) The volunteer is not eligible to indicate their preferences.
- *   (4) The volunteer is not able to indicate their preferences yet.
+ *   (3) The volunteer is not able to indicate their preferences yet.
  */
 function AvailabilityButton(props: AvailabilityButtonProps) {
-    const { enabled, eventLimit, override } = props;
+    const { enabled, override } = props;
 
-    let status: 'ineligible' | 'pending' | 'submitted';
+    let status: 'pending' | 'submitted';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
-    if (false || eventLimit === /* silence TypeScript= */ 901) {
+    if (false || 901 !== /* silence TypeScript= */ 901) {
         // (1) The volunteer has indicated their availability preferences.
         // TODO
         status = 'submitted';
-    } else if (enabled && eventLimit > 0) {
+    } else if (enabled) {
         // (2) The volunteer is able to indicate their preferences, but has not done so yet.
-        primary = 'When will you be available during the event?';
+        primary = 'When will you be around during the festival?';
         secondary = 'Please share your preferences with us whenever you can…';
         status = 'pending';
-    } else if (enabled && eventLimit <= 0) {
-        // (3) The volunteer is not eligible to indicate their preferences.
-        primary = 'We expect you to be around during the event!';
-        secondary = 'You\'re not eligible to share availability preferences…';
-        status = 'ineligible';
     } else {
-        // (4) The volunteer is not able to indicate their preferences yet.
-        primary = 'When will you be available during the event?';
+        // (3) The volunteer is not able to indicate their preferences yet.
+        primary = 'When will you be around during the festival?';
         secondary = 'The program has not been published yet…';
         status = 'pending';
     }
@@ -91,7 +80,6 @@ function AvailabilityButton(props: AvailabilityButtonProps) {
 
             <ListItemIcon>
                 { status === 'submitted' && <TaskAltIcon color="success" /> }
-                { status === 'ineligible' && <RadioButtonUncheckedIcon color="success" /> }
                 { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
             </ListItemIcon>
 
@@ -357,14 +345,14 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
 
             status = 'submitted';
             primary = `You'd like to join the training on ${preferenceDate}`;
-            secondary = 'This will be confirmed by one of the leads closer to the event…';
+            secondary = 'This will be confirmed by a senior closer to the festival…';
         }
 
         // (4) The volunteer indicated their preferences and does not want to participate.
         else {
             status = 'submitted';
             primary = 'You would like to skip the training this year';
-            secondary = 'This will be confirmed by one of the leads closer to the event…';
+            secondary = 'This will be confirmed by a senior closer to the festival…';
         }
     }
 
@@ -495,7 +483,6 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                         </ListItem>
 
                         <AvailabilityButton enabled={registration.availabilityAvailable}
-                                            eventLimit={registration.availabilityEventLimit}
                                             override={can(user, Privilege.EventAdministrator)} />
 
                         { displayHotel &&
