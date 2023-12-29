@@ -99,8 +99,11 @@ const kAvailabilityTitles: { [k in AvailabilityExpectation]: string } = {
  */
 function AvailabilityExpectation(props: { expectation: AvailabilityExpectation; hour: number }) {
     const { expectation, hour } = props;
+
+    const hourDescription = `${`0${hour}`.substr(-2)}:00–${`0${(hour + 1) % 24}`.substr(-2)}:00`;
+
     return (
-        <Tooltip title={kAvailabilityTitles[expectation]}>
+        <Tooltip title={`${kAvailabilityTitles[expectation]} (${hourDescription})`}>
             <Typography sx={deepmerge(kStyles.timelineBox, kStyles[expectation])}>
                 {`0${hour}`.substr(-2)}
             </Typography>
