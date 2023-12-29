@@ -40,6 +40,27 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     });
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Event preferences
+    // ---------------------------------------------------------------------------------------------
+    // Note that populating `selectedEvents` is O(kn) in time complexity, but since we know that
+    // `k` (the number of selected events) will almost always be in the single digits let's have it.
+
+    let events: EventTimeslotEntry[] = [];
+
+    const selectedEvents: EventTimeslotEntry[] = [];
+    if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
+        events = await getPublicEventsForFestival(event.festivalId, /* withTimingInfo= */ true);
+        for (const timeslotId of registration.availability.timeslots) {
+            for (const eventTimeslot of events) {
+                if (eventTimeslot.id !== timeslotId)
+                    continue;
+
+                selectedEvents.push(eventTimeslot);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
     // Section: Availability
     // ---------------------------------------------------------------------------------------------
 
@@ -66,7 +87,6 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 let decidedStatus: AvailabilityExpectation = 'available';
 
                 // TODO: Consider exceptions "approved" by volunteering leads
-                // TODO: Consider the events the volunteer would like to attend
 
                 // Consider the window in which the volunteer indicated they want to help out with
                 // shifts. We'll add some grace, but otherwise will roster them out at other times.
@@ -106,6 +126,22 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                     }
                 }
 
+                // Consider the events that the volunteer has selected as wanting to attend. We only
+                // reduce the availability here, in other words "available" becomes "avoid", but
+                // "unavailable" remains "unavailable".
+                if (decidedStatus !== 'unavailable' && selectedEvents.length > 0) {
+                    const nextHourlyDateTime = hourlyDateTime.add(1, 'hour');
+                    for (const eventTimeslot of selectedEvents) {
+                        if (!eventTimeslot.startTime || !eventTimeslot.endTime)
+                            continue;  // incomplete timeslot
+
+                        if (eventTimeslot.startTime.isBefore(nextHourlyDateTime) &&
+                                eventTimeslot.endTime.isAfter(hourlyDateTime)) {
+                            decidedStatus = 'avoid';
+                        }
+                    }
+                }
+
                 // We won't schedule shifts (well) before the festival's opening time without having
                 // discussed this with the volunteer.
                 if (date.isSame(startDate, 'day')) {
@@ -131,14 +167,11 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     }
 
     // ---------------------------------------------------------------------------------------------
-    // Section: Event preferences
-    // ---------------------------------------------------------------------------------------------
 
-    let events: EventTimeslotEntry[] = [];
-    if (registration.availabilityEventLimit > 0 && !!event.festivalId)
-        events = await getPublicEventsForFestival(event.festivalId);
-
-    // ---------------------------------------------------------------------------------------------
+    const strippedEventInformation = events.map(event => ({
+        id: event.id,
+        label: event.label,
+    }));
 
     // TODO: Figure out when to pass `readOnly` to <AvailabilityPreferences>.
 
@@ -150,7 +183,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 <AvailabilityExpectations expectations={expectations} /> }
 
             <AvailabilityPreferences environment={environment.environmentName}
-                                     eventSlug={event.slug} events={events}
+                                     eventSlug={event.slug} events={strippedEventInformation}
                                      limit={registration.availabilityEventLimit}
                                      preferences={registration.availability} />
 
