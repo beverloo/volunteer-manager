@@ -3,14 +3,15 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, AutocompleteElement, FormContainer } from 'react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import type { EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
@@ -25,6 +26,11 @@ export interface ApplicationAvailabilityProps {
     event: string;
 
     /**
+     * The list of public events that can be selected as wanting to attend.
+     */
+    events: EventTimeslotEntry[];
+
+    /**
      * Slug of the team that this application is part of.
      */
     team: string;
@@ -34,6 +40,8 @@ export interface ApplicationAvailabilityProps {
      */
     volunteer: {
         userId: number;
+        actualAvailableEventLimit: number;
+        availabilityTimeslots?: string;
         preferences?: string;
         serviceHours?: number;
         preferenceTimingStart?: number;
@@ -56,10 +64,22 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
+            const eventPreferences: number[] = [];
+            for (let index = 0; index < volunteer.actualAvailableEventLimit; ++index) {
+                if (!Object.hasOwn(data, `preference_${index}`))
+                    continue;  // no value has been set
+
+                const timeslotId = data[`preference_${index}`];
+                if (typeof timeslotId === 'number' && !Number.isNaN(timeslotId)) {
+                    if (!eventPreferences.includes(timeslotId))
+                        eventPreferences.push(timeslotId);
+                }
+            }
+
             const response = await callApi('post', '/api/event/availability-preferences', {
                 environment: team,
                 event: event,
-                eventPreferences: [ /* TODO */ ],
+                eventPreferences: eventPreferences,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
@@ -73,10 +93,21 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         } finally {
             setLoading(false);
         }
-    }, [ event, team, volunteer.userId ]);
+    }, [ event, team, volunteer.actualAvailableEventLimit, volunteer.userId ]);
 
     const serviceTiming = `${volunteer.preferenceTimingStart}-${volunteer.preferenceTimingEnd}`;
-    const defaultValues = { ...volunteer, serviceTiming };
+    const defaultValues: Record<string, any> = {
+        ...volunteer,
+        serviceTiming
+    };
+
+    if (volunteer.availabilityTimeslots && volunteer.availabilityTimeslots.length > 2) {
+        volunteer.availabilityTimeslots.split(',').map((timeslotId, index) => {
+            defaultValues[`preference_${index}`] = parseInt(timeslotId, 10);
+        });
+    }
+
+    console.log(defaultValues);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -86,7 +117,16 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <ApplicationAvailabilityForm onChange={handleChange} />
-                    { /* TODO: Flagged events */ }
+                    { [ ...Array(volunteer.actualAvailableEventLimit) ].map((_, index) =>
+                        <Grid key={index} xs={12}>
+                            <AutocompleteElement name={`preference_${index}`}
+                                                 autocompleteProps={{
+                                                     fullWidth: true,
+                                                     onChange: handleChange,
+                                                     size: 'small',
+                                                 }}
+                                                 options={props.events} matchId />
+                        </Grid> )}
                 </Grid>
                 <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
             </FormContainer>

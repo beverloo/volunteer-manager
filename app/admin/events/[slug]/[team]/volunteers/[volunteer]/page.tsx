@@ -21,6 +21,7 @@ import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
+import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -58,6 +59,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             registrationDate: tUsersEvents.registrationDate,
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
+            availabilityTimeslots: tUsersEvents.availabilityTimeslots,
             hotelEligible: tUsersEvents.hotelEligible,
             trainingEligible: tUsersEvents.trainingEligible,
             credits: tUsersEvents.includeCredits,
@@ -69,6 +71,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             tshirtFit: tUsersEvents.shirtFit,
             tshirtSize: tUsersEvents.shirtSize,
 
+            actualAvailableEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
+                tRoles.roleAvailabilityEventLimit),
             isHotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
             isTrainingEligible:
                 tUsersEvents.trainingEligible.valueWhenNull(tRoles.roleTrainingEligible),
@@ -77,6 +81,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     if (!volunteer)
         notFound();
+
+    let publicEvents: EventTimeslotEntry[] = [];
+    if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
+        publicEvents = await getPublicEventsForFestival(event.festivalId);
 
     let hotelManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {
@@ -153,7 +161,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
-            <ApplicationAvailability event={event.slug} team={team.slug} volunteer={volunteer} />
+            <ApplicationAvailability event={event.slug} events={publicEvents} team={team.slug}
+                                     volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}
             {trainingManagement}

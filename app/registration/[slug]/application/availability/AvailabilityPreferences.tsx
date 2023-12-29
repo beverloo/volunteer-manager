@@ -6,8 +6,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement,
-    TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, AutocompleteElement, FormContainer } from 'react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -16,6 +15,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import type { EventTimeslotEntry } from './getPublicEventsForFestival';
 import type { RegistrationAvailability } from '@lib/Registration';
 import { ApplicationAvailabilityForm } from '../ApplicationParticipation';
 import { Markdown } from '@components/Markdown';
@@ -34,21 +34,6 @@ const kPreferencesLockedMarkdown =
     '> We\'ve started drafting your schedule, and your preferences have been locked in.';
 
 /**
- * Individual event that can be selected as a preference by the volunteer.
- */
-export interface EventEntry {
-    /**
-     * Unique ID of the event that the volunteer can choose from.
-     */
-    id: number;
-
-    /**
-     * Label that should be displayed for this event in an autocomplete box.
-     */
-    label: string;
-}
-
-/**
  * Props accepted by the <AvailabilityPreferences> component.
  */
 export interface AvailabilityPreferencesProps {
@@ -65,7 +50,7 @@ export interface AvailabilityPreferencesProps {
     /**
      * Events that exist in the program. Only public events should be listed.
      */
-    events: EventEntry[];
+    events: EventTimeslotEntry[];
 
     /**
      * Maximum number of options to display to the volunteer.
@@ -108,9 +93,11 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 if (!Object.hasOwn(data, `preference_${index}`))
                     continue;  // no value has been set
 
-                const eventId = data[`preference_${index}`];
-                if (typeof eventId === 'number' && !Number.isNaN(eventId))
-                    eventPreferences.push(eventId);
+                const timeslotId = data[`preference_${index}`];
+                if (typeof timeslotId === 'number' && !Number.isNaN(timeslotId)) {
+                    if (!eventPreferences.includes(timeslotId))
+                        eventPreferences.push(timeslotId);
+                }
             }
 
             const response = await callApi('post', '/api/event/availability-preferences', {
@@ -156,7 +143,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 </Grid>
             </Box>
 
-            { props.limit > 0 &&
+            { (props.limit > 0 && props.events.length > 0) &&
                 <Box sx={{ my: 1 }}>
                     <Typography variant="h5">
                         Events that you plan to attend?
@@ -179,6 +166,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                             </React.Fragment> )}
                     </Grid>
                 </Box> }
+
             { !props.readOnly &&
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
                     <LoadingButton variant="contained" type="submit" loading={loading}

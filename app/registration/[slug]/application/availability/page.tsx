@@ -8,16 +8,13 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { ActivityType } from '@lib/database/Types';
-import { AvailabilityPreferences, type EventEntry } from './AvailabilityPreferences';
+import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { dayjs } from '@lib/DateTime';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
+import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import { readSetting } from '@lib/Settings';
-import db, { tActivities, tActivitiesTimeslots } from '@lib/database';
 
 /**
  * The <EventApplicationAvailabilityPage> component enables our volunteers to indicate when they
@@ -44,45 +41,9 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     // Section: Event preferences
     // ---------------------------------------------------------------------------------------------
 
-    const events: EventEntry[] = [];
-
-    if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
-        const maxDurationMinutes =
-            await readSetting('availability-max-event-duration-minutes') ?? Number.MAX_SAFE_INTEGER;
-
-        const timeslots = await db.selectFrom(tActivities)
-            .innerJoin(tActivitiesTimeslots)
-                .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
-                .and(tActivitiesTimeslots.timeslotDeleted.isNull())
-            .where(tActivities.activityFestivalId.equals(event.festivalId))
-                .and(tActivities.activityType.equals(ActivityType.Program))
-                .and(tActivities.activityVisible.equals(/* true= */ 1))
-                .and(tActivities.activityDeleted.isNull())
-            .select({
-                id: tActivitiesTimeslots.timeslotId,
-                title: tActivities.activityTitle,
-                startTime: tActivitiesTimeslots.timeslotStartTime,
-                endTime: tActivitiesTimeslots.timeslotEndTime,
-            })
-            .orderBy(tActivities.activityTitle, 'asc')
-            .orderBy(tActivitiesTimeslots.timeslotStartTime, 'asc')
-            .executeSelectMany();
-
-        for (const timeslot of timeslots) {
-            const startTime = dayjs(timeslot.startTime);
-            const endTime = dayjs(timeslot.endTime);
-
-            const duration = endTime.diff(startTime, 'minutes');
-            if (duration < 0 || duration > maxDurationMinutes)
-                continue;  // this event exceeds the duration cutoff
-
-            events.push({
-                id: timeslot.id,
-                label: `${timeslot.title} (${dayjs(startTime).format('dddd, HH:mm')}–` +
-                    `${dayjs(endTime).format('HH:mm')})`,
-            });
-        }
-    }
+    let events: EventTimeslotEntry[] = [];
+    if (registration.availabilityEventLimit > 0 && !!event.festivalId)
+        events = await getPublicEventsForFestival(event.festivalId);
 
     // ---------------------------------------------------------------------------------------------
 
