@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { RegistrationStatus } from './database/Types';
+import { EventAvailabilityStatus, RegistrationStatus } from './database/Types';
 
 /**
  * Interface that maps to the database representation of a registration.
@@ -10,7 +10,7 @@ export interface RegistrationDatabaseRow {
     role: string;
     status: RegistrationStatus;
 
-    availabilityAvailable: boolean;
+    availabilityStatus: EventAvailabilityStatus,
     availabilityEventLimit: number;
     availability?: {
         preferences?: string;
@@ -248,9 +248,9 @@ export interface RegistrationData {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Whether the necessary data to indicate availability during the event exists.
+     * Whether the volunteer has access to the availability system by default.
      */
-    availabilityAvailable: boolean;
+    availabilityStatus: EventAvailabilityStatus;
 
     /**
      * Maximum number of events that the volunteer can flag as wanting to attend.
@@ -362,7 +362,7 @@ export class Registration implements RegistrationData {
     get role() { return this.#registration.role; }
     get status() { return this.#registration.status; }
 
-    get availabilityAvailable() { return this.#registration.availabilityAvailable; }
+    get availabilityStatus() { return this.#registration.availabilityStatus; }
     get availabilityEventLimit() { return this.#registration.availabilityEventLimit; }
     get availability() { return this.#availability; }
 
@@ -389,7 +389,7 @@ export class Registration implements RegistrationData {
             role: this.role,
             status: this.status,
 
-            availabilityAvailable: this.availabilityAvailable,
+            availabilityStatus: this.availabilityStatus,
             availabilityEventLimit: this.availabilityEventLimit,
             availability: this.availability,
 

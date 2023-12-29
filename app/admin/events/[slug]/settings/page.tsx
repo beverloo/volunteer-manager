@@ -36,7 +36,6 @@ export default async function EventSettingsPage(props: NextRouterParams<'slug'>)
             enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
             enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
             enableRegistration: eventsTeamsJoin.enableRegistration.equals(/* true= */ 1),
-            enableAvailability: eventsTeamsJoin.enableAvailability.equals(/* true= */ 1),
             enableSchedule: eventsTeamsJoin.enableSchedule.equals(/* true= */ 1),
             whatsappLink: eventsTeamsJoin.whatsappLink,
         })

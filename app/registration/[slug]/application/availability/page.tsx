@@ -17,6 +17,7 @@ import { dayjs } from '@lib/DateTime';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
+import { EventAvailabilityStatus } from '@lib/database/Types';
 
 /**
  * The <EventApplicationAvailabilityPage> component enables our volunteers to indicate when they
@@ -29,10 +30,15 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     const { environment, event, registration, user } = context;
 
-    const enabled = registration.availabilityAvailable || can(user, Privilege.EventAdministrator);
+    const enabled = [
+        EventAvailabilityStatus.Available,
+        EventAvailabilityStatus.Locked
+    ].includes(registration.availabilityStatus);
+
+    const enabledWithOverride = enabled || can(user, Privilege.EventAdministrator);
     const preferences = null;
 
-    if (!enabled && !preferences)
+    if (!enabledWithOverride && !preferences)
         notFound();  // the volunteer is not eligible to indicate their preferences
 
     const content = await getStaticContent([ 'registration', 'application', 'availability' ], {
@@ -168,12 +174,11 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     // ---------------------------------------------------------------------------------------------
 
+    const readOnly = registration.availabilityStatus === EventAvailabilityStatus.Locked;
     const strippedEventInformation = events.map(event => ({
         id: event.id,
         label: event.label,
     }));
-
-    // TODO: Figure out when to pass `readOnly` to <AvailabilityPreferences>.
 
     return (
         <Box sx={{ p: 2 }}>
@@ -185,7 +190,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
             <AvailabilityPreferences environment={environment.environmentName}
                                      eventSlug={event.slug} events={strippedEventInformation}
                                      limit={registration.availabilityEventLimit}
-                                     preferences={registration.availability} />
+                                     preferences={registration.availability} readOnly={readOnly} />
 
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration

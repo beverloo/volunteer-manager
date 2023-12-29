@@ -35,11 +35,6 @@ tables:
     nullable: false
     default: "0"
     comment: ""
-  - name: enable_availability
-    type: tinyint(1)
-    nullable: false
-    default: null
-    comment: ""
   - name: enable_schedule
     type: tinyint(1)
     nullable: false
@@ -110,7 +105,6 @@ tables:
       `enable_team` tinyint(1) NOT NULL DEFAULT 0,
       `enable_content` tinyint(1) NOT NULL DEFAULT 0,
       `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
-      `enable_availability` tinyint(1) NOT NULL,
       `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
       `whatsapp_link` text DEFAULT NULL,
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
@@ -3223,6 +3217,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: event_availability_status
+    type: enum('Unavailable','Available','Locked')
+    nullable: false
+    default: null
+    comment: ""
   - name: event_location
     type: text
     nullable: true
@@ -3292,6 +3291,7 @@ tables:
       `event_end_time` datetime NOT NULL,
       `event_refunds_start_time` datetime DEFAULT NULL,
       `event_refunds_end_time` datetime DEFAULT NULL,
+      `event_availability_status` enum('Unavailable','Available','Locked') NOT NULL,
       `event_location` text DEFAULT NULL,
       `event_hotel_room_form` text DEFAULT NULL,
       `event_festival_id` int(8) unsigned DEFAULT NULL,

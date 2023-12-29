@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
+import type { EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -27,11 +28,6 @@ export interface PageInfo {
          * revoked from senior+ level volunteers.
          */
         hidden: boolean;
-
-        /**
-         * Whether information about schedule availability has been published to volunteers.
-         */
-        publishAvailability: boolean;
 
         /**
          * Whether information about the trainings has been published to volunteers.
@@ -87,6 +83,12 @@ export interface PageInfo {
          * Date and time until which volunteers can request refunds, if any.
          */
         refundsEndTime?: Date;
+
+        /**
+         * Status of the event's program publication and the ability for volunteers to indicate
+         * their preferences.
+         */
+        availabilityStatus: EventAvailabilityStatus;
 
         /**
          * Unique Id of this festival as indicated in AnPlan.
@@ -191,10 +193,10 @@ export async function verifyAccessAndFetchPageInfo(
             endTime: tEvents.eventEndTime,
             refundsStartTime: tEvents.eventRefundsStartTime,
             refundsEndTime: tEvents.eventRefundsEndTime,
+            availabilityStatus: tEvents.eventAvailabilityStatus,
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,
             hotelRoomForm: tEvents.eventHotelRoomForm,
-            publishAvailability: tEvents.publishAvailability.equals(/* true= */ 1),
             publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
             publishRefunds: tEvents.publishRefunds.equals(/* true= */ 1),
             publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),

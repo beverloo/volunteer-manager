@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { noAccess, type ActionProps } from '../Action';
-import { FileType } from '@lib/database/Types';
+import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -41,6 +41,7 @@ export const kUpdateEventDefinition = z.object({
             shortName: z.string(),
             startTime: z.string(),
             endTime: z.string(),
+            availabilityStatus: z.nativeEnum(EventAvailabilityStatus),
             location: z.string().optional(),
             festivalId: z.number().optional(),
             hotelRoomForm: z.string().optional(),
@@ -68,7 +69,6 @@ export const kUpdateEventDefinition = z.object({
             enableTeam: z.boolean(),
             enableContent: z.boolean(),
             enableRegistration: z.boolean(),
-            enableAvailability: z.boolean(),
             enableSchedule: z.boolean(),
             targetSize: z.number(),
             whatsappLink: z.string().optional(),
@@ -168,6 +168,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 eventShortName: request.eventSettings.shortName,
                 eventStartTime: new Date(request.eventSettings.startTime),
                 eventEndTime: new Date(request.eventSettings.endTime),
+                eventAvailabilityStatus: request.eventSettings.availabilityStatus,
                 eventLocation: request.eventSettings.location,
                 eventFestivalId: request.eventSettings.festivalId,
                 eventHotelRoomForm: request.eventSettings.hotelRoomForm,
@@ -262,7 +263,6 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     enableTeam: request.team.enableTeam ? 1 : 0,
                     enableContent: request.team.enableContent ? 1 : 0,
                     enableRegistration: request.team.enableRegistration ? 1 : 0,
-                    enableAvailability: request.team.enableAvailability ? 1 : 0,
                     enableSchedule: request.team.enableSchedule ? 1 : 0,
                     whatsappLink: request.team.whatsappLink,
                 })

@@ -6,7 +6,8 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
+    from 'react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
@@ -14,10 +15,29 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
+import { EventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { issueServerAction } from '@lib/issueServerAction';
 import { dayjs } from '@lib/DateTime';
+
+/**
+ * Options that can be presented to the senior in regards to the event availability status.
+ */
+const kAvailabilityStatusOptions = [
+    {
+        id: EventAvailabilityStatus.Unavailable,
+        label: 'Volunteers cannot indicate their availability'
+    },
+    {
+        id: EventAvailabilityStatus.Available,
+        label: 'Volunteers can indicate their availability'
+    },
+    {
+        id: EventAvailabilityStatus.Locked,
+        label: 'Volunteers can see their availability, but not change it'
+    },
+] satisfies { id: EventAvailabilityStatus; label: string }[];
 
 /**
  * Props accepted by the <EventSettings> component.
@@ -55,6 +75,7 @@ export function EventSettings(props: EventSettingsProps) {
                         shortName: data.shortName,
                         startTime: dayjs(data.startTime).toISOString(),
                         endTime: dayjs(data.endTime).toISOString(),
+                        availabilityStatus: data.availabilityStatus,
                         location: data.location,
                         festivalId: data.festivalId,
                         hotelRoomForm: data.hotelRoomForm,
@@ -86,6 +107,11 @@ export function EventSettings(props: EventSettingsProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <EventSettingsForm onChange={handleChange} />
                 <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid xs={12}>
+                        <SelectElement name="availabilityStatus" label="Availability status"
+                                       fullWidth size="small" onChange={handleChange}
+                                       options={kAvailabilityStatusOptions} />
+                    </Grid>
                     <Grid xs={12}>
                         <TextFieldElement name="location" label="Location"
                                           fullWidth size="small" onChange={handleChange} />

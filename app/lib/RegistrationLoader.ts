@@ -64,7 +64,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             role: tRoles.roleName,
             status: tUsersEvents.registrationStatus,
 
-            availabilityAvailable: tEventsTeams.enableAvailability.equals(/* true= */ 1),
+            availabilityStatus: tEvents.eventAvailabilityStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
                 tRoles.roleAvailabilityEventLimit),
             availability: {

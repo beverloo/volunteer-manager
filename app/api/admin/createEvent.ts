@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -87,6 +88,7 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventHidden: /* true= */ 1,
             eventStartTime: new Date(request.startTime),
             eventEndTime: new Date(request.endTime),
+            eventAvailabilityStatus: EventAvailabilityStatus.Unavailable,
         })
         .executeInsert();
 

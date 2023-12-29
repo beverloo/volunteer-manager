@@ -120,7 +120,8 @@ export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
 
     const router = useRouter();
     const missingInformation =
-        (registration.availabilityAvailable && !registration.availability) ||
+        (registration.trainingEligible &&
+            (registration.trainingAvailable && !registration.training)) ||
         (registration.hotelEligible &&
             (registration.hotelAvailable && !registration.hotelPreferences &&
              !registration.hotelBookings.length));

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -100,8 +101,10 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application…' };
 
-    if (!registration.availabilityAvailable && !can(props.user, Privilege.EventAdministrator))
+    if (registration.availabilityStatus !== EventAvailabilityStatus.Available
+            && !can(props.user, Privilege.EventAdministrator)) {
         return { success: false, error: 'Preferences cannot be shared yet, sorry!' };
+    }
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
 

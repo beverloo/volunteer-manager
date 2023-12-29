@@ -123,6 +123,10 @@ do {
                 { field: [ 'activities_logs', 'mutation' ], type: 'Mutation' },
                 { field: [ 'activities_logs', 'mutation_severity' ], type: 'MutationSeverity' },
                 { field: [ 'activities_timeslots', 'timeslot_type' ], type: 'ActivityType' },
+                {
+                    field: [ 'events', 'event_availability_status' ],
+                    type: 'EventAvailabilityStatus'
+                },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },

@@ -22,8 +22,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
+import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationStatus } from '@lib/database/Types';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -31,9 +31,9 @@ import { dayjs } from '@lib/DateTime';
  */
 interface AvailabilityButtonProps {
     /**
-     * Whether the button should be enabled by default, i.e. has the program been published yet?
+     * What the status of the availability page is.
      */
-    enabled: boolean;
+    status: EventAvailabilityStatus;
 
     /**
      * Whether the volunteer has the ability to override normal access restrictions.
@@ -46,31 +46,37 @@ interface AvailabilityButtonProps {
  * regards to their presence at the location and events they would like to attend.
  *
  * This button deals with a number of situations:
- *   (1) The volunteer has indicated their availability preferences.
- *   (2) The volunteer is able to indicate their preferences, but has not done so yet.
+ *   (1) The volunteer is able to see their preferences, but can't change them.
+ *   (2) The volunteer is able to indicate their preferences.
  *   (3) The volunteer is not able to indicate their preferences yet.
  */
 function AvailabilityButton(props: AvailabilityButtonProps) {
-    const { enabled, override } = props;
+    const { status, override } = props;
 
-    let status: 'pending' | 'submitted';
+    const enabled = [
+        EventAvailabilityStatus.Available,
+        EventAvailabilityStatus.Locked
+    ].includes(status);
+
+    let buttonStatus: 'pending' | 'available' | 'locked';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
-    if (false || 901 !== /* silence TypeScript= */ 901) {
-        // (1) The volunteer has indicated their availability preferences.
-        // TODO
-        status = 'submitted';
-    } else if (enabled) {
-        // (2) The volunteer is able to indicate their preferences, but has not done so yet.
+    if (status === EventAvailabilityStatus.Locked) {
+        // (1) The volunteer is able to see their preferences, but can't change them.
         primary = 'When will you be around during the festival?';
-        secondary = 'Please share your preferences with us whenever you can…';
-        status = 'pending';
+        secondary = 'Your preferences have been noted!';
+        buttonStatus = 'locked';
+    } else if (status === EventAvailabilityStatus.Available) {
+        // (2) The volunteer is able to indicate their preferences.
+        primary = 'When will you be around during the festival?';
+        secondary = 'Please share your preferences at your convenience!';
+        buttonStatus = 'available';
     } else {
         // (3) The volunteer is not able to indicate their preferences yet.
         primary = 'When will you be around during the festival?';
         secondary = 'The program has not been published yet…';
-        status = 'pending';
+        buttonStatus = 'pending';
     }
 
     return (
@@ -79,8 +85,9 @@ function AvailabilityButton(props: AvailabilityButtonProps) {
                         href="./application/availability">
 
             <ListItemIcon>
-                { status === 'submitted' && <TaskAltIcon color="success" /> }
-                { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
+                { buttonStatus === 'locked' && <TaskAltIcon color="success" /> }
+                { buttonStatus === 'available' && <RadioButtonUncheckedIcon color="success" /> }
+                { buttonStatus === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
             </ListItemIcon>
 
             <ListItemText primary={primary} secondary={secondary} />
@@ -482,7 +489,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <ListItemText primary="Your application has been accepted!" />
                         </ListItem>
 
-                        <AvailabilityButton enabled={registration.availabilityAvailable}
+                        <AvailabilityButton status={registration.availabilityStatus}
                                             override={can(user, Privilege.EventAdministrator)} />
 
                         { displayHotel &&

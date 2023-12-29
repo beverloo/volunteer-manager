@@ -22,6 +22,16 @@ export enum AuthType {
 }
 
 /**
+ * Status indicating whether volunteers can share their availability preferences.
+ * @see Table `events`
+ */
+export enum EventAvailabilityStatus {
+    Unavailable = 'Unavailable',
+    Available = 'Available',
+    Locked = 'Locked',
+}
+
+/**
  * Type of export that a particular entry describes.
  * @see Table `exports`
  */
