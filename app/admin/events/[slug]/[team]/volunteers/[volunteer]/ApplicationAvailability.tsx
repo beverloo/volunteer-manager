@@ -107,8 +107,6 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         });
     }
 
-    console.log(defaultValues);
-
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 2 }}>

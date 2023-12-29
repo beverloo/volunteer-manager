@@ -8,10 +8,12 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { AvailabilityExpectations, type AvailabilityDayInfo } from './AvailabilityExpectations';
 import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
+import { dayjs } from '@lib/DateTime';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
@@ -38,6 +40,24 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     });
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Availability
+    // ---------------------------------------------------------------------------------------------
+
+    const startDate = dayjs(event.startTime).startOf('day');
+    const endDate = dayjs(event.endTime).endOf('day');
+
+    const expectations: AvailabilityDayInfo[] = [];
+    for (let date = startDate; date.isBefore(endDate); date = date.add(1, 'day')) {
+        // TODO: Consider their preferred timing.
+        // TODO: Consider the events they would like to attend.
+
+        expectations.push({
+            label: date.format('dddd, MMMM D'),
+            expectations: [ ...Array(/* hours= */ 24) ].map(v => 'unavailable'),
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------
     // Section: Event preferences
     // ---------------------------------------------------------------------------------------------
 
@@ -53,7 +73,8 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
 
-            { /* TODO: Availability overview */ }
+            { expectations.length > 0 &&
+                <AvailabilityExpectations expectations={expectations} /> }
 
             <AvailabilityPreferences environment={environment.environmentName}
                                      eventSlug={event.slug} events={events}
