@@ -21,6 +21,12 @@ const kActivitiesFestivalIdFilter = /* AnimeCon 2023= */ 624;
 const kTimeslotsYearFilter = 2023;
 
 /**
+ * Whether the results should be filtered for the purpose of being used as test results, as we make
+ * sure that our parsers continue to work with old festival information.
+ */
+const kFilterForTestResults = true;
+
+/**
  * Props accepted by the <AnimeConStreamingApiResult> component.
  */
 export interface AnimeConStreamingApiResultProps {
@@ -49,8 +55,15 @@ export async function AnimeConStreamingApiResult(props: AnimeConStreamingApiResu
             case 'activities.json':
                 result = await client.getActivities({
                     festivalId: kActivitiesFestivalIdFilter,
-                    'activityType.visible': true,
                 });
+
+                if (!!kFilterForTestResults) {
+                    result = result.map(activity => ({
+                        ...activity,
+                        printDescription: null,
+                    })).slice(0, 25);
+                }
+
                 break;
 
             case 'activity-types.json':
@@ -69,7 +82,8 @@ export async function AnimeConStreamingApiResult(props: AnimeConStreamingApiResu
                 throw new Error('Endpoint not recognised by the Volunteer Manager');
         }
 
-        stringifiedResult = JSON.stringify(result, /* replacer= */ undefined, /* space= */ 4);
+        stringifiedResult = JSON.stringify(
+            result, /* replacer= */ undefined, /* space= */ kFilterForTestResults ? undefined : 4);
 
     } catch (error: any) {
         return (

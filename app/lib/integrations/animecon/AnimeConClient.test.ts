@@ -140,6 +140,7 @@ describe('Client', () => {
                     'url': 'https://animecon.nl/regular/en/program-list/24-taste-japan/397-the-japanese-whisky-bar',
                     'prizes': null,
                     'ticketsInfo': null,
+                    'helpNeeded': false,
                     'activityType': {
                         'id': 805,
                         'description': 'Event 18+',
@@ -171,7 +172,8 @@ describe('Client', () => {
                                 'name': 'Events 4: Food Workshops',
                                 'useName': null,
                                 'sponsor': null,
-                                'area': 'Terrace'
+                                'area': 'Terrace',
+                                'floorId': 376,
                             }
                         },
                         {
@@ -185,7 +187,8 @@ describe('Client', () => {
                                 'name': 'Events 4: Food Workshops',
                                 'useName': null,
                                 'sponsor': null,
-                                'area': 'Terrace'
+                                'area': 'Terrace',
+                                'floorId': 376,
                             }
                         }
                     ],
@@ -281,6 +284,7 @@ describe('Client', () => {
                         'url': null,
                         'prizes': null,
                         'ticketsInfo': null,
+                        'helpNeeded': false,
                         'activityType': {
                             'id': 815,
                             'description': 'Hidden Event',
@@ -312,7 +316,8 @@ describe('Client', () => {
                         'name': 'Bag room',
                         'useName': null,
                         'sponsor': null,
-                        'area': 'Bakkerij 1'
+                        'area': 'Bakkerij 1',
+                        'floorId': 271,
                     }
                 }
             ]
