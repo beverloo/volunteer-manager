@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { revalidateTag } from 'next/cache';
+
 /**
  * Settings required for authenticating with the AnimeCon API.
  */
@@ -29,6 +31,11 @@ export interface AnimeConAuthSettings {
      * Password through which we identify with the AnimeCon API.
      */
     password: string;
+
+    /**
+     * Whether the authentication cache should be revalidated.
+     */
+    revalidateCache?: boolean;
 
     /**
      * Scopes for which we are will authenticate with the auth endpoint. Must be a comma-separated
@@ -66,6 +73,12 @@ export interface ClientAuthToken {
 }
 
 /**
+ * Next.js revalidation token used to cache authentication information.
+ * @see https://nextjs.org/docs/app/api-reference/functions/fetch#optionsnextrevalidate
+ */
+const kNextRevalidationToken = 'animecon-api';
+
+/**
  * Authentication driver for the AnimeCon API. Will make an OAuth2 request to the indicated endpoint
  * to obtain a JWT token, which in turn can be used to authenticate further requests.
  */
@@ -88,6 +101,9 @@ export class AnimeConAuth {
         this.#username = settings.username;
         this.#password = settings.password;
         this.#scopes = settings.scopes;
+
+        if (settings.revalidateCache)
+            revalidateTag(kNextRevalidationToken);
     }
 
     /**
@@ -111,7 +127,8 @@ export class AnimeConAuth {
             ],
             body: requestPayload,
             next: {
-                revalidate: /* seconds= */ 3600,
+                revalidate: /* seconds= */ 1800,
+                tags: [ kNextRevalidationToken ],
             },
         });
 

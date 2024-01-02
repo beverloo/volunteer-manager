@@ -14,37 +14,38 @@ export * from './AnimeConTypes';
  * Gets an instance of the AnimeCon client with either the `settings` when given, or default
  * configuration loaded from the database when omitted.
  */
-export async function createAnimeConClient(settings?: AnimeConClientSettings)
+export async function createAnimeConClient(settings?: Partial<AnimeConClientSettings>)
     : Promise<AnimeConClient>
 {
-    if (!settings) {
-        const configuration = await readSettings([
-            'integration-animecon-api-endpoint',
-            'integration-animecon-auth-endpoint',
-            'integration-animecon-client-id',
-            'integration-animecon-client-secret',
-            'integration-animecon-username',
-            'integration-animecon-password',
-            'integration-animecon-scopes',
-        ]);
+    const configuration = await readSettings([
+        'integration-animecon-api-endpoint',
+        'integration-animecon-auth-endpoint',
+        'integration-animecon-client-id',
+        'integration-animecon-client-secret',
+        'integration-animecon-username',
+        'integration-animecon-password',
+        'integration-animecon-scopes',
+    ]);
 
-        for (const [ key, value ] of Object.entries(configuration)) {
-            if (value !== undefined)
-                continue;
+    for (const [ key, value ] of Object.entries(configuration)) {
+        if (value !== undefined)
+            continue;
 
-            throw new Error(`Unable to instantiate the AnimeCon client, missing setting ${key}`);
-        }
-
-        settings = {
-            apiEndpoint: configuration['integration-animecon-api-endpoint']!,
-            authEndpoint: configuration['integration-animecon-auth-endpoint']!,
-            clientId: configuration['integration-animecon-client-id']!,
-            clientSecret: configuration['integration-animecon-client-secret']!,
-            username: configuration['integration-animecon-username']!,
-            password: configuration['integration-animecon-password']!,
-            scopes: configuration['integration-animecon-scopes']!,
-        };
+        throw new Error(`Unable to instantiate the AnimeCon client, missing setting ${key}`);
     }
 
-    return new AnimeConClient(settings);
+    const defaultSettings = {
+        apiEndpoint: configuration['integration-animecon-api-endpoint']!,
+        authEndpoint: configuration['integration-animecon-auth-endpoint']!,
+        clientId: configuration['integration-animecon-client-id']!,
+        clientSecret: configuration['integration-animecon-client-secret']!,
+        username: configuration['integration-animecon-username']!,
+        password: configuration['integration-animecon-password']!,
+        scopes: configuration['integration-animecon-scopes']!,
+    };
+
+    return new AnimeConClient({
+        ...defaultSettings,
+        ...settings,
+    });
 }

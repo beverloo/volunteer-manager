@@ -727,7 +727,10 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     // ---------------------------------------------------------------------------------------------
 
     async fetchActivitiesFromApi(festivalId: number): Promise<Activity[]> {
-        const client = await createAnimeConClient();
+        const client = await createAnimeConClient({
+            revalidateCache: true,
+        });
+
         return client.getActivities({ festivalId });
     }
 
