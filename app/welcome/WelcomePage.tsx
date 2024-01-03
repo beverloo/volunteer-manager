@@ -23,10 +23,10 @@ import { deepmerge } from '@mui/utils';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
-import { DateTime } from '@lib/DateTime';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
+import { dayjs } from '@lib/DateTime';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
@@ -134,13 +134,13 @@ export function WelcomePage(props: WelcomePageProps) {
 
     const eventContentOverride = can(user, Privilege.EventContentOverride);
     const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
-    const currentTime = DateTime.Now();
+    const currentTime = dayjs();
 
     let upcomingEvent: EventDataWithEnvironment | undefined;
     let currentEvent: EventDataWithEnvironment | undefined;
 
     for (const event of props.events) {
-        const eventTime = DateTime.From(event.endTime);
+        const eventTime = dayjs(event.endTime);
         if (eventTime.isAfter(currentTime, 'date') && !upcomingEvent)
             upcomingEvent = event;
         else if (!currentEvent)
