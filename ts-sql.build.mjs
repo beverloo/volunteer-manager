@@ -111,6 +111,10 @@ do {
                         kind: 'custom',
                         dbType: { name: 'Blob' },
                         tsType: { name: 'Buffer' },
+                        adapter: {
+                            importPath: './app/lib/database/BlobTypeAdapter',
+                            name: 'BlobTypeAdapter',
+                        },
                     },
                 },
             },

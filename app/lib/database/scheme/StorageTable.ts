@@ -12,6 +12,9 @@ import {
     DateTimeTypeAdapter,
 } from "../DateTimeTypeAdapter";
 import {
+    BlobTypeAdapter,
+} from "../BlobTypeAdapter";
+import {
     FileType,
 } from "../Types";
 import {
@@ -24,7 +27,7 @@ export class StorageTable extends Table<DBConnection, 'StorageTable'> {
     fileType = this.column<FileType>('file_type', 'enum', 'FileType');
     fileMimeType = this.column('file_mime_type', 'string');
     fileDate = this.column<DateTime>('file_date', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    fileData = this.column<Buffer>('file_data', 'custom', 'Blob');
+    fileData = this.column<Buffer>('file_data', 'custom', 'Blob', BlobTypeAdapter);
     userId = this.optionalColumnWithDefaultValue('user_id', 'int');
 
     constructor() {

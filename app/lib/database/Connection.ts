@@ -87,36 +87,6 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     currentDateTime2(): ComparableDateTimeValueSource { return super.currentDateTime() as any; }
     currentTimestamp2(): ComparableDateTimeValueSource { return super.currentTimestamp() as any; }
     currentTime2(): ComparableDateTimeValueSource { return super.currentTime() as any; }
-
-    /**
-     * Global type adapter (MariaDB -> TypeScript) for the custom types that we use.
-     */
-    protected override transformValueFromDB(value: unknown, type: string) {
-        switch (type) {
-            case 'Blob':
-                if (value || value instanceof Uint8Array)
-                    return value ?? new Uint8Array();
-
-                throw new Error(`Unable to decode a Blob field from the database: ${value}`);
-        }
-
-        return super.transformValueFromDB(value, type);
-    }
-
-    /**
-     * Global type adapter (TypeScript -> MariaDB) for the custom types that we use.
-     */
-    protected override transformValueToDB(value: unknown, type: string) {
-        switch (type) {
-            case 'Blob':
-                if (value && !(value instanceof Uint8Array))
-                    throw new Error(`Unable to encode a Blob field to the database: ${value}`);
-
-                return value ?? new Uint8Array();
-        }
-
-        return super.transformValueToDB(value, type);
-    }
 }
 
 /**
