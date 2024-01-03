@@ -76,8 +76,7 @@ export interface BlobInfo {
  * Stores the blob represented by the given `data` in the database, optionally associated with the
  * given `user` to whom the data belongs. Returns the file ID when successful.
  */
-export async function storeBlobData(info: BlobInfo): Promise<number | false>
-{
+export async function storeBlobData(info: BlobInfo): Promise<number | false> {
     if (info.bytes.length > kBlobSizeLimit) {
         console.error('Unable to store an blob: request too large');
         return false;
@@ -89,7 +88,7 @@ export async function storeBlobData(info: BlobInfo): Promise<number | false>
             fileHash: hash,
             fileType: info.type,
             fileMimeType: info.mimeType,
-            fileDate: db.currentDateTime(),
+            fileDate: db.currentDateTime2(),
             fileData: info.bytes,
             userId: info.userId,
         })

@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { DateTime } from './DateTime';
 import { type LogEntry, LogSeverity, LogType } from './Log';
 import db, { tLogs, tUsers } from './database';
 
@@ -16,7 +17,7 @@ export interface LogMessage {
     /**
      * Date at which the log message was stored in the database.
      */
-    date: Date;
+    date: string;
 
     /**
      * Unique ID of this log entry. No need to show this to the user.
@@ -339,12 +340,13 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
     const sourceUserJoin = tUsers.forUseInLeftJoinAs('source');
     const targetUserJoin = tUsers.forUseInLeftJoinAs('target');
 
-    let selectQueryBuilder = db.selectFrom(tLogs)
+    const dbInstance = db;
+    let selectQueryBuilder = dbInstance.selectFrom(tLogs)
         .leftJoin(sourceUserJoin).on(sourceUserJoin.userId.equals(tLogs.logSourceUserId))
         .leftJoin(targetUserJoin).on(targetUserJoin.userId.equals(tLogs.logTargetUserId))
         .select({
             // Columns that will be passed through:
-            date: tLogs.logDate,
+            date: dbInstance.asString(tLogs.logDate),
             id: tLogs.logId,
             severity: tLogs.logSeverity,
 

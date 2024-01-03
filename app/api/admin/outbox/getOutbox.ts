@@ -154,10 +154,11 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
         privilege: Privilege.SystemOutboxAccess,
     });
 
-    const message = await db.selectFrom(tOutbox)
+    const dbInstance = db;
+    const message = await dbInstance.selectFrom(tOutbox)
         .select({
             // Message info:
-            date: tOutbox.outboxTimestamp,
+            date: dbInstance.asString(tOutbox.outboxTimestamp),
 
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,
@@ -194,5 +195,5 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
     if (!message)
         notFound();
 
-    return { ...message, date: message.date.toISOString() };
+    return message;
 }

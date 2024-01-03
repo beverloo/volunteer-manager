@@ -155,10 +155,11 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
         privilege: Privilege.SystemOutboxAccess,
     });
 
-    const result = await db.selectFrom(tOutbox)
+    const dbInstance = db;
+    const result = await dbInstance.selectFrom(tOutbox)
         .select({
             id: tOutbox.outboxId,
-            date: tOutbox.outboxTimestamp,
+            date: dbInstance.asString(tOutbox.outboxTimestamp),
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,
             to: tOutbox.outboxTo,
@@ -172,6 +173,6 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
 
     return {
         rowCount: result.count,
-        rows: result.data.map(row => ({ ...row, date: row.date.toISOString() })),
+        rows: result.data,
     };
 }

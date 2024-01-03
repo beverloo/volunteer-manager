@@ -85,7 +85,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
             .set({
                 nardoAdvice: 'Nardo!',
                 nardoAuthorId: props.user!.userId,
-                nardoAuthorDate: dbInstance.currentTimestamp(),
+                nardoAuthorDate: dbInstance.currentTimestamp2(),
             })
             .returningLastInsertedId()
             .executeInsert();
@@ -116,7 +116,9 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
 
     async list({ pagination, sort }, props) {
         const publicView = !can(props.user, Privilege.SystemNardoAccess);
-        const results = await db.selectFrom(tNardo)
+
+        const dbInstance = db;
+        const results = await dbInstance.selectFrom(tNardo)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tNardo.nardoAuthorId))
             .where(tNardo.nardoVisible.equals(/* true= */ 1))
@@ -125,7 +127,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
                 advice: tNardo.nardoAdvice,
                 authorName: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 authorUserId: tUsers.userId,
-                date: tNardo.nardoAuthorDate,
+                date: dbInstance.asString(tNardo.nardoAuthorDate),
             })
             .orderByFromStringIfValue(sort ? `${sort.field} ${sort.sort}` : null)
             .limit(pagination ? pagination.pageSize : 50)
@@ -135,10 +137,8 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
         return {
             success: true,
             rowCount: results.count,
-            rows: results.data.map(result =>
-                publicView ? { advice: result.advice } :
-                             { ...result, date: result.date.toISOString() }),
-        }
+            rows: results.data.map(result => publicView ? { advice: result.advice } : result),
+        };
     },
 
     async update({ row }, props) {

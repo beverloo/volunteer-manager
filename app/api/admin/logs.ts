@@ -70,7 +70,7 @@ export const kLogsDefinition = z.object({
             /**
              * Date at which the log message was stored in the database.
              */
-            date: z.date(),
+            date: z.string(),
 
             /**
              * Unique ID of this log entry. No need to show this to the user.

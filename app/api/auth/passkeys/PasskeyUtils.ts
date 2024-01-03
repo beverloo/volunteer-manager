@@ -3,7 +3,7 @@
 
 import type { VerifiedRegistrationResponse } from '@simplewebauthn/server';
 
-import type { User } from '@lib/auth/User';
+import type { DateTime } from '@lib/DateTime';
 import db, { tUsersPasskeys, tUsers } from '@lib/database';
 
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
@@ -52,12 +52,12 @@ export interface Credential {
     /**
      * Date on which the credential was created.
      */
-    created: Date;
+    created: DateTime;
 
     /**
      * Date on which the credential was last used to sign in to an account.
      */
-    lastUsed?: Date;
+    lastUsed?: DateTime;
 }
 
 /**
@@ -86,9 +86,10 @@ export async function retrieveCredentials(user: UserLike): Promise<Credential[]>
 export async function updateCredentialCounter(
     user: UserLike, passkeyId: number, counter: bigint): Promise<void>
 {
-    await db.update(tUsersPasskeys)
+    const dbInstance = db;
+    await dbInstance.update(tUsersPasskeys)
         .set({
-            credentialLastUsed: db.currentDateTime(),
+            credentialLastUsed: dbInstance.currentDateTime2(),
             counter,
         })
         .where(tUsersPasskeys.userId.equals(user.userId))
