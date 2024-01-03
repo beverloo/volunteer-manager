@@ -108,11 +108,6 @@ export function EventSettings(props: EventSettingsProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <EventSettingsForm onChange={handleChange} />
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid xs={12}>
-                        <SelectElement name="availabilityStatus" label="Availability status"
-                                       fullWidth size="small" onChange={handleChange}
-                                       options={kAvailabilityStatusOptions} />
-                    </Grid>
                     <Grid xs={6}>
                         <TextFieldElement name="location" label="Location"
                                           fullWidth size="small" onChange={handleChange} />
@@ -120,6 +115,11 @@ export function EventSettings(props: EventSettingsProps) {
                     <Grid xs={6}>
                         <TextFieldElement name="timezone" label="Timezone"
                                           fullWidth size="small" onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={12}>
+                        <SelectElement name="availabilityStatus" label="Availability status"
+                                       fullWidth size="small" onChange={handleChange}
+                                       options={kAvailabilityStatusOptions} />
                     </Grid>
                     <Grid xs={6}>
                         <TextFieldElement name="festivalId" label="AnPlan Festival ID" type="number"
