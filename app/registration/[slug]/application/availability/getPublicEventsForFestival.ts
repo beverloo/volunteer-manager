@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { DateTime } from '@lib/DateTime';
 import { ActivityType } from '@lib/database/Types';
-import { dayjs } from '@lib/DateTime';
 import { readSetting } from '@lib/Settings';
 import db, { tActivities, tActivitiesTimeslots } from '@lib/database';
 
@@ -23,12 +23,12 @@ export interface EventTimeslotEntry {
     /**
      * Time at which the event will start. Only when the `withTimingInfo` flag is set.
      */
-    startTime?: dayjs.Dayjs;
+    startTime?: DateTime;
 
     /**
      * Time at which the event will finish. Only when the `withTimingInfo` flag is set.
      */
-    endTime?: dayjs.Dayjs;
+    endTime?: DateTime;
 }
 
 /**
@@ -61,22 +61,19 @@ export async function getPublicEventsForFestival(festivalId: number, withTimingI
         .executeSelectMany();
 
     for (const timeslot of timeslots) {
-        const startTime = dayjs(timeslot.startTime);
-        const endTime = dayjs(timeslot.endTime);
-
-        const duration = endTime.diff(startTime, 'minutes');
+        const duration = timeslot.endTime.diff(timeslot.startTime, 'minutes');
         if (duration < 0 || duration > maxDurationMinutes)
             continue;  // this event exceeds the duration cutoff
 
         const entry: EventTimeslotEntry = {
             id: timeslot.id,
-            label: `${timeslot.title} (${dayjs(startTime).format('dddd, HH:mm')}–` +
-                `${dayjs(endTime).format('HH:mm')})`,
+            label: `${timeslot.title} (${timeslot.startTime.format('dddd, HH:mm')}–` +
+                `${timeslot.endTime.format('HH:mm')})`,
         };
 
         if (!!withTimingInfo) {
-            entry.startTime = startTime;
-            entry.endTime = endTime;
+            entry.startTime = timeslot.startTime;
+            entry.endTime = timeslot.endTime;
         }
 
         events.push(entry);

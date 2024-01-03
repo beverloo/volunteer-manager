@@ -390,8 +390,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityId: currentActivity.id,
                         timeslotId: currentTimeslot.id,
                         timeslotType: ActivityType.Program,
-                        timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
-                        timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
+                        timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
+                        timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
                         timeslotCreated: dbInstance.currentDateTime(),
                         timeslotUpdated: dbInstance.currentDateTime(),
@@ -509,8 +509,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.updated.push(dbInstance.update(tActivitiesTimeslots)
                 .set({
-                    timeslotStartTime: new Date(currentTimeslot.dateStartsAt),
-                    timeslotEndTime: new Date(currentTimeslot.dateEndsAt),
+                    timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
+                    timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
                     timeslotLocationId: currentTimeslot.location.id,
                     timeslotUpdated: dbInstance.currentDateTime(),
                     timeslotDeleted: null,

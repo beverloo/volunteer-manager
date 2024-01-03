@@ -34,3 +34,8 @@ dayjs.updateLocale('en', {
         llll: 'ddd, MMM D, YYYY H:mm'
     },
 });
+
+/**
+ * Date and time representation that we use throughout the Volunteer Manager.
+ */
+export type DateTime = dayjs.Dayjs;
