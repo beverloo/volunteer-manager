@@ -7,6 +7,35 @@ import { globalScheduler } from './SchedulerImpl';
 import db, { tTasks } from '@lib/database';
 
 /**
+ * Reschedules the task identified by the given `taskId` to run again, optionally on the given
+ * `scheduler`. The task will be executed immediately. Only tasks that have already executed can be
+ * rerun, and their interval will not carry over.
+ */
+export async function rerunTask(taskId: number): Promise<undefined | number> {
+    const taskInfo = await db.selectFrom(tTasks)
+        .where(tTasks.taskId.equals(taskId))
+            .and(tTasks.taskInvocationResult.isNotNull())
+        .select({
+            taskName: tTasks.taskName,
+            params: tTasks.taskParams,
+            parentTaskId: tTasks.taskParentTaskId,
+            intervalMs: tTasks.taskScheduledIntervalMs,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!taskInfo)
+        return undefined;  // unable to rerun the `taskId`
+
+    return await scheduleTask({
+        taskName: taskInfo.taskName as RegisteredTasks,
+        params: JSON.parse(taskInfo.params),
+        parentTaskId: taskInfo.parentTaskId ?? taskId,
+        delayMs: 0,
+        intervalMs: taskInfo.intervalMs,
+    });
+}
+
+/**
  * Options that must be given when scheduling a new task.
  */
 interface TaskRequest<ParamsType = unknown> {
@@ -19,6 +48,11 @@ interface TaskRequest<ParamsType = unknown> {
      * Parameters that should be passed to the task, if any.
      */
     params: ParamsType;
+
+    /**
+     * When known, the Id of the original task that was ran with this given configuration.
+     */
+    parentTaskId?: number;
 
     /**
      * Time after which the task should be executed, in milliseconds.
@@ -49,6 +83,7 @@ export async function scheduleTask<ParamsType = unknown>(
         .set({
             taskName: task.taskName,
             taskParams: JSON.stringify(task.params),
+            taskParentTaskId: task.parentTaskId,
             taskScheduledIntervalMs: task.intervalMs,
             taskScheduledDate,
         })

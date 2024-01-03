@@ -3409,6 +3409,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: task_parent_task_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: task_scheduled_date
     type: timestamp
     nullable: false
@@ -3457,6 +3462,7 @@ tables:
       `task_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `task_name` varchar(64) NOT NULL,
       `task_params` text NOT NULL,
+      `task_parent_task_id` int(8) unsigned DEFAULT NULL,
       `task_scheduled_date` timestamp NOT NULL DEFAULT current_timestamp(),
       `task_scheduled_interval_ms` int(8) unsigned DEFAULT NULL,
       `task_invocation_result` enum('TaskSuccess','TaskException','TaskFailure','InvalidNamedTask','InvalidParameters','UnknownFailure') DEFAULT NULL,

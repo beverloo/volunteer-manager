@@ -12,6 +12,7 @@ describe('TaskRunner', () => {
     interface InstallTaskContextOptions {
         taskName: string;
         params?: unknown;
+        parentTaskId?: number;
         intervalMs?: number;
     }
 
@@ -26,6 +27,7 @@ describe('TaskRunner', () => {
                 taskId,
                 taskName: options.taskName,
                 params: JSON.stringify(options.params ?? { /* no parameters */ }),
+                parentTaskId: options.parentTaskId,
                 intervalMs: options.intervalMs ?? null,
             };
         });
@@ -249,6 +251,31 @@ describe('TaskRunner', () => {
         expect(Object.hasOwn(update, 'scheduledTaskName')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskParams')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskIntervalMs')).toBeFalse();
+    });
+
+    it('should always ignore intervals for repeated tasks', async () => {
+        const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
+
+        installTaskContext(100, {
+            taskName: 'NoopComplexTask',
+            params: { succeed: true },
+            parentTaskId: 12,
+            intervalMs: 120000,
+        });
+
+        const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
+        const result = await taskRunner.executeTask({ taskId: 100 });
+        expect(result).toEqual(TaskResult.TaskSuccess);
+
+        const update = await updatePromise;
+        expect(update.taskId).toEqual(100);
+        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(Object.hasOwn(update, 'scheduledTaskName')).toBeFalse();
+        expect(Object.hasOwn(update, 'scheduledTaskParams')).toBeFalse();
+        expect(Object.hasOwn(update, 'scheduledTaskIntervalMs')).toBeFalse();
+
+        expect(update.taskInvocationLogs).toInclude(
+            'Task was manually repeated, ignoring the execution interval');
     });
 
     it('should reject tasks when the given taskId is not known to the database', async () => {

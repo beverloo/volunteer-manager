@@ -5,15 +5,19 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { DetailedLogs } from '../../outbox/[id]/DetailedLogs';
+import { GotoTaskButton } from './GotoTaskButton';
 import { Privilege } from '@lib/auth/Privileges';
+import { RerunTaskButton } from './RerunTaskButton';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { dayjs } from '@lib/DateTime';
 import db, { tTasks } from '@lib/database';
@@ -37,6 +41,7 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
             taskDate: tTasks.taskScheduledDate,
             taskName: tTasks.taskName,
             taskParams: tTasks.taskParams,
+            taskParentTaskId: tTasks.taskParentTaskId,
             taskInterval: tTasks.taskScheduledIntervalMs,
 
             result: tTasks.taskInvocationResult,
@@ -78,6 +83,17 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
                             {taskParamsFormatted}
                         </TableCell>
                     </TableRow>
+                    { !!task.taskParentTaskId &&
+                        <TableRow>
+                            <TableCell width="25%" component="th" scope="row">
+                                Task parent
+                            </TableCell>
+                            <TableCell>
+                                <Tooltip title="Navigate to the parent task">
+                                    <GotoTaskButton taskId={task.taskParentTaskId} />
+                                </Tooltip>
+                            </TableCell>
+                        </TableRow> }
                     <TableRow>
                         <TableCell width="25%" component="th" scope="row">
                             Scheduled date
@@ -100,7 +116,14 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
                             <TableCell width="25%" component="th" scope="row">
                                 Execution result
                             </TableCell>
-                            <TableCell>{task.result}</TableCell>
+                            <TableCell>
+                                <Stack direction="row" spacing={2} alignItems="center">
+                                    <Typography variant="body2">
+                                        {task.result}
+                                    </Typography>
+                                    <RerunTaskButton taskId={task.taskId} />
+                                </Stack>
+                            </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell width="25%" component="th" scope="row">

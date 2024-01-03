@@ -8,13 +8,19 @@ import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
 import { kTaskRegistry } from '@lib/scheduler/TaskRegistry';
-import { scheduleTask as actuallyScheduleTask } from '@lib/scheduler';
+import { rerunTask, scheduleTask as actuallyScheduleTask } from '@lib/scheduler';
 
 /**
  * Interface definition for an API to schedule a task, exposed through /api/admin/scheduler
  */
 export const kScheduleTaskDefinition = z.object({
     request: z.object({
+        /**
+         * Id of the task that should be repeated.
+         */
+        taskId: z.number(),
+
+    }).or(z.object({
         /**
          * Name of the task that should be scheduled.
          */
@@ -29,7 +35,8 @@ export const kScheduleTaskDefinition = z.object({
          * Delay that should be applied to the task, in milliseconds.
          */
         delayMs: z.number(),
-    }),
+    })),
+
     response: z.strictObject({
         /**
          * Whether the operation could be completed successfully.
@@ -40,6 +47,11 @@ export const kScheduleTaskDefinition = z.object({
          * Optional error message explaining what went wrong.
          */
         error: z.string().optional(),
+
+        /**
+         * Optional task Id shared when a task has been scheduled to rerun.
+         */
+        taskId: z.number().optional(),
     }),
 });
 
@@ -56,6 +68,14 @@ export async function scheduleTask(request: Request, props: ActionProps): Promis
         check: 'admin',
         privilege: Privilege.SystemAdministrator,
     });
+
+    if ('taskId' in request) {
+        const rescheduledTaskId = await rerunTask(request.taskId);
+        return {
+            success: !!rescheduledTaskId,
+            taskId: rescheduledTaskId,
+        };
+    }
 
     if (!Object.hasOwn(kTaskRegistry, request.taskName))
         return { success: false, error: `Unrecognised task name ("${request.taskName}")` };

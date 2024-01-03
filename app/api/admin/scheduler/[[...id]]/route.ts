@@ -24,6 +24,11 @@ const kSchedulerRowModel = z.object({
     id: z.number(),
 
     /**
+     * Unique ID of the parent task of this task as it exists in the database.
+     */
+    parentId: z.number().optional(),
+
+    /**
      * State of the task as it should be displayed.
      */
     state: z.enum([ 'pending', 'success', 'warning', 'failure' ]),
@@ -92,6 +97,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
         const tasks = await db.selectFrom(tTasks)
             .select({
                 id: tTasks.taskId,
+                parentId: tTasks.taskParentTaskId,
                 date: tTasks.taskScheduledDate,
                 task: tTasks.taskName,
                 params: tTasks.taskParams,
@@ -127,6 +133,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
 
                 return {
                     id: row.id,
+                    parentId: row.parentId,
                     state,
                     date: row.date.toISOString(),
                     task: taskName,

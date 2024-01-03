@@ -12,6 +12,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import LoopIcon from '@mui/icons-material/Loop';
 import Paper from '@mui/material/Paper';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import RepeatIcon from '@mui/icons-material/Repeat';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -72,7 +73,19 @@ export function SchedulerTaskTable() {
             sortable: false,
             flex: 1,
 
-            renderCell: params => dayjs(params.value).format('YYYY-MM-DD HH:mm:ss'),
+            renderCell: params => {
+                return (
+                    <>
+                        <Typography variant="body2">
+                            {dayjs(params.value).format('YYYY-MM-DD HH:mm:ss')}
+                        </Typography>
+                        { !!params.row.parentId &&
+                            <Tooltip title="Manual re-run of another task" color="disabled">
+                                <RepeatIcon fontSize="small" sx={{ ml: 1 }} />
+                            </Tooltip> }
+                    </>
+                );
+            },
         },
         {
             field: 'task',
