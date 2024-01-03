@@ -84,7 +84,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     let publicEvents: EventTimeslotEntry[] = [];
     if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
-        publicEvents = await getPublicEventsForFestival(event.festivalId);
+        publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
 
     let hotelManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {

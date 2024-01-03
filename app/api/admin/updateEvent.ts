@@ -39,6 +39,7 @@ export const kUpdateEventDefinition = z.object({
         eventSettings: z.object({
             name: z.string(),
             shortName: z.string(),
+            timezone: z.string(),
             startTime: z.string(),
             endTime: z.string(),
             availabilityStatus: z.nativeEnum(EventAvailabilityStatus),
@@ -166,6 +167,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             .set({
                 eventName: request.eventSettings.name,
                 eventShortName: request.eventSettings.shortName,
+                eventTimezone: request.eventSettings.timezone,
                 eventStartTime: new Date(request.eventSettings.startTime),
                 eventEndTime: new Date(request.eventSettings.endTime),
                 eventAvailabilityStatus: request.eventSettings.availabilityStatus,

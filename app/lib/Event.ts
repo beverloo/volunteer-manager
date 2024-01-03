@@ -10,6 +10,7 @@ export interface EventDatabaseRow {
     eventShortName: string;
     eventSlug: string;
     eventFestivalId?: number;
+    eventTimezone: string;
     eventStartTime: Date;
     eventEndTime: Date;
     eventEnableRefunds?: number;
@@ -50,6 +51,11 @@ export interface EventData {
      * Internal AnPlan ID associated with this festival, if any.
      */
     festivalId?: number;
+
+    /**
+     * Timezone in which the event will be taking place.
+     */
+    timezone: string;
 
     /**
      * Start time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
@@ -155,6 +161,7 @@ export class Event implements EventData {
     get shortName() { return this.#event.eventShortName; }
     get slug() { return this.#event.eventSlug; }
     get festivalId() { return this.#event.eventFestivalId; }
+    get timezone() { return this.#event.eventTimezone; }
     get startTime() { return this.#event.eventStartTime.toISOString(); }
     get endTime() { return this.#event.eventEndTime.toISOString(); }
     get enableRefunds() { return !!this.#event.eventEnableRefunds; }
@@ -175,6 +182,7 @@ export class Event implements EventData {
             shortName: this.shortName,
             slug: this.slug,
             festivalId: this.festivalId,
+            timezone: this.timezone,
             startTime: this.startTime,
             endTime: this.endTime,
             enableRefunds: this.enableRefunds,

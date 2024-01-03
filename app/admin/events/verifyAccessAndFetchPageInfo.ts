@@ -65,6 +65,11 @@ export interface PageInfo {
         slug: string;
 
         /**
+         * Timezone in which the event will be taking place.
+         */
+        timezone: string;
+
+        /**
          * Time at which the first shifts of the event will commence.
          */
         startTime: Date;
@@ -189,6 +194,7 @@ export async function verifyAccessAndFetchPageInfo(
             shortName: tEvents.eventShortName,
             identityHash: storageJoin.fileHash,
             slug: tEvents.eventSlug,
+            timezone: tEvents.eventTimezone,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,
             refundsStartTime: tEvents.eventRefundsStartTime,

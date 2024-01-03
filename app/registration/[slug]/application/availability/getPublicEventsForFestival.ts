@@ -35,7 +35,8 @@ export interface EventTimeslotEntry {
  * Returns an ordered list of all the public events and timeslots that have been announced thus far.
  * Optionally the `withTimingInfo` flag may be set, which will then also return time information.
  */
-export async function getPublicEventsForFestival(festivalId: number, withTimingInfo?: boolean)
+export async function getPublicEventsForFestival(
+    festivalId: number, festivalTimezone: string, withTimingInfo?: boolean)
     : Promise<EventTimeslotEntry[]>
 {
     const maxDurationMinutes =
@@ -65,10 +66,13 @@ export async function getPublicEventsForFestival(festivalId: number, withTimingI
         if (duration < 0 || duration > maxDurationMinutes)
             continue;  // this event exceeds the duration cutoff
 
+        const localStartTime = timeslot.startTime.tz(festivalTimezone);
+        const localEndTime = timeslot.endTime.tz(festivalTimezone);
+
         const entry: EventTimeslotEntry = {
             id: timeslot.id,
-            label: `${timeslot.title} (${timeslot.startTime.format('dddd, HH:mm')}–` +
-                `${timeslot.endTime.format('HH:mm')})`,
+            label: `${timeslot.title} (${localStartTime.format('dddd, HH:mm')}–` +
+                `${localEndTime.format('HH:mm')})`,
         };
 
         if (!!withTimingInfo) {

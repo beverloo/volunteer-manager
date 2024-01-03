@@ -55,7 +55,9 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     const selectedEvents: EventTimeslotEntry[] = [];
     if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
-        events = await getPublicEventsForFestival(event.festivalId, /* withTimingInfo= */ true);
+        events = await getPublicEventsForFestival(
+            event.festivalId, event.timezone, /* withTimingInfo= */ true);
+
         for (const timeslotId of registration.availability.timeslots) {
             for (const eventTimeslot of events) {
                 if (eventTimeslot.id !== timeslotId)

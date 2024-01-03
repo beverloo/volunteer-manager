@@ -29,6 +29,7 @@ export async function getEventBySlug(slug: string)
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
             eventFestivalId: tEvents.eventFestivalId,
+            eventTimezone: tEvents.eventTimezone,
             eventStartTime: tEvents.eventStartTime,
             eventEndTime: tEvents.eventEndTime,
             eventEnableRefunds: tEvents.publishRefunds,
@@ -87,6 +88,7 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
             eventFestivalId: tEvents.eventFestivalId,
+            eventTimezone: tEvents.eventTimezone,
             eventStartTime: tEvents.eventStartTime,
             eventEndTime: tEvents.eventEndTime,
             environments: db.aggregateAsArray({

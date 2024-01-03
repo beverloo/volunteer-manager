@@ -73,6 +73,7 @@ export function EventSettings(props: EventSettingsProps) {
                     eventSettings: {
                         name: data.name,
                         shortName: data.shortName,
+                        timezone: data.timezone,
                         startTime: dayjs(data.startTime).toISOString(),
                         endTime: dayjs(data.endTime).toISOString(),
                         availabilityStatus: data.availabilityStatus,
@@ -112,8 +113,12 @@ export function EventSettings(props: EventSettingsProps) {
                                        fullWidth size="small" onChange={handleChange}
                                        options={kAvailabilityStatusOptions} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid xs={6}>
                         <TextFieldElement name="location" label="Location"
+                                          fullWidth size="small" onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <TextFieldElement name="timezone" label="Timezone"
                                           fullWidth size="small" onChange={handleChange} />
                     </Grid>
                     <Grid xs={6}>
