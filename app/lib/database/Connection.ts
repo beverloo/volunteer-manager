@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { ComparableValueSource } from 'ts-sql-query/expressions/values';
+import type { ComparableValueSource, IValueSource, OptionalType, StringValueSource } from 'ts-sql-query/expressions/values';
 import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
 import type { DateTime } from '@lib/DateTime';
-import type { NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
+import type { ITableOrViewRef, NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
 import { type Pool, type PoolConfig, createPool } from 'mariadb';
 import { type QueryType, InterceptorQueryRunner }
     from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
@@ -15,12 +15,14 @@ import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
 
 import { Log, LogType, LogSeverity } from '@lib/Log';
+import { optionalType } from 'ts-sql-query/utils/symbols';
+import type { AnyDB } from 'ts-sql-query/databases';
 
 /**
  * Type definition for a comparable DateTime value source, used for implicit values.
  */
-type ComparableDateTimeValueSource =
-    ComparableValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, 'required'>
+type ComparableDateTimeValueSource<IsOptional extends OptionalType = 'required'> =
+    ComparableValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, IsOptional>
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -50,6 +52,18 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
      * Allow empty strings to be passed. Without this setting `ts-sql-query` will use NULL instead.
      */
     override allowEmptyString = true;
+
+    /**
+     * Provide an easy manner to convert a DateTime value source to a string during query execution
+     * time. This is a frequent operation in the Volunteer Manager.
+     */
+    asString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>, ISO extends OptionalType>(
+        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
+        : StringValueSource<TABLE_OR_VIEW, ISO>
+    {
+        return this.fragmentWithType('string', 'required')
+            .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as StringValueSource<TABLE_OR_VIEW, ISO>;
+    }
 
     /**
      * Provide easy accessors to get the current date and time information without having to rely on

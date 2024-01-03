@@ -9,6 +9,7 @@ import { type DataTableEndpoints, createDataTableApi } from '../../../createData
 import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck, type AuthenticationContext, and } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
@@ -134,7 +135,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
         if (!slug || slug.length !== 16)
             return { success: false, error: 'Unable to generate an export slug' };
 
-        const expirationDate = new Date(row.expirationDate);
+        const expirationDate = dayjs.utc(row.expirationDate);
 
         const dbInstance = db;
         const insertId = await dbInstance.insertInto(tExports)
@@ -143,7 +144,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 exportEventId: event.eventId,
                 exportType: row.type,
                 exportJustification: row.justification,
-                exportCreatedDate: dbInstance.currentDateTime(),
+                exportCreatedDate: dbInstance.currentDateTime2(),
                 exportCreatedUserId: props.user!.userId,
                 exportExpirationDate: expirationDate,
                 exportExpirationViews: row.expirationViews,
@@ -163,7 +164,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 event: row.event!,
                 type: row.type,
                 justification: row.justification,
-                createdOn: (new Date).toISOString(),
+                createdOn: dayjs.utc().toISOString(),
                 createdBy: `${props.user!.firstName} ${props.user!.lastName}`,
                 createdByUserId: props.user!.userId,
                 expirationDate: expirationDate.toISOString(),

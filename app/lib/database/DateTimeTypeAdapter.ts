@@ -12,7 +12,7 @@ import { dayjs } from '@lib/DateTime';
 export const DateTimeTypeAdapter = new class implements TypeAdapter {
     transformValueFromDB(value: unknown, type: string, next: DefaultTypeAdapter): unknown {
         if (![ 'date', 'dateTime', 'time', 'timestamp' ].includes(type))
-            throw new Error(`Unexpected type received by DateTimeTypeAdapter(::fromDB): ${type}`);
+            return next.transformValueFromDB(value, type);
 
         if (value === null || value === undefined)
             return value;  // pass-through nullsy values
@@ -38,7 +38,7 @@ export const DateTimeTypeAdapter = new class implements TypeAdapter {
 
     transformValueToDB(value: unknown, type: string, next: DefaultTypeAdapter): unknown {
         if (![ 'date', 'dateTime', 'time', 'timestamp' ].includes(type))
-            throw new Error(`Unexpected type received by DateTimeTypeAdapter(::toDB): ${type}`);
+            return next.transformValueToDB(value, type);
 
         if (value === null || value === undefined)
             return value;  // pass-through nullsy values
@@ -54,7 +54,7 @@ export const DateTimeTypeAdapter = new class implements TypeAdapter {
 
             case 'dateTime':
             case 'timestamp':
-                return value.utc().format('YYYY-MM-DD[T]HH:mm:ss[Z]');
+                return value.utc().format('YYYY-MM-DD HH:mm:ss');
 
             case 'time':
                 return value.utc().format('HH:mm:ss');

@@ -46,7 +46,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
 
             enabled: tExports.exportEnabled.equals(/* true= */ 1),
             accessDateValid: tExports.exportExpirationDate.greaterThan(
-                dbInstance.currentDateTime()),
+                dbInstance.currentDateTime2()),
             accessViewsValid: tExports.exportExpirationViews.greaterThan(
                 dbInstance.count(exportsLogsJoin.exportLogId)),
         })
@@ -69,7 +69,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
             { !!accessible && <ExportAvailable metadata={metadata} /> }
             { !accessible && <ExportUnavailable metadata={metadata} /> }
         </ExportLayout>
-    )
+    );
 }
 
 export const metadata: Metadata = {

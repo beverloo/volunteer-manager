@@ -27,12 +27,6 @@ describe('DateTimeTypeAdapter', () => {
         expect(() => adapter.transformValueFromDB(42.1234, 'dateTime', kNext)).toThrow();
         expect(() => adapter.transformValueFromDB(true, 'dateTime', kNext)).toThrow();
         expect(() => adapter.transformValueFromDB(false, 'dateTime', kNext)).toThrow();
-
-        expect(() => adapter.transformValueFromDB(null, 'DATE', kNext)).toThrow();
-        expect(() => adapter.transformValueFromDB(null, 'DATETIME', kNext)).toThrow();
-        expect(() => adapter.transformValueFromDB(null, 'TIME', kNext)).toThrow();
-        expect(() => adapter.transformValueFromDB(null, 'TIMESTAMP', kNext)).toThrow();
-        expect(() => adapter.transformValueFromDB(null, 'RANDOMSTR', kNext)).toThrow();
     });
 
     it('should always represent times in UTC, regardless of input timezone', () => {
@@ -119,27 +113,27 @@ describe('DateTimeTypeAdapter', () => {
             {
                 type: 'dateTime',
                 input: dayjs.utc('2024-01-03T23:59:59-05:00'),
-                output: '2024-01-04T04:59:59Z'
+                output: '2024-01-04 04:59:59'
             },
             {
                 type: 'dateTime',
                 input: dayjs.utc('2024-01-03T23:59:59Z'),
-                output: '2024-01-03T23:59:59Z'
+                output: '2024-01-03 23:59:59'
             },
             {
                 type: 'dateTime',
                 input: dayjs.utc('2024-01-03T23:59:59+05:00'),
-                output: '2024-01-03T18:59:59Z'
+                output: '2024-01-03 18:59:59'
             },
             {
                 type: 'dateTime',
                 input: dayjs.tz('2024-01-03 23:59:59', 'Pacific/Honolulu'),
-                output: '2024-01-04T09:59:59Z',
+                output: '2024-01-04 09:59:59',
             },
             {
                 type: 'dateTime',
                 input: dayjs.tz('2024-01-03 00:59:59', 'Asia/Tokyo'),
-                output: '2024-01-02T15:59:59Z',
+                output: '2024-01-02 15:59:59',
             },
 
             { type: 'time', input: null, output: null },

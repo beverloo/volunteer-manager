@@ -175,7 +175,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
     },
 
     async get({ context, id }) {
-        const row = await db.selectFrom(tContent)
+        const dbInstance = db;
+        const row = await dbInstance.selectFrom(tContent)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tContent.revisionAuthorId))
             .where(tContent.contentId.equals(id))
@@ -186,7 +187,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 content: tContent.content,
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
-                updatedOn: tContent.revisionDate,
+                updatedOn: dbInstance.asString(tContent.revisionDate),
                 updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
@@ -196,20 +197,16 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         if (!row)
             return { success: false, error: 'This item could not be retrieved from the database.' };
 
-        return {
-            success: true,
-            row: {
-                ...row,
-                updatedOn: row.updatedOn.toISOString(),
-            },
-        }
+        return { success: true, row };
     },
 
     async list({ context, pagination, sort }) {
         if (sort?.field === 'content')
             return { success: false, error: 'Unable to sort based on Markdown content' };
 
-        const { count, data } = await db.selectFrom(tContent)
+        const dbInstance = db;
+
+        const { count, data } = await dbInstance.selectFrom(tContent)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tContent.revisionAuthorId))
             .where(tContent.eventId.equals(context.eventId))
@@ -219,7 +216,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 id: tContent.contentId,
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
-                updatedOn: tContent.revisionDate,
+                updatedOn: dbInstance.asString(tContent.revisionDate),
                 updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
@@ -232,10 +229,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         return {
             success: true,
             rowCount: count,
-            rows: data.map(row => ({
-                ...row,
-                updatedOn: row.updatedOn.toISOString(),
-            })),
+            rows: data,
         }
     },
 

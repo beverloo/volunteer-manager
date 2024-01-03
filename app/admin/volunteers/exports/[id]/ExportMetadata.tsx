@@ -24,11 +24,11 @@ export interface ExportMetadataProps {
      * Metadata of the export that is expected to be available by this component.
      */
     metadata: {
-        date: Date,
+        date: string,
         slug: string;
         type: string;
         eventName: string;
-        expirationDate: Date;
+        expirationDate: string;
         expirationViews: number;
         justification: string;
         userId: number;

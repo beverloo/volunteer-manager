@@ -21,7 +21,7 @@ export interface ExportAccessProps {
      */
     views: {
         id: number,
-        date: Date,
+        date: string,
         userIp: string,
         userAgent: string,
         userId?: number,

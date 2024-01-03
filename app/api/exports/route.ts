@@ -242,7 +242,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
         .where(tExports.exportSlug.equals(request.slug))
             .and(tExports.exportEnabled.equals(/* true= */ 1))
-            .and(tExports.exportExpirationDate.greaterThan(dbInstance.currentDateTime()))
+            .and(tExports.exportExpirationDate.greaterThan(dbInstance.currentDateTime2()))
         .select({
             id: tExports.exportId,
             eventId: tExports.exportEventId,
@@ -261,20 +261,22 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     if (!metadata)
         return { success: false, error: 'The data is no longer available, please refresh' };
 
-    const millisecondsSinceLastLogEntry = await dbInstance.selectFrom(tExportsLogs)
+    const lastLogEntryDateTime = await dbInstance.selectFrom(tExportsLogs)
         .where(tExportsLogs.exportId.equals(metadata.id))
             .and(tExportsLogs.accessIpAddress.equals(props.ip))
-        .selectOneColumn(
-            dbInstance.currentDateTime().getTime().substract(tExportsLogs.accessDate.getTime()))
+        .selectOneColumn(tExportsLogs.accessDate)
         .orderBy(tExportsLogs.accessDate, 'desc')
         .limit(/* only the latest= */ 1)
         .executeSelectNoneOrOne();
+
+    const millisecondsSinceLastLogEntry = lastLogEntryDateTime?.diff(dayjs.utc(), 'milliseconds');
+    console.log(millisecondsSinceLastLogEntry);
 
     if (!millisecondsSinceLastLogEntry || millisecondsSinceLastLogEntry > kReloadIgnoreThreshold) {
         await dbInstance.insertInto(tExportsLogs)
             .set({
                 exportId: metadata.id,
-                accessDate: dbInstance.currentDateTime(),
+                accessDate: dbInstance.currentDateTime2(),
                 accessIpAddress: props.ip,
                 accessUserAgent: props.requestHeaders.get('user-agent') ?? '(unknown)',
                 accessUserId: props.user?.userId,
