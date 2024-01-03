@@ -20,10 +20,10 @@ export async function getTrainingOptions(eventId: number) {
         .executeSelectMany();
 
     return trainings.map(training => {
-        const date = dayjs(training.trainingStart).format('dddd, MMMM D');
+        const date = training.trainingStart.format('dddd, MMMM D');
 
-        const start = dayjs(training.trainingStart).format('H:mm');
-        const end = dayjs(training.trainingEnd).format('H:mm');
+        const start = training.trainingStart.format('H:mm');
+        const end = training.trainingEnd.format('H:mm');
 
         return {
             id: training.id,

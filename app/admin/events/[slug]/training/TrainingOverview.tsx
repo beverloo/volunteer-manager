@@ -37,7 +37,7 @@ export interface TrainingConfirmation {
     /**
      * Date on which the session will be taking place.
      */
-    date: Date;
+    date: string;
 
     /**
      * Participants in this session. May be empty.

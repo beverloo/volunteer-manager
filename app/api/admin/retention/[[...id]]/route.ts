@@ -8,6 +8,7 @@ import { type DataTableEndpoints, createDataTableApi } from '@app/api/createData
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { noAccess } from '@app/api/Action';
@@ -162,7 +163,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
         const events = await db.selectFrom(tEvents)
             .selectOneColumn(tEvents.eventId)
-            .where(tEvents.eventStartTime.lessThan(new Date(event.startTime)))
+            .where(tEvents.eventStartTime.lessThan(dayjs.utc(event.startTime)))
             .orderBy(tEvents.eventStartTime, 'desc')
             .limit(kNumHistoricEventsToConsider)
             .executeSelectMany();

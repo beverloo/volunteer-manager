@@ -39,8 +39,8 @@ export default async function EventsPage() {
             hidden: tEvents.eventHidden.equals(/* true= */ 1),
             shortName: tEvents.eventShortName,
             slug: tEvents.eventSlug,
-            startTime: tEvents.eventStartTime,
-            endTime: tEvents.eventEndTime,
+            startTime: dbInstance.asString(tEvents.eventStartTime),
+            endTime: dbInstance.asString(tEvents.eventEndTime),
             teams: dbInstance.aggregateAsArray({
                 name: teamsJoin.teamName,
 

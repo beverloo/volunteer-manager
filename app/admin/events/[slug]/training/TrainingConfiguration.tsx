@@ -40,12 +40,12 @@ export interface TrainingConfigurationEntry {
     /**
      * Date and time at which the training will commence.
      */
-    trainingStart?: Date;
+    trainingStart?: string;
 
     /**
      * Date and time at which the training will conclude.
      */
-    trainingEnd?: Date;
+    trainingEnd?: string;
 }
 
 /**

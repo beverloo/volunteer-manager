@@ -56,8 +56,8 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
         const substitutions = {
             event: event.shortName,
             firstName: user.firstName,
-            refundsStartTime: dayjs(refundAvailability.refundsStartTime).format('dddd, MMMM D'),
-            refundsEndTime: dayjs(refundAvailability.refundsEndTime).format('dddd, MMMM D'),
+            refundsStartTime: refundAvailability.refundsStartTime.format('dddd, MMMM D'),
+            refundsEndTime: refundAvailability.refundsEndTime.format('dddd, MMMM D'),
         };
 
         if (currentTime.isBefore(refundAvailability.refundsStartTime, 'day')) {

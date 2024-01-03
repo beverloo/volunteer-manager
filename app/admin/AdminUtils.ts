@@ -24,7 +24,7 @@ export async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEve
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .where(rolesJoin.roleAdminAccess.equals(1).onlyWhen(!isEventAdministrator))
         .select({
-            done: tEvents.eventEndTime.lessOrEquals(db.currentDateTime()),
+            done: tEvents.eventEndTime.lessOrEquals(db.currentDateTime2()),
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
         })

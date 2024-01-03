@@ -805,8 +805,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         return baseSeverity;
     }
 
-    updateTaskIntervalForFestivalDate(endTime: Date): void {
-        const differenceInDays = dayjs(endTime).diff(dayjs(), 'days');
+    updateTaskIntervalForFestivalDate(endTime: dayjs.Dayjs): void {
+        const differenceInDays = endTime.diff(dayjs.utc(), 'days');
         if (differenceInDays < 0) {
             this.log.info('Interval: The event happened in the past, using maximum interval.');
             this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
@@ -827,7 +827,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     }
 
     private async selectCurrentOrUpcomingEventWithFestivalId(params: TaskParams) {
-        const baseQuery = db.selectFrom(tEvents)
+        const dbInstance = db;
+        const baseQuery = dbInstance.selectFrom(tEvents)
             .select({
                 festivalEndTime: tEvents.eventEndTime,
                 festivalId: tEvents.eventFestivalId,
@@ -840,7 +841,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         }
 
         return baseQuery.where(tEvents.eventFestivalId.isNotNull())
-            .and(tEvents.eventEndTime.greaterOrEquals(db.currentDateTime()))
+            .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentDateTime2()))
             .and(tEvents.eventHidden.equals(/* false= */ 0))
             .executeSelectNoneOrOne();
     }

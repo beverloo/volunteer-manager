@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
@@ -87,8 +88,8 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventSlug: request.slug,
             eventHidden: /* true= */ 1,
             eventTimezone: 'Europe/Amsterdam',
-            eventStartTime: new Date(request.startTime),
-            eventEndTime: new Date(request.endTime),
+            eventStartTime: dayjs.utc(request.startTime),
+            eventEndTime: dayjs.utc(request.endTime),
             eventAvailabilityStatus: EventAvailabilityStatus.Unavailable,
         })
         .executeInsert();

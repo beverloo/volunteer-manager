@@ -191,7 +191,7 @@ async function getRecentChanges(eventId: number) {
             changes.push({
                 ...commonChange,
                 update: 'updated their training preferences',
-                date: dayjs(preferenceUpdate.trainingPreferencesUpdated), // fixme
+                date: preferenceUpdate.trainingPreferencesUpdated
             });
         }
     }

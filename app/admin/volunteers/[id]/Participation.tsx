@@ -36,7 +36,7 @@ export interface ParticipationInfo {
     /**
      * Date and time on which the event started.
      */
-    eventStartTime: Date;
+    eventStartTime: string;
 
     /**
      * Status of their participation, one of { Registered, Accepted, Rejected, Cancelled }.

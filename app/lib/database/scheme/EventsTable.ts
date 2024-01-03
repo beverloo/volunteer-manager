@@ -9,6 +9,12 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
+    DateTimeTypeAdapter,
+} from "../DateTimeTypeAdapter";
+import {
+    DateTime,
+} from "../../DateTime";
+import {
     EventAvailabilityStatus,
 } from "../Types";
 
@@ -18,10 +24,10 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventShortName = this.column('event_short_name', 'string');
     eventSlug = this.column('event_slug', 'string');
     eventHidden = this.columnWithDefaultValue('event_hidden', 'int');
-    eventStartTime = this.column('event_start_time', 'localDateTime');
-    eventEndTime = this.column('event_end_time', 'localDateTime');
-    eventRefundsStartTime = this.optionalColumnWithDefaultValue('event_refunds_start_time', 'localDateTime');
-    eventRefundsEndTime = this.optionalColumnWithDefaultValue('event_refunds_end_time', 'localDateTime');
+    eventStartTime = this.column<DateTime>('event_start_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    eventEndTime = this.column<DateTime>('event_end_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    eventRefundsStartTime = this.optionalColumnWithDefaultValue<DateTime>('event_refunds_start_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    eventRefundsEndTime = this.optionalColumnWithDefaultValue<DateTime>('event_refunds_end_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     eventAvailabilityStatus = this.column<EventAvailabilityStatus>('event_availability_status', 'enum', 'EventAvailabilityStatus');
     eventLocation = this.optionalColumnWithDefaultValue('event_location', 'string');
     eventTimezone = this.column('event_timezone', 'string');

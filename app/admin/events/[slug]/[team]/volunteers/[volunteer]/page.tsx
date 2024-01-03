@@ -104,7 +104,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             .executeSelectNoneOrOne() ?? undefined;
 
         hotelManagement = (
-            <ApplicationHotelPreferences eventDate={event.startTime.toDateString()}
+            <ApplicationHotelPreferences eventDate={event.startTime}
                                          eventSlug={event.slug} hotelOptions={hotelOptions}
                                          hotelPreferences={hotelPreferences}
                                          teamSlug={team.slug} volunteerUserId={volunteer.userId} />

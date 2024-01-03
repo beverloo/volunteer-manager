@@ -51,7 +51,8 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
     if (isNaN(numericUnverifiedId))
         return undefined;
 
-    const account = await db.selectFrom(tUsers)
+    const dbInstance = db;
+    const account = await dbInstance.selectFrom(tUsers)
         .where(tUsers.userId.equals(numericUnverifiedId))
         .select({
             userId: tUsers.userId,
@@ -66,7 +67,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         })
         .executeSelectNoneOrOne();
 
-    const participation = await db.selectFrom(tUsersEvents)
+    const participation = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tEvents)
             .on(tEvents.eventId.equals(tUsersEvents.eventId))
         .innerJoin(tTeams)
@@ -78,7 +79,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             id: tUsersEvents.eventId.multiply(1000).add(tUsersEvents.teamId),
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
-            eventStartTime: tEvents.eventStartTime,
+            eventStartTime: dbInstance.asString(tEvents.eventStartTime),
             status: tUsersEvents.registrationStatus,
             role: tRoles.roleName,
             team: tTeams.teamName,

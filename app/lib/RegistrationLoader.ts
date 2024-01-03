@@ -105,9 +105,9 @@ export async function getRegistration(environmentName: string, event: Event, use
                 preference: trainingsAssignmentsJoin.preferenceTrainingId,
                 updated: dbInstance.asString(trainingsAssignmentsJoin.preferenceUpdated),
 
-                preferenceDate: trainingsPreferenceJoin.trainingStart,
-                assignedDate: trainingsAssignedJoin.trainingStart,
-                assignedEndDate: trainingsAssignedJoin.trainingEnd,
+                preferenceDate: dbInstance.asString(trainingsPreferenceJoin.trainingStart),
+                assignedDate: dbInstance.asString(trainingsAssignedJoin.trainingStart),
+                assignedEndDate: dbInstance.asString(trainingsAssignedJoin.trainingEnd),
                 assignedAddress: trainingsAssignedJoin.trainingAddress,
             },
         })

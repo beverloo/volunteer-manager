@@ -11,6 +11,7 @@ import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { dayjs } from '@lib/DateTime';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
@@ -33,7 +34,7 @@ async function fetchBirthdays(user: User) {
     const upcomingMonth = (currentDate.getMonth() + 1) % 12;
 
     // Only show birthdays for volunteers who helped out in the past X years:
-    const thresholdDate = new Date(currentDate.getFullYear() - /* years= */ 3, 0, 1, 0, 0, 0);
+    const thresholdDate = dayjs().subtract(3, 'years');
 
     const usersJoin = tUsers.forUseInLeftJoin();
     const birthdays = await db.selectFrom(tEvents)
@@ -118,15 +119,16 @@ export default async function AdminPage() {
 
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    const accessibleEvents = await db.selectFrom(tEvents)
+    const dbInstance = db;
+    const accessibleEvents = await dbInstance.selectFrom(tEvents)
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tEvents.eventIdentityId))
         .where(tEvents.eventSlug.in([ ...events.keys() ]))
         .select({
             name: tEvents.eventShortName,
             slug: tEvents.eventSlug,
-            startTime: tEvents.eventStartTime,
-            endTime: tEvents.eventEndTime,
+            startTime: dbInstance.asString(tEvents.eventStartTime),
+            endTime: dbInstance.asString(tEvents.eventEndTime),
             location: tEvents.eventLocation,
             fileHash: storageJoin.fileHash,
         })

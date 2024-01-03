@@ -65,12 +65,12 @@ export interface EventListEntry {
     /**
      * Date and time at which the event will commence.
      */
-    startTime: Date;
+    startTime: string;
 
     /**
      * Date and time at which the event will finish.
      */
-    endTime: Date;
+    endTime: string;
 
     /**
      * Names of the teams that have participated in this event.

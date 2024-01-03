@@ -8,6 +8,7 @@ import { noAccess, type ActionProps } from '../Action';
 import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
@@ -168,8 +169,8 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 eventName: request.eventSettings.name,
                 eventShortName: request.eventSettings.shortName,
                 eventTimezone: request.eventSettings.timezone,
-                eventStartTime: new Date(request.eventSettings.startTime),
-                eventEndTime: new Date(request.eventSettings.endTime),
+                eventStartTime: dayjs.utc(request.eventSettings.startTime),
+                eventEndTime: dayjs.utc(request.eventSettings.endTime),
                 eventAvailabilityStatus: request.eventSettings.availabilityStatus,
                 eventLocation: request.eventSettings.location,
                 eventFestivalId: request.eventSettings.festivalId,
@@ -198,10 +199,10 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             noAccess();
 
         const eventRefundsStartTime =
-            request.eventRefunds.refundsStartTime ? new Date(request.eventRefunds.refundsStartTime)
+            request.eventRefunds.refundsStartTime ? dayjs(request.eventRefunds.refundsStartTime)
                                                   : null;
         const eventRefundsEndTime =
-            request.eventRefunds.refundsEndTime ? new Date(request.eventRefunds.refundsEndTime)
+            request.eventRefunds.refundsEndTime ? dayjs(request.eventRefunds.refundsEndTime)
                                                 : null;
 
         const affectedRows = await db.update(tEvents)

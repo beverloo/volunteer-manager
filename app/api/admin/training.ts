@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsAssignments, tTrainings } from '@lib/database';
@@ -235,10 +236,10 @@ export async function training(request: Request, props: ActionProps): Promise<Re
             .set({
                 trainingAddress: request.update.trainingAddress,
                 trainingStart:
-                    request.update.trainingStart ? new Date(request.update.trainingStart)
+                    request.update.trainingStart ? dayjs.utc(request.update.trainingStart)
                                                  : undefined,
                 trainingEnd:
-                    request.update.trainingEnd ? new Date(request.update.trainingEnd)
+                    request.update.trainingEnd ? dayjs.utc(request.update.trainingEnd)
                                                : undefined,
 
                 trainingCapacity: request.update.trainingCapacity,

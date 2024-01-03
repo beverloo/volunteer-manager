@@ -31,8 +31,8 @@ export interface AccessibleEvent {
     /**
      * Start and end times of the event, to contextualize the card further.
      */
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
 
     /**
      * Location in which the event will be hosted, if any.

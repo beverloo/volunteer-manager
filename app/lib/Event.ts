@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { dayjs } from '@lib/DateTime';
+
 /**
  * Interface that maps to the database representation of an event.
  */
@@ -11,8 +13,8 @@ export interface EventDatabaseRow {
     eventSlug: string;
     eventFestivalId?: number;
     eventTimezone: string;
-    eventStartTime: Date;
-    eventEndTime: Date;
+    eventStartTime: dayjs.Dayjs;
+    eventEndTime: dayjs.Dayjs;
     eventEnableRefunds?: number;
     environments: {
         environment?: string,

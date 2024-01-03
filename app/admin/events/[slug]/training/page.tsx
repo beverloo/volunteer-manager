@@ -92,8 +92,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             id: tTrainings.trainingId,
             trainingAddress: tTrainings.trainingAddress,
             trainingCapacity: tTrainings.trainingCapacity,
-            trainingStart: tTrainings.trainingStart,
-            trainingEnd: tTrainings.trainingEnd,
+            trainingStart: dbInstance.asString(tTrainings.trainingStart),
+            trainingEnd: dbInstance.asString(tTrainings.trainingEnd),
         })
         .orderBy(tTrainings.trainingStart, 'asc')
         .executeSelectMany();
@@ -107,7 +107,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         { value: 0, label: 'Skip the training' },
         ...trainings.map(training => ({
             value: training.id,
-            label: dayjs(training.trainingStart).format('dddd, MMMM D'),
+            label: dayjs.utc(training.trainingStart).format('dddd, MMMM D'),
         })),
     ];
 

@@ -3,13 +3,7 @@
 
 'use client';
 
-import Link from 'next/link';
-
-import { default as MuiLink } from '@mui/material/Link';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import Box from '@mui/material/Box';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -24,9 +18,6 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { dayjs } from '@lib/DateTime';
-
-import { RegistrationStatus } from '@lib/database/Types';
-import { Avatar } from '@components/Avatar';
 
 /**
  * Formats the difference between `from` and `to`.
@@ -66,12 +57,12 @@ interface EventDateTickerProps {
     /**
      * Date and time on which the event is scheduled to commence.
      */
-    startTime: Date;
+    startTime: string;
 
     /**
      * Date and time on which the event is scheduled to conclude.
      */
-    endTime: Date;
+    endTime: string;
 }
 
 /**

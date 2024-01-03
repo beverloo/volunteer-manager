@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
@@ -72,22 +73,22 @@ export interface PageInfo {
         /**
          * Time at which the first shifts of the event will commence.
          */
-        startTime: Date;
+        startTime: string;
 
         /**
          * Time at which the final shifts of the event will finish.
          */
-        endTime: Date;
+        endTime: string;
 
         /**
          * Date and time starting which volunteers can request refunds, if any.
          */
-        refundsStartTime?: Date;
+        refundsStartTime?: string;
 
         /**
          * Date and time until which volunteers can request refunds, if any.
          */
-        refundsEndTime?: Date;
+        refundsEndTime?: string;
 
         /**
          * Status of the event's program publication and the ability for volunteers to indicate
@@ -178,7 +179,8 @@ export async function verifyAccessAndFetchPageInfo(
     const rolesJoin = tRoles.forUseInLeftJoin();
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    const event = await db.selectFrom(tEvents)
+    const dbInstance = db;
+    const event = await dbInstance.selectFrom(tEvents)
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tEvents.eventIdentityId))
         .leftJoin(usersEventsJoin)
@@ -195,10 +197,10 @@ export async function verifyAccessAndFetchPageInfo(
             identityHash: storageJoin.fileHash,
             slug: tEvents.eventSlug,
             timezone: tEvents.eventTimezone,
-            startTime: tEvents.eventStartTime,
-            endTime: tEvents.eventEndTime,
-            refundsStartTime: tEvents.eventRefundsStartTime,
-            refundsEndTime: tEvents.eventRefundsEndTime,
+            startTime: dbInstance.asString(tEvents.eventStartTime),
+            endTime: dbInstance.asString(tEvents.eventEndTime),
+            refundsStartTime: dbInstance.asString(tEvents.eventRefundsStartTime),
+            refundsEndTime: dbInstance.asString(tEvents.eventRefundsEndTime),
             availabilityStatus: tEvents.eventAvailabilityStatus,
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,
