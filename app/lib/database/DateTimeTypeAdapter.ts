@@ -12,13 +12,15 @@ import { dayjs } from '@lib/DateTime';
 export const DateTimeTypeAdapter = new class implements TypeAdapter {
     transformValueFromDB(value: unknown, type: string, next: DefaultTypeAdapter): unknown {
         if (![ 'date', 'dateTime', 'time', 'timestamp' ].includes(type))
-            throw new Error(`Unexpected type received by DateTimeTypeAdapter: ${type}`);
+            throw new Error(`Unexpected type received by DateTimeTypeAdapter(::fromDB): ${type}`);
 
         if (value === null || value === undefined)
             return value;  // pass-through nullsy values
 
-        if (typeof value !== 'string')
-            throw new Error(`Unexpected value received by DateTimeTypeAdapter: ${typeof value}`);
+        if (typeof value !== 'string') {
+            throw new Error(
+                `Unexpected value received by DateTimeTypeAdapter(::fromDB): ${typeof value}`);
+        }
 
         const transformedValue = dayjs.utc(value);
         switch (type) {
@@ -36,13 +38,15 @@ export const DateTimeTypeAdapter = new class implements TypeAdapter {
 
     transformValueToDB(value: unknown, type: string, next: DefaultTypeAdapter): unknown {
         if (![ 'date', 'dateTime', 'time', 'timestamp' ].includes(type))
-            throw new Error(`Unexpected type received by DateTimeTypeAdapter: ${type}`);
+            throw new Error(`Unexpected type received by DateTimeTypeAdapter(::toDB): ${type}`);
 
         if (value === null || value === undefined)
             return value;  // pass-through nullsy values
 
-        if (!dayjs.isDayjs(value))
-            throw new Error(`Unexpected value received by DateTimeTypeAdapter: ${typeof value}`);
+        if (!dayjs.isDayjs(value)) {
+            throw new Error(
+                `Unexpected value received by DateTimeTypeAdapter(::toDB): ${typeof value}`);
+        }
 
         switch (type) {
             case 'date':
