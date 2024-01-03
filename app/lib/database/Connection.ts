@@ -54,10 +54,24 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override allowEmptyString = true;
 
     /**
-     * Provide an easy manner to convert a DateTime value source to a string during query execution
-     * time. This is a frequent operation in the Volunteer Manager.
+     * Provide an easy manner to convert a DateTime value source to a string representation
+     * ("YYYY-MM-DD") during query execution.
      */
-    asString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>, ISO extends OptionalType>(
+    asDateString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
+                 ISO extends OptionalType>(
+        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
+        : StringValueSource<TABLE_OR_VIEW, ISO>
+    {
+        return this.fragmentWithType('string', 'required')
+            .sql`date_format(${value}, '%Y-%m-%')` as StringValueSource<TABLE_OR_VIEW, ISO>;
+    }
+
+    /**
+     * Provide an easy manner to convert a DateTime value source to a string representation
+     * ("YYYY-MM-DDTHH:mm:ssZ") during query execution.
+     */
+    asDateTimeString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
+                     ISO extends OptionalType>(
         value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
         : StringValueSource<TABLE_OR_VIEW, ISO>
     {

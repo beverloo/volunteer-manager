@@ -385,7 +385,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         const trainingsExtraJoin = tTrainingsExtra.forUseInLeftJoin();
         const usersJoin = tUsers.forUseInLeftJoin();
 
-        const participants = await db.selectFrom(tTrainingsAssignments)
+        const dbInstance = db;
+        const participants = await dbInstance.selectFrom(tTrainingsAssignments)
             .innerJoin(tTrainings)
                 .on(tTrainings.trainingId.equals(tTrainingsAssignments.assignmentTrainingId))
             .leftJoin(trainingsExtraJoin)
@@ -400,8 +401,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 name: trainingsExtraJoin.trainingExtraName.valueWhenNull(
                     usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
                 email: trainingsExtraJoin.trainingExtraEmail.valueWhenNull(usersJoin.username),
-                birthdate: trainingsExtraJoin.trainingExtraBirthdate.valueWhenNull(
-                    usersJoin.birthdate),
+                birthdate: trainingsExtraJoin.trainingExtraBirthdate//.valueWhenNull(
+                //usersJoin.birthdate), FIXME FIXME FIXME
             })
             .orderBy('date', 'asc')
             .orderBy('name', 'asc')

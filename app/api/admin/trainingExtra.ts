@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsAssignments, tTrainingsExtra } from '@lib/database';
@@ -156,7 +157,7 @@ export async function trainingExtra(request: Request, props: ActionProps): Promi
                     trainingExtraEmail: request.update.trainingExtraEmail,
                     trainingExtraBirthdate:
                     request.update.trainingExtraBirthdate ?
-                        new Date(request.update.trainingExtraBirthdate) : undefined,
+                        dayjs.utc(request.update.trainingExtraBirthdate) : undefined,
                 })
                 .where(tTrainingsExtra.trainingExtraId.equals(request.update.id))
                 .and(tTrainingsExtra.eventId.equals(event.eventId))

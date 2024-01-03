@@ -57,7 +57,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
             roleName: tRoles.roleName,
-            registrationDate: dbInstance.asString(tUsersEvents.registrationDate),
+            registrationDate: dbInstance.asDateTimeString(tUsersEvents.registrationDate),
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,
@@ -90,7 +90,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     let hotelManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {
         const hotelOptions = await getHotelRoomOptions(event.id);
-        const hotelPreferences = await db.selectFrom(tHotelsPreferences)
+        const hotelPreferences = await dbInstance.selectFrom(tHotelsPreferences)
             .where(tHotelsPreferences.userId.equals(volunteer.userId))
                 .and(tHotelsPreferences.eventId.equals(event.id))
                 .and(tHotelsPreferences.teamId.equals(team.id))
@@ -98,8 +98,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 hotelId: tHotelsPreferences.hotelId,
                 sharingPeople: tHotelsPreferences.hotelSharingPeople,
                 sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
-                checkIn: tHotelsPreferences.hotelDateCheckIn,
-                checkOut: tHotelsPreferences.hotelDateCheckOut,
+                checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn),
+                checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut),
             })
             .executeSelectNoneOrOne() ?? undefined;
 

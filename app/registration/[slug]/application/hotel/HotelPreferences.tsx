@@ -62,8 +62,8 @@ export interface HotelPreferencesProps {
         hotelId?: number,
         sharingPeople?: number,
         sharingPreferences?: string,
-        checkIn?: Date,
-        checkOut?: Date,
+        checkIn?: string,
+        checkOut?: string,
     };
 
     /**

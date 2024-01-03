@@ -158,7 +158,7 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
     const message = await dbInstance.selectFrom(tOutbox)
         .select({
             // Message info:
-            date: dbInstance.asString(tOutbox.outboxTimestamp),
+            date: dbInstance.asDateTimeString(tOutbox.outboxTimestamp),
 
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,

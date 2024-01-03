@@ -82,19 +82,19 @@ export async function getRegistration(environmentName: string, event: Event, use
                 hotelId: hotelsPreferencesJoin.hotelId,
                 hotelName: hotelsJoin.hotelName,
                 hotelRoom: hotelsJoin.hotelRoomName,
-                checkIn: hotelsPreferencesJoin.hotelDateCheckIn,
-                checkOut: hotelsPreferencesJoin.hotelDateCheckOut,
+                checkIn: dbInstance.asDateString(hotelsPreferencesJoin.hotelDateCheckIn),
+                checkOut: dbInstance.asDateString(hotelsPreferencesJoin.hotelDateCheckOut),
                 sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
                 sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
-                updated: dbInstance.asString(hotelsPreferencesJoin.hotelPreferencesUpdated),
+                updated: dbInstance.asDateTimeString(hotelsPreferencesJoin.hotelPreferencesUpdated),
             },
 
             refund: {
                 ticketNumber: refundsJoin.refundTicketNumber,
                 accountIban: refundsJoin.refundAccountIban,
                 accountName: refundsJoin.refundAccountName,
-                requested: dbInstance.asString(refundsJoin.refundRequested),
-                confirmed: dbInstance.asString(refundsJoin.refundConfirmed),
+                requested: dbInstance.asDateTimeString(refundsJoin.refundRequested),
+                confirmed: dbInstance.asDateTimeString(refundsJoin.refundConfirmed),
             },
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
@@ -103,11 +103,11 @@ export async function getRegistration(environmentName: string, event: Event, use
             training: {
                 confirmed: trainingsAssignmentsJoin.assignmentConfirmed.equals(/* true= */ 1),
                 preference: trainingsAssignmentsJoin.preferenceTrainingId,
-                updated: dbInstance.asString(trainingsAssignmentsJoin.preferenceUpdated),
+                updated: dbInstance.asDateTimeString(trainingsAssignmentsJoin.preferenceUpdated),
 
-                preferenceDate: dbInstance.asString(trainingsPreferenceJoin.trainingStart),
-                assignedDate: dbInstance.asString(trainingsAssignedJoin.trainingStart),
-                assignedEndDate: dbInstance.asString(trainingsAssignedJoin.trainingEnd),
+                preferenceDate: dbInstance.asDateTimeString(trainingsPreferenceJoin.trainingStart),
+                assignedDate: dbInstance.asDateTimeString(trainingsAssignedJoin.trainingStart),
+                assignedEndDate: dbInstance.asDateTimeString(trainingsAssignedJoin.trainingEnd),
                 assignedAddress: trainingsAssignedJoin.trainingAddress,
             },
         })
@@ -132,8 +132,8 @@ export async function getRegistration(environmentName: string, event: Event, use
             .and(tHotelsAssignments.eventId.equals(event.eventId))
             .and(tHotelsBookings.bookingConfirmed.equals(/* true= */ 1))
         .select({
-            checkIn: tHotelsBookings.bookingCheckIn,
-            checkOut: tHotelsBookings.bookingCheckOut,
+            checkIn: dbInstance.asDateString(tHotelsBookings.bookingCheckIn),
+            checkOut: dbInstance.asDateString(tHotelsBookings.bookingCheckOut),
 
             hotel: {
                 name: tHotels.hotelName,

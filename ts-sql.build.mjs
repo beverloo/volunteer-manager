@@ -122,14 +122,10 @@ do {
                 //{ table: 'schedule', column: 'schedule_time_start' },
                 //{ table: 'schedule', column: 'schedule_time_end' },
                 //{ table: 'tasks', column: 'task_scheduled_date' },
-                //{ table: 'users', column: 'birthdate' },
 
-                // TODO: These columns use Date (rather than DateTime) types:
-                //{ table: 'hotels_bookings', column: 'booking_check_in' },
-                //{ table: 'hotels_bookings', column: 'booking_check_out' },
-                //{ table: 'hotels_preferences', column: 'hotel_date_check_in' },
-                //{ table: 'hotels_preferences', column: 'hotel_date_check_out' },
-                //{ table: 'trainings_extra', column: 'training_extra_birthdate' },
+                // TODO: Calculations are being done on these columns making them harder to convert,
+                // and //app/api/exports/route.ts has a pending FIXME relying on this conversion.
+                //{ table: 'users', column: 'birthdate' },
 
                 { table: 'activities_locations', column: 'location_created' },
                 { table: 'activities_locations', column: 'location_updated' },
@@ -152,6 +148,10 @@ do {
                 { table: 'exports', column: 'export_created_date' },
                 { table: 'exports', column: 'export_expiration_date' },
                 { table: 'hotel_assignments', column: 'assignment_created' },
+                { table: 'hotels_bookings', column: 'booking_check_in' },
+                { table: 'hotels_bookings', column: 'booking_check_out' },
+                { table: 'hotels_preferences', column: 'hotel_date_check_in' },
+                { table: 'hotels_preferences', column: 'hotel_date_check_out' },
                 { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
                 { table: 'logs', column: 'log_date' },
                 { table: 'nardo', column: 'nardo_author_date' },
@@ -161,6 +161,7 @@ do {
                 { table: 'storage', column: 'file_date' },
                 { table: 'trainings_assignments', column: 'assignment_updated' },
                 { table: 'trainings_assignments', column: 'preference_updated' },
+                { table: 'trainings_extra', column: 'training_extra_birthdate' },
                 { table: 'trainings', column: 'training_start' },
                 { table: 'trainings', column: 'training_end' },
                 { table: 'users_events', column: 'registration_date' },

@@ -26,8 +26,8 @@ export interface RegistrationDatabaseRow {
         hotelId?: number;
         hotelName?: string;
         hotelRoom?: string;
-        checkIn?: Date;
-        checkOut?: Date;
+        checkIn?: string;
+        checkOut?: string;
         sharingPeople?: number;
         sharingPreferences?: string;
         updated?: string;
@@ -100,14 +100,14 @@ export interface RegistrationHotelRequest {
     hotelRoom?: string;
 
     /**
-     * Check-in date of the hotel, starting on which they can stay over.
+     * Check-in date of the hotel, starting on which they can stay over. ("YYYY-MM-DD")
      */
-    checkIn?: Date;
+    checkIn?: string;
 
     /**
-     * Check-out date of the hotel, on which day they will have to leave.
+     * Check-out date of the hotel, on which day they will have to leave. ("YYYY-MM-DD")
      */
-    checkOut?: Date;
+    checkOut?: string;
 
     /**
      * Number of people they would like to share their hotel room with.
@@ -130,14 +130,14 @@ export interface RegistrationHotelRequest {
  */
 export interface RegistrationHotelBooking {
     /**
-     * Date on which the hotel room can be checked in to.
+     * Date on which the hotel room can be checked in to. ("YYYY-MM-DD")
      */
-    checkIn: Date;
+    checkIn: string;
 
     /**
-     * Date on which the hotel room can be checked out of.
+     * Date on which the hotel room can be checked out of. ("YYYY-MM-DD")
      */
-    checkOut: Date;
+    checkOut: string;
 
     /**
      * The hotel and room that the volunteer was booked in to.

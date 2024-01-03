@@ -17,12 +17,12 @@ export interface HotelBooking {
     /**
      * Date on which this hotel room booking can check in.
      */
-    checkIn: Date;
+    checkIn: string;
 
     /**
      * Date on which this hotel room booking has to check out.
      */
-    checkOut: Date;
+    checkOut: string;
 
     /**
      * Whether the hotel room has been confirmed.
@@ -83,7 +83,8 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
     const usersJoin = tUsers.forUseInLeftJoin();
 
-    const assignments = await db.selectFrom(tHotelsAssignments)
+    const dbInstance = db;
+    const assignments = await dbInstance.selectFrom(tHotelsAssignments)
         .innerJoin(tHotelsBookings)
             .on(tHotelsBookings.bookingId.equals(tHotelsAssignments.bookingId))
             .and(tHotelsBookings.bookingVisible.equals(/* true= */ 1))
@@ -124,7 +125,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
 
     const hotelsJoin = tHotels.forUseInLeftJoin();
 
-    const rawBookings = await db.selectFrom(tHotelsBookings)
+    const rawBookings = await dbInstance.selectFrom(tHotelsBookings)
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(tHotelsBookings.bookingHotelId))
         .where(tHotelsBookings.eventId.equals(eventId))
@@ -138,8 +139,8 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
             hotelRoomName: hotelsJoin.hotelRoomName,
             hotelVisible: hotelsJoin.hotelRoomVisible,
 
-            checkIn: tHotelsBookings.bookingCheckIn,
-            checkOut: tHotelsBookings.bookingCheckOut,
+            checkIn: dbInstance.asDateString(tHotelsBookings.bookingCheckIn),
+            checkOut: dbInstance.asDateString(tHotelsBookings.bookingCheckOut),
             confirmed: tHotelsBookings.bookingConfirmed,
         })
         .orderBy('confirmed', 'desc')
@@ -212,12 +213,12 @@ export interface HotelRequest {
     /**
      * Date on which they would like to check in to the hotel room.
      */
-    checkIn: Date;
+    checkIn: string;
 
     /**
      * Date on which they would like to check out from the hotel room.
      */
-    checkOut: Date;
+    checkOut: string;
 
     /**
      * Information about the hotel and room in which they would like a booking.
@@ -283,13 +284,13 @@ export async function getHotelRequests(eventId: number): Promise<HotelRequest[]>
                 roomName: tHotels.hotelRoomName,
             },
 
-            checkIn: tHotelsPreferences.hotelDateCheckIn,
-            checkOut: tHotelsPreferences.hotelDateCheckOut,
+            checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn),
+            checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut),
 
             sharingPeople: tHotelsPreferences.hotelSharingPeople,
             sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
 
-            updated: dbInstance.asString(tHotelsPreferences.hotelPreferencesUpdated),
+            updated: dbInstance.asDateTimeString(tHotelsPreferences.hotelPreferencesUpdated),
         })
         .orderBy('user.name', 'asc')
         .executeSelectMany() as HotelRequest[];

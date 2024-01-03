@@ -20,8 +20,8 @@ export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferenc
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     hotelId = this.optionalColumnWithDefaultValue('hotel_id', 'int');
-    hotelDateCheckIn = this.optionalColumnWithDefaultValue('hotel_date_check_in', 'localDate');
-    hotelDateCheckOut = this.optionalColumnWithDefaultValue('hotel_date_check_out', 'localDate');
+    hotelDateCheckIn = this.optionalColumnWithDefaultValue<DateTime>('hotel_date_check_in', 'customComparable', 'date', DateTimeTypeAdapter);
+    hotelDateCheckOut = this.optionalColumnWithDefaultValue<DateTime>('hotel_date_check_out', 'customComparable', 'date', DateTimeTypeAdapter);
     hotelSharingPeople = this.optionalColumnWithDefaultValue('hotel_sharing_people', 'int');
     hotelSharingPreferences = this.optionalColumnWithDefaultValue('hotel_sharing_preferences', 'string');
     hotelPreferencesUpdated = this.columnWithDefaultValue<DateTime>('hotel_preferences_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);

@@ -185,8 +185,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
 
             hotelId: undefined,
 
-            checkIn: dayjs.utc(props.event.startTime).toDate(),
-            checkOut: dayjs.utc(props.event.endTime).toDate(),
+            checkIn: dayjs.utc(props.event.startTime).toISOString(),
+            checkOut: dayjs.utc(props.event.endTime).toISOString(),
 
             confirmed: false,
         } satisfies Booking;

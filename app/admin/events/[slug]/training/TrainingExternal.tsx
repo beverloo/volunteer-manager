@@ -40,7 +40,7 @@ export interface TrainingExternalEntry {
     /**
      * Date of birth of the participant, which we need for certification purposes.
      */
-    trainingExtraBirthdate?: Date;
+    trainingExtraBirthdate?: string;
 
     /**
      * Preferred training session that this volunteer would like to participate in, if any.
@@ -94,7 +94,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
             id: response.id,
             trainingExtraName: '',
             trainingExtraEmail: '',
-            trainingExtraBirthdate: new Date(),
+            trainingExtraBirthdate: dayjs().format('YYYY-MM-DD'),
             preferenceTrainingId: undefined,
             preferenceUpdated: undefined,
         };
