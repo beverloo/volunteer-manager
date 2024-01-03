@@ -1,15 +1,26 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
-import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
+import type { ComparableValueSource } from 'ts-sql-query/expressions/values';
+import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
+import type { DateTime } from '@lib/DateTime';
+import type { NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
 import { type Pool, type PoolConfig, createPool } from 'mariadb';
 import { type QueryType, InterceptorQueryRunner }
     from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
 import { type QueryType as MockQueryType, MockQueryRunner }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
+import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
+import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
+
 import { Log, LogType, LogSeverity } from '@lib/Log';
+
+/**
+ * Type definition for a comparable DateTime value source, used for implicit values.
+ */
+type ComparableDateTimeValueSource =
+    ComparableValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, 'required'>
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -39,6 +50,15 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
      * Allow empty strings to be passed. Without this setting `ts-sql-query` will use NULL instead.
      */
     override allowEmptyString = true;
+
+    /**
+     * Provide easy accessors to get the current date and time information without having to rely on
+     * cross-server clocks being in sync. These assume use of the `DateTime` type.
+     */
+    currentDate2(): ComparableDateTimeValueSource { return super.currentDate() as any; }
+    currentDateTime2(): ComparableDateTimeValueSource { return super.currentDateTime() as any; }
+    currentTimestamp2(): ComparableDateTimeValueSource { return super.currentTimestamp() as any; }
+    currentTime2(): ComparableDateTimeValueSource { return super.currentTime() as any; }
 
     /**
      * Global type adapter (MariaDB -> TypeScript) for the custom types that we use.

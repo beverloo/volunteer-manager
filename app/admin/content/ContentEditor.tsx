@@ -78,7 +78,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                     content: ref.current.getMarkdown(),
                     path: data.path,
                     title: data.title,
-                    updatedOn: 0,  // ignored
+                    updatedOn: '',  // ignored
                     updatedBy: '',  // ignored
                     updatedByUserId: 0,  // ignored
                     protected: false,  // ignored

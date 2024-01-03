@@ -130,7 +130,7 @@ do {
                 // { table: 'activities_timeslots', column: 'timeslot_created' },
                 // { table: 'activities_timeslots', column: 'timeslot_updated' },
                 // { table: 'activities_timeslots', column: 'timeslot_deleted' },
-                // { table: 'content', column: 'revision_date' },
+                { table: 'content', column: 'revision_date' },
                 // { table: 'events', column: 'event_start_time' },
                 // { table: 'events', column: 'event_end_time' },
                 // { table: 'events', column: 'event_refunds_start_time' },

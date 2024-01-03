@@ -67,8 +67,7 @@ export async function getContent(
             title: tContent.contentTitle,
             markdown: tContent.content,
             authoredBy: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
-            authoredDate: db.fragmentWithType('string', 'required')
-                .sql`DATE_FORMAT(${tContent.revisionDate}, "%Y-%m-%d %T")`
+            authoredDate: tContent.revisionDate,
         })
         .orderBy(tContent.revisionDate, 'desc')
         .limit(1)
@@ -87,7 +86,10 @@ export async function getContent(
         }
     }
 
-    return content;
+    return {
+        ...content,
+        authoredDate: content.authoredDate.toISOString(),
+    };
 }
 
 /**

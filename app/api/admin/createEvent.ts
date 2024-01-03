@@ -86,6 +86,7 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventShortName: request.shortName,
             eventSlug: request.slug,
             eventHidden: /* true= */ 1,
+            eventTimezone: 'Europe/Amsterdam',
             eventStartTime: new Date(request.startTime),
             eventEndTime: new Date(request.endTime),
             eventAvailabilityStatus: EventAvailabilityStatus.Unavailable,

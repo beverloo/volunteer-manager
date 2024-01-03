@@ -8,6 +8,8 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventSlugForId } from '@lib/EventLoader';
+import { dayjs } from '@lib/DateTime';
+
 import db, { tContent, tEvents, tTeams, tUsers } from '@lib/database';
 
 /**
@@ -35,9 +37,9 @@ const kContentRowModel = z.object({
     title: z.string().min(1),
 
     /**
-     * Date (in seconds since the UNIX epoch) at which the content was last updated.
+     * Date and time (in UTC) at which the content was last updated.
      */
-    updatedOn: z.number(),
+    updatedOn: z.string(),
 
     /**
      * Full name of the volunteer who last updated the content.
@@ -140,7 +142,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentProtected: /* unprotected= */ 0,
                 content: '',
                 revisionAuthorId: props.user!.userId,
-                revisionDate: dbInstance.currentTimestamp(),
+                revisionDate: dbInstance.currentTimestamp2(),
                 revisionVisible: /* true= */ 1,
             })
             .returningLastInsertedId()
@@ -152,7 +154,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 id: insertId,
                 path: row.path,
                 title: row.title,
-                updatedOn: Math.round(Date.now() / 1000),
+                updatedOn: dayjs.utc().toISOString(),
                 updatedBy: `${props.user!.firstName} ${props.user!.lastName}`,
                 updatedByUserId: props.user!.userId,
                 protected: false,
@@ -184,7 +186,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 content: tContent.content,
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
-                updatedOn: tContent.revisionDate.getTime().divide(/* ms => s */ 1000),
+                updatedOn: tContent.revisionDate,
                 updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
@@ -196,7 +198,10 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
 
         return {
             success: true,
-            row,
+            row: {
+                ...row,
+                updatedOn: row.updatedOn.toISOString(),
+            },
         }
     },
 
@@ -214,7 +219,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 id: tContent.contentId,
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
-                updatedOn: tContent.revisionDate.getTime().divide(/* ms => s */ 1000),
+                updatedOn: tContent.revisionDate,
                 updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
@@ -227,7 +232,10 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         return {
             success: true,
             rowCount: count,
-            rows: data,
+            rows: data.map(row => ({
+                ...row,
+                updatedOn: row.updatedOn.toISOString(),
+            })),
         }
     },
 
@@ -272,7 +280,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentTitle: row.title,
                 content: row.content,
                 revisionAuthorId: props.user!.userId,
-                revisionDate: db.currentTimestamp(),
+                revisionDate: db.currentTimestamp2(),
             })
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
