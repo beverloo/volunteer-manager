@@ -43,6 +43,7 @@ describe('TaskRunner', () => {
     interface TaskUpdateWithScheduleResult extends TaskUpdateResult {
         scheduledTaskName: string;
         scheduledTaskParams: string;
+        scheduledTaskParentTaskId?: number;
         scheduledTaskIntervalMs: number;
     }
 
@@ -68,12 +69,13 @@ describe('TaskRunner', () => {
 
             if (expectSchedule) {
                 mockConnection.expect('insertReturningLastInsertedId', (query, params) => {
-                    expect(params).toHaveLength(4);
+                    expect(params).toHaveLength(5);
                     resolve({
                         ...updateResult,
                         scheduledTaskName: params[0],
                         scheduledTaskParams: params[1],
-                        scheduledTaskIntervalMs: params[2],
+                        scheduledTaskParentTaskId: params[2],
+                        scheduledTaskIntervalMs: params[3],
                     });
 
                     return /* last inserted id= */ 9001;
