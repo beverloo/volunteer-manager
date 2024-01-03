@@ -11,6 +11,7 @@ import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
 import { RegistrationStatus } from '@lib/database/Types';
+import { dayjs } from '@lib/DateTime';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
@@ -190,12 +191,18 @@ async function getRecentChanges(eventId: number) {
             changes.push({
                 ...commonChange,
                 update: 'updated their training preferences',
-                date: preferenceUpdate.trainingPreferencesUpdated
+                date: dayjs(preferenceUpdate.trainingPreferencesUpdated), // fixme
             });
         }
     }
 
-    changes.sort((lhs, rhs) => rhs.date.getTime() - lhs.date.getTime());
+    changes.sort((lhs, rhs) => {
+        if (dayjs.isDayjs(lhs) && dayjs.isDayjs(rhs))
+            return +rhs.valueOf() - +rhs.valueOf();
+
+        return 0;
+    });
+
     return changes.slice(0, 8);
 }
 

@@ -9,6 +9,12 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
+    DateTimeTypeAdapter,
+} from "../DateTimeTypeAdapter";
+import {
+    DateTime,
+} from "../../DateTime";
+import {
     RegistrationStatus,
     ShirtFit,
     ShirtSize,
@@ -19,7 +25,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     roleId = this.column('role_id', 'int');
-    registrationDate = this.optionalColumnWithDefaultValue('registration_date', 'localDateTime');
+    registrationDate = this.optionalColumnWithDefaultValue<DateTime>('registration_date', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     registrationStatus = this.columnWithDefaultValue<RegistrationStatus>('registration_status', 'enum', 'RegistrationStatus');
     shirtFit = this.columnWithDefaultValue<ShirtFit>('shirt_fit', 'enum', 'ShirtFit');
     shirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('shirt_size', 'enum', 'ShirtSize');
@@ -31,7 +37,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');
     preferenceTimingEnd = this.optionalColumnWithDefaultValue('preference_timing_end', 'int');
     preferences = this.optionalColumnWithDefaultValue('preferences', 'string');
-    preferencesUpdated = this.columnWithDefaultValue('preferences_updated', 'localDateTime');
+    preferencesUpdated = this.columnWithDefaultValue<DateTime>('preferences_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     fullyAvailable = this.columnWithDefaultValue('fully_available', 'int');
     includeCredits = this.columnWithDefaultValue('include_credits', 'int');
     includeSocials = this.columnWithDefaultValue('include_socials', 'int');

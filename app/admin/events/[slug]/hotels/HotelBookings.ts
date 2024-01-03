@@ -242,14 +242,15 @@ export interface HotelRequest {
     /**
      * Date on which their request was last updated.
      */
-    updated: Date;
+    updated: string;
 }
 
 /**
  * Retrieves all hotel requests from the database for the given `eventId`.
  */
 export async function getHotelRequests(eventId: number): Promise<HotelRequest[]> {
-    return await db.selectFrom(tHotelsPreferences)
+    const dbInstance = db;
+    return await dbInstance.selectFrom(tHotelsPreferences)
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tHotelsPreferences.userId))
         .innerJoin(tUsersEvents)
@@ -288,7 +289,7 @@ export async function getHotelRequests(eventId: number): Promise<HotelRequest[]>
             sharingPeople: tHotelsPreferences.hotelSharingPeople,
             sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
 
-            updated: tHotelsPreferences.hotelPreferencesUpdated,
+            updated: dbInstance.asString(tHotelsPreferences.hotelPreferencesUpdated),
         })
         .orderBy('user.name', 'asc')
         .executeSelectMany() as HotelRequest[];

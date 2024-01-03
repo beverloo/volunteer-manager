@@ -35,7 +35,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    const volunteer = await db.selectFrom(tUsersEvents)
+    const dbInstance = db;
+    const volunteer = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .innerJoin(tRoles)
@@ -56,7 +57,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
             roleName: tRoles.roleName,
-            registrationDate: tUsersEvents.registrationDate,
+            registrationDate: dbInstance.asString(tUsersEvents.registrationDate),
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,

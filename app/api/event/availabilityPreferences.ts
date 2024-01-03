@@ -150,7 +150,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             preferenceHours: parseInt(request.serviceHours, 10),
             preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
-            preferencesUpdated: dbInstance.currentDateTime(),
+            preferencesUpdated: dbInstance.currentDateTime2(),
         })
         .where(tUsersEvents.userId.equals(subjectUserId))
             .and(tUsersEvents.eventId.equals(event.eventId))

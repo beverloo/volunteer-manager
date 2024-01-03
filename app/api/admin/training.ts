@@ -136,7 +136,7 @@ export async function training(request: Request, props: ActionProps): Promise<Re
         const dbInstance = db;
 
         let assignmentTrainingId: null | number;
-        let assignmentUpdated: null | ReturnType<typeof dbInstance.currentTimestamp>;
+        let assignmentUpdated: null | ReturnType<typeof dbInstance.currentTimestamp2>;
 
         switch (request.assignment.assignedTrainingId) {
             case -1:   // reset
@@ -147,12 +147,12 @@ export async function training(request: Request, props: ActionProps): Promise<Re
 
             case 0:     // don't participate
                 assignmentTrainingId = null;
-                assignmentUpdated = dbInstance.currentTimestamp();
+                assignmentUpdated = dbInstance.currentTimestamp2();
                 break;
 
             default:    // participate
                 assignmentTrainingId = request.assignment.assignedTrainingId!;
-                assignmentUpdated = dbInstance.currentTimestamp();
+                assignmentUpdated = dbInstance.currentTimestamp2();
                 break;
         }
 

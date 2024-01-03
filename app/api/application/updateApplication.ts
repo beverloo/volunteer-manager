@@ -9,6 +9,7 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
@@ -174,7 +175,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 hotelEligible: request.metadata.hotelEligible,
                 trainingEligible: request.metadata.trainingEligible,
                 registrationDate:
-                    request.metadata.registrationDate ? new Date(request.metadata.registrationDate)
+                    request.metadata.registrationDate ? dayjs(request.metadata.registrationDate)
                                                       : null,
             })
             .where(tUsersEvents.userId.equals(request.userId))

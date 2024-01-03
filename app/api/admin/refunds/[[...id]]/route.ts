@@ -107,7 +107,8 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
         if (!event)
             notFound();
 
-        const refunds = await db.selectFrom(tRefunds)
+        const dbInstance = db;
+        const refunds = await dbInstance.selectFrom(tRefunds)
             .innerJoin(tUsersEvents)
                 .on(tUsersEvents.eventId.equals(tRefunds.eventId))
                 .and(tUsersEvents.userId.equals(tRefunds.userId))
@@ -122,7 +123,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
                 ticketNumber: tRefunds.refundTicketNumber,
                 accountIban: tRefunds.refundAccountIban,
                 accountName: tRefunds.refundAccountName,
-                requested: tRefunds.refundRequested,
+                requested: dbInstance.asString(tRefunds.refundRequested),
                 confirmed: tRefunds.refundConfirmed.isNotNull(),
             })
             .where(tRefunds.eventId.equals(event.eventId))
@@ -133,10 +134,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
         return {
             success: true,
             rowCount: refunds.count,
-            rows: refunds.data.map(row => ({
-                ...row,
-                requested: row.requested.toISOString(),
-            })),
+            rows: refunds.data,
         };
     },
 
@@ -148,7 +146,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tRefunds)
             .set({
-                refundConfirmed: row.confirmed ? dbInstance.currentDateTime() : null
+                refundConfirmed: row.confirmed ? dbInstance.currentDateTime2() : null
             })
             .where(tRefunds.eventId.equals(event.eventId))
                 .and(tRefunds.userId.equals(id))

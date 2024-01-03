@@ -9,9 +9,15 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
+    DateTimeTypeAdapter,
+} from "../DateTimeTypeAdapter";
+import {
     Mutation,
     MutationSeverity,
 } from "../Types";
+import {
+    DateTime,
+} from "../../DateTime";
 
 export class ActivitiesLogsTable extends Table<DBConnection, 'ActivitiesLogsTable'> {
     festivalId = this.column('festival_id', 'int');
@@ -21,7 +27,7 @@ export class ActivitiesLogsTable extends Table<DBConnection, 'ActivitiesLogsTabl
     mutation = this.column<Mutation>('mutation', 'enum', 'Mutation');
     mutationFields = this.optionalColumnWithDefaultValue('mutation_fields', 'string');
     mutationSeverity = this.column<MutationSeverity>('mutation_severity', 'enum', 'MutationSeverity');
-    mutationDate = this.column('mutation_date', 'localDateTime');
+    mutationDate = this.column<DateTime>('mutation_date', 'customComparable', 'dateTime', DateTimeTypeAdapter);
 
     constructor() {
         super('activities_logs');

@@ -20,10 +20,6 @@ describe('ImportActivitiesTask', () => {
         activity: PartialStoredActivity, timeslots: PartialStoredTimeslot[]): StoredActivity
     {
         return {
-            created: new Date('2023-12-23T12:00:00+01:00'),
-            updated: new Date('2023-12-23T12:00:00+01:00'),
-            deleted: undefined,
-
             title: 'Example activity',
             description: undefined,
             url: undefined,
@@ -43,8 +39,8 @@ describe('ImportActivitiesTask', () => {
             },
 
             timeslots: timeslots.map(timeslot => ({
-                startTime: new Date('2024-06-09T09:00:00+00:00'),
-                endTime: new Date('2024-06-09T09:30:00+00:00'),
+                startTime: dayjs('2024-06-09T09:00:00+00:00'),
+                endTime: dayjs('2024-06-09T09:30:00+00:00'),
                 locationId: 100,
                 locationName: 'Example location',
 
@@ -526,8 +522,8 @@ describe('ImportActivitiesTask', () => {
             createStoredActivity({ id: 100 }, /* timeslots= */ [
                 {
                     id: 1100,
-                    startTime: new Date('2024-06-09T13:30:00+01:00'),  // <-- moved by 30 minutes
-                    endTime: new Date('2024-06-09T13:00:00+01:00'),
+                    startTime: dayjs('2024-06-09T13:30:00+01:00'),  // <-- moved by 30 minutes
+                    endTime: dayjs('2024-06-09T13:00:00+01:00'),
                     locationId: 11100
                 },
                 { id: 1101, locationId: 11101 },  // <-- old location

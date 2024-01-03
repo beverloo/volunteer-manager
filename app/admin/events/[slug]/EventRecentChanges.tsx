@@ -5,12 +5,9 @@
 
 import Link from 'next/link';
 
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-
 import { default as MuiLink } from '@mui/material/Link';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import Stack from '@mui/material/Stack';
@@ -18,7 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { RegistrationStatus } from '@lib/database/Types';
-import { dayjs } from '@lib/DateTime';
+import { dayjs, type DateTime } from '@lib/DateTime';
 
 /**
  * Whether the volunteer's application `status` is still pending.
@@ -64,7 +61,7 @@ export interface EventRecentChangesProps {
         /**
          * Date and time during which the update was made.
          */
-        date: Date;
+        date: DateTime | string;
     }[];
 }
 

@@ -53,7 +53,7 @@ export interface ApplicationMetadataProps {
         /**
          * The date on which this volunteer created their application. May be NULL.
          */
-        registrationDate?: Date;
+        registrationDate?: string;
 
         /**
          * The number of events the volunteer can indicate they really want to attend. May be NULL.

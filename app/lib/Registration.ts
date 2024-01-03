@@ -30,15 +30,15 @@ export interface RegistrationDatabaseRow {
         checkOut?: Date;
         sharingPeople?: number;
         sharingPreferences?: string;
-        updated?: Date;
+        updated?: string;
     };
 
     refund?: {
         ticketNumber?: string;
         accountIban: string;
         accountName: string;
-        requested: Date;
-        confirmed?: Date;
+        requested: string;
+        confirmed?: string;
     },
 
     trainingAvailable: boolean;
@@ -46,7 +46,7 @@ export interface RegistrationDatabaseRow {
     training?: {
         confirmed?: boolean;
         preference?: number;
-        updated?: Date;
+        updated?: string;
 
         preferenceDate?: Date;
         assignedDate?: Date;
@@ -122,7 +122,7 @@ export interface RegistrationHotelRequest {
     /**
      * Date on which the volunteer's hotel information was updated.
      */
-    updated?: Date;
+    updated?: string;
 }
 
 /**
@@ -175,12 +175,12 @@ export interface RegistrationRefund {
     /**
      * Date on which the refund has been requested.
      */
-    requested: Date;
+    requested: string;
 
     /**
      * Date on which the refund has been confirmed, if any.
      */
-    confirmed?: Date;
+    confirmed?: string;
 }
 
 /**
@@ -221,7 +221,7 @@ export interface RegistrationTraining {
     /**
      * When the preferences were last updated by the volunteer.
      */
-    updated?: Date;
+    updated?: string;
 }
 
 /**

@@ -49,7 +49,7 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
                     IFNULL(${tUsers.birthdate}, ${dbInstance.currentDate()}),
                     ${tEvents.eventStartTime})`,
             fullyAvailable: tUsersEvents.fullyAvailable.is(/* true= */ 1),
-            date: tUsersEvents.registrationDate,
+            date: dbInstance.asString(tUsersEvents.registrationDate),
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
             avatar: storageJoin.fileHash,

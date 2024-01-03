@@ -28,7 +28,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
 
     const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
 
-    const assignments = await db.selectFrom(tUsersEvents)
+    const dbInstance = db;
+    const assignments = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tTeams)
@@ -53,14 +54,14 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdated,
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-            assignedUpdated: trainingsAssignmentsJoin.assignmentUpdated,
+            assignedUpdated: dbInstance.asString(trainingsAssignmentsJoin.assignmentUpdated),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })
         .orderBy('name', 'asc')
         .executeSelectMany();
 
-    const extraParticipants = await db.selectFrom(tTrainingsExtra)
+    const extraParticipants = await dbInstance.selectFrom(tTrainingsExtra)
         .leftJoin(trainingsAssignmentsJoin)
             .on(trainingsAssignmentsJoin.eventId.equals(tTrainingsExtra.eventId))
             .and(trainingsAssignmentsJoin.assignmentExtraId.equals(tTrainingsExtra.trainingExtraId))
@@ -74,10 +75,10 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             trainingExtraBirthdate: tTrainingsExtra.trainingExtraBirthdate,
 
             preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
-            preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdated,
+            preferenceUpdated: dbInstance.asString(trainingsAssignmentsJoin.preferenceUpdated),
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-            assignedUpdated: trainingsAssignmentsJoin.assignmentUpdated,
+            assignedUpdated: dbInstance.asString(trainingsAssignmentsJoin.assignmentUpdated),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })

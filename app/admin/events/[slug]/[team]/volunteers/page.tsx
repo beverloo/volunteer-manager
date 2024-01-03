@@ -47,7 +47,7 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
                 [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
         .select({
             id: tUsers.userId,
-            date: tUsersEvents.registrationDate,
+            date: dbInstance.asString(tUsersEvents.registrationDate),
             status: tUsersEvents.registrationStatus,
             name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
             role: tRoles.roleName,

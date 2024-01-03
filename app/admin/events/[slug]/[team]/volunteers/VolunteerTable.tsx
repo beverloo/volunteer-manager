@@ -44,7 +44,7 @@ function formatMilliseconds(milliseconds: number): string {
  */
 export interface VolunteerInfo {
     id: number;
-    date?: Date;
+    date?: string;
     status: RegistrationStatus;
     name: string;
     role: string;

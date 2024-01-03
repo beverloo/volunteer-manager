@@ -185,7 +185,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                             mutation: mutation.mutation,
                             mutationFields: mutation.mutatedFields?.join(', '),
                             mutationSeverity: mutation.severity,
-                            mutationDate: dbInstance.currentDateTime(),
+                            mutationDate: dbInstance.currentDateTime2(),
                         })))
                         .executeInsert();
                 }
@@ -292,8 +292,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
                         activityVisible: currentActivity.visible ? 1 : 0,
                         activityVisibleReason: currentActivity.reasonInvisible,
-                        activityCreated: dbInstance.currentDateTime(),
-                        activityUpdated: dbInstance.currentDateTime(),
+                        activityCreated: dbInstance.currentDateTime2(),
+                        activityUpdated: dbInstance.currentDateTime2(),
                         activityDeleted: null,
                     }));
 
@@ -311,7 +311,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivities)
                     .set({
-                        activityDeleted: dbInstance.currentDateTime(),
+                        activityDeleted: dbInstance.currentDateTime2(),
                     })
                     .where(tActivities.activityId.equals(storedActivity.id)));
 
@@ -341,8 +341,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationId: currentLocation.id,
                         locationType: ActivityType.Program,
                         locationName: currentLocation.useName ?? currentLocation.name,
-                        locationCreated: dbInstance.currentDateTime(),
-                        locationUpdated: dbInstance.currentDateTime(),
+                        locationCreated: dbInstance.currentDateTime2(),
+                        locationUpdated: dbInstance.currentDateTime2(),
                         locationDeleted: null,
                     }));
 
@@ -359,7 +359,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivitiesLocations)
                     .set({
-                        locationDeleted: dbInstance.currentDateTime(),
+                        locationDeleted: dbInstance.currentDateTime2(),
                     })
                     .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
 
@@ -393,8 +393,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
                         timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
-                        timeslotCreated: dbInstance.currentDateTime(),
-                        timeslotUpdated: dbInstance.currentDateTime(),
+                        timeslotCreated: dbInstance.currentDateTime2(),
+                        timeslotUpdated: dbInstance.currentDateTime2(),
                         timeslotDeleted: null,
                     }));
 
@@ -416,7 +416,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivitiesTimeslots)
                     .set({
-                        timeslotDeleted: dbInstance.currentDateTime(),
+                        timeslotDeleted: dbInstance.currentDateTime2(),
                     })
                     .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
 
@@ -460,7 +460,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
                     activityVisible: currentActivity.visible ? 1 : 0,
                     activityVisibleReason: currentActivity.reasonInvisible,
-                    activityUpdated: dbInstance.currentDateTime(),
+                    activityUpdated: dbInstance.currentDateTime2(),
                     activityDeleted: null,
                 })
                 .where(tActivities.activityId.equals(storedActivity.id)));
@@ -485,7 +485,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             mutations.updated.push(dbInstance.update(tActivitiesLocations)
                 .set({
                     locationName: currentLocation.useName ?? currentLocation.name,
-                    locationUpdated: dbInstance.currentDateTime(),
+                    locationUpdated: dbInstance.currentDateTime2(),
                     locationDeleted: null,
                 })
                 .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
@@ -512,7 +512,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
                     timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
                     timeslotLocationId: currentTimeslot.location.id,
-                    timeslotUpdated: dbInstance.currentDateTime(),
+                    timeslotUpdated: dbInstance.currentDateTime2(),
                     timeslotDeleted: null,
                 })
                 .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id!)));
@@ -651,14 +651,14 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             {
                 name: 'start time',
                 weight: kUpdateSeverityLevel.Moderate,
-                stored: dayjs(storedTimeslot.startTime).utc().format(),
+                stored: storedTimeslot.startTime!.utc().format(),
                 current: dayjs(currentTimeslot.dateStartsAt).utc().format(),
                 comparison: 'string',
             },
             {
                 name: 'end time',
                 weight: kUpdateSeverityLevel.Moderate,
-                stored: dayjs(storedTimeslot.endTime).utc().format(),
+                stored: storedTimeslot.endTime!.utc().format(),
                 current: dayjs(currentTimeslot.dateEndsAt).utc().format(),
                 comparison: 'string',
             },
@@ -752,9 +752,6 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 .and(tActivities.activityType.equals(ActivityType.Program))
             .select({
                 id: tActivities.activityId,
-                created: tActivities.activityCreated,
-                updated: tActivities.activityUpdated,
-                deleted: tActivities.activityDeleted,
 
                 title: tActivities.activityTitle,
                 description: tActivities.activityDescription,

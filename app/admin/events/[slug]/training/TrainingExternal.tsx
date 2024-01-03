@@ -50,7 +50,7 @@ export interface TrainingExternalEntry {
     /**
      * Date on which the preference was updated, if any.
      */
-    preferenceUpdated?: Date;
+    preferenceUpdated?: string;
 }
 
 /**

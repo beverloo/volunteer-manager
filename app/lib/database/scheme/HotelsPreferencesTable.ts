@@ -8,6 +8,12 @@
  */
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
+import {
+    DateTimeTypeAdapter,
+} from "../DateTimeTypeAdapter";
+import {
+    DateTime,
+} from "../../DateTime";
 
 export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferencesTable'> {
     userId = this.column('user_id', 'int');
@@ -18,7 +24,7 @@ export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferenc
     hotelDateCheckOut = this.optionalColumnWithDefaultValue('hotel_date_check_out', 'localDate');
     hotelSharingPeople = this.optionalColumnWithDefaultValue('hotel_sharing_people', 'int');
     hotelSharingPreferences = this.optionalColumnWithDefaultValue('hotel_sharing_preferences', 'string');
-    hotelPreferencesUpdated = this.columnWithDefaultValue('hotel_preferences_updated', 'localDateTime');
+    hotelPreferencesUpdated = this.columnWithDefaultValue<DateTime>('hotel_preferences_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
 
     constructor() {
         super('hotels_preferences');

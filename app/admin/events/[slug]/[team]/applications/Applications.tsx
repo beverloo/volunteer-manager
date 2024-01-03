@@ -31,14 +31,7 @@ import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 import { RegistrationStatus } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
-
-/**
- * Formatter for displaying the date on which the application was received.
- */
-const kApplicationDateFormatter = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'full',
-    timeStyle: undefined,
-});
+import { dayjs } from '@lib/DateTime';
 
 /**
  * The <NoApplications> component will be shown when there are no pending applications. This is a
@@ -80,7 +73,7 @@ export interface ApplicationInfo {
     /**
      * Date at which the registration was submitted.
      */
-    date?: Date;
+    date?: string;
 
     /**
      * First name of the volunteer who made this application.
@@ -221,7 +214,7 @@ function Application(props: ApplicationProps) {
             <CardHeader avatar={avatar}
                         titleTypographyProps={{ variant: 'subtitle1' }}
                         title={`${application.firstName} ${application.lastName}`}
-                        subheader={kApplicationDateFormatter.format(application.date)} />
+                        subheader={dayjs(application.date).format('dddd, MMMM D, YYYY')} />
             <Divider />
             <CardContent sx={{ flex: 1, py: '0 !important' }}>
                 <List dense>
