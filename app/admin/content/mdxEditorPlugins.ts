@@ -3,7 +3,7 @@
 
 'use client';
 
-import { type MdastImportVisitor, realmPlugin, system } from '@mdxeditor/editor';
+import { type MdastImportVisitor, realmPlugin, addImportVisitor$ } from '@mdxeditor/editor';
 import { $createParagraphNode, $createTextNode, ElementNode } from 'lexical';
 
 /**
@@ -41,12 +41,8 @@ const unrecognisedNodeVisitor: MdastImportVisitor<any> = {
  * The `unrecognisedNodePlugin` recognises nodes that aren't being handled by the MDXEditor itself
  * and would cause an exception to be thrown, and maintains their textual representation instead.
  */
-const [ unrecognisedNodePlugin ] = realmPlugin({
-    id: 'unrecognisedNode',
-    systemSpec: system(() => ({})),
+export const unrecognisedNodePlugin = realmPlugin({
     init: (realm) => {
-        realm.pubKey('addImportVisitor', unrecognisedNodeVisitor);
+        realm.pub(addImportVisitor$, unrecognisedNodeVisitor);
     },
 });
-
-export { unrecognisedNodePlugin };
