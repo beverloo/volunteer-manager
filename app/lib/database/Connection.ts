@@ -62,7 +62,8 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
         value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
         : StringValueSource<TABLE_OR_VIEW, ISO>
     {
-        return this.fragmentWithType('string', 'required')
+        // TODO: s/optional/ISO/
+        return this.fragmentWithType('string', 'optional')
             .sql`date_format(${value}, '%Y-%m-%')` as StringValueSource<TABLE_OR_VIEW, ISO>;
     }
 
@@ -75,7 +76,8 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
         value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
         : StringValueSource<TABLE_OR_VIEW, ISO>
     {
-        return this.fragmentWithType('string', 'required')
+        // TODO: s/optional/ISO/
+        return this.fragmentWithType('string', 'optional')
             .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as StringValueSource<TABLE_OR_VIEW, ISO>;
     }
 
