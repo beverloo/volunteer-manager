@@ -50,7 +50,8 @@ export default async function EventApplicationTrainingPage(props: NextRouterPara
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
             { (!!registration.training && !!registration.training.confirmed) &&
-                <TrainingConfirmation training={registration.training} /> }
+                <TrainingConfirmation timezone={event.timezone}
+                                      training={registration.training} /> }
             <TrainingPreferences environment={environment.environmentName} eventSlug={event.slug}
                                  readOnly={readOnly} training={registration.training}
                                  trainingOptions={trainingOptions} />

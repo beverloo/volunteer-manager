@@ -98,7 +98,7 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
 
                 metadata: {
                     registrationDate:
-                        data.registrationDate ? data.registrationDate.toISOString()
+                        data.registrationDate ? dayjs(data.registrationDate).utc().toISOString()
                                               : undefined,
                     availabilityEventLimit:
                         data.availabilityEventLimit ? data.availabilityEventLimit : undefined,
@@ -125,7 +125,9 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
         availabilityEventLimit: volunteer.availabilityEventLimit,
         hotelEligible: volunteer.hotelEligible,
         trainingEligible: volunteer.trainingEligible,
-        registrationDate: volunteer.registrationDate ? dayjs(volunteer.registrationDate) : null
+        registrationDate:
+            volunteer.registrationDate ? dayjs(volunteer.registrationDate).local()
+                                       : null
     }), [ volunteer ]);
 
     return (

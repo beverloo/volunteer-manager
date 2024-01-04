@@ -39,8 +39,8 @@ export function EventCreate() {
                     name: data.name,
                     shortName: data.shortName,
                     slug: data.slug,
-                    startTime: dayjs(data.startTime).toISOString(),
-                    endTime: dayjs(data.endTime).toISOString(),
+                    startTime: dayjs(data.startTime).utc().toISOString(),
+                    endTime: dayjs(data.endTime).utc().toISOString(),
                 });
 
             setError(response.error);

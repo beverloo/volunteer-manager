@@ -59,9 +59,11 @@ export function RefundsHeader(props: RefundsHeaderProps) {
         setLoading(true);
         try {
             const refundsStartTime =
-                data.refundsStartTime ? dayjs(data.refundsStartTime).toISOString() : undefined;
+                data.refundsStartTime ? dayjs(data.refundsStartTime).utc().toISOString()
+                                      : undefined;
             const refundsEndTime =
-                data.refundsEndTime ? dayjs(data.refundsEndTime).toISOString() : undefined;
+                data.refundsEndTime ? dayjs(data.refundsEndTime).utc().toISOString()
+                                    : undefined;
 
             const response = await issueServerAction<UpdateEventDefinition>(
                 '/api/admin/update-event',
@@ -103,8 +105,12 @@ export function RefundsHeader(props: RefundsHeaderProps) {
 
     const defaultValues = {
         ...event,
-        refundsStartTime: event.refundsStartTime ? dayjs(event.refundsStartTime) : undefined,
-        refundsEndTime: event.refundsEndTime ? dayjs(event.refundsEndTime) : undefined,
+        refundsStartTime:
+            event.refundsStartTime ? dayjs(event.refundsStartTime).tz(event.timezone)
+                                   : undefined,
+        refundsEndTime:
+            event.refundsEndTime ? dayjs(event.refundsEndTime).tz(event.timezone)
+                                 : undefined,
     }
 
     return (

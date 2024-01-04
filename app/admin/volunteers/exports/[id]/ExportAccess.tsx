@@ -40,7 +40,7 @@ export function ExportAccess(props: ExportAccessProps) {
             headerName: 'Date',
             flex: 1,
 
-            renderCell: params => dayjs(params.value).format('YYYY-MM-DD HH:mm:ss'),
+            renderCell: params => dayjs(params.value).local().format('YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'userIp',

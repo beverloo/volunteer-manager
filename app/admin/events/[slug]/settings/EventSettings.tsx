@@ -74,8 +74,8 @@ export function EventSettings(props: EventSettingsProps) {
                         name: data.name,
                         shortName: data.shortName,
                         timezone: data.timezone,
-                        startTime: dayjs(data.startTime).toISOString(),
-                        endTime: dayjs(data.endTime).toISOString(),
+                        startTime: dayjs(data.startTime).utc().toISOString(),
+                        endTime: dayjs(data.endTime).utc().toISOString(),
                         availabilityStatus: data.availabilityStatus,
                         location: data.location,
                         festivalId: data.festivalId,
@@ -96,8 +96,8 @@ export function EventSettings(props: EventSettingsProps) {
 
     const defaultValues = {
         ...event,
-        startTime: dayjs(event.startTime),
-        endTime: dayjs(event.endTime),
+        startTime: dayjs(event.startTime).tz(event.timezone),
+        endTime: dayjs(event.endTime).tz(event.timezone),
     };
 
     return (

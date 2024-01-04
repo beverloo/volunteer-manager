@@ -91,7 +91,7 @@ export function ContentList(props: ContentListProps) {
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) => {
-                return dayjs.unix(params.value).format('YYYY-MM-DD');
+                return dayjs.utc(params.value).format('YYYY-MM-DD');
             },
         },
         {

@@ -166,7 +166,7 @@ async function getRecentChanges(eventId: number) {
         if (!!preferenceUpdate.availabilityPreferencesUpdated) {
             changes.push({
                 ...commonChange,
-                update: 'updated their availability',
+                update: 'updated their availability preferences',
                 date: preferenceUpdate.availabilityPreferencesUpdated
             });
         }
@@ -197,13 +197,16 @@ async function getRecentChanges(eventId: number) {
     }
 
     changes.sort((lhs, rhs) => {
-        if (dayjs.isDayjs(lhs) && dayjs.isDayjs(rhs))
-            return +rhs.valueOf() - +rhs.valueOf();
+        if (dayjs.isDayjs(lhs.date) && dayjs.isDayjs(rhs.date))
+            return rhs.date.valueOf() - lhs.date.valueOf();
 
         return 0;
     });
 
-    return changes.slice(0, 8);
+    return changes.slice(0, 8).map(change => ({
+        ...change,
+        date: change.date.toString(),
+    }));
 }
 
 /**

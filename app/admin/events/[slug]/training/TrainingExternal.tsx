@@ -161,7 +161,6 @@ export function TrainingExternal(props: TrainingExternalProps) {
             headerName: 'Birthdate',
             editable: true,
             sortable: true,
-            type: 'date',
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD'),

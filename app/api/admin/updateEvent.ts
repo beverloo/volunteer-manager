@@ -199,10 +199,10 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             noAccess();
 
         const eventRefundsStartTime =
-            request.eventRefunds.refundsStartTime ? dayjs(request.eventRefunds.refundsStartTime)
+            request.eventRefunds.refundsStartTime ? dayjs.utc(request.eventRefunds.refundsStartTime)
                                                   : null;
         const eventRefundsEndTime =
-            request.eventRefunds.refundsEndTime ? dayjs(request.eventRefunds.refundsEndTime)
+            request.eventRefunds.refundsEndTime ? dayjs.utc(request.eventRefunds.refundsEndTime)
                                                 : null;
 
         const affectedRows = await db.update(tEvents)

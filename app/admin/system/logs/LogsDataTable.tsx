@@ -44,8 +44,9 @@ export function LogsDataTable(props: LogsDataTableProps) {
     const columns: DataTableColumn[] = useMemo(() => ([
         {
             field: 'severity',
-            headerName: 'Severity',
-            width: 100,
+            headerName: '',
+            align: 'center',
+            width: 50,
 
             renderCell: (params: GridRenderCellParams) => {
                 switch (params.value) {
@@ -76,7 +77,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
             field: 'message',
             headerName: 'Message',
             sortable: false,
-            flex: 2,
+            flex: 3,
         },
         {
             field: 'source',

@@ -138,22 +138,20 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             headerName: 'Date (start time)',
             editable: true,
             sortable: true,
-            type: 'dateTime',
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) =>
-                dayjs(params.value).format('YYYY-MM-DD [at] H:mm'),
+                dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'trainingEnd',
             headerName: 'Date (end time)',
             editable: true,
             sortable: true,
-            type: 'dateTime',
             flex: 2,
 
             renderCell: (params: GridRenderCellParams) =>
-                dayjs(params.value).format('YYYY-MM-DD [at] H:mm'),
+                dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'trainingAddress',

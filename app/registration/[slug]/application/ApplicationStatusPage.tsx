@@ -233,6 +233,11 @@ interface RefundStatusButtonProps {
      * Information about the volunteer's refund request, if any.
      */
     refund?: RegistrationRefund;
+
+    /**
+     * Timezone in which the event will be taking place.
+     */
+    timezone: string;
 }
 
 /**
@@ -247,7 +252,7 @@ interface RefundStatusButtonProps {
  *   (3) The volunteer is able to request a refund because of an override.
  */
 function RefundStatusButton(props: RefundStatusButtonProps) {
-    const { enabled, override, refund } = props;
+    const { enabled, override, refund, timezone } = props;
 
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
@@ -255,7 +260,7 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
     if (!!refund) {
         // (1) The volunteer has been issued a refund.
         if (!!refund.confirmed) {
-            const confirmationDate = dayjs(refund.confirmed).format('dddd, MMMM D');
+            const confirmationDate = dayjs(refund.confirmed).tz(timezone).format('dddd, MMMM D');
 
             primary = 'Your ticket has been refunded!';
             secondary = `We issued your refund on ${confirmationDate}`;
@@ -302,6 +307,11 @@ interface TrainingStatusButtonProps {
     override: boolean;
 
     /**
+     * Timezone in which the event (& thus the training) will be taking place.
+     */
+    timezone: string;
+
+    /**
      * Information about the volunteer's preferences regarding participating in the training.
      */
     training?: RegistrationTraining;
@@ -323,7 +333,7 @@ interface TrainingStatusButtonProps {
  * training sessions, but we'll handle those out-of-bounds.
  */
 function TrainingStatusButton(props: TrainingStatusButtonProps) {
-    const { enabled, override, training } = props;
+    const { enabled, override, timezone, training } = props;
 
     let status: 'pending' | 'submitted' | 'confirmed' = 'pending';
     let primary: string | undefined = undefined;
@@ -332,8 +342,9 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
     if (!!training && (training.confirmed || training.updated)) {
         // (1) The volunteer has a confirmed spot in one of the sessions.
         if (!!training.assignedDate && training.confirmed) {
-            const assignedDate = dayjs(training.assignedDate).format('dddd, MMMM D');
-            const assignedTime = dayjs(training.assignedDate).format('H:mm');
+            const assignedDateTime = dayjs(training.assignedDate).tz(timezone);
+            const assignedDate = assignedDateTime.format('dddd, MMMM D');
+            const assignedTime = assignedDateTime.format('H:mm');
 
             status = 'confirmed';
             primary = `You'll join the training on ${assignedDate}`;
@@ -348,7 +359,8 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
 
         // (3) The volunteer indicated their preferences, wants to join and waits for confirmation.
         else if (!!training.preferenceDate) {
-            const preferenceDate = dayjs(training.preferenceDate).format('dddd, MMMM D');
+            const preferenceDate =
+                dayjs(training.preferenceDate).tz(timezone).format('dddd, MMMM D');
 
             status = 'submitted';
             primary = `You'd like to join the training on ${preferenceDate}`;
@@ -503,12 +515,14 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                                   override={
                                                       can(user, Privilege.EventTrainingManagement)
                                                   }
+                                                  timezone={event.timezone}
                                                   training={registration.training} /> }
 
                         { displayRefundWithOverride &&
                             <RefundStatusButton enabled={event.enableRefunds}
                                                 override={can(user, Privilege.Refunds)}
-                                                refund={registration.refund} /> }
+                                                refund={registration.refund}
+                                                timezone={event.timezone} /> }
 
                         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                                         disabled={!enableScheduleWithOverride}

@@ -15,6 +15,11 @@ import { dayjs } from '@lib/DateTime';
  */
 export interface TrainingConfirmationProps {
     /**
+     * Timezone in which the event will be taking place.
+     */
+    timezone: string;
+
+    /**
      * Information about the volunteer's training participation that we're representing.
      */
     training: RegistrationTraining;
@@ -25,14 +30,14 @@ export interface TrainingConfirmationProps {
  * or that the volunteer does not have to participate in the training.
  */
 export function TrainingConfirmation(props: TrainingConfirmationProps) {
-    const { training } = props;
+    const { timezone, training } = props;
 
     let confirmationBox: React.ReactNode = undefined;
     if (!!training.assignedDate) {
-        const date = dayjs(training.assignedDate).format('dddd, MMMM D');
+        const date = dayjs(training.assignedDate).tz(timezone).format('dddd, MMMM D');
 
-        const startTime = dayjs(training.assignedDate).format('H:mm');
-        const endTime = dayjs(training.assignedEndDate).format('H:mm');
+        const startTime = dayjs(training.assignedDate).tz(timezone).format('H:mm');
+        const endTime = dayjs(training.assignedEndDate).tz(timezone).format('H:mm');
 
         const primary = `You'll be joining the training on ${date}`;
         const secondary = training.assignedAddress ?? '';

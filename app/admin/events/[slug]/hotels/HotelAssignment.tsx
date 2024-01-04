@@ -300,7 +300,6 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             headerName: 'Check in',
             editable: true,
             width: 110,
-            type: 'date',
 
             renderCell: (params: GridRenderCellParams<Booking>) =>
                 dayjs(params.value).format('YYYY-MM-DD'),
@@ -310,7 +309,6 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             headerName: 'Check out',
             editable: true,
             width: 110,
-            type: 'date',
 
             renderCell: (params: GridRenderCellParams<Booking>) =>
                 dayjs(params.value).format('YYYY-MM-DD'),

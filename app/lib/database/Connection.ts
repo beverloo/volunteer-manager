@@ -64,7 +64,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     {
         // TODO: s/optional/ISO/
         return this.fragmentWithType('string', 'optional')
-            .sql`date_format(${value}, '%Y-%m-%')` as StringValueSource<TABLE_OR_VIEW, ISO>;
+            .sql`date_format(${value}, '%Y-%m-%d')` as StringValueSource<TABLE_OR_VIEW, ISO>;
     }
 
     /**
