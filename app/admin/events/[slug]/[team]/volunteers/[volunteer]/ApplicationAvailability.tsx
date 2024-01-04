@@ -7,23 +7,52 @@ import React, { useCallback, useState } from 'react';
 
 import { type FieldValues, AutocompleteElement, FormContainer } from 'react-hook-form-mui';
 
+import type { SxProps, Theme } from '@mui/system';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import { darken, lighten } from '@mui/system';
 
 import type { EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
+
+/**
+ * Custom styles applied to the <AdminHeader> & related components.
+ */
+const kStyles: { [key: string]: SxProps<Theme> } = {
+    section: {
+        marginTop: 2,
+        '&::before': {
+            backgroundColor: 'transparent',
+        }
+    },
+    sectionContent: {
+        padding: theme => theme.spacing(2, 0, 0, 3),
+    },
+    sectionHeader: theme => {
+        const getBackgroundColor = theme.palette.mode === 'light' ? lighten : darken;
+        return {
+            backgroundColor: getBackgroundColor(theme.palette.action.active, 0.9),
+            borderRadius: theme.shape.borderRadius,
+        };
+    },
+};
 
 /**
  * Props accepted by the <ApplicationAvailability> component.
  */
 export interface ApplicationAvailabilityProps {
     /**
-     * Slug of the event for which application metadata is being shown.
+     * Information about the event this volunteer will participate in.
      */
-    event: string;
+    event: PageInfoWithTeam['event'];
 
     /**
      * The list of public events that can be selected as wanting to attend.
@@ -41,6 +70,7 @@ export interface ApplicationAvailabilityProps {
     volunteer: {
         userId: number;
         actualAvailableEventLimit: number;
+        availabilityExceptions?: string;
         availabilityTimeslots?: string;
         preferences?: string;
         serviceHours?: number;
@@ -78,7 +108,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
 
             const response = await callApi('post', '/api/event/availability-preferences', {
                 environment: team,
-                event: event,
+                event: event.slug,
                 eventPreferences: eventPreferences,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
@@ -93,7 +123,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         } finally {
             setLoading(false);
         }
-    }, [ event, team, volunteer.actualAvailableEventLimit, volunteer.userId ]);
+    }, [ event.slug, team, volunteer.actualAvailableEventLimit, volunteer.userId ]);
 
     const serviceTiming = `${volunteer.preferenceTimingStart}-${volunteer.preferenceTimingEnd}`;
     const defaultValues: Record<string, any> = {
@@ -101,10 +131,17 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         serviceTiming
     };
 
+    let numberOfEventsToAttend = 0;
     if (volunteer.availabilityTimeslots && volunteer.availabilityTimeslots.length > 2) {
         volunteer.availabilityTimeslots.split(',').map((timeslotId, index) => {
             defaultValues[`preference_${index}`] = parseInt(timeslotId, 10);
+            numberOfEventsToAttend++;
         });
+    }
+
+    let numberOfExceptions = 0;
+    if (volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 2) {
+        // TODO: Parse the exceptions.
     }
 
     return (
@@ -115,17 +152,40 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <ApplicationAvailabilityForm onChange={handleChange} />
-                    { [ ...Array(volunteer.actualAvailableEventLimit) ].map((_, index) =>
-                        <Grid key={index} xs={12}>
-                            <AutocompleteElement name={`preference_${index}`}
-                                                 autocompleteProps={{
-                                                     fullWidth: true,
-                                                     onChange: handleChange,
-                                                     size: 'small',
-                                                 }}
-                                                 options={props.events} matchId />
-                        </Grid> )}
                 </Grid>
+                <Accordion disableGutters elevation={0} square sx={kStyles.section}>
+                    <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
+                        Events they plan to attend
+                        <Typography sx={{ color: 'text.disabled', pl: 1 }}>
+                            ({numberOfEventsToAttend})
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={kStyles.sectionContent}>
+                        <Grid container spacing={2}>
+                            { [ ...Array(volunteer.actualAvailableEventLimit) ].map((_, index) =>
+                                <Grid key={index} xs={12}>
+                                    <AutocompleteElement name={`preference_${index}`}
+                                                         autocompleteProps={{
+                                                             fullWidth: true,
+                                                             onChange: handleChange,
+                                                             size: 'small',
+                                                         }}
+                                                         options={props.events} matchId />
+                                </Grid> )}
+                        </Grid>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion disableGutters elevation={0} square sx={kStyles.section}>
+                    <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
+                        Exceptions
+                        <Typography sx={{ color: 'text.disabled', pl: 1 }}>
+                            ({numberOfExceptions})
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={kStyles.sectionContent}>
+                        Coming soon :)
+                    </AccordionDetails>
+                </Accordion>
                 <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
             </FormContainer>
         </Paper>

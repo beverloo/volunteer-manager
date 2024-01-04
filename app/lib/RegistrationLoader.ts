@@ -62,6 +62,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             .and(tUsersEvents.eventId.equals(event.eventId))
         .select({
             role: tRoles.roleName,
+            teamId: tTeams.teamId,
             status: tUsersEvents.registrationStatus,
 
             availabilityStatus: tEvents.eventAvailabilityStatus,

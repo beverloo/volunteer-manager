@@ -32,6 +32,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     hotelEligible = this.optionalColumnWithDefaultValue('hotel_eligible', 'int');
     trainingEligible = this.optionalColumnWithDefaultValue('training_eligible', 'int');
     availabilityEventLimit = this.optionalColumnWithDefaultValue('availability_event_limit', 'int');
+    availabilityExceptions = this.optionalColumnWithDefaultValue('availability_exceptions', 'string');
     availabilityTimeslots = this.optionalColumnWithDefaultValue('availability_timeslots', 'string');
     preferenceHours = this.optionalColumnWithDefaultValue('preference_hours', 'int');
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');

@@ -18,6 +18,7 @@ import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
 import { EventAvailabilityStatus } from '@lib/database/Types';
+import db, { tUsersEvents } from '@lib/database';
 
 /**
  * The <EventApplicationAvailabilityPage> component enables our volunteers to indicate when they
@@ -69,13 +70,26 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     }
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Availability exceptions
+    // ---------------------------------------------------------------------------------------------
+
+    const exceptionInfo = await db.selectFrom(tUsersEvents)
+        .where(tUsersEvents.userId.equals(user.userId))
+            .and(tUsersEvents.eventId.equals(event.eventId))
+            .and(tUsersEvents.teamId.equals(registration.teamId))
+        .selectOneColumn(tUsersEvents.availabilityExceptions)
+        .executeSelectNoneOrOne();
+
+    // TODO: Process |exceptionInfo|
+
+    // ---------------------------------------------------------------------------------------------
     // Section: Availability
     // ---------------------------------------------------------------------------------------------
 
-    const startDateTime = dayjs(event.startTime);
+    const startDateTime = dayjs.utc(event.startTime).tz(event.timezone);
     const startDate = startDateTime.startOf('day');
 
-    const endDateTime = dayjs(event.endTime);
+    const endDateTime = dayjs.utc(event.endTime).tz(event.timezone);
     const endDate = endDateTime.endOf('day');
 
     let serviceTimingStart: number | undefined;

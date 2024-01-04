@@ -60,6 +60,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             registrationDate: dbInstance.asDateTimeString(tUsersEvents.registrationDate),
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
+            availabilityExceptions: tUsersEvents.availabilityExceptions,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,
             hotelEligible: tUsersEvents.hotelEligible,
             trainingEligible: tUsersEvents.trainingEligible,
@@ -162,7 +163,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
-            <ApplicationAvailability event={event.slug} events={publicEvents} team={team.slug}
+            <ApplicationAvailability event={event} events={publicEvents} team={team.slug}
                                      volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}

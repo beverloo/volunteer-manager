@@ -8,6 +8,7 @@ import { EventAvailabilityStatus, RegistrationStatus } from './database/Types';
  */
 export interface RegistrationDatabaseRow {
     role: string;
+    teamId: number;
     status: RegistrationStatus;
 
     availabilityStatus: EventAvailabilityStatus,
@@ -239,6 +240,11 @@ export interface RegistrationData {
     role: string;
 
     /**
+     * Unique ID of the team that the volunteer will be participating in.
+     */
+    teamId: number;
+
+    /**
      * Status of the registration. Can be changed by senior volunteers.
      */
     status: RegistrationStatus;
@@ -360,6 +366,7 @@ export class Registration implements RegistrationData {
     // ---------------------------------------------------------------------------------------------
 
     get role() { return this.#registration.role; }
+    get teamId() { return this.#registration.teamId; }
     get status() { return this.#registration.status; }
 
     get availabilityStatus() { return this.#registration.availabilityStatus; }
@@ -387,6 +394,7 @@ export class Registration implements RegistrationData {
     toRegistrationData(): RegistrationData {
         return {
             role: this.role,
+            teamId: this.teamId,
             status: this.status,
 
             availabilityStatus: this.availabilityStatus,
