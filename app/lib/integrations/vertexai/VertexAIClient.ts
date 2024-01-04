@@ -108,16 +108,11 @@ export class VertexAIClient {
         const client = new VertexAI({
             project: this.#googleClient.projectId,
             location: this.#googleClient.location,
-        });
-
-        // https://github.com/googleapis/nodejs-vertexai/issues/75
-        {
-            const anyClientPreview = client.preview as any;
-            anyClientPreview.googleAuth = new GoogleAuth({
+            googleAuthOptions: {
                 credentials: JSON.parse(this.#googleClient.credentials),
                 scopes: 'https://www.googleapis.com/auth/cloud-platform',
-            });
-        }
+            },
+        });
 
         const model = client.preview.getGenerativeModel({
             model: this.#settings.model,
