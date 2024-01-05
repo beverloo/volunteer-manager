@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
@@ -35,6 +36,23 @@ export const kAvailabilityPreferencesDefinition = z.object({
          * should at most be the volunteer's personal preference limit.
          */
         eventPreferences: z.array(z.number()),
+
+        /**
+         * Exceptions that should be written for the volunteer's preferences. Will only be written
+         * when set by a Senior+ volunteer in the administration area.
+         */
+        exceptions: z.array(z.object({
+            /**
+             * Date on which the exception will stand. ("YYYY-MM-DD")
+             */
+            date: z.string().regex(/^\d{4}\-\d{2}\-\d{2}$/),
+
+            /**
+             * Hour on which the exception will stand. (0-23)
+             */
+            hour: z.number().min(0).max(23),
+
+        })).optional(),
 
         /**
          * Preferences that a volunteer can indicate regarding their exact availability.
@@ -140,6 +158,32 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             .executeSelectMany();
     }
 
+    let exceptions: string | undefined;
+    if ( !!request.adminOverrideUserId) {
+        const unavailabilityExceptions: { date: string, hour: number; }[] = [];
+
+        // TODO: Exceptions can also be made for "available" and "avoid", but this requires a richer
+        // user interface that we don't support as of right now. Therefore we assume "unavailable".
+
+        if (!!request.exceptions) {
+            const firstEventDay = dayjs(event.startTime).tz(event.timezone).startOf('day');
+            const lastEventDay = dayjs(event.endTime).tz(event.timezone).endOf('day');
+
+            const validDays: Set<string> = new Set;
+            for (let date = firstEventDay; date.isBefore(lastEventDay); date = date.add(1, 'day'))
+                validDays.add(date.format('YYYY-MM-DD'));
+
+            for (const { date, hour } of request.exceptions) {
+                if (!validDays.has(date))
+                    continue;
+
+                unavailabilityExceptions.push({ date, hour });
+            }
+        }
+
+        exceptions = JSON.stringify(unavailabilityExceptions);
+    }
+
     const [ preferenceTimingStart, preferenceTimingEnd ] =
         request.serviceTiming.split('-').map(v => parseInt(v, 10));
 
@@ -151,6 +195,9 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
             preferencesUpdated: dbInstance.currentDateTime2(),
+        })
+        .setIfValue({
+            availabilityExceptions: exceptions,
         })
         .where(tUsersEvents.userId.equals(subjectUserId))
             .and(tUsersEvents.eventId.equals(event.eventId))

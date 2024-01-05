@@ -80,7 +80,22 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
         .selectOneColumn(tUsersEvents.availabilityExceptions)
         .executeSelectNoneOrOne();
 
-    // TODO: Process |exceptionInfo|
+    const exceptions = new Map</* YYYY-MM-DD= */ string, Set</* hour (0-23)= */ number>>();
+    if (exceptionInfo && exceptionInfo.length > 2) {
+        const exceptionArray = JSON.parse(exceptionInfo);
+        if (Array.isArray(exceptionArray)) {
+            for (let index = 0; index < exceptionArray.length; ++index) {
+                if (!('date' in exceptionArray[index]) || !('hour' in exceptionArray[index]))
+                    continue;
+
+                const { date, hour } = exceptionArray[index];
+                if (!exceptions.has(date))
+                    exceptions.set(date, new Set());
+
+                exceptions.get(date)!.add(hour);
+            }
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Section: Availability
@@ -102,13 +117,20 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     const expectations: AvailabilityDayInfo[] = [];
     for (let date = startDate; date.isBefore(endDate); date = date.add(1, 'day')) {
+        const dateString = date.format('YYYY-MM-DD');
+
         expectations.push({
             label: date.format('dddd, MMMM D'),
             expectations: [ ...Array(/* hours= */ 24) ].map((_, hour) => {
                 const hourlyDateTime = dayjs(date).add(hour, 'hours');
                 let decidedStatus: AvailabilityExpectation = 'available';
 
-                // TODO: Consider exceptions "approved" by volunteering leads
+                // Consider exceptions that have been approved by the volunteering leads. When one
+                // is seen, all other processing will be moot.
+                if (exceptions.has(dateString)) {
+                    if (exceptions.get(dateString)!.has(hour))
+                        return 'unavailable';
+                }
 
                 // Consider the window in which the volunteer indicated they want to help out with
                 // shifts. We'll add some grace, but otherwise will roster them out at other times.
