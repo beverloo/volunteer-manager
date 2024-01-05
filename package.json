@@ -7,6 +7,7 @@
     "serve-prod": "docker run -p 3001:3001 volunteer-manager-docker",
     "sync-db": "node ts-sql.build.mjs",
     "build": "next build",
+    "build-with-bundle-analyzer": "cross-env ANALYZE=true next build",
     "serve": "next dev",
     "serve-with-scheduler": "cross-env APP_USE_SCHEDULER=1 next dev",
     "lint": "next lint",
@@ -67,6 +68,7 @@
   },
   "devDependencies": {
     "@datastructures-js/priority-queue": "^6.3.0",
+    "@next/bundle-analyzer": "^14.0.4",
     "@playwright/test": "^1.40.1",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/cookie": "^0.6.0",

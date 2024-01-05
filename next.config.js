@@ -2,6 +2,9 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 const nextBuildId = require('next-build-id');
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -30,4 +33,4 @@ const nextConfig = {
     ]),
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);
