@@ -131,6 +131,9 @@ do {
                 // and //app/api/exports/route.ts has a pending FIXME relying on this conversion.
                 //{ table: 'users', column: 'birthdate' },
 
+                { table: 'activities_areas', column: 'area_created' },
+                { table: 'activities_areas', column: 'area_updated' },
+                { table: 'activities_areas', column: 'area_deleted' },
                 { table: 'activities_locations', column: 'location_created' },
                 { table: 'activities_locations', column: 'location_updated' },
                 { table: 'activities_locations', column: 'location_deleted' },
@@ -201,6 +204,7 @@ do {
             // to the field mappings to this effect. Each column needs to be specified separately.
             ...[
                 { field: [ 'activities', 'activity_type' ], type: 'ActivityType' },
+                { field: [ 'activities_areas', 'area_type' ], type: 'ActivityType' },
                 { field: [ 'activities_locations', 'location_type' ], type: 'ActivityType' },
                 { field: [ 'activities_logs', 'mutation' ], type: 'Mutation' },
                 { field: [ 'activities_logs', 'mutation_severity' ], type: 'MutationSeverity' },

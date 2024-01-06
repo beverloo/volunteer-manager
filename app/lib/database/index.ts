@@ -1,9 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { ActivitiesTable } from './scheme/ActivitiesTable';
+import { ActivitiesAreasTable } from './scheme/ActivitiesAreasTable';
 import { ActivitiesLocationsTable } from './scheme/ActivitiesLocationsTable';
 import { ActivitiesLogsTable } from './scheme/ActivitiesLogsTable';
+import { ActivitiesTable } from './scheme/ActivitiesTable';
 import { ActivitiesTimeslotsTable } from './scheme/ActivitiesTimeslotsTable';
 import { ContentTable } from './scheme/ContentTable';
 import { EventsTable } from './scheme/EventsTable';
@@ -40,6 +41,7 @@ import { VendorsTable } from './scheme/VendorsTable';
 // Export instances of each of the above table types that are for the app to use. Naming convention
 // matches that proposed by `ts-sql-query`, i.e. `FooTable` becomes `tFoo`.
 export const tActivities = new ActivitiesTable;
+export const tActivitiesAreas = new ActivitiesAreasTable;
 export const tActivitiesLocations = new ActivitiesLocationsTable;
 export const tActivitiesLogs = new ActivitiesLogsTable;
 export const tActivitiesTimeslots = new ActivitiesTimeslotsTable;

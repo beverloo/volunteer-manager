@@ -43,6 +43,8 @@ describe('ImportActivitiesTask', () => {
                 endTime: dayjs('2024-06-09T09:30:00+00:00'),
                 locationId: 100,
                 locationName: 'Example location',
+                locationAreaId: 10,
+                locationAreaName: 'Example area',
 
                 ...timeslot,
             })),
@@ -54,7 +56,7 @@ describe('ImportActivitiesTask', () => {
     function createSimpleFloor(floor: PartialWithRequiredId<Floor>): Floor {
         return {
             year: 2024,
-            name: 'Example floor',
+            name: 'Example area',
             description: null,
             cssBackgroundColor: null,
             ...floor,
@@ -67,9 +69,9 @@ describe('ImportActivitiesTask', () => {
             name: 'Example location',
             useName: null,
             sponsor: null,
-            area: 'Example floor',
+            area: 'Example area',
             floor: createSimpleFloor({ id: 10 }),
-            floorId: 1000,
+            floorId: 10,
             ...location,
         };
     }
@@ -280,11 +282,24 @@ describe('ImportActivitiesTask', () => {
         const mutations = task.compareActivities([
             createSimpleActivity({
                 id: 100,
-                timeslots: [ createSimpleTimeslot({ id: 1100 }) ]
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1100
+                    })
+                ]
             }),
             createSimpleActivity({
                 id: 101,
-                timeslots: [ createSimpleTimeslot({ id: 1101 }) ]
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1101,
+                        location: createSimpleLocation({
+                            id: 101,
+                            area: 'New area',
+                            floorId: 11,
+                        })
+                    })
+                ]
             }),
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
@@ -292,11 +307,11 @@ describe('ImportActivitiesTask', () => {
 
         ], /* festivalId= */ 625);
 
-        expect(mutations.created).toHaveLength(2);  // activity + timeslot
+        expect(mutations.created).toHaveLength(4);  // activity, timeslot, location and floor
         expect(mutations.updated).toHaveLength(0);
         expect(mutations.deleted).toHaveLength(0);
 
-        expect(mutations.mutations).toHaveLength(2);
+        expect(mutations.mutations).toHaveLength(4);
         expect(mutations.mutations[0]).toEqual({
             activityId: 101,
             mutation: 'Created',
@@ -304,6 +319,18 @@ describe('ImportActivitiesTask', () => {
         });
 
         expect(mutations.mutations[1]).toEqual({
+            areaId: 11,
+            mutation: 'Created',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[2]).toEqual({
+            locationId: 101,
+            mutation: 'Created',
+            severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[3]).toEqual({
             activityId: 101,
             activityTimeslotId: 1101,
             mutation: 'Created',
@@ -456,6 +483,48 @@ describe('ImportActivitiesTask', () => {
         });
     });
 
+    it('should be able to identify updates to floors in the program', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1100,
+                        location: createSimpleLocation({
+                            id: 11100,
+                            area: 'New Floor Name',
+                            floorId: 10,
+                        }),
+                    })
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [
+                {
+                    id: 1100,
+                    locationId: 11100,
+                    locationAreaId: 10,
+                    locationAreaName: 'Old Floor Name',
+                }
+            ]),
+        ], /* festivalId= */ 625);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(1);
+        expect(mutations.deleted).toHaveLength(0);
+
+        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations[0]).toEqual({
+            areaId: 10,
+            mutation: 'Updated',
+            mutatedFields: [ 'name' ],
+            severity: 'Low',
+        });
+    });
+
     it('should be able to identify updates to locations in the program', () => {
         const task = createImportActivitiesTaskForFestival(
             /* no festival= */ undefined, /* skipDb= */ true);
@@ -586,6 +655,61 @@ describe('ImportActivitiesTask', () => {
         expect(mutations.mutations[1]).toEqual({
             activityId: 101,
             activityTimeslotId: 1101,
+            mutation: 'Deleted',
+            severity: 'Moderate',
+        });
+    });
+
+    it('should be able to identify removed floors from the program', () => {
+        const task = createImportActivitiesTaskForFestival(
+            /* no festival= */ undefined, /* skipDb= */ true);
+
+        const mutations = task.compareActivities([
+            createSimpleActivity({
+                id: 100,
+                timeslots: [
+                    createSimpleTimeslot({
+                        id: 1100,
+                        location: createSimpleLocation({
+                            id: 11100,
+                            area: 'New Ace Area',
+                            floorId: 11,
+                        })
+                    }),
+                    createSimpleTimeslot({
+                        id: 1101,
+                        location: createSimpleLocation({
+                            id: 11101,
+                            area: 'New Ace Area',
+                            floorId: 11,
+                        }),
+                    })
+                ]
+            }),
+        ], [
+            createStoredActivity({ id: 100 }, /* timeslots= */ [
+                {
+                    id: 1100,
+                    locationId: 11100,
+                    locationAreaId: 10,
+                    locationAreaName: 'Old Ace Area',  // <-- no longer being used
+                },
+                {
+                    id: 1101,
+                    locationId: 11101,
+                    locationAreaId: 11,
+                    locationAreaName: 'New Ace Area',
+                }
+            ]),
+        ], /* festivalId= */ 625);
+
+        expect(mutations.created).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(0);
+        expect(mutations.deleted).toHaveLength(1);
+
+        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations[0]).toEqual({
+            areaId: 10,
             mutation: 'Deleted',
             severity: 'Moderate',
         });

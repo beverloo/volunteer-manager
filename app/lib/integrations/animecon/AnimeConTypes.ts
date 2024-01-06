@@ -82,7 +82,7 @@ export const kLocationDefinition = z.object({
     sponsor: z.string().nullable(),
     area: z.string().nullable(),
     floor: kFloorDefinition.optional(),
-    floorId: z.number().nullable(),
+    floorId: z.number(),
 });
 
 /**

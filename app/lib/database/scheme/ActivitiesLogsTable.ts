@@ -22,6 +22,7 @@ import {
 export class ActivitiesLogsTable extends Table<DBConnection, 'ActivitiesLogsTable'> {
     festivalId = this.column('festival_id', 'int');
     activityId = this.optionalColumnWithDefaultValue('activity_id', 'int');
+    areaId = this.optionalColumnWithDefaultValue('area_id', 'int');
     timeslotId = this.optionalColumnWithDefaultValue('timeslot_id', 'int');
     locationId = this.optionalColumnWithDefaultValue('location_id', 'int');
     mutation = this.column<Mutation>('mutation', 'enum', 'Mutation');

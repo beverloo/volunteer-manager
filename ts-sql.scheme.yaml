@@ -2720,74 +2720,6 @@ tables:
       PRIMARY KEY (`activity_id`),
       UNIQUE KEY `activity_id` (`activity_id`,`activity_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: activities_locations
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: location_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_festival_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_type
-    type: enum('Program','Internal')
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_name
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_created
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_updated
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: location_deleted
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (location_id) USING BTREE
-    table: activities_locations
-    columns:
-    - location_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (location_id)
-    table: activities_locations
-    referencedTable: null
-    columns:
-    - location_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `activities_locations` (
-      `location_id` int(8) unsigned NOT NULL,
-      `location_festival_id` int(8) unsigned NOT NULL,
-      `location_type` enum('Program','Internal') NOT NULL,
-      `location_name` text NOT NULL,
-      `location_created` datetime NOT NULL,
-      `location_updated` datetime NOT NULL,
-      `location_deleted` datetime DEFAULT NULL,
-      PRIMARY KEY (`location_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_logs
   type: BASE TABLE
   comment: ""
@@ -2798,6 +2730,11 @@ tables:
     default: null
     comment: ""
   - name: activity_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: area_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
@@ -2839,6 +2776,12 @@ tables:
     columns:
     - activity_id
     comment: ""
+  - name: area_id
+    def: KEY area_id (area_id) USING BTREE
+    table: activities_logs
+    columns:
+    - area_id
+    comment: ""
   - name: festival_id
     def: KEY festival_id (festival_id) USING BTREE
     table: activities_logs
@@ -2863,6 +2806,7 @@ tables:
     CREATE TABLE `activities_logs` (
       `festival_id` int(8) unsigned NOT NULL,
       `activity_id` int(8) unsigned DEFAULT NULL,
+      `area_id` int(8) unsigned DEFAULT NULL,
       `timeslot_id` int(8) unsigned DEFAULT NULL,
       `location_id` int(8) unsigned DEFAULT NULL,
       `mutation` enum('Created','Updated','Deleted') NOT NULL,
@@ -2872,7 +2816,8 @@ tables:
       KEY `festival_id` (`festival_id`),
       KEY `activity_id` (`activity_id`),
       KEY `timeslot_id` (`timeslot_id`),
-      KEY `location_id` (`location_id`)
+      KEY `location_id` (`location_id`),
+      KEY `area_id` (`area_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
@@ -3040,6 +2985,152 @@ tables:
       KEY `booking_id` (`booking_id`),
       KEY `event_id` (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: activities_locations
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: location_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_type
+    type: enum('Program','Internal')
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_name
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_area_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: location_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (location_id, location_festival_id) USING BTREE
+    table: activities_locations
+    columns:
+    - location_id
+    - location_festival_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (location_id, location_festival_id)
+    table: activities_locations
+    referencedTable: null
+    columns:
+    - location_id
+    - location_festival_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `activities_locations` (
+      `location_id` int(8) unsigned NOT NULL,
+      `location_festival_id` int(8) unsigned NOT NULL,
+      `location_type` enum('Program','Internal') NOT NULL,
+      `location_name` text NOT NULL,
+      `location_area_id` int(8) unsigned NOT NULL,
+      `location_created` datetime NOT NULL,
+      `location_updated` datetime NOT NULL,
+      `location_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`location_id`,`location_festival_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: activities_areas
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: area_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_type
+    type: enum('Program','Internal')
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_name
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: area_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (area_id, area_festival_id) USING BTREE
+    table: activities_areas
+    columns:
+    - area_id
+    - area_festival_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (area_id, area_festival_id)
+    table: activities_areas
+    referencedTable: null
+    columns:
+    - area_id
+    - area_festival_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `activities_areas` (
+      `area_id` int(8) unsigned NOT NULL,
+      `area_festival_id` int(8) unsigned NOT NULL,
+      `area_type` enum('Program','Internal') NOT NULL,
+      `area_name` text NOT NULL,
+      `area_created` datetime NOT NULL,
+      `area_updated` datetime NOT NULL,
+      `area_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`area_id`,`area_festival_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events
   type: BASE TABLE
   comment: ""

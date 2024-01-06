@@ -13,8 +13,8 @@ import { createAnimeConClient } from '@lib/integrations/animecon';
 import { dayjs } from '@lib/DateTime';
 
 import { Mutation, MutationSeverity } from '@lib/database/Types';
-import db, { tActivities, tActivitiesLocations, tActivitiesLogs, tActivitiesTimeslots, tEvents }
-    from '@lib/database';
+import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
+    tActivitiesTimeslots, tEvents } from '@lib/database';
 
 /**
  * Parameter scheme applying to the `ImportActivitiesTask`.
@@ -41,7 +41,8 @@ type TaskParams = z.infer<typeof kImportActivitiesTaskParamScheme>;
  * What are the table definitions in which mutations can be made by this task?
  */
 type MutationTableTypes =
-    typeof tActivities | typeof tActivitiesLocations | typeof tActivitiesTimeslots;
+    typeof tActivities | typeof tActivitiesAreas | typeof tActivitiesLocations |
+    typeof tActivitiesTimeslots;
 
 /**
  * Mutations are expressed as a set of queries (created by the `compareActivities` method) together
@@ -54,6 +55,7 @@ interface Mutations {
     mutations: {
         activityId?: number;
         activityTimeslotId?: number;
+        areaId?: number;
         locationId?: number;
 
         mutation: Mutation;
@@ -63,11 +65,26 @@ interface Mutations {
 }
 
 /**
+ * Type describing an individual stored area.
+ */
+export interface StoredArea {
+    id: number;
+    name: string;
+}
+
+/**
+ * Alias `StoredArea` as `Area` - it's not an explicit type in the AnimeCon API, but rather values
+ * contained within the `Location` type, and can thus not be represented by the usual types.
+ */
+type Area = StoredArea;
+
+/**
  * Type describing an individual stored location.
  */
 export interface StoredLocation {
     id: number;
     name: string;
+    areaId: number;
 }
 
 /**
@@ -181,6 +198,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         .values(mutations.mutations.map(mutation => ({
                             festivalId: festivalId!,
                             activityId: mutation.activityId,
+                            areaId: mutation.areaId,
                             timeslotId: mutation.activityTimeslotId,
                             locationId: mutation.locationId,
                             mutation: mutation.mutation,
@@ -213,6 +231,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInStoredProgram = new Map<number, StoredActivity>();
+        const seenAreasInStoredProgram = new Map<number, StoredArea>();
         const seenLocationsInStoredProgram = new Map<number, StoredLocation>();
         const seenTimeslotsInStoredProgram = new Map<number, StoredTimeslot>();
 
@@ -221,7 +240,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         for (const storedActivity of storedActivities) {
             seenActivitiesInStoredProgram.set(storedActivity.id, storedActivity);
             for (const storedTimeslot of storedActivity.timeslots) {
-                if (!storedTimeslot.id || !storedTimeslot.locationId) {
+                if (!storedTimeslot.id) {
                     this.log.warning(`Invalid timeslot found for activity=${storedActivity.id}`);
                     continue;
                 }
@@ -229,11 +248,23 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 seenTimeslotsInStoredProgram.set(storedTimeslot.id, storedTimeslot);
                 timeslotToStoredActivity.set(storedTimeslot.id, storedActivity);
 
-                if (!seenLocationsInStoredProgram.has(storedTimeslot.locationId)) {
-                    seenLocationsInStoredProgram.set(storedTimeslot.locationId, {
-                        id: storedTimeslot.locationId,
-                        name: storedTimeslot.locationName!,
-                    });
+                if (!!storedTimeslot.locationId) {
+                    if (!seenLocationsInStoredProgram.has(storedTimeslot.locationId)) {
+                        seenLocationsInStoredProgram.set(storedTimeslot.locationId, {
+                            id: storedTimeslot.locationId,
+                            name: storedTimeslot.locationName!,
+                            areaId: storedTimeslot.locationAreaId!,
+                        });
+                    }
+                }
+
+                if (!!storedTimeslot.locationAreaId) {
+                    if (!seenAreasInStoredProgram.has(storedTimeslot.locationAreaId)) {
+                        seenAreasInStoredProgram.set(storedTimeslot.locationAreaId, {
+                            id: storedTimeslot.locationAreaId,
+                            name: storedTimeslot.locationAreaName ?? 'Unnamed area',
+                        });
+                    }
                 }
             }
         }
@@ -243,6 +274,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // -----------------------------------------------------------------------------------------
 
         const seenActivitiesInCurrentProgram = new Map<number, Activity>();
+        const seenAreasInCurrentProgram = new Map<number, Area>();
         const seenLocationsInCurrentProgram = new Map<number, Location>();
         const seenTimeslotsInCurrentProgram = new Map<number, Timeslot>();
 
@@ -257,6 +289,13 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 if (!seenLocationsInCurrentProgram.has(currentTimeslot.location.id)) {
                     seenLocationsInCurrentProgram.set(
                         currentTimeslot.location.id, currentTimeslot.location);
+                }
+
+                if (!seenAreasInCurrentProgram.has(currentTimeslot.location.floorId)) {
+                    seenAreasInCurrentProgram.set(currentTimeslot.location.floorId, {
+                        id: currentTimeslot.location.floorId,
+                        name: currentTimeslot.location.area ?? 'Unnamed area',
+                    });
                 }
             }
         }
@@ -300,7 +339,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     }));
 
                 mutations.mutations.push({
-                    activityId: currentActivity.id,
+                    activityId,
                     mutation: Mutation.Created,
                     severity: this.maybeEscalateMutationSeverity(
                         currentActivity, MutationSeverity.Moderate),
@@ -315,13 +354,61 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         activityDeleted: dbInstance.currentDateTime2(),
                     })
-                    .where(tActivities.activityId.equals(storedActivity.id)));
+                    .where(tActivities.activityId.equals(activityId)));
 
                 mutations.mutations.push({
-                    activityId: storedActivity.id,
+                    activityId,
                     mutation: Mutation.Deleted,
                     severity: this.maybeEscalateMutationSeverity(
                         storedActivity, MutationSeverity.Moderate),
+                });
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+
+        const addedOrRemovedAreas = symmetricDifference(
+            new Set([ ...seenAreasInStoredProgram.keys() ]),
+            new Set([ ...seenAreasInCurrentProgram.keys() ]));
+
+        for (const areaId of addedOrRemovedAreas) {
+            if (!seenAreasInStoredProgram.has(areaId)) {
+                const currentArea = seenAreasInCurrentProgram.get(areaId);
+                if (!currentArea)
+                    throw new Error('Unrecognised new entry in seenAreasInCurrentProgram');
+
+                mutations.created.push(dbInstance.insertInto(tActivitiesAreas)
+                    .set({
+                        areaId: currentArea.id,
+                        areaFestivalId: festivalId,
+                        areaType: ActivityType.Program,
+                        areaName: currentArea.name,
+                        areaCreated: dbInstance.currentDateTime2(),
+                        areaUpdated: dbInstance.currentDateTime2(),
+                        areaDeleted: null,
+                    }));
+
+                mutations.mutations.push({
+                    areaId,
+                    mutation: Mutation.Created,
+                    severity: MutationSeverity.Moderate,
+                });
+
+            } else {
+                const storedArea = seenAreasInStoredProgram.get(areaId);
+                if (!storedArea)
+                    throw new Error('Unrecognised removed entry in seenAreasInStoredProgram');
+
+                mutations.deleted.push(dbInstance.update(tActivitiesAreas)
+                    .set({
+                        areaDeleted: dbInstance.currentDateTime2(),
+                    })
+                    .where(tActivitiesAreas.areaId.equals(areaId)));
+
+                mutations.mutations.push({
+                    areaId,
+                    mutation: Mutation.Deleted,
+                    severity: MutationSeverity.Moderate,
                 });
             }
         }
@@ -344,13 +431,14 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationFestivalId: festivalId,
                         locationType: ActivityType.Program,
                         locationName: currentLocation.useName ?? currentLocation.name,
+                        locationAreaId: currentLocation.floorId,
                         locationCreated: dbInstance.currentDateTime2(),
                         locationUpdated: dbInstance.currentDateTime2(),
                         locationDeleted: null,
                     }));
 
                 mutations.mutations.push({
-                    locationId: locationId,
+                    locationId,
                     mutation: Mutation.Created,
                     severity: MutationSeverity.Moderate,
                 });
@@ -364,10 +452,10 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         locationDeleted: dbInstance.currentDateTime2(),
                     })
-                    .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
+                    .where(tActivitiesLocations.locationId.equals(locationId)));
 
                 mutations.mutations.push({
-                    locationId: locationId,
+                    locationId,
                     mutation: Mutation.Deleted,
                     severity: MutationSeverity.Moderate,
                 });
@@ -466,10 +554,37 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityUpdated: dbInstance.currentDateTime2(),
                     activityDeleted: null,
                 })
-                .where(tActivities.activityId.equals(storedActivity.id)));
+                .where(tActivities.activityId.equals(storedActivity.id))
+                    .and(tActivities.activityFestivalId.equals(festivalId)));
 
             mutations.mutations.push({
                 activityId: storedActivity.id,
+                mutation: Mutation.Updated,
+                mutatedFields: update.fields,
+                severity: update.severity,
+            });
+        }
+
+        for (const storedArea of seenAreasInStoredProgram.values()) {
+            const currentArea = seenAreasInCurrentProgram.get(storedArea.id);
+            if (!currentArea)
+                continue;
+
+            const update = this.compareArea(storedArea, currentArea);
+            if (!update.fields.length)
+                continue;  // the `storedArea` is still up-to-date
+
+            mutations.updated.push(dbInstance.update(tActivitiesAreas)
+                .set({
+                    areaName: currentArea.name,
+                    areaUpdated: dbInstance.currentDateTime2(),
+                    areaDeleted: null,
+                })
+                .where(tActivitiesAreas.areaId.equals(storedArea.id))
+                    .and(tActivitiesAreas.areaFestivalId.equals(festivalId)));
+
+            mutations.mutations.push({
+                areaId: storedArea.id,
                 mutation: Mutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
@@ -491,7 +606,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     locationUpdated: dbInstance.currentDateTime2(),
                     locationDeleted: null,
                 })
-                .where(tActivitiesLocations.locationId.equals(storedLocation.id)));
+                .where(tActivitiesLocations.locationId.equals(storedLocation.id))
+                    .and(tActivitiesLocations.locationFestivalId.equals(festivalId)));
 
             mutations.mutations.push({
                 locationId: storedLocation.id,
@@ -637,6 +753,18 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         ]);
     }
 
+    compareArea(storedArea: StoredArea, currentArea: Area): UpdateInfo {
+        return this.compareFields([
+            {
+                name: 'name',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedArea.name,
+                current: currentArea.name,
+                comparison: 'string',
+            }
+        ]);
+    }
+
     compareLocation(storedLocation: StoredLocation, currentLocation: Location): UpdateInfo {
         return this.compareFields([
             {
@@ -740,8 +868,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     async fetchActivitiesFromDatabase(festivalId: number) {
         const dbInstance = db;
 
-        const activitiesTimeslotsJoin = tActivitiesTimeslots.forUseInLeftJoin();
+        const activitiesAreasJoin = tActivitiesAreas.forUseInLeftJoin();
         const activitiesLocationsJoin = tActivitiesLocations.forUseInLeftJoin();
+        const activitiesTimeslotsJoin = tActivitiesTimeslots.forUseInLeftJoin();
 
         return await db.selectFrom(tActivities)
             .leftJoin(activitiesTimeslotsJoin)
@@ -753,6 +882,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 .and(activitiesLocationsJoin.locationFestivalId.equals(
                     tActivities.activityFestivalId))
                 .and(activitiesLocationsJoin.locationType.equals(ActivityType.Program))
+            .leftJoin(activitiesAreasJoin)
+                .on(activitiesAreasJoin.areaId.equals(activitiesLocationsJoin.locationAreaId))
+                .and(activitiesAreasJoin.areaFestivalId.equals(
+                    activitiesLocationsJoin.locationFestivalId))
+                .and(activitiesAreasJoin.areaType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
                 .and(tActivities.activityType.equals(ActivityType.Program))
             .select({
@@ -782,6 +916,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     endTime: activitiesTimeslotsJoin.timeslotEndTime,
                     locationId: activitiesTimeslotsJoin.timeslotLocationId,
                     locationName: activitiesLocationsJoin.locationName,
+                    locationAreaId: activitiesLocationsJoin.locationAreaId,
+                    locationAreaName: activitiesAreasJoin.areaName,
                 }),
             })
             .groupBy(tActivities.activityId)
