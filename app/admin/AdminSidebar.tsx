@@ -95,6 +95,18 @@ interface AdminSidebarMenuButtonItem {
      * The URL for this list item entry. Must be absolute from the domain root.
      */
     url: string;
+
+    /**
+     * Match to apply to the URL (or URL prefix) when deciding on highlight state. A prefix match is
+     * executed by default, but for root pages a strict match may be more appropriate.
+     */
+    urlMatchMode?: 'prefix' | 'strict';
+
+    /**
+     * The URL prefix for this list entry, all sub-pages of which will be captured for active tab
+     * state. Defaults to the URL.
+     */
+    urlPrefix?: string;
 }
 
 /**
@@ -119,6 +131,21 @@ export interface AdminSidebarMenuSubMenuItem {
 export type AdminSidebarMenuEntry =
     AdminSidebarMenuDivider |
         (AdminSidebarMenuItemCommon & (AdminSidebarMenuButtonItem | AdminSidebarMenuSubMenuItem));
+
+/**
+ * Decides whether a particular menu entry should be highlighted. Considered to be the case when the
+ * `pathname` starts with the `entry`'s URL (or URL prefix).
+ */
+function shouldHighlightEntry(pathname: string, entry: AdminSidebarMenuButtonItem) {
+    const matchMode = entry.urlMatchMode ?? 'prefix';
+    switch (matchMode) {
+        case 'prefix':
+            return pathname.startsWith(entry.urlPrefix ?? entry.url);
+        case 'strict':
+            return pathname === entry.url;
+    }
+}
+
 
 /**
  * Props accepted by the <RenderSidebarMenu> component.
@@ -221,7 +248,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                                                : kStyles.active
                                     }
                                     component={Link} href={entry.url}
-                                    selected={entry.url === pathname}>
+                                    selected={shouldHighlightEntry(pathname, entry)}>
 
                         { entry.icon &&
                             <ListItemIcon sx={{ minWidth: '40px' }}>

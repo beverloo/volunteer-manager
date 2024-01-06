@@ -26,6 +26,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <GridViewIcon />,
             label: 'Dashboard',
             url: '/admin',
+            urlMatchMode: 'strict',
         },
         {
             icon: <FeedOutlinedIcon />,

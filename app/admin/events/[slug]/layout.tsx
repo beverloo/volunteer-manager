@@ -134,6 +134,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             icon: <EventNoteIcon />,
             label: 'Program',
             url: `/admin/events/${slug}/program/requests`,
+            urlPrefix: `/admin/events/${slug}/program`
         });
     }
 
@@ -142,6 +143,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             icon: <GridViewIcon />,
             label: 'Dashboard',
             url: `/admin/events/${slug}`,
+            urlMatchMode: 'strict',
         },
         {
             icon: <HotelIcon />,
