@@ -124,7 +124,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
     override async execute(params: TaskParams): Promise<boolean> {
         const upcomingEvent = await this.selectCurrentOrUpcomingEventWithFestivalId(params);
-        if (!upcomingEvent) {
+        if (!upcomingEvent || !upcomingEvent.festivalId) {
             this.log.info('Interval: No future events with a festivalId, using maximum interval.');
             this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
             return true;
@@ -141,7 +141,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
         // Fetch the activities from the AnimeCon API. This may throw an exception, in which case
         // the task execution will be considered unsuccessful -- which is fine.
-        const currentActivities = await this.fetchActivitiesFromApi(festivalId!);
+        const currentActivities = await this.fetchActivitiesFromApi(festivalId);
         if (!currentActivities.length) {
             this.log.warning('No activities were returned by the API, skipping.');
             return true;
@@ -149,14 +149,15 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
         // Fetch the current festival status from the database. A diff will be ran against this
         // information to make sure that the information in our database is up-to-date.
-        const storedActivities = await this.fetchActivitiesFromDatabase(festivalId!);
+        const storedActivities = await this.fetchActivitiesFromDatabase(festivalId);
 
         // Use a single database connection for all further operations...
         const dbInstance = db;
 
         // Run the comparison. This yields the created, updated and deleted activities, together
         // with a list of mutations that will independently be written to the database.
-        const mutations = this.compareActivities(currentActivities, storedActivities, dbInstance);
+        const mutations = this.compareActivities(
+            currentActivities, storedActivities, festivalId, dbInstance);
 
         this.log.info(`New program entries: ${mutations.created.length}`);
         this.log.info(`Updated program entries: ${mutations.updated.length}`);
@@ -196,7 +197,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
     }
 
     compareActivities(
-        currentActivities: Activity[], storedActivities: StoredActivity[], dbInstance?: typeof db)
+        currentActivities: Activity[], storedActivities: StoredActivity[], festivalId: number,
+        dbInstance?: typeof db)
     {
         dbInstance ??= db;
         const mutations: Mutations = {
@@ -339,6 +341,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 mutations.created.push(dbInstance.insertInto(tActivitiesLocations)
                     .set({
                         locationId: currentLocation.id,
+                        locationFestivalId: festivalId,
                         locationType: ActivityType.Program,
                         locationName: currentLocation.useName ?? currentLocation.name,
                         locationCreated: dbInstance.currentDateTime2(),
@@ -747,6 +750,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             .leftJoin(activitiesLocationsJoin)
                 .on(activitiesLocationsJoin.locationId.equals(
                     activitiesTimeslotsJoin.timeslotLocationId))
+                .and(activitiesLocationsJoin.locationFestivalId.equals(
+                    tActivities.activityFestivalId))
                 .and(activitiesLocationsJoin.locationType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
                 .and(tActivities.activityType.equals(ActivityType.Program))

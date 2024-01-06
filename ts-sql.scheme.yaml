@@ -2729,6 +2729,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: location_festival_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
   - name: location_type
     type: enum('Program','Internal')
     nullable: false
@@ -2775,6 +2780,7 @@ tables:
   def: |-
     CREATE TABLE `activities_locations` (
       `location_id` int(8) unsigned NOT NULL,
+      `location_festival_id` int(8) unsigned NOT NULL,
       `location_type` enum('Program','Internal') NOT NULL,
       `location_name` text NOT NULL,
       `location_created` datetime NOT NULL,

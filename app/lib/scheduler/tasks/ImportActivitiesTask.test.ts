@@ -285,11 +285,12 @@ describe('ImportActivitiesTask', () => {
             createSimpleActivity({
                 id: 101,
                 timeslots: [ createSimpleTimeslot({ id: 1101 }) ]
-            })
+            }),
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
             // Note: ID `101` (w/ timeslot `1101`) are missing
-        ]);
+
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(2);  // activity + timeslot
         expect(mutations.updated).toHaveLength(0);
@@ -333,7 +334,8 @@ describe('ImportActivitiesTask', () => {
                 { id: 1100, locationId: 11100 },
                 { id: 1101, locationId: 11100 }  // <-- old location Id
             ]),
-        ]);
+
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(1);
         expect(mutations.updated).toHaveLength(1);
@@ -369,7 +371,8 @@ describe('ImportActivitiesTask', () => {
             }),
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
-        ]);
+
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(1);
         expect(mutations.updated).toHaveLength(0);
@@ -428,7 +431,7 @@ describe('ImportActivitiesTask', () => {
                 visible: 1,
                 visibleReason: undefined,
             }, /* timeslots= */ [ { id: 1100 } ]),
-        ]);
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(1);
@@ -479,7 +482,7 @@ describe('ImportActivitiesTask', () => {
                     locationName: 'Old Name',
                 }
             ]),
-        ]);
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(1);
@@ -529,7 +532,7 @@ describe('ImportActivitiesTask', () => {
                 { id: 1101, locationId: 11101 },  // <-- old location
                 { id: 1102, locationId: 11101 },
             ]),
-        ]);
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(2);
@@ -566,7 +569,8 @@ describe('ImportActivitiesTask', () => {
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 } ]),
             createStoredActivity({ id: 101 }, /* timeslots= */ [ { id: 1101 } ]),
-        ]);
+
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(0);
@@ -610,7 +614,7 @@ describe('ImportActivitiesTask', () => {
                 { id: 1100, locationId: 11100 },
                 { id: 1101, locationId: 11101 }  // <-- separate location Id
             ]),
-        ]);
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(1);
@@ -646,7 +650,8 @@ describe('ImportActivitiesTask', () => {
             }),
         ], [
             createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 }, { id: 1101 } ]),
-        ]);
+
+        ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
         expect(mutations.updated).toHaveLength(0);

@@ -64,13 +64,13 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     {
         switch (required) {
             case 'required':
-            case 'requiredInOptionalObject':
                 return this.fragmentWithType('string', 'required')
                     .sql`date_format(${value}, '%Y-%m-%d')` as
                         StringValueSource<TABLE_OR_VIEW, IsOptional>;
 
             case 'optional':
             case 'originallyRequired':
+            case 'requiredInOptionalObject':
                 return this.fragmentWithType('string', 'optional')
                     .sql`date_format(${value}, '%Y-%m-%d')` as
                         StringValueSource<TABLE_OR_VIEW, IsOptional>;
@@ -90,13 +90,13 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     {
         switch (required) {
             case 'required':
-            case 'requiredInOptionalObject':
                 return this.fragmentWithType('string', 'required')
                     .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
                         StringValueSource<TABLE_OR_VIEW, IsOptional>;
 
             case 'optional':
             case 'originallyRequired':
+            case 'requiredInOptionalObject':
                 return this.fragmentWithType('string', 'optional')
                     .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
                         StringValueSource<TABLE_OR_VIEW, IsOptional>;
