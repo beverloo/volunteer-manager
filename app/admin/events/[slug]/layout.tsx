@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
@@ -66,6 +67,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
             event: {
                 name: tEvents.eventShortName,
                 slug: tEvents.eventSlug,
+                festivalId: tEvents.eventFestivalId,
             },
             teams: dbInstance.aggregateAsArray({
                 id: teamsJoin.teamId,
@@ -124,6 +126,17 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     // this is not yet supported by `ts-sql-query`. This'll do in the mean time.
     info.teams.sort((lhs, rhs) => lhs.name!.localeCompare(rhs.name!));
 
+    // Only display the "Program" entry when an event has been associated with a Festival ID. This
+    // is how AnPlan maps the events, and we rely on the key to import information.
+    const programEntry: AdminSidebarMenuEntry[] = [ /* empty */ ];
+    if (!!info.event.festivalId) {
+        programEntry.push({
+            icon: <EventNoteIcon />,
+            label: 'Program',
+            url: `/admin/events/${slug}/program/requests`,
+        });
+    }
+
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
             icon: <GridViewIcon />,
@@ -136,6 +149,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             privilege: Privilege.EventHotelManagement,
             url: `/admin/events/${slug}/hotels`,
         },
+        ...programEntry,
         {
             icon: <MonetizationOnIcon />,
             label: 'Refunds',
