@@ -127,7 +127,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
                 advice: tNardo.nardoAdvice,
                 authorName: tUsers.firstName.concat(' ').concat(tUsers.lastName),
                 authorUserId: tUsers.userId,
-                date: dbInstance.asDateTimeString(tNardo.nardoAuthorDate),
+                date: dbInstance.asDateTimeString(tNardo.nardoAuthorDate, 'required'),
             })
             .orderByFromStringIfValue(sort ? `${sort.field} ${sort.sort}` : null)
             .limit(pagination ? pagination.pageSize : 50)

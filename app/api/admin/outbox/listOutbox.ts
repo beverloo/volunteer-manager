@@ -159,7 +159,7 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
     const result = await dbInstance.selectFrom(tOutbox)
         .select({
             id: tOutbox.outboxId,
-            date: dbInstance.asDateTimeString(tOutbox.outboxTimestamp),
+            date: dbInstance.asDateTimeString(tOutbox.outboxTimestamp, 'required'),
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,
             to: tOutbox.outboxTo,

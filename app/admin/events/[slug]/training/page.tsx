@@ -55,7 +55,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
             assignedUpdated: dbInstance.asDateTimeString(
-                trainingsAssignmentsJoin.assignmentUpdated),
+                trainingsAssignmentsJoin.assignmentUpdated, 'optional'),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })
@@ -73,15 +73,16 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
 
             trainingExtraName: tTrainingsExtra.trainingExtraName,
             trainingExtraEmail: tTrainingsExtra.trainingExtraEmail,
-            trainingExtraBirthdate: dbInstance.asDateString(tTrainingsExtra.trainingExtraBirthdate),
+            trainingExtraBirthdate:
+                dbInstance.asDateString(tTrainingsExtra.trainingExtraBirthdate, 'optional'),
 
             preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
             preferenceUpdated: dbInstance.asDateTimeString(
-                trainingsAssignmentsJoin.preferenceUpdated),
+                trainingsAssignmentsJoin.preferenceUpdated, 'optional'),
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
             assignedUpdated: dbInstance.asDateTimeString(
-                trainingsAssignmentsJoin.assignmentUpdated),
+                trainingsAssignmentsJoin.assignmentUpdated, 'optional'),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })
@@ -95,8 +96,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             id: tTrainings.trainingId,
             trainingAddress: tTrainings.trainingAddress,
             trainingCapacity: tTrainings.trainingCapacity,
-            trainingStart: dbInstance.asDateTimeString(tTrainings.trainingStart),
-            trainingEnd: dbInstance.asDateTimeString(tTrainings.trainingEnd),
+            trainingStart: dbInstance.asDateTimeString(tTrainings.trainingStart, 'required'),
+            trainingEnd: dbInstance.asDateTimeString(tTrainings.trainingEnd, 'required'),
         })
         .orderBy(tTrainings.trainingStart, 'asc')
         .executeSelectMany();

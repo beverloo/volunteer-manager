@@ -346,7 +346,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
         .leftJoin(targetUserJoin).on(targetUserJoin.userId.equals(tLogs.logTargetUserId))
         .select({
             // Columns that will be passed through:
-            date: dbInstance.asDateTimeString(tLogs.logDate),
+            date: dbInstance.asDateTimeString(tLogs.logDate, 'required'),
             id: tLogs.logId,
             severity: tLogs.logSeverity,
 

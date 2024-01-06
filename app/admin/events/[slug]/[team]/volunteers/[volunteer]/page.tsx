@@ -57,7 +57,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
             roleName: tRoles.roleName,
-            registrationDate: dbInstance.asDateTimeString(tUsersEvents.registrationDate),
+            registrationDate:
+                dbInstance.asDateTimeString(tUsersEvents.registrationDate, 'optional'),
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityExceptions: tUsersEvents.availabilityExceptions,
@@ -99,8 +100,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 hotelId: tHotelsPreferences.hotelId,
                 sharingPeople: tHotelsPreferences.hotelSharingPeople,
                 sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
-                checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn),
-                checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut),
+                checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn, 'optional'),
+                checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut, 'optional'),
             })
             .executeSelectNoneOrOne() ?? undefined;
 

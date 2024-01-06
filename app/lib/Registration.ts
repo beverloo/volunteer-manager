@@ -36,9 +36,9 @@ export interface RegistrationDatabaseRow {
 
     refund?: {
         ticketNumber?: string;
-        accountIban: string;
-        accountName: string;
-        requested: string;
+        accountIban?: string;
+        accountName?: string;
+        requested?: string;
         confirmed?: string;
     },
 
@@ -166,17 +166,17 @@ export interface RegistrationRefund {
     /**
      * The volunteer's bank account IBAN number.
      */
-    accountIban: string;
+    accountIban?: string;
 
     /**
      * The volunteer's bank account holder name.
      */
-    accountName: string;
+    accountName?: string;
 
     /**
      * Date on which the refund has been requested.
      */
-    requested: string;
+    requested?: string;
 
     /**
      * Date on which the refund has been confirmed, if any.

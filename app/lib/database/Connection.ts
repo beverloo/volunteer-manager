@@ -58,13 +58,25 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
      * ("YYYY-MM-DD") during query execution.
      */
     asDateString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
-                 ISO extends OptionalType>(
-        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
-        : StringValueSource<TABLE_OR_VIEW, ISO>
+                 IsOptional extends OptionalType>(
+        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, IsOptional>,
+        required: IsOptional): StringValueSource<TABLE_OR_VIEW, IsOptional>
     {
-        // TODO: s/optional/ISO/
-        return this.fragmentWithType('string', 'optional')
-            .sql`date_format(${value}, '%Y-%m-%d')` as StringValueSource<TABLE_OR_VIEW, ISO>;
+        switch (required) {
+            case 'required':
+            case 'requiredInOptionalObject':
+                return this.fragmentWithType('string', 'required')
+                    .sql`date_format(${value}, '%Y-%m-%d')` as
+                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
+
+            case 'optional':
+            case 'originallyRequired':
+                return this.fragmentWithType('string', 'optional')
+                    .sql`date_format(${value}, '%Y-%m-%d')` as
+                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
+        }
+
+        throw new Error(`Invalid value for "required" in asDateString(): ${required}`);
     }
 
     /**
@@ -72,13 +84,25 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
      * ("YYYY-MM-DDTHH:mm:ssZ") during query execution.
      */
     asDateTimeString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
-                     ISO extends OptionalType>(
-        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, ISO>)
-        : StringValueSource<TABLE_OR_VIEW, ISO>
+                     IsOptional extends OptionalType>(
+        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, IsOptional>,
+        required: IsOptional): StringValueSource<TABLE_OR_VIEW, IsOptional>
     {
-        // TODO: s/optional/ISO/
-        return this.fragmentWithType('string', 'optional')
-            .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as StringValueSource<TABLE_OR_VIEW, ISO>;
+        switch (required) {
+            case 'required':
+            case 'requiredInOptionalObject':
+                return this.fragmentWithType('string', 'required')
+                    .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
+                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
+
+            case 'optional':
+            case 'originallyRequired':
+                return this.fragmentWithType('string', 'optional')
+                    .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
+                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
+        }
+
+        throw new Error(`Invalid value for "required" in asDateTimeString(): ${required}`);
     }
 
     /**

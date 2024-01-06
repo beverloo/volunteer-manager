@@ -127,8 +127,8 @@ export default async function AdminPage() {
         .select({
             name: tEvents.eventShortName,
             slug: tEvents.eventSlug,
-            startTime: dbInstance.asDateTimeString(tEvents.eventStartTime),
-            endTime: dbInstance.asDateTimeString(tEvents.eventEndTime),
+            startTime: dbInstance.asDateTimeString(tEvents.eventStartTime, 'required'),
+            endTime: dbInstance.asDateTimeString(tEvents.eventEndTime, 'required'),
             location: tEvents.eventLocation,
             fileHash: storageJoin.fileHash,
         })

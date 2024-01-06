@@ -79,7 +79,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             id: tUsersEvents.eventId.multiply(1000).add(tUsersEvents.teamId),
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
-            eventStartTime: dbInstance.asDateTimeString(tEvents.eventStartTime),
+            eventStartTime: dbInstance.asDateTimeString(tEvents.eventStartTime, 'required'),
             status: tUsersEvents.registrationStatus,
             role: tRoles.roleName,
             team: tTeams.teamName,

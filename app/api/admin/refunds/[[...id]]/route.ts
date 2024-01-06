@@ -123,7 +123,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
                 ticketNumber: tRefunds.refundTicketNumber,
                 accountIban: tRefunds.refundAccountIban,
                 accountName: tRefunds.refundAccountName,
-                requested: dbInstance.asDateTimeString(tRefunds.refundRequested),
+                requested: dbInstance.asDateTimeString(tRefunds.refundRequested, 'required'),
                 confirmed: tRefunds.refundConfirmed.isNotNull(),
             })
             .where(tRefunds.eventId.equals(event.eventId))

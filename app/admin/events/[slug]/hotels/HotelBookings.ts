@@ -139,8 +139,8 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
             hotelRoomName: hotelsJoin.hotelRoomName,
             hotelVisible: hotelsJoin.hotelRoomVisible,
 
-            checkIn: dbInstance.asDateString(tHotelsBookings.bookingCheckIn),
-            checkOut: dbInstance.asDateString(tHotelsBookings.bookingCheckOut),
+            checkIn: dbInstance.asDateString(tHotelsBookings.bookingCheckIn, 'required'),
+            checkOut: dbInstance.asDateString(tHotelsBookings.bookingCheckOut, 'required'),
             confirmed: tHotelsBookings.bookingConfirmed,
         })
         .orderBy('confirmed', 'desc')
@@ -284,13 +284,14 @@ export async function getHotelRequests(eventId: number): Promise<HotelRequest[]>
                 roomName: tHotels.hotelRoomName,
             },
 
-            checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn),
-            checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut),
+            checkIn: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckIn, 'optional'),
+            checkOut: dbInstance.asDateString(tHotelsPreferences.hotelDateCheckOut, 'optional'),
 
             sharingPeople: tHotelsPreferences.hotelSharingPeople,
             sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
 
-            updated: dbInstance.asDateTimeString(tHotelsPreferences.hotelPreferencesUpdated),
+            updated:
+                dbInstance.asDateTimeString(tHotelsPreferences.hotelPreferencesUpdated, 'required'),
         })
         .orderBy('user.name', 'asc')
         .executeSelectMany() as HotelRequest[];
