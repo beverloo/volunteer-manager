@@ -1,0 +1,29 @@
+.xmbsc-timeline-row-gutter { height: 6px; }
+.xmbsc-timeline-column { width: 1.75em; }
+
+/* Adjustment: Remove the drop shadow from the timeline's top row */
+.mbsc-material.mbsc-calendar-wrapper:after { box-shadow: none; }
+.mbsc-calendar-wrapper {
+    border-top: 1px solid #cfcfcf;
+}
+
+/** Adjustment: Do not display the month in the timeline, it's not relevant */
+.mbsc-timeline-header-month { display: none; }
+
+/** Adjustment: Reduce the width of the "resource" column */
+.mbsc-timeline-resource-col {
+    width: 100px;
+  }
+
+/** Adjustment: Reduce the width of each column in the timeline */
+.mbsc-timeline-column, .mbsc-timeline-header-column {
+  width: 1.4em;
+}
+
+/* Addition: Center text in the hour (& hour footer) elements */
+.timeline-center-content { text-align: center; }
+
+/* Addition: Add a bit of padding to the left-hand side of the day header */
+.timeline-day-header { padding-left: 4px; }
+
+.mbsc-timeline-row-gutter { height: 6px; }

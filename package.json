@@ -33,6 +33,7 @@
     "@google-cloud/aiplatform": "^3.9.0",
     "@google-cloud/vertexai": "^0.2.0",
     "@mdxeditor/editor": "^2.2.0",
+    "@mobiscroll/react": "npm:@mobiscroll/react-trial@^5.28.1",
     "@mui/icons-material": "^5.15.3",
     "@mui/lab": "^5.0.0-alpha.159",
     "@mui/material": "^5.15.3",

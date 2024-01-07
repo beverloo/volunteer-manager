@@ -6,3 +6,4 @@ playwright-report/
 .env.development
 .env.production
 screenshot.png
+.npmrc
