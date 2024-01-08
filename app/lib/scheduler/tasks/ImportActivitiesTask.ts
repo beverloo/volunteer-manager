@@ -773,6 +773,13 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 stored: storedLocation.name,
                 current: currentLocation.useName ?? currentLocation.name,
                 comparison: 'string',
+            },
+            {
+                name: 'area',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedLocation.areaId,
+                current: currentLocation.floorId,
+                comparison: 'number',
             }
         ]);
     }
