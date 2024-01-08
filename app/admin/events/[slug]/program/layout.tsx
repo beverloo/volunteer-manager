@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { ProgramHistory } from './ProgramHistory';
 import { ProgramNavigation } from './ProgramNavigation';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
@@ -26,7 +27,7 @@ export default async function ProgramLayout(
                 <ProgramNavigation slug={event.slug} />
                 {props.children}
             </Paper>
-            { /* TODO: Changelog */ }
+            <ProgramHistory context={{ event: event.slug, festivalId: event.festivalId }} />
         </>
     );
 }

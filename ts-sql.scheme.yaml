@@ -1741,18 +1741,6 @@ tables:
     default: "NULL"
     comment: ""
   indexes:
-  - name: activity_id
-    def: KEY activity_id (activity_id) USING BTREE
-    table: activities_timeslots
-    columns:
-    - activity_id
-    comment: ""
-  - name: timeslot_location_id
-    def: KEY timeslot_location_id (timeslot_location_id) USING BTREE
-    table: activities_timeslots
-    columns:
-    - timeslot_location_id
-    comment: ""
   - name: activity_id_2
     def: UNIQUE KEY activity_id_2 (activity_id, timeslot_id) USING BTREE
     table: activities_timeslots
@@ -1783,9 +1771,7 @@ tables:
       `timeslot_created` datetime NOT NULL,
       `timeslot_updated` datetime NOT NULL,
       `timeslot_deleted` datetime DEFAULT NULL,
-      UNIQUE KEY `activity_id_2` (`activity_id`,`timeslot_id`),
-      KEY `timeslot_location_id` (`timeslot_location_id`),
-      KEY `activity_id` (`activity_id`)
+      UNIQUE KEY `activity_id_2` (`activity_id`,`timeslot_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
@@ -2724,6 +2710,12 @@ tables:
   type: BASE TABLE
   comment: ""
   columns:
+  - name: mutation_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
   - name: festival_id
     type: int(8) unsigned
     nullable: false
@@ -2764,6 +2756,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: mutation_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: mutation_date
     type: datetime
     nullable: false
@@ -2800,10 +2797,26 @@ tables:
     columns:
     - timeslot_id
     comment: ""
-  constraints: []
+  - name: PRIMARY
+    def: PRIMARY KEY (mutation_id) USING BTREE
+    table: activities_logs
+    columns:
+    - mutation_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (mutation_id)
+    table: activities_logs
+    referencedTable: null
+    columns:
+    - mutation_id
+    referencedColumns: []
+    comment: ""
   triggers: []
   def: |-
     CREATE TABLE `activities_logs` (
+      `mutation_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `festival_id` int(8) unsigned NOT NULL,
       `activity_id` int(8) unsigned DEFAULT NULL,
       `area_id` int(8) unsigned DEFAULT NULL,
@@ -2812,13 +2825,15 @@ tables:
       `mutation` enum('Created','Updated','Deleted') NOT NULL,
       `mutation_fields` text DEFAULT NULL,
       `mutation_severity` enum('Low','Moderate','Important') NOT NULL,
+      `mutation_user_id` int(8) unsigned DEFAULT NULL,
       `mutation_date` datetime NOT NULL,
+      PRIMARY KEY (`mutation_id`),
       KEY `festival_id` (`festival_id`),
       KEY `activity_id` (`activity_id`),
       KEY `timeslot_id` (`timeslot_id`),
       KEY `location_id` (`location_id`),
       KEY `area_id` (`area_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

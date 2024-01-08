@@ -31,6 +31,7 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
+import type { ProgramChangesEndpoints } from '@app/api/admin/program-changes/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
@@ -53,6 +54,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/admin/program-changes': ProgramChangesEndpoints['list'],
         '/api/admin/refunds': RefundRequestEndpoints['list'],
         '/api/admin/retention': RetentionEndpoints['list'],
         '/api/admin/scheduler': SchedulerEndpoints['list'],
