@@ -704,14 +704,21 @@ describe('ImportActivitiesTask', () => {
         ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
-        expect(mutations.updated).toHaveLength(0);
+        expect(mutations.updated).toHaveLength(1);
         expect(mutations.deleted).toHaveLength(1);
 
-        expect(mutations.mutations).toHaveLength(1);
+        expect(mutations.mutations).toHaveLength(2);
         expect(mutations.mutations[0]).toEqual({
             areaId: 10,
             mutation: 'Deleted',
             severity: 'Moderate',
+        });
+
+        expect(mutations.mutations[1]).toEqual({
+            locationId: 11100,
+            mutation: 'Updated',
+            mutatedFields: [ 'area' ],
+            severity: 'Low',
         });
     });
 
