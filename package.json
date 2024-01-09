@@ -64,7 +64,7 @@
     "simple-sha256": "^1.1.0",
     "ts-sql-query": "^1.57.0",
     "uuid": "^9.0.1",
-    "volunteer-manager-timeline": "github:beverloo/volunteer-manager-timeline#ec92bcd",
+    "volunteer-manager-timeline": "git+ssh://git@github.com/beverloo/volunteer-manager-timeline#ec92bcd",
     "zod": "^3.22.4"
   },
   "devDependencies": {
