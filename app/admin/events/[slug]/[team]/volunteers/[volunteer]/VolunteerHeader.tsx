@@ -382,6 +382,10 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
     const { event, team, volunteer, user } = props;
 
     const router = useRouter();
+    const showOptions =
+        can(user, Privilege.EventAdministrator) ||
+        can(user, Privilege.EventApplicationManagement) ||
+        can(user, Privilege.VolunteerAdministrator);
 
     // ---------------------------------------------------------------------------------------------
     // Common (cancel & reinstate participation)
@@ -499,7 +503,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                     ({event.shortName} {team.name})
                 </Typography>
             </Typography>
-            <ContrastBox sx={{ mt: 1, px: 2, py: 1 }}>
+            <ContrastBox sx={{ mt: 1, px: 2, py: 1, display: showOptions ? 'block' : 'none' }}>
                 <Stack divider={ <Divider orientation="vertical" flexItem /> }
                        direction="row" spacing={1}>
 
