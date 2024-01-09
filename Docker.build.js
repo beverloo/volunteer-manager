@@ -18,7 +18,7 @@ childProcess.execSync([
     'docker build',
     '--cpuset-cpus 0-2', '-m 2g',
     `--build-arg BUILD_HASH=${buildHash}`,
-    '--ssh default=~/.ssh/id_ed25519',
+    '--ssh default=/home/anime/.ssh/id_ed25519',
     '-t volunteer-manager-docker',
     '.',
 ].join(' '), {
