@@ -10,6 +10,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
+import { AvailabilityTimeline } from 'volunteer-manager-timeline/src/AvailabilityTimeline';
+
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -28,19 +30,24 @@ export default async function DebugPage() {
     debugValues['Headers'] = [ ...headers() ];
 
     return (
-        <TableContainer component={Paper} sx={{ p: 2, mt: 2 }}>
-            <Table size="small">
-                { Object.entries(debugValues).map(([ key, value ], index) =>
-                    <TableRow key={index}>
-                        <TableCell width="15%">
-                            <strong>{key}</strong>
-                        </TableCell>
-                        <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                            { JSON.stringify(value, undefined, /* space= */ 4) }
-                        </TableCell>
-                    </TableRow> )}
-            </Table>
-        </TableContainer>
+        <>
+            <TableContainer component={Paper} sx={{ p: 2, mt: 2 }}>
+                <Table size="small">
+                    { Object.entries(debugValues).map(([ key, value ], index) =>
+                        <TableRow key={index}>
+                            <TableCell width="15%">
+                                <strong>{key}</strong>
+                            </TableCell>
+                            <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+                                { JSON.stringify(value, undefined, /* space= */ 4) }
+                            </TableCell>
+                        </TableRow> )}
+                </Table>
+            </TableContainer>
+            <Paper sx={{ p: 2 }}>
+                <AvailabilityTimeline />
+            </Paper>
+        </>
     );
 }
 

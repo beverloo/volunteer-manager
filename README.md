@@ -26,6 +26,18 @@ we use the excellent [ts-sql-query](https://ts-sql-query.readthedocs.io/en/stabl
 
 ## Building and deploying
 
+### Checking out the repository
+We depend on a private `volunteer-manager-timeline` component, availability of which is restricted;
+talk to one of the maintainers of this repository if you need access.
+
+Assuming you have access, you will need to generate a
+[Personal Access Token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
+and run the following `git` command, either globally or local to this repository:
+
+```
+$ git config --global url."https://{{PAT}}@github.com/".insteadOf ssh://git@github.com/
+```
+
 ### Building a developer environment
 Developing the AnimeCon Volunteer Manager follows NextJS' best practices. The following commands are
 enabled and actively supported:
