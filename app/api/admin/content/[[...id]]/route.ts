@@ -112,7 +112,6 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin-event',
                 event: (await getEventSlugForId(context.eventId))!,
-                privilege: Privilege.EventAdministrator,
             })
         }
     },
