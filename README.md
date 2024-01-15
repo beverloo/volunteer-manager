@@ -28,15 +28,13 @@ we use the excellent [ts-sql-query](https://ts-sql-query.readthedocs.io/en/stabl
 
 ### Checking out the repository
 We depend on a private `volunteer-manager-timeline` component, availability of which is restricted;
-talk to one of the maintainers of this repository if you need access.
+talk to one of the maintainers of this repository if you need access. Releases of this package are
+published on [GitHub's NPM registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) (also [see StackOverflow](https://stackoverflow.com/questions/28728665/how-to-use-private-github-repo-as-npm-dependency)).
 
-Assuming you have access, either make sure that your machine identifies to GitHub using SSH public
-key authentication, in which case everything will work automagically, or generate a
-[Personal Access Token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
-and run the following `git` command, either globally or local to this repository:
+You will have to log in to GitHub's NPM repository to access the private package:
 
 ```
-$ git config --global url."https://{{PAT}}@github.com/".insteadOf ssh://git@github.com/
+npm login --scope=@beverloo --registry=https://npm.pkg.github.com
 ```
 
 ### Building a developer environment

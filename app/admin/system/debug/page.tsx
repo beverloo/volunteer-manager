@@ -10,9 +10,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
-import { AvailabilityTimeline } from 'volunteer-manager-timeline/src/AvailabilityTimeline';
-
 import { Privilege } from '@lib/auth/Privileges';
+import { Timeline } from './Timeline';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -45,7 +44,7 @@ export default async function DebugPage() {
                 </Table>
             </TableContainer>
             <Paper sx={{ p: 2 }}>
-                <AvailabilityTimeline />
+                <Timeline />
             </Paper>
         </>
     );
