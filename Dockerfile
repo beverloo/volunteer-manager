@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.0.0-experimental
 FROM node:18-alpine AS base
 
 # 1. Install dependencies only when needed
@@ -9,10 +8,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN apk add git openssh-client
-RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
-RUN --mount=type=ssh npm ci
+COPY .npmrc package.json package-lock.json* ./
+RUN npm ci
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder

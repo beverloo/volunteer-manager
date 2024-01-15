@@ -16,7 +16,6 @@ jobs:
         key: ${{ secrets.KEY }}
         command_timeout: 20m
         script: |
-          eval $(ssh-agent)
           cd ~/volunteer-manager
           git reset --hard
           git pull --rebase
