@@ -26,7 +26,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@beverloo/volunteer-manager-timeline": "^1.0.4",
+    "@beverloo/volunteer-manager-timeline": "^1.0.5",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/server": "^11.11.0",
@@ -41,7 +41,7 @@
     "@mui/x-charts": "^6.19.1",
     "@mui/x-data-grid": "^6.19.1",
     "@mui/x-date-pickers": "^6.19.0",
-    "@peculiar/webcrypto": "^1.4.4",
+    "@peculiar/webcrypto": "^1.4.5",
     "@simplewebauthn/browser": "^9.0.0",
     "@simplewebauthn/server": "^9.0.0",
     "bowser": "^2.11.0",
@@ -68,7 +68,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@datastructures-js/priority-queue": "^6.3.0",
+    "@datastructures-js/priority-queue": "^6.3.1",
     "@next/bundle-analyzer": "^14.1.0",
     "@playwright/test": "^1.41.1",
     "@simplewebauthn/typescript-types": "^8.3.4",
