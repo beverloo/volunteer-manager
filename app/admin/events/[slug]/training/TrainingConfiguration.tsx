@@ -14,7 +14,7 @@ import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { dayjs, fromLocalDate, toLocalDate } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
 
 /**
@@ -62,22 +62,36 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
         {
             field: 'start',
             headerName: 'Date (start time)',
+            type: 'dateTime',
             editable: true,
             sortable: true,
             flex: 2,
 
+            valueGetter: params => toLocalDate(params.row.start, event.timezone),
+            valueSetter: params => ({
+                ...params.row,
+                start: fromLocalDate(params.value, event.timezone)
+            }),
+
             renderCell: params =>
-                dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
+                dayjs.utc(params.row.start).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'end',
             headerName: 'Date (end time)',
+            type: 'dateTime',
             editable: true,
             sortable: true,
             flex: 2,
 
+            valueGetter: params => toLocalDate(params.row.end, event.timezone),
+            valueSetter: params => ({
+                ...params.row,
+                end: fromLocalDate(params.value, event.timezone)
+            }),
+
             renderCell: params =>
-                dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
+                dayjs(params.row.end).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'address',
