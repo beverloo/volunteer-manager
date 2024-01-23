@@ -6,47 +6,16 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { TrainingDefinition } from '@app/api/admin/training';
+import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { dayjs } from '@lib/DateTime';
 import { issueServerAction } from '@lib/issueServerAction';
-
-/**
- * Configuration options available for a training session. Can be amended by this page.
- */
-export interface TrainingConfigurationEntry {
-    /**
-     * Unique ID of this entry in the training configuration.
-     */
-    id: number;
-
-    /**
-     * Address at which the training will be taking place.
-     */
-    trainingAddress?: string;
-
-    /**
-     * Maximum capacity of the training.
-     */
-    trainingCapacity?: number;
-
-    /**
-     * Date and time at which the training will commence.
-     */
-    trainingStart?: string;
-
-    /**
-     * Date and time at which the training will conclude.
-     */
-    trainingEnd?: string;
-}
 
 /**
  * Props accepted by the <TrainingConfiguration> component.
@@ -56,11 +25,6 @@ export interface TrainingConfigurationProps {
      * Information about the event for which training sessions are being shown.
      */
     event: PageInfo['event'];
-
-    /**
-     * The training sessions that can be displayed by this component.
-     */
-    trainings: TrainingConfigurationEntry[];
 }
 
 /**
@@ -69,48 +33,6 @@ export interface TrainingConfigurationProps {
  */
 export function TrainingConfiguration(props: TrainingConfigurationProps) {
     const { event } = props;
-
-    async function commitAdd(): Promise<TrainingConfigurationEntry> {
-        const response = await issueServerAction<TrainingDefinition>('/api/admin/training', {
-            event: event.slug,
-            create: { /* empty payload */ }
-        });
-
-        if (!response.id)
-            throw new Error('The server was unable to create a new training session.');
-
-        return {
-            id: response.id,
-            trainingCapacity: 10,
-            trainingAddress: undefined,
-            trainingStart: event.startTime,
-            trainingEnd: event.endTime,
-        };
-    }
-
-    async function commitDelete(oldRow: GridValidRowModel) {
-        await issueServerAction<TrainingDefinition>('/api/admin/training', {
-            event: event.slug,
-            delete: {
-                id: oldRow.id,
-            },
-        });
-    }
-
-    async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
-        const response = await issueServerAction<TrainingDefinition>('/api/admin/training', {
-            event: event.slug,
-            update: {
-                id: oldRow.id,
-                trainingAddress: newRow.trainingAddress,
-                trainingStart: newRow.trainingStart,
-                trainingEnd: newRow.trainingEnd,
-                trainingCapacity: newRow.trainingCapacity,
-            }
-        });
-
-        return response.success ? newRow : oldRow;
-    }
 
     const router = useRouter();
 
@@ -126,7 +48,11 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
 
     }, [ event, router ]);
 
-    const columns: DataTableColumn[] = [
+    const context = {
+        event: event.slug,
+    };
+
+    const columns: RemoteDataTableColumn<TrainingsRowModel>[] = [
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -134,34 +60,34 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             width: 50,
         },
         {
-            field: 'trainingStart',
+            field: 'start',
             headerName: 'Date (start time)',
             editable: true,
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
-            field: 'trainingEnd',
+            field: 'end',
             headerName: 'Date (end time)',
             editable: true,
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 dayjs(params.value).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
         },
         {
-            field: 'trainingAddress',
+            field: 'address',
             headerName: 'Address',
             editable: true,
             sortable: true,
             flex: 3,
         },
         {
-            field: 'trainingCapacity',
+            field: 'capacity',
             headerName: 'Capacity',
             editable: true,
             sortable: true,
@@ -180,9 +106,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
                     ? 'Training information has been published to volunteers.'
                     : 'Training information has not yet been published to volunteers.' }
             </PublishAlert>
-            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                           messageSubject="training" rows={props.trainings} columns={columns}
-                           disableFooter dense />
+            <RemoteDataTable endpoint="/api/admin/trainings" context={context}
+                             columns={columns} defaultSort={{ field: 'start', sort: 'asc' }}
+                             disableFooter enableCreate enableDelete enableUpdate
+                             refreshOnUpdate subject="training" />
         </Paper>
     );
 }

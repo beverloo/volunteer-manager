@@ -35,6 +35,7 @@ import type { ProgramChangesEndpoints } from '@app/api/admin/program-changes/rou
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
+import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
 
 /**
@@ -59,6 +60,7 @@ export type ApiEndpoints = {
         '/api/admin/retention': RetentionEndpoints['list'],
         '/api/admin/scheduler': SchedulerEndpoints['list'],
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
+        '/api/admin/trainings': TrainingsEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
@@ -70,6 +72,7 @@ export type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/training': TrainingDefinition,
+        '/api/admin/trainings': TrainingsEndpoints['create'],
         '/api/admin/vendors': VendorEndpoints['create'],
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
@@ -94,6 +97,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
         '/api/admin/vendors/:id': VendorEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
@@ -103,6 +107,7 @@ export type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
+        '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/ai/settings': UpdateSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,

@@ -6,10 +6,9 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tTrainingsAssignments, tTrainings } from '@lib/database';
+import db, { tTrainingsAssignments } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/admin/training.
@@ -39,52 +38,6 @@ export const kTrainingDefinition = z.object({
              * Whether their participation in the training has been confirmed.
              */
             confirmed: z.boolean(),
-
-        }).optional(),
-
-        /**
-         * Must be set to an empty object when a new training session is being added.
-         */
-        create: z.object({ /* empty object */ }).optional(),
-
-        /**
-         * Must be set to an object when a training session is being deleted.
-         */
-        delete: z.object({
-            /**
-             * Unique ID of the training session that should be removed.
-             */
-            id: z.number(),
-        }).optional(),
-
-        /**
-         * Must be set to an object when a training session is being updated.
-         */
-        update: z.object({
-            /**
-             * Unique ID of the training session that is being updated.
-             */
-            id: z.number(),
-
-            /**
-             * Address at which the training will be taking place.
-             */
-            trainingAddress: z.string().optional(),
-
-            /**
-             * Date at which the training will be taking place.
-             */
-            trainingStart: z.string().optional(),
-
-            /**
-             * Date at which the training will be taking place.
-             */
-            trainingEnd: z.string().optional(),
-
-            /**
-             * Maximum number of people that can join this training session.
-             */
-            trainingCapacity: z.number().optional(),
 
         }).optional(),
     }),
@@ -184,83 +137,6 @@ export async function training(request: Request, props: ActionProps): Promise<Re
         });
 
         return { success: true };
-    }
-
-    // Operation: create
-    if (request.create !== undefined) {
-        const insertId =
-            await db.insertInto(tTrainings)
-                .values({ eventId: event.eventId })
-                .returningLastInsertedId()
-                .executeInsert();
-
-        await Log({
-            type: LogType.AdminEventTrainingMutation,
-            severity: LogSeverity.Info,
-            sourceUser: props.user,
-            data: {
-                eventName: event.shortName,
-                mutation: 'Created',
-            },
-        });
-
-        return { success: true, id: insertId };
-    }
-
-    // Operation: delete
-    if (request.delete !== undefined) {
-        const affectedRows =
-            await db.deleteFrom(tTrainings)
-                .where(tTrainings.trainingId.equals(request.delete.id))
-                .and(tTrainings.eventId.equals(event.eventId))
-                .executeDelete(/* min= */ 0, /* max= */ 1);
-
-        if (affectedRows > 0) {
-            await Log({
-                type: LogType.AdminEventTrainingMutation,
-                severity: LogSeverity.Info,
-                sourceUser: props.user,
-                data: {
-                    eventName: event.shortName,
-                    mutation: 'Deleted',
-                },
-            });
-        }
-
-        return { success: !!affectedRows };
-    }
-
-    // Operation: update
-    if (request.update !== undefined) {
-        const affectedRows = await db.update(tTrainings)
-            .set({
-                trainingAddress: request.update.trainingAddress,
-                trainingStart:
-                    request.update.trainingStart ? dayjs.utc(request.update.trainingStart)
-                                                 : undefined,
-                trainingEnd:
-                    request.update.trainingEnd ? dayjs.utc(request.update.trainingEnd)
-                                               : undefined,
-
-                trainingCapacity: request.update.trainingCapacity,
-            })
-            .where(tTrainings.trainingId.equals(request.update.id))
-            .and(tTrainings.eventId.equals(event.eventId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
-
-        if (affectedRows > 0) {
-            await Log({
-                type: LogType.AdminEventTrainingMutation,
-                severity: LogSeverity.Info,
-                sourceUser: props.user,
-                data: {
-                    eventName: event.shortName,
-                    mutation: 'Updated',
-                },
-            });
-        }
-
-        return { success: !!affectedRows };
     }
 
     return { success: false };
