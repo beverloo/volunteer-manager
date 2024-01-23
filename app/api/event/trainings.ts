@@ -42,6 +42,7 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
         .where(tTrainings.trainingVisible.equals(/* true= */ 1))
         .select({
             published: tEvents.publishTrainings,
+            timezone: tEvents.eventTimezone,
 
             start: tTrainings.trainingStart,
             end: tTrainings.trainingEnd,
@@ -54,9 +55,9 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
         if (!row.published && !can(props.user, Privilege.EventTrainingManagement))
             continue;  // this `row` has not yet been published
 
-        const date = dayjs(row.start).format('dddd, MMMM D');
-        const start = dayjs(row.start).format('H:mm');
-        const end = dayjs(row.end).format('H:mm');
+        const date = dayjs.utc(row.start).tz(row.timezone).format('dddd, MMMM D');
+        const start = dayjs.utc(row.start).tz(row.timezone).format('H:mm');
+        const end = dayjs.utc(row.end).tz(row.timezone).format('H:mm');
 
         trainings.push(`${date}, from ${start} until ${end}`);
     }

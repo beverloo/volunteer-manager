@@ -48,10 +48,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
 
     }, [ event, router ]);
 
-    const context = {
-        event: event.slug,
-    };
-
+    const context = { event: event.slug };
     const columns: RemoteDataTableColumn<TrainingsRowModel>[] = [
         {
             field: 'id',
