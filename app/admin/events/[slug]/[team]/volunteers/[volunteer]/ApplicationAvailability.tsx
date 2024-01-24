@@ -17,11 +17,14 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { darken, lighten } from '@mui/system';
 
+import type { AvailabilityTimeslot } from '@beverloo/volunteer-manager-timeline';
 import type { EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';
+import { AvailabilityTimelineImpl } from './AvailabilityTimelineImpl';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
+import { dayjs } from '@lib/DateTime';
 
 /**
  * Custom styles applied to the <AdminHeader> & related components.
@@ -34,7 +37,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         }
     },
     sectionContent: {
-        padding: theme => theme.spacing(2, 0, 0, 3),
+        padding: theme => theme.spacing(2, 0, 0, 2),
     },
     sectionHeader: theme => {
         const getBackgroundColor = theme.palette.mode === 'light' ? lighten : darken;
@@ -91,54 +94,6 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
-    const handleSubmit = useCallback(async (data: FieldValues) => {
-        setLoading(true);
-        try {
-            const eventPreferences: number[] = [];
-            for (let index = 0; index < volunteer.actualAvailableEventLimit; ++index) {
-                if (!Object.hasOwn(data, `preference_${index}`))
-                    continue;  // no value has been set
-
-                const timeslotId = data[`preference_${index}`];
-                if (typeof timeslotId === 'number' && !Number.isNaN(timeslotId)) {
-                    if (!eventPreferences.includes(timeslotId))
-                        eventPreferences.push(timeslotId);
-                }
-            }
-
-            const exceptions: { date: string; hour: number }[] = [];
-            if (Object.hasOwn(data, 'exceptions') && typeof data.exceptions === 'object') {
-                for (const [ key, value ] of Object.entries(data.exceptions)) {
-                    if (!value || !key.includes('_'))
-                        continue;
-
-                    const [ date, hour ] = key.split('_', 2);
-                    exceptions.push({
-                        date,
-                        hour: parseInt(hour, 10),
-                    });
-                }
-            }
-
-            const response = await callApi('post', '/api/event/availability-preferences', {
-                environment: team,
-                event: event.slug,
-                eventPreferences: eventPreferences,
-                exceptions,
-                preferences: data.preferences,
-                serviceHours: `${data.serviceHours}` as any,
-                serviceTiming: data.serviceTiming,
-                adminOverrideUserId: volunteer.userId,
-            });
-
-            if (response.success)
-                setInvalidated(false);
-        } catch (error: any) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }, [ event.slug, team, volunteer.actualAvailableEventLimit, volunteer.userId ]);
 
     const serviceTiming = `${volunteer.preferenceTimingStart}-${volunteer.preferenceTimingEnd}`;
     const defaultValues: Record<string, any> = {
@@ -154,20 +109,84 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         });
     }
 
-    let numberOfExceptions = 0;
-    if (volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 2) {
-        const exceptions = JSON.parse(volunteer.availabilityExceptions);
-        if (Array.isArray(exceptions)) {
-            numberOfExceptions = exceptions.length;
-            for (let index = 0; index < exceptions.length; ++index) {
-                if (!('date' in exceptions[index]) || !('hour' in exceptions[index]))
-                    continue;
+    // ---------------------------------------------------------------------------------------------
+    // Availability exceptions
+    // ---------------------------------------------------------------------------------------------
 
-                const { date, hour } = exceptions[index];
-                defaultValues[`exceptions[${date}_${hour}]`] = true;
+    const firstValidException = dayjs.utc(event.startTime).startOf('day');
+    const lastValidException = dayjs.utc(event.endTime).add(1, 'day').startOf('day');
+
+    const min = firstValidException.toISOString();
+    const max = lastValidException.toISOString();
+
+    const [ timeslots, setTimeslots ] = useState<AvailabilityTimeslot[]>(() => {
+        const initialTimeslots: AvailabilityTimeslot[] = [];
+        if (volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 2) {
+            try {
+                const unverifiedTimeslots = JSON.parse(volunteer.availabilityExceptions);
+                for (const timeslot of unverifiedTimeslots) {
+                    if (firstValidException.isAfter(timeslot.end))
+                        continue;  // exception happens before the event
+                    if (lastValidException.isBefore(timeslot.start))
+                        continue;  // exception happens after the event
+
+                    initialTimeslots.push({
+                        start: timeslot.start,
+                        end: timeslot.end,
+                        state: timeslot.state,
+                    });
+                }
+            } catch (error: any) {
+                console.error('Unable to parse availability exceptions:', error);
             }
         }
-    }
+
+        return initialTimeslots;
+    });
+
+    const handleTimelineChange = useCallback((timeslots: AvailabilityTimeslot[]) => {
+        setTimeslots(timeslots);
+        handleChange();  // also shows the "save changes" button
+    }, [ handleChange ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const handleSubmit = useCallback(async (data: FieldValues) => {
+        setLoading(true);
+        try {
+            const eventPreferences: number[] = [];
+            for (let index = 0; index < volunteer.actualAvailableEventLimit; ++index) {
+                if (!Object.hasOwn(data, `preference_${index}`))
+                    continue;  // no value has been set
+
+                const timeslotId = data[`preference_${index}`];
+                if (typeof timeslotId === 'number' && !Number.isNaN(timeslotId)) {
+                    if (!eventPreferences.includes(timeslotId))
+                        eventPreferences.push(timeslotId);
+                }
+            }
+
+            const response = await callApi('post', '/api/event/availability-preferences', {
+                environment: team,
+                event: event.slug,
+                eventPreferences: eventPreferences,
+                exceptions: timeslots,
+                preferences: data.preferences,
+                serviceHours: `${data.serviceHours}` as any,
+                serviceTiming: data.serviceTiming,
+                adminOverrideUserId: volunteer.userId,
+            });
+
+            if (response.success)
+                setInvalidated(false);
+        } catch (error: any) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [ event.slug, team, timeslots, volunteer.actualAvailableEventLimit, volunteer.userId ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -200,15 +219,17 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                         </Grid>
                     </AccordionDetails>
                 </Accordion>
-                <Accordion disableGutters elevation={0} square sx={kStyles.section}>
+                <Accordion disableGutters elevation={0} square sx={kStyles.section} defaultExpanded>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
-                        Unavailability exceptions
+                        Availability exceptions
                         <Typography sx={{ color: 'text.disabled', pl: 1 }}>
-                            ({numberOfExceptions})
+                            ({timeslots.length})
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={kStyles.sectionContent}>
-                        { /* TODO: Integrate the new timeline */ }
+                        <AvailabilityTimelineImpl min={min} max={max} timezone={event.timezone}
+                                                  timeslots={timeslots}
+                                                  onChange={handleTimelineChange} />
                     </AccordionDetails>
                 </Accordion>
                 <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
