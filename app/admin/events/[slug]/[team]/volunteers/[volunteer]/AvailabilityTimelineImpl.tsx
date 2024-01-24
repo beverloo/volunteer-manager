@@ -95,12 +95,11 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
     const [ selectedResolver, setSelectedResolver ] = useState<PromiseResolver | undefined>();
 
     const handleSettings = useCallback(async (timeslot: AvailabilityTimeslot) => {
-        setSelectedTimeslot(timeslot);
-        return await new Promise<AvailabilityTimeslot | undefined>(resolve => {
+        return new Promise<AvailabilityTimeslot | undefined>(resolve => {
+            setSelectedTimeslot(timeslot);
             setSelectedResolver(() => resolve);
         });
     }, [ /* no deps */ ]);
-
 
     const handleSettingsClose =
         useCallback(() => setSelectedTimeslot(undefined), [ /* no deps */ ]);
@@ -134,7 +133,7 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
                                   dataTimezone="utc" displayTimezone={timezone} theme={theme}
                                   onChange={onChange} onDoubleClick={handleSettings}
                                   onError={handleError} readOnly={readOnly} timeslots={timeslots} />
-            <SettingDialog title="Availability exception" open={!!selectedTimeslot} delete
+            <SettingDialog title="Availability exception" delete open={!!selectedTimeslot}
                            onClose={handleSettingsClose} onDelete={handleSettingsDelete}
                            onSubmit={handleSettingsUpdate} defaultValues={ selectedTimeslot ?? {} }>
                 <SelectElement name="state" size="small" fullWidth sx={{ mt: '1px' }}

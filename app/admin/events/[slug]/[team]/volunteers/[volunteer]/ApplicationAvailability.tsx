@@ -131,6 +131,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                         continue;  // exception happens after the event
 
                     initialTimeslots.push({
+                        id: `anime_${initialTimeslots.length}`,
                         start: timeslot.start,
                         end: timeslot.end,
                         state: timeslot.state,
