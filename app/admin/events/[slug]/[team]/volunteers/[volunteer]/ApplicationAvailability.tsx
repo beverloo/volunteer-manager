@@ -220,7 +220,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                         </Grid>
                     </AccordionDetails>
                 </Accordion>
-                <Accordion disableGutters elevation={0} square sx={kStyles.section} defaultExpanded>
+                <Accordion disableGutters elevation={0} square sx={kStyles.section}>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
                         Availability exceptions
                         <Typography sx={{ color: 'text.disabled', pl: 1 }}>
