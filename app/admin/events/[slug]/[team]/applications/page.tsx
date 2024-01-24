@@ -82,13 +82,15 @@ export default async function EventApplicationsPage(props: NextRouterParams<'slu
     // Whether the volunteer can respond to applications depends on their permissions - normal
     // application managers cannot, however, event administrators are allowed to. Similarly, only
     // event administrators are able to reverse the decision on rejections.
-    const canManageApplications = can(user, Privilege.EventAdministrator);
+    const canAccessAccounts = can(user, Privilege.VolunteerAdministrator);
     const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);
+    const canManageApplications = can(user, Privilege.EventAdministrator);
 
     return (
         <>
             <Header event={event} team={team} user={user} />
             <Applications event={event.slug} team={team.slug} applications={applications}
+                          canAccessAccounts={canAccessAccounts}
                           canManageApplications={canManageApplications} allowSilent={allowSilent} />
             { canManageApplications &&
                 <CreateApplication event={event} team={team} user={user} /> }

@@ -3,9 +3,11 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -14,16 +16,19 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { Avatar } from '@components/Avatar';
@@ -127,6 +132,11 @@ interface ApplicationProps {
     application: ApplicationInfo;
 
     /**
+     * Whether this volunteer is able to access account information.
+     */
+    canAccessAccounts?: boolean;
+
+    /**
      * Requests for the application to be approved or rejected. The volunteer won't be offered the
      * option to respond to this application if this prop is missing.
      */
@@ -138,7 +148,7 @@ interface ApplicationProps {
  * either approved or rejected. Not all volunteers are allowed to manage applications.
  */
 function Application(props: ApplicationProps) {
-    const { application, requestResponse } = props;
+    const { application, canAccessAccounts, requestResponse } = props;
 
     const avatarUrl = application.avatar ? `/blob/${application.avatar}.png` : undefined;
     const avatar = (
@@ -209,9 +219,25 @@ function Application(props: ApplicationProps) {
         },
     ];
 
+    let accountAction: JSX.Element | undefined;
+    if (!!canAccessAccounts) {
+        const href = `/admin/volunteers/${application.userId}`;
+
+        accountAction = (
+            <Tooltip title="Account information">
+                <MuiLink component={Link} href={href}>
+                    <IconButton sx={{ mt: 1, mr: 1 }}>
+                        <PersonSearchIcon />
+                    </IconButton>
+                </MuiLink>
+            </Tooltip>
+        );
+    }
+
     return (
         <Stack component={Paper} direction="column" sx={{ minHeight: '100%' }}>
             <CardHeader avatar={avatar}
+                        action={accountAction}
                         titleTypographyProps={{ variant: 'subtitle1' }}
                         title={`${application.firstName} ${application.lastName}`}
                         subheader={dayjs(application.date).format('dddd, MMMM D, YYYY')} />
@@ -261,6 +287,11 @@ export interface ApplicationsProps {
     applications: ApplicationInfo[];
 
     /**
+     * Whether this volunteer is able to access account information.
+     */
+    canAccessAccounts?: boolean;
+
+    /**
      * Whether the signed in volunteer has the ability to manage applications.
      */
     canManageApplications?: boolean;
@@ -282,7 +313,8 @@ export interface ApplicationsProps {
  * event administrators and folks with the application management permissions.
  */
 export function Applications(props: ApplicationsProps) {
-    const { allowSilent, applications, canManageApplications, event, team } = props;
+    const { allowSilent, applications, canAccessAccounts, canManageApplications, event, team }
+        = props;
 
     const router = useRouter();
 
@@ -352,7 +384,8 @@ export function Applications(props: ApplicationsProps) {
                   alignItems="stretch">
                 { applications.map((application, index) =>
                     <Grid key={index} xs={6}>
-                        <Application application={application} requestResponse={requestResponse} />
+                        <Application application={application} canAccessAccounts={canAccessAccounts}
+                                     requestResponse={requestResponse} />
                     </Grid> )}
             </Grid>
 
