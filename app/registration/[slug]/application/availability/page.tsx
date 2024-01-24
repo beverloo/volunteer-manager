@@ -80,20 +80,23 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
         .selectOneColumn(tUsersEvents.availabilityExceptions)
         .executeSelectNoneOrOne();
 
-    const exceptions = new Map</* YYYY-MM-DD= */ string, Set</* hour (0-23)= */ number>>();
+    const exceptions = new Map</* YYYY-MM-DDTH */ string, AvailabilityExpectation>;
     if (exceptionInfo && exceptionInfo.length > 2) {
-        const exceptionArray = JSON.parse(exceptionInfo);
-        if (Array.isArray(exceptionArray)) {
-            for (let index = 0; index < exceptionArray.length; ++index) {
-                if (!('date' in exceptionArray[index]) || !('hour' in exceptionArray[index]))
+        try {
+            const exceptionArray = JSON.parse(exceptionInfo);
+            for (const exception of exceptionArray) {
+                if (!('start' in exception) || !('end' in exception) || !('state' in exception))
                     continue;
 
-                const { date, hour } = exceptionArray[index];
-                if (!exceptions.has(date))
-                    exceptions.set(date, new Set());
+                const start = dayjs.utc(exception.start).tz(event.timezone).startOf('hour');
+                const end = dayjs.utc(exception.end).tz(event.timezone).endOf('hour');
 
-                exceptions.get(date)!.add(hour);
+                for (let time = start; time < end; time = time.add(1, 'hour'))
+                    exceptions.set(time.format('YYYY-MM-DD[T]H'), exception.state);
             }
+
+        } catch (error: any) {
+            console.error('Unable to parse exception information:', error);
         }
     }
 
@@ -127,10 +130,9 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
                 // Consider exceptions that have been approved by the volunteering leads. When one
                 // is seen, all other processing will be moot.
-                if (exceptions.has(dateString)) {
-                    if (exceptions.get(dateString)!.has(hour))
-                        return 'unavailable';
-                }
+                const exception = exceptions.get(`${dateString}T${hour}`);
+                if (!!exception)
+                    return exception;
 
                 // Consider the window in which the volunteer indicated they want to help out with
                 // shifts. We'll add some grace, but otherwise will roster them out at other times.
