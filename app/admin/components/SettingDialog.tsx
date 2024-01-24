@@ -170,15 +170,16 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     }, [ handleClose, onDelete, onSubmit ]);
 
     const handleDelete = useCallback(() => handleResult(/* data= */ undefined), [ handleResult ]);
-    const handleSubmit =
-        useCallback((data: TFieldValues) => handleResult(data), [ handleResult ]);
+    const handleSubmit = useCallback(() => {
+        form.handleSubmit((data: TFieldValues) => handleResult(data))();
+    }, [ form, handleResult ]);
 
     // ---------------------------------------------------------------------------------------------
     // The actual React component.
     // ---------------------------------------------------------------------------------------------
     return (
         <Dialog open={!!open} onClose={handleClose} fullWidth>
-            <FormContainer formContext={form} onSuccess={handleSubmit}>
+            <FormContainer formContext={form}>
                 <DialogTitle>
                     {title}
                 </DialogTitle>
@@ -206,8 +207,8 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
                             Delete
                         </Button> }
                     <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                    <LoadingButton disabled={!!successMessage} loading={loading} type="submit"
-                                   variant="contained">
+                    <LoadingButton disabled={!!successMessage} loading={loading}
+                                   variant="contained" onClick={handleSubmit}>
                         {submitLabel}
                     </LoadingButton>
                 </DialogActions>
