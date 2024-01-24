@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { type FieldValues, type FormContainerProps, FormContainer, useForm }
     from 'react-hook-form-mui';
@@ -24,6 +24,11 @@ import Typography from '@mui/material/Typography';
 type Content = string | React.ReactNode | React.ReactNode[];
 
 /**
+ * Type defining the response we expect from one of the dialog submission callbacks.
+ */
+type DialogResponse = { success: Content } | { error: Content } | { close: true };
+
+/**
  * Props accepted by the <SettingDialog> component. May optionally be typed by TFieldValues, which
  * will propagate to the form container and settings contained herein.
  */
@@ -39,6 +44,11 @@ export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValu
     defaultValues?: FormContainerProps<TFieldValues>['defaultValues'];
 
     /**
+     * Whether a delete button should be shown on the settings dialog. Optional.
+     */
+    delete?: boolean;
+
+    /**
      * Description of the dialog. May either be a string or a ReactNode. Optional.
      */
     description?: Content;
@@ -47,15 +57,20 @@ export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValu
      * To be called when the dialog is supposed to close. The `reason` indicates why the dialog has
      * been closed, in case behaviour should depend on those options.
      */
-    onClose?: (invalidated: boolean, reason?: 'backdropClick' | 'button' | 'escapeKeyDown')
+    onClose?: (invalidated: boolean, reason?: 'backdropClick' | 'button' | 'code' | 'escapeKeyDown')
         => Promise<void> | void;
+
+    /**
+     * To be called when the "Delete" button has been used, and the item should be deleted.
+     */
+    onDelete?: () => Promise<DialogResponse>;
 
     /**
      * To be called when the form in the dialog is being submitted. The `data` contains the values
      * of the form values contained within the dialog. The handler should throw an exception when
      * an error occurs, or populate either (but not both) of the response values.
      */
-    onSubmit?: (data: TFieldValues) => Promise<{ success: Content } | { error: Content }>;
+    onSubmit?: (data: TFieldValues) => Promise<DialogResponse>;
 
     /**
      * Whether the dialog should be open.
@@ -80,7 +95,8 @@ export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValu
 export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     props: React.PropsWithChildren<SettingDialogProps<TFieldValues>>)
 {
-    const { children, defaultValues, description, onClose, onSubmit, open, title } = props;
+    const { children, defaultValues, description, onClose, onDelete, onSubmit, open, title }
+        = props;
 
     const closeLabel = props.closeLabel ?? 'Close';
     const submitLabel = props.submitLabel ?? 'Update';
@@ -90,6 +106,10 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     // ---------------------------------------------------------------------------------------------
     const form = useForm({ defaultValues });
     const { reset } = form;
+
+    useEffect(() => {
+        reset(defaultValues as TFieldValues);
+    }, [ defaultValues, reset ]);
 
     // ---------------------------------------------------------------------------------------------
     // Internal handling for user interactions within the dialog.
@@ -101,11 +121,12 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
     const [ loading, setLoading ] = useState<boolean>(false);
 
     const handleClose = useCallback(async (
-        event: unknown, reason?: 'backdropClick' | 'escapeKeyDown') =>
+        event: unknown, reason?: 'backdropClick' | 'code' | 'escapeKeyDown') =>
     {
         try {
             if (onClose)
                 await onClose(invalidated, reason ?? 'button');
+
         } finally {
             await new Promise(resolve => setTimeout(resolve, /* duration.standard= */ 300));
 
@@ -118,27 +139,39 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
         }
     }, [ invalidated, onClose, reset ]);
 
-    const handleSubmit = useCallback(async (data: TFieldValues) => {
+    const handleResult = useCallback(async (data?: TFieldValues) => {
         setErrorMessage(undefined);
         setSuccessMessage(undefined);
         setInvalidated(true);
         setLoading(true);
 
         try {
-            if (onSubmit) {
-                const result = await onSubmit(data);
-                if ('error' in result)
-                    setErrorMessage(result.error);
-                else
-                    setSuccessMessage(result.success);
-            }
+            let result: DialogResponse;
+            if (!!data && onSubmit)
+                result = await onSubmit(data);
+            else if (!data && onDelete)
+                result = await onDelete();
+            else
+                throw new Error('No submission callbacks were given to this component');
+
+            if ('error' in result)
+                setErrorMessage(result.error);
+            else if ('success' in result)
+                setSuccessMessage(result.success);
+            else
+                await handleClose(/* event= */ undefined, 'code');
+
         } catch (error: any) {
             setErrorMessage(error.message ?? 'An unknown error occurred.');
             console.error('Unable to submit a <SettingDialog>:', error);
         } finally {
             setLoading(false);
         }
-    }, [ onSubmit ]);
+    }, [ handleClose, onDelete, onSubmit ]);
+
+    const handleDelete = useCallback(() => handleResult(/* data= */ undefined), [ handleResult ]);
+    const handleSubmit =
+        useCallback((data: TFieldValues) => handleResult(data), [ handleResult ]);
 
     // ---------------------------------------------------------------------------------------------
     // The actual React component.
@@ -166,7 +199,12 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
                         </Alert>
                     </Collapse>
                 </DialogContent>
-                <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
+                <DialogActions sx={{ pt: 0, mr: 2, mb: 2, pl: 2 }}>
+                    { props.delete &&
+                        <Button onClick={handleDelete} color="error" variant="text"
+                                sx={{ marginRight: 'auto' }}>
+                            Delete
+                        </Button> }
                     <Button onClick={handleClose} variant="text">{closeLabel}</Button>
                     <LoadingButton disabled={!!successMessage} loading={loading} type="submit"
                                    variant="contained">

@@ -3,6 +3,7 @@
 
 'use client';
 
+import { SelectElement } from 'react-hook-form-mui';
 import { useCallback, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
@@ -10,9 +11,24 @@ import Snackbar from '@mui/material/Snackbar';
 
 import type { AvailabilityTimeslot } from '@beverloo/volunteer-manager-timeline';
 import { AvailabilityTimeline } from '@beverloo/volunteer-manager-timeline';
+import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { dayjs } from '@lib/DateTime';
 
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
+
+/**
+ * Promise resolver function used with the ability to modify timeslots.
+ */
+type PromiseResolver = (value?: AvailabilityTimeslot) => void;
+
+/**
+ * Options that can be chosen in the availability exception configuration dialog.
+ */
+const kExceptionTypeOptions = [
+    { id: 'available', label: 'Available for shifts' },
+    { id: 'avoid', label: 'Avoid shifts' },
+    { id: 'unavailable', label: 'Unavailable for shifts' },
+];
 
 /**
  * Props accepted by the <AvailabilityTimelineImpl> component.
@@ -64,7 +80,7 @@ export interface AvailabilityTimelineImplProps {
 export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
     const { min, max, onChange, readOnly, theme, timeslots, timezone } = props;
 
-    // TODO: onDoubleClick
+    // ---------------------------------------------------------------------------------------------
 
     const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
 
@@ -73,12 +89,57 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
         setErrorOpen(true);
     }, [ /* no deps */ ]);
 
+    // ---------------------------------------------------------------------------------------------
+
+    const [ selectedTimeslot, setSelectedTimeslot ] = useState<AvailabilityTimeslot | undefined>();
+    const [ selectedResolver, setSelectedResolver ] = useState<PromiseResolver | undefined>();
+
+    const handleSettings = useCallback(async (timeslot: AvailabilityTimeslot) => {
+        setSelectedTimeslot(timeslot);
+        return await new Promise<AvailabilityTimeslot | undefined>(resolve => {
+            setSelectedResolver(() => resolve);
+        });
+    }, [ /* no deps */ ]);
+
+
+    const handleSettingsClose =
+        useCallback(() => setSelectedTimeslot(undefined), [ /* no deps */ ]);
+
+    const handleSettingsDelete = useCallback(async () => {
+        if (!selectedTimeslot || !selectedResolver)
+            return { error: <>I forgot which timeslot was selected, sorry!</> };
+
+        selectedResolver(/* delete= */ undefined);
+        return { close: true } as const;
+
+    }, [ selectedResolver, selectedTimeslot ]);
+
+    const handleSettingsUpdate = useCallback(async (data: any) => {
+        if (!selectedTimeslot || !selectedResolver)
+            return { error: <>I forgot which timeslot was selected, sorry!</> };
+
+        if (![ 'unavailable', 'avoid', 'available' ].includes(data.state))
+            return { error: <>I don't know which state to update to, sorry!</> };
+
+        selectedResolver({ ...selectedTimeslot, state: data.state });
+        return { close: true } as const;
+
+    }, [ selectedResolver, selectedTimeslot ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     return (
         <>
             <AvailabilityTimeline dayjs={dayjs} min={min} max={max}
                                   dataTimezone="utc" displayTimezone={timezone} theme={theme}
-                                  onChange={onChange} onError={handleError}
-                                  readOnly={readOnly} timeslots={timeslots} />
+                                  onChange={onChange} onDoubleClick={handleSettings}
+                                  onError={handleError} readOnly={readOnly} timeslots={timeslots} />
+            <SettingDialog title="Availability exception" open={!!selectedTimeslot} delete
+                           onClose={handleSettingsClose} onDelete={handleSettingsDelete}
+                           onSubmit={handleSettingsUpdate} defaultValues={ selectedTimeslot ?? {} }>
+                <SelectElement name="state" size="small" fullWidth sx={{ mt: '1px' }}
+                               options={kExceptionTypeOptions} />
+            </SettingDialog>
             <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
                 <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
                     Exceptions cannot overlap with each other
