@@ -22,11 +22,9 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { User } from '@lib/auth/User';
-import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
 import { ApplicationAvailabilityForm, ApplicationParticipationForm }
     from '@app/registration/[slug]/application/ApplicationParticipation';
 import { callApi } from '@lib/callApi';
-import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <VolunteerAutocompleteTextField> component.
@@ -69,7 +67,7 @@ function VolunteerAutocompleteTextField(props: VolunteerAutocompleteTextFieldPro
 
         setFetching(true);
 
-        issueServerAction<VolunteerListDefinition>('/api/admin/volunteer-list', {
+        callApi('post', '/api/admin/volunteer-list', {
             excludeEventId
         }).then(({ volunteers }) => {
             const removeDuplicateMap = new Map<string, number>();

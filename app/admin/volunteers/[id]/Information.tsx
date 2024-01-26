@@ -14,10 +14,10 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VolunteerInfo } from './page';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
+
 import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 
 /**
@@ -50,18 +50,16 @@ export function Information(props: InformationProps) {
 
         try {
             const birthdate = dayjs(data.rawBirthdate);
-            const response = await issueServerAction<UpdateVolunteerDefinition>(
-                '/api/admin/update-volunteer',
-                {
-                    userId: account.userId,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    username: data.username ?? undefined,
-                    gender: data.gender,
-                    birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD')
-                                                   : undefined,
-                    phoneNumber: data.phoneNumber ?? undefined,
-                });
+            const response = await callApi('post', '/api/admin/update-volunteer', {
+                userId: account.userId,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                username: data.username ?? undefined,
+                gender: data.gender,
+                birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD')
+                                                : undefined,
+                phoneNumber: data.phoneNumber ?? undefined,
+            });
 
             if (response.success) {
                 setInvalidated(false);

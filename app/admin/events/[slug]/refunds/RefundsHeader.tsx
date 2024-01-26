@@ -15,12 +15,10 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
-import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -65,15 +63,13 @@ export function RefundsHeader(props: RefundsHeaderProps) {
                 data.refundsEndTime ? dayjs(data.refundsEndTime).utc().toISOString()
                                     : undefined;
 
-            const response = await issueServerAction<UpdateEventDefinition>(
-                '/api/admin/update-event',
-                {
-                    event: event.slug,
-                    eventRefunds: {
-                        refundsStartTime,
-                        refundsEndTime,
-                    },
-                });
+            const response = await callApi('post', '/api/admin/update-event', {
+                event: event.slug,
+                eventRefunds: {
+                    refundsStartTime,
+                    refundsEndTime,
+                },
+            });
 
             if (response.success) {
                 setInvalidated(false);
@@ -90,11 +86,10 @@ export function RefundsHeader(props: RefundsHeaderProps) {
     const [ published, setPublished ] = useState<boolean>(event.publishRefunds);
 
     const handleRefundPublicationChange = useCallback(async () => {
-        const response = await issueServerAction<UpdatePublicationDefinition>(
-            '/api/admin/update-publication', {
-                event: event.slug,
-                publishRefunds: !published,
-            });
+        const response = await callApi('post', '/api/admin/update-publication', {
+            event: event.slug,
+            publishRefunds: !published,
+        });
 
         if (response.success) {
             setPublished(published => !published);

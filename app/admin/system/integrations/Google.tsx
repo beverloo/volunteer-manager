@@ -13,9 +13,8 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Google endpoint locations that are available in the Volunteer Manager.
@@ -80,7 +79,7 @@ export function Google(props: GoogleProps) {
         setLoading(true);
         setError(undefined);
         try {
-            await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+            await callApi('post', '/api/admin/update-integration', {
                 google: {
                     apiKey: data.apiKey,
                     credential: data.credential,

@@ -12,11 +12,10 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import { EventSettingsForm } from './[slug]/settings/EventSettingsForm';
 import { SubmitCollapse } from '../components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
 import { dayjs } from '@lib/DateTime';
+import { callApi } from '@lib/callApi';
 
 /**
  * The <EventCreate> component enables certain volunteers to create new events on the fly. While
@@ -34,14 +33,13 @@ export function EventCreate() {
         setError(undefined);
         setLoading(true);
         try {
-            const response = await issueServerAction<CreateEventDefinition>(
-                '/api/admin/create-event', {
-                    name: data.name,
-                    shortName: data.shortName,
-                    slug: data.slug,
-                    startTime: dayjs(data.startTime).utc().toISOString(),
-                    endTime: dayjs(data.endTime).utc().toISOString(),
-                });
+            const response = await callApi('post', '/api/admin/create-event', {
+                name: data.name,
+                shortName: data.shortName,
+                slug: data.slug,
+                startTime: dayjs(data.startTime).utc().toISOString(),
+                endTime: dayjs(data.endTime).utc().toISOString(),
+            });
 
             setError(response.error);
             if (response.slug)

@@ -23,7 +23,6 @@ import { RegisterDialog, type PartialRegistrationRequest } from './authenticatio
 import { RegisterCompleteDialog } from './authentication/RegisterCompleteDialog';
 import { RegisterConfirmDialog } from './authentication/RegisterConfirmDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
-import { issueServerAction } from '@lib/issueServerAction';
 import { validatePassword } from './authentication/PasswordField';
 
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
@@ -35,6 +34,7 @@ import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
+import { callApi } from '@lib/callApi';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -189,8 +189,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'username' state:
     // ---------------------------------------------------------------------------------------------
     const onSubmitUsername = useCallback(async (username: string) => {
-        const response = await issueServerAction<ConfirmIdentityDefinition>(
-            '/api/auth/confirm-identity', { username });
+        const response = await callApi('post', '/api/auth/confirm-identity', { username });
 
         setUsername(username);
 
@@ -198,8 +197,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
             if (response.authenticationOptions && browserSupportsWebAuthn()) {
                 try {
                     const result = await startAuthentication(response.authenticationOptions);
-                    const verification = await issueServerAction<SignInPasskeyDefinition>(
-                        '/api/auth/sign-in-passkey', { username, verification: result });
+                    const verification = await callApi('post', '/api/auth/sign-in-passkey', {
+                        username,
+                        verification: result
+                    });
 
                     if (verification.success) {
                         router.refresh();
@@ -225,11 +226,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onLostPassword = useCallback(() => setAuthFlowState('lost-password'), [ /* no deps */ ]);
 
     const onSubmitPassword = useCallback(async (plaintextPassword: string) => {
-        const response = await issueServerAction<SignInPasswordDefinition>(
-            '/api/auth/sign-in-password', {
-                username: username!,
-                password: await SHA256HashPassword(plaintextPassword),
-            });
+        const response = await callApi('post', '/api/auth/sign-in-password', {
+            username: username!,
+            password: await SHA256HashPassword(plaintextPassword),
+        });
 
         if (!response.success)
             throw new Error('That is not the password we\'ve got on file. Try again?');
@@ -248,12 +248,11 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     }, [ onRequestClose, router, username ]);
 
     const onSubmitUpdatePassword = useCallback(async (plaintextPassword: string) => {
-        const response = await issueServerAction<SignInPasswordUpdateDefinition>(
-            '/api/auth/sign-in-password-update', {
-                username: username!,
-                password: await SHA256HashPassword(plaintextPassword),
-                passwordResetRequest: passwordUpdateToken!,
-            });
+        const response = await callApi('post', '/api/auth/sign-in-password-update', {
+            username: username!,
+            password: await SHA256HashPassword(plaintextPassword),
+            passwordResetRequest: passwordUpdateToken!,
+        });
 
         if (!response.success)
             throw new Error('Your password could not be updated. Try again?');
@@ -267,8 +266,9 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     // Supporting callbacks for the 'lost-password' and 'lost-password-reset' states:
     // ---------------------------------------------------------------------------------------------
     const onRequestPasswordReset = useCallback(async () => {
-        const response = await issueServerAction<PasswordResetRequestDefinition>(
-            '/api/auth/password-reset-request', { username: username! });
+        const response = await callApi('post', '/api/auth/password-reset-request', {
+            username: username!
+        });
 
         return response.success;
 
@@ -277,11 +277,10 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onPasswordReset = useCallback(async (request: string, plaintextPassword: string) => {
         validatePassword(plaintextPassword, /* throwOnFailure= */ true);
 
-        const response = await issueServerAction<PasswordResetDefinition>(
-            '/api/auth/password-reset', {
-                password: await SHA256HashPassword(plaintextPassword),
-                request,
-            });
+        const response = await callApi('post', '/api/auth/password-reset', {
+            password: await SHA256HashPassword(plaintextPassword),
+            request,
+        });
 
         if (!response.success)
             throw new Error('The server was not able to save the new password. Try again?');
@@ -299,7 +298,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         = useCallback(async (plaintextPassword: string, request: PartialRegistrationRequest) =>
         {
             validatePassword(plaintextPassword, /* throwOnFailure= */ true);
-            const response = await issueServerAction<RegisterDefinition>('/api/auth/register', {
+            const response = await callApi('post', '/api/auth/register', {
                 ...request,
 
                 username: username!,
@@ -327,17 +326,16 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
     const onRequestPasswordChange = useCallback(
         async (currentPlaintextPassword: string, newPlaintextPassword: string) => {
             validatePassword(newPlaintextPassword, /* throwOnFailure= */ true);
-            const response = await issueServerAction<PasswordChangeDefinition>(
-                '/api/auth/password-change', {
-                    currentPassword: await SHA256HashPassword(currentPlaintextPassword),
-                    newPassword: await SHA256HashPassword(newPlaintextPassword),
-                });
+            const response = await callApi('post', '/api/auth/password-change', {
+                currentPassword: await SHA256HashPassword(currentPlaintextPassword),
+                newPassword: await SHA256HashPassword(newPlaintextPassword),
+            });
 
             return !!response.success;
         }, [ /* no dependencies */ ]);
 
     const onRequestSignOut = useCallback(async () => {
-        const response = await issueServerAction<SignOutDefinition>('/api/auth/sign-out', { });
+        const response = await callApi('post', '/api/auth/sign-out', { /* no params */ });
 
         router.refresh();
         if (response.returnUrl)

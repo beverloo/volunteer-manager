@@ -20,10 +20,7 @@ import Typography from '@mui/material/Typography';
 import WarningIcon from '@mui/icons-material/Warning';
 import { red } from '@mui/material/colors';
 
-import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
-import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
-
+import { callApi } from '@lib/callApi';
 import { PrivilegeGroups, PrivilegeNames, PrivilegeWarnings, Privilege }
     from '@lib/auth/Privileges';
 
@@ -85,12 +82,10 @@ export function VolunteerPrivileges(props: VolunteerPrivilegesProps) {
     const save = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await issueServerAction<UpdatePermissionsDefinition>(
-                '/api/admin/update-permissions',
-                {
-                    userId: props.userId,
-                    privileges: privileges.toString(),
-                });
+            const response = await callApi('post', '/api/admin/update-permissions', {
+                userId: props.userId,
+                privileges: privileges.toString(),
+            });
 
             if (!response.success) {
                 console.warn('Unable to update permissions for this user.');

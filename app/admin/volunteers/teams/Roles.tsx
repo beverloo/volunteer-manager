@@ -17,7 +17,7 @@ import type { DataTableColumn } from '@app/admin/DataTable';
 import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
 import { OLD_DataTable } from '@app/admin/DataTable';
 import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadge';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Interface representation of a role in the Volunteer Manager.
@@ -131,7 +131,7 @@ export function Roles(props: RolesProps) {
     const router = useRouter();
 
     const commitEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await issueServerAction<UpdateRoleDefinition>('/api/admin/update-role', {
+        const response = await callApi('post', '/api/admin/update-role', {
             ...newRow as Role,
             roleBadge: newRow.roleBadge !== '(none)' ? newRow.roleBadge : undefined,
         });

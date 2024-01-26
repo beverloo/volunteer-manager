@@ -21,7 +21,7 @@ import { alpha, darken, lighten } from '@mui/system';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import { Markdown } from './Markdown';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Mechanism for formatting hotel room prices in euros. Prefer Intl.NumberFormat, but fall back to
@@ -80,7 +80,7 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'type'>) {
         if (!props.event)
             return;
 
-        issueServerAction<HotelsDefinition>('/api/event/hotels', {
+        callApi('post', '/api/event/hotels', {
             event: props.event
         }).then(response => setHotels(response));
 
@@ -152,7 +152,7 @@ function RemoteContentTrainings(props: Omit<RemoteContentProps, 'type'>) {
         if (!props.event)
             return;
 
-        issueServerAction<TrainingsDefinition>('/api/event/trainings', {
+        callApi('post', '/api/event/trainings', {
             event: props.event
         }).then(response => setTrainings(response));
 

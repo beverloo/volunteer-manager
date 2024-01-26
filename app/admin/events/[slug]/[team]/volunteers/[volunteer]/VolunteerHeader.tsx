@@ -38,7 +38,6 @@ import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
-import { issueServerAction } from '@lib/issueServerAction';
 import { callApi } from '@lib/callApi';
 
 type TeamsForVolunteer = VolunteerTeamsDefinition['response']['teams'];
@@ -94,13 +93,12 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
 
     const handleChange = useCallback((value: any) => setSelectedRole(value), [ setSelectedRole ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
-        const response = await issueServerAction<VolunteerRolesDefinition>(
-            '/api/admin/volunteer-roles', {
-                eventId,
-                roleId: data.role,
-                teamId,
-                userId: volunteer.userId,
-            });
+        const response = await callApi('post', '/api/admin/volunteer-roles', {
+            eventId,
+            roleId: data.role,
+            teamId,
+            userId: volunteer.userId,
+        });
 
         if (response.success)
             return { success: `${volunteer.firstName}'s role has been successfully updated.` };
@@ -450,10 +448,9 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
         if (!roles) {
             setRolesLoading(true);
             try {
-                const response = await issueServerAction<VolunteerRolesDefinition>(
-                    '/api/admin/volunteer-roles', {
-                        teamId: team.id,
-                    });
+                const response = await callApi('post', '/api/admin/volunteer-roles', {
+                    teamId: team.id,
+                });
 
                 setRoles(response.roles);
             } finally {

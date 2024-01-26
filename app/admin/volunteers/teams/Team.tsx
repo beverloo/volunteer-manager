@@ -12,7 +12,6 @@ import {
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -22,7 +21,7 @@ import { deepmerge } from '@mui/utils';
 import type { Role } from './Roles';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Custom styles applied to the <Team> & related components.
@@ -120,7 +119,7 @@ export function Team(props: TeamProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
-            const result = await issueServerAction<UpdateTeamDefinition>('/api/admin/update-team', {
+            const result = await callApi('post', '/api/admin/update-team', {
                 ...data as UpdateTeamDefinition['request'],
 
                 teamDefaultRole: data.teamDefaultRole,

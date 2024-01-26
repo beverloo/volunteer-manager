@@ -17,9 +17,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { AnimeConClientSettings } from '@lib/integrations/animecon/AnimeConClient';
-import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Settings applicable to the <AnimeCon> component that can be edited through this component. We
@@ -59,7 +58,7 @@ export function AnimeCon(props: GoogleProps) {
         setLoading(true);
         setError(undefined);
         try {
-            await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+            await callApi('post', '/api/admin/update-integration', {
                 animecon: { ...data as any },
             });
             setInvalidated(false);

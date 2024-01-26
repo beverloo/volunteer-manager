@@ -3,6 +3,7 @@
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabilityPreferences';
+import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
@@ -11,21 +12,50 @@ import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePassk
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
+import type { HotelDefinition } from '@app/api/admin/hotel';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
+import type { LogsDefinition } from '@app/api/admin/logs';
+import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
+import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
+import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
+import type { PasswordResetVerifyDefinition } from '@app/api/auth/passwordResetVerify';
 import type { RefundRequestDefinition } from '@app/api/event/refundRequest';
+import type { RegisterActivateDefinition } from '@app/api/auth/registerActivate';
+import type { RegisterDefinition } from '@app/api/auth/register';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
+import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
+import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { ScheduleTaskDefinition } from '@app/api/admin/scheduler/scheduleTask';
+import type { ServiceHealthDefinition } from '@app/api/admin/serviceHealth';
 import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
+import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
+import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
+import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
+import type { SignOutDefinition } from '@app/api/auth/signOut';
 import type { TrainingDefinition } from '@app/api/admin/training';
+import type { TrainingExtraDefinition } from '@app/api/admin/trainingExtra';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
+import type { TrainingsDefinition } from '@app/api/event/trainings';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
+import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
+import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
+import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
+import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
+import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
+import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
 import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
+import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
+import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
+import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
+import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
+import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
+import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
@@ -69,24 +99,54 @@ export type ApiEndpoints = {
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/exports': ExportsEndpoints['create'],
+        '/api/admin/hotel': HotelDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
+        '/api/admin/logs': LogsDefinition,
+        '/api/admin/reset-access-code': ResetAccessCodeDefinition,
+        '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
+        '/api/admin/service-health': ServiceHealthDefinition,
+        '/api/admin/training-extra': TrainingExtraDefinition,
         '/api/admin/training': TrainingDefinition,
         '/api/admin/trainings': TrainingsEndpoints['create'],
+        '/api/admin/update-activation': UpdateActivationDefinition,
+        '/api/admin/update-event': UpdateEventDefinition,
+        '/api/admin/update-integration': UpdateIntegrationDefinition,
+        '/api/admin/update-permissions': UpdatePermissionsDefinition,
+        '/api/admin/update-publication': UpdatePublicationDefinition,
+        '/api/admin/update-role': UpdateRoleDefinition,
+        '/api/admin/update-team': UpdateTeamDefinition,
+        '/api/admin/update-volunteer': UpdateVolunteerDefinition,
         '/api/admin/vendors': VendorEndpoints['create'],
+        '/api/admin/vertex-ai': VertexAiDefinition,
+        '/api/admin/volunteer-contact-info': VolunteerContactInfoDefinition,
+        '/api/admin/volunteer-list': VolunteerListDefinition,
+        '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
+        '/api/auth/confirm-identity': ConfirmIdentityDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
         '/api/auth/passkeys/register': RegisterPasskeyDefinition,
+        '/api/auth/password-change': PasswordChangeDefinition,
+        '/api/auth/password-reset-request': PasswordResetRequestDefinition,
+        '/api/auth/password-reset-verify': PasswordResetVerifyDefinition,
+        '/api/auth/password-reset': PasswordResetDefinition,
+        '/api/auth/register-activate': RegisterActivateDefinition,
+        '/api/auth/register': RegisterDefinition,
         '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
+        '/api/auth/sign-in-passkey': SignInPasskeyDefinition,
+        '/api/auth/sign-in-password': SignInPasswordDefinition,
+        '/api/auth/sign-in-password-update': SignInPasswordUpdateDefinition,
+        '/api/auth/sign-out': SignOutDefinition,
         '/api/auth/update-account': UpdateAccountDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
-        '/api/event/hotels': HotelsDefinition,
+        '/api/event/hotels': HotelsDefinition,  // FIXME: move to GET?
         '/api/event/refund-request': RefundRequestDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
+        '/api/event/trainings': TrainingsDefinition,  // FIXME: move to GET?
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
 

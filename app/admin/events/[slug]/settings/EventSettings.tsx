@@ -14,11 +14,10 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -66,22 +65,20 @@ export function EventSettings(props: EventSettingsProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
-            const response = await issueServerAction<UpdateEventDefinition>(
-                '/api/admin/update-event',
-                {
-                    event: event.slug,
-                    eventSettings: {
-                        name: data.name,
-                        shortName: data.shortName,
-                        timezone: data.timezone,
-                        startTime: dayjs(data.startTime).utc().toISOString(),
-                        endTime: dayjs(data.endTime).utc().toISOString(),
-                        availabilityStatus: data.availabilityStatus,
-                        location: data.location,
-                        festivalId: data.festivalId,
-                        hotelRoomForm: data.hotelRoomForm,
-                    },
-                });
+            const response = await callApi('post', '/api/admin/update-event', {
+                event: event.slug,
+                eventSettings: {
+                    name: data.name,
+                    shortName: data.shortName,
+                    timezone: data.timezone,
+                    startTime: dayjs(data.startTime).utc().toISOString(),
+                    endTime: dayjs(data.endTime).utc().toISOString(),
+                    availabilityStatus: data.availabilityStatus,
+                    location: data.location,
+                    festivalId: data.festivalId,
+                    hotelRoomForm: data.hotelRoomForm,
+                },
+            });
 
             if (response.success) {
                 setInvalidated(false);

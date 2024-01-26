@@ -22,10 +22,8 @@ import Typography from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { RegistrationStatus } from '@lib/database/Types';
-import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
 import { Avatar } from '@components/Avatar';
 import { callApi } from '@lib/callApi';
-import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Displays a loading skeleton to inform the user that contact information has not been loaded yet.
@@ -125,11 +123,11 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
             return;  // contact information hasn't been requested
 
         setContactInfoLoading(true);
-        issueServerAction<VolunteerContactInfoDefinition>(
-            '/api/admin/volunteer-contact-info', { event, teamId, userId }).then(response =>
-        {
-            setContactInfo(response);
-        });
+        callApi('post', '/api/admin/volunteer-contact-info', { event, teamId, userId }).then(
+            response =>
+            {
+                setContactInfo(response);
+            });
 
     }, [ contactInfo, contactInfoLoading, emailAnchorEl, event, phoneNumberAnchorEl, teamId,
          userId ])

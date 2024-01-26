@@ -13,10 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { TrainingExtraDefinition } from '@app/api/admin/trainingExtra';
 import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { dayjs } from '@lib/DateTime';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Configuration options available for extra training participants.
@@ -81,11 +80,10 @@ export function TrainingExternal(props: TrainingExternalProps) {
     const { event } = props;
 
     async function commitAdd(): Promise<TrainingExternalEntry> {
-        const response = await issueServerAction<TrainingExtraDefinition>(
-            '/api/admin/training-extra', {
-                event: event.slug,
-                create: { /* empty payload */ }
-            });
+        const response = await callApi('post', '/api/admin/training-extra', {
+            event: event.slug,
+            create: { /* empty payload */ }
+        });
 
         if (!response.id)
             throw new Error('The server was unable to create a new participant.');
@@ -101,7 +99,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
     }
 
     async function commitDelete(oldRow: GridValidRowModel) {
-        await issueServerAction<TrainingExtraDefinition>('/api/admin/training-extra', {
+        await callApi('post', '/api/admin/training-extra', {
             event: event.slug,
             delete: {
                 id: oldRow.id,
@@ -110,17 +108,16 @@ export function TrainingExternal(props: TrainingExternalProps) {
     }
 
     const commitEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await issueServerAction<TrainingExtraDefinition>(
-            '/api/admin/training-extra', {
-                event: event.slug,
-                update: {
-                    id: oldRow.id,
-                    trainingExtraName: newRow.trainingExtraName,
-                    trainingExtraEmail: newRow.trainingExtraEmail,
-                    trainingExtraBirthdate: newRow.trainingExtraBirthdate,
-                    preferenceTrainingId: newRow.preferenceTrainingId,
-                }
-            });
+        const response = await callApi('post', '/api/admin/training-extra', {
+            event: event.slug,
+            update: {
+                id: oldRow.id,
+                trainingExtraName: newRow.trainingExtraName,
+                trainingExtraEmail: newRow.trainingExtraEmail,
+                trainingExtraBirthdate: newRow.trainingExtraBirthdate,
+                preferenceTrainingId: newRow.preferenceTrainingId,
+            }
+        });
 
         if (!response.success)
             return oldRow;

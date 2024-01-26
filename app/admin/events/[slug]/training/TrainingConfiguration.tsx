@@ -11,11 +11,10 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route';
-import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { callApi } from '@lib/callApi';
 import { dayjs, fromLocalDate, toLocalDate } from '@lib/DateTime';
-import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props accepted by the <TrainingConfiguration> component.
@@ -37,11 +36,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
     const router = useRouter();
 
     const onPublish = useCallback(async (domEvent: unknown, publish: boolean) => {
-        const response = await issueServerAction<UpdatePublicationDefinition>(
-            '/api/admin/update-publication', {
-                event: event.slug,
-                publishTrainings: !!publish,
-            });
+        const response = await callApi('post', '/api/admin/update-publication', {
+            event: event.slug,
+            publishTrainings: !!publish,
+        });
 
         if (response.success)
             router.refresh();

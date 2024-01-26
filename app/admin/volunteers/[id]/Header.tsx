@@ -19,13 +19,9 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 
-import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
-import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
-import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { VolunteerInfo } from './page';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
-import { issueServerAction } from '@lib/issueServerAction';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -56,10 +52,9 @@ function AccessCodeDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
     const handleSubmit = useCallback(async() => {
-        const response = await issueServerAction<ResetAccessCodeDefinition>(
-            '/api/admin/reset-access-code', {
-                userId: account.userId
-            });
+        const response = await callApi('post', '/api/admin/reset-access-code', {
+            userId: account.userId
+        });
 
         if (!response.accessCode)
             return { error: `Unable to retrieve ${account.firstName}'s access code right now` };
@@ -89,12 +84,10 @@ function ActivateDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
     const handleSubmit = useCallback(async() => {
-        const response = await issueServerAction<UpdateActivationDefinition>(
-            '/api/admin/update-activation',
-            {
-                userId: account.userId,
-                activated: true,
-            });
+        const response = await callApi('post', '/api/admin/update-activation', {
+            userId: account.userId,
+            activated: true,
+        });
 
         if (response.success)
             return { success: `${account.firstName}'s account has been activated` };
@@ -123,12 +116,10 @@ function DeactivateDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
     const handleSubmit = useCallback(async() => {
-        const response = await issueServerAction<UpdateActivationDefinition>(
-            '/api/admin/update-activation',
-            {
-                userId: account.userId,
-                activated: false,
-            });
+        const response = await callApi('post', '/api/admin/update-activation', {
+            userId: account.userId,
+            activated: false,
+        });
 
         if (response.success)
             return { success: `${account.firstName}'s account has been deactivated` };
@@ -157,11 +148,9 @@ function PasswordResetDialog(props: DialogProps) {
     const { account, onClose, open } = props;
 
     const handleSubmit = useCallback(async() => {
-        const response = await issueServerAction<ResetPasswordLinkDefinition>(
-            '/api/admin/reset-password-link',
-            {
-                userId: account.userId
-            });
+        const response = await callApi('post', '/api/admin/reset-password-link', {
+            userId: account.userId
+        });
 
         if (!response.link)
             return { error: 'The password reset link could not be created just now' };

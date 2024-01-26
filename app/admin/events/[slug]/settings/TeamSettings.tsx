@@ -15,9 +15,8 @@ import Typography from '@mui/material/Typography';
 
 import type { DataTableColumn } from '@app/admin/DataTable';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import { OLD_DataTable } from '@app/admin/DataTable';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Settings related to an individual team whose settings can be updated on this page.
@@ -175,7 +174,7 @@ export function TeamSettings(props: TeamSettingsProps) {
     const router = useRouter();
 
     const handleEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+        const response = await callApi('post', '/api/admin/update-event', {
             event: event.slug,
             team: {
                 id: oldRow.id,

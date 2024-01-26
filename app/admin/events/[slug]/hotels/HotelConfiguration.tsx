@@ -10,12 +10,10 @@ import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { HotelDefinition } from '@app/api/admin/hotel';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Helper function for formatting prices in the configuration data table.
@@ -80,7 +78,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     const { event } = props;
 
     async function commitAdd(): Promise<HotelConfigurationEntry> {
-        const response = await issueServerAction<HotelDefinition>('/api/admin/hotel', {
+        const response = await callApi('post', '/api/admin/hotel', {
             event: event.slug,
             create: { /* empty payload */ }
         });
@@ -99,7 +97,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     }
 
     async function commitDelete(oldRow: GridValidRowModel) {
-        await issueServerAction<HotelDefinition>('/api/admin/hotel', {
+        await callApi('post', '/api/admin/hotel', {
             event: event.slug,
             delete: {
                 id: oldRow.id,
@@ -108,7 +106,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     }
 
     async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
-        const response = await issueServerAction<HotelDefinition>('/api/admin/hotel', {
+        const response = await callApi('post', '/api/admin/hotel', {
             event: event.slug,
             update: {
                 id: oldRow.id,
@@ -126,11 +124,10 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
     const router = useRouter();
 
     const onPublish = useCallback(async (domEvent: unknown, publish: boolean) => {
-        const response = await issueServerAction<UpdatePublicationDefinition>(
-            '/api/admin/update-publication', {
-                event: event.slug,
-                publishHotels: !!publish,
-            });
+        const response = await callApi('post', '/api/admin/update-publication', {
+            event: event.slug,
+            publishHotels: !!publish,
+        });
 
         if (response.success)
             router.refresh();

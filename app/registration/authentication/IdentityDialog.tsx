@@ -16,10 +16,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import PasswordIcon from '@mui/icons-material/Password';
 import Typography from '@mui/material/Typography';
 
-import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { User } from '@lib/auth/User';
 import { Avatar } from '@components/Avatar';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <IdentityDialog> component.
@@ -90,11 +89,9 @@ export function IdentityDialog(props: IdentityDialogProps) {
                 reader.readAsDataURL(avatar);
             });
 
-            const response = await issueServerAction<UpdateAvatarDefinition>(
-                '/api/auth/update-avatar',
-                {
-                    avatar: base64Avatar as string,
-                });
+            const response = await callApi('post', '/api/auth/update-avatar', {
+                avatar: base64Avatar as string,
+            });
 
             if (response.success)
                 router.refresh();

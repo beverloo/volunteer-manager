@@ -5,8 +5,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -14,9 +13,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { EmailClientSettings } from '@lib/integrations/email/EmailClient';
-import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 export type EmailSettings = EmailClientSettings;
 
@@ -46,7 +44,7 @@ export function Email(props: EmailProps) {
         setLoading(true);
         setError(undefined);
         try {
-            await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+            await callApi('post', '/api/admin/update-integration', {
                 email: {
                     hostname: data.hostname,
                     port: parseInt(data.port, 10),

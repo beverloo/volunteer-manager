@@ -22,7 +22,7 @@ import Typography from '@mui/material/Typography';
 
 import type { ServiceHealthDefinition } from '@app/api/admin/serviceHealth';
 import { ContrastBox } from '../../components/ContrastBox';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 type ServiceHealthRequest = ServiceHealthDefinition['request'];
 type ServiceHealthResponse = ServiceHealthDefinition['response'];
@@ -35,7 +35,7 @@ async function determineServiceStatus(service: ServiceHealthRequest['service'])
     : Promise<ServiceHealthResponse>
 {
     try {
-        return issueServerAction<ServiceHealthDefinition>('/api/admin/service-health', {
+        return callApi('post', '/api/admin/service-health', {
             service,
         });
     } catch (error: any) {

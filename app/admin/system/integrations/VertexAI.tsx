@@ -19,13 +19,11 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
-import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VertexAISettings } from '@lib/integrations/vertexai/VertexAIClient';
 import { PlaceholderPaper } from '../../components/PlaceholderPaper';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 export type { VertexAISettings };
 
@@ -272,7 +270,7 @@ export function VertexAI(props: VertexAIProps) {
         setResponse(undefined);
 
         try {
-            const response = await issueServerAction<VertexAiDefinition>('/api/admin/vertex-ai', {
+            const response = await callApi('post', '/api/admin/vertex-ai', {
                 prompt,
                 settings,
             });
@@ -291,7 +289,7 @@ export function VertexAI(props: VertexAIProps) {
     }, [ setSettings ]);
 
     const saveSettings = useCallback(async () => {
-        await issueServerAction<UpdateIntegrationDefinition>('/api/admin/update-integration', {
+        await callApi('post', '/api/admin/update-integration', {
             vertexAi: settings,
         });
     }, [ settings ]);

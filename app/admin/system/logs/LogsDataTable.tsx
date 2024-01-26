@@ -16,10 +16,9 @@ import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import type { DataTableRowRequest } from '@app/admin/DataTable';
-import type { LogsDefinition } from '@app/api/admin/logs';
 import { OLD_DataTable } from '../../DataTable';
+import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
-import { issueServerAction } from '@lib/issueServerAction';
 
 /**
  * Props made available to the <LogsDataTable> component.
@@ -114,7 +113,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
     ]), [ /* no deps */ ]);
 
     const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
-        const response = await issueServerAction<LogsDefinition>('/api/admin/logs', {
+        const response = await callApi('post', '/api/admin/logs', {
             filters: {
                 sourceOrTargetUserId: filters?.sourceOrTargetUserId,
             },

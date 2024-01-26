@@ -19,12 +19,11 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { LazyAvatarEditor } from '@components/LazyAvatarEditor';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { TransitionAlert } from '@app/admin/components/TransitionAlert';
-import { issueServerAction } from '@lib/issueServerAction';
+import { callApi } from '@lib/callApi';
 
 /**
  * Description to use for the event publication dialog.
@@ -86,7 +85,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
     const openPublish = useCallback(() => setPublishOpen(true), [ /* no deps */ ]);
     const handlePublish = useCallback(async () => {
-        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+        const response = await callApi('post', '/api/admin/update-event', {
             event: event.slug,
             eventHidden: /* publish= */ false,
         });
@@ -97,7 +96,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
     const openSuspend = useCallback(() => setSuspendOpen(true), [ /* no deps */ ]);
     const handleSuspend = useCallback(async () => {
-        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+        const response = await callApi('post', '/api/admin/update-event', {
             event: event.slug,
             eventHidden: /* suspend= */ true,
         });
@@ -118,7 +117,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
             reader.readAsDataURL(avatar);
         });
 
-        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+        const response = await callApi('post', '/api/admin/update-event', {
             event: event.slug,
             eventIdentity: base64Avatar as string,
         });
@@ -133,7 +132,7 @@ export function SettingsHeader(props: SettingsHeaderProps) {
 
     const openSlug = useCallback(() => setSlugOpen(true), [ /* no deps */ ]);
     const handleSlug = useCallback(async (data: any) => {
-        const response = await issueServerAction<UpdateEventDefinition>('/api/admin/update-event', {
+        const response = await callApi('post', '/api/admin/update-event', {
             event: event.slug,
             eventSlug: data.slug,
         });
