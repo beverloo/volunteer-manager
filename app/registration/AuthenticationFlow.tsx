@@ -9,6 +9,8 @@ import type { SxProps, Theme } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 
 import type { User } from '@lib/auth/User';
+import { callApi } from '@lib/callApi';
+
 import { ActivationReminderDialog } from './authentication/ActivationReminderDialog';
 import { IdentityDialog } from './authentication/IdentityDialog';
 import { IdentityAccountDialog } from './authentication/IdentityAccountDialog';
@@ -24,17 +26,6 @@ import { RegisterCompleteDialog } from './authentication/RegisterCompleteDialog'
 import { RegisterConfirmDialog } from './authentication/RegisterConfirmDialog';
 import { UsernameDialog } from './authentication/UsernameDialog';
 import { validatePassword } from './authentication/PasswordField';
-
-import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
-import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
-import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
-import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
-import type { RegisterDefinition } from '@app/api/auth/register';
-import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
-import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
-import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
-import type { SignOutDefinition } from '@app/api/auth/signOut';
-import { callApi } from '@lib/callApi';
 
 /**
  * Styles used by the various components that make up the authentication flow.
@@ -194,7 +185,7 @@ export function AuthenticationFlow(props: AuthenticationFlowProps) {
         setUsername(username);
 
         if (response.success && response.activated) {
-            if (response.authenticationOptions && browserSupportsWebAuthn()) {
+            if (!!response.authenticationOptions && browserSupportsWebAuthn()) {
                 try {
                     const result = await startAuthentication(response.authenticationOptions);
                     const verification = await callApi('post', '/api/auth/sign-in-passkey', {

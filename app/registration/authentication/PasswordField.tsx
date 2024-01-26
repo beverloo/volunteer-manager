@@ -34,11 +34,6 @@ interface PasswordValidationState {
      * Whether the password contains at least one number.
      */
     passedNumberRequirement: boolean;
-
-    /**
-     * Whether the numbers in the password add up to 25.
-     */
-    passedNumberSumRequirement: boolean;
 }
 
 /**
@@ -72,19 +67,6 @@ function validatePasswordNumberRequirement(password: string): boolean {
 }
 
 /**
- * Validates that the given `password` contains numbers that add up to 25.
- */
-function validatePasswordNumberSumRequirement(password: string): boolean {
-    const numbers = [ ...password.matchAll(/\d/g) ];
-
-    let total = 0;
-    for (const number of numbers)
-        total += parseInt(number[0]);
-
-    return total === 25;
-}
-
-/**
  * Validates that the given `password` meets all requirements. When set, the `throwOnFailure` flag
  * will trigger an exception to be thrown instead.
  */
@@ -104,28 +86,16 @@ export function validatePassword(password: string, throwOnFailure?: boolean): bo
 }
 
 /**
- * Props accepted by the <PasswordField> component.
- */
-export interface PasswordFieldProps extends TextFieldElementProps {
-    /**
-     * Whether the numbers in the password need to add up to a certain sum. This isn't a real
-     * requirement and will by bypassed by the validation function after being shown once.
-     */
-    requireNumberSum?: boolean;
-}
-
-/**
  * The <PasswordField> component asks the user to enter their (new) password. It validates the
  * password automatically while the user it typing, while continuing to make the result available to
  * the react-hook-for-mui parent.
  */
-export function PasswordField({ requireNumberSum, ...props }: PasswordFieldProps) {
+export function PasswordField(props: TextFieldElementProps) {
     const [ password, setPassword ] = useState<string>(/* empty= */ '');
     const [ state, setState ] = useState<PasswordValidationState>({
         passedCasingRequirement: false,
         passedLengthRequirement: false,
         passedNumberRequirement: false,
-        passedNumberSumRequirement: false,
     });
 
     function onChange(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
@@ -134,18 +104,11 @@ export function PasswordField({ requireNumberSum, ...props }: PasswordFieldProps
             passedCasingRequirement: validatePasswordCasingRequirement(password),
             passedLengthRequirement: validatePasswordLengthRequirement(password),
             passedNumberRequirement: validatePasswordNumberRequirement(password),
-            passedNumberSumRequirement: validatePasswordNumberSumRequirement(password),
         };
 
         setPassword(password);
         setState(updatedState);
     }
-
-    const failedAnyRequirement =
-        !state.passedCasingRequirement ||
-        !state.passedLengthRequirement ||
-        !state.passedNumberRequirement ||
-        (!state.passedNumberSumRequirement && requireNumberSum);
 
     return (
         <Box>
@@ -176,18 +139,6 @@ export function PasswordField({ requireNumberSum, ...props }: PasswordFieldProps
                             Contains at least one number
                         </ListItemText>
                     </ListItem>
-                    { requireNumberSum &&
-                        <ListItem disablePadding>
-                            <ListItemIcon  sx={{ minWidth: '32px' }}>
-                                { state.passedNumberSumRequirement &&
-                                    <CheckCircleIcon color="success" fontSize="small" /> }
-                                { !state.passedNumberSumRequirement &&
-                                    <CancelIcon color="error" fontSize="small" /> }
-                            </ListItemIcon>
-                            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-                                Numbers in the password add up to 25
-                            </ListItemText>
-                        </ListItem> }
                     <ListItem disablePadding>
                         <ListItemIcon  sx={{ minWidth: '32px' }}>
                             { state.passedCasingRequirement &&

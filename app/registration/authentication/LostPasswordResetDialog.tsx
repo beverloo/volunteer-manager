@@ -102,7 +102,7 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
                         </Collapse>
                         <Box sx={{ pt: 2 }}>
                             <PasswordField name="password" label="New password" type="password"
-                                           fullWidth size="small" required requireNumberSum
+                                           fullWidth size="small" required
                                            autoFocus autoComplete="new-password" />
                         </Box>
                     </DialogContent>

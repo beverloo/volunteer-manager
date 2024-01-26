@@ -56,7 +56,7 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
     let authenticationOptions = undefined;
 
     const credentials = await retrieveCredentials(user);
-    if (credentials) {
+    if (credentials.length > 0) {
         authenticationOptions = await generateAuthenticationOptions({
             allowCredentials: credentials.map(credential => ({
                 id: credential.credentialId,
@@ -72,5 +72,5 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
         success: true,
         activated: user.activated,
         authenticationOptions
-    }
+    };
 }

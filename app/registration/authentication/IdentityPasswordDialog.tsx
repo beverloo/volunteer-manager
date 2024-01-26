@@ -75,7 +75,7 @@ export function IdentityPasswordDialog(props: IdentityPasswordDialogProps) {
                 </Box>
                 <Box sx={{ pt: 2 }}>
                     <PasswordField name="updatedPassword" label="New password" type="password"
-                                   fullWidth size="small" required requireNumberSum
+                                   fullWidth size="small" required
                                    autoComplete="new-password" />
                 </Box>
                 <Collapse in={!!error}>
