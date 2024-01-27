@@ -13,6 +13,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
@@ -82,10 +83,7 @@ export function AiPromptContext(props: AiPromptContextProps) {
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ mb: 1 }}>
-                    Prompts
-                </Typography>
+            <Section title="Prompts">
                 <Grid container spacing={2}>
                     { prompts.map(prompt =>
                         <React.Fragment key={prompt.setting}>
@@ -106,8 +104,8 @@ export function AiPromptContext(props: AiPromptContextProps) {
                             </Grid>
                         </React.Fragment> )}
                 </Grid>
-                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
-            </Paper>
+                <SubmitCollapse error={error} loading={loading} open={invalidated} />
+            </Section>
         </FormContainer>
     );
 }

@@ -4,13 +4,12 @@
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 
-import Paper from '@mui/material/Paper';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
 import { Privilege } from '@lib/auth/Privileges';
+import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -28,21 +27,19 @@ export default async function DebugPage() {
     debugValues['Headers'] = [ ...headers() ];
 
     return (
-        <>
-            <TableContainer component={Paper} sx={{ p: 2, mt: 2 }}>
-                <Table size="small">
-                    { Object.entries(debugValues).map(([ key, value ], index) =>
-                        <TableRow key={index}>
-                            <TableCell width="15%">
-                                <strong>{key}</strong>
-                            </TableCell>
-                            <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                                { JSON.stringify(value, undefined, /* space= */ 4) }
-                            </TableCell>
-                        </TableRow> )}
-                </Table>
-            </TableContainer>
-        </>
+        <Section title="Debugging information">
+            <Table size="small">
+                { Object.entries(debugValues).map(([ key, value ], index) =>
+                    <TableRow key={index}>
+                        <TableCell width="15%">
+                            <strong>{key}</strong>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+                            { JSON.stringify(value, undefined, /* space= */ 4) }
+                        </TableCell>
+                    </TableRow> )}
+            </Table>
+        </Section>
     );
 }
 

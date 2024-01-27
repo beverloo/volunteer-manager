@@ -7,9 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
+import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
@@ -56,14 +54,14 @@ export function AiPromptPersonality(props: AiPromptPersonalityProps) {
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ mb: 1 }}>
-                    Personality
-                </Typography>
+            <Section title="Personality">
+
                 <TextareaAutosizeElement size="small" fullWidth name="personality"
                                          onChange={handleChange} />
-                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
-            </Paper>
+
+                <SubmitCollapse error={error} loading={loading} open={invalidated} />
+
+            </Section>
         </FormContainer>
     );
 }

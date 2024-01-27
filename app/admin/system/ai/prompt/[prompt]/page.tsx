@@ -6,8 +6,9 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { AiExplorer } from './AiExplorer';
-import { AiHeader } from '../../AiHeader';
 import { Privilege } from '@lib/auth/Privileges';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { readSetting } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -28,7 +29,13 @@ export default async function AiPromptExplorer(props: NextRouterParams<'prompt'>
 
     return (
         <>
-            <AiHeader />
+            <Section title="Generative AI (Explorer)">
+                <SectionIntroduction>
+                    This page enables you to explore one of the prompts the AnimeCon Volunteer
+                    Manager uses to generate text. Note that any changes you make on this page will
+                    not be saved, and that fake context is generated to complete the prompts.
+                </SectionIntroduction>
+            </Section>
             <AiExplorer personality={personality} prompt={requestedPrompt}
                         type={props.params.prompt} />
         </>
@@ -36,5 +43,5 @@ export default async function AiPromptExplorer(props: NextRouterParams<'prompt'>
 }
 
 export const metadata: Metadata = {
-    title: 'Generative AI Explorer | AnimeCon Volunteer Manager',
+    title: 'Generative AI (Explorer) | AnimeCon Volunteer Manager',
 };

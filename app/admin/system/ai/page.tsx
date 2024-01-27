@@ -3,10 +3,11 @@
 
 import type { Metadata } from 'next';
 
-import { AiHeader } from './AiHeader';
 import { AiPromptContext, type AiPromptContextProps } from './AiPromptContext';
 import { AiPromptPersonality } from './AiPromptPersonality';
 import { Privilege } from '@lib/auth/Privileges';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -64,7 +65,14 @@ export default async function AiPage() {
 
     return (
         <>
-            <AiHeader />
+            <Section title="Generative AI">
+                <SectionIntroduction>
+                    While the AnimeCon Volunteer Manager uses generative AI to draft messages to
+                    volunteers, leads will always have the ability to overwrite them. Personality is
+                    shared across the individual prompts, which are specific to context that will be
+                    added programmatically.
+                </SectionIntroduction>
+            </Section>
             <AiPromptPersonality personality={settings['gen-ai-personality'] ?? ''} />
             <AiPromptContext prompts={prompts} />
         </>
