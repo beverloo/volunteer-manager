@@ -77,12 +77,14 @@ function withOrdinal(number: number): string {
  * @see https://day.js.org/docs/en/display/format
  * @see https://day.js.org/docs/en/plugin/advanced-format
  */
-export function format(dateTime: Temporal.Instant, format: string, locale?: string): string;
-export function format(
+export function formatDate(dateTime: Temporal.Instant, format: string, locale?: string): string;
+export function formatDate(
     dateTime: Temporal.PlainDate | Temporal.PlainDateTime | Temporal.PlainTime,
     format: string, locale?: string): string;
-export function format(dateTime: Temporal.ZonedDateTime, format: string, locale?: string): string;
-export function format(dateTime: any, format: string, locale?: string): string {
+export function formatDate(
+    dateTime: Temporal.ZonedDateTime,
+    format: string, locale?: string): string;
+export function formatDate(dateTime: any, format: string, locale?: string): string {
     let zonedDateTime: Temporal.ZonedDateTime;
 
     if (dateTime instanceof Temporal.Instant) {
