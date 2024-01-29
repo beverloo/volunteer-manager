@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ActivityType } from '@lib/database/Types';
+import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanAreaUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tActivitiesAreas } from '@lib/database';
+import db, { tActivitiesAreas, tActivitiesLogs } from '@lib/database';
 
 /**
  * Row model of a program's area.
@@ -94,7 +94,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         });
     },
 
-    async create({ context, row }) {
+    async create({ context, row }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -109,7 +109,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         const newDisplayInternalAreaId = newInternalAreaId - kInternalAreaIdOffset;
 
         const dbInstance = db;
-        const insertedRows = await db.insertInto(tActivitiesAreas)
+        const insertedRows = await dbInstance.insertInto(tActivitiesAreas)
             .set({
                 areaId: newInternalAreaId,
                 areaFestivalId: event.festivalId,
@@ -123,7 +123,16 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         if (!insertedRows)
             return { success: false, error: 'Unable to write the new area to the database…' };
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                areaId: newInternalAreaId,
+                mutation: Mutation.Created,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return {
             success: true,
@@ -135,7 +144,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         };
     },
 
-    async delete({ context, id }) {
+    async delete({ context, id }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -151,7 +160,16 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 .and(tActivitiesAreas.areaDeleted.isNull())
             .executeUpdate();
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                areaId: id,
+                mutation: Mutation.Deleted,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return { success: !!affectedRows };
     },
@@ -193,7 +211,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         };
     },
 
-    async update({ context, id, row }) {
+    async update({ context, id, row }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -208,7 +226,17 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
             .executeUpdate();
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                areaId: id,
+                mutation: Mutation.Updated,
+                mutationFields: 'display name',
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return { success: !!affectedRows };
     },

@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ActivityType } from '@lib/database/Types';
+import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanLocationUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tActivitiesAreas, tActivitiesLocations } from '@lib/database';
+import db, { tActivitiesAreas, tActivitiesLogs, tActivitiesLocations } from '@lib/database';
 
 /**
  * Row model of a program's location.
@@ -99,7 +99,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         });
     },
 
-    async create({ context, row }) {
+    async create({ context, row }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -138,7 +138,16 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         if (!insertedRows)
             return { success: false, error: 'Unable to write the new location to the database…' };
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                locationId: newInternalLocationId,
+                mutation: Mutation.Created,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return {
             success: true,
@@ -151,7 +160,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         };
     },
 
-    async delete({ context, id }) {
+    async delete({ context, id }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -167,7 +176,16 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 .and(tActivitiesLocations.locationDeleted.isNull())
             .executeUpdate();
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                locationId: id,
+                mutation: Mutation.Deleted,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return { success: !!affectedRows };
     },
@@ -211,7 +229,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         };
     },
 
-    async update({ context, id, row }) {
+    async update({ context, id, row }, props) {
         const event = await getEventBySlug(context.event);
         if (!event || !event.festivalId)
             notFound();
@@ -227,7 +245,17 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
             .executeUpdate();
 
-        // TODO: Add an entry to `tActivitiesLogs`
+        await db.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                locationId: id,
+                mutation: Mutation.Updated,
+                mutationFields: 'area, display name',
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
 
         return { success: !!affectedRows };
     },
