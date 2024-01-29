@@ -162,6 +162,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             })
             .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
                 .and(tActivitiesLocations.locationId.equals(id))
+                .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
                 .and(tActivitiesLocations.locationDeleted.isNull())
             .executeUpdate();
 
@@ -214,10 +215,20 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         if (!event || !event.festivalId)
             notFound();
 
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivitiesLocations)
+            .set({
+                locationDisplayName: !!row.displayName ? row.displayName : undefined,
+                locationAreaId: row.area,
+            })
+            .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
+                .and(tActivitiesLocations.locationId.equals(id))
+                .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
+            .executeUpdate();
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
+        return { success: !!affectedRows };
     },
 });
 

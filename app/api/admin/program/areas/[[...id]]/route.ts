@@ -146,6 +146,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
             })
             .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
                 .and(tActivitiesAreas.areaId.equals(id))
+                .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
                 .and(tActivitiesAreas.areaDeleted.isNull())
             .executeUpdate();
 
@@ -196,10 +197,19 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         if (!event || !event.festivalId)
             notFound();
 
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivitiesAreas)
+            .set({
+                areaDisplayName: !!row.displayName ? row.displayName : undefined,
+            })
+            .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
+                .and(tActivitiesAreas.areaId.equals(id))
+                .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
+            .executeUpdate();
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
+        return { success: !!affectedRows };
     },
 });
 
