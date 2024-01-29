@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { ActivityType } from '@lib/database/Types';
+import { Log, LogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanAreaUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -210,6 +211,27 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         // TODO: Add an entry to `tActivitiesLogs`
 
         return { success: !!affectedRows };
+    },
+
+    async writeLog({ context, id }, mutation, props) {
+        const event = await getEventBySlug(context.event);
+        const locationName = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaId.equals(id))
+            .selectOneColumn(tActivitiesAreas.areaDisplayName.valueWhenNull(
+                tActivitiesAreas.areaName))
+            .executeSelectNoneOrOne();
+
+        await Log({
+            type: LogType.AdminProgramMutation,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                event: event?.shortName,
+                entityType: 'area',
+                entity: locationName,
+                mutation
+            },
+        });
     },
 });
 
