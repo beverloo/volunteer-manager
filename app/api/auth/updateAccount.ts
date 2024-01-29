@@ -130,7 +130,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             firstName: update.firstName,
             lastName: update.lastName,
             gender: update.gender,
-            birthdate: new Date(update.birthdate),
+            birthdate: dayjs(update.birthdate),
             phoneNumber: update.phoneNumber
         })
         .where(tUsers.userId.equals(props.user.userId))

@@ -28,10 +28,8 @@ async function fetchBirthdays(user: User) {
     const upcomingBirthdays: Birthday[] = [];
 
     // Calculate the current and upcoming months, which are the only two we care about.
-    const currentDate = new Date();
-
-    const currentMonth = currentDate.getMonth();
-    const upcomingMonth = (currentDate.getMonth() + 1) % 12;
+    const currentMonth = dayjs();
+    const nextMonth = currentMonth.add(1, 'month');
 
     // Only show birthdays for volunteers who helped out in the past X years:
     const thresholdDate = dayjs().subtract(3, 'years');
@@ -45,24 +43,28 @@ async function fetchBirthdays(user: User) {
             .on(usersJoin.userId.equals(tUsersEvents.userId))
             .and(usersJoin.birthdate.isNotNull())
         .where(tEvents.eventEndTime.greaterThan(thresholdDate))
-            .and(usersJoin.birthdate.getMonth().in([ currentMonth, upcomingMonth ]))
         .select({
             name: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
             birthdate: usersJoin.birthdate,
         })
         .groupBy(tUsersEvents.userId)
-        .orderBy(usersJoin.birthdate.getMonth(), 'asc')
-        .orderBy(usersJoin.birthdate.getDate(), 'asc')
+        .orderBy(usersJoin.birthdate, 'asc')
+            .orderBy(usersJoin.firstName, 'asc')
         .executeSelectMany();
 
     for (const birthday of birthdays) {
-        if (!birthday.birthdate)
+        if (!birthday.birthdate || !birthday.name)
             continue;  // should not happen
 
-        if (birthday.birthdate.getMonth() === currentMonth)
-            currentBirthdays.push(birthday as any);
-        else
-            upcomingBirthdays.push(birthday as any);
+        const entry: Birthday = {
+            name: birthday.name,
+            birthdate: birthday.birthdate.toDate(),
+        };
+
+        if (birthday.birthdate.month() === currentMonth.month())
+            currentBirthdays.push(entry);
+        else if (birthday.birthdate.month() === nextMonth.month())
+            upcomingBirthdays.push(entry);
     }
 
     return { currentBirthdays, upcomingBirthdays };

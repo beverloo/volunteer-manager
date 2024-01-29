@@ -126,10 +126,6 @@ do {
                 //{ table: 'schedule', column: 'schedule_time_start' },
                 //{ table: 'schedule', column: 'schedule_time_end' },
 
-                // TODO: Calculations are being done on these columns making them harder to convert,
-                // and //app/api/exports/route.ts has a pending FIXME relying on this conversion.
-                //{ table: 'users', column: 'birthdate' },
-
                 { table: 'activities_areas', column: 'area_created' },
                 { table: 'activities_areas', column: 'area_updated' },
                 { table: 'activities_areas', column: 'area_deleted' },
@@ -175,6 +171,7 @@ do {
                 { table: 'users_events', column: 'preferences_updated' },
                 { table: 'users_passkeys', column: 'credential_created' },
                 { table: 'users_passkeys', column: 'credential_last_used' },
+                { table: 'users', column: 'birthdate' },
                 { table: 'vendors', column: 'vendor_modified' },
             ].map(({ table, column }) => ([
                 ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({

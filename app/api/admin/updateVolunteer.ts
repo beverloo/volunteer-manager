@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
 import db, { tUsers } from '@lib/database';
@@ -77,7 +78,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             firstName: request.firstName,
             lastName: request.lastName,
             gender: request.gender,
-            birthdate: request.birthdate ? new Date(request.birthdate) : null,
+            birthdate: request.birthdate ? dayjs(request.birthdate) : null,
             phoneNumber: request.phoneNumber,
         })
         .where(tUsers.userId.equals(request.userId))

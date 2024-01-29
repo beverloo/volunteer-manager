@@ -6,6 +6,7 @@ import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
+import { dayjs } from '@lib/DateTime';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
@@ -226,7 +227,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
                 firstName: data.firstName,
                 lastName: data.lastName,
                 gender: data.gender,
-                birthdate: new Date(data.birthdate),
+                birthdate: dayjs(data.birthdate),
                 phoneNumber: data.phoneNumber,
             })
             .returningLastInsertedId()
