@@ -3,9 +3,17 @@
 
 'use client';
 
+import Link from 'next/link';
+
+import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import LaunchIcon from '@mui/icons-material/Launch';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import type { ProgramAreasContext, ProgramAreasRowModel } from '@app/api/admin/program/areas/[[...id]]/route';
+import { ActivityType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
@@ -27,6 +35,9 @@ export function AreaDataTable(context: AreaDataTableProps) {
             editable: false,
             sortable: false,
             width: 50,
+
+            // Only internal entries can be removed, AnPlan data is considered read-only.
+            isProtected: params => params.row.type !== ActivityType.Internal,
         },
         {
             field: 'type',
@@ -35,6 +46,25 @@ export function AreaDataTable(context: AreaDataTableProps) {
             editable: false,
             sortable: false,
             width: 50,
+
+            renderCell: params => {
+                if (params.value === ActivityType.Internal || !params.row.anplanLink) {
+                    return (
+                        <Tooltip title="This area does not exist in AnPlan">
+                            <LaunchIcon color="disabled" fontSize="small" sx={{ ml: '5px' }} />
+                        </Tooltip>
+                    );
+                } else {
+                    return (
+                        <Tooltip title="Open this area in AnPlan">
+                            <IconButton component={Link} href={params.row.anplanLink}
+                                        target="_blank">
+                                <LaunchIcon color="info" fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    );
+                }
+            },
         },
         {
             field: 'name',
@@ -42,6 +72,11 @@ export function AreaDataTable(context: AreaDataTableProps) {
             editable: false,
             sortable: true,
             flex: 1,
+
+            renderCell: params =>
+                <MuiLink component={Link} href={`./areas/${params.row.id}`}>
+                    {params.value}
+                </MuiLink>,
         },
         {
             field: 'displayName',
@@ -49,14 +84,19 @@ export function AreaDataTable(context: AreaDataTableProps) {
             editable: true,
             sortable: true,
             flex: 1,
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        {params.row.name}
+                    </Typography>
+                );
+            },
         },
-        {
-            field: 'type',  // AnPlan link
-            headerName: '',
-            editable: false,
-            sortable: false,
-            width: 50,
-        }
     ];
 
     return (

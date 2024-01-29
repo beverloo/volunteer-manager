@@ -86,6 +86,16 @@ export function getAnPlanActivityUrl(activityId: number): string {
 }
 
 /**
+ * Returns a direct link to the activity identified by `areaId` in AnPlan.
+ */
+export function getAnPlanAreaUrl(areaId: number): string {
+    return composeLink('floors', {
+        action: 'show',
+        id: areaId,
+    });
+}
+
+/**
  * Returns a direct link to the location identified by `locationId` in AnPlan.
  */
 export function getAnPlanLocationUrl(locationId: number): string {

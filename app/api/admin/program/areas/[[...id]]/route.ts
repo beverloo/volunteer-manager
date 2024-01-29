@@ -7,7 +7,9 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { ActivityType } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { getAnPlanAreaUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
+import db, { tActivitiesAreas } from '@lib/database';
 
 /**
  * Row model of a program's area.
@@ -32,6 +34,11 @@ const kProgramAreaRowModel = z.object({
      * Display name of the area, as it should be presented to volunteers.
      */
     displayName: z.string().optional(),
+
+    /**
+     * Link to this area in AnPlan, when one exists and can be created.
+     */
+    anplanLink: z.string().optional(),
 });
 
 /**
@@ -83,7 +90,7 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
 
     async create({ context, row }) {
         const event = await getEventBySlug(context.event);
-        if (!event)
+        if (!event || !event.festivalId)
             notFound();
 
         return {
@@ -94,7 +101,7 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
 
     async delete({ context, id }) {
         const event = await getEventBySlug(context.event);
-        if (!event)
+        if (!event || !event.festivalId)
             notFound();
 
         return {
@@ -105,7 +112,7 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
 
     async get({ context, id }) {
         const event = await getEventBySlug(context.event);
-        if (!event)
+        if (!event || !event.festivalId)
             notFound();
 
         return {
@@ -114,20 +121,46 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
         };
     },
 
-    async list({ context, pagination, sort }) {
+    async list({ context, sort }) {
         const event = await getEventBySlug(context.event);
-        if (!event)
+        if (!event || !event.festivalId)
             notFound();
 
+        let sortingKey: 'id' | 'type' | 'name' | 'displayName' | undefined;
+        switch (sort?.field) {
+            case 'id':
+            case 'type':
+            case 'name':
+            case 'displayName':
+                sortingKey = sort.field;
+                break;
+        }
+
+        const areas = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
+                .and(tActivitiesAreas.areaDeleted.isNull())
+            .select({
+                id: tActivitiesAreas.areaId,
+                type: tActivitiesAreas.areaType,
+                name: tActivitiesAreas.areaName,
+                displayName: tActivitiesAreas.areaDisplayName,
+            })
+            .orderBy(sortingKey ?? 'name', sort?.sort ?? 'desc')
+            .executeSelectPage();
+
         return {
-            success: false,
-            error: 'Not yet implemented',
+            success: true,
+            rowCount: areas.count,
+            rows: areas.data.map(area => ({
+                ...area,
+                anplanLink: getAnPlanAreaUrl(area.id),
+            })),
         };
     },
 
     async update({ context, id, row }) {
         const event = await getEventBySlug(context.event);
-        if (!event)
+        if (!event || !event.festivalId)
             notFound();
 
         return {

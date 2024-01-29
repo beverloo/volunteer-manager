@@ -17,7 +17,7 @@ export default async function ProgramLocationsPage(props: NextRouterParams<'slug
         .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId!))
             .and(tActivitiesAreas.areaDeleted.isNull())
         .select({
-            id: tActivitiesAreas.areaId,
+            value: tActivitiesAreas.areaId,
             label: tActivitiesAreas.areaDisplayName.valueWhenNull(tActivitiesAreas.areaName),
         })
         .executeSelectMany();

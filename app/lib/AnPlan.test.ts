@@ -2,7 +2,8 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { decryptParameters, encryptParameters } from './AnPlan';
-import { getAnPlanActivityUrl, getAnPlanLocationUrl, getAnPlanTimeslotUrl } from './AnPlan';
+import { getAnPlanActivityUrl, getAnPlanAreaUrl, getAnPlanLocationUrl, getAnPlanTimeslotUrl }
+    from './AnPlan';
 
 describe('AnPlan', () => {
     it('is able to compose links to activities, locations and timeslots', () => {
@@ -11,6 +12,8 @@ describe('AnPlan', () => {
 
         expect(getAnPlanActivityUrl(/* activityId= */ 42640)).toEqual(
             'https://anplan.animecon.nl/events?bkY4U1RPNklnV0kraUpiWnZqS2NtY2hnNmFjNGd5cURKcFE3R3hNTUZYYz0=');
+        expect(getAnPlanAreaUrl(/* areaId= */ 379)).toEqual(
+            'https://anplan.animecon.nl/floors?WFozK1NVYzNHcmdkZVl0eVN1Z2Z0aEpDSitNWklZbTlESjByWHBUdzVRQT0=');
         expect(getAnPlanLocationUrl(/* locationId= */ 5360)).toEqual(
             'https://anplan.animecon.nl/locations?a3Y4OHlvS0djZ2dlOVVDY1pieFR4RkhURFVzNVhZSk9pelRWRmRqUXpLRT0=');
         expect(getAnPlanTimeslotUrl(/* timeslotId= */ 103975)).toEqual(
