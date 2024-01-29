@@ -125,7 +125,6 @@ do {
                 // TODO: Calculations are being done on these columns making them harder to convert:
                 //{ table: 'schedule', column: 'schedule_time_start' },
                 //{ table: 'schedule', column: 'schedule_time_end' },
-                //{ table: 'tasks', column: 'task_scheduled_date' },
 
                 // TODO: Calculations are being done on these columns making them harder to convert,
                 // and //app/api/exports/route.ts has a pending FIXME relying on this conversion.
@@ -166,6 +165,7 @@ do {
                 { table: 'refunds', column: 'refund_requested' },
                 { table: 'refunds', column: 'refund_confirmed' },
                 { table: 'storage', column: 'file_date' },
+                { table: 'tasks', column: 'task_scheduled_date' },
                 { table: 'trainings_assignments', column: 'assignment_updated' },
                 { table: 'trainings_assignments', column: 'preference_updated' },
                 { table: 'trainings_extra', column: 'training_extra_birthdate' },

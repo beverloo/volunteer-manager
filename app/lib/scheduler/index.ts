@@ -1,10 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { DateTime } from '@lib/DateTime';
 import type { RegisteredTasks } from './TaskRegistry';
 import type { Scheduler } from './Scheduler';
+import { DateTimeTypeAdapter } from '@lib/database/DateTimeTypeAdapter';
 import { globalScheduler } from './SchedulerImpl';
+
 import db, { tTasks } from '@lib/database';
+
 
 /**
  * Reschedules the task identified by the given `taskId` to run again, optionally on the given
@@ -76,8 +80,9 @@ export async function scheduleTask<ParamsType = unknown>(
 
     const delayMsConstant = dbInstance.const(task.delayMs * 1000, 'int');
     const taskScheduledDate =
-        dbInstance.fragmentWithType('localDateTime', 'required').sql`
-            CURRENT_TIMESTAMP() + INTERVAL ${delayMsConstant} MICROSECOND`;
+        dbInstance.fragmentWithType<DateTime>(
+            'customComparable', 'timestamp', 'required', DateTimeTypeAdapter).sql`
+                CURRENT_TIMESTAMP() + INTERVAL ${delayMsConstant} MICROSECOND`;
 
     const taskId = await dbInstance.insertInto(tTasks)
         .set({

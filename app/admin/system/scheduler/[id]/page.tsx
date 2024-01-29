@@ -64,7 +64,7 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
         <>
             <Paper>
                 <Typography sx={{ p: 2 }} variant="h5">
-                    Scheduler task #{task.taskId} ({dayjs(task.taskDate).format('MMMM D, YYYY')})
+                    Scheduler task #{task.taskId} ({task.taskDate.format('MMMM D, YYYY')})
                 </Typography>
             </Paper>
             <TableContainer component={Paper} suppressHydrationWarning>

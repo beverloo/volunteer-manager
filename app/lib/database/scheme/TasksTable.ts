@@ -9,6 +9,12 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
+    DateTimeTypeAdapter,
+} from "../DateTimeTypeAdapter";
+import {
+    DateTime,
+} from "../../DateTime";
+import {
     TaskResult,
 } from "../Types";
 
@@ -17,7 +23,7 @@ export class TasksTable extends Table<DBConnection, 'TasksTable'> {
     taskName = this.column('task_name', 'string');
     taskParams = this.column('task_params', 'string');
     taskParentTaskId = this.optionalColumnWithDefaultValue('task_parent_task_id', 'int');
-    taskScheduledDate = this.columnWithDefaultValue('task_scheduled_date', 'localDateTime');
+    taskScheduledDate = this.columnWithDefaultValue<DateTime>('task_scheduled_date', 'customComparable', 'timestamp', DateTimeTypeAdapter);
     taskScheduledIntervalMs = this.optionalColumnWithDefaultValue('task_scheduled_interval_ms', 'int');
     taskInvocationResult = this.optionalColumnWithDefaultValue<TaskResult>('task_invocation_result', 'enum', 'TaskResult');
     taskInvocationLogs = this.optionalColumnWithDefaultValue('task_invocation_logs', 'string');
