@@ -18,8 +18,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { SchedulerRowModel } from '@app/api/admin/scheduler/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * The <SchedulerTaskTable> component displays a data table with the pending and past tasks that
@@ -77,7 +77,8 @@ export function SchedulerTaskTable() {
                 return (
                     <>
                         <Typography variant="body2">
-                            {dayjs(params.value).format('YYYY-MM-DD HH:mm:ss')}
+                            { formatDate(
+                                Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD HH:mm:ss') }
                         </Typography>
                         { !!params.row.parentId &&
                             <Tooltip title="Manual re-run of another task" color="disabled">
