@@ -121,79 +121,23 @@ do {
 
             // We represent dates and times as DayJS objects in UTC, rather than the default `Date`
             // used by `ts-query-sql`. In the future we'll want to update this to Temporal.
-            ...[
-                { table: 'activities_areas', column: 'area_created' },
-                { table: 'activities_areas', column: 'area_updated' },
-                { table: 'activities_areas', column: 'area_deleted' },
-                { table: 'activities_locations', column: 'location_created' },
-                { table: 'activities_locations', column: 'location_updated' },
-                { table: 'activities_locations', column: 'location_deleted' },
-                { table: 'activities_logs', column: 'mutation_date' },
-                { table: 'activities', column: 'activity_created' },
-                { table: 'activities', column: 'activity_updated' },
-                { table: 'activities', column: 'activity_deleted' },
-                { table: 'activities_timeslots', column: 'timeslot_start_time' },
-                { table: 'activities_timeslots', column: 'timeslot_end_time' },
-                { table: 'activities_timeslots', column: 'timeslot_created' },
-                { table: 'activities_timeslots', column: 'timeslot_updated' },
-                { table: 'activities_timeslots', column: 'timeslot_deleted' },
-                { table: 'content', column: 'revision_date' },
-                { table: 'events', column: 'event_start_time' },
-                { table: 'events', column: 'event_end_time' },
-                { table: 'events', column: 'event_refunds_start_time' },
-                { table: 'events', column: 'event_refunds_end_time' },
-                { table: 'exports_logs', column: 'access_date' },
-                { table: 'exports', column: 'export_created_date' },
-                { table: 'exports', column: 'export_expiration_date' },
-                { table: 'hotel_assignments', column: 'assignment_created' },
-                { table: 'hotels_bookings', column: 'booking_check_in' },
-                { table: 'hotels_bookings', column: 'booking_check_out' },
-                { table: 'hotels_preferences', column: 'hotel_date_check_in' },
-                { table: 'hotels_preferences', column: 'hotel_date_check_out' },
-                { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
-                { table: 'logs', column: 'log_date' },
-                { table: 'nardo', column: 'nardo_author_date' },
-                { table: 'outbox', column: 'outbox_timestamp' },
-                { table: 'refunds', column: 'refund_requested' },
-                { table: 'refunds', column: 'refund_confirmed' },
-                { table: 'schedule', column: 'schedule_time_start' },
-                { table: 'schedule', column: 'schedule_time_end' },
-                { table: 'storage', column: 'file_date' },
-                { table: 'tasks', column: 'task_scheduled_date' },
-                { table: 'trainings_assignments', column: 'assignment_updated' },
-                { table: 'trainings_assignments', column: 'preference_updated' },
-                { table: 'trainings_extra', column: 'training_extra_birthdate' },
-                { table: 'trainings', column: 'training_start' },
-                { table: 'trainings', column: 'training_end' },
-                { table: 'users_events', column: 'registration_date' },
-                { table: 'users_events', column: 'preferences_updated' },
-                { table: 'users_passkeys', column: 'credential_created' },
-                { table: 'users_passkeys', column: 'credential_last_used' },
-                { table: 'users', column: 'birthdate' },
-                { table: 'vendors', column: 'vendor_modified' },
-            ].map(({ table, column }) => ([
-                ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({
-                    // TODO: Apply this to all tables and columns.
-                    tableName: table,
-                    columnName: column,
-
-                    columnType: new RegExp(`^${columnType}$`, 'i'),
-                    generatedField: {
-                        type: {
-                            kind: 'customComparable',
-                            dbType: { name: columnType },
-                            tsType: {
-                                importPath: './app/lib/DateTime',
-                                name: 'DateTime',
-                            },
-                            adapter: {
-                                importPath: './app/lib/database/DateTimeTypeAdapter',
-                                name: 'DateTimeTypeAdapter',
-                            },
+            ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({
+                columnType: new RegExp(`^${columnType}$`, 'i'),
+                generatedField: {
+                    type: {
+                        kind: 'customComparable',
+                        dbType: { name: columnType },
+                        tsType: {
+                            importPath: './app/lib/DateTime',
+                            name: 'DateTime',
+                        },
+                        adapter: {
+                            importPath: './app/lib/database/DateTimeTypeAdapter',
+                            name: 'DateTimeTypeAdapter',
                         },
                     },
-                })),
-            ])).flat(),
+                },
+            })),
 
             // Enumerations are all defined in `app/lib/database/types.ts`, and are manually added
             // to the field mappings to this effect. Each column needs to be specified separately.
