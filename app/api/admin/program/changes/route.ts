@@ -168,9 +168,11 @@ export const { GET } = createDataTableApi(kProgramChangeRowModel, kProgramChange
                 activityId: tActivitiesLogs.activityId,
                 activityTitle: activitiesJoin.activityTitle,
                 areaId: tActivitiesLogs.areaId,
-                areaName: activitiesAreasJoin.areaName,
+                areaName: activitiesAreasJoin.areaDisplayName.valueWhenNull(
+                    activitiesAreasJoin.areaName),
                 locationId: tActivitiesLogs.locationId,
-                locationName: activitiesLocationsJoin.locationName,
+                locationName: activitiesLocationsJoin.locationDisplayName.valueWhenNull(
+                    activitiesLocationsJoin.locationName),
                 timeslotId: tActivitiesLogs.timeslotId,
 
                 // User information:
