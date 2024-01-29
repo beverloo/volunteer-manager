@@ -51,7 +51,6 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
         {
             field: 'id',
             headerName: '',
-            align: 'center',
             editable: false,
             sortable: false,
             width: 50,

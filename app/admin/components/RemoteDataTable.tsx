@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
+import type { GridAlignment, GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
     GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid, GridRowModes } from '@mui/x-data-grid';
 
@@ -202,14 +202,17 @@ export function RemoteDataTable<
                 continue;
             }
 
+            let align: GridAlignment | undefined = column.align;
+            let headerAlign: GridAlignment | undefined = column.headerAlign;
+
             let renderCell: GridColDef['renderCell'] = undefined;
             if (enableDelete) {
+                align = 'center';
                 renderCell = (params: GridRenderCellParams) => {
                     if (column.isProtected && column.isProtected(params)) {
                         return (
                             <Tooltip title={`This ${subject} cannot be deleted`}>
-                                <DeleteForeverIcon color="disabled" fontSize="small"
-                                                   sx={{ ml: '5px' }} />
+                                <DeleteForeverIcon color="disabled" fontSize="small" />
                             </Tooltip>
                         );
                     }
@@ -227,6 +230,7 @@ export function RemoteDataTable<
 
             let renderHeader: GridColDef['renderHeader'] = undefined;
             if (enableCreate) {
+                headerAlign = 'center';
                 renderHeader = () => {
                     return (
                         <Tooltip title={`Create a new ${subject}`}>
@@ -240,6 +244,8 @@ export function RemoteDataTable<
 
             columns.push({
                 ...column,
+                align,
+                headerAlign,
                 renderCell,
                 renderHeader,
             });
