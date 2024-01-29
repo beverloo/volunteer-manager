@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -224,13 +223,11 @@ function Application(props: ApplicationProps) {
         const href = `/admin/volunteers/${application.userId}`;
 
         accountAction = (
-            <Tooltip title="Account information">
-                <MuiLink component={Link} href={href}>
-                    <IconButton sx={{ mt: 1, mr: 1 }}>
-                        <PersonSearchIcon />
-                    </IconButton>
-                </MuiLink>
-            </Tooltip>
+            <IconButton component={Link} href={href} sx={{ mt: 1, mr: 1 }}>
+                <Tooltip title="Account information">
+                    <PersonSearchIcon />
+                </Tooltip>
+            </IconButton>
         );
     }
 
