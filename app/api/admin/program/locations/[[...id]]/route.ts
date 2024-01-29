@@ -85,7 +85,6 @@ const kInternalLocationIdOffset = 1_000_000;
  *
  *     DELETE /api/admin/program/locations/:id
  *     GET    /api/admin/program/locations
- *     GET    /api/admin/program/locations/:id
  *     POST   /api/admin/program/locations
  *     PUT    /api/admin/program/locations/:id
  *
@@ -169,17 +168,6 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         // TODO: Add an entry to `tActivitiesLogs`
 
         return { success: !!affectedRows };
-    },
-
-    async get({ context, id }) {
-        const event = await getEventBySlug(context.event);
-        if (!event || !event.festivalId)
-            notFound();
-
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
     },
 
     async list({ context, sort }) {

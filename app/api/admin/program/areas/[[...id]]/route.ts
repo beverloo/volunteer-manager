@@ -80,7 +80,6 @@ const kInternalAreaIdOffset = 1_000_000;
  *
  *     DELETE /api/admin/program/areas/:id
  *     GET    /api/admin/program/areas
- *     GET    /api/admin/program/areas/:id
  *     POST   /api/admin/program/areas
  *     PUT    /api/admin/program/areas/:id
  *
@@ -153,17 +152,6 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         // TODO: Add an entry to `tActivitiesLogs`
 
         return { success: !!affectedRows };
-    },
-
-    async get({ context, id }) {
-        const event = await getEventBySlug(context.event);
-        if (!event || !event.festivalId)
-            notFound();
-
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
     },
 
     async list({ context, sort }) {

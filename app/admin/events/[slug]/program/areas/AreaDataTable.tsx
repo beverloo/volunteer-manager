@@ -5,7 +5,6 @@
 
 import Link from 'next/link';
 
-import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import LaunchIcon from '@mui/icons-material/Launch';
@@ -72,11 +71,6 @@ export function AreaDataTable(context: AreaDataTableProps) {
             editable: false,
             sortable: true,
             flex: 1,
-
-            renderCell: params =>
-                <MuiLink component={Link} href={`./areas/${params.row.id}`}>
-                    {params.value}
-                </MuiLink>,
         },
         {
             field: 'displayName',

@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
-import type { ProgramChangesRowModel, ProgramChangesContext } from '@app/api/admin/program-changes/route';
+import type { ProgramChangesRowModel, ProgramChangesContext } from '@app/api/admin/program/changes/route';
 import { MutationSeverity } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { dayjs } from '@lib/DateTime';
@@ -72,9 +72,9 @@ export function ProgramHistory(props: ProgramHistoryProps) {
                 let link: string | undefined;
 
                 if ('areaId' in params.row.reference)
-                    link = `areas/${params.row.reference.areaId}`;
+                    link = 'areas';
                 else if ('locationId' in params.row.reference)
-                    link = `locations/${params.row.reference.locationId}`;
+                    link = 'locations';
                 else if ('activityId' in params.row.reference)
                     link = `activities/${params.row.reference.activityId}`;
 
@@ -129,7 +129,7 @@ export function ProgramHistory(props: ProgramHistoryProps) {
                 <MuiLink href="https://anplan.animecon.nl/">AnPlan</MuiLink>, the official AnimeCon
                 planning tool.
             </Alert>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/program-changes"
+            <RemoteDataTable columns={columns} endpoint="/api/admin/program/changes"
                              context={props.context} pageSize={10}
                              defaultSort={{ field: 'date', sort: 'desc' }} />
         </Paper>

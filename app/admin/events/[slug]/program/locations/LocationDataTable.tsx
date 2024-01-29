@@ -91,11 +91,6 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
             editable: false,
             sortable: true,
             flex: 1,
-
-            renderCell: params =>
-                <MuiLink component={Link} href={`./locations/${params.row.id}`}>
-                    {params.value}
-                </MuiLink>,
         },
         {
             field: 'displayName',
@@ -125,6 +120,11 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
 
             type: 'singleSelect',
             valueOptions: areas,
+
+            renderCell: params =>
+                <MuiLink component={Link} href="./areas">
+                    {params.formattedValue ?? params.value}
+                </MuiLink>,
         },
     ];
 
