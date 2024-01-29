@@ -23,6 +23,7 @@ export class ActivitiesAreasTable extends Table<DBConnection, 'ActivitiesAreasTa
     areaFestivalId = this.column('area_festival_id', 'int');
     areaType = this.column<ActivityType>('area_type', 'enum', 'ActivityType');
     areaName = this.column('area_name', 'string');
+    areaDisplayName = this.optionalColumnWithDefaultValue('area_display_name', 'string');
     areaCreated = this.column<DateTime>('area_created', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     areaUpdated = this.column<DateTime>('area_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     areaDeleted = this.optionalColumnWithDefaultValue<DateTime>('area_deleted', 'customComparable', 'dateTime', DateTimeTypeAdapter);

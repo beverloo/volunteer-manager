@@ -23,6 +23,7 @@ export class ActivitiesLocationsTable extends Table<DBConnection, 'ActivitiesLoc
     locationFestivalId = this.column('location_festival_id', 'int');
     locationType = this.column<ActivityType>('location_type', 'enum', 'ActivityType');
     locationName = this.column('location_name', 'string');
+    locationDisplayName = this.optionalColumnWithDefaultValue('location_display_name', 'string');
     locationAreaId = this.column('location_area_id', 'int');
     locationCreated = this.column<DateTime>('location_created', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     locationUpdated = this.column<DateTime>('location_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);

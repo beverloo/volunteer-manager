@@ -61,7 +61,9 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
+import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program-changes/route';
+import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
@@ -85,7 +87,11 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/admin/program/areas': ProgramAreasEndpoints['list'],
+        '/api/admin/program/areas/:id': ProgramAreasEndpoints['get'],
         '/api/admin/program-changes': ProgramChangesEndpoints['list'],
+        '/api/admin/program/locations': ProgramLocationsEndpoints['list'],
+        '/api/admin/program/locations/:id': ProgramLocationsEndpoints['get'],
         '/api/admin/refunds': RefundRequestEndpoints['list'],
         '/api/admin/retention': RetentionEndpoints['list'],
         '/api/admin/scheduler': SchedulerEndpoints['list'],
@@ -102,6 +108,8 @@ export type ApiEndpoints = {
         '/api/admin/hotel': HotelDefinition,
         '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
         '/api/admin/logs': LogsDefinition,
+        '/api/admin/program/areas': ProgramAreasEndpoints['create'],
+        '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
         '/api/admin/reset-access-code': ResetAccessCodeDefinition,
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
@@ -157,6 +165,8 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
+        '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
         '/api/admin/vendors/:id': VendorEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
@@ -166,6 +176,8 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
+        '/api/admin/program/areas/:id': ProgramAreasEndpoints['update'],
+        '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],

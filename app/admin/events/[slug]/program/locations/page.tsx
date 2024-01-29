@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Alert from '@mui/material/Alert';
-
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { LocationDataTable } from './LocationDataTable';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tActivitiesAreas } from '@lib/database';
 
 /**
  * The <ProgramLocationsPage> component contains the locations that are part of the program of a
@@ -13,9 +13,14 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 export default async function ProgramLocationsPage(props: NextRouterParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
-    return (
-        <Alert severity="warning" sx={{ m: 2 }}>
-            This page has not been implemented yet. (ProgramLocationsPage, {props.params.slug})
-        </Alert>
-    );
+    const areas = await db.selectFrom(tActivitiesAreas)
+        .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId!))
+            .and(tActivitiesAreas.areaDeleted.isNull())
+        .select({
+            id: tActivitiesAreas.areaId,
+            label: tActivitiesAreas.areaDisplayName.valueWhenNull(tActivitiesAreas.areaName),
+        })
+        .executeSelectMany();
+
+    return <LocationDataTable areas={areas} context={{ event: event.slug }} />;
 }

@@ -3024,6 +3024,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: location_display_name
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: location_area_id
     type: int(8) unsigned
     nullable: false
@@ -3070,6 +3075,7 @@ tables:
       `location_festival_id` int(8) unsigned NOT NULL,
       `location_type` enum('Program','Internal') NOT NULL,
       `location_name` text NOT NULL,
+      `location_display_name` text DEFAULT NULL,
       `location_area_id` int(8) unsigned NOT NULL,
       `location_created` datetime NOT NULL,
       `location_updated` datetime NOT NULL,
@@ -3099,6 +3105,11 @@ tables:
     type: text
     nullable: false
     default: null
+    comment: ""
+  - name: area_display_name
+    type: text
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: area_created
     type: datetime
@@ -3141,6 +3152,7 @@ tables:
       `area_festival_id` int(8) unsigned NOT NULL,
       `area_type` enum('Program','Internal') NOT NULL,
       `area_name` text NOT NULL,
+      `area_display_name` text DEFAULT NULL,
       `area_created` datetime NOT NULL,
       `area_updated` datetime NOT NULL,
       `area_deleted` datetime DEFAULT NULL,
