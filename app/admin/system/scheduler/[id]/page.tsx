@@ -18,8 +18,8 @@ import { DetailedLogs } from '../../outbox/[id]/DetailedLogs';
 import { GotoTaskButton } from './GotoTaskButton';
 import { Privilege } from '@lib/auth/Privileges';
 import { RerunTaskButton } from './RerunTaskButton';
+import { formatDate } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import { dayjs } from '@lib/DateTime';
 import db, { tTasks } from '@lib/database';
 
 /**
@@ -64,7 +64,7 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
         <>
             <Paper>
                 <Typography sx={{ p: 2 }} variant="h5">
-                    Scheduler task #{task.taskId} ({task.taskDate.format('MMMM D, YYYY')})
+                    Scheduler task #{task.taskId} ({formatDate(task.taskDate, 'MMMM D, YYYY')})
                 </Typography>
             </Paper>
             <TableContainer component={Paper} suppressHydrationWarning>
@@ -98,7 +98,7 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
                         <TableCell width="25%" component="th" scope="row">
                             Scheduled date
                         </TableCell>
-                        <TableCell>{dayjs(task.taskDate).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+                        <TableCell>{formatDate(task.taskDate, 'YYYY-MM-DD HH:mm:ss')}</TableCell>
                     </TableRow>
                     { !!task.taskInterval &&
                         <TableRow>

@@ -5,6 +5,12 @@ import { Temporal } from 'temporal-polyfill';
 export { Temporal };
 
 /**
+ * Type definition of a `ZonedDateTime`, as the `ts-sql-codegen` library insists on the type name
+ * and the export name being identical, which is not the case for `Temporal`.
+ */
+export type ZonedDateTime = Temporal.ZonedDateTime;
+
+/**
  * Regular expression using which we parse the format passed to the `format` function. It combines
  * the original expression with the one used in the _advancedFormat_ plugin, as we support both.
  *
