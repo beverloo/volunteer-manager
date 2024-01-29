@@ -9,7 +9,7 @@ import { ActivityType } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanLocationUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tActivitiesLocations } from '@lib/database';
+import db, { tActivitiesAreas, tActivitiesLocations } from '@lib/database';
 
 /**
  * Row model of a program's location.
@@ -75,6 +75,11 @@ export type ProgramLocationsRowModel = z.infer<typeof kProgramLocationRowModel>;
 export type ProgramLocationsContext = z.infer<typeof kProgramLocationContext>;
 
 /**
+ * Offset to use for internal Location IDs, to avoid overlap with AnPlan data.
+ */
+const kInternalLocationIdOffset = 1_000_000;
+
+/**
  * The Program Locations API is implemented as a regular DataTable API.
  * The following endpoints are provided by this implementation:
  *
@@ -85,7 +90,8 @@ export type ProgramLocationsContext = z.infer<typeof kProgramLocationContext>;
  *     PUT    /api/admin/program/locations/:id
  *
  */
-export const { GET } = createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
+export const { DELETE, GET, POST, PUT } =
+createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
     async accessCheck({ context }, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
@@ -98,9 +104,50 @@ export const { GET } = createDataTableApi(kProgramLocationRowModel, kProgramLoca
         if (!event || !event.festivalId)
             notFound();
 
+        const firstAreaId = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
+                .and(tActivitiesAreas.areaDeleted.isNull())
+            .selectOneColumn(tActivitiesAreas.areaId).limit(1)
+            .executeSelectNoneOrOne();
+
+        if (!firstAreaId)
+            return { success: false, error: 'There are no areas for the location to exist in…' };
+
+        const highestInternalLocationId = await db.selectFrom(tActivitiesLocations)
+            .where(tActivitiesLocations.locationId.greaterThan(kInternalLocationIdOffset))
+            .selectOneColumn(tActivitiesLocations.locationId)
+            .orderBy(tActivitiesLocations.locationId, 'desc').limit(1)
+            .executeSelectNoneOrOne();
+
+        const newInternalLocationId = (highestInternalLocationId ?? kInternalLocationIdOffset) + 1;
+        const newDisplayInternalLocationId = newInternalLocationId - kInternalLocationIdOffset;
+
+        const dbInstance = db;
+        const insertedRows = await db.insertInto(tActivitiesLocations)
+            .set({
+                locationId: newInternalLocationId,
+                locationFestivalId: event.festivalId,
+                locationType: ActivityType.Internal,
+                locationName: `Internal location #${newDisplayInternalLocationId}`,
+                locationAreaId: firstAreaId,
+                locationCreated: dbInstance.currentDateTime2(),
+                locationUpdated: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
+
+        if (!insertedRows)
+            return { success: false, error: 'Unable to write the new location to the database…' };
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
         return {
-            success: false,
-            error: 'Not yet implemented',
+            success: true,
+            row: {
+                id: newInternalLocationId,
+                type: ActivityType.Internal,
+                name: `Internal location #${newDisplayInternalLocationId}`,
+                area: firstAreaId,
+            },
         };
     },
 
@@ -109,10 +156,19 @@ export const { GET } = createDataTableApi(kProgramLocationRowModel, kProgramLoca
         if (!event || !event.festivalId)
             notFound();
 
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivitiesLocations)
+            .set({
+                locationDeleted: dbInstance.currentDateTime2(),
+            })
+            .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
+                .and(tActivitiesLocations.locationId.equals(id))
+                .and(tActivitiesLocations.locationDeleted.isNull())
+            .executeUpdate();
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
+        return { success: !!affectedRows };
     },
 
     async get({ context, id }) {

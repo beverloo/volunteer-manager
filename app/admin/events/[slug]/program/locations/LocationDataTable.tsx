@@ -71,7 +71,7 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
                 if (params.value === ActivityType.Internal || !params.row.anplanLink) {
                     return (
                         <Tooltip title="This area does not exist in AnPlan">
-                            <LaunchIcon color="disabled" fontSize="small" sx={{ ml: '5px' }} />
+                            <LaunchIcon color="disabled" fontSize="small" />
                         </Tooltip>
                     );
                 } else {

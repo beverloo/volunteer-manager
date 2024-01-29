@@ -70,6 +70,11 @@ export type ProgramAreasRowModel = z.infer<typeof kProgramAreaRowModel>;
 export type ProgramAreasContext = z.infer<typeof kProgramAreaContext>;
 
 /**
+ * Offset to use for internal Area IDs, to avoid overlap with AnPlan data.
+ */
+const kInternalAreaIdOffset = 1_000_000;
+
+/**
  * The Program Areas API is implemented as a regular DataTable API.
  * The following endpoints are provided by this implementation:
  *
@@ -80,7 +85,8 @@ export type ProgramAreasContext = z.infer<typeof kProgramAreaContext>;
  *     PUT    /api/admin/program/areas/:id
  *
  */
-export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
+export const { DELETE, GET, POST, PUT } =
+createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
     async accessCheck({ context }, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
@@ -93,9 +99,39 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
         if (!event || !event.festivalId)
             notFound();
 
+        const highestInternalAreaId = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaId.greaterThan(kInternalAreaIdOffset))
+            .selectOneColumn(tActivitiesAreas.areaId)
+            .orderBy(tActivitiesAreas.areaId, 'desc').limit(1)
+            .executeSelectNoneOrOne();
+
+        const newInternalAreaId = (highestInternalAreaId ?? kInternalAreaIdOffset) + 1;
+        const newDisplayInternalAreaId = newInternalAreaId - kInternalAreaIdOffset;
+
+        const dbInstance = db;
+        const insertedRows = await db.insertInto(tActivitiesAreas)
+            .set({
+                areaId: newInternalAreaId,
+                areaFestivalId: event.festivalId,
+                areaType: ActivityType.Internal,
+                areaName: `Internal area #${newDisplayInternalAreaId}`,
+                areaCreated: dbInstance.currentDateTime2(),
+                areaUpdated: dbInstance.currentDateTime2(),
+            })
+            .executeInsert();
+
+        if (!insertedRows)
+            return { success: false, error: 'Unable to write the new area to the database…' };
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
         return {
-            success: false,
-            error: 'Not yet implemented',
+            success: true,
+            row: {
+                id: newInternalAreaId,
+                type: ActivityType.Internal,
+                name: `Internal area #${newDisplayInternalAreaId}`,
+            },
         };
     },
 
@@ -104,10 +140,19 @@ export const { GET } = createDataTableApi(kProgramAreaRowModel, kProgramAreaCont
         if (!event || !event.festivalId)
             notFound();
 
-        return {
-            success: false,
-            error: 'Not yet implemented',
-        };
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivitiesAreas)
+            .set({
+                areaDeleted: dbInstance.currentDateTime2(),
+            })
+            .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
+                .and(tActivitiesAreas.areaId.equals(id))
+                .and(tActivitiesAreas.areaDeleted.isNull())
+            .executeUpdate();
+
+        // TODO: Add an entry to `tActivitiesLogs`
+
+        return { success: !!affectedRows };
     },
 
     async get({ context, id }) {
