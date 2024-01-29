@@ -505,6 +505,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 if (!storedActivity || !storedTimeslot || !storedTimeslot.id)
                     throw new Error('Unrecognised removed entry in seenTimeslotsInStoredProgram');
 
+                if (!!storedTimeslot.deleted)
+                    continue;  // the `storedTimeslot` has already been marked as deleted
+
                 mutations.deleted.push(dbInstance.update(tActivitiesTimeslots)
                     .set({
                         timeslotDeleted: dbInstance.currentDateTime2(),
@@ -919,8 +922,10 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 timeslots: dbInstance.aggregateAsArray({
                     id: activitiesTimeslotsJoin.timeslotId,
+                    deleted: activitiesTimeslotsJoin.timeslotDeleted,
                     startTime: activitiesTimeslotsJoin.timeslotStartTime,
                     endTime: activitiesTimeslotsJoin.timeslotEndTime,
+
                     locationId: activitiesTimeslotsJoin.timeslotLocationId,
                     locationName: activitiesLocationsJoin.locationName,
                     locationAreaId: activitiesLocationsJoin.locationAreaId,

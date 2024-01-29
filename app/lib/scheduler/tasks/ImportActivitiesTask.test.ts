@@ -39,6 +39,7 @@ describe('ImportActivitiesTask', () => {
             },
 
             timeslots: timeslots.map(timeslot => ({
+                deleted: undefined,
                 startTime: dayjs('2024-06-09T09:00:00+00:00'),
                 endTime: dayjs('2024-06-09T09:30:00+00:00'),
                 locationId: 100,
@@ -776,12 +777,15 @@ describe('ImportActivitiesTask', () => {
                 id: 100,
                 timeslots: [
                     createSimpleTimeslot({ id: 1100 }),
-                    // Note: ID `1101` is missing
+                    // Note: ID `1101` and `1102` are missing
                 ]
             }),
         ], [
-            createStoredActivity({ id: 100 }, /* timeslots= */ [ { id: 1100 }, { id: 1101 } ]),
-
+            createStoredActivity({ id: 100 }, /* timeslots= */ [
+                { id: 1100 },
+                { id: 1101 },
+                { id: 1102, deleted: dayjs() },
+            ]),
         ], /* festivalId= */ 625);
 
         expect(mutations.created).toHaveLength(0);
