@@ -27,11 +27,9 @@ import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
 /**
- * Formats the given number of `milliseconds` to a HH:MM string.
+ * Formats the given number of `seconds` to a HH:MM string.
  */
-function formatMilliseconds(milliseconds: number): string {
-    const seconds = Math.floor(milliseconds / 1000);
-
+function formatSeconds(seconds: number): string {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor(seconds / 60) - hours * 60;
 
@@ -50,7 +48,7 @@ export interface VolunteerInfo {
     role: string;
     roleBadge?: RoleBadge;
     shiftCount: number;
-    shiftMilliseconds?: number;
+    shiftSeconds?: number;
 
     hotelEligible?: number;
     hotelStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
@@ -136,9 +134,9 @@ export function VolunteerTable(props: VolunteerTableProps) {
             renderCell: (params: GridRenderCellParams) =>
                 <>
                     {params.value}
-                    {params.row.shiftMilliseconds &&
+                    {params.row.shiftSeconds &&
                         <Typography variant="body2" sx={{ pl: 0.5, color: 'action.active' }}>
-                            ({formatMilliseconds(params.row.shiftMilliseconds)} hours)
+                            ({formatSeconds(params.row.shiftSeconds)} hours)
                         </Typography> }
                 </>,
         },

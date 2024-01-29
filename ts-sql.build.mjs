@@ -122,10 +122,6 @@ do {
             // We represent dates and times as DayJS objects in UTC, rather than the default `Date`
             // used by `ts-query-sql`. In the future we'll want to update this to Temporal.
             ...[
-                // TODO: Calculations are being done on these columns making them harder to convert:
-                //{ table: 'schedule', column: 'schedule_time_start' },
-                //{ table: 'schedule', column: 'schedule_time_end' },
-
                 { table: 'activities_areas', column: 'area_created' },
                 { table: 'activities_areas', column: 'area_updated' },
                 { table: 'activities_areas', column: 'area_deleted' },
@@ -160,6 +156,8 @@ do {
                 { table: 'outbox', column: 'outbox_timestamp' },
                 { table: 'refunds', column: 'refund_requested' },
                 { table: 'refunds', column: 'refund_confirmed' },
+                { table: 'schedule', column: 'schedule_time_start' },
+                { table: 'schedule', column: 'schedule_time_end' },
                 { table: 'storage', column: 'file_date' },
                 { table: 'tasks', column: 'task_scheduled_date' },
                 { table: 'trainings_assignments', column: 'assignment_updated' },

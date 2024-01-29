@@ -28,6 +28,9 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
     // Step (1): Gather a list of all volunteers
     // ---------------------------------------------------------------------------------------------
 
+    const shiftSecondsFragment = dbInstance.fragmentWithType('int', 'optional').sql`
+        TIMESTAMPDIFF(SECOND, ${scheduleJoin.scheduleTimeStart}, ${scheduleJoin.scheduleTimeEnd})`;
+
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
@@ -53,9 +56,7 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             role: tRoles.roleName,
             roleBadge: tRoles.roleBadge,
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),
-            shiftMilliseconds: dbInstance.sum(
-                scheduleJoin.scheduleTimeEnd.getTime().substract(
-                    scheduleJoin.scheduleTimeStart.getTime())),
+            shiftSeconds: dbInstance.sum(shiftSecondsFragment),
 
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
             refundRequested: refundsJoin.refundRequested.isNotNull(),
