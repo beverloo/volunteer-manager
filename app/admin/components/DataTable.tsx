@@ -3,10 +3,10 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
-import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid';
+import { DataGrid, GridToolbarQuickFilter  } from '@mui/x-data-grid';
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
@@ -125,11 +125,21 @@ interface DataTableProps<RowModel extends GridValidRowModel> {
 export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel>(
     props: DataTableProps<RowModel>)
 {
+    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
+        pageSize: props.pageSize ?? 50,
+        page: 0,
+    });
+
+    const onPaginationModelChange = useCallback((model: GridPaginationModel) => {
+        setPaginationModel(model);
+    }, [ /* no deps */ ]);
+
     return (
         <DataGrid rows={props.rows} columns={props.columns}
 
                   pageSizeOptions={[ 10, 25, 50, 100 ]}
-                  paginationModel={{ pageSize: props.pageSize ?? 50, page: 0 }}
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={onPaginationModelChange}
 
                   slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
 

@@ -577,7 +577,7 @@ tables:
     nullable: false
     default: null
     comment: ""
-  - name: shift_program_id
+  - name: shift_activity_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
@@ -660,7 +660,7 @@ tables:
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
       `shift_name` varchar(64) NOT NULL,
-      `shift_program_id` int(4) unsigned DEFAULT NULL,
+      `shift_activity_id` int(4) unsigned DEFAULT NULL,
       `shift_area_id` int(4) unsigned DEFAULT NULL,
       `shift_location_id` varchar(32) DEFAULT NULL,
       `shift_location_name` varchar(32) DEFAULT NULL,

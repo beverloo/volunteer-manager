@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MapIcon from '@mui/icons-material/Map';
-import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
+import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
@@ -34,7 +34,7 @@ export function ProgramNavigation(props: ProgramNavigationProps) {
     const navigationOptions = useMemo(() => ([
         {
             label: 'Requests',
-            icon: <MoveToInboxIcon />,
+            icon: <NewReleasesIcon />,
             url: `/admin/events/${props.slug}/program/requests`
         },
         {
