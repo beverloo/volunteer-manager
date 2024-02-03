@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { withDateTimeStringColumns } from './withDateTimeStringColumns';
+
 import { ActivitiesAreasTable } from './scheme/ActivitiesAreasTable';
 import { ActivitiesLocationsTable } from './scheme/ActivitiesLocationsTable';
 import { ActivitiesLogsTable } from './scheme/ActivitiesLogsTable';
@@ -64,7 +66,7 @@ export const tSchedule = new ScheduleTable;
 export const tSettings = new SettingsTable;
 export const tShifts = new ShiftsTable;
 export const tStorage = new StorageTable;
-export const tTasks = new TasksTable;
+export const tTasks = withDateTimeStringColumns(new TasksTable);
 export const tTeamsRoles = new TeamsRolesTable;
 export const tTeams = new TeamsTable;
 export const tTrainings = new TrainingsTable;
