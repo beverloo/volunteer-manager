@@ -204,7 +204,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `${action} ${target?.name}'s participation in ${event}`;
     },
     [LogType.ApplicationAvailabilityPreferences]: (source, target, { event }) => {
-        return `Updated their hotel preferences for ${event}`;
+        return `Updated their availability preferences for ${event}`;
     },
     [LogType.ApplicationHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
