@@ -6,6 +6,7 @@ import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
@@ -227,7 +228,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
                 firstName: data.firstName,
                 lastName: data.lastName,
                 gender: data.gender,
-                birthdate: dayjs(data.birthdate),
+                birthdate: Temporal.ZonedDateTime.from(`${data.birthdate}T00:00:00Z[UTC]`),
                 phoneNumber: data.phoneNumber,
             })
             .returningLastInsertedId()

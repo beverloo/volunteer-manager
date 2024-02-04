@@ -11,6 +11,7 @@ import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
@@ -28,8 +29,8 @@ async function fetchBirthdays(user: User) {
     const upcomingBirthdays: Birthday[] = [];
 
     // Calculate the current and upcoming months, which are the only two we care about.
-    const currentMonth = dayjs();
-    const nextMonth = currentMonth.add(1, 'month');
+    const currentMonth = Temporal.Now.zonedDateTimeISO('utc');
+    const nextMonth = currentMonth.add({ months: 1 });
 
     // Only show birthdays for volunteers who helped out in the past X years:
     const thresholdDate = dayjs().subtract(3, 'years');
@@ -58,12 +59,12 @@ async function fetchBirthdays(user: User) {
 
         const entry: Birthday = {
             name: birthday.name,
-            birthdate: birthday.birthdate.toDate(),
+            birthdate: birthday.birthdate.toString(),
         };
 
-        if (birthday.birthdate.month() === currentMonth.month())
+        if (birthday.birthdate.month === currentMonth.month)
             currentBirthdays.push(entry);
-        else if (birthday.birthdate.month() === nextMonth.month())
+        else if (birthday.birthdate.month === nextMonth.month)
             upcomingBirthdays.push(entry);
     }
 

@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography';
 
 import type { VolunteerInfo } from './page';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 
 import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
@@ -56,8 +57,7 @@ export function Information(props: InformationProps) {
                 lastName: data.lastName,
                 username: data.username ?? undefined,
                 gender: data.gender,
-                birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD')
-                                                : undefined,
+                birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD') : undefined,
                 phoneNumber: data.phoneNumber ?? undefined,
             });
 
@@ -72,7 +72,14 @@ export function Information(props: InformationProps) {
         }
     }, [ account, router ]);
 
-    const defaultValues = { ...account, rawBirthdate: dayjs(account.birthdate) };
+    const defaultValues = {
+        ...account,
+        rawBirthdate:
+            account.birthdate
+                ? formatDate(Temporal.ZonedDateTime.from(account.birthdate), 'YYYY-MM-DD')
+                : undefined
+    };
+
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
             <Paper sx={{ p: 2 }}>

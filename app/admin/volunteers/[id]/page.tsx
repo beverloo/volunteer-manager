@@ -31,7 +31,7 @@ export interface VolunteerInfo {
         firstName: string;
         lastName: string;
         gender: string;
-        birthdate?: string;
+        birthdate?: string;  // Temporal.ZoneDateTime-compatible format
         phoneNumber?: string;
         privileges: bigint;
         activated: number;
@@ -60,7 +60,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
             gender: tUsers.gender,
-            birthdate: dbInstance.asDateString(tUsers.birthdate, 'optional'),
+            birthdate: tUsers.birthdateString,
             phoneNumber: tUsers.phoneNumber,
             privileges: tUsers.privileges,
             activated: tUsers.activated,

@@ -76,7 +76,7 @@ export const tUsersAuth = new UsersAuthTable;
 export const tUsersEvents = new UsersEventsTable;
 export const tUsersPasskeys = new UsersPasskeysTable;
 export const tUsersSettings = new UsersSettingsTable;
-export const tUsers = new UsersTable;
+export const tUsers = withDateTimeStringColumns(new UsersTable);
 export const tVendors = new VendorsTable;
 
 // Export the database connection pool as the default export from this file, for convenient access

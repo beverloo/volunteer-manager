@@ -164,7 +164,6 @@ do {
                 // { table: 'schedule', column: 'schedule_time_start' },
                 // { table: 'schedule', column: 'schedule_time_end' },
                 // { table: 'storage', column: 'file_date' },
-                { table: 'tasks', column: 'task_scheduled_date' },
                 // { table: 'trainings_assignments', column: 'assignment_updated' },
                 // { table: 'trainings_assignments', column: 'preference_updated' },
                 // { table: 'trainings_extra', column: 'training_extra_birthdate' },
@@ -174,8 +173,10 @@ do {
                 // { table: 'users_events', column: 'preferences_updated' },
                 // { table: 'users_passkeys', column: 'credential_created' },
                 // { table: 'users_passkeys', column: 'credential_last_used' },
-                // { table: 'users', column: 'birthdate' },
-                // { table: 'vendors', column: 'vendor_modified' },
+
+                { table: 'tasks', column: 'task_scheduled_date' },
+                { table: 'users', column: 'birthdate' },
+                { table: 'vendors', column: 'vendor_modified' },
             ].map(({ table, column }) => ([
                 ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({
                     // TODO: Apply this to all tables and columns, then delete the DayJS mapping.

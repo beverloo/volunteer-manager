@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
+import { Temporal, formatDate } from '@lib/Temporal';
 import db, { tUsers } from '@lib/database';
-import dayjs from 'dayjs';
 
 /**
  * Fields that describe the identifyable information stored with a volunteer's profile.
@@ -105,7 +105,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             success: true,
             account: {
                 ...account,
-                birthdate: account.birthdate ? dayjs(account.birthdate).format('YYYY-MM-DD')
+                birthdate: account.birthdate ? formatDate(account.birthdate, 'YYYY-MM-DD')
                                              : undefined,
             }
         };
@@ -130,7 +130,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             firstName: update.firstName,
             lastName: update.lastName,
             gender: update.gender,
-            birthdate: dayjs(update.birthdate),
+            birthdate: Temporal.ZonedDateTime.from(`${update.birthdate}T00:00:00Z[UTC]`),
             phoneNumber: update.phoneNumber
         })
         .where(tUsers.userId.equals(props.user.userId))

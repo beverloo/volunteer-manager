@@ -22,12 +22,6 @@ import type { ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
 /**
- * Type definition for a comparable DateTime value source, used for implicit values.
- */
-type ComparableDateTimeValueSource<IsOptional extends OptionalType = 'required'> =
-    ComparableValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, IsOptional>
-
-/**
  * Value source for the `DateTime` (i.e. DayJS) and `ZonedDateTime` (i.e. Temporal) types.
  */
 type DateTimeAndZonedDateTimeValueSource =

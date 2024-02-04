@@ -13,20 +13,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 
-/**
- * Formatter used to display birthdays in these tables. Years are hidden as there is no need for
- * people to see the age of all volunteers. (Except for Stewards where there are requirements.)
- */
-const kBirthdayFormatter = new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    day: 'numeric',
-});
-
-/**
- * Formatter used to display the title of the card, which will be determined based on the first
- * birthday entry included in the list.
- */
-const kMonthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Information that describes a singular volunteer birthday throughout the system.
@@ -38,9 +25,10 @@ export interface Birthday {
     name: string;
 
     /**
-     * The date on which this person celebrates their birthday.
+     * The date on which this person celebrates their birthday. Represented in a Temporal-compatible
+     * format inclusive of timezone and calendar.
      */
-    birthdate: Date;
+    birthdate: string;
 }
 
 /**
@@ -63,6 +51,7 @@ export interface BirthdayCardProps {
  * particular month. No particular interaction is provided, but we don't want to forget either.
  */
 export function BirthdayCard(props: BirthdayCardProps) {
+    const month = formatDate(Temporal.ZonedDateTime.from(props.birthdays[0].birthdate), 'MMMM');
     const image = !!props.upcoming ? '/images/admin/birthday-header-2.jpg'
                                    : '/images/admin/birthday-header-1.jpg';
 
@@ -72,17 +61,20 @@ export function BirthdayCard(props: BirthdayCardProps) {
                        image={image} title="Birthdays" />
             <CardContent sx={{ pb: '8px !important' }}>
                 <Typography variant="h5" sx={{ pb: 1 }}>
-                    {kMonthFormatter.format(props.birthdays[0].birthdate)}
+                    {month}
                 </Typography>
                 <List dense disablePadding>
-                    { props.birthdays.map((birthday, index) =>
+                    { props.birthdays.map(({ name, birthdate }, index) =>
                         <ListItem disableGutters key={index}>
+
                             <ListItemIcon sx={{ minWidth: '40px' }}>
                                 <CelebrationIcon />
                             </ListItemIcon>
                             <ListItemText
-                                primary={birthday.name}
-                                secondary={kBirthdayFormatter.format(birthday.birthdate)} />
+                                primary={name}
+                                secondary={
+                                    formatDate(Temporal.ZonedDateTime.from(birthdate), 'MMMM d')} />
+
                         </ListItem> )}
                 </List>
             </CardContent>

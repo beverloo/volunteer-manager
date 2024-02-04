@@ -6,7 +6,8 @@ import { z } from 'zod';
 
 import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { LogType, Log } from '@lib/Log';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 
 import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
@@ -473,8 +474,12 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
         for (const volunteer of volunteerList) {
             let age: number | undefined = undefined;
-            if (volunteer.birthdate)
-                age = dayjs(metadata.eventStartTime).diff(volunteer.birthdate, 'years');
+
+            // TODO: Switch to some Temporal difference mechanism once `eventStartTime` migrates
+            if (volunteer.birthdate) {
+                age = metadata.eventStartTime.diff(
+                    formatDate(volunteer.birthdate, 'YYYY-MM-DD'), 'years');
+            }
 
             volunteers.push({
                 department: kDepartment,
