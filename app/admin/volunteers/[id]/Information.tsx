@@ -6,7 +6,6 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { dayjs } from '@lib/DateTime';
 import { type FieldValues, DatePickerElement, FormContainer, SelectElement, TextFieldElement }
     from 'react-hook-form-mui';
 
@@ -18,6 +17,7 @@ import type { VolunteerInfo } from './page';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+import { dayjs } from '@lib/DateTime';
 
 import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 
@@ -76,7 +76,7 @@ export function Information(props: InformationProps) {
         ...account,
         rawBirthdate:
             account.birthdate
-                ? formatDate(Temporal.ZonedDateTime.from(account.birthdate), 'YYYY-MM-DD')
+                ? dayjs(formatDate(Temporal.ZonedDateTime.from(account.birthdate), 'YYYY-MM-DD'))
                 : undefined
     };
 

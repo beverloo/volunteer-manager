@@ -73,7 +73,7 @@ export function BirthdayCard(props: BirthdayCardProps) {
                             <ListItemText
                                 primary={name}
                                 secondary={
-                                    formatDate(Temporal.ZonedDateTime.from(birthdate), 'MMMM d')} />
+                                    formatDate(Temporal.ZonedDateTime.from(birthdate), 'MMMM D')} />
 
                         </ListItem> )}
                 </List>

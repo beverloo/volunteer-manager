@@ -35,23 +35,30 @@ async function fetchBirthdays(user: User) {
     // Only show birthdays for volunteers who helped out in the past X years:
     const thresholdDate = dayjs().subtract(3, 'years');
 
-    const usersJoin = tUsers.forUseInLeftJoin();
     const birthdays = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
-        .leftJoin(usersJoin)
-            .on(usersJoin.userId.equals(tUsersEvents.userId))
-            .and(usersJoin.birthdate.isNotNull())
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tUsersEvents.userId))
+            .and(tUsers.birthdate.isNotNull())
         .where(tEvents.eventEndTime.greaterThan(thresholdDate))
         .select({
-            name: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
-            birthdate: usersJoin.birthdate,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            birthdate: tUsers.birthdate,
         })
-        .groupBy(tUsersEvents.userId)
-        .orderBy(usersJoin.birthdate, 'asc')
-            .orderBy(usersJoin.firstName, 'asc')
+        .groupBy(tUsers.userId)
         .executeSelectMany();
+
+    birthdays.sort((lhs, rhs) => {
+        if (!lhs.birthdate || !rhs.birthdate)
+            throw new Error('Unexpected nullsy value seen in the birthday selection');
+
+        if (lhs.birthdate.day === rhs.birthdate.day)
+            return lhs.name?.localeCompare(rhs.name!) ?? 0;
+
+        return lhs.birthdate.day - rhs.birthdate.day;
+    });
 
     for (const birthday of birthdays) {
         if (!birthday.birthdate || !birthday.name)
