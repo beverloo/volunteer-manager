@@ -402,8 +402,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 name: trainingsExtraJoin.trainingExtraName.valueWhenNull(
                     usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
                 email: trainingsExtraJoin.trainingExtraEmail.valueWhenNull(usersJoin.username),
-                birthdate: trainingsExtraJoin.trainingExtraBirthdate//.valueWhenNull(
-                //usersJoin.birthdate), FIXME FIXME FIXME
+                birthdate: trainingsExtraJoin.trainingExtraBirthdate.valueWhenNull(
+                    usersJoin.birthdate),
             })
             .orderBy('date', 'asc')
             .orderBy('name', 'asc')
@@ -429,9 +429,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             currentVolunteers.push({
                 name: participant.name ?? '(unknown)',
                 email: participant.email ?? 'crew@animecon.nl',
-                birthdate: participant.birthdate
-                    ? dayjs(participant.birthdate).format('YYYY-MM-DD')
-                    : '2030-01-01',
+                birthdate: participant.birthdate ? participant.birthdate.toString()
+                                                 : '2030-01-01',
             });
         }
 

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsAssignments, tTrainingsExtra } from '@lib/database';
@@ -58,7 +58,7 @@ export const kTrainingExtraDefinition = z.object({
             /**
              * Date of birth of the participant, necessary for certification.
              */
-            trainingExtraBirthdate: z.string().optional(),
+            trainingExtraBirthdate: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/),
 
             /**
              * ID of the training in which the extra would like to participate.
@@ -156,8 +156,9 @@ export async function trainingExtra(request: Request, props: ActionProps): Promi
                     trainingExtraName: request.update.trainingExtraName,
                     trainingExtraEmail: request.update.trainingExtraEmail,
                     trainingExtraBirthdate:
-                    request.update.trainingExtraBirthdate ?
-                        dayjs.utc(request.update.trainingExtraBirthdate) : undefined,
+                        request.update.trainingExtraBirthdate
+                            ? Temporal.PlainDate.from(request.update.trainingExtraBirthdate)
+                            : undefined,
                 })
                 .where(tTrainingsExtra.trainingExtraId.equals(request.update.id))
                 .and(tTrainingsExtra.eventId.equals(event.eventId))

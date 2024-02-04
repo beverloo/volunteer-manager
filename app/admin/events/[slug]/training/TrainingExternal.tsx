@@ -13,7 +13,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { callApi } from '@lib/callApi';
 
@@ -92,7 +93,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
             id: response.id,
             trainingExtraName: '',
             trainingExtraEmail: '',
-            trainingExtraBirthdate: dayjs().format('YYYY-MM-DD'),
+            trainingExtraBirthdate: Temporal.Now.plainDateISO().toString(),
             preferenceTrainingId: undefined,
             preferenceUpdated: undefined,
         };
@@ -160,7 +161,8 @@ export function TrainingExternal(props: TrainingExternalProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD'),
+            renderCell: (params: GridRenderCellParams) =>
+                Temporal.PlainDate.from(params.value).toString(),
         },
         {
             field: 'preferenceTrainingId',

@@ -73,8 +73,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
 
             trainingExtraName: tTrainingsExtra.trainingExtraName,
             trainingExtraEmail: tTrainingsExtra.trainingExtraEmail,
-            trainingExtraBirthdate:
-                dbInstance.asDateString(tTrainingsExtra.trainingExtraBirthdate, 'optional'),
+            trainingExtraBirthdate: tTrainingsExtra.trainingExtraBirthdateString,
 
             preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
             preferenceUpdated: dbInstance.asDateTimeString(

@@ -123,10 +123,47 @@ do {
 
             // -------------------------------------------------------------------------------------
 
+            // TODO: DATE
+
+            // TODO: DATETIME & TIMESTAMP
+
+            // TIME columns will be represented as Temporal.PlainTime instances. Times are not
+            // associated with a timezone, but can be upgraded to ZonedDateTime if need be.
+            {
+                columnType: /^time$/i,
+                generatedField: {
+                    type: {
+                        kind: 'customComparable',
+                        dbType: { name: 'time' },
+                        tsType: {
+                            importPath: './app/lib/Temporal',
+                            name: 'PlainTime',
+                        },
+                        adapter: {
+                            importPath: './app/lib/database/TemporalTypeAdapter',
+                            name: 'TemporalTypeAdapter',
+                        },
+                    },
+                }
+            },
+
+            // -------------------------------------------------------------------------------------
+
             // We represent dates and times as ZonedDateTime Temporal objects rather than the
             // default `Date` used by `ts-query-sql`. This supersedes our migration to DayJS, as
             // Temporal has a feature in being a standardised JavaScript feature provided natively.
             ...[
+                // DATE:
+
+                // { table: 'hotels_bookings', column: 'booking_check_in' },
+                // { table: 'hotels_bookings', column: 'booking_check_out' },
+                // { table: 'hotels_preferences', column: 'hotel_date_check_in' },
+                // { table: 'hotels_preferences', column: 'hotel_date_check_out' },
+                { table: 'trainings_extra', column: 'training_extra_birthdate' },
+                { table: 'users', column: 'birthdate' },
+
+                // DATETIME & TIMESTAMP:
+
                 // { table: 'activities_areas', column: 'area_created' },
                 // { table: 'activities_areas', column: 'area_updated' },
                 // { table: 'activities_areas', column: 'area_deleted' },
@@ -151,10 +188,6 @@ do {
                 // { table: 'exports', column: 'export_created_date' },
                 // { table: 'exports', column: 'export_expiration_date' },
                 // { table: 'hotels_assignments', column: 'assignment_created' },
-                // { table: 'hotels_bookings', column: 'booking_check_in' },
-                // { table: 'hotels_bookings', column: 'booking_check_out' },
-                // { table: 'hotels_preferences', column: 'hotel_date_check_in' },
-                // { table: 'hotels_preferences', column: 'hotel_date_check_out' },
                 // { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
                 // { table: 'logs', column: 'log_date' },
                 // { table: 'nardo', column: 'nardo_author_date' },
@@ -164,19 +197,17 @@ do {
                 // { table: 'schedule', column: 'schedule_time_start' },
                 // { table: 'schedule', column: 'schedule_time_end' },
                 // { table: 'storage', column: 'file_date' },
+                { table: 'tasks', column: 'task_scheduled_date' },
                 // { table: 'trainings_assignments', column: 'assignment_updated' },
                 // { table: 'trainings_assignments', column: 'preference_updated' },
-                // { table: 'trainings_extra', column: 'training_extra_birthdate' },
                 // { table: 'trainings', column: 'training_start' },
                 // { table: 'trainings', column: 'training_end' },
                 // { table: 'users_events', column: 'registration_date' },
                 // { table: 'users_events', column: 'preferences_updated' },
                 // { table: 'users_passkeys', column: 'credential_created' },
                 // { table: 'users_passkeys', column: 'credential_last_used' },
-
-                { table: 'tasks', column: 'task_scheduled_date' },
-                { table: 'users', column: 'birthdate' },
                 { table: 'vendors', column: 'vendor_modified' },
+
             ].map(({ table, column }) => ([
                 {
                     // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
@@ -191,27 +222,6 @@ do {
                             tsType: {
                                 importPath: './app/lib/Temporal',
                                 name: 'PlainDate',
-                            },
-                            adapter: {
-                                importPath: './app/lib/database/TemporalTypeAdapter',
-                                name: 'TemporalTypeAdapter',
-                            },
-                        },
-                    }
-                },
-                {
-                    // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
-                    tableName: table,
-                    columnName: column,
-
-                    columnType: /^time$/i,
-                    generatedField: {
-                        type: {
-                            kind: 'customComparable',
-                            dbType: { name: 'time' },
-                            tsType: {
-                                importPath: './app/lib/Temporal',
-                                name: 'PlainTime',
                             },
                             adapter: {
                                 importPath: './app/lib/database/TemporalTypeAdapter',
