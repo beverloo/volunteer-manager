@@ -74,7 +74,7 @@ export function Information(props: InformationProps) {
 
     const defaultValues = {
         ...account,
-        rawBirthdate: account.birthdate ? dayjs('YYYY-MM-DD') : undefined
+        rawBirthdate: account.birthdate ? dayjs(account.birthdate) : undefined
     };
 
     return (
