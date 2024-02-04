@@ -123,7 +123,25 @@ do {
 
             // -------------------------------------------------------------------------------------
 
-            // TODO: DATE
+            // DATE columns will be represented as Temporal.PlainDate instances. Dates are not
+            // associated with a timezone, but can be upgraded to ZonedDateTime if need be.
+            {
+                columnType: /^date$/i,
+                generatedField: {
+                    type: {
+                        kind: 'customComparable',
+                        dbType: { name: 'date' },
+                        tsType: {
+                            importPath: './app/lib/Temporal',
+                            name: 'PlainDate',
+                        },
+                        adapter: {
+                            importPath: './app/lib/database/TemporalTypeAdapter',
+                            name: 'TemporalTypeAdapter',
+                        },
+                    },
+                }
+            },
 
             // TODO: DATETIME & TIMESTAMP
 
@@ -153,17 +171,6 @@ do {
             // default `Date` used by `ts-query-sql`. This supersedes our migration to DayJS, as
             // Temporal has a feature in being a standardised JavaScript feature provided natively.
             ...[
-                // DATE:
-
-                // { table: 'hotels_bookings', column: 'booking_check_in' },
-                // { table: 'hotels_bookings', column: 'booking_check_out' },
-                // { table: 'hotels_preferences', column: 'hotel_date_check_in' },
-                // { table: 'hotels_preferences', column: 'hotel_date_check_out' },
-                { table: 'trainings_extra', column: 'training_extra_birthdate' },
-                { table: 'users', column: 'birthdate' },
-
-                // DATETIME & TIMESTAMP:
-
                 { table: 'activities_areas', column: 'area_created' },
                 { table: 'activities_areas', column: 'area_updated' },
                 { table: 'activities_areas', column: 'area_deleted' },
@@ -209,27 +216,6 @@ do {
                 { table: 'vendors', column: 'vendor_modified' },
 
             ].map(({ table, column }) => ([
-                {
-                    // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
-                    tableName: table,
-                    columnName: column,
-
-                    columnType: /^date$/i,
-                    generatedField: {
-                        type: {
-                            kind: 'customComparable',
-                            dbType: { name: 'date' },
-                            tsType: {
-                                importPath: './app/lib/Temporal',
-                                name: 'PlainDate',
-                            },
-                            adapter: {
-                                importPath: './app/lib/database/TemporalTypeAdapter',
-                                name: 'TemporalTypeAdapter',
-                            },
-                        },
-                    }
-                },
                 ...[ 'dateTime', 'timestamp' ].map(columnType => ({
                     // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
                     tableName: table,
@@ -255,7 +241,7 @@ do {
 
             // We represent dates and times as DayJS objects in UTC, rather than the default `Date`
             // used by `ts-query-sql`. In the future we'll want to update this to Temporal.
-            ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({
+            ...[ 'dateTime', 'timestamp' ].map(columnType => ({
                 columnType: new RegExp(`^${columnType}$`, 'i'),
                 generatedField: {
                     type: {

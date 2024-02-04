@@ -83,10 +83,8 @@ export async function getRegistration(environmentName: string, event: Event, use
                 hotelId: hotelsPreferencesJoin.hotelId,
                 hotelName: hotelsJoin.hotelName,
                 hotelRoom: hotelsJoin.hotelRoomName,
-                checkIn: dbInstance.asDateString(
-                    hotelsPreferencesJoin.hotelDateCheckIn, 'optional'),
-                checkOut: dbInstance.asDateString(
-                    hotelsPreferencesJoin.hotelDateCheckOut, 'optional'),
+                checkIn: hotelsPreferencesJoin.hotelDateCheckInString,
+                checkOut: hotelsPreferencesJoin.hotelDateCheckOutString,
                 sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
                 sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
                 updated: dbInstance.asDateTimeString(
@@ -141,8 +139,8 @@ export async function getRegistration(environmentName: string, event: Event, use
             .and(tHotelsAssignments.eventId.equals(event.eventId))
             .and(tHotelsBookings.bookingConfirmed.equals(/* true= */ 1))
         .select({
-            checkIn: dbInstance.asDateString(tHotelsBookings.bookingCheckIn, 'required'),
-            checkOut: dbInstance.asDateString(tHotelsBookings.bookingCheckOut, 'required'),
+            checkIn: tHotelsBookings.bookingCheckInString,
+            checkOut: tHotelsBookings.bookingCheckOutString,
 
             hotel: {
                 name: tHotels.hotelName,

@@ -12,10 +12,16 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { formatDate } from '@lib/Temporal';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts }
     from '@lib/database';
+
+/**
+ * Date and time format in which updates should be displayed.
+ */
+const kUpdateFormat = ' dddd, MMMM D, [at] HH:mm';
 
 /**
  * The <ProgramLayout> component contains the common elements between the different pages that make
@@ -132,12 +138,12 @@ export default async function ProgramActivityPage(props: NextRouterParams<'slug'
 
                     <Typography variant="body2">
                         <strong>Created on</strong>:
-                        { activity.created.tz(event.timezone).format(' dddd, MMMM D, [at] HH:mm') }
+                        { formatDate(activity.created.withTimeZone(event.timezone), kUpdateFormat) }
                     </Typography>
 
                     <Typography variant="body2">
                         <strong>Updated on</strong>:
-                        { activity.updated.tz(event.timezone).format(' dddd, MMMM D, [at] HH:mm') }
+                        { formatDate(activity.updated.withTimeZone(event.timezone), kUpdateFormat) }
                     </Typography>
 
                 </Stack>

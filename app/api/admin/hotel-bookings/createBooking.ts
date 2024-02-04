@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -51,8 +52,8 @@ export async function createBooking(request: Request, props: ActionProps): Promi
     const insertId = await db.insertInto(tHotelsBookings)
         .set({
             eventId: event.eventId,
-            bookingCheckIn: dayjs.utc(event.startTime),
-            bookingCheckOut: dayjs.utc(event.endTime),
+            bookingCheckIn: Temporal.PlainDate.from(dayjs(event.startTime).format('YYYY-MM-DD')),
+            bookingCheckOut: Temporal.PlainDate.from(dayjs(event.endTime).format('YYYY-MM-DD')),
             bookingConfirmed: 0,
             bookingVisible: 1,
         })

@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -126,8 +127,8 @@ export async function updateBooking(request: Request, props: ActionProps): Promi
     const affectedRows = await db.update(tHotelsBookings)
         .set({
             bookingHotelId: request.hotelId,
-            bookingCheckIn: dayjs.utc(request.checkIn),
-            bookingCheckOut: dayjs.utc(request.checkOut),
+            bookingCheckIn: Temporal.PlainDate.from(request.checkIn),
+            bookingCheckOut: Temporal.PlainDate.from(request.checkOut),
             bookingConfirmed: request.confirmed ? 1 : 0,
         })
         .where(tHotelsBookings.eventId.equals(event.eventId))

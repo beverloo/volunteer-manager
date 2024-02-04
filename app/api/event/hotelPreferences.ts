@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -165,8 +166,8 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
     let update: {
         hotelId: number | null,
-        hotelDateCheckIn: dayjs.Dayjs | null,
-        hotelDateCheckOut: dayjs.Dayjs | null,
+        hotelDateCheckIn: Temporal.PlainDate | null,
+        hotelDateCheckOut: Temporal.PlainDate | null,
         hotelSharingPeople: number | null,
         hotelSharingPreferences: string | null
     };
@@ -194,8 +195,8 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
         update = {
             hotelId: request.preferences.hotelId,
-            hotelDateCheckIn: dayjs.utc(request.preferences.checkIn),
-            hotelDateCheckOut: dayjs.utc(request.preferences.checkOut),
+            hotelDateCheckIn: Temporal.PlainDate.from(request.preferences.checkIn),
+            hotelDateCheckOut: Temporal.PlainDate.from(request.preferences.checkOut),
             hotelSharingPeople: request.preferences.sharingPeople,
             hotelSharingPreferences: request.preferences.sharingPreferences,
         };
