@@ -130,7 +130,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             firstName: update.firstName,
             lastName: update.lastName,
             gender: update.gender,
-            birthdate: Temporal.ZonedDateTime.from(`${update.birthdate}T00:00:00Z[UTC]`),
+            birthdate: Temporal.PlainDate.from(update.birthdate),
             phoneNumber: update.phoneNumber
         })
         .where(tUsers.userId.equals(props.user.userId))

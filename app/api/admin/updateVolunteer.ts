@@ -78,10 +78,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             firstName: request.firstName,
             lastName: request.lastName,
             gender: request.gender,
-            birthdate:
-                request.birthdate
-                    ? Temporal.ZonedDateTime.from(`${request.birthdate}T00:00:00Z[UTC]`)
-                    : null,
+            birthdate: request.birthdate ? Temporal.PlainDate.from(request.birthdate) : null,
             phoneNumber: request.phoneNumber,
         })
         .where(tUsers.userId.equals(request.userId))

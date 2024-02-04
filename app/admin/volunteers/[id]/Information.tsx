@@ -74,10 +74,7 @@ export function Information(props: InformationProps) {
 
     const defaultValues = {
         ...account,
-        rawBirthdate:
-            account.birthdate
-                ? dayjs(formatDate(Temporal.ZonedDateTime.from(account.birthdate), 'YYYY-MM-DD'))
-                : undefined
+        rawBirthdate: account.birthdate ? dayjs('YYYY-MM-DD') : undefined
     };
 
     return (

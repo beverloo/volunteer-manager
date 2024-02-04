@@ -8,7 +8,7 @@ import { extractWritableColumnNamesFrom } from 'ts-sql-query/extras/utils';
 import { optionalType, tableOrViewRef } from 'ts-sql-query/utils/symbols';
 
 import type { DBConnection } from './Connection';
-import type { ZonedDateTime } from '@lib/Temporal';
+import type { PlainDate, PlainTime, ZonedDateTime } from '@lib/Temporal';
 import { TemporalTypeAdapter } from './TemporalTypeAdapter';
 
 /**
@@ -21,11 +21,15 @@ type RemoveNeverKeys<T> = { [K in keyof T]: T[K] extends never ? never : K }[key
  * `ZonedDateTime` type, which are the ones we want to add string variants to. The correct table (or
  * view) references are maintained, as is optionality of the column.
  */
-type SelectZonedDateTimeColumns<T extends Table<DBConnection, any>> = {
+type SelectTemporalColumns<T extends Table<DBConnection, any>> = {
     [K in WritableColumnKeys<T>]-?:
         T[K] extends ComparableValueSource<any, ZonedDateTime, ZonedDateTime, any>
             ? StringValueSource<T[typeof tableOrViewRef], T[K][typeof optionalType]>
-            : never;
+            : (T[K] extends ComparableValueSource<any, PlainDate, PlainDate, any>
+                 ? StringValueSource<T[typeof tableOrViewRef], T[K][typeof optionalType]>
+                 : (T[K] extends ComparableValueSource<any, PlainTime, PlainTime, any>
+                    ? StringValueSource<T[typeof tableOrViewRef], T[K][typeof optionalType]>
+                    : never));
 };
 
 /**
@@ -40,7 +44,7 @@ type ComposeGeneratedStringColumns<Columns> = {
  * column types that exist in our database system.
  */
 type TableWithDateTimeStrings<T extends Table<DBConnection, any>> =
-    T & ComposeGeneratedStringColumns<SelectZonedDateTimeColumns<T>>;
+    T & ComposeGeneratedStringColumns<SelectTemporalColumns<T>>;
 
 /**
  * The `withDateTimeStringColumns` utility function takes a ts-sql-query generated table scheme and
@@ -63,7 +67,7 @@ export function withDateTimeStringColumns<T extends Table<DBConnection, any>>(ta
             case 'date':
                 anyTable[`${column}String`] =
                     anyTable[fragmentFn]('string', (fragment: any) =>
-                        fragment.sql`date_format(${anyTable[column]}, "%Y-%m-%dT00:00:00Z[UTC]")`);
+                        fragment.sql`date_format(${anyTable[column]}, "%Y-%m-%d")`);
 
                 break;
 
@@ -78,7 +82,7 @@ export function withDateTimeStringColumns<T extends Table<DBConnection, any>>(ta
             case 'time':
                 anyTable[`${column}String`] =
                     anyTable[fragmentFn]('string', (fragment: any) =>
-                        fragment.sql`date_format(${anyTable[column]}, "1970-01-01T%TZ[UTC]")`);
+                        fragment.sql`date_format(${anyTable[column]}, "%T")`);
 
                 break;
 

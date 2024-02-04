@@ -31,7 +31,7 @@ export interface VolunteerInfo {
         firstName: string;
         lastName: string;
         gender: string;
-        birthdate?: string;  // Temporal.ZoneDateTime-compatible format
+        birthdate?: string;  // YYYY-MM-DD
         phoneNumber?: string;
         privileges: bigint;
         activated: number;

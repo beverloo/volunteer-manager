@@ -143,7 +143,7 @@ describe('withDateTimeStrings', () => {
                     .query();
 
                 expect(query).toEqual(
-                    `select date_format(${name}, "%Y-%m-%dT00:00:00Z[UTC]") as result from tbl`);
+                    `select date_format(${name}, "%Y-%m-%d") as result from tbl`);
             }
         }
 
@@ -188,8 +188,7 @@ describe('withDateTimeStrings', () => {
                     .selectOneColumn(column)
                     .query();
 
-                expect(query).toEqual(
-                    `select date_format(${name}, "1970-01-01T%TZ[UTC]") as result from tbl`);
+                expect(query).toEqual(`select date_format(${name}, "%T") as result from tbl`);
             }
         }
 

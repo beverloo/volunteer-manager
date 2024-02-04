@@ -36,10 +36,7 @@ export const TemporalTypeAdapter = new class implements TypeAdapter {
                         `Unexpected date format received by TemporalTypeAdapter: ${value}`);
                 }
 
-                return Temporal.PlainDate.from(value).toZonedDateTime({
-                    timeZone: 'UTC',
-                    plainTime: Temporal.PlainTime.from('00:00:00'),
-                });
+                return Temporal.PlainDate.from(value);
             }
 
             case 'dateTime':
@@ -60,10 +57,7 @@ export const TemporalTypeAdapter = new class implements TypeAdapter {
                         `Unexpected date+time format received by TemporalTypeAdapter: ${value}`);
                 }
 
-                return Temporal.PlainTime.from(value).toZonedDateTime({
-                    timeZone: 'UTC',
-                    plainDate: Temporal.PlainDate.from('1970-01-01'),
-                });
+                return Temporal.PlainTime.from(value);
             }
         }
     }
@@ -75,23 +69,34 @@ export const TemporalTypeAdapter = new class implements TypeAdapter {
         if (value === null || value === undefined)
             return value;  // pass-through nullsy values
 
-        if (!(value instanceof Temporal.ZonedDateTime)) {
-            throw new Error(
-                `Unexpected value received by TemporalTypeAdapter(::toDB): ${typeof value}`);
-        }
-
-        const utcValue = value.withTimeZone('UTC');
-
         switch (type) {
-            case 'date':
-                return formatDate(utcValue, 'YYYY-MM-DD');
+            case 'date': {
+                if (!(value instanceof Temporal.PlainDate)) {
+                    throw new Error(
+                        `Unexpected value received by TemporalTypeAdapter::toDB: ${typeof value}`);
+                }
+
+                return formatDate(value, 'YYYY-MM-DD');
+            }
 
             case 'dateTime':
-            case 'timestamp':
-                return formatDate(utcValue, 'YYYY-MM-DD HH:mm:ss');
+            case 'timestamp': {
+                if (!(value instanceof Temporal.ZonedDateTime)) {
+                    throw new Error(
+                        `Unexpected value received by TemporalTypeAdapter::toDB: ${typeof value}`);
+                }
 
-            case 'time':
-                return formatDate(utcValue, 'HH:mm:ss');
+                return formatDate(value.withTimeZone('UTC'), 'YYYY-MM-DD HH:mm:ss');
+            }
+
+            case 'time': {
+                if (!(value instanceof Temporal.PlainTime)) {
+                    throw new Error(
+                        `Unexpected value received by TemporalTypeAdapter::toDB: ${typeof value}`);
+                }
+
+                return formatDate(value, 'HH:mm:ss');
+            }
         }
     }
 }

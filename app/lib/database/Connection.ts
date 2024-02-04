@@ -18,7 +18,7 @@ import { MockQueryRunner, type QueryType as MockQueryType }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
 import type { DateTime } from '@lib/DateTime';
-import type { ZonedDateTime } from '@lib/Temporal';
+import type { PlainDate, PlainTime, ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
 /**
@@ -67,7 +67,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
         : DateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalDateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           ComparableValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
+              NoTableOrViewRequired<DB<'DBConnection'>>, PlainDate, PlainDate, 'required'>
     {
         return super.currentDate() as any;
     }
@@ -104,7 +104,7 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
         : TimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           ComparableValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
+              NoTableOrViewRequired<DB<'DBConnection'>>, PlainTime, PlainTime, 'required'>
     {
         return super.currentTime() as any;
     }

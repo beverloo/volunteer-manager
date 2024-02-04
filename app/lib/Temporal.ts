@@ -11,6 +11,12 @@ export { Temporal };
 export type ZonedDateTime = Temporal.ZonedDateTime;
 
 /**
+ * Export top-level type definitions for the plain date and time types.
+ */
+export type PlainDate = Temporal.PlainDate;
+export type PlainTime = Temporal.PlainTime;
+
+/**
  * Regular expression using which we parse the format passed to the `format` function. It combines
  * the original expression with the one used in the _advancedFormat_ plugin, as we support both.
  *

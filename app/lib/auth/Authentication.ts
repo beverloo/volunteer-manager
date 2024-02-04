@@ -228,7 +228,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
                 firstName: data.firstName,
                 lastName: data.lastName,
                 gender: data.gender,
-                birthdate: Temporal.ZonedDateTime.from(`${data.birthdate}T00:00:00Z[UTC]`),
+                birthdate: Temporal.PlainDate.from(data.birthdate),
                 phoneNumber: data.phoneNumber,
             })
             .returningLastInsertedId()

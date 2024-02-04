@@ -25,8 +25,8 @@ export interface Birthday {
     name: string;
 
     /**
-     * The date on which this person celebrates their birthday. Represented in a Temporal-compatible
-     * format inclusive of timezone and calendar.
+     * The date on which this person celebrates their birthday. Represented in a Temporal PlainDate-
+     * compatible serialization.
      */
     birthdate: string;
 }
@@ -51,7 +51,7 @@ export interface BirthdayCardProps {
  * particular month. No particular interaction is provided, but we don't want to forget either.
  */
 export function BirthdayCard(props: BirthdayCardProps) {
-    const month = formatDate(Temporal.ZonedDateTime.from(props.birthdays[0].birthdate), 'MMMM');
+    const month = formatDate(Temporal.PlainDate.from(props.birthdays[0].birthdate), 'MMMM');
     const image = !!props.upcoming ? '/images/admin/birthday-header-2.jpg'
                                    : '/images/admin/birthday-header-1.jpg';
 
@@ -73,7 +73,7 @@ export function BirthdayCard(props: BirthdayCardProps) {
                             <ListItemText
                                 primary={name}
                                 secondary={
-                                    formatDate(Temporal.ZonedDateTime.from(birthdate), 'MMMM D')} />
+                                    formatDate(Temporal.PlainDate.from(birthdate), 'MMMM D')} />
 
                         </ListItem> )}
                 </List>

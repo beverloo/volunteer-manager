@@ -178,7 +178,49 @@ do {
                 { table: 'users', column: 'birthdate' },
                 { table: 'vendors', column: 'vendor_modified' },
             ].map(({ table, column }) => ([
-                ...[ 'date', 'dateTime', 'time', 'timestamp' ].map(columnType => ({
+                {
+                    // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
+                    tableName: table,
+                    columnName: column,
+
+                    columnType: /^date$/i,
+                    generatedField: {
+                        type: {
+                            kind: 'customComparable',
+                            dbType: { name: 'date' },
+                            tsType: {
+                                importPath: './app/lib/Temporal',
+                                name: 'PlainDate',
+                            },
+                            adapter: {
+                                importPath: './app/lib/database/TemporalTypeAdapter',
+                                name: 'TemporalTypeAdapter',
+                            },
+                        },
+                    }
+                },
+                {
+                    // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
+                    tableName: table,
+                    columnName: column,
+
+                    columnType: /^time$/i,
+                    generatedField: {
+                        type: {
+                            kind: 'customComparable',
+                            dbType: { name: 'time' },
+                            tsType: {
+                                importPath: './app/lib/Temporal',
+                                name: 'PlainTime',
+                            },
+                            adapter: {
+                                importPath: './app/lib/database/TemporalTypeAdapter',
+                                name: 'TemporalTypeAdapter',
+                            },
+                        },
+                    }
+                },
+                ...[ 'dateTime', 'timestamp' ].map(columnType => ({
                     // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
                     tableName: table,
                     columnName: column,
