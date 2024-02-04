@@ -4,7 +4,7 @@
 import { Table } from 'ts-sql-query/Table';
 import { extractColumnNamesFrom, extractWritableColumnNamesFrom } from 'ts-sql-query/extras/utils';
 
-import type { ZonedDateTime } from '@lib/Temporal';
+import type { PlainDate, PlainTime, ZonedDateTime } from '@lib/Temporal';
 import { DBConnection, useMockConnection } from './Connection';
 import { TasksTable } from './scheme/TasksTable';
 import { TemporalTypeAdapter } from './TemporalTypeAdapter';
@@ -69,13 +69,13 @@ describe('withDateTimeStrings', () => {
             // DATE:
             // -------------------------------------------------------------------------------------
 
-            optionalDefaultDateColumn = this.optionalColumnWithDefaultValue<ZonedDateTime>(
+            optionalDefaultDateColumn = this.optionalColumnWithDefaultValue<PlainDate>(
                 'date_default_optional', 'customComparable', 'date', TemporalTypeAdapter);
-            optionalDateColumn = this.optionalColumn<ZonedDateTime>(
+            optionalDateColumn = this.optionalColumn<PlainDate>(
                 'date_optional', 'customComparable', 'date', TemporalTypeAdapter);
-            requiredDefaultDateColumn = this.columnWithDefaultValue<ZonedDateTime>(
+            requiredDefaultDateColumn = this.columnWithDefaultValue<PlainDate>(
                 'date_default_required', 'customComparable', 'date', TemporalTypeAdapter);
-            requiredDateColumn = this.column<ZonedDateTime>(
+            requiredDateColumn = this.column<PlainDate>(
                 'date_required', 'customComparable', 'date', TemporalTypeAdapter);
 
             // -------------------------------------------------------------------------------------
@@ -95,13 +95,13 @@ describe('withDateTimeStrings', () => {
             // TIME:
             // -------------------------------------------------------------------------------------
 
-            optionalDefaultTimeColumn = this.optionalColumnWithDefaultValue<ZonedDateTime>(
+            optionalDefaultTimeColumn = this.optionalColumnWithDefaultValue<PlainTime>(
                 'time_default_optional', 'customComparable', 'time', TemporalTypeAdapter);
-            optionalTimeColumn = this.optionalColumn<ZonedDateTime>(
+            optionalTimeColumn = this.optionalColumn<PlainTime>(
                 'time_optional', 'customComparable', 'time', TemporalTypeAdapter);
-            requiredDefaultTimeColumn = this.columnWithDefaultValue<ZonedDateTime>(
+            requiredDefaultTimeColumn = this.columnWithDefaultValue<PlainTime>(
                 'time_default_required', 'customComparable', 'time', TemporalTypeAdapter);
-            requiredTimeColumn = this.column<ZonedDateTime>(
+            requiredTimeColumn = this.column<PlainTime>(
                 'time_required', 'customComparable', 'time', TemporalTypeAdapter);
 
             // -------------------------------------------------------------------------------------
@@ -213,6 +213,60 @@ describe('withDateTimeStrings', () => {
                 expect(query).toEqual(
                     `select date_format(${name}, "%Y-%m-%dT%TZ[UTC]") as result from tbl`);
             }
+        }
+    });
+
+    it('works in optional (outer) joins as expected', () => {
+        const firstTable = new class extends Table<DBConnection, 'first'> {
+            id = this.column('id', 'int');
+            date = this.optionalColumn<PlainDate>(
+                'date_optional', 'customComparable', 'date', TemporalTypeAdapter);
+
+            constructor() {
+                super('first');
+            }
+        };
+
+        const secondTable = new class extends Table<DBConnection, 'second'> {
+            firstId = this.column('id', 'int');
+
+            constructor() {
+                super('second');
+            }
+        };
+
+        const firstTableWithDateTimeStringColumns = withDateTimeStringColumns(firstTable);
+        const secondTableWithDateTimeStringColumns = withDateTimeStringColumns(secondTable);
+
+        // Test (1): Use of an INNER JOIN
+        {
+            const query = db.selectFrom(secondTableWithDateTimeStringColumns)
+                .innerJoin(firstTableWithDateTimeStringColumns)
+                    .on(firstTableWithDateTimeStringColumns.id.equals(
+                        secondTableWithDateTimeStringColumns.firstId))
+                .selectOneColumn(firstTableWithDateTimeStringColumns.dateString)
+                .query();
+
+            expect(query).toEqual(
+                'select date_format(first.date_optional, \"%Y-%m-%d\") as result from second ' +
+                'inner join first on first.id = second.id');
+        }
+
+        // Test (2): Use of a LEFT JOIN
+        {
+            const firstTableWithDateTimeStringColumnsJoin =
+                firstTableWithDateTimeStringColumns.forUseInLeftJoin();
+
+            const query = db.selectFrom(secondTableWithDateTimeStringColumns)
+                .leftJoin(firstTableWithDateTimeStringColumnsJoin)
+                    .on(firstTableWithDateTimeStringColumnsJoin.id.equals(
+                        secondTableWithDateTimeStringColumns.firstId))
+                .selectOneColumn(firstTableWithDateTimeStringColumnsJoin.dateString)
+                .query();
+
+            expect(query).toEqual(
+                'select date_format(first.date_optional, \"%Y-%m-%d\") as result from second ' +
+                'left join first on first.id = second.id');
         }
     });
 });

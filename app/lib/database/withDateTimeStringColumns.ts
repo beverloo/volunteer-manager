@@ -55,6 +55,7 @@ export function withDateTimeStringColumns<T extends Table<DBConnection, any>>(ta
     : TableWithDateTimeStrings<T>
 {
     const anyTable = table as any;
+
     for (const column of extractWritableColumnNamesFrom(table)) {
         if (anyTable[column].__typeAdapter !== TemporalTypeAdapter)
             continue;  // `column` does not describe a temporal type
@@ -88,6 +89,14 @@ export function withDateTimeStringColumns<T extends Table<DBConnection, any>>(ta
 
             default:
                 throw new Error('Unexpected non-date/time column using the temporal adapter');
+        }
+
+        if (!anyTable.__injectedDateTimeStringForAliases) {
+            anyTable.__injectedDateTimeStringForAliases = true;
+
+            const originalFunction = anyTable.forUseInLeftJoinAs;
+            anyTable.__proto__.forUseInLeftJoinAs = (alias: string) =>
+                withDateTimeStringColumns(originalFunction.call(anyTable));
         }
     }
 
