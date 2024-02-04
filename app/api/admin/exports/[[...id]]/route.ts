@@ -144,7 +144,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 exportEventId: event.eventId,
                 exportType: row.type,
                 exportJustification: row.justification,
-                exportCreatedDate: dbInstance.currentDateTime2(),
+                exportCreatedDate: dbInstance.currentDateTime(),
                 exportCreatedUserId: props.user!.userId,
                 exportExpirationDate: expirationDate,
                 exportExpirationViews: row.expirationViews,

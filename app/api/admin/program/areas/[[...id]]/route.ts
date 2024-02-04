@@ -115,22 +115,22 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 areaFestivalId: event.festivalId,
                 areaType: ActivityType.Internal,
                 areaName: `Internal area #${newDisplayInternalAreaId}`,
-                areaCreated: dbInstance.currentDateTime2(),
-                areaUpdated: dbInstance.currentDateTime2(),
+                areaCreated: dbInstance.currentDateTime(),
+                areaUpdated: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
         if (!insertedRows)
             return { success: false, error: 'Unable to write the new area to the database…' };
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 areaId: newInternalAreaId,
                 mutation: Mutation.Created,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
@@ -152,7 +152,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tActivitiesAreas)
             .set({
-                areaDeleted: dbInstance.currentDateTime2(),
+                areaDeleted: dbInstance.currentDateTime(),
             })
             .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
                 .and(tActivitiesAreas.areaId.equals(id))
@@ -160,14 +160,14 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 .and(tActivitiesAreas.areaDeleted.isNull())
             .executeUpdate();
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 areaId: id,
                 mutation: Mutation.Deleted,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
@@ -226,7 +226,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
             .executeUpdate();
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 areaId: id,
@@ -234,7 +234,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 mutationFields: 'display name',
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 

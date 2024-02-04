@@ -1,28 +1,40 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { ComparableValueSource, IValueSource, OptionalType, StringValueSource } from 'ts-sql-query/expressions/values';
-import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
-import type { DateTime } from '@lib/DateTime';
-import type { ITableOrViewRef, NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
 import { type Pool, type PoolConfig, createPool } from 'mariadb';
-import { type QueryType, InterceptorQueryRunner }
-    from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
-import { type QueryType as MockQueryType, MockQueryRunner }
-    from 'ts-sql-query/queryRunners/MockQueryRunner';
 
+import type {
+    ComparableValueSource, DateTimeValueSource, DateValueSource, LocalDateTimeValueSource,
+    LocalDateValueSource, LocalTimeValueSource, OptionalType, StringValueSource, TimeValueSource }
+    from 'ts-sql-query/expressions/values';
+
+import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
+import type { ITableOrViewRef, NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
+import { InterceptorQueryRunner, type QueryType }
+    from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
 import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQueryRunner';
+import { MockQueryRunner, type QueryType as MockQueryType }
+    from 'ts-sql-query/queryRunners/MockQueryRunner';
 
+import type { DateTime } from '@lib/DateTime';
+import type { ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { optionalType } from 'ts-sql-query/utils/symbols';
-import type { AnyDB } from 'ts-sql-query/databases';
 
 /**
  * Type definition for a comparable DateTime value source, used for implicit values.
  */
 type ComparableDateTimeValueSource<IsOptional extends OptionalType = 'required'> =
     ComparableValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, IsOptional>
+
+/**
+ * Value source for the `DateTime` (i.e. DayJS) and `ZonedDateTime` (i.e. Temporal) types.
+ */
+type DateTimeAndZonedDateTimeValueSource =
+    ComparableValueSource<
+        NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, 'required'> &
+    ComparableValueSource<
+        NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>;
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -52,6 +64,56 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
      * Allow empty strings to be passed. Without this setting `ts-sql-query` will use NULL instead.
      */
     override allowEmptyString = true;
+
+    /**
+     * The `currentDate()` helper refers to an SQL Fragment through which the server directly
+     * inserts the current date. This works orthogonal to the type we use to represent dates.
+     */
+    override currentDate()
+        : DateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          LocalDateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          ComparableValueSource<
+              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
+    {
+        return super.currentDate() as any;
+    }
+
+    /**
+     * The `currentDateTime()` helper refers to an SQL Fragment through which the server directly
+     * inserts the current date & time. This works orthogonal to the type we use to represent dates.
+     */
+    override currentDateTime()
+        : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          DateTimeAndZonedDateTimeValueSource  // TODO: Deprecate DayJS support
+    {
+        return super.currentDateTime() as any;
+    }
+
+    /**
+     * The `currentTimestamp()` helper refers to an SQL Fragment through which the server directly
+     * inserts the current date & time. This works orthogonal to the type we use to represent dates.
+     */
+    override currentTimestamp()
+        : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          DateTimeAndZonedDateTimeValueSource  // TODO: Deprecate DayJS support
+    {
+        return super.currentTimestamp() as any;
+    }
+
+    /**
+     * The `currentTimestamp()` helper refers to an SQL Fragment through which the server directly
+     * inserts the current time. This works orthogonal to the type we use to represent dates.
+     */
+    override currentTime()
+        : TimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          LocalTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
+          ComparableValueSource<
+              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
+    {
+        return super.currentTime() as any;
+    }
 
     /**
      * Provide an easy manner to convert a DateTime value source to a string representation
@@ -104,15 +166,6 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
 
         throw new Error(`Invalid value for "required" in asDateTimeString(): ${required}`);
     }
-
-    /**
-     * Provide easy accessors to get the current date and time information without having to rely on
-     * cross-server clocks being in sync. These assume use of the `DateTime` type.
-     */
-    currentDate2(): ComparableDateTimeValueSource { return super.currentDate() as any; }
-    currentDateTime2(): ComparableDateTimeValueSource { return super.currentDateTime() as any; }
-    currentTimestamp2(): ComparableDateTimeValueSource { return super.currentTimestamp() as any; }
-    currentTime2(): ComparableDateTimeValueSource { return super.currentTime() as any; }
 }
 
 /**

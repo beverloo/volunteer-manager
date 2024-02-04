@@ -146,7 +146,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tRefunds)
             .set({
-                refundConfirmed: row.confirmed ? dbInstance.currentDateTime2() : null
+                refundConfirmed: row.confirmed ? dbInstance.currentDateTime() : null
             })
             .where(tRefunds.eventId.equals(event.eventId))
                 .and(tRefunds.userId.equals(id))

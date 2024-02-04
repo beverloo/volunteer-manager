@@ -123,29 +123,29 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         const newDisplayInternalLocationId = newInternalLocationId - kInternalLocationIdOffset;
 
         const dbInstance = db;
-        const insertedRows = await db.insertInto(tActivitiesLocations)
+        const insertedRows = await dbInstance.insertInto(tActivitiesLocations)
             .set({
                 locationId: newInternalLocationId,
                 locationFestivalId: event.festivalId,
                 locationType: ActivityType.Internal,
                 locationName: `Internal location #${newDisplayInternalLocationId}`,
                 locationAreaId: firstAreaId,
-                locationCreated: dbInstance.currentDateTime2(),
-                locationUpdated: dbInstance.currentDateTime2(),
+                locationCreated: dbInstance.currentDateTime(),
+                locationUpdated: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
         if (!insertedRows)
             return { success: false, error: 'Unable to write the new location to the database…' };
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 locationId: newInternalLocationId,
                 mutation: Mutation.Created,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
@@ -168,7 +168,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tActivitiesLocations)
             .set({
-                locationDeleted: dbInstance.currentDateTime2(),
+                locationDeleted: dbInstance.currentDateTime(),
             })
             .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
                 .and(tActivitiesLocations.locationId.equals(id))
@@ -176,14 +176,14 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 .and(tActivitiesLocations.locationDeleted.isNull())
             .executeUpdate();
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 locationId: id,
                 mutation: Mutation.Deleted,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 
@@ -245,7 +245,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
             .executeUpdate();
 
-        await db.insertInto(tActivitiesLogs)
+        await dbInstance.insertInto(tActivitiesLogs)
             .set({
                 festivalId: event.festivalId,
                 locationId: id,
@@ -253,7 +253,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 mutationFields: 'area, display name',
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime2(),
+                mutationDate: dbInstance.currentDateTime(),
             })
             .executeInsert();
 

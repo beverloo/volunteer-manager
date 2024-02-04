@@ -173,11 +173,11 @@ export async function trainingExtra(request: Request, props: ActionProps): Promi
                         eventId: event.eventId,
                         assignmentExtraId: request.update.id,
                         preferenceTrainingId,
-                        preferenceUpdated: dbInstance.currentTimestamp2(),
+                        preferenceUpdated: dbInstance.currentTimestamp(),
                     })
                     .onConflictDoUpdateSet({
                         preferenceTrainingId,
-                        preferenceUpdated: dbInstance.currentTimestamp2(),
+                        preferenceUpdated: dbInstance.currentTimestamp(),
                     })
                     .executeInsert();
             }

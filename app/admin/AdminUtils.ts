@@ -16,7 +16,8 @@ export async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEve
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
 
-    const eventEntries = await db.selectFrom(tEvents)
+    const dbInstance = db;
+    const eventEntries = await dbInstance.selectFrom(tEvents)
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.userId.equals(user.userId))
@@ -24,7 +25,7 @@ export async function getHeaderEventsForUser(user: User): Promise<AdminHeaderEve
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .where(rolesJoin.roleAdminAccess.equals(1).onlyWhen(!isEventAdministrator))
         .select({
-            done: tEvents.eventEndTime.lessOrEquals(db.currentDateTime2()),
+            done: tEvents.eventEndTime.lessOrEquals(dbInstance.currentDateTime()),
             eventShortName: tEvents.eventShortName,
             eventSlug: tEvents.eventSlug,
         })

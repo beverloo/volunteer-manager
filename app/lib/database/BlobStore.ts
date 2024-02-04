@@ -83,12 +83,14 @@ export async function storeBlobData(info: BlobInfo): Promise<number | false> {
     }
 
     const hash = nanoid(/* size= */ 12);
-    const insertId = await db.insertInto(tStorage)
+
+    const dbInstance = db;
+    const insertId = await dbInstance.insertInto(tStorage)
         .values({
             fileHash: hash,
             fileType: info.type,
             fileMimeType: info.mimeType,
-            fileDate: db.currentDateTime2(),
+            fileDate: dbInstance.currentDateTime(),
             fileData: info.bytes,
             userId: info.userId,
         })

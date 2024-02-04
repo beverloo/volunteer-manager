@@ -242,7 +242,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
         .where(tExports.exportSlug.equals(request.slug))
             .and(tExports.exportEnabled.equals(/* true= */ 1))
-            .and(tExports.exportExpirationDate.greaterThan(dbInstance.currentDateTime2()))
+            .and(tExports.exportExpirationDate.greaterThan(dbInstance.currentDateTime()))
         .select({
             id: tExports.exportId,
             eventId: tExports.exportEventId,
@@ -276,7 +276,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         await dbInstance.insertInto(tExportsLogs)
             .set({
                 exportId: metadata.id,
-                accessDate: dbInstance.currentDateTime2(),
+                accessDate: dbInstance.currentDateTime(),
                 accessIpAddress: props.ip,
                 accessUserAgent: props.requestHeaders.get('user-agent') ?? '(unknown)',
                 accessUserId: props.user?.userId,

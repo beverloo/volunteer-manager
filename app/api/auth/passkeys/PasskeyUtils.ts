@@ -89,7 +89,7 @@ export async function updateCredentialCounter(
     const dbInstance = db;
     await dbInstance.update(tUsersPasskeys)
         .set({
-            credentialLastUsed: dbInstance.currentDateTime2(),
+            credentialLastUsed: dbInstance.currentDateTime(),
             counter,
         })
         .where(tUsersPasskeys.userId.equals(user.userId))

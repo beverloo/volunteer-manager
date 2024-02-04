@@ -46,7 +46,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
 
             enabled: tExports.exportEnabled.equals(/* true= */ 1),
             accessDateValid: tExports.exportExpirationDate.greaterThan(
-                dbInstance.currentDateTime2()),
+                dbInstance.currentDateTime()),
             accessViewsValid: tExports.exportExpirationViews.greaterThan(
                 dbInstance.count(exportsLogsJoin.exportLogId)),
         })

@@ -208,11 +208,11 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
             eventId: event.eventId,
             teamId: team.id,
             ...update,
-            hotelPreferencesUpdated: dbInstance.currentDateTime2()
+            hotelPreferencesUpdated: dbInstance.currentDateTime()
         })
         .onConflictDoUpdateSet({
             ...update,
-            hotelPreferencesUpdated: dbInstance.currentDateTime2()
+            hotelPreferencesUpdated: dbInstance.currentDateTime()
         })
         .executeInsert();
 

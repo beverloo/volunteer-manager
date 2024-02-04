@@ -85,7 +85,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
             .set({
                 nardoAdvice: 'Nardo!',
                 nardoAuthorId: props.user!.userId,
-                nardoAuthorDate: dbInstance.currentTimestamp2(),
+                nardoAuthorDate: dbInstance.currentTimestamp(),
             })
             .returningLastInsertedId()
             .executeInsert();
