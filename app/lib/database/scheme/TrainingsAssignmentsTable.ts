@@ -9,8 +9,14 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
+    TemporalTypeAdapter,
+} from "../TemporalTypeAdapter";
+import {
     DateTimeTypeAdapter,
 } from "../DateTimeTypeAdapter";
+import {
+    ZonedDateTime,
+} from "../../Temporal";
 import {
     DateTime,
 } from "../../DateTime";
@@ -21,7 +27,7 @@ export class TrainingsAssignmentsTable extends Table<DBConnection, 'TrainingsAss
     assignmentUserId = this.optionalColumnWithDefaultValue('assignment_user_id', 'int');
     assignmentExtraId = this.optionalColumnWithDefaultValue('assignment_extra_id', 'int');
     assignmentTrainingId = this.optionalColumnWithDefaultValue('assignment_training_id', 'int');
-    assignmentUpdated = this.optionalColumnWithDefaultValue<DateTime>('assignment_updated', 'customComparable', 'timestamp', DateTimeTypeAdapter);
+    assignmentUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('assignment_updated', 'customComparable', 'timestamp', TemporalTypeAdapter);
     assignmentConfirmed = this.columnWithDefaultValue('assignment_confirmed', 'int');
     preferenceTrainingId = this.optionalColumnWithDefaultValue('preference_training_id', 'int');
     preferenceUpdated = this.optionalColumnWithDefaultValue<DateTime>('preference_updated', 'customComparable', 'timestamp', DateTimeTypeAdapter);

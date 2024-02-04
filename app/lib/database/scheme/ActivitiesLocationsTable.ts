@@ -9,14 +9,14 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
-    DateTimeTypeAdapter,
-} from "../DateTimeTypeAdapter";
+    TemporalTypeAdapter,
+} from "../TemporalTypeAdapter";
 import {
     ActivityType,
 } from "../Types";
 import {
-    DateTime,
-} from "../../DateTime";
+    ZonedDateTime,
+} from "../../Temporal";
 
 export class ActivitiesLocationsTable extends Table<DBConnection, 'ActivitiesLocationsTable'> {
     locationId = this.column('location_id', 'int');
@@ -25,9 +25,9 @@ export class ActivitiesLocationsTable extends Table<DBConnection, 'ActivitiesLoc
     locationName = this.column('location_name', 'string');
     locationDisplayName = this.optionalColumnWithDefaultValue('location_display_name', 'string');
     locationAreaId = this.column('location_area_id', 'int');
-    locationCreated = this.column<DateTime>('location_created', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    locationUpdated = this.column<DateTime>('location_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    locationDeleted = this.optionalColumnWithDefaultValue<DateTime>('location_deleted', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    locationCreated = this.column<ZonedDateTime>('location_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    locationUpdated = this.column<ZonedDateTime>('location_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    locationDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('location_deleted', 'customComparable', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_locations');

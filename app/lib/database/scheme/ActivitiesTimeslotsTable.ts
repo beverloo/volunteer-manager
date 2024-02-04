@@ -12,11 +12,17 @@ import {
     DateTimeTypeAdapter,
 } from "../DateTimeTypeAdapter";
 import {
+    TemporalTypeAdapter,
+} from "../TemporalTypeAdapter";
+import {
     ActivityType,
 } from "../Types";
 import {
     DateTime,
 } from "../../DateTime";
+import {
+    ZonedDateTime,
+} from "../../Temporal";
 
 export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTimeslotsTable'> {
     activityId = this.column('activity_id', 'int');
@@ -25,9 +31,9 @@ export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTim
     timeslotStartTime = this.column<DateTime>('timeslot_start_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     timeslotEndTime = this.column<DateTime>('timeslot_end_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
     timeslotLocationId = this.column('timeslot_location_id', 'int');
-    timeslotCreated = this.column<DateTime>('timeslot_created', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    timeslotUpdated = this.column<DateTime>('timeslot_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    timeslotDeleted = this.optionalColumnWithDefaultValue<DateTime>('timeslot_deleted', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    timeslotCreated = this.column<ZonedDateTime>('timeslot_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    timeslotUpdated = this.column<ZonedDateTime>('timeslot_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    timeslotDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('timeslot_deleted', 'customComparable', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_timeslots');
