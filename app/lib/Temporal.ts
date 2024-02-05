@@ -217,8 +217,51 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
 }
 
 /**
- * Formats the given `duration`.
+ * The units that will be considered for the difference, in order. Each unit must be a valid
+ * member of the `Temporal.Duration` type.
+ */
+const kDurationUnits: { [K in keyof Temporal.DurationLike]?: Temporal.DateTimeUnit } = {
+    'years': 'year',
+    'months': 'month',
+    'weeks': 'week',
+    'days': 'day',
+    'hours': 'hour',
+    'minutes': 'minute',
+    'seconds': 'second',
+};
+
+/**
+ * Formats the given `duration`. The duration will be rounded to the largest unit, and will either
+ * be prefixed or suffixed based on whether it happened in the past, or will happen in the future.
+ *
+ * @example 1 year ago, in 2 years
+ * @example 1 month ago, in 11 months
+ * @example 1 week ago, in 3 weeks
+ * @example 1 day ago, in 6 days
+ * @example 1 hour ago, in 21 hours
+ * @example 1 minute ago, in 51 minutes
+ * @example 1 second ago, in 30 seconds
+ * @example now
  */
 export function formatDuration(duration: Temporal.Duration): string {
-    return '--todo--';
+    if (duration.blank)
+        return 'now';
+
+    const prefix = duration.sign > 0 ? 'in ' : '';
+    const suffix = duration.sign < 0 ? ' ago' : '';
+
+    for (const [ unit, name ] of Object.entries(kDurationUnits)) {
+        if (!duration[unit as keyof Temporal.Duration])
+            continue;
+
+        // TODO: Figure out how to properly balance the dates, i.e. P1Y350D should be displayed as
+        // "in 2 years" as opposed to "in 1 year". However, the current Temporal polyfill doesn't
+        // seem to support the optional `relativeTo` property.
+        const value = duration.abs()[unit as keyof Temporal.Duration];
+
+        const plural = value !== 1 ? 's' : '';
+        return `${prefix}${value} ${name}${plural}${suffix}`;
+    }
+
+    return 'now';  // fallback for millisecond, microsecond and nanosecond differences
 }

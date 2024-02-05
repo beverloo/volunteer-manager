@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Temporal, formatDate } from './Temporal';
+import { Temporal, formatDate, formatDuration } from './Temporal';
 
 describe('Temporal', () => {
     it('is able to parse formats correctly', () => {
@@ -312,5 +312,23 @@ describe('Temporal', () => {
         expect(formatDate(zonedDateTime, 'a')).toEqual('pm');
 
         expect(formatDate(zonedDateTime, 'Q')).toEqual('2');
+    });
+
+    test.each([
+        [ 'P1Y', 'in 1 year' ],
+        [ '-P1Y', '1 year ago' ],
+        [ 'P2Y', 'in 2 years' ],
+        [ 'P1Y363D', 'in 1 year' ],  // FIXME
+        [ '-P1Y360D', '1 year ago' ],  // FIXME
+        [ 'P11M', 'in 11 months' ],
+        [ 'P3W', 'in 3 weeks' ],
+        [ 'P20D', 'in 20 days' ],
+        [ 'PT8H', 'in 8 hours' ],
+        [ 'PT25M', 'in 25 minutes' ],
+        [ 'PT1S', 'in 1 second' ],
+        [ 'PT0.25S', 'now' ],
+        [ 'P0D', 'now' ],
+    ])('it is able to format durations (%s)', (duration, expected) => {
+        expect(formatDuration(Temporal.Duration.from(duration))).toEqual(expected);
     });
 });
