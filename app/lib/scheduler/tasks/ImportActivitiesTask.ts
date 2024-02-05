@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { Activity, Location, Timeslot } from '@lib/integrations/animecon';
 import { ActivityType } from '@lib/database/Types';
 import { TaskWithParams } from '../Task';
+import { Temporal } from '@lib/Temporal';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 import { dayjs } from '@lib/DateTime';
 
@@ -111,6 +112,14 @@ const kUpdateSeverityLevel = {
     Moderate: 10,
     Important: 100,
 };
+
+/**
+ * Converts the given `input`, which contains a timezone but not an explicit time zone ID, to an
+ * instance of the Temporal.ZonedDateTime object.
+ */
+function toZonedDateTime(input: string): Temporal.ZonedDateTime {
+    return Temporal.Instant.from(input).toZonedDateTimeISO('UTC');
+}
 
 /**
  * This task is responsible for importing activities from AnPlan into our own database. The active
@@ -481,8 +490,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityId: currentActivity.id,
                         timeslotId: currentTimeslot.id,
                         timeslotType: ActivityType.Program,
-                        timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
-                        timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
+                        timeslotStartTime: toZonedDateTime(currentTimeslot.dateStartsAt),
+                        timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
                         timeslotCreated: dbInstance.currentDateTime(),
                         timeslotUpdated: dbInstance.currentDateTime(),
@@ -631,8 +640,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.updated.push(dbInstance.update(tActivitiesTimeslots)
                 .set({
-                    timeslotStartTime: dayjs(currentTimeslot.dateStartsAt),
-                    timeslotEndTime: dayjs(currentTimeslot.dateEndsAt),
+                    timeslotStartTime: toZonedDateTime(currentTimeslot.dateStartsAt),
+                    timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                     timeslotLocationId: currentTimeslot.location.id,
                     timeslotUpdated: dbInstance.currentDateTime(),
                     timeslotDeleted: null,
@@ -792,15 +801,15 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             {
                 name: 'start time',
                 weight: kUpdateSeverityLevel.Moderate,
-                stored: storedTimeslot.startTime!.utc().format(),
-                current: dayjs(currentTimeslot.dateStartsAt).utc().format(),
+                stored: storedTimeslot.startTime!.toString(),
+                current: toZonedDateTime(currentTimeslot.dateStartsAt).toString(),
                 comparison: 'string',
             },
             {
                 name: 'end time',
                 weight: kUpdateSeverityLevel.Moderate,
-                stored: storedTimeslot.endTime!.utc().format(),
-                current: dayjs(currentTimeslot.dateEndsAt).utc().format(),
+                stored: storedTimeslot.endTime!.toString(),
+                current: toZonedDateTime(currentTimeslot.dateEndsAt).toString(),
                 comparison: 'string',
             },
             {

@@ -156,8 +156,11 @@ export default async function ProgramActivityPage(props: NextRouterParams<'slug'
                     <Stack divider={ <Divider flexItem /> } spacing={1} sx={{ mt: 1 }}>
                         { timeslots.map((timeslot, index) =>
                             <Typography key={index} variant="body2">
-                                {timeslot.start.tz(event.timezone).format('dddd, HH:mm')}–
-                                {timeslot.end.tz(event.timezone).format('HH:mm')}, in the{' '}
+                                { formatDate(
+                                    timeslot.start.withTimeZone(event.timezone), 'dddd, HH:mm') }–
+                                { formatDate(
+                                    timeslot.end.withTimeZone(event.timezone), 'HH:mm') },
+                                in the{' '}
                                 <MuiLink component={Link} href="../locations">
                                     {timeslot.location}
                                 </MuiLink>

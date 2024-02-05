@@ -45,7 +45,7 @@ import { VendorsTable } from './scheme/VendorsTable';
 export const tActivities = new ActivitiesTable;
 export const tActivitiesAreas = new ActivitiesAreasTable;
 export const tActivitiesLocations = new ActivitiesLocationsTable;
-export const tActivitiesLogs = new ActivitiesLogsTable;
+export const tActivitiesLogs = withDateTimeStringColumns(new ActivitiesLogsTable);
 export const tActivitiesTimeslots = new ActivitiesTimeslotsTable;
 export const tContent = new ContentTable;
 export const tEvents = new EventsTable;

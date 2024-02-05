@@ -160,7 +160,7 @@ export const { GET } = createDataTableApi(kProgramChangeRowModel, kProgramChange
             .select({
                 id: tActivitiesLogs.mutationId,
                 severity: tActivitiesLogs.mutationSeverity,
-                date: dbInstance.asDateTimeString(tActivitiesLogs.mutationDate, 'required'),
+                date: tActivitiesLogs.mutationDateString,
                 mutation: tActivitiesLogs.mutation,
                 mutatedFields: tActivitiesLogs.mutationFields,
 

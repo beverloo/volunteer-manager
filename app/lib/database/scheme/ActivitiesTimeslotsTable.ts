@@ -9,17 +9,11 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
-    DateTimeTypeAdapter,
-} from "../DateTimeTypeAdapter";
-import {
     TemporalTypeAdapter,
 } from "../TemporalTypeAdapter";
 import {
     ActivityType,
 } from "../Types";
-import {
-    DateTime,
-} from "../../DateTime";
 import {
     ZonedDateTime,
 } from "../../Temporal";
@@ -28,8 +22,8 @@ export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTim
     activityId = this.column('activity_id', 'int');
     timeslotId = this.column('timeslot_id', 'int');
     timeslotType = this.column<ActivityType>('timeslot_type', 'enum', 'ActivityType');
-    timeslotStartTime = this.column<DateTime>('timeslot_start_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    timeslotEndTime = this.column<DateTime>('timeslot_end_time', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    timeslotStartTime = this.column<ZonedDateTime>('timeslot_start_time', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    timeslotEndTime = this.column<ZonedDateTime>('timeslot_end_time', 'customComparable', 'dateTime', TemporalTypeAdapter);
     timeslotLocationId = this.column('timeslot_location_id', 'int');
     timeslotCreated = this.column<ZonedDateTime>('timeslot_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
     timeslotUpdated = this.column<ZonedDateTime>('timeslot_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);

@@ -1,8 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { DateTime } from '@lib/DateTime';
 import { ActivityType } from '@lib/database/Types';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 import db, { tActivities, tActivitiesTimeslots } from '@lib/database';
 
@@ -21,14 +21,14 @@ export interface EventTimeslotEntry {
     label: string;
 
     /**
-     * Time at which the event will start. Only when the `withTimingInfo` flag is set.
+     * Time at which the event will start, in UTC. Only when the `withTimingInfo` flag is set.
      */
-    startTime?: DateTime;
+    startTime?: Temporal.ZonedDateTime;
 
     /**
-     * Time at which the event will finish. Only when the `withTimingInfo` flag is set.
+     * Time at which the event will finish, in UTC. Only when the `withTimingInfo` flag is set.
      */
-    endTime?: DateTime;
+    endTime?: Temporal.ZonedDateTime;
 }
 
 /**
@@ -62,17 +62,17 @@ export async function getPublicEventsForFestival(
         .executeSelectMany();
 
     for (const timeslot of timeslots) {
-        const duration = timeslot.endTime.diff(timeslot.startTime, 'minutes');
-        if (duration < 0 || duration > maxDurationMinutes)
+        const duration = timeslot.startTime.until(timeslot.endTime, { largestUnit: 'minute' });
+        if (duration.minutes < 0 || duration.minutes > maxDurationMinutes)
             continue;  // this event exceeds the duration cutoff
 
-        const localStartTime = timeslot.startTime.tz(festivalTimezone);
-        const localEndTime = timeslot.endTime.tz(festivalTimezone);
+        const localStartTime = timeslot.startTime.withTimeZone(festivalTimezone);
+        const localEndTime = timeslot.endTime.withTimeZone(festivalTimezone);
 
         const entry: EventTimeslotEntry = {
             id: timeslot.id,
-            label: `${timeslot.title} (${localStartTime.format('dddd, HH:mm')}–` +
-                `${localEndTime.format('HH:mm')})`,
+            label: `${timeslot.title} (${formatDate(localStartTime, 'dddd, HH:mm')}–` +
+                `${formatDate(localEndTime, 'HH:mm')})`,
         };
 
         if (!!withTimingInfo) {

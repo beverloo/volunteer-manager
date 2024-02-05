@@ -13,7 +13,8 @@ import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { dayjs } from '@lib/DateTime';
+import { dayjs, type DateTime } from '@lib/DateTime';
+import { formatDate } from '@lib/Temporal';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
@@ -54,7 +55,9 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     let events: EventTimeslotEntry[] = [];
 
-    const selectedEvents: EventTimeslotEntry[] = [];
+    type LegacyDayJS = { startTimeDayJS: DateTime, endTimeDayJS: DateTime };
+
+    const selectedEvents: (EventTimeslotEntry & LegacyDayJS)[] = [];
     if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
         events = await getPublicEventsForFestival(
             event.festivalId, event.timezone, /* withTimingInfo= */ true);
@@ -64,7 +67,14 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 if (eventTimeslot.id !== timeslotId)
                     continue;
 
-                selectedEvents.push(eventTimeslot);
+                selectedEvents.push({
+                    ...eventTimeslot,
+
+                    startTimeDayJS:
+                        dayjs(formatDate(eventTimeslot.startTime!, 'YYYY-MM-DD[T]HH:mm:ss[Z]')),
+                    endTimeDayJS:
+                        dayjs(formatDate(eventTimeslot.endTime!, 'YYYY-MM-DD[T]HH:mm:ss[Z]')),
+                });
             }
         }
     }
@@ -181,8 +191,8 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                         if (!eventTimeslot.startTime || !eventTimeslot.endTime)
                             continue;  // incomplete timeslot
 
-                        if (eventTimeslot.startTime.isBefore(nextHourlyDateTime) &&
-                                eventTimeslot.endTime.isAfter(hourlyDateTime)) {
+                        if (eventTimeslot.startTimeDayJS.isBefore(nextHourlyDateTime) &&
+                                eventTimeslot.endTimeDayJS.isAfter(hourlyDateTime)) {
                             decidedStatus = 'avoid';
                         }
                     }

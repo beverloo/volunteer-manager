@@ -17,7 +17,7 @@ import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 import type { ProgramChangesRowModel, ProgramChangesContext } from '@app/api/admin/program/changes/route';
 import { MutationSeverity } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <ProgramHistory> component.
@@ -57,9 +57,8 @@ export function ProgramHistory(props: ProgramHistoryProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: params => {
-                return dayjs(params.value).format('YYYY-MM-DD HH:mm:ss');
-            },
+            renderCell: params =>
+                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'change',
