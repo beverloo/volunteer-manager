@@ -9,8 +9,8 @@ import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import { dayjs } from '@lib/DateTime';
+import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <ExportAccess> component.
@@ -34,13 +34,18 @@ export interface ExportAccessProps {
  * obtained to a particular resource.
  */
 export function ExportAccess(props: ExportAccessProps) {
+    const localTz = Temporal.Now.timeZoneId();
+
     const columns: DataTableColumn<ExportAccessProps['views'][number]>[] = [
         {
             field: 'date',
             headerName: 'Date',
             flex: 1,
 
-            renderCell: params => dayjs(params.value).local().format('YYYY-MM-DD HH:mm:ss'),
+            renderCell: params =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'userIp',

@@ -9,7 +9,7 @@ import { type DataTableEndpoints, createDataTableApi } from '../../../createData
 import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck, type AuthenticationContext, and } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
@@ -135,7 +135,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
         if (!slug || slug.length !== 16)
             return { success: false, error: 'Unable to generate an export slug' };
 
-        const expirationDate = dayjs.utc(row.expirationDate);
+        const expirationDate = Temporal.Instant.from(row.expirationDate).toZonedDateTimeISO('UTC');
 
         const dbInstance = db;
         const insertId = await dbInstance.insertInto(tExports)
@@ -164,10 +164,10 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 event: row.event!,
                 type: row.type,
                 justification: row.justification,
-                createdOn: dayjs.utc().toISOString(),
+                createdOn: Temporal.Now.zonedDateTimeISO().toString(),
                 createdBy: `${props.user!.firstName} ${props.user!.lastName}`,
                 createdByUserId: props.user!.userId,
-                expirationDate: expirationDate.toISOString(),
+                expirationDate: expirationDate.toString(),
                 expirationViews: row.expirationViews,
                 views: 0,
                 enabled: true,
@@ -231,8 +231,8 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
             rowCount: count,
             rows: exportData.map(row => ({
                 ...row,
-                createdOn: row.createdOn.toISOString(),
-                expirationDate: row.expirationDate.toISOString(),
+                createdOn: row.createdOn.toString(),
+                expirationDate: row.expirationDate.toString(),
             })),
         }
     },

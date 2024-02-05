@@ -14,7 +14,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <ExportMetadata> component.
@@ -55,6 +55,8 @@ export function ExportMetadata(props: ExportMetadataProps) {
         setCopied(true);
     }, [ href ]);
 
+    const localTz = Temporal.Now.timeZoneId();
+
     return (
         <>
             <Collapse in={!!copied}>
@@ -78,7 +80,10 @@ export function ExportMetadata(props: ExportMetadataProps) {
                         Expiration date
                     </TableCell>
                     <TableCell>
-                        {dayjs(metadata.expirationDate).format('MMMM D, YYYY [at] HH:mm:ss')}
+                        { formatDate(
+                            Temporal.ZonedDateTime.from(
+                                metadata.expirationDate).withTimeZone(localTz),
+                            'MMMM D, YYYY [at] HH:mm:ss') }
                     </TableCell>
                 </TableRow>
                 <TableRow>
@@ -96,7 +101,10 @@ export function ExportMetadata(props: ExportMetadataProps) {
                     <TableCell>
                         <MuiLink component={Link} href={`/admin/volunteers/${metadata.userId}`}>
                             {metadata.userName}
-                        </MuiLink> on {dayjs(metadata.date).format('MMMM D, YYYY [at] HH:mm:ss')}
+                        </MuiLink> on{' '}
+                        { formatDate(
+                            Temporal.ZonedDateTime.from(metadata.date).withTimeZone(localTz),
+                            'MMMM D, YYYY [at] HH:mm:ss') }
                     </TableCell>
                 </TableRow>
                 <TableRow>

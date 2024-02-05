@@ -39,11 +39,11 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
         .where(tExports.exportId.equals(parseInt(props.params.id, 10)))
         .select({
-            date: dbInstance.asDateTimeString(tExports.exportCreatedDate, 'required'),
+            date: tExports.exportCreatedDateString,
             slug: tExports.exportSlug,
             type: tExports.exportType,
             eventName: tEvents.eventShortName,
-            expirationDate: dbInstance.asDateTimeString(tExports.exportExpirationDate, 'required'),
+            expirationDate: tExports.exportExpirationDateString,
             expirationViews: tExports.exportExpirationViews,
             justification: tExports.exportJustification,
             userId: tExports.exportCreatedUserId,
@@ -64,7 +64,7 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
         .where(tExportsLogs.exportId.equals(parseInt(props.params.id, 10)))
         .select({
             id: tExportsLogs.exportLogId,
-            date: dbInstance.asDateTimeString(tExportsLogs.accessDate, 'required'),
+            date: tExportsLogs.accessDateString,
             userIp: tExportsLogs.accessIpAddress,
             userAgent: tExportsLogs.accessUserAgent,
 

@@ -270,8 +270,10 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         .limit(/* only the latest= */ 1)
         .executeSelectNoneOrOne();
 
-    const millisecondsSinceLastLogEntry = lastLogEntryDateTime?.diff(dayjs.utc(), 'milliseconds');
-    console.log(millisecondsSinceLastLogEntry);
+    const millisecondsSinceLastLogEntry =
+        lastLogEntryDateTime?.until(Temporal.Now.zonedDateTimeISO('UTC'), {
+            largestUnit: 'millisecond'
+        }).milliseconds;
 
     if (!millisecondsSinceLastLogEntry || millisecondsSinceLastLogEntry > kReloadIgnoreThreshold) {
         await dbInstance.insertInto(tExportsLogs)

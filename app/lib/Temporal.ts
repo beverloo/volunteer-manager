@@ -215,3 +215,10 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
 
     return format.replace(kFormatRegexp, (match, $1) => $1 || matches(match));
 }
+
+/**
+ * Formats the given `duration`.
+ */
+export function formatDuration(duration: Temporal.Duration): string {
+    return '--todo--';
+}

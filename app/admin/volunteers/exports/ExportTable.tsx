@@ -10,14 +10,16 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ExportsRowModel } from '@app/api/admin/exports/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Temporal, formatDate, formatDuration } from '@lib/Temporal';
 
 /**
  * The <ExportTable> component lists all exports, both active and past. Entries may be deleted
  * (which will deactivate them), whereas each entry links through to a details page.
  */
 export function ExportTable() {
+    const now = Temporal.Now.zonedDateTimeISO('UTC');
+
     const columns: RemoteDataTableColumn<ExportsRowModel>[] = [
         {
             field: 'id',
@@ -30,7 +32,8 @@ export function ExportTable() {
             isProtected: params =>
                 !params.row.enabled ||
                 params.row.views >= params.row.expirationViews ||
-                dayjs(params.row.expirationDate).isBefore(dayjs()),
+                Temporal.ZonedDateTime.compare(
+                    now, Temporal.ZonedDateTime.from(params.row.expirationDate)) >= 0
         },
         {
             field: 'event',
@@ -62,10 +65,8 @@ export function ExportTable() {
             flex: 1,
 
             renderCell: params => {
-                const today = dayjs();
-                const value = dayjs(params.value);
-
-                if (value.isBefore(today)) {
+                const value = Temporal.ZonedDateTime.from(params.value);
+                if (Temporal.ZonedDateTime.compare(now, value) >= 0) {
                     return (
                         <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                             expired
@@ -73,9 +74,9 @@ export function ExportTable() {
                     );
                 } else {
                     return (
-                        <Tooltip title={value.format('YYYY-MM-DD [at] HH:mm:ss')}>
+                        <Tooltip title={formatDate(value, 'YYYY-MM-DD [at] HH:mm:ss')}>
                             <Typography variant="body2">
-                                {value.from(today)}
+                                { formatDuration(now.until(value)) }
                             </Typography>
                         </Tooltip>
                     );
