@@ -5,6 +5,7 @@ import type { Activity, Floor, Location, Timeslot } from '@lib/integrations/anim
 import { ImportActivitiesTask, type StoredActivity, type StoredTimeslot } from './ImportActivitiesTask';
 import { MutationSeverity } from '@lib/database/Types';
 import { TaskContext } from '../TaskContext';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { useMockConnection } from '@lib/database/Connection';
 
@@ -40,8 +41,8 @@ describe('ImportActivitiesTask', () => {
 
             timeslots: timeslots.map(timeslot => ({
                 deleted: undefined,
-                startTime: dayjs('2024-06-09T09:00:00+00:00'),
-                endTime: dayjs('2024-06-09T09:30:00+00:00'),
+                startTime: Temporal.ZonedDateTime.from('2024-06-09T09:00:00+00:00[UTC]'),
+                endTime: Temporal.ZonedDateTime.from('2024-06-09T09:30:00+00:00[UTC]'),
                 locationId: 100,
                 locationName: 'Example location',
                 locationAreaId: 10,
@@ -595,8 +596,10 @@ describe('ImportActivitiesTask', () => {
             createStoredActivity({ id: 100 }, /* timeslots= */ [
                 {
                     id: 1100,
-                    startTime: dayjs('2024-06-09T13:30:00+01:00'),  // <-- moved by 30 minutes
-                    endTime: dayjs('2024-06-09T13:00:00+01:00'),
+                    startTime:
+                        Temporal.ZonedDateTime.from('2024-06-09T13:30:00+02:00[Europe/Amsterdam]'),
+                    endTime:
+                        Temporal.ZonedDateTime.from('2024-06-09T13:00:00+02:00[Europe/Amsterdam]'),
                     locationId: 11100
                 },
                 { id: 1101, locationId: 11101 },  // <-- old location
@@ -784,7 +787,7 @@ describe('ImportActivitiesTask', () => {
             createStoredActivity({ id: 100 }, /* timeslots= */ [
                 { id: 1100 },
                 { id: 1101 },
-                { id: 1102, deleted: dayjs() },
+                { id: 1102, deleted: Temporal.Now.zonedDateTimeISO() },
             ]),
         ], /* festivalId= */ 625);
 
