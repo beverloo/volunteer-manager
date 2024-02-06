@@ -21,7 +21,8 @@ export const kGetOutboxDefinition = z.object({
     }),
     response: z.strictObject({
         /**
-         * Date on which the message was send.
+         * Date on which the message was send, in UTC. Formatted in a Temporal ZonedDateTime
+         * compatible formatting.
          */
         date: z.string(),
 
@@ -158,7 +159,7 @@ export async function getOutbox(request: Request, props: ActionProps): Promise<R
     const message = await dbInstance.selectFrom(tOutbox)
         .select({
             // Message info:
-            date: dbInstance.asDateTimeString(tOutbox.outboxTimestamp, 'required'),
+            date: tOutbox.outboxTimestampString,
 
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,

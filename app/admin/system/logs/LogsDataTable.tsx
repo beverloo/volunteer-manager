@@ -17,8 +17,8 @@ import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
 import type { DataTableRowRequest } from '@app/admin/DataTable';
 import { OLD_DataTable } from '../../DataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Props made available to the <LogsDataTable> component.
@@ -39,6 +39,8 @@ export interface LogsDataTableProps extends Omit<DataTableBaseProps, 'dense'> {
  */
 export function LogsDataTable(props: LogsDataTableProps) {
     const { filters, ...dataTableProps } = props;
+
+    const localTz = Temporal.Now.timeZoneId();
 
     const columns: DataTableColumn[] = useMemo(() => ([
         {
@@ -65,12 +67,12 @@ export function LogsDataTable(props: LogsDataTableProps) {
         {
             field: 'date',
             headerName: 'Date',
-            type: 'dateTime',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
-                return dayjs(params.value).format('YYYY-MM-DD HH:mm:ss');
-            },
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'message',
@@ -110,10 +112,10 @@ export function LogsDataTable(props: LogsDataTableProps) {
                 );
             },
         },
-    ]), [ /* no deps */ ]);
+    ]), [ localTz ]);
 
     const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
-        const response = await callApi('post', '/api/admin/logs', {
+        return await callApi('post', '/api/admin/logs', {
             filters: {
                 sourceOrTargetUserId: filters?.sourceOrTargetUserId,
             },
@@ -121,17 +123,6 @@ export function LogsDataTable(props: LogsDataTableProps) {
             pageSize: request.pageSize,
             sortModel: request.sortModel as any,
         });
-
-        return {
-            rowCount: response.rowCount,
-            rows: response.rows.map(row => {
-                return {
-                    ...row,
-                    date: new Date(row.date),
-                }
-            }),
-        }
-
     }, [ filters ]);
 
     return <OLD_DataTable {...dataTableProps} dense onRequestRows={onRequestRows} columns={columns}

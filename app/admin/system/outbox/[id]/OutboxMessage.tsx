@@ -18,8 +18,8 @@ import Typography from '@mui/material/Typography';
 
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import { DetailedLogs } from './DetailedLogs';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Props accepted by the <OutboxMessage> component.
@@ -62,7 +62,11 @@ export function OutboxMessage(props: OutboxMessageProps) {
         <>
             <Paper>
                 <Typography sx={{ p: 2 }} variant="h5">
-                    Message sent on {dayjs(message.date).format('MMMM D, YYYY [at] H:mm:ss')}
+                    Message sent on {
+                        formatDate(
+                            Temporal.ZonedDateTime.from(message.date).withTimeZone(
+                                Temporal.Now.timeZoneId()),
+                            'MMMM D, YYYY [at] H:mm:ss') }
                 </Typography>
             </Paper>
             <TableContainer component={Paper}>

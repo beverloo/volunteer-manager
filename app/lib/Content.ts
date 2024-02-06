@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Event } from './Event';
-import db, { tContent, tTeams, tUsers } from './database';
+import db, { tContent, tTeams } from './database';
 
 /**
  * Interface defining the information that will be made available for a particular piece of content
@@ -19,16 +19,6 @@ export interface Content {
      * the <Markdown> element to ensure proper display.
      */
     markdown: string;
-
-    /**
-     * First name of the author who authored the latest revision of the content.
-     */
-    authoredBy?: string;
-
-    /**
-     * Date on which this revision was published by the author.
-     */
-    authoredDate: string;
 }
 
 /**
@@ -52,11 +42,8 @@ export async function getContent(
         : Promise<Content | undefined>
 {
     const teamsJoin = tTeams.forUseInLeftJoin();
-    const usersJoin = tUsers.forUseInLeftJoin();
 
     const content = await db.selectFrom(tContent)
-        .leftJoin(usersJoin)
-            .on(usersJoin.userId.equals(tContent.revisionAuthorId))
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(tContent.teamId))
         .where(tContent.eventId.equals(event.eventId))
@@ -66,8 +53,6 @@ export async function getContent(
         .select({
             title: tContent.contentTitle,
             markdown: tContent.content,
-            authoredBy: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
-            authoredDate: tContent.revisionDate,
         })
         .orderBy(tContent.revisionDate, 'desc')
         .limit(1)
@@ -86,10 +71,7 @@ export async function getContent(
         }
     }
 
-    return {
-        ...content,
-        authoredDate: content.authoredDate.toISOString(),
-    };
+    return content;
 }
 
 /**

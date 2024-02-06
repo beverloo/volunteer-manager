@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { DateTime } from './DateTime';
 import { type LogEntry, LogSeverity, LogType } from './Log';
 import db, { tLogs, tUsers } from './database';
 
@@ -15,7 +14,8 @@ export interface LogMessage {
     data?: any;
 
     /**
-     * Date at which the log message was stored in the database.
+     * Date at which the log message was stored in the database, in UTC formatted in a Temporal
+     * ZonedDateTime-compatible format.
      */
     date: string;
 
@@ -350,7 +350,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
         .leftJoin(targetUserJoin).on(targetUserJoin.userId.equals(tLogs.logTargetUserId))
         .select({
             // Columns that will be passed through:
-            date: dbInstance.asDateTimeString(tLogs.logDate, 'required'),
+            date: tLogs.logDateString,
             id: tLogs.logId,
             severity: tLogs.logSeverity,
 

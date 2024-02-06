@@ -10,8 +10,8 @@ import { default as MuiLink } from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 
 import type { ContentRowModel, ContentScope } from '@app/api/admin/content/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { RemoteDataTable, type RemoteDataTableColumn } from '../components/RemoteDataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <ContentList> component.
@@ -40,6 +40,7 @@ export interface ContentListProps {
  * the server using an API call.
  */
 export function ContentList(props: ContentListProps) {
+    const localTz = Temporal.Now.timeZoneId();
     const columns: RemoteDataTableColumn<ContentRowModel>[] = [
         {
             field: 'id',
@@ -90,9 +91,10 @@ export function ContentList(props: ContentListProps) {
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
-                return dayjs.utc(params.value).format('YYYY-MM-DD');
-            },
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD'),
         },
         {
             field: 'updatedBy',

@@ -11,12 +11,14 @@ import { default as MuiLink } from '@mui/material/Link';
 import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
 
 import type { NardoRowModel } from '@app/api/nardo/[[...id]]/route';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * The <NardoDataTable> component displays
  */
 export function NardoDataTable() {
+    const localTz = Temporal.Now.timeZoneId();
+
     const columns: RemoteDataTableColumn<NardoRowModel>[] = [
         {
             field: 'id',
@@ -52,7 +54,10 @@ export function NardoDataTable() {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD'),
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD'),
         },
     ];
 

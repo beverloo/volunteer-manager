@@ -15,6 +15,7 @@ import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
 import { OLD_DataTable } from '../../DataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -24,7 +25,9 @@ import { dayjs } from '@lib/DateTime';
  * restricted to certain volunteers.
  */
 export function OutboxDataTable() {
-    const columns: DataTableColumn[] = useMemo(() => ([
+    const localTz = Temporal.Now.timeZoneId();
+
+    const columns: DataTableColumn[] = [
         {
             field: 'id',
             headerName: '',
@@ -39,13 +42,12 @@ export function OutboxDataTable() {
         {
             field: 'date',
             headerName: 'Date',
-            type: 'dateTime',
             width: 150,
 
-            valueGetter: (params: GridValueGetterParams) => new Date(params.value),
-            renderCell: (params: GridRenderCellParams) => {
-                return dayjs(params.value).format('YYYY-MM-DD HH:mm:ss');
-            },
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'from',
@@ -105,7 +107,7 @@ export function OutboxDataTable() {
                 params.value ? <CheckCircleIcon fontSize="small" color="success" />
                              : <CancelIcon fontSize="small" color="error" />,
         },
-    ]), [ /* no deps */ ]);
+    ];
 
     const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
         return await callApi('post', '/api/admin/outbox', {

@@ -56,7 +56,8 @@ export const kListOutboxDefinition = z.object({
             id: z.number(),
 
             /**
-             * Date on which the e-mail was sent.
+             * Date on which the message was send, in UTC. Formatted in a Temporal ZonedDateTime
+             * compatible formatting.
              */
             date: z.string(),
 
@@ -159,7 +160,7 @@ export async function listOutbox(request: Request, props: ActionProps): Promise<
     const result = await dbInstance.selectFrom(tOutbox)
         .select({
             id: tOutbox.outboxId,
-            date: dbInstance.asDateTimeString(tOutbox.outboxTimestamp, 'required'),
+            date: tOutbox.outboxTimestampString,
             from: tOutbox.outboxSender,
             fromUserId: tOutbox.outboxSenderUserId,
             to: tOutbox.outboxTo,

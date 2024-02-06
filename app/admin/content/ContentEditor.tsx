@@ -19,6 +19,7 @@ import Typography from '@mui/material/Typography';
 
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import type { ContentRowModel, ContentScope } from '@app/api/admin/content/[[...id]]/route';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { validateContentPath } from './ContentCreate';
 
@@ -107,7 +108,13 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
             context: props.scope
         }).then(response => {
             if (response.success) {
-                setDefaultValues(response.row);
+                setDefaultValues({
+                    ...response.row,
+                    updatedOn:
+                        formatDate(
+                            Temporal.ZonedDateTime.from(response.row.updatedOn),
+                            'YYYY-MM-DD[T]HH:mm:ss[Z]'),
+                });
 
                 setContentProtected(!!response.row.protected);
                 setMarkdown(response.row.content);
