@@ -96,7 +96,7 @@ export function withDateTimeStringColumns<T extends Table<DBConnection, any>>(ta
 
             const originalFunction = anyTable.forUseInLeftJoinAs;
             anyTable.__proto__.forUseInLeftJoinAs = (alias: string) =>
-                withDateTimeStringColumns(originalFunction.call(anyTable));
+                withDateTimeStringColumns(originalFunction.call(anyTable, alias));
         }
     }
 

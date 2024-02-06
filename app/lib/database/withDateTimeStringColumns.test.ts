@@ -268,5 +268,22 @@ describe('withDateTimeStrings', () => {
                 'select date_format(first.date_optional, \"%Y-%m-%d\") as result from second ' +
                 'left join first on first.id = second.id');
         }
+
+        // Test (3): use of a LEFT JOIN with an alias
+        {
+            const firstTableWithDateTimeStringColumnsJoin =
+                firstTableWithDateTimeStringColumns.forUseInLeftJoinAs('alias');
+
+            const query = db.selectFrom(secondTableWithDateTimeStringColumns)
+                .leftJoin(firstTableWithDateTimeStringColumnsJoin)
+                    .on(firstTableWithDateTimeStringColumnsJoin.id.equals(
+                        secondTableWithDateTimeStringColumns.firstId))
+                .selectOneColumn(firstTableWithDateTimeStringColumnsJoin.dateString)
+                .query();
+
+            expect(query).toEqual(
+                'select date_format(alias.date_optional, \"%Y-%m-%d\") as result from second ' +
+                'left join first as alias on alias.id = second.id');
+        }
     });
 });
