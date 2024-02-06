@@ -217,11 +217,11 @@ describe('Temporal', () => {
         expect(formatDate(plainTime, 'dddd')).toEqual('Thursday');
         expect(formatDate(plainTime, 'dddd', 'nl')).toEqual('donderdag');
 
-        expect(formatDate(plainTime, 'W')).toEqual('53');
-        expect(formatDate(plainTime, 'w')).toEqual('53');
-        expect(formatDate(plainTime, 'Wo')).toEqual('53rd');
-        expect(formatDate(plainTime, 'WW')).toEqual('53');
-        expect(formatDate(plainTime, 'ww')).toEqual('53');
+        expect(formatDate(plainTime, 'W')).toEqual('1');
+        expect(formatDate(plainTime, 'w')).toEqual('1');
+        expect(formatDate(plainTime, 'Wo')).toEqual('1st');
+        expect(formatDate(plainTime, 'WW')).toEqual('01');
+        expect(formatDate(plainTime, 'ww')).toEqual('01');
 
         expect(formatDate(plainTime, 'H')).toEqual('13');
         expect(formatDate(plainTime, 'HH')).toEqual('13');

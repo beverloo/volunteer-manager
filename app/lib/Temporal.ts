@@ -140,7 +140,7 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
             case 'DD':
                 return `0${fields.isoDay}`.substr(-2);
             case 'd':
-                return `${zonedDateTime.dayOfWeek - 1}`;
+                return `${zonedDateTime.dayOfWeek}`;
             case 'Do':  // advancedFormat plugin
                 return withOrdinal(fields.isoDay);
             case 'dd':
