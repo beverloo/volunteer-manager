@@ -7,11 +7,12 @@ import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
 import db, { tEventsTeams, tHotelsPreferences, tTeams } from '@lib/database';
+
+import { kTemporalPlainDate } from '../Types';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/event/hotel-preferences.
@@ -57,12 +58,12 @@ export const kHotelPreferencesDefinition = z.object({
             /**
              * Date on which they would like to check in to their hotel room.
              */
-            checkIn: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/).optional(),
+            checkIn: kTemporalPlainDate.optional(),
 
             /**
              * Date on which they would like to check out of their hotel room.
              */
-            checkOut: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/).optional(),
+            checkOut: kTemporalPlainDate.optional(),
         })),
 
         /**
@@ -83,10 +84,10 @@ export const kHotelPreferencesDefinition = z.object({
     }),
 });
 
-export type HotelPreferencesDefinition = z.infer<typeof kHotelPreferencesDefinition>;
+export type HotelPreferencesDefinition = z.input<typeof kHotelPreferencesDefinition>;
 
-type Request = HotelPreferencesDefinition['request'];
-type Response = HotelPreferencesDefinition['response'];
+type Request = z.output<typeof kHotelPreferencesDefinition>['request'];
+type Response = z.input<typeof kHotelPreferencesDefinition>['response'];
 
 /**
  * API through which volunteers can update their hotel room preferences.
@@ -195,8 +196,8 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
         update = {
             hotelId: request.preferences.hotelId,
-            hotelDateCheckIn: Temporal.PlainDate.from(request.preferences.checkIn),
-            hotelDateCheckOut: Temporal.PlainDate.from(request.preferences.checkOut),
+            hotelDateCheckIn: request.preferences.checkIn,
+            hotelDateCheckOut: request.preferences.checkOut,
             hotelSharingPeople: request.preferences.sharingPeople,
             hotelSharingPreferences: request.preferences.sharingPreferences,
         };

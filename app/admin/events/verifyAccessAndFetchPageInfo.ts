@@ -81,12 +81,14 @@ export interface PageInfo {
         endTime: string;
 
         /**
-         * Date and time starting which volunteers can request refunds, if any.
+         * Date and time starting which volunteers can request refunds, if any. When given, it will
+         * be in UTC in a format compatible with Temporal ZonedDateTime.
          */
         refundsStartTime?: string;
 
         /**
-         * Date and time until which volunteers can request refunds, if any.
+         * Date and time until which volunteers can request refunds, if any. When given, it will
+         * be in UTC in a format compatible with Temporal ZonedDateTime.
          */
         refundsEndTime?: string;
 
@@ -199,9 +201,8 @@ export async function verifyAccessAndFetchPageInfo(
             timezone: tEvents.eventTimezone,
             startTime: dbInstance.asDateTimeString(tEvents.eventStartTime, 'required'),
             endTime: dbInstance.asDateTimeString(tEvents.eventEndTime, 'required'),
-            refundsStartTime:
-                dbInstance.asDateTimeString(tEvents.eventRefundsStartTime, 'optional'),
-            refundsEndTime: dbInstance.asDateTimeString(tEvents.eventRefundsEndTime, 'optional'),
+            refundsStartTime: tEvents.eventRefundsStartTimeString,
+            refundsEndTime: tEvents.eventRefundsEndTimeString,
             availabilityStatus: tEvents.eventAvailabilityStatus,
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,

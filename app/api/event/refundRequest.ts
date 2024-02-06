@@ -6,9 +6,9 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import { dayjs } from '@lib/DateTime';
 import db, { tEvents, tRefunds } from '@lib/database';
 
 /**
@@ -88,10 +88,10 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
         if (!refundAvailability.refundsStartTime || !refundAvailability.refundsEndTime)
             return { success: false, error: 'Sorry, refunds are not being accepted.' };
 
-        const currentTime = dayjs();
-        if (currentTime.isBefore(refundAvailability.refundsStartTime, 'day'))
+        const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
+        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundsStartTime) < 0)
             return { success: false, error: 'Sorry, refunds are not being accepted yet.' };
-        if (currentTime.isAfter(refundAvailability.refundsEndTime, 'day'))
+        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundsEndTime) >= 0)
             return { success: false, error: 'Sorry, refunds are not being accepted anymore.' };
     }
 

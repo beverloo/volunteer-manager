@@ -8,11 +8,14 @@ import { noAccess, type ActionProps } from '../Action';
 import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tContent, tEvents, tEventsTeams } from '@lib/database';
+
+import { kTemporalZonedDateTime } from '../Types';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/update-event.
@@ -53,8 +56,8 @@ export const kUpdateEventDefinition = z.object({
          * Event refund settings that should be updated, if any.
          */
         eventRefunds: z.object({
-            refundsStartTime: z.string().optional(),
-            refundsEndTime: z.string().optional(),
+            refundsStartTime: kTemporalZonedDateTime.optional(),
+            refundsEndTime: kTemporalZonedDateTime.optional(),
         }).optional(),
 
         /**
@@ -89,10 +92,10 @@ export const kUpdateEventDefinition = z.object({
     }),
 });
 
-export type UpdateEventDefinition = z.infer<typeof kUpdateEventDefinition>;
+export type UpdateEventDefinition = z.input<typeof kUpdateEventDefinition>;
 
-type Request = UpdateEventDefinition['request'];
-type Response = UpdateEventDefinition['response'];
+type Request = z.output<typeof kUpdateEventDefinition>['request'];
+type Response = z.infer<typeof kUpdateEventDefinition>['response'];
 
 /**
  * API that allows administrators to update information related to an event, or the teams that do
@@ -198,15 +201,11 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         if (!can(props.user, Privilege.Refunds))
             noAccess();
 
-        const eventRefundsStartTime =
-            request.eventRefunds.refundsStartTime ? dayjs.utc(request.eventRefunds.refundsStartTime)
-                                                  : null;
-        const eventRefundsEndTime =
-            request.eventRefunds.refundsEndTime ? dayjs.utc(request.eventRefunds.refundsEndTime)
-                                                : null;
-
         const affectedRows = await db.update(tEvents)
-            .set({ eventRefundsStartTime, eventRefundsEndTime })
+            .set({
+                eventRefundsStartTime: request.eventRefunds.refundsStartTime,
+                eventRefundsEndTime: request.eventRefunds.refundsEndTime
+            })
             .where(tEvents.eventId.equals(event.eventId))
             .executeUpdate();
 

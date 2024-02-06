@@ -6,12 +6,12 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getHotelBookings } from '@app/admin/events/[slug]/hotels/HotelBookings';
 import db, { tHotelsAssignments, tHotelsBookings, tUsers } from '@lib/database';
+
+import { kTemporalPlainDate } from '@app/api/Types';
 
 /**
  * Interface definition for the Hotel Booking API, exposed through /api/admin/hotel-bookings.
@@ -42,12 +42,12 @@ export const kUpdateBookingDefinition = z.object({
         /**
          * Date on which the booking will check in.
          */
-        checkIn: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/),
+        checkIn: kTemporalPlainDate,
 
         /**
          * Date on which the booking will check out.
          */
-        checkOut: z.string().regex(/^[1|2](\d{3})\-(\d{2})-(\d{2})$/),
+        checkOut: kTemporalPlainDate,
 
         /**
          * Whether the booking has been confirmed.
@@ -74,7 +74,7 @@ export const kUpdateBookingDefinition = z.object({
     }),
 });
 
-export type UpdateBookingDefinition = z.infer<typeof kUpdateBookingDefinition>;
+export type UpdateBookingDefinition = z.input<typeof kUpdateBookingDefinition>;
 
 /**
  * Returns the list of users who can be identified for the given `occupants`. They don't have to
@@ -100,8 +100,8 @@ async function identifyUsersForOccupants(occupants: string[]) {
     });
 }
 
-type Request = UpdateBookingDefinition['request'];
-type Response = UpdateBookingDefinition['response'];
+type Request = z.output<typeof kUpdateBookingDefinition>['request'];
+type Response = z.input<typeof kUpdateBookingDefinition>['response'];
 
 /**
  * API to update a hotel booking within a given scope.
@@ -127,8 +127,8 @@ export async function updateBooking(request: Request, props: ActionProps): Promi
     const affectedRows = await db.update(tHotelsBookings)
         .set({
             bookingHotelId: request.hotelId,
-            bookingCheckIn: Temporal.PlainDate.from(request.checkIn),
-            bookingCheckOut: Temporal.PlainDate.from(request.checkOut),
+            bookingCheckIn: request.checkIn,
+            bookingCheckOut: request.checkOut,
             bookingConfirmed: request.confirmed ? 1 : 0,
         })
         .where(tHotelsBookings.eventId.equals(event.eventId))

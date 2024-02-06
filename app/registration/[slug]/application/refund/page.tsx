@@ -13,8 +13,8 @@ import { type Content, getStaticContent } from '@lib/Content';
 import { Markdown } from '@components/Markdown';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { dayjs } from '@lib/DateTime';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import db, { tEvents } from '@lib/database';
 
@@ -44,7 +44,6 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
     let content: Content | undefined;
 
     const contentPath = [ 'registration', 'application' ];
-    const currentTime = dayjs();
 
     if (!refundAvailability.refundsStartTime || !refundAvailability.refundsEndTime) {
         state = 'unavailable';
@@ -56,14 +55,16 @@ export default async function EventApplicationRefundPage(props: NextRouterParams
         const substitutions = {
             event: event.shortName,
             firstName: user.firstName,
-            refundsStartTime: refundAvailability.refundsStartTime.format('dddd, MMMM D'),
-            refundsEndTime: refundAvailability.refundsEndTime.format('dddd, MMMM D'),
+            refundsStartTime: formatDate(refundAvailability.refundsStartTime, 'dddd, MMMM D'),
+            refundsEndTime: formatDate(refundAvailability.refundsEndTime, 'dddd, MMMM D'),
         };
 
-        if (currentTime.isBefore(refundAvailability.refundsStartTime, 'day')) {
+        const now = Temporal.Now.zonedDateTimeISO('UTC');
+
+        if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundsStartTime) < 0) {
             state = 'too-early';
             content = await getStaticContent([ ...contentPath, 'refund-early' ], substitutions);
-        } else if (currentTime.isAfter(refundAvailability.refundsEndTime, 'day')) {
+        } else if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundsEndTime) > 0) {
             state = 'too-late';
             content = await getStaticContent([ ...contentPath, 'refund-late' ], substitutions);
         } else {

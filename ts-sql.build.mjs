@@ -130,7 +130,6 @@ do {
                 generatedField: {
                     type: {
                         kind: 'customComparable',
-                        dbType: { name: 'date' },
                         tsType: {
                             importPath: './app/lib/Temporal',
                             name: 'PlainDate',
@@ -152,7 +151,6 @@ do {
                 generatedField: {
                     type: {
                         kind: 'customComparable',
-                        dbType: { name: 'time' },
                         tsType: {
                             importPath: './app/lib/Temporal',
                             name: 'PlainTime',
@@ -171,6 +169,16 @@ do {
             // default `Date` used by `ts-query-sql`. This supersedes our migration to DayJS, as
             // Temporal has a feature in being a standardised JavaScript feature provided natively.
             ...[
+                // TODO: The following columns are used on the "most recent changes" dashboard, and
+                // likely will have to be converted together.
+
+                // { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
+                // { table: 'refunds', column: 'refund_requested' },
+                // { table: 'trainings_assignments', column: 'preference_updated' },
+                // { table: 'users_events', column: 'registration_date' },
+                // { table: 'users_events', column: 'preferences_updated' },
+
+
                 { table: 'activities_areas', column: 'area_created' },
                 { table: 'activities_areas', column: 'area_updated' },
                 { table: 'activities_areas', column: 'area_deleted' },
@@ -189,28 +197,23 @@ do {
                 { table: 'content', column: 'revision_date' },
                 // { table: 'events', column: 'event_start_time' },
                 // { table: 'events', column: 'event_end_time' },
-                // { table: 'events', column: 'event_refunds_start_time' },
-                // { table: 'events', column: 'event_refunds_end_time' },
+                { table: 'events', column: 'event_refunds_start_time' },
+                { table: 'events', column: 'event_refunds_end_time' },
                 { table: 'exports_logs', column: 'access_date' },
                 { table: 'exports', column: 'export_created_date' },
                 { table: 'exports', column: 'export_expiration_date' },
-                // { table: 'hotels_assignments', column: 'assignment_created' },
-                // { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
+                { table: 'hotels_assignments', column: 'assignment_created' },
                 { table: 'logs', column: 'log_date' },
                 { table: 'nardo', column: 'nardo_author_date' },
                 { table: 'outbox', column: 'outbox_timestamp' },
-                // { table: 'refunds', column: 'refund_requested' },
                 // { table: 'refunds', column: 'refund_confirmed' },
                 // { table: 'schedule', column: 'schedule_time_start' },
                 // { table: 'schedule', column: 'schedule_time_end' },
                 { table: 'storage', column: 'file_date' },
                 { table: 'tasks', column: 'task_scheduled_date' },
                 { table: 'trainings_assignments', column: 'assignment_updated' },
-                // { table: 'trainings_assignments', column: 'preference_updated' },
                 // { table: 'trainings', column: 'training_start' },
                 // { table: 'trainings', column: 'training_end' },
-                // { table: 'users_events', column: 'registration_date' },
-                // { table: 'users_events', column: 'preferences_updated' },
                 // { table: 'users_passkeys', column: 'credential_created' },
                 // { table: 'users_passkeys', column: 'credential_last_used' },
                 { table: 'vendors', column: 'vendor_modified' },
