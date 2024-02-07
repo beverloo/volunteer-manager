@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { Temporal, formatDate, formatDuration } from './Temporal';
+import { Temporal, formatDate, formatDuration, isAfter, isBefore } from './Temporal';
 
 describe('Temporal', () => {
     it('is able to parse formats correctly', () => {
@@ -330,5 +330,20 @@ describe('Temporal', () => {
         [ 'P0D', 'now' ],
     ])('it is able to format durations (%s)', (duration, expected) => {
         expect(formatDuration(Temporal.Duration.from(duration))).toEqual(expected);
+    });
+
+    it('should export correct comparison helping functions', () => {
+        const march = Temporal.ZonedDateTime.from('2024-03-01T00:00:00Z[UTC]');
+        const april = Temporal.ZonedDateTime.from('2024-04-01T00:00:00Z[UTC]');
+
+        expect(isAfter(march, march)).toBeFalse();
+        expect(isAfter(march, april)).toBeFalse();
+        expect(isAfter(april, march)).toBeTrue();
+        expect(isAfter(april, april)).toBeFalse();
+
+        expect(isBefore(march, march)).toBeFalse();
+        expect(isBefore(march, april)).toBeTrue();
+        expect(isBefore(april, march)).toBeFalse();
+        expect(isBefore(april, april)).toBeFalse();
     });
 });

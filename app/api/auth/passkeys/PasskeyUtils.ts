@@ -3,7 +3,7 @@
 
 import type { VerifiedRegistrationResponse } from '@simplewebauthn/server';
 
-import type { DateTime } from '@lib/DateTime';
+import type { Temporal } from '@lib/Temporal';
 import db, { tUsersPasskeys, tUsers } from '@lib/database';
 
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
@@ -52,12 +52,12 @@ export interface Credential {
     /**
      * Date on which the credential was created.
      */
-    created: DateTime;
+    created: Temporal.ZonedDateTime;
 
     /**
      * Date on which the credential was last used to sign in to an account.
      */
-    lastUsed?: DateTime;
+    lastUsed?: Temporal.ZonedDateTime;
 }
 
 /**

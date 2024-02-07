@@ -70,7 +70,7 @@ export const kTemporalZonedDateTime =
         } catch (error: any) {
             context.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Only plain times are accepted (HH:mm:ss)',
+                message: 'Only zoned dates and times are accepted (YYYY-MM-DD HH:mm:ss Z)',
             });
         }
 

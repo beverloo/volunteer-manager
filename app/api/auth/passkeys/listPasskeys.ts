@@ -1,13 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { dayjs } from '@lib/DateTime';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { determineEnvironment } from '@lib/Environment';
+import { formatDate } from '@lib/Temporal';
 import { retrieveCredentials } from './PasskeyUtils';
 
 /**
@@ -69,9 +69,9 @@ export async function listPasskeys(request: Request, props: ActionProps): Promis
     const passkeys = credentials.map(credential => {
         const label = credential.name ?? `Passkey #${credential.passkeyId}`;
 
-        let description = `Created on ${dayjs(credential.created).format('DD/MM/YYYY')}`;
+        let description = `Created on ${formatDate(credential.created, 'DD/MM/YYYY')}`;
         if (credential.lastUsed)
-            description += `, last used on ${dayjs(credential.lastUsed).format('DD/MM/YYYY')}`;
+            description += `, last used on ${formatDate(credential.lastUsed, 'DD/MM/YYYY')}`;
 
         return {
             id: credential.passkeyId,

@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type DashboardAreaGraphSeries, DashboardGraph } from '../DashboardGraph';
-import { RegistrationStatus, ScheduleType } from '@lib/database/Types';
+import { ScheduleType } from '@lib/database/Types';
+import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 import { computeColor } from '../ColorUtils';
-import { dayjs } from '@lib/DateTime';
 import db, { tSchedule, tUsersEvents } from '@lib/database';
 
 /**
@@ -46,22 +46,22 @@ export async function EventAvailabilityTimeSeriesGraph(props: { eventId: number;
     const labels: string[] = [];
     const scheduleData: TimeBucket[] = [];
 
-    let startTime: dayjs.Dayjs = dayjs('2099-12-12 23:59:59');
-    let endTime: dayjs.Dayjs = dayjs('2000-01-01 00:00:00');
+    let startTime = Temporal.ZonedDateTime.from('2099-12-12T23:59:59Z[UTC]');
+    let endTime = Temporal.ZonedDateTime.from('2000-01-01T00:00:00Z[UTC]');
 
     // Step (1): Determine the earliest and latest time for the schedule to create buckets.
     for (const { schedule } of scheduleInfo) {
         for (const { start, end } of schedule) {
-            if (startTime.isAfter(start))
-                startTime = dayjs(start);
-            if (endTime.isBefore(end))
-                endTime = dayjs(end);
+            if (isAfter(startTime, start))
+                startTime = start;
+            if (isBefore(endTime, end))
+                endTime = end;
         }
     }
 
     // Step (2): Create empty time buckets between `startTime` and `endTime`.
-    for (let t = startTime; t.isBefore(endTime); t = t.add(kTimeBucketSizeMin, 'minutes')) {
-        labels.push(t.format('dd/H:mm'));
+    for (let t = startTime; isBefore(t, endTime); t = t.add({ minutes: kTimeBucketSizeMin })) {
+        labels.push(formatDate(t, 'dd/H:mm'));
         scheduleData.push({
             available: 0,
             shift: 0,
@@ -74,17 +74,18 @@ export async function EventAvailabilityTimeSeriesGraph(props: { eventId: number;
         let defaultState: keyof TimeBucket = 'unavailable';
         let restingBuckets: number = 0;
 
-        for (let t = startTime; t.isBefore(endTime); t = t.add(kTimeBucketSizeMin, 'minutes')) {
-            const bucket = (0 - startTime.diff(t, 'minutes')) / kTimeBucketSizeMin;
+        for (let t = startTime; isBefore(t, endTime); t = t.add({ minutes: kTimeBucketSizeMin })) {
+            const bucket =
+                startTime.until(t, { largestUnit: 'minutes' }).minutes / kTimeBucketSizeMin;
 
             let activityToIncrement: keyof TimeBucket = defaultState;
             while (!!schedule.length) {
-                if (t.isBefore(schedule[0].start))
+                if (isBefore(t, schedule[0].start))
                     break;  // unavailable
                 else if (defaultState === 'unavailable')
                     defaultState = 'available';
 
-                if (t.isAfter(schedule[0].end)) {
+                if (isAfter(t, schedule[0].end)) {
                     schedule.shift();
                     continue;
                 }

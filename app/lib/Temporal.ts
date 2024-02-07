@@ -265,3 +265,17 @@ export function formatDuration(duration: Temporal.Duration): string {
 
     return 'now';  // fallback for millisecond, microsecond and nanosecond differences
 }
+
+/**
+ * Returns whether `zdt` happens after `reference`.
+ */
+export function isAfter(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean {
+    return Temporal.ZonedDateTime.compare(zdt, reference) > 0;
+}
+
+/**
+ * Returns whether `zdt` happens before `reference`.
+ */
+export function isBefore(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean {
+    return Temporal.ZonedDateTime.compare(zdt, reference) < 0;
+}
