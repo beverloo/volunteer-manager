@@ -9,11 +9,11 @@
 import { Table } from "ts-sql-query/Table";
 import type { DBConnection } from "../Connection";
 import {
-    DateTimeTypeAdapter,
-} from "../DateTimeTypeAdapter";
+    TemporalTypeAdapter,
+} from "../TemporalTypeAdapter";
 import {
-    DateTime,
-} from "../../DateTime";
+    ZonedDateTime,
+} from "../../Temporal";
 import {
     RegistrationStatus,
     ShirtFit,
@@ -25,7 +25,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     roleId = this.column('role_id', 'int');
-    registrationDate = this.optionalColumnWithDefaultValue<DateTime>('registration_date', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    registrationDate = this.optionalColumnWithDefaultValue<ZonedDateTime>('registration_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
     registrationStatus = this.columnWithDefaultValue<RegistrationStatus>('registration_status', 'enum', 'RegistrationStatus');
     shirtFit = this.columnWithDefaultValue<ShirtFit>('shirt_fit', 'enum', 'ShirtFit');
     shirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('shirt_size', 'enum', 'ShirtSize');
@@ -38,7 +38,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');
     preferenceTimingEnd = this.optionalColumnWithDefaultValue('preference_timing_end', 'int');
     preferences = this.optionalColumnWithDefaultValue('preferences', 'string');
-    preferencesUpdated = this.columnWithDefaultValue<DateTime>('preferences_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    preferencesUpdated = this.columnWithDefaultValue<ZonedDateTime>('preferences_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
     fullyAvailable = this.columnWithDefaultValue('fully_available', 'int');
     includeCredits = this.columnWithDefaultValue('include_credits', 'int');
     includeSocials = this.columnWithDefaultValue('include_socials', 'int');

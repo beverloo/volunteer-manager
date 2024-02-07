@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { RegistrationStatus } from '@lib/database/Types';
-import { dayjs, type DateTime } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Whether the volunteer's application `status` is still pending.
@@ -61,7 +61,7 @@ export interface EventRecentChangesProps {
         /**
          * Date and time during which the update was made.
          */
-        date: DateTime | string;
+        date: Temporal.ZonedDateTime | string;
     }[];
 }
 
@@ -70,7 +70,7 @@ export interface EventRecentChangesProps {
  * context of this event, such as sharing their preferences. Only a few highlights are shown.
  */
 export function EventRecentChanges(props: EventRecentChangesProps) {
-    const currentTime = dayjs();
+    const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
 
     return (
         <Card>
@@ -95,7 +95,7 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                                 {change.update}
                             </Typography>
                             <Typography variant="body2">
-                                { currentTime.to(change.date) }
+                                { 'FIXME' /* currentTime.to(change.date) */ }
                             </Typography>
                         </Stack>
                     );

@@ -5,8 +5,7 @@ import type { Activity, Floor, Location, Timeslot } from '@lib/integrations/anim
 import { ImportActivitiesTask, type StoredActivity, type StoredTimeslot } from './ImportActivitiesTask';
 import { MutationSeverity } from '@lib/database/Types';
 import { TaskContext } from '../TaskContext';
-import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { useMockConnection } from '@lib/database/Connection';
 
 type PartialWithRequiredId<T> = Partial<T> & { id: number};
@@ -119,7 +118,7 @@ describe('ImportActivitiesTask', () => {
     }
 
     interface FestivalOptions {
-        festivalEndTime: dayjs.Dayjs;
+        festivalEndTime: Temporal.ZonedDateTime;
         festivalId: number;
         activities?: Activity[];
         storedActivities?: StoredActivity[];
@@ -152,7 +151,7 @@ describe('ImportActivitiesTask', () => {
                     return undefined;
 
                 return {
-                    festivalEndTime: options.festivalEndTime.toISOString(),
+                    festivalEndTime: formatDate(options.festivalEndTime, 'YYYY-MM-DD HH:mm:ss'),
                     festivalId: options.festivalId,
                 };
             });
@@ -177,7 +176,7 @@ describe('ImportActivitiesTask', () => {
 
     it('should skip when no activities were returned from the AnimeCon API', async () => {
         const task = createImportActivitiesTaskForFestival({
-            festivalEndTime: dayjs().add(100, 'days'),
+            festivalEndTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 100 }),
             festivalId: 101,
         });
 
@@ -197,17 +196,20 @@ describe('ImportActivitiesTask', () => {
 
         // Confirm that the configured intervals will be applied as expected.
         for (const { maximumDays, intervalMs } of ImportActivitiesTask.kIntervalConfiguration) {
-            task.updateTaskIntervalForFestivalDate(dayjs().add(maximumDays, 'days'));
+            task.updateTaskIntervalForFestivalDate(
+                Temporal.Now.zonedDateTimeISO('UTC').add({ days: maximumDays }));
             expect(task.contextForTesting.intervalMsForTesting).toBe(intervalMs);
         }
 
         // Confirm that events that won't happen for at least 9 months won't update frequently.
-        task.updateTaskIntervalForFestivalDate(dayjs().add(1, 'year'));
+        task.updateTaskIntervalForFestivalDate(
+            Temporal.Now.zonedDateTimeISO('UTC').add({ years: 1 }));
         expect(task.contextForTesting.intervalMsForTesting).toBe(
             ImportActivitiesTask.kIntervalMaximum);
 
         // Confirm that events that have already happened won't update frequently.
-        task.updateTaskIntervalForFestivalDate(dayjs().subtract(1, 'day'));
+        task.updateTaskIntervalForFestivalDate(
+            Temporal.Now.zonedDateTimeISO('UTC').subtract({ days: 1 }));
         expect(task.contextForTesting.intervalMsForTesting).toBe(
             ImportActivitiesTask.kIntervalMaximum);
     });
@@ -225,7 +227,10 @@ describe('ImportActivitiesTask', () => {
             expect(params[1]).toBe(/* limit= */ 1);
 
             return {
-                festivalEndTime: dayjs().add(100, 'days').toISOString(),
+                festivalEndTime:
+                    formatDate(
+                        Temporal.Now.zonedDateTimeISO('UTC').add({ days: 100 }),
+                        'YYYY-MM-DD HH:mm:ss'),
                 festivalId: 101,
             };
         });
@@ -243,7 +248,10 @@ describe('ImportActivitiesTask', () => {
             expect(params[1]).toBe(/* limit= */ 1);
 
             return {
-                festivalEndTime: dayjs().add(100, 'days').toISOString(),
+                festivalEndTime:
+                    formatDate(
+                        Temporal.Now.zonedDateTimeISO('UTC').add({ days: 100 }),
+                        'YYYY-MM-DD HH:mm:ss'),
                 festivalId: 9001,
             };
         });

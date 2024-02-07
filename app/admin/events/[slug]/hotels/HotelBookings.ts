@@ -290,8 +290,7 @@ export async function getHotelRequests(eventId: number): Promise<HotelRequest[]>
             sharingPeople: tHotelsPreferences.hotelSharingPeople,
             sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
 
-            updated:
-                dbInstance.asDateTimeString(tHotelsPreferences.hotelPreferencesUpdated, 'required'),
+            updated: tHotelsPreferences.hotelPreferencesUpdatedString,
         })
         .orderBy('user.name', 'asc')
         .executeSelectMany() as HotelRequest[];

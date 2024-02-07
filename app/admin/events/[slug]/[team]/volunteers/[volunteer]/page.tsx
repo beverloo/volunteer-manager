@@ -57,8 +57,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,
             roleName: tRoles.roleName,
-            registrationDate:
-                dbInstance.asDateTimeString(tUsersEvents.registrationDate, 'optional'),
+            registrationDate: tUsersEvents.registrationDateString,
             registrationStatus: tUsersEvents.registrationStatus,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityExceptions: tUsersEvents.availabilityExceptions,

@@ -11,6 +11,7 @@ import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -196,12 +197,8 @@ async function getRecentChanges(eventId: number) {
         }
     }
 
-    changes.sort((lhs, rhs) => {
-        if (dayjs.isDayjs(lhs.date) && dayjs.isDayjs(rhs.date))
-            return rhs.date.valueOf() - lhs.date.valueOf();
-
-        return 0;
-    });
+    changes.sort((lhs, rhs) =>
+        Temporal.ZonedDateTime.compare(lhs.date, rhs.date));
 
     return changes.slice(0, 8).map(change => ({
         ...change,

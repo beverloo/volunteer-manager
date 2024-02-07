@@ -4,7 +4,6 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -15,6 +14,8 @@ import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kApplicationProperties } from '../event/application';
+import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
+    from '../Types';
 
 /**
  * Interface definition for the Application API, exposed through /api/application/
@@ -50,7 +51,7 @@ export const kUpdateApplicationDefinition = z.object({
             /**
              * The date on which this volunteer created their application. May be NULL.
              */
-            registrationDate: z.string().optional(),
+            registrationDate: kTemporalZonedDateTime.optional(),
 
             /**
              * The number of events the volunteer can indicate they really want to attend.
@@ -175,9 +176,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 availabilityEventLimit: request.metadata.availabilityEventLimit,
                 hotelEligible: request.metadata.hotelEligible,
                 trainingEligible: request.metadata.trainingEligible,
-                registrationDate:
-                    request.metadata.registrationDate ? dayjs(request.metadata.registrationDate)
-                                                      : null,
+                registrationDate: request.metadata.registrationDate,
             })
             .where(tUsersEvents.userId.equals(request.userId))
                 .and(tUsersEvents.eventId.equals(eventId))

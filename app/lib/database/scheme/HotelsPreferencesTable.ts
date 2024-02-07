@@ -12,14 +12,9 @@ import {
     TemporalTypeAdapter,
 } from "../TemporalTypeAdapter";
 import {
-    DateTimeTypeAdapter,
-} from "../DateTimeTypeAdapter";
-import {
     PlainDate,
+    ZonedDateTime,
 } from "../../Temporal";
-import {
-    DateTime,
-} from "../../DateTime";
 
 export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferencesTable'> {
     userId = this.column('user_id', 'int');
@@ -30,7 +25,7 @@ export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferenc
     hotelDateCheckOut = this.optionalColumnWithDefaultValue<PlainDate>('hotel_date_check_out', 'customComparable', 'date', TemporalTypeAdapter);
     hotelSharingPeople = this.optionalColumnWithDefaultValue('hotel_sharing_people', 'int');
     hotelSharingPreferences = this.optionalColumnWithDefaultValue('hotel_sharing_preferences', 'string');
-    hotelPreferencesUpdated = this.columnWithDefaultValue<DateTime>('hotel_preferences_updated', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    hotelPreferencesUpdated = this.columnWithDefaultValue<ZonedDateTime>('hotel_preferences_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('hotels_preferences');

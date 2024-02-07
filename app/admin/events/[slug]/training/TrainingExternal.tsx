@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
 import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -125,7 +124,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
 
         const copiedRow = newRow;
         if (!!newRow.preferenceTrainingId)
-            copiedRow.preferenceUpdated = new Date();
+            copiedRow.preferenceUpdated = Temporal.Now.plainDateISO().toString();
         else
             copiedRow.preferenceUpdated = undefined;
 

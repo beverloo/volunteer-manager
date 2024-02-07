@@ -121,7 +121,8 @@ export interface RegistrationHotelRequest {
     sharingPreferences?: string;
 
     /**
-     * Date on which the volunteer's hotel information was updated.
+     * Date on which the volunteer's hotel information was updated, in a `Temporal.ZonedDateTime`-
+     * compatible format in UTC.
      */
     updated?: string;
 }
@@ -174,7 +175,8 @@ export interface RegistrationRefund {
     accountName?: string;
 
     /**
-     * Date on which the refund has been requested.
+     * Date on which the refund has been requested, in a `Temporal.ZonedDateTime`-compatible format
+     * in UTC.
      */
     requested?: string;
 
@@ -220,7 +222,8 @@ export interface RegistrationTraining {
     assignedAddress?: string;
 
     /**
-     * When the preferences were last updated by the volunteer.
+     * When the preferences were last updated by the volunteer, in a `Temporal.ZonedDateTime`-
+     * compatible format in UTC.
      */
     updated?: string;
 }

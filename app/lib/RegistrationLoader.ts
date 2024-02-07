@@ -87,16 +87,14 @@ export async function getRegistration(environmentName: string, event: Event, use
                 checkOut: hotelsPreferencesJoin.hotelDateCheckOutString,
                 sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
                 sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
-                updated: dbInstance.asDateTimeString(
-                    hotelsPreferencesJoin.hotelPreferencesUpdated, 'optional'),
+                updated: hotelsPreferencesJoin.hotelPreferencesUpdatedString,
             },
 
             refund: {
                 ticketNumber: refundsJoin.refundTicketNumber,
                 accountIban: refundsJoin.refundAccountIban,
                 accountName: refundsJoin.refundAccountName,
-                requested: dbInstance.asDateTimeString(
-                    refundsJoin.refundRequested, 'requiredInOptionalObject'),
+                requested: refundsJoin.refundRequestedString,
                 confirmed: refundsJoin.refundConfirmedString,
             },
 
@@ -106,8 +104,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             training: {
                 confirmed: trainingsAssignmentsJoin.assignmentConfirmed.equals(/* true= */ 1),
                 preference: trainingsAssignmentsJoin.preferenceTrainingId,
-                updated: dbInstance.asDateTimeString(
-                    trainingsAssignmentsJoin.preferenceUpdated, 'optional'),
+                updated: trainingsAssignmentsJoin.preferenceUpdatedString,
 
                 preferenceDate: trainingsPreferenceJoin.trainingStartString,
                 assignedDate: trainingsAssignedJoin.trainingStartString,

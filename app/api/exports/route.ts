@@ -372,7 +372,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
         for (const request of refundRequests) {
             refunds.requests.push({
-                date: request.date.toISOString(),
+                date: request.date.toString(),
                 name: request.name,
                 ticketNumber: request.ticketNumber,
                 accountIban: request.accountIban,

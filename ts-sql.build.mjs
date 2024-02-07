@@ -123,8 +123,8 @@ do {
 
             // -------------------------------------------------------------------------------------
 
-            // DATE columns will be represented as Temporal.PlainDate instances. Dates are not
-            // associated with a timezone, but can be upgraded to ZonedDateTime if need be.
+            // DATE columns will be represented as `Temporal.PlainDate` instances. Dates are not
+            // associated with a timezone, but can be upgraded to `ZonedDateTime` if need be.
             {
                 columnType: /^date$/i,
                 generatedField: {
@@ -142,10 +142,28 @@ do {
                 }
             },
 
-            // TODO: DATETIME & TIMESTAMP
+            // DATETIME columns will be represented as `Temporal.ZonedDateTime` instances, which we
+            // always associate with the UTC timezone.
+            {
+                columnType: /^dateTime$/i,
+                generatedField: {
+                    type: {
+                        kind: 'customComparable',
+                        dbType: { name: 'dateTime' },
+                        tsType: {
+                            importPath: './app/lib/Temporal',
+                            name: 'ZonedDateTime',
+                        },
+                        adapter: {
+                            importPath: './app/lib/database/TemporalTypeAdapter',
+                            name: 'TemporalTypeAdapter',
+                        },
+                    },
+                }
+            },
 
-            // TIME columns will be represented as Temporal.PlainTime instances. Times are not
-            // associated with a timezone, but can be upgraded to ZonedDateTime if need be.
+            // TIME columns will be represented as `Temporal.PlainTime` instances. Times are not
+            // associated with a timezone, but can be upgraded to `ZonedDateTime` if need be.
             {
                 columnType: /^time$/i,
                 generatedField: {
@@ -163,104 +181,25 @@ do {
                 }
             },
 
-            // -------------------------------------------------------------------------------------
-
-            // We represent dates and times as ZonedDateTime Temporal objects rather than the
-            // default `Date` used by `ts-query-sql`. This supersedes our migration to DayJS, as
-            // Temporal has a feature in being a standardised JavaScript feature provided natively.
-            ...[
-                // TODO: The following columns are used on the "most recent changes" dashboard, and
-                // likely will have to be converted together.
-
-                // { table: 'hotels_preferences', column: 'hotel_preferences_updated' },
-                // { table: 'refunds', column: 'refund_requested' },
-                // { table: 'trainings_assignments', column: 'preference_updated' },
-                // { table: 'users_events', column: 'registration_date' },
-                // { table: 'users_events', column: 'preferences_updated' },
-
-
-                { table: 'activities_areas', column: 'area_created' },
-                { table: 'activities_areas', column: 'area_updated' },
-                { table: 'activities_areas', column: 'area_deleted' },
-                { table: 'activities_locations', column: 'location_created' },
-                { table: 'activities_locations', column: 'location_updated' },
-                { table: 'activities_locations', column: 'location_deleted' },
-                { table: 'activities_logs', column: 'mutation_date' },
-                { table: 'activities', column: 'activity_created' },
-                { table: 'activities', column: 'activity_updated' },
-                { table: 'activities', column: 'activity_deleted' },
-                { table: 'activities_timeslots', column: 'timeslot_start_time' },
-                { table: 'activities_timeslots', column: 'timeslot_end_time' },
-                { table: 'activities_timeslots', column: 'timeslot_created' },
-                { table: 'activities_timeslots', column: 'timeslot_updated' },
-                { table: 'activities_timeslots', column: 'timeslot_deleted' },
-                { table: 'content', column: 'revision_date' },
-                { table: 'events', column: 'event_start_time' },
-                { table: 'events', column: 'event_end_time' },
-                { table: 'events', column: 'event_refunds_start_time' },
-                { table: 'events', column: 'event_refunds_end_time' },
-                { table: 'exports_logs', column: 'access_date' },
-                { table: 'exports', column: 'export_created_date' },
-                { table: 'exports', column: 'export_expiration_date' },
-                { table: 'hotels_assignments', column: 'assignment_created' },
-                { table: 'logs', column: 'log_date' },
-                { table: 'nardo', column: 'nardo_author_date' },
-                { table: 'outbox', column: 'outbox_timestamp' },
-                { table: 'refunds', column: 'refund_confirmed' },
-                { table: 'schedule', column: 'schedule_time_start' },
-                { table: 'schedule', column: 'schedule_time_end' },
-                { table: 'storage', column: 'file_date' },
-                { table: 'tasks', column: 'task_scheduled_date' },
-                { table: 'trainings_assignments', column: 'assignment_updated' },
-                { table: 'trainings', column: 'training_start' },
-                { table: 'trainings', column: 'training_end' },
-                { table: 'users_passkeys', column: 'credential_created' },
-                { table: 'users_passkeys', column: 'credential_last_used' },
-                { table: 'vendors', column: 'vendor_modified' },
-
-            ].map(({ table, column }) => ([
-                ...[ 'dateTime', 'timestamp' ].map(columnType => ({
-                    // TODO: Apply this to all tables and columns, then delete the DayJS mapping.
-                    tableName: table,
-                    columnName: column,
-
-                    columnType: new RegExp(`^${columnType}$`, 'i'),
-                    generatedField: {
-                        type: {
-                            kind: 'customComparable',
-                            dbType: { name: columnType },
-                            tsType: {
-                                importPath: './app/lib/Temporal',
-                                name: 'ZonedDateTime',
-                            },
-                            adapter: {
-                                importPath: './app/lib/database/TemporalTypeAdapter',
-                                name: 'TemporalTypeAdapter',
-                            },
-                        },
-                    }
-                })),
-            ])).flat(),
-
-            // We represent dates and times as DayJS objects in UTC, rather than the default `Date`
-            // used by `ts-query-sql`. In the future we'll want to update this to Temporal.
-            ...[ 'dateTime', 'timestamp' ].map(columnType => ({
-                columnType: new RegExp(`^${columnType}$`, 'i'),
+            // TIMESTAMP columns will be represented as `Temporal.ZonedDateTime` instances, which we
+            // always associate with the UTC timezone.
+            {
+                columnType: /^timestamp$/i,
                 generatedField: {
                     type: {
                         kind: 'customComparable',
-                        dbType: { name: columnType },
+                        dbType: { name: 'timestamp' },
                         tsType: {
-                            importPath: './app/lib/DateTime',
-                            name: 'DateTime',
+                            importPath: './app/lib/Temporal',
+                            name: 'ZonedDateTime',
                         },
                         adapter: {
-                            importPath: './app/lib/database/DateTimeTypeAdapter',
-                            name: 'DateTimeTypeAdapter',
+                            importPath: './app/lib/database/TemporalTypeAdapter',
+                            name: 'TemporalTypeAdapter',
                         },
                     },
-                },
-            })),
+                }
+            },
 
             // -------------------------------------------------------------------------------------
 
