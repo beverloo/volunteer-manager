@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -72,10 +73,10 @@ export const kUpdateAccountDefinition = z.object({
     }),
 });
 
-export type UpdateAccountDefinition = z.infer<typeof kUpdateAccountDefinition>;
+export type UpdateAccountDefinition = ApiDefinition<typeof kUpdateAccountDefinition>;
 
-type Request = UpdateAccountDefinition['request'];
-type Response = UpdateAccountDefinition['response'];
+type Request = ApiRequest<typeof kUpdateAccountDefinition>;
+type Response = ApiResponse<typeof kUpdateAccountDefinition>;
 
 /**
  * API that allows a user to update their account.

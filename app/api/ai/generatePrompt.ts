@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
 import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
 import { ChangeTeamPromptBuilder } from './prompts/ChangeTeamPromptBuilder';
@@ -140,10 +141,10 @@ export const kGeneratePromptDefinition = z.object({
     }),
 });
 
-export type GeneratePromptDefinition = z.infer<typeof kGeneratePromptDefinition>;
+export type GeneratePromptDefinition = ApiDefinition<typeof kGeneratePromptDefinition>;
 
-type Request = GeneratePromptDefinition['request'];
-type Response = GeneratePromptDefinition['response'];
+type Request = ApiRequest<typeof kGeneratePromptDefinition>;
+type Response = ApiResponse<typeof kGeneratePromptDefinition>;
 
 /**
  * API that allows AI-related settings to be updated.

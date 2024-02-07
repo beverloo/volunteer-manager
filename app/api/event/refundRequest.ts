@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
@@ -49,10 +50,10 @@ export const kRefundRequestDefinition = z.object({
     }),
 });
 
-export type RefundRequestDefinition = z.infer<typeof kRefundRequestDefinition>;
+export type RefundRequestDefinition = ApiDefinition<typeof kRefundRequestDefinition>;
 
-type Request = RefundRequestDefinition['request'];
-type Response = RefundRequestDefinition['response'];
+type Request = ApiRequest<typeof kRefundRequestDefinition>;
+type Response = ApiResponse<typeof kRefundRequestDefinition>;
 
 /**
  * API through which volunteers can request a refund for their ticket.

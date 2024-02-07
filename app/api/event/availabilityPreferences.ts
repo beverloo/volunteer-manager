@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -91,10 +92,11 @@ export const kAvailabilityPreferencesDefinition = z.object({
     }),
 });
 
-export type AvailabilityPreferencesDefinition = z.infer<typeof kAvailabilityPreferencesDefinition>;
+export type AvailabilityPreferencesDefinition =
+    ApiDefinition<typeof kAvailabilityPreferencesDefinition>;
 
-type Request = AvailabilityPreferencesDefinition['request'];
-type Response = AvailabilityPreferencesDefinition['response'];
+type Request = ApiRequest<typeof kAvailabilityPreferencesDefinition>;
+type Response = ApiResponse<typeof kAvailabilityPreferencesDefinition>;
 
 /**
  * API through which volunteers can update their availability preferences.

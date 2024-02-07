@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
@@ -47,10 +48,10 @@ export const kServiceHealthDefinition = z.object({
     }),
 });
 
-export type ServiceHealthDefinition = z.infer<typeof kServiceHealthDefinition>;
+export type ServiceHealthDefinition = ApiDefinition<typeof kServiceHealthDefinition>;
 
-type Request = ServiceHealthDefinition['request'];
-type Response = ServiceHealthDefinition['response'];
+type Request = ApiRequest<typeof kServiceHealthDefinition>;
+type Response = ApiResponse<typeof kServiceHealthDefinition>;
 
 /**
  * Runs a health check for the AnimeCon integration.

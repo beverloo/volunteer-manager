@@ -4,6 +4,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
@@ -215,10 +216,10 @@ const kExportsDefinition = z.object({
     }),
 });
 
-export type ExportsDefinition = z.infer<typeof kExportsDefinition>;
+export type ExportsDefinition = ApiDefinition<typeof kExportsDefinition>;
 
-type Request = ExportsDefinition['request'];
-type Response = ExportsDefinition['response'];
+type Request = ApiRequest<typeof kExportsDefinition>;
+type Response = ApiResponse<typeof kExportsDefinition>;
 
 /**
  * Threshold, in milliseconds, within which reloads of the data will be ignored for logging

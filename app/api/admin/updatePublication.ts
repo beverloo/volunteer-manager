@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -48,10 +49,10 @@ export const kUpdatePublicationDefinition = z.object({
     }),
 });
 
-export type UpdatePublicationDefinition = z.infer<typeof kUpdatePublicationDefinition>;
+export type UpdatePublicationDefinition = ApiDefinition<typeof kUpdatePublicationDefinition>;
 
-type Request = UpdatePublicationDefinition['request'];
-type Response = UpdatePublicationDefinition['response'];
+type Request = ApiRequest<typeof kUpdatePublicationDefinition>;
+type Response = ApiResponse<typeof kUpdatePublicationDefinition>;
 
 /**
  * API that allows information about the publication state of a particular event setting to be

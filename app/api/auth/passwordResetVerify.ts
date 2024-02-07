@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { authenticateUser } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 
@@ -32,10 +33,10 @@ export const kPasswordResetVerifyDefinition = z.object({
     }),
 });
 
-export type PasswordResetVerifyDefinition = z.infer<typeof kPasswordResetVerifyDefinition>;
+export type PasswordResetVerifyDefinition = ApiDefinition<typeof kPasswordResetVerifyDefinition>;
 
-type Request = PasswordResetVerifyDefinition['request'];
-type Response = PasswordResetVerifyDefinition['response'];
+type Request = ApiRequest<typeof kPasswordResetVerifyDefinition>;
+type Response = ApiResponse<typeof kPasswordResetVerifyDefinition>;
 
 /**
  * API that verifies a password reset request by unsealing the request, and running the necessary

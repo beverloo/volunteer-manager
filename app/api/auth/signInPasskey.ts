@@ -6,8 +6,9 @@ import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { determineEnvironment, getEnvironmentIterator } from '@lib/Environment';
+import { getEnvironmentIterator } from '@lib/Environment';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
@@ -45,7 +46,7 @@ export const kSignInPasskeyDefinition = z.object({
     }),
 });
 
-export type SignInPasskeyDefinition = z.infer<typeof kSignInPasskeyDefinition>;
+export type SignInPasskeyDefinition = ApiDefinition<typeof kSignInPasskeyDefinition>;
 
 /**
  * Returns whether the `left` and the `right` buffers are equal to each other.
@@ -62,8 +63,8 @@ function areBuffersEqual(left: Uint8Array, right: Uint8Array): boolean {
     return true;
 }
 
-type Request = SignInPasskeyDefinition['request'];
-type Response = SignInPasskeyDefinition['response'];
+type Request = ApiRequest<typeof kSignInPasskeyDefinition>;
+type Response = ApiResponse<typeof kSignInPasskeyDefinition>;
 
 /**
  * API that allows the user to sign in to their account with a passkey.

@@ -5,6 +5,7 @@ import { dayjs } from '@lib/DateTime';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { determineEnvironment } from '@lib/Environment';
 import { retrieveCredentials } from './PasskeyUtils';
@@ -48,10 +49,10 @@ export const kListPasskeysDefinition = z.object({
     }),
 });
 
-export type ListPasskeysDefinition = z.infer<typeof kListPasskeysDefinition>;
+export type ListPasskeysDefinition = ApiDefinition<typeof kListPasskeysDefinition>;
 
-type Request = ListPasskeysDefinition['request'];
-type Response = ListPasskeysDefinition['response'];
+type Request = ApiRequest<typeof kListPasskeysDefinition>;
+type Response = ApiResponse<typeof kListPasskeysDefinition>;
 
 /**
  * Lists the passkeys associated with the signed in user's account.

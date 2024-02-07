@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -63,10 +64,10 @@ export const kVolunteerRolesDefinition = z.object({
     }),
 });
 
-export type VolunteerRolesDefinition = z.infer<typeof kVolunteerRolesDefinition>;
+export type VolunteerRolesDefinition = ApiDefinition<typeof kVolunteerRolesDefinition>;
 
-type Request = VolunteerRolesDefinition['request'];
-type Response = VolunteerRolesDefinition['response'];
+type Request = ApiRequest<typeof kVolunteerRolesDefinition>;
+type Response = ApiResponse<typeof kVolunteerRolesDefinition>;
 
 /**
  * API that allows to read and write to the roles that can be assigned to a particular volunteer

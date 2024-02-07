@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
 
@@ -38,10 +39,10 @@ export const kPasswordResetDefinition = z.object({
     }),
 });
 
-export type PasswordResetDefinition = z.infer<typeof kPasswordResetDefinition>;
+export type PasswordResetDefinition = ApiDefinition<typeof kPasswordResetDefinition>;
 
-type Request = PasswordResetDefinition['request'];
-type Response = PasswordResetDefinition['response'];
+type Request = ApiRequest<typeof kPasswordResetDefinition>;
+type Response = ApiResponse<typeof kPasswordResetDefinition>;
 
 /**
  * Update the user's password to the given |hashedPassword|, which already should be a SHA-256

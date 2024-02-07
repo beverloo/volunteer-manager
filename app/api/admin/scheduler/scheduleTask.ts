@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
@@ -55,10 +56,10 @@ export const kScheduleTaskDefinition = z.object({
     }),
 });
 
-export type ScheduleTaskDefinition = z.infer<typeof kScheduleTaskDefinition>;
+export type ScheduleTaskDefinition = ApiDefinition<typeof kScheduleTaskDefinition>;
 
-type Request = ScheduleTaskDefinition['request'];
-type Response = ScheduleTaskDefinition['response'];
+type Request = ApiRequest<typeof kScheduleTaskDefinition>;
+type Response = ApiResponse<typeof kScheduleTaskDefinition>;
 
 /**
  * API that allows a new task to be scheduled.

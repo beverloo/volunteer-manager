@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -94,10 +95,10 @@ export const kVolunteerTeamsDefinition = z.object({
     }),
 });
 
-export type VolunteerTeamsDefinition = z.infer<typeof kVolunteerTeamsDefinition>;
+export type VolunteerTeamsDefinition = ApiDefinition<typeof kVolunteerTeamsDefinition>;
 
-type Request = VolunteerTeamsDefinition['request'];
-type Response = VolunteerTeamsDefinition['response'];
+type Request = ApiRequest<typeof kVolunteerTeamsDefinition>;
+type Response = ApiResponse<typeof kVolunteerTeamsDefinition>;
 
 /**
  * API that allows to read and write the team that a particular volunteer (can) participate in.

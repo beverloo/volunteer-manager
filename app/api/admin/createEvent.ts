@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
@@ -56,10 +57,10 @@ export const kCreateEventDefinition = z.object({
     }),
 });
 
-export type CreateEventDefinition = z.infer<typeof kCreateEventDefinition>;
+export type CreateEventDefinition = ApiDefinition<typeof kCreateEventDefinition>;
 
-type Request = CreateEventDefinition['request'];
-type Response = CreateEventDefinition['response'];
+type Request = ApiRequest<typeof kCreateEventDefinition>;
+type Response = ApiResponse<typeof kCreateEventDefinition>;
 
 /**
  * API that allows administrators to create new events. This isn't a particularly frequent action

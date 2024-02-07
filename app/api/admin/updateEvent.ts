@@ -4,11 +4,11 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { noAccess, type ActionProps } from '../Action';
 import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { Temporal } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -92,10 +92,10 @@ export const kUpdateEventDefinition = z.object({
     }),
 });
 
-export type UpdateEventDefinition = z.input<typeof kUpdateEventDefinition>;
+export type UpdateEventDefinition = ApiDefinition<typeof kUpdateEventDefinition>;
 
-type Request = z.output<typeof kUpdateEventDefinition>['request'];
-type Response = z.infer<typeof kUpdateEventDefinition>['response'];
+type Request = ApiRequest<typeof kUpdateEventDefinition>;
+type Response = ApiResponse<typeof kUpdateEventDefinition>;
 
 /**
  * API that allows administrators to update information related to an event, or the teams that do

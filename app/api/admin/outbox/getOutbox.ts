@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tOutbox } from '@lib/database';
@@ -140,10 +141,10 @@ export const kGetOutboxDefinition = z.object({
     }),
 });
 
-export type GetOutboxDefinition = z.infer<typeof kGetOutboxDefinition>;
+export type GetOutboxDefinition = ApiDefinition<typeof kGetOutboxDefinition>;
 
-type Request = GetOutboxDefinition['request'];
-type Response = GetOutboxDefinition['response'];
+type Request = ApiRequest<typeof kGetOutboxDefinition>;
+type Response = ApiResponse<typeof kGetOutboxDefinition>;
 
 /**
  * API that allows volunteers with outbox access to consult a particular message. This endpoint

@@ -5,8 +5,9 @@ import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { determineEnvironment } from '@lib/Environment';
+import { noAccess, type ActionProps } from '../../Action';
 import { retrieveCredentials, storeUserChallenge } from './PasskeyUtils';
 
 /**
@@ -32,10 +33,10 @@ export const kCreateChallengeDefinition = z.object({
     }),
 });
 
-export type CreateChallengeDefinition = z.infer<typeof kCreateChallengeDefinition>;
+export type CreateChallengeDefinition = ApiDefinition<typeof kCreateChallengeDefinition>;
 
-type Request = CreateChallengeDefinition['request'];
-type Response = CreateChallengeDefinition['response'];
+type Request = ApiRequest<typeof kCreateChallengeDefinition>;
+type Response = ApiResponse<typeof kCreateChallengeDefinition>;
 
 /**
  * Creates a new challenge for the signed in user. In order for this API to work, we require:

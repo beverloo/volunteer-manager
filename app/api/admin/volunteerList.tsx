@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents } from '@lib/database';
@@ -44,10 +45,10 @@ export const kVolunteerListDefinition = z.object({
     }),
 });
 
-export type VolunteerListDefinition = z.infer<typeof kVolunteerListDefinition>;
+export type VolunteerListDefinition = ApiDefinition<typeof kVolunteerListDefinition>;
 
-type Request = VolunteerListDefinition['request'];
-type Response = VolunteerListDefinition['response'];
+type Request = ApiRequest<typeof kVolunteerListDefinition>;
+type Response = ApiResponse<typeof kVolunteerListDefinition>;
 
 /**
  * API that allows certain volunteers to get a list of all other volunteers, for the purposes of

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -52,10 +53,10 @@ export const kTrainingPreferencesDefinition = z.object({
     }),
 });
 
-export type TrainingPreferencesDefinition = z.infer<typeof kTrainingPreferencesDefinition>;
+export type TrainingPreferencesDefinition = ApiDefinition<typeof kTrainingPreferencesDefinition>;
 
-type Request = TrainingPreferencesDefinition['request'];
-type Response = TrainingPreferencesDefinition['response'];
+type Request = ApiRequest<typeof kTrainingPreferencesDefinition>;
+type Response = ApiResponse<typeof kTrainingPreferencesDefinition>;
 
 /**
  * API through which volunteers can update their training preferences.

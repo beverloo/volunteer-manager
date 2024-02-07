@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogType, Log } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { getStaticContent } from '@lib/Content';
@@ -30,10 +31,10 @@ export const kPasswordResetRequestDefinition = z.object({
     }),
 });
 
-export type PasswordResetRequestDefinition = z.infer<typeof kPasswordResetRequestDefinition>;
+export type PasswordResetRequestDefinition = ApiDefinition<typeof kPasswordResetRequestDefinition>;
 
-type Request = PasswordResetRequestDefinition['request'];
-type Response = PasswordResetRequestDefinition['response'];
+type Request = ApiRequest<typeof kPasswordResetRequestDefinition>;
+type Response = ApiResponse<typeof kPasswordResetRequestDefinition>;
 
 /**
  * This API enables the client to confirm whether an account exists with a particular username. When

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { getSessionFromHeaders } from '@lib/auth/getSession';
 import { writeEmptySessionCookie, writeSealedSessionCookie } from '@lib/auth/Session';
 
@@ -25,10 +26,10 @@ export const kSignOutDefinition = z.object({
     }),
 });
 
-export type SignOutDefinition = z.infer<typeof kSignOutDefinition>;
+export type SignOutDefinition = ApiDefinition<typeof kSignOutDefinition>;
 
-type Request = SignOutDefinition['request'];
-type Response = SignOutDefinition['response'];
+type Request = ApiRequest<typeof kSignOutDefinition>;
+type Response = ApiResponse<typeof kSignOutDefinition>;
 
 /**
  * API that signs the user out of their account by setting an empty authentication session cookie

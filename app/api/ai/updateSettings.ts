@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -38,10 +39,10 @@ export const kUpdateSettingsDefinition = z.object({
     }),
 });
 
-export type UpdateSettingsDefinition = z.infer<typeof kUpdateSettingsDefinition>;
+export type UpdateSettingsDefinition = ApiDefinition<typeof kUpdateSettingsDefinition>;
 
-type Request = UpdateSettingsDefinition['request'];
-type Response = UpdateSettingsDefinition['response'];
+type Request = ApiRequest<typeof kUpdateSettingsDefinition>;
+type Response = ApiResponse<typeof kUpdateSettingsDefinition>;
 
 /**
  * API that allows AI-related settings to be updated.

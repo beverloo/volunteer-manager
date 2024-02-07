@@ -4,6 +4,7 @@
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { getEnvironmentIterator } from '@lib/Environment';
@@ -38,10 +39,10 @@ export const kRegisterPasskeyDefinition = z.object({
     }),
 });
 
-export type RegisterPasskeyDefinition = z.infer<typeof kRegisterPasskeyDefinition>;
+export type RegisterPasskeyDefinition = ApiDefinition<typeof kRegisterPasskeyDefinition>;
 
-type Request = RegisterPasskeyDefinition['request'];
-type Response = RegisterPasskeyDefinition['response'];
+type Request = ApiRequest<typeof kRegisterPasskeyDefinition>;
+type Response = ApiResponse<typeof kRegisterPasskeyDefinition>;
 
 /**
  * The domain used for local development of the Volunteer Manager.

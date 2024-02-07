@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -29,10 +30,10 @@ export const kResetPasswordLinkDefinition = z.object({
     }),
 });
 
-export type ResetPasswordLinkDefinition = z.infer<typeof kResetPasswordLinkDefinition>;
+export type ResetPasswordLinkDefinition = ApiDefinition<typeof kResetPasswordLinkDefinition>;
 
-type Request = ResetPasswordLinkDefinition['request'];
-type Response = ResetPasswordLinkDefinition['response'];
+type Request = ApiRequest<typeof kResetPasswordLinkDefinition>;
+type Response = ApiResponse<typeof kResetPasswordLinkDefinition>;
 
 /**
  * API that allows a reset password link to be created for a particular account. Only administrators

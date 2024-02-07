@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
@@ -30,10 +31,10 @@ export const kCreateBookingDefinition = z.object({
     }),
 });
 
-export type CreateBookingDefinition = z.infer<typeof kCreateBookingDefinition>;
+export type CreateBookingDefinition = ApiDefinition<typeof kCreateBookingDefinition>;
 
-type Request = CreateBookingDefinition['request'];
-type Response = CreateBookingDefinition['response'];
+type Request = ApiRequest<typeof kCreateBookingDefinition>;
+type Response = ApiResponse<typeof kCreateBookingDefinition>;
 
 /**
  * API to create a new hotel booking within a given scope.

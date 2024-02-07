@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -63,10 +64,10 @@ export const kUpdateIntegrationDefinition = z.object({
     }),
 });
 
-export type UpdateIntegrationDefinition = z.infer<typeof kUpdateIntegrationDefinition>;
+export type UpdateIntegrationDefinition = ApiDefinition<typeof kUpdateIntegrationDefinition>;
 
-type Request = UpdateIntegrationDefinition['request'];
-type Response = UpdateIntegrationDefinition['response'];
+type Request = ApiRequest<typeof kUpdateIntegrationDefinition>;
+type Response = ApiResponse<typeof kUpdateIntegrationDefinition>;
 
 /**
  * API that allows the settings regarding a particular integration to be updated. The server call

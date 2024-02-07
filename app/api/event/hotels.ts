@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tEvents, tHotels } from '@lib/database';
 
@@ -60,10 +61,10 @@ export const kHotelsDefinition = z.object({
     }),
 });
 
-export type HotelsDefinition = z.infer<typeof kHotelsDefinition>;
+export type HotelsDefinition = ApiDefinition<typeof kHotelsDefinition>;
 
-type Request = HotelsDefinition['request'];
-type Response = HotelsDefinition['response'];
+type Request = ApiRequest<typeof kHotelsDefinition>;
+type Response = ApiResponse<typeof kHotelsDefinition>;
 
 /**
  * API through which visitors can retrieve information about the hotel rooms available for an event.

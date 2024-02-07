@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
@@ -36,10 +37,10 @@ export const kUpdateVolunteerDefinition = z.object({
     }),
 });
 
-export type UpdateVolunteerDefinition = z.infer<typeof kUpdateVolunteerDefinition>;
+export type UpdateVolunteerDefinition = ApiDefinition<typeof kUpdateVolunteerDefinition>;
 
-type Request = UpdateVolunteerDefinition['request'];
-type Response = UpdateVolunteerDefinition['response'];
+type Request = ApiRequest<typeof kUpdateVolunteerDefinition>;
+type Response = ApiResponse<typeof kUpdateVolunteerDefinition>;
 
 /**
  * API that allows the information of a particular volunteer to be updated. Only select accounts

@@ -5,6 +5,7 @@ import { generateAuthenticationOptions } from '@simplewebauthn/server';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { retrieveCredentials } from './passkeys/PasskeyUtils';
 import { storeUserChallenge } from './passkeys/PasskeyUtils';
@@ -38,10 +39,10 @@ export const kConfirmIdentityDefinition = z.object({
     }),
 });
 
-export type ConfirmIdentityDefinition = z.infer<typeof kConfirmIdentityDefinition>;
+export type ConfirmIdentityDefinition = ApiDefinition<typeof kConfirmIdentityDefinition>;
 
-type Request = ConfirmIdentityDefinition['request'];
-type Response = ConfirmIdentityDefinition['response'];
+type Request = ApiRequest<typeof kConfirmIdentityDefinition>;
+type Response = ApiResponse<typeof kConfirmIdentityDefinition>;
 
 /**
  * This API enables the client to confirm whether an account exists with a particular username. When

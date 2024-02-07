@@ -3,9 +3,10 @@
 
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -34,10 +35,10 @@ export const kSignInImpersonateDefinition = z.object({
     }),
 });
 
-export type SignInImpersonateDefinition = z.infer<typeof kSignInImpersonateDefinition>;
+export type SignInImpersonateDefinition = ApiDefinition<typeof kSignInImpersonateDefinition>;
 
-type Request = SignInImpersonateDefinition['request'];
-type Response = SignInImpersonateDefinition['response'];
+type Request = ApiRequest<typeof kSignInImpersonateDefinition>;
+type Response = ApiResponse<typeof kSignInImpersonateDefinition>;
 
 /**
  * API that allows administrators to sign in to another account, as a means of impersonation. Used

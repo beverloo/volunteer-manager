@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { deleteCredential } from './PasskeyUtils';
@@ -30,10 +31,10 @@ export const kDeletePasskeyDefinition = z.object({
     }),
 });
 
-export type DeletePasskeyDefinition = z.infer<typeof kDeletePasskeyDefinition>;
+export type DeletePasskeyDefinition = ApiDefinition<typeof kDeletePasskeyDefinition>;
 
-type Request = DeletePasskeyDefinition['request'];
-type Response = DeletePasskeyDefinition['response'];
+type Request = ApiRequest<typeof kDeletePasskeyDefinition>;
+type Response = ApiResponse<typeof kDeletePasskeyDefinition>;
 
 /**
  * Deletes one of the user's earlier created passkeys.

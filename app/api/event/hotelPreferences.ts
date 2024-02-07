@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
@@ -84,10 +85,10 @@ export const kHotelPreferencesDefinition = z.object({
     }),
 });
 
-export type HotelPreferencesDefinition = z.input<typeof kHotelPreferencesDefinition>;
+export type HotelPreferencesDefinition = ApiDefinition<typeof kHotelPreferencesDefinition>;
 
-type Request = z.output<typeof kHotelPreferencesDefinition>['request'];
-type Response = z.input<typeof kHotelPreferencesDefinition>['response'];
+type Request = ApiRequest<typeof kHotelPreferencesDefinition>;
+type Response = ApiResponse<typeof kHotelPreferencesDefinition>;
 
 /**
  * API through which volunteers can update their hotel room preferences.

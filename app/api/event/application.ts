@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
@@ -110,10 +111,10 @@ export const kApplicationDefinition = z.object({
     }),
 });
 
-export type ApplicationDefinition = z.infer<typeof kApplicationDefinition>;
+export type ApplicationDefinition = ApiDefinition<typeof kApplicationDefinition>;
 
-type Request = ApplicationDefinition['request'];
-type Response = ApplicationDefinition['response'];
+type Request = ApiRequest<typeof kApplicationDefinition>;
+type Response = ApiResponse<typeof kApplicationDefinition>;
 
 /**
  * API through which volunteers can apply to participate in one of our events. Applications have to

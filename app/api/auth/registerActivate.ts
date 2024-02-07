@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogType, Log } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { determineEnvironment } from '@lib/Environment';
@@ -47,10 +48,10 @@ export const kRegisterActivateDefinition = z.object({
     }),
 });
 
-export type RegisterActivateDefinition = z.infer<typeof kRegisterActivateDefinition>;
+export type RegisterActivateDefinition = ApiDefinition<typeof kRegisterActivateDefinition>;
 
-type Request = RegisterActivateDefinition['request'];
-type Response = RegisterActivateDefinition['response'];
+type Request = ApiRequest<typeof kRegisterActivateDefinition>;
+type Response = ApiResponse<typeof kRegisterActivateDefinition>;
 
 /**
  * This API enables the client to confirm their registration attempt. Typically the registration

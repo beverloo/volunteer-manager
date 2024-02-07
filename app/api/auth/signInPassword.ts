@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { AuthType } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
@@ -40,10 +41,10 @@ export const kSignInPasswordDefinition = z.object({
     }),
 });
 
-export type SignInPasswordDefinition = z.infer<typeof kSignInPasswordDefinition>;
+export type SignInPasswordDefinition = ApiDefinition<typeof kSignInPasswordDefinition>;
 
-type Request = SignInPasswordDefinition['request'];
-type Response = SignInPasswordDefinition['response'];
+type Request = ApiRequest<typeof kSignInPasswordDefinition>;
+type Response = ApiResponse<typeof kSignInPasswordDefinition>;
 
 /**
  * API that allows the user to sign in to their account with a password. The password shared with

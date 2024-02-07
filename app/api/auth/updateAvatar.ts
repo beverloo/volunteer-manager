@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
@@ -35,10 +36,10 @@ export const kUpdateAvatarDefinition = z.object({
     }),
 });
 
-export type UpdateAvatarDefinition = z.infer<typeof kUpdateAvatarDefinition>;
+export type UpdateAvatarDefinition = ApiDefinition<typeof kUpdateAvatarDefinition>;
 
-type Request = UpdateAvatarDefinition['request'];
-type Response = UpdateAvatarDefinition['response'];
+type Request = ApiRequest<typeof kUpdateAvatarDefinition>;
+type Response = ApiResponse<typeof kUpdateAvatarDefinition>;
 
 /**
  * API that allows a user to update an avatar. In most cases this will be about their own avatar,

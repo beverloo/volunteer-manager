@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { dayjs } from '@lib/DateTime';
 import db, { tEvents, tTrainings } from '@lib/database';
@@ -26,10 +27,10 @@ export const kTrainingsDefinition = z.object({
     }),
 });
 
-export type TrainingsDefinition = z.infer<typeof kTrainingsDefinition>;
+export type TrainingsDefinition = ApiDefinition<typeof kTrainingsDefinition>;
 
-type Request = TrainingsDefinition['request'];
-type Response = TrainingsDefinition['response'];
+type Request = ApiRequest<typeof kTrainingsDefinition>;
+type Response = ApiResponse<typeof kTrainingsDefinition>;
 
 /**
  * API through which visitors can retrieve information about the trainings available for an event.

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -107,10 +108,10 @@ export const kLogsDefinition = z.object({
     }),
 });
 
-export type LogsDefinition = z.infer<typeof kLogsDefinition>;
+export type LogsDefinition = ApiDefinition<typeof kLogsDefinition>;
 
-type Request = LogsDefinition['request'];
-type Response = LogsDefinition['response'];
+type Request = ApiRequest<typeof kLogsDefinition>;
+type Response = ApiResponse<typeof kLogsDefinition>;
 
 /**
  * API that allows system administrators to retrieve system logs. There is no upper bound on the

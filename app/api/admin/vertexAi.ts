@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
@@ -45,10 +46,10 @@ export const kVertexAiDefinition = z.object({
     }),
 });
 
-export type VertexAiDefinition = z.infer<typeof kVertexAiDefinition>;
+export type VertexAiDefinition = ApiDefinition<typeof kVertexAiDefinition>;
 
-type Request = VertexAiDefinition['request'];
-type Response = VertexAiDefinition['response'];
+type Request = ApiRequest<typeof kVertexAiDefinition>;
+type Response = ApiResponse<typeof kVertexAiDefinition>;
 
 /**
  * API that allows the administrative section to communicate with the Google Vertex AI APIs. Will

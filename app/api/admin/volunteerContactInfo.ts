@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -42,10 +43,10 @@ export const kVolunteerContactInfoDefinition = z.object({
     }),
 });
 
-export type VolunteerContactInfoDefinition = z.infer<typeof kVolunteerContactInfoDefinition>;
+export type VolunteerContactInfoDefinition = ApiDefinition<typeof kVolunteerContactInfoDefinition>;
 
-type Request = VolunteerContactInfoDefinition['request'];
-type Response = VolunteerContactInfoDefinition['response'];
+type Request = ApiRequest<typeof kVolunteerContactInfoDefinition>;
+type Response = ApiResponse<typeof kVolunteerContactInfoDefinition>;
 
 /**
  * API that allows event administrators and senior volunteers in particular events to retrieve the

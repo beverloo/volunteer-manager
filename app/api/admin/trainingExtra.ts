@@ -4,9 +4,9 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainingsAssignments, tTrainingsExtra } from '@lib/database';
@@ -81,10 +81,10 @@ export const kTrainingExtraDefinition = z.object({
     }),
 });
 
-export type TrainingExtraDefinition = z.infer<typeof kTrainingExtraDefinition>;
+export type TrainingExtraDefinition = ApiDefinition<typeof kTrainingExtraDefinition>;
 
-type Request = TrainingExtraDefinition['request'];
-type Response = TrainingExtraDefinition['response'];
+type Request = ApiRequest<typeof kTrainingExtraDefinition>;
+type Response = ApiResponse<typeof kTrainingExtraDefinition>;
 
 /**
  * API that allows event administrators to manage extra training participants on the fly. These are

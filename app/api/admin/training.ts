@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -54,10 +55,10 @@ export const kTrainingDefinition = z.object({
     }),
 });
 
-export type TrainingDefinition = z.infer<typeof kTrainingDefinition>;
+export type TrainingDefinition = ApiDefinition<typeof kTrainingDefinition>;
 
-type Request = TrainingDefinition['request'];
-type Response = TrainingDefinition['response'];
+type Request = ApiRequest<typeof kTrainingDefinition>;
+type Response = ApiResponse<typeof kTrainingDefinition>;
 
 /**
  * API that allows event administrators to manage training sessions on the fly. This API supports

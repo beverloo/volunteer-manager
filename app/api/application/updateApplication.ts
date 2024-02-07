@@ -4,6 +4,7 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -98,10 +99,10 @@ export const kUpdateApplicationDefinition = z.object({
     }),
 });
 
-export type UpdateApplicationDefinition = z.infer<typeof kUpdateApplicationDefinition>;
+export type UpdateApplicationDefinition = ApiDefinition<typeof kUpdateApplicationDefinition>;
 
-type Request = UpdateApplicationDefinition['request'];
-type Response = UpdateApplicationDefinition['response'];
+type Request = ApiRequest<typeof kUpdateApplicationDefinition>;
+type Response = ApiResponse<typeof kUpdateApplicationDefinition>;
 
 /**
  * API that allows an application to be updated.

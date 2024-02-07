@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -33,10 +34,10 @@ export const kUpdateActivationDefinition = z.object({
     }),
 });
 
-export type UpdateActivationDefinition = z.infer<typeof kUpdateActivationDefinition>;
+export type UpdateActivationDefinition = ApiDefinition<typeof kUpdateActivationDefinition>;
 
-type Request = UpdateActivationDefinition['request'];
-type Response = UpdateActivationDefinition['response'];
+type Request = ApiRequest<typeof kUpdateActivationDefinition>;
+type Response = ApiResponse<typeof kUpdateActivationDefinition>;
 
 /**
  * API that allows the activation status of a particular account to be updated. Only users with

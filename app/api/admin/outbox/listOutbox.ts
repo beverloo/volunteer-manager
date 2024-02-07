@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tOutbox } from '@lib/database';
@@ -94,10 +95,10 @@ export const kListOutboxDefinition = z.object({
     }),
 });
 
-export type ListOutboxDefinition = z.infer<typeof kListOutboxDefinition>;
+export type ListOutboxDefinition = ApiDefinition<typeof kListOutboxDefinition>;
 
-type Request = ListOutboxDefinition['request'];
-type Response = ListOutboxDefinition['response'];
+type Request = ApiRequest<typeof kListOutboxDefinition>;
+type Response = ApiResponse<typeof kListOutboxDefinition>;
 
 /**
  * Normalizes the sort model based on the request's input, to something that the database is able to

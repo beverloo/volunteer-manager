@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { clearEnvironmentCache } from '@lib/Environment';
@@ -63,10 +64,10 @@ export const kUpdateTeamDefinition = z.object({
     }),
 });
 
-export type UpdateTeamDefinition = z.infer<typeof kUpdateTeamDefinition>;
+export type UpdateTeamDefinition = ApiDefinition<typeof kUpdateTeamDefinition>;
 
-type Request = UpdateTeamDefinition['request'];
-type Response = UpdateTeamDefinition['response'];
+type Request = ApiRequest<typeof kUpdateTeamDefinition>;
+type Response = ApiResponse<typeof kUpdateTeamDefinition>;
 
 /**
  * API that allows the details associated with a team to be updated. This includes their name and

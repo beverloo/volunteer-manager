@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -74,7 +75,7 @@ export const kUpdateBookingDefinition = z.object({
     }),
 });
 
-export type UpdateBookingDefinition = z.input<typeof kUpdateBookingDefinition>;
+export type UpdateBookingDefinition = ApiDefinition<typeof kUpdateBookingDefinition>;
 
 /**
  * Returns the list of users who can be identified for the given `occupants`. They don't have to
@@ -100,8 +101,8 @@ async function identifyUsersForOccupants(occupants: string[]) {
     });
 }
 
-type Request = z.output<typeof kUpdateBookingDefinition>['request'];
-type Response = z.input<typeof kUpdateBookingDefinition>['response'];
+type Request = ApiRequest<typeof kUpdateBookingDefinition>;
+type Response = ApiResponse<typeof kUpdateBookingDefinition>;
 
 /**
  * API to update a hotel booking within a given scope.

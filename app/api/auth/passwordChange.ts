@@ -4,11 +4,10 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
 import { LogType, Log } from '@lib/Log';
-
-import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
-import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { authenticateUser } from '@lib/auth/Authentication';
 import { updateUserPassword } from './passwordReset';
 
 /**
@@ -40,10 +39,10 @@ export const kPasswordChangeDefinition = z.object({
     }),
 });
 
-export type PasswordChangeDefinition = z.infer<typeof kPasswordChangeDefinition>;
+export type PasswordChangeDefinition = ApiDefinition<typeof kPasswordChangeDefinition>;
 
-type Request = PasswordChangeDefinition['request'];
-type Response = PasswordChangeDefinition['response'];
+type Request = ApiRequest<typeof kPasswordChangeDefinition>;
+type Response = ApiResponse<typeof kPasswordChangeDefinition>;
 
 /**
  * This API enables the client to change their password from the user interface.

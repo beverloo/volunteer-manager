@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -35,10 +36,10 @@ export const kDeleteBookingDefinition = z.object({
     }),
 });
 
-export type DeleteBookingDefinition = z.infer<typeof kDeleteBookingDefinition>;
+export type DeleteBookingDefinition = ApiDefinition<typeof kDeleteBookingDefinition>;
 
-type Request = DeleteBookingDefinition['request'];
-type Response = DeleteBookingDefinition['response'];
+type Request = ApiRequest<typeof kDeleteBookingDefinition>;
+type Response = ApiResponse<typeof kDeleteBookingDefinition>;
 
 /**
  * API to delete a hotel booking within a given scope.

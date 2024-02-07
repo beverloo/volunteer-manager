@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogType, Log } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
@@ -40,10 +41,10 @@ export const kSignInPasswordUpdateDefinition = z.object({
     }),
 });
 
-export type SignInPasswordUpdateDefinition = z.infer<typeof kSignInPasswordUpdateDefinition>;
+export type SignInPasswordUpdateDefinition = ApiDefinition<typeof kSignInPasswordUpdateDefinition>;
 
-type Request = SignInPasswordUpdateDefinition['request'];
-type Response = SignInPasswordUpdateDefinition['response'];
+type Request = ApiRequest<typeof kSignInPasswordUpdateDefinition>;
+type Response = ApiResponse<typeof kSignInPasswordUpdateDefinition>;
 
 /**
  * API that allows the user to sign in to their account while updating their password. We use this

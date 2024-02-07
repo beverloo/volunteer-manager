@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { RoleBadge } from '@lib/database/Types';
@@ -63,10 +64,10 @@ export const kUpdateRoleDefinition = z.object({
     }),
 });
 
-export type UpdateRoleDefinition = z.infer<typeof kUpdateRoleDefinition>;
+export type UpdateRoleDefinition = ApiDefinition<typeof kUpdateRoleDefinition>;
 
-type Request = UpdateRoleDefinition['request'];
-type Response = UpdateRoleDefinition['response'];
+type Request = ApiRequest<typeof kUpdateRoleDefinition>;
+type Response = ApiResponse<typeof kUpdateRoleDefinition>;
 
 /**
  * API that allows information about particular roles to be updated. This includes whether they get

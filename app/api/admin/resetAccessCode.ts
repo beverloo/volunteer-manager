@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { AuthType } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
@@ -28,10 +29,10 @@ export const kResetAccessCodeDefinition = z.object({
     }),
 });
 
-export type ResetAccessCodeDefinition = z.infer<typeof kResetAccessCodeDefinition>;
+export type ResetAccessCodeDefinition = ApiDefinition<typeof kResetAccessCodeDefinition>;
 
-type Request = ResetAccessCodeDefinition['request'];
-type Response = ResetAccessCodeDefinition['response'];
+type Request = ApiRequest<typeof kResetAccessCodeDefinition>;
+type Response = ApiResponse<typeof kResetAccessCodeDefinition>;
 
 /**
  * API that allows a new access code to be created for a particular volunteer. Only certain

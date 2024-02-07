@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogType, Log } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { createAccount, isUsernameAvailable } from '@lib/auth/Authentication';
@@ -75,10 +76,10 @@ export const kRegisterDefinition = z.object({
     }),
 });
 
-export type RegisterDefinition = z.infer<typeof kRegisterDefinition>;
+export type RegisterDefinition = ApiDefinition<typeof kRegisterDefinition>;
 
-type Request = RegisterDefinition['request'];
-type Response = RegisterDefinition['response'];
+type Request = ApiRequest<typeof kRegisterDefinition>;
+type Response = ApiResponse<typeof kRegisterDefinition>;
 
 /**
  * API that allows accounts to be created. The `request` includes all the necessary information,

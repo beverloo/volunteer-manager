@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -34,10 +35,10 @@ export const kUpdatePermissionsDefinition = z.object({
     }),
 });
 
-export type UpdatePermissionsDefinition = z.infer<typeof kUpdatePermissionsDefinition>;
+export type UpdatePermissionsDefinition = ApiDefinition<typeof kUpdatePermissionsDefinition>;
 
-type Request = UpdatePermissionsDefinition['request'];
-type Response = UpdatePermissionsDefinition['response'];
+type Request = ApiRequest<typeof kUpdatePermissionsDefinition>;
+type Response = ApiResponse<typeof kUpdatePermissionsDefinition>;
 
 /**
  * API that allows the permissions of a particular user to be updated. Only administrators have the

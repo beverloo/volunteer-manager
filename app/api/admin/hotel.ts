@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -84,10 +85,10 @@ export const kHotelDefinition = z.object({
     }),
 });
 
-export type HotelDefinition = z.infer<typeof kHotelDefinition>;
+export type HotelDefinition = ApiDefinition<typeof kHotelDefinition>;
 
-type Request = HotelDefinition['request'];
-type Response = HotelDefinition['response'];
+type Request = ApiRequest<typeof kHotelDefinition>;
+type Response = ApiResponse<typeof kHotelDefinition>;
 
 /**
  * API that allows event administrators to manage hotel rooms on the fly. This API supports rooms
