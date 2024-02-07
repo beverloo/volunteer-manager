@@ -97,7 +97,7 @@ export async function getRegistration(environmentName: string, event: Event, use
                 accountName: refundsJoin.refundAccountName,
                 requested: dbInstance.asDateTimeString(
                     refundsJoin.refundRequested, 'requiredInOptionalObject'),
-                confirmed: dbInstance.asDateTimeString(refundsJoin.refundConfirmed, 'optional'),
+                confirmed: refundsJoin.refundConfirmedString,
             },
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
@@ -109,12 +109,9 @@ export async function getRegistration(environmentName: string, event: Event, use
                 updated: dbInstance.asDateTimeString(
                     trainingsAssignmentsJoin.preferenceUpdated, 'optional'),
 
-                preferenceDate: dbInstance.asDateTimeString(
-                    trainingsPreferenceJoin.trainingStart, 'requiredInOptionalObject'),
-                assignedDate: dbInstance.asDateTimeString(
-                    trainingsAssignedJoin.trainingStart, 'requiredInOptionalObject'),
-                assignedEndDate: dbInstance.asDateTimeString(
-                    trainingsAssignedJoin.trainingEnd, 'requiredInOptionalObject'),
+                preferenceDate: trainingsPreferenceJoin.trainingStartString,
+                assignedDate: trainingsAssignedJoin.trainingStartString,
+                assignedEndDate: trainingsAssignedJoin.trainingEndString,
                 assignedAddress: trainingsAssignedJoin.trainingAddress,
             },
         })

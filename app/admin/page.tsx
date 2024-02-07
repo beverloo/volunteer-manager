@@ -12,7 +12,6 @@ import { Dashboard } from './dashboard/Dashboard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
@@ -33,7 +32,7 @@ async function fetchBirthdays(user: User) {
     const nextMonth = currentMonth.add({ months: 1 });
 
     // Only show birthdays for volunteers who helped out in the past X years:
-    const thresholdDate = dayjs().subtract(3, 'years');
+    const thresholdDate = Temporal.Now.zonedDateTimeISO('UTC').subtract({ years: 3 });
 
     const birthdays = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
@@ -137,8 +136,8 @@ export default async function AdminPage() {
         .select({
             name: tEvents.eventShortName,
             slug: tEvents.eventSlug,
-            startTime: dbInstance.asDateTimeString(tEvents.eventStartTime, 'required'),
-            endTime: dbInstance.asDateTimeString(tEvents.eventEndTime, 'required'),
+            startTime: tEvents.eventStartTimeString,
+            endTime: tEvents.eventEndTimeString,
             location: tEvents.eventLocation,
             fileHash: storageJoin.fileHash,
         })

@@ -13,6 +13,7 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs, fromLocalDate, toLocalDate } from '@lib/DateTime';
 
@@ -69,7 +70,9 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             }),
 
             renderCell: params =>
-                dayjs.utc(params.row.start).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.row.start).withTimeZone(event.timezone),
+                    'YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'end',
@@ -86,7 +89,9 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             }),
 
             renderCell: params =>
-                dayjs(params.row.end).tz(event.timezone).format('YYYY-MM-DD [at] H:mm'),
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.row.end).withTimeZone(event.timezone),
+                    'YYYY-MM-DD [at] H:mm'),
         },
         {
             field: 'address',

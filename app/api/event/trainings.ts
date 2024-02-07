@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { dayjs } from '@lib/DateTime';
+import { formatDate } from '@lib/Temporal';
 import db, { tEvents, tTrainings } from '@lib/database';
 
 /**
@@ -56,9 +57,9 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
         if (!row.published && !can(props.user, Privilege.EventTrainingManagement))
             continue;  // this `row` has not yet been published
 
-        const date = dayjs.utc(row.start).tz(row.timezone).format('dddd, MMMM D');
-        const start = dayjs.utc(row.start).tz(row.timezone).format('H:mm');
-        const end = dayjs.utc(row.end).tz(row.timezone).format('H:mm');
+        const date = formatDate(row.start.withTimeZone(row.timezone), 'dddd, MMMM D');
+        const start = formatDate(row.start.withTimeZone(row.timezone), 'H:mm');
+        const end = formatDate(row.end.withTimeZone(row.timezone), 'H:mm');
 
         trainings.push(`${date}, from ${start} until ${end}`);
     }

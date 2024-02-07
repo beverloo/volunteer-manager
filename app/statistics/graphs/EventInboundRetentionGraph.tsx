@@ -3,8 +3,8 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal, isAfter } from '@lib/Temporal';
 import { computeColor } from '../ColorUtils';
-import { dayjs } from '@lib/DateTime';
 import db, { tEvents, tUsersEvents } from '@lib/database';
 
 /**
@@ -47,20 +47,19 @@ export async function EventInboundRetentionGraph(props: EventInboundRetentionGra
     let retained3YCount: number = 0;
     let retainedEverCount: number = 0;
 
-    const graphEventStartTime = dayjs(props.eventStartTime);
+    const graphEventStartTime = Temporal.ZonedDateTime.from(props.eventStartTime);
     for (const { participation } of retention) {
         totalCount++;
 
-        let latestEventStartTime: dayjs.Dayjs | undefined = undefined;
+        let latestEventStartTime: Temporal.ZonedDateTime | undefined = undefined;
         let latestTeamId: number | undefined = undefined;
 
         for (const { eventStartTime, teamId } of participation) {
-            const currentEventStartTime = dayjs(eventStartTime);
-            if (currentEventStartTime.isAfter(graphEventStartTime))
-                continue;  // ignore events that happen in the future
+            if (!eventStartTime || isAfter(eventStartTime, graphEventStartTime))
+                continue;  // ignore incomplete events and ones that happen in the future
 
-            if (!latestEventStartTime || currentEventStartTime.isAfter(latestEventStartTime)) {
-                latestEventStartTime = currentEventStartTime;
+            if (!latestEventStartTime || isAfter(eventStartTime, latestEventStartTime)) {
+                latestEventStartTime = eventStartTime;
                 latestTeamId = teamId;
             }
         }
@@ -70,7 +69,9 @@ export async function EventInboundRetentionGraph(props: EventInboundRetentionGra
             continue;
         }
 
-        const diffInMonths = graphEventStartTime.diff(latestEventStartTime, 'months');
+        const diffInMonths = graphEventStartTime.since(latestEventStartTime, {
+            largestUnit: 'months'
+        }).months;
 
         if (latestTeamId !== props.teamId)
             retainedDifferentTeam++;

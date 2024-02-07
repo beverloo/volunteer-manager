@@ -8,11 +8,11 @@ import Collapse from '@mui/material/Collapse';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { TrainingAssignments, type TrainingAssignment } from './TrainingAssignments';
 import { TrainingConfiguration } from './TrainingConfiguration';
 import { TrainingExternal } from './TrainingExternal';
 import { TrainingOverview, type TrainingConfirmation } from './TrainingOverview';
-import { dayjs } from '@lib/DateTime';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
@@ -93,8 +93,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             id: tTrainings.trainingId,
             trainingAddress: tTrainings.trainingAddress,
             trainingCapacity: tTrainings.trainingCapacity,
-            trainingStart: dbInstance.asDateTimeString(tTrainings.trainingStart, 'required'),
-            trainingEnd: dbInstance.asDateTimeString(tTrainings.trainingEnd, 'required'),
+            trainingStart: tTrainings.trainingStart,
+            trainingEnd: tTrainings.trainingEnd,
         })
         .orderBy(tTrainings.trainingStart, 'asc')
         .executeSelectMany();
@@ -108,7 +108,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         { value: 0, label: 'Skip the training' },
         ...trainings.map(training => ({
             value: training.id,
-            label: dayjs.utc(training.trainingStart).format('dddd, MMMM D'),
+            label: formatDate(training.trainingStart, 'dddd, MMMM D'),
         })),
     ];
 
@@ -163,7 +163,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     for (const training of trainings) {
         trainingConfirmations[training.id] = {
             capacity: training.trainingCapacity,
-            date: training.trainingStart,
+            date: training.trainingStart.toString(),
             participants: [],
         };
     }
@@ -195,10 +195,9 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     }
 
     confirmations.sort((lhs, rhs) => {
-        if (lhs.date === rhs.date)
-            return 0;
-
-        return dayjs(lhs.date).isBefore(rhs.date) ? -1 : 1;
+        return Temporal.ZonedDateTime.compare(
+            Temporal.ZonedDateTime.from(lhs.date),
+            Temporal.ZonedDateTime.from(rhs.date));
     });
 
     const enableExport = can(user, Privilege.VolunteerDataExports);

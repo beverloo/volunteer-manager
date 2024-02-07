@@ -11,7 +11,6 @@ import { ActivityType } from '@lib/database/Types';
 import { TaskWithParams } from '../Task';
 import { Temporal } from '@lib/Temporal';
 import { createAnimeConClient } from '@lib/integrations/animecon';
-import { dayjs } from '@lib/DateTime';
 
 import { Mutation, MutationSeverity } from '@lib/database/Types';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
@@ -967,8 +966,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         return baseSeverity;
     }
 
-    updateTaskIntervalForFestivalDate(endTime: dayjs.Dayjs): void {
-        const differenceInDays = endTime.diff(dayjs.utc(), 'days');
+    updateTaskIntervalForFestivalDate(endTime: Temporal.ZonedDateTime): void {
+        const differenceInDays = endTime.since(Temporal.Now.zonedDateTimeISO('UTC'), {
+            largestUnit: 'days',
+        }).days;
+
         if (differenceInDays < 0) {
             this.log.info('Interval: The event happened in the past, using maximum interval.');
             this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);

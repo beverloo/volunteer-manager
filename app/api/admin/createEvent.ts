@@ -4,11 +4,10 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse } from '../Types';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
@@ -36,12 +35,12 @@ export const kCreateEventDefinition = z.object({
         /**
          * Date and time at which the event will start.
          */
-        startTime: z.string(),
+        startTime: kTemporalZonedDateTime,
 
         /**
          * Date and time at which the event will finish.
          */
-        endTime: z.string(),
+        endTime: kTemporalZonedDateTime,
 
     }),
     response: z.strictObject({
@@ -89,8 +88,8 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventSlug: request.slug,
             eventHidden: /* true= */ 1,
             eventTimezone: 'Europe/Amsterdam',
-            eventStartTime: dayjs.utc(request.startTime),
-            eventEndTime: dayjs.utc(request.endTime),
+            eventStartTime: request.startTime,
+            eventEndTime: request.endTime,
             eventAvailabilityStatus: EventAvailabilityStatus.Unavailable,
         })
         .executeInsert();

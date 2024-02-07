@@ -17,7 +17,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import type { DataTableColumn } from '@app/admin/DataTable';
 import { DataTable } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Icon to show for events that are currently active.
@@ -63,12 +63,14 @@ export interface EventListEntry {
     slug: string;
 
     /**
-     * Date and time at which the event will commence.
+     * Date and time at which the event will commence. Represented in Temporal `ZonedDateTime`-
+     * compatible format in UTC.
      */
     startTime: string;
 
     /**
-     * Date and time at which the event will finish.
+     * Date and time at which the event will finish. Represented in Temporal `ZonedDateTime`-
+     * compatible format in UTC.
      */
     endTime: string;
 
@@ -133,7 +135,8 @@ export function EventList(props: EventListProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD')
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'endTime',
@@ -141,7 +144,8 @@ export function EventList(props: EventListProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => dayjs(params.value).format('YYYY-MM-DD')
+            renderCell: (params: GridRenderCellParams) =>
+                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'teams',

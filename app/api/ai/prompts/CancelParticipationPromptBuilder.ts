@@ -5,7 +5,7 @@ import { type ParticipationContext, composeParticipationContext, generatePartici
 import { type EventContext, composeEventContext, generateEventContext } from './generateEventContext';
 import { type PromptBuilderLanguage, PromptBuilder } from './PromptBuilder';
 import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Parameters expected by the `CancelParticipationVolunteerPromptBuilder` class.
@@ -65,8 +65,8 @@ export class CancelParticipationVolunteerPromptBuilder extends
             event: {
                 name: 'AnimeCon Classic',
                 location: 'Theaterhotel in Almelo',
-                startTime: dayjs().add(40, 'days'),
-                endTime: dayjs().add(42, 'days'),
+                startTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 40 }),
+                endTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 42 }),
             },
             user: await generateUserContext(userId),
         }

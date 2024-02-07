@@ -9,7 +9,6 @@ import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 
 import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
     tTrainingsExtra, tUsers, tUsersEvents, tVendors } from '@lib/database';
@@ -416,7 +415,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         let currentDate: string | null = null;
 
         for (const participant of participants) {
-            const participationDate = dayjs(participant.date).format('YYYY-MM-DD');
+            const participationDate = formatDate(participant.date, 'YYYY-MM-DD');
             if (currentDate !== participationDate) {
                 if (currentDate && currentVolunteers.length > 0) {
                     trainings.sessions.push({
@@ -477,10 +476,10 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         for (const volunteer of volunteerList) {
             let age: number | undefined = undefined;
 
-            // TODO: Switch to some Temporal difference mechanism once `eventStartTime` migrates
             if (volunteer.birthdate) {
-                age = metadata.eventStartTime.diff(
-                    formatDate(volunteer.birthdate, 'YYYY-MM-DD'), 'years');
+                age = metadata.eventStartTime.since(volunteer.birthdate, {
+                    largestUnit: 'years'
+                }).years;
             }
 
             volunteers.push({

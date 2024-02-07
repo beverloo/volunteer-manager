@@ -3,8 +3,8 @@
 
 import { DashboardGraph } from '../DashboardGraph';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { computeColor } from '../ColorUtils';
-import { dayjs } from '@lib/DateTime';
 import db, { tEvents, tUsersEvents } from '@lib/database';
 
 /**
@@ -19,7 +19,7 @@ export type EventRollingRetentionGraphProps =
 export async function EventRollingRetentionGraph(props: EventRollingRetentionGraphProps) {
     const previousEventId = await db.selectFrom(tEvents)
         .selectOneColumn(tEvents.eventId)
-        .where(tEvents.eventStartTime.lessThan(dayjs.utc(props.eventStartTime)))
+        .where(tEvents.eventStartTime.lessThan(Temporal.ZonedDateTime.from(props.eventStartTime)))
             .and(tEvents.eventId.notEquals(props.eventId))
         .orderBy(tEvents.eventStartTime, 'desc').limit(1)
         .executeSelectNoneOrOne();

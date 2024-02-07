@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { dayjs } from '@lib/DateTime';
+import { formatDate } from '@lib/Temporal';
 import db, { tEvents, tTrainings } from '@lib/database';
 
 /**
@@ -23,10 +23,11 @@ export async function getTrainingOptions(eventId: number) {
         .executeSelectMany();
 
     return trainings.map(training => {
-        const date = training.trainingStart.tz(training.timezone).format('dddd, MMMM D');
+        const date =
+            formatDate(training.trainingStart.withTimeZone(training.timezone), 'dddd, MMMM D');
 
-        const start = training.trainingStart.tz(training.timezone).format('H:mm');
-        const end = training.trainingEnd.tz(training.timezone).format('H:mm');
+        const start = formatDate(training.trainingStart.withTimeZone(training.timezone), 'H:mm');
+        const end = formatDate(training.trainingEnd.withTimeZone(training.timezone), 'H:mm');
 
         return {
             id: training.id,

@@ -6,7 +6,7 @@ import { type EventContext, composeEventContext, generateEventContext } from './
 import { type PromptBuilderLanguage, PromptBuilder } from './PromptBuilder';
 import { type UpdatedTeamContext, composeUpdatedTeamContext, generateUpdatedTeamContext } from './generateUpdatedTeamContext';
 import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Parameters expected by the `ChangeTeamVolunteerPromptBuilder` class.
@@ -72,8 +72,8 @@ export class ChangeTeamPromptBuilder extends PromptBuilder<ChangeTeamParams, Cha
             event: {
                 name: 'AnimeCon Classic',
                 location: 'Theaterhotel in Almelo',
-                startTime: dayjs().add(40, 'days'),
-                endTime: dayjs().add(42, 'days'),
+                startTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 40 }),
+                endTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 42 }),
             },
             user: await generateUserContext(userId),
         }

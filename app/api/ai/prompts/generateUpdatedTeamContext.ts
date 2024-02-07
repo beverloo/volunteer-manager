@@ -1,8 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { RegistrationStatus } from '@lib/database/Types';
-import db, { tEventsTeams, tEvents, tTeams, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEventsTeams, tEvents, tTeams } from '@lib/database';
 
 /**
  * Context that can be generated for an updated team.

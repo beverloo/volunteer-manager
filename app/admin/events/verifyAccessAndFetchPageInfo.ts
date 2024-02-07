@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation';
 import type { EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
@@ -71,12 +70,14 @@ export interface PageInfo {
         timezone: string;
 
         /**
-         * Time at which the first shifts of the event will commence.
+         * Time at which the first shifts of the event will commence. In UTC in a format compatible
+         * with Temporal ZonedDateTime.
          */
         startTime: string;
 
         /**
-         * Time at which the final shifts of the event will finish.
+         * Time at which the final shifts of the event will finish. In UTC in a format compatible
+         * with Temporal ZonedDateTime.
          */
         endTime: string;
 
@@ -199,8 +200,8 @@ export async function verifyAccessAndFetchPageInfo(
             identityHash: storageJoin.fileHash,
             slug: tEvents.eventSlug,
             timezone: tEvents.eventTimezone,
-            startTime: dbInstance.asDateTimeString(tEvents.eventStartTime, 'required'),
-            endTime: dbInstance.asDateTimeString(tEvents.eventEndTime, 'required'),
+            startTime: tEvents.eventStartTimeString,
+            endTime: tEvents.eventEndTimeString,
             refundsStartTime: tEvents.eventRefundsStartTimeString,
             refundsEndTime: tEvents.eventRefundsEndTimeString,
             availabilityStatus: tEvents.eventAvailabilityStatus,

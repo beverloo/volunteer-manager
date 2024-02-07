@@ -12,8 +12,14 @@ import {
     DateTimeTypeAdapter,
 } from "../DateTimeTypeAdapter";
 import {
+    TemporalTypeAdapter,
+} from "../TemporalTypeAdapter";
+import {
     DateTime,
 } from "../../DateTime";
+import {
+    ZonedDateTime,
+} from "../../Temporal";
 
 export class RefundsTable extends Table<DBConnection, 'RefundsTable'> {
     userId = this.column('user_id', 'int');
@@ -22,7 +28,7 @@ export class RefundsTable extends Table<DBConnection, 'RefundsTable'> {
     refundAccountIban = this.column('refund_account_iban', 'string');
     refundAccountName = this.column('refund_account_name', 'string');
     refundRequested = this.columnWithDefaultValue<DateTime>('refund_requested', 'customComparable', 'dateTime', DateTimeTypeAdapter);
-    refundConfirmed = this.optionalColumnWithDefaultValue<DateTime>('refund_confirmed', 'customComparable', 'dateTime', DateTimeTypeAdapter);
+    refundConfirmed = this.optionalColumnWithDefaultValue<ZonedDateTime>('refund_confirmed', 'customComparable', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('refunds');

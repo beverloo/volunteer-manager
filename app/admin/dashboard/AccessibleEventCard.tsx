@@ -12,7 +12,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Representation of an accessible event to display on the dashboard.
@@ -29,7 +29,8 @@ export interface AccessibleEvent {
     slug: string;
 
     /**
-     * Start and end times of the event, to contextualize the card further.
+     * Start and end times of the event, to contextualize the card further. Represented in Temporal
+     * `ZonedDateTime`-compatible formatting in UTC.
      */
     startTime: string;
     endTime: string;
@@ -62,14 +63,14 @@ export interface AccessibleEventCardProps {
 export function AccessibleEventCard(props: AccessibleEventCardProps) {
     const event = props.accessibleEvent;
 
-    const startTime = dayjs(event.startTime);
-    const endTime = dayjs(event.endTime);
+    const startTime = Temporal.ZonedDateTime.from(event.startTime);
+    const endTime = Temporal.ZonedDateTime.from(event.endTime);
 
     let timespan: string;
-    if (startTime.month() === endTime.month())
-        timespan = `${startTime.format('MMMM D')}–${endTime.format('D')}`;
+    if (startTime.month === endTime.month)
+        timespan = `${formatDate(startTime, 'MMMM D')}–${formatDate(endTime, 'D')}`;
     else
-        timespan = `${startTime.format('MMMM D')} until ${endTime.format('MMMM D')}`;
+        timespan = `${formatDate(startTime, 'MMMM D')} until ${formatDate(endTime, 'MMMM D')}`;
 
     const router = useRouter();
 
@@ -86,7 +87,7 @@ export function AccessibleEventCard(props: AccessibleEventCardProps) {
                     {event.name}
                 </Typography>
                 <Typography variant="body2">
-                    Taking place {timespan}, {startTime.format('YYYY')}
+                    Taking place {timespan}, {formatDate(startTime, 'YYYY')}
                     { !!event.location && `, in ${event.location}.` }
                     { !event.location && '.' }
                 </Typography>

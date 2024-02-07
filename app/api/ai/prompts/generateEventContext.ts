@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 import db, { tEvents } from '@lib/database';
 
 /**
@@ -21,12 +21,12 @@ export interface EventContext {
     /**
      * Exact date and time on which the event will start.
      */
-    startTime: dayjs.Dayjs;
+    startTime: Temporal.ZonedDateTime;
 
     /**
      * Exact date and time on which the event will finish.
      */
-    endTime: dayjs.Dayjs;
+    endTime: Temporal.ZonedDateTime;
 }
 
 /**
@@ -36,9 +36,9 @@ export interface EventContext {
 export function composeEventContext(context: EventContext): string[] {
     const composition: string[] = [];
 
-    const today = dayjs().format('MMMM D, YYYY');
-    const start = context.startTime.format('MMMM D, YYYY');
-    const end = context.endTime.format('MMMM D, YYYY');
+    const today = formatDate(Temporal.Now.zonedDateTimeISO('UTC'), 'MMMM D, YYYY');
+    const start = formatDate(context.startTime, 'MMMM D, YYYY');
+    const end = formatDate(context.endTime, 'MMMM D, YYYY');
 
     composition.push(`Today's date is ${today}.`);
     composition.push(
@@ -68,7 +68,7 @@ export async function generateEventContext(event: string): Promise<EventContext>
     return {
         name: eventInfo.name,
         location: eventInfo.location,
-        startTime: dayjs(eventInfo.startTime),
-        endTime: dayjs(eventInfo.endTime),
+        startTime: eventInfo.startTime,
+        endTime: eventInfo.endTime,
     };
 }

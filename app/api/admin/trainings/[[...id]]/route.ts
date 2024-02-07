@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tTrainings } from '@lib/database';
@@ -93,8 +93,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kTrainingRowModel, 
             await db.insertInto(tTrainings)
                 .set({
                     eventId: event.eventId,
-                    trainingStart: dayjs(event.startTime),
-                    trainingEnd: dayjs(event.endTime),
+                    trainingStart: event.temporalStartTime,
+                    trainingEnd: event.temporalEndTime,
                 })
                 .returningLastInsertedId()
                 .executeInsert();
@@ -137,8 +137,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kTrainingRowModel, 
                 id: tTrainings.trainingId,
                 address: tTrainings.trainingAddress,
                 capacity: tTrainings.trainingCapacity,
-                start: dbInstance.asDateTimeString(tTrainings.trainingStart, 'required'),
-                end: dbInstance.asDateTimeString(tTrainings.trainingEnd, 'required'),
+                start: tTrainings.trainingStartString,
+                end: tTrainings.trainingEndString,
             })
             .orderBy(sort?.field ?? 'start', sort?.sort ?? 'asc')
             .limitIfValue(pagination ? pagination.pageSize : null)
@@ -161,8 +161,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kTrainingRowModel, 
             .set({
                 trainingAddress: row.address,
                 trainingCapacity: row.capacity,
-                trainingStart: dayjs.utc(row.start),
-                trainingEnd: dayjs.utc(row.end)
+                trainingStart: Temporal.Instant.from(row.start).toZonedDateTimeISO('UTC'),
+                trainingEnd: Temporal.Instant.from(row.end).toZonedDateTimeISO('UTC'),
             })
             .where(tTrainings.trainingId.equals(id))
                 .and(tTrainings.eventId.equals(event.eventId))

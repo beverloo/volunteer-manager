@@ -5,7 +5,7 @@ import { type ApplicationContext, composeApplicationContext, generateApplication
 import { type EventContext, composeEventContext, generateEventContext } from './generateEventContext';
 import { type PromptBuilderLanguage, PromptBuilder } from './PromptBuilder';
 import { type UserContext, composeUserContext, generateUserContext } from './generateUserContext';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Parameters expected by the `ApproveVolunteerPromptBuilder` class.
@@ -62,8 +62,8 @@ export class ApproveVolunteerPromptBuilder extends
             event: {
                 name: 'AnimeCon Unicorn Edition',
                 location: 'The Unicorn Hotel in Rotterdam',
-                startTime: dayjs().add(100, 'days'),
-                endTime: dayjs().add(102, 'days'),
+                startTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 100 }),
+                endTime: Temporal.Now.zonedDateTimeISO('UTC').add({ days: 102 }),
             },
             user: await generateUserContext(userId),
         }

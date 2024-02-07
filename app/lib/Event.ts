@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Interface that maps to the database representation of an event.
@@ -13,8 +13,8 @@ export interface EventDatabaseRow {
     eventSlug: string;
     eventFestivalId?: number;
     eventTimezone: string;
-    eventStartTime: dayjs.Dayjs;
-    eventEndTime: dayjs.Dayjs;
+    eventStartTime: Temporal.ZonedDateTime;
+    eventEndTime: Temporal.ZonedDateTime;
     eventEnableRefunds?: number;
     environments: {
         environment?: string,
@@ -60,12 +60,12 @@ export interface EventData {
     timezone: string;
 
     /**
-     * Start time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
+     * Start time of the event, as a `Temporal.ZonedDateTime`-compatible representation in UTC.
      */
     startTime: string;
 
     /**
-     * End time of the event, as a `YYYY-MM-DD HH:II:SS` DATETIME representation.
+     * End time of the event, as a `Temporal.ZonedDateTime`-compatible representation in UTC.
      */
     endTime: string;
 
@@ -140,6 +140,16 @@ export class Event implements EventData {
     get eventId() { return this.#event.eventId; }
 
     /**
+     * Returns the `Temporal.ZonedDateTime` variant of the event's start time.
+     */
+    get temporalStartTime() { return this.#event.eventStartTime; }
+
+    /**
+     * Returns the `Temporal.ZonedDateTime` variant of the event's end time.
+     */
+    get temporalEndTime() { return this.#event.eventEndTime;}
+
+    /**
      * Returns the environment information for the given |environmentName| when it exists, or
      * `undefined` in all other cases.
      */
@@ -164,8 +174,8 @@ export class Event implements EventData {
     get slug() { return this.#event.eventSlug; }
     get festivalId() { return this.#event.eventFestivalId; }
     get timezone() { return this.#event.eventTimezone; }
-    get startTime() { return this.#event.eventStartTime.toISOString(); }
-    get endTime() { return this.#event.eventEndTime.toISOString(); }
+    get startTime() { return this.#event.eventStartTime.toString(); }
+    get endTime() { return this.#event.eventEndTime.toString(); }
     get enableRefunds() { return !!this.#event.eventEnableRefunds; }
 
     // ---------------------------------------------------------------------------------------------
