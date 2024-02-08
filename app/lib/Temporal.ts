@@ -269,13 +269,25 @@ export function formatDuration(duration: Temporal.Duration): string {
 /**
  * Returns whether `zdt` happens after `reference`.
  */
-export function isAfter(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean {
-    return Temporal.ZonedDateTime.compare(zdt, reference) > 0;
+export function isAfter(pd: Temporal.PlainDate, reference: Temporal.PlainDate): boolean;
+export function isAfter(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean;
+export function isAfter<T>(input: T, reference: T): boolean {
+    if (input instanceof Temporal.PlainDate)
+        return Temporal.PlainDate.compare(input, reference as any) > 0;
+    if (input instanceof Temporal.ZonedDateTime)
+        return Temporal.ZonedDateTime.compare(input, reference as any) > 0;
+    throw new Error(`Invalid type given to isAfter(): ${typeof input}`);
 }
 
 /**
  * Returns whether `zdt` happens before `reference`.
  */
-export function isBefore(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean {
-    return Temporal.ZonedDateTime.compare(zdt, reference) < 0;
+export function isBefore(pd: Temporal.PlainDate, reference: Temporal.PlainDate): boolean;
+export function isBefore(zdt: Temporal.ZonedDateTime, reference: Temporal.ZonedDateTime): boolean;
+export function isBefore<T>(input: T, reference: T): boolean {
+    if (input instanceof Temporal.PlainDate)
+        return Temporal.PlainDate.compare(input, reference as any) < 0;
+    if (input instanceof Temporal.ZonedDateTime)
+        return Temporal.ZonedDateTime.compare(input, reference as any) < 0;
+    throw new Error(`Invalid type given to isBefore(): ${typeof input}`);
 }

@@ -23,8 +23,8 @@ import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPag
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { AvailabilityTimelineImpl } from './AvailabilityTimelineImpl';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Custom styles applied to the <AdminHeader> & related components.
@@ -113,11 +113,20 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     // Availability exceptions
     // ---------------------------------------------------------------------------------------------
 
-    const firstValidException = dayjs.utc(event.startTime).startOf('day');
-    const lastValidException = dayjs.utc(event.endTime).add(1, 'day').startOf('day');
+    const firstValidException = Temporal.ZonedDateTime.from(event.startTime).with({
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
 
-    const min = firstValidException.toISOString();
-    const max = lastValidException.toISOString();
+    const lastValidException = Temporal.ZonedDateTime.from(event.endTime).add({ days: 1 }).with({
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
+
+    const min = firstValidException.toString({ timeZoneName: 'never' });
+    const max = lastValidException.toString({ timeZoneName: 'never' });
 
     const [ timeslots, setTimeslots ] = useState<AvailabilityTimeslot[]>(() => {
         const initialTimeslots: AvailabilityTimeslot[] = [];
@@ -125,15 +134,18 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             try {
                 const unverifiedTimeslots = JSON.parse(volunteer.availabilityExceptions);
                 for (const timeslot of unverifiedTimeslots) {
-                    if (firstValidException.isAfter(timeslot.end))
+                    const start = Temporal.ZonedDateTime.from(timeslot.start);
+                    const end = Temporal.ZonedDateTime.from(timeslot.end);
+
+                    if (isAfter(firstValidException, end))
                         continue;  // exception happens before the event
-                    if (lastValidException.isBefore(timeslot.start))
+                    if (isBefore(lastValidException, start))
                         continue;  // exception happens after the event
 
                     initialTimeslots.push({
                         id: `anime_${initialTimeslots.length}`,
-                        start: timeslot.start,
-                        end: timeslot.end,
+                        start: start.toString({ timeZoneName: 'never' }),
+                        end: end.toString({ timeZoneName: 'never' }),
                         state: timeslot.state,
                     });
                 }

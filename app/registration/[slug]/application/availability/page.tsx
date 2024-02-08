@@ -12,14 +12,22 @@ import { AvailabilityExpectations, type AvailabilityDayInfo, type AvailabilityEx
 import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { dayjs, type DateTime } from '@lib/DateTime';
-import { formatDate } from '@lib/Temporal';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import db, { tUsersEvents } from '@lib/database';
+
+/**
+ * Returns whether `one` and `two` fall on the same day.
+ */
+function isSameDay(one: Temporal.ZonedDateTime, two: Temporal.ZonedDateTime) {
+    return one.year === two.year &&
+           one.month === two.month &&
+           one.day === two.day;
+}
 
 /**
  * The <EventApplicationAvailabilityPage> component enables our volunteers to indicate when they
@@ -55,9 +63,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
     let events: EventTimeslotEntry[] = [];
 
-    type LegacyDayJS = { startTimeDayJS: DateTime, endTimeDayJS: DateTime };
-
-    const selectedEvents: (EventTimeslotEntry & LegacyDayJS)[] = [];
+    const selectedEvents: EventTimeslotEntry[] = [];
     if (registration.availabilityEventLimit > 0 && !!event.festivalId) {
         events = await getPublicEventsForFestival(
             event.festivalId, event.timezone, /* withTimingInfo= */ true);
@@ -67,14 +73,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 if (eventTimeslot.id !== timeslotId)
                     continue;
 
-                selectedEvents.push({
-                    ...eventTimeslot,
-
-                    startTimeDayJS:
-                        dayjs(formatDate(eventTimeslot.startTime!, 'YYYY-MM-DD[T]HH:mm:ss[Z]')),
-                    endTimeDayJS:
-                        dayjs(formatDate(eventTimeslot.endTime!, 'YYYY-MM-DD[T]HH:mm:ss[Z]')),
-                });
+                selectedEvents.push(eventTimeslot);
             }
         }
     }
@@ -98,11 +97,14 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 if (!('start' in exception) || !('end' in exception) || !('state' in exception))
                     continue;
 
-                const start = dayjs.utc(exception.start).tz(event.timezone).startOf('hour');
-                const end = dayjs.utc(exception.end).tz(event.timezone).endOf('hour');
+                const end = Temporal.ZonedDateTime.from(exception.end).withTimeZone(event.timezone);
+                const start =
+                    Temporal.ZonedDateTime.from(exception.start).withTimeZone(event.timezone).with({
+                        minute: 0,
+                    });
 
-                for (let time = start; time < end; time = time.add(1, 'hour'))
-                    exceptions.set(time.format('YYYY-MM-DD[T]H'), exception.state);
+                for (let time = start; isBefore(time, end); time = time.add({ hours: 1 }))
+                    exceptions.set(formatDate(time, 'YYYY-MM-DD[T]H'), exception.state);
             }
 
         } catch (error: any) {
@@ -114,11 +116,19 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     // Section: Availability
     // ---------------------------------------------------------------------------------------------
 
-    const startDateTime = dayjs.utc(event.startTime).tz(event.timezone);
-    const startDate = startDateTime.startOf('day');
+    const startDateTime = event.temporalStartTime.withTimeZone(event.timezone);
+    const startDate = startDateTime.with({
+        hour: 0,
+        minute: 0,
+        second: 0
+    });
 
-    const endDateTime = dayjs.utc(event.endTime).tz(event.timezone);
-    const endDate = endDateTime.endOf('day');
+    const endDateTime = event.temporalEndTime.withTimeZone(event.timezone);
+    const endDate = endDateTime.with({
+        hour: 23,
+        minute: 59,
+        second: 59,
+    });
 
     let serviceTimingStart: number | undefined;
     let serviceTimingEnd: number | undefined;
@@ -129,13 +139,13 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
     }
 
     const expectations: AvailabilityDayInfo[] = [];
-    for (let date = startDate; date.isBefore(endDate); date = date.add(1, 'day')) {
-        const dateString = date.format('YYYY-MM-DD');
+    for (let date = startDate; isBefore(date, endDate); date = date.add({ days: 1 })) {
+        const dateString = formatDate(date, 'YYYY-MM-DD');
 
         expectations.push({
-            label: date.format('dddd, MMMM D'),
+            label: formatDate(date, 'dddd, MMMM D'),
             expectations: [ ...Array(/* hours= */ 24) ].map((_, hour) => {
-                const hourlyDateTime = dayjs(date).add(hour, 'hours');
+                const hourlyDateTime = date.add({ hours: hour });
                 let decidedStatus: AvailabilityExpectation = 'available';
 
                 // Consider exceptions that have been approved by the volunteering leads. When one
@@ -166,7 +176,7 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                         // Case (2): The volunteer's shifts will start and end on separate days.
                         const hoursUntilWindowStart = serviceTimingStart - hour;
 
-                        if (!date.isSame(startDate, 'day')) {
+                        if (!isSameDay(date, startDate)) {
                             if (hour === serviceTimingEnd)
                                 decidedStatus = 'avoid';
                             else if (hour > serviceTimingEnd && hoursUntilWindowStart > 2)
@@ -186,13 +196,13 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
                 // reduce the availability here, in other words "available" becomes "avoid", but
                 // "unavailable" remains "unavailable".
                 if (decidedStatus !== 'unavailable' && selectedEvents.length > 0) {
-                    const nextHourlyDateTime = hourlyDateTime.add(1, 'hour');
+                    const nextHourlyDateTime = hourlyDateTime.add({ hours: 1 });
                     for (const eventTimeslot of selectedEvents) {
                         if (!eventTimeslot.startTime || !eventTimeslot.endTime)
                             continue;  // incomplete timeslot
 
-                        if (eventTimeslot.startTimeDayJS.isBefore(nextHourlyDateTime) &&
-                                eventTimeslot.endTimeDayJS.isAfter(hourlyDateTime)) {
+                        if (isBefore(eventTimeslot.startTime, nextHourlyDateTime) &&
+                                isAfter(eventTimeslot.endTime, hourlyDateTime)) {
                             decidedStatus = 'avoid';
                         }
                     }
@@ -200,8 +210,11 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
                 // We won't schedule shifts (well) before the festival's opening time without having
                 // discussed this with the volunteer.
-                if (date.isSame(startDate, 'day')) {
-                    const hoursUntilOpening = startDateTime.diff(hourlyDateTime, 'hours');
+                if (isSameDay(date, startDate)) {
+                    const hoursUntilOpening = hourlyDateTime.until(startDateTime, {
+                        largestUnit: 'hours'
+                    }).hours;
+
                     if (hoursUntilOpening > 3)
                         return 'unavailable';
                     else if (hoursUntilOpening > 1)
@@ -210,8 +223,11 @@ export default async function EventApplicationAvailabilityPage(props: NextRouter
 
                 // Similarly, we won't schedule shifts after the festival has finished. Folks are
                 // welcome to stick around, but we won't count on it.
-                if (date.isSame(endDate, 'day')) {
-                    const hoursUntilClosure = endDateTime.diff(hourlyDateTime, 'hours');
+                if (isSameDay(date, endDate)) {
+                    const hoursUntilClosure = hourlyDateTime.until(endDateTime, {
+                        largestUnit: 'hours'
+                    }).hours;
+
                     if (hoursUntilClosure <= 0)
                         return 'unavailable';
                 }

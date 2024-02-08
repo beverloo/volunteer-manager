@@ -4,7 +4,6 @@
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -14,6 +13,8 @@ import { getRegistration } from '@lib/RegistrationLoader';
 import db, { tActivities, tActivitiesTimeslots, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
 import { kServiceHoursProperty, kServiceTimingProperty } from './application';
+import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
+    from '../Types';
 
 /**
  * Interface definition for the Availability API, exposed through
@@ -45,12 +46,12 @@ export const kAvailabilityPreferencesDefinition = z.object({
             /**
              * Date and time on which the exception will start, in ISO 8601 format in UTC.
              */
-            start: z.string(),
+            start: kTemporalZonedDateTime,
 
             /**
              * Date and time on which the exception will end, in ISO 8601 format in UTC.
              */
-            end: z.string(),
+            end: kTemporalZonedDateTime,
 
             /**
              * State of this volunteer's availability during that period of time.
@@ -165,8 +166,13 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     }
 
     let exceptions: string | undefined;
-    if ( !!request.adminOverrideUserId && !!request.exceptions)
-        exceptions = JSON.stringify(request.exceptions);
+    if ( !!request.adminOverrideUserId && !!request.exceptions) {
+        exceptions = JSON.stringify(request.exceptions.map(exception => ({
+            start: exception.start.toString(),
+            end: exception.end.toString(),
+            state: exception.state,
+        })));
+    }
 
     const [ preferenceTimingStart, preferenceTimingEnd ] =
         request.serviceTiming.split('-').map(v => parseInt(v, 10));

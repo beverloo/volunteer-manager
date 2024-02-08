@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 import type { RegistrationRefund } from '@lib/Registration';
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <RefundConfirmation> component.
@@ -24,20 +24,20 @@ export interface RefundConfirmationProps {
  * submitted, differentiating between a requested refund and an issued refund.
  */
 export function RefundConfirmation(props: RefundConfirmationProps) {
-    if (!props.refund)
+    if (!props.refund || !props.refund.requested)
         return <></>;
 
-    const { confirmed, requested } = props.refund;
-
+    const requested = Temporal.ZonedDateTime.from(props.refund.requested);
     const secondary: string =
-        `You requested the refund on ${dayjs(requested).format('dddd, MMMM D')}.`;
+        `You requested the refund on ${formatDate(requested, 'dddd, MMMM D')}.`;
 
     let primary: string = '';
     let tertiary: string | undefined;
 
-    if (!!confirmed) {
+    if (!!props.refund.confirmed) {
+        const confirmed = Temporal.ZonedDateTime.from(props.refund.confirmed);
         primary = 'Your refund has been confirmed!';
-        tertiary = `We issued the refund on ${dayjs(confirmed).format('dddd, MMMM D')}.`;
+        tertiary = `We issued the refund on ${formatDate(confirmed, 'dddd, MMMM D')}.`;
     } else {
         primary = 'Your request has been received';
     }

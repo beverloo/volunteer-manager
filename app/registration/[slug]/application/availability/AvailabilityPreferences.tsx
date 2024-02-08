@@ -161,6 +161,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                                                              fullWidth: true,
                                                              size: 'small',
                                                          }}
+                                                         label="Event…"
                                                          options={props.events} matchId />
                                 </Grid>
                             </React.Fragment> )}

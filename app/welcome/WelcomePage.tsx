@@ -26,6 +26,7 @@ import type { User } from '@lib/auth/User';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
+import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -134,14 +135,14 @@ export function WelcomePage(props: WelcomePageProps) {
 
     const eventContentOverride = can(user, Privilege.EventContentOverride);
     const eventScheduleOverride = can(user, Privilege.EventScheduleOverride);
-    const currentTime = dayjs();
+    const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
 
     let upcomingEvent: EventDataWithEnvironment | undefined;
     let currentEvent: EventDataWithEnvironment | undefined;
 
     for (const event of props.events) {
-        const eventTime = dayjs(event.endTime);
-        if (eventTime.isAfter(currentTime, 'date') && !upcomingEvent)
+        const eventTime = Temporal.ZonedDateTime.from(event.endTime);
+        if (isAfter(eventTime, currentTime) && !upcomingEvent)
             upcomingEvent = event;
         else if (!currentEvent)
             currentEvent = event;

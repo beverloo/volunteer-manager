@@ -24,7 +24,7 @@ import type { RegistrationData, RegistrationRefund, RegistrationTraining } from 
 import type { User } from '@lib/auth/User';
 import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 
 /**
  * Props accepted by the <AvailabilityButton> component.
@@ -160,17 +160,21 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
             primary = 'Your hotel room has been confirmed!';
         }
 
-        let earliestCheckIn = dayjs('2099-12-31 23:59:59');
-        let latestCheckOut = dayjs('1999-01-01 00:00:00');
+        let earliestCheckIn = Temporal.PlainDate.from('2099-12-31');
+        let latestCheckOut = Temporal.PlainDate.from('1999-01-01');
 
         for (const booking of bookings) {
-            if (earliestCheckIn.isAfter(booking.checkIn))
-                earliestCheckIn = dayjs(booking.checkIn);
-            if (latestCheckOut.isBefore(booking.checkOut))
-                latestCheckOut = dayjs(booking.checkOut);
+            const checkIn = Temporal.PlainDate.from(booking.checkIn);
+            const checkOut = Temporal.PlainDate.from(booking.checkOut);
+
+            if (isAfter(earliestCheckIn, checkIn))
+                earliestCheckIn = checkIn;
+            if (isBefore(latestCheckOut, checkOut))
+                latestCheckOut = checkOut;
         }
 
-        secondary  = `${earliestCheckIn.format('dddd')} until ${latestCheckOut.format('dddd')}, in`;
+        secondary  = `${formatDate(earliestCheckIn, 'dddd')} until `;
+        secondary += `${formatDate(latestCheckOut, 'dddd')}, in`;
         secondary += hotel;
     } else if (!!preferences) {
         // (2) The volunteer indicated their preferences, wants a room and is awaiting confirmation.
@@ -260,7 +264,10 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
     if (!!refund) {
         // (1) The volunteer has been issued a refund.
         if (!!refund.confirmed) {
-            const confirmationDate = dayjs(refund.confirmed).tz(timezone).format('dddd, MMMM D');
+            const confirmationDate =
+                formatDate(
+                    Temporal.ZonedDateTime.from(refund.confirmed).withTimeZone(timezone),
+                    'dddd, MMMM D');
 
             primary = 'Your ticket has been refunded!';
             secondary = `We issued your refund on ${confirmationDate}`;
@@ -342,9 +349,11 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
     if (!!training && (training.confirmed || training.updated)) {
         // (1) The volunteer has a confirmed spot in one of the sessions.
         if (!!training.assignedDate && training.confirmed) {
-            const assignedDateTime = dayjs(training.assignedDate).tz(timezone);
-            const assignedDate = assignedDateTime.format('dddd, MMMM D');
-            const assignedTime = assignedDateTime.format('H:mm');
+            const assignedDateTime =
+                Temporal.ZonedDateTime.from(training.assignedDate).withTimeZone(timezone);
+
+            const assignedDate = formatDate(assignedDateTime, 'dddd, MMMM D');
+            const assignedTime = formatDate(assignedDateTime, 'H:mm');
 
             status = 'confirmed';
             primary = `You'll join the training on ${assignedDate}`;
@@ -360,7 +369,9 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
         // (3) The volunteer indicated their preferences, wants to join and waits for confirmation.
         else if (!!training.preferenceDate) {
             const preferenceDate =
-                dayjs(training.preferenceDate).tz(timezone).format('dddd, MMMM D');
+                formatDate(
+                    Temporal.ZonedDateTime.from(training.preferenceDate).withTimeZone(timezone),
+                    'dddd, MMMM D');
 
             status = 'submitted';
             primary = `You'd like to join the training on ${preferenceDate}`;

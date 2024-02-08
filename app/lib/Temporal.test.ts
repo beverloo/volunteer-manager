@@ -333,6 +333,19 @@ describe('Temporal', () => {
     });
 
     it('should export correct comparison helping functions', () => {
+        const monday = Temporal.PlainDate.from('2024-02-05');
+        const tuesday = Temporal.PlainDate.from('2024-02-06');
+
+        expect(isAfter(monday, monday)).toBeFalse();
+        expect(isAfter(monday, tuesday)).toBeFalse();
+        expect(isAfter(tuesday, monday)).toBeTrue();
+        expect(isAfter(tuesday, tuesday)).toBeFalse();
+
+        expect(isBefore(monday, monday)).toBeFalse();
+        expect(isBefore(monday, tuesday)).toBeTrue();
+        expect(isBefore(tuesday, monday)).toBeFalse();
+        expect(isBefore(tuesday, tuesday)).toBeFalse();
+
         const march = Temporal.ZonedDateTime.from('2024-03-01T00:00:00Z[UTC]');
         const april = Temporal.ZonedDateTime.from('2024-04-01T00:00:00Z[UTC]');
 

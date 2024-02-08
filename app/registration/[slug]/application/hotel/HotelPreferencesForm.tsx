@@ -11,6 +11,7 @@ import { DatePickerElement, SelectElement, TextFieldElement } from 'react-hook-f
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { Temporal, formatDate } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 
 /**
@@ -32,7 +33,8 @@ const kSelectableDaysAroundEvent = 5;
 export interface HotelPreferencesFormProps {
     /**
      * Date on which the event will take place. When provided, this will limit the minimal and
-     * maximal selectable dates within the picker. Should be provided as an ISO timestamp.
+     * maximal selectable dates within the picker. Will be provided in a `Temporal.ZonedDateTime`
+     * compatible format in UTC.
      */
     eventDate?: string;
 
@@ -74,7 +76,8 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
         if (!props.eventDate)
             return;
 
-        const eventDate = dayjs(props.eventDate);
+        const eventDateTemporal = Temporal.ZonedDateTime.from(props.eventDate);
+        const eventDate = dayjs(formatDate(eventDateTemporal, 'YYYY-MM-DD[ 12:00:00]'));
         if (!eventDate.isValid())
             return;
 

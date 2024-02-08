@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import type { RegistrationData } from '@lib/Registration';
 import { ConfirmationBox } from './ConfirmationBox';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <HotelConfirmation> component.
@@ -33,10 +33,13 @@ export function HotelConfirmation(props: HotelConfirmationProps) {
                 Your confirmed booking{ bookings.length > 1 ? 's' : '' }
             </Typography>
             { bookings.map((booking, index) => {
+                const checkIn = Temporal.PlainDate.from(booking.checkIn);
+                const checkOut = Temporal.PlainDate.from(booking.checkOut);
+
                 const primary = `${booking.hotel.name} (${booking.hotel.room})`;
                 const secondary =
-                    `Check in on ${dayjs(booking.checkIn).format('dddd, MMMM D')}, check out on ` +
-                    `${dayjs(booking.checkOut).format(' dddd, MMMM D')}`;
+                    `Check in on ${formatDate(checkIn, 'dddd, MMMM D')}, check out on ` +
+                    `${formatDate(checkOut, ' dddd, MMMM D')}`;
                 const tertiary =
                     !!booking.sharing.length
                         ? `You'll share this room with ${booking.sharing.join(' & ')}`

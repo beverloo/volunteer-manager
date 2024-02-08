@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import type { RegistrationTraining } from '@lib/Registration';
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <TrainingConfirmation> component.
@@ -33,11 +33,21 @@ export function TrainingConfirmation(props: TrainingConfirmationProps) {
     const { timezone, training } = props;
 
     let confirmationBox: React.ReactNode = undefined;
-    if (!!training.assignedDate) {
-        const date = dayjs(training.assignedDate).tz(timezone).format('dddd, MMMM D');
+    if (!!training.assignedDate && !!training.assignedEndDate) {
+        const date =
+            formatDate(
+                Temporal.ZonedDateTime.from(training.assignedDate).withTimeZone(timezone),
+                'dddd, MMMM D');
 
-        const startTime = dayjs(training.assignedDate).tz(timezone).format('H:mm');
-        const endTime = dayjs(training.assignedEndDate).tz(timezone).format('H:mm');
+        const startTime =
+            formatDate(
+                Temporal.ZonedDateTime.from(training.assignedDate).withTimeZone(timezone),
+                'H:mm');
+
+        const endTime =
+            formatDate(
+                Temporal.ZonedDateTime.from(training.assignedEndDate).withTimeZone(timezone),
+                'H:mm');
 
         const primary = `You'll be joining the training on ${date}`;
         const secondary = training.assignedAddress ?? '';
