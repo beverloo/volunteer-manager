@@ -6,9 +6,9 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventSlugForId } from '@lib/EventLoader';
-import { dayjs } from '@lib/DateTime';
 
 import db, { tContent, tEvents, tTeams, tUsers } from '@lib/database';
 
@@ -153,7 +153,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 id: insertId,
                 path: row.path,
                 title: row.title,
-                updatedOn: dayjs.utc().toISOString(),
+                updatedOn: Temporal.Now.zonedDateTimeISO('UTC').toString(),
                 updatedBy: `${props.user!.firstName} ${props.user!.lastName}`,
                 updatedByUserId: props.user!.userId,
                 protected: false,

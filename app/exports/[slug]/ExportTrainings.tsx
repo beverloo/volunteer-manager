@@ -15,8 +15,8 @@ import Table from '@mui/material/Table';
 import Typography from '@mui/material/Typography';
 
 import type { TrainingsDataExport } from '@app/api/exports/route';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { useSelectElementText } from './useSelectElementText';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Props accepted by the <ExportTrainingTable> component.
@@ -40,7 +40,7 @@ function ExportTrainingTable(props: ExportTrainingTableProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ mb: 1 }}>
-                {dayjs(date).format('dddd MMMM D, YYYY')}
+                {formatDate(Temporal.PlainDate.from(date), 'dddd MMMM D, YYYY')}
             </Typography>
             <Alert severity="info" sx={{ mb: 1 }}
                    action={

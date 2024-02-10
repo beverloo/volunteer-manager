@@ -6,7 +6,6 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { dayjs } from '@lib/DateTime';
 import { formatDate } from '@lib/Temporal';
 import db, { tEvents, tTrainings } from '@lib/database';
 

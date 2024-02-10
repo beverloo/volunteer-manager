@@ -7,7 +7,6 @@ import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType, RegistrationStatus } from '../database/Types';
 import { Temporal } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';

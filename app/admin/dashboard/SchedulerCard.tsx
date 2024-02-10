@@ -9,12 +9,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
-import { dayjs } from '@lib/DateTime';
-
-/**
- * Formatter used to display the execution and invocation count numbers.
- */
-const kCounterFormatter = new Intl.NumberFormat('en-US');
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Representation of the status of the Volunteer Manager scheduler.
@@ -65,14 +60,20 @@ export function SchedulerCard(props: SchedulerCardProps) {
 
     let lastExecutionTime: string | undefined;
     if (!!timeSinceLastExecutionMs) {
-        const executionTime = dayjs().subtract(timeSinceLastExecutionMs, 'milliseconds');
-        lastExecutionTime = executionTime.format('YYYY-MM-DD [at] HH:mm:ss');
+        const executionTime = Temporal.Now.zonedDateTimeISO('UTC').subtract({
+            milliseconds: timeSinceLastExecutionMs
+        });
+
+        lastExecutionTime = formatDate(executionTime, 'YYYY-MM-DD [at] HH:mm:ss');
     }
 
     let lastInvocationTime: string | undefined;
     if (!!timeSinceLastInvocationMs) {
-        const invocationTime = dayjs().subtract(timeSinceLastInvocationMs, 'milliseconds');
-        lastInvocationTime = invocationTime.format('YYYY-MM-DD [at] HH:mm:ss');
+        const invocationTime = Temporal.Now.zonedDateTimeISO('UTC').subtract({
+            milliseconds: timeSinceLastInvocationMs
+        });
+
+        lastInvocationTime = formatDate(invocationTime, 'YYYY-MM-DD [at] HH:mm:ss');
     }
 
     return (

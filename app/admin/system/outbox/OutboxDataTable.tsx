@@ -17,7 +17,6 @@ import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable'
 import { OLD_DataTable } from '../../DataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * The <OutboxDataTable> component displays all e-mail messages that have been sent by the AnimeCon

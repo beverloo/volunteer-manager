@@ -9,7 +9,7 @@ import type {
     from 'ts-sql-query/expressions/values';
 
 import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
-import type { ITableOrViewRef, NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
+import type { NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
 import { InterceptorQueryRunner, type QueryType }
     from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
@@ -17,18 +17,8 @@ import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQue
 import { MockQueryRunner, type QueryType as MockQueryType }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
-import type { DateTime } from '@lib/DateTime';
 import type { PlainDate, PlainTime, ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-
-/**
- * Value source for the `DateTime` (i.e. DayJS) and `ZonedDateTime` (i.e. Temporal) types.
- */
-type DateTimeAndZonedDateTimeValueSource =
-    ComparableValueSource<
-        NoTableOrViewRequired<DB<'DBConnection'>>, DateTime, DateTime, 'required'> &
-    ComparableValueSource<
-        NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>;
 
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
@@ -79,7 +69,8 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override currentDateTime()
         : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          DateTimeAndZonedDateTimeValueSource  // TODO: Deprecate DayJS support
+          ComparableValueSource<
+              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
     {
         return super.currentDateTime() as any;
     }
@@ -91,7 +82,8 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override currentTimestamp()
         : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          DateTimeAndZonedDateTimeValueSource  // TODO: Deprecate DayJS support
+          ComparableValueSource<
+              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
     {
         return super.currentTimestamp() as any;
     }
@@ -107,58 +99,6 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
               NoTableOrViewRequired<DB<'DBConnection'>>, PlainTime, PlainTime, 'required'>
     {
         return super.currentTime() as any;
-    }
-
-    /**
-     * Provide an easy manner to convert a DateTime value source to a string representation
-     * ("YYYY-MM-DD") during query execution.
-     */
-    asDateString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
-                 IsOptional extends OptionalType>(
-        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, IsOptional>,
-        required: IsOptional): StringValueSource<TABLE_OR_VIEW, IsOptional>
-    {
-        switch (required) {
-            case 'required':
-                return this.fragmentWithType('string', 'required')
-                    .sql`date_format(${value}, '%Y-%m-%d')` as
-                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
-
-            case 'optional':
-            case 'originallyRequired':
-            case 'requiredInOptionalObject':
-                return this.fragmentWithType('string', 'optional')
-                    .sql`date_format(${value}, '%Y-%m-%d')` as
-                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
-        }
-
-        throw new Error(`Invalid value for "required" in asDateString(): ${required}`);
-    }
-
-    /**
-     * Provide an easy manner to convert a DateTime value source to a string representation
-     * ("YYYY-MM-DDTHH:mm:ssZ") during query execution.
-     */
-    asDateTimeString<TABLE_OR_VIEW extends ITableOrViewRef<DB<'DBConnection'>>,
-                     IsOptional extends OptionalType>(
-        value: ComparableValueSource<TABLE_OR_VIEW, DateTime, DateTime, IsOptional>,
-        required: IsOptional): StringValueSource<TABLE_OR_VIEW, IsOptional>
-    {
-        switch (required) {
-            case 'required':
-                return this.fragmentWithType('string', 'required')
-                    .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
-                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
-
-            case 'optional':
-            case 'originallyRequired':
-            case 'requiredInOptionalObject':
-                return this.fragmentWithType('string', 'optional')
-                    .sql`date_format(${value}, '%Y-%m-%dT%TZ')` as
-                        StringValueSource<TABLE_OR_VIEW, IsOptional>;
-        }
-
-        throw new Error(`Invalid value for "required" in asDateTimeString(): ${required}`);
     }
 }
 

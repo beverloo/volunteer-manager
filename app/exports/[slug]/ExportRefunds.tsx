@@ -15,8 +15,8 @@ import Table from '@mui/material/Table';
 import Typography from '@mui/material/Typography';
 
 import type { RefundsDataExport } from '@app/api/exports/route';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { useSelectElementText } from './useSelectElementText';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Props accepted by the <ExportRefunds> component.
@@ -66,7 +66,9 @@ export function ExportRefunds(props: ExportRefundsProps) {
                                 <TableRow key={index}>
                                     <TableCell>{request.name}</TableCell>
                                     <TableCell>
-                                        {dayjs(request.date).format('YYYY-MM-DD')}
+                                        { formatDate(
+                                            Temporal.ZonedDateTime.from(request.date), 'YYYY-MM-DD')
+                                        }
                                     </TableCell>
                                     <TableCell>{request.ticketNumber ?? '(unknown)'}</TableCell>
                                     <TableCell>{request.accountIban}</TableCell>

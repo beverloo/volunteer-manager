@@ -18,8 +18,8 @@ import type { ApplicationInfo } from './Applications';
 import { Avatar } from '@components/Avatar';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Props accepted by the <RejectedApplications> component.
@@ -102,7 +102,9 @@ export function RejectedApplications(props: RejectedApplicationsProps) {
                                     {application.firstName} {application.lastName}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: 'action.active' }}>
-                                    {dayjs(application.date).format('dddd, MMMM D, YYYY')}
+                                    { formatDate(
+                                        Temporal.ZonedDateTime.from(application.date!),
+                                        'dddd, MMMM D, YYYY') }
                                 </Typography>
                             </Box>
                         </Stack>

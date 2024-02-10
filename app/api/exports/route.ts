@@ -477,9 +477,12 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             let age: number | undefined = undefined;
 
             if (volunteer.birthdate) {
-                age = metadata.eventStartTime.since(volunteer.birthdate, {
-                    largestUnit: 'years'
-                }).years;
+                const eventStartDay = metadata.eventStartTime.toPlainDate();
+                const difference = eventStartDay.since(volunteer.birthdate, {
+                    largestUnit: 'years',
+                });
+
+                age = difference.years;
             }
 
             volunteers.push({

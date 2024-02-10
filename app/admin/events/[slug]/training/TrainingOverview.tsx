@@ -23,7 +23,7 @@ import Table from '@mui/material/Table';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Information about an individual confirmation.
@@ -144,7 +144,8 @@ export function TrainingOverview(props: TrainingOverviewProps) {
                             <TableCell width="50"></TableCell>
                             { props.confirmations.map((session, index) =>
                                 <TableCell key={index} align="center">
-                                    { dayjs(session.date).format('dddd, MMMM D') }
+                                    { formatDate(
+                                        Temporal.ZonedDateTime.from(session.date), 'dddd, MMMM D') }
                                 </TableCell> )}
                             <TableCell width="50"></TableCell>
                         </TableRow>
