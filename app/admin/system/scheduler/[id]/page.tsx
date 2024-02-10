@@ -18,7 +18,7 @@ import { DetailedLogs } from '../../outbox/[id]/DetailedLogs';
 import { GotoTaskButton } from './GotoTaskButton';
 import { Privilege } from '@lib/auth/Privileges';
 import { RerunTaskButton } from './RerunTaskButton';
-import { formatDate } from '@lib/Temporal';
+import { Temporal, formatDate, formatDuration } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTasks } from '@lib/database';
 
@@ -53,6 +53,15 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
 
     if (!task)
         notFound();
+
+    let taskInterval: string | undefined;
+    if (!!task.taskInterval) {
+        const duration =
+            new Temporal.Duration().add({ milliseconds: task.taskInterval })
+                .round({ largestUnit: 'hour' });
+
+        taskInterval = formatDuration(duration);
+    }
 
     const taskParamsObject = JSON.parse(task.taskParams);
     const taskParamsFormatted = JSON.stringify(taskParamsObject, undefined, /* space= */ 4);
@@ -100,12 +109,12 @@ export default async function TaskPage(props: NextRouterParams<'id'>) {
                         </TableCell>
                         <TableCell>{formatDate(task.taskDate, 'YYYY-MM-DD HH:mm:ss')}</TableCell>
                     </TableRow>
-                    { !!task.taskInterval &&
+                    { !!taskInterval &&
                         <TableRow>
                             <TableCell width="25%" component="th" scope="row">
                                 Scheduled interval
                             </TableCell>
-                            <TableCell>{task.taskInterval}ms</TableCell>
+                            <TableCell>{taskInterval}</TableCell>
                         </TableRow> }
                 </Table>
             </TableContainer>

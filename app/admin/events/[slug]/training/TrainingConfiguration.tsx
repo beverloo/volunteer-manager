@@ -13,9 +13,8 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { Temporal, formatDate } from '@lib/Temporal';
+import { Temporal, formatDate, fromLocalDate, toLocalDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs, fromLocalDate, toLocalDate } from '@lib/DateTime';
 
 /**
  * Props accepted by the <TrainingConfiguration> component.
@@ -63,10 +62,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             sortable: true,
             flex: 2,
 
-            valueGetter: params => toLocalDate(params.row.start, event.timezone),
+            valueGetter: params => toLocalDate(Temporal.ZonedDateTime.from(params.row.start)),
             valueSetter: params => ({
                 ...params.row,
-                start: fromLocalDate(params.value, event.timezone)
+                start: fromLocalDate(params.value).toString(),
             }),
 
             renderCell: params =>
@@ -82,10 +81,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             sortable: true,
             flex: 2,
 
-            valueGetter: params => toLocalDate(params.row.end, event.timezone),
+            valueGetter: params => toLocalDate(Temporal.ZonedDateTime.from(params.row.end)),
             valueSetter: params => ({
                 ...params.row,
-                end: fromLocalDate(params.value, event.timezone)
+                end: fromLocalDate(params.value).toString(),
             }),
 
             renderCell: params =>

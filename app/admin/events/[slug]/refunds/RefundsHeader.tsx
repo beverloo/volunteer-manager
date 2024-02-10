@@ -18,6 +18,7 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -100,12 +101,23 @@ export function RefundsHeader(props: RefundsHeaderProps) {
 
     const defaultValues = {
         ...event,
-        refundsStartTime:
-            event.refundsStartTime ? dayjs(event.refundsStartTime).tz(event.timezone)
-                                   : undefined,
-        refundsEndTime:
-            event.refundsEndTime ? dayjs(event.refundsEndTime).tz(event.timezone)
-                                 : undefined,
+        refundsStartTime: undefined as any,
+        refundsEndTime: undefined as any,
+    };
+
+    if (!!event.refundsStartTime) {
+        const temporalValue =
+            Temporal.ZonedDateTime.from(event.refundsStartTime).withTimeZone(event.timezone);
+
+        defaultValues.refundsStartTime = dayjs(temporalValue.toString({ timeZoneName: 'never' }));
+    }
+
+    if (!!event.refundsEndTime) {
+        const temporalValue =
+            Temporal.ZonedDateTime.from(event.refundsEndTime).withTimeZone(event.timezone);
+
+        defaultValues.refundsEndTime = dayjs(temporalValue.toString({ timeZoneName: 'never' }));
+
     }
 
     return (

@@ -12,8 +12,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { HotelRequest } from './HotelBookings';
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
-import { dayjs } from '@lib/DateTime';
+import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <HotelPendingAssignment> component.
@@ -73,7 +73,7 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             width: 110,
 
             renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                dayjs(params.value).format('YYYY-MM-DD'),
+                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'checkOut',
@@ -81,7 +81,7 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             width: 110,
 
             renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                dayjs(params.value).format('YYYY-MM-DD'),
+                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'updated',
@@ -89,7 +89,7 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             width: 110,
 
             renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                dayjs(params.value).format('YYYY-MM-DD'),
+                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         }
     ];
 

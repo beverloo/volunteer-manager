@@ -14,8 +14,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Options that can be selected for the availability of the export.
@@ -78,7 +78,8 @@ export function ExportCreatePanel(props: ExportCreatePanelProps) {
                     event: data.event,
                     type: data.type,
                     justification: data.justification,
-                    expirationDate: dayjs().add(data.hours, 'hours').toISOString(),
+                    expirationDate:
+                        Temporal.Now.zonedDateTimeISO('UTC').add({ hours: 1 }).toString(),
                     expirationViews: data.views,
                 },
             });

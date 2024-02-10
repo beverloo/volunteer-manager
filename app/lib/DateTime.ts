@@ -39,19 +39,3 @@ dayjs.updateLocale('en', {
  * Date and time representation that we use throughout the Volunteer Manager.
  */
 export type DateTime = dayjs.Dayjs;
-
-/**
- * Converts the given `date`, representing a particular date and time in the user's local timezone,
- * to a string representing that moment in UTC.
- */
-export function fromLocalDate(date: Date, dateTimezone: string): string {
-    return dayjs(date).tz(dateTimezone, true).toISOString();
-}
-
-/**
- * Converts the given `dayjs` to a local Date instance representing the correct date and time. This
- * function is intended to be used for editable fields in <DataTable> and <RemoteDataTable>.
- */
-export function toLocalDate(date: string, dateTimezone: string): Date {
-    return dayjs.utc(date).tz(dateTimezone).tz(undefined, true).toDate();
-}

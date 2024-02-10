@@ -34,8 +34,8 @@ import { Avatar } from '@components/Avatar';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * The <NoApplications> component will be shown when there are no pending applications. This is a
@@ -231,13 +231,16 @@ function Application(props: ApplicationProps) {
         );
     }
 
+    const applicationDate =
+        Temporal.ZonedDateTime.from(application.date!).withTimeZone(Temporal.Now.timeZoneId());
+
     return (
         <Stack component={Paper} direction="column" sx={{ minHeight: '100%' }}>
             <CardHeader avatar={avatar}
                         action={accountAction}
                         titleTypographyProps={{ variant: 'subtitle1' }}
                         title={`${application.firstName} ${application.lastName}`}
-                        subheader={dayjs(application.date).format('dddd, MMMM D, YYYY')} />
+                        subheader={formatDate(applicationDate, 'dddd, MMMM D, YYYY')} />
             <Divider />
             <CardContent sx={{ flex: 1, py: '0 !important' }}>
                 <List dense>

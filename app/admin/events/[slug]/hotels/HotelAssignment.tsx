@@ -25,10 +25,19 @@ import { useGridApiContext } from '@mui/x-data-grid';
 import type { HotelBooking, HotelRequest } from './HotelBookings';
 import type { HotelConfigurationEntry } from './HotelConfiguration';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
+import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
 import { RegistrationStatus } from '@lib/database/Types';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, formatDate, isAfter, isBefore } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+
+/**
+ * Returns whether `one` and `two` fall on the same day.
+ */
+function isSameDay(one: Temporal.PlainDate, two: Temporal.PlainDate) {
+    return one.year === two.year &&
+           one.month === two.month &&
+           one.day === two.day;
+}
 
 /**
  * Props accepted by the <HotelAssignmentPersonSelect> component.
@@ -185,8 +194,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
 
             hotelId: undefined,
 
-            checkIn: dayjs.utc(props.event.startTime).toISOString(),
-            checkOut: dayjs.utc(props.event.endTime).toISOString(),
+            checkIn: Temporal.PlainDate.from(props.event.startTime).toString(),
+            checkOut: Temporal.PlainDate.from(props.event.endTime).toString(),
 
             confirmed: false,
         } satisfies Booking;
@@ -206,8 +215,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             id: newRow.id,
             occupants,
             hotelId: newRow.hotelId,
-            checkIn: dayjs(newRow.checkIn).format('YYYY-MM-DD'),
-            checkOut: dayjs(newRow.checkOut).format('YYYY-MM-DD'),
+            checkIn: formatDate(Temporal.PlainDate.from(newRow.checkIn), 'YYYY-MM-DD'),
+            checkOut: formatDate(Temporal.PlainDate.from(newRow.checkOut), 'YYYY-MM-DD'),
             confirmed: !!newRow.confirmed,
         });
 
@@ -302,7 +311,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             width: 110,
 
             renderCell: (params: GridRenderCellParams<Booking>) =>
-                dayjs(params.value).format('YYYY-MM-DD'),
+                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'checkOut',
@@ -311,7 +320,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             width: 110,
 
             renderCell: (params: GridRenderCellParams<Booking>) =>
-                dayjs(params.value).format('YYYY-MM-DD'),
+                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'confirmed',
@@ -335,7 +344,10 @@ export function HotelAssignment(props: HotelAssignmentProps) {
     const warnings = useMemo(() => {
         const warnings: { volunteer: string; warning: string }[] = [];
 
-        const bookingDates = new Map<number, { min: dayjs.Dayjs; max: dayjs.Dayjs; }>();
+        const bookingDates = new Map<number, {
+            min: Temporal.PlainDate;
+            max: Temporal.PlainDate; }>();
+
         const requestMap = new Map<number, typeof props.requests[number]>();
         const requestProcessed = new Set<number>();
 
@@ -387,15 +399,15 @@ export function HotelAssignment(props: HotelAssignmentProps) {
                     }
 
                     let [ min, max ] = [
-                        dayjs(booking.checkIn),
-                        dayjs(booking.checkOut),
+                        Temporal.PlainDate.from(booking.checkIn),
+                        Temporal.PlainDate.from(booking.checkOut),
                     ];
 
                     if (bookingDates.has(occupant.userId)) {
                         const dates = bookingDates.get(occupant.userId)!;
-                        if (dates.min.isBefore(min))
+                        if (isBefore(dates.min, min))
                             min = dates.min;
-                        if (dates.max.isAfter(max))
+                        if (isAfter(dates.max, max))
                             max = dates.max;
                     }
 
@@ -421,21 +433,24 @@ export function HotelAssignment(props: HotelAssignmentProps) {
 
             const { min, max } = bookingDates.get(request.user.id)!;
 
-            if (!min.isSame(request.checkIn, 'day')) {
+            const checkIn = Temporal.PlainDate.from(request.checkIn);
+            const checkOut = Temporal.PlainDate.from(request.checkOut);
+
+            if (!isSameDay(min, checkIn)) {
                 warnings.push({
                     volunteer: request.user.name,
                     warning:
-                        `requested check-in on ${dayjs(request.checkIn).format('YYYY-MM-DD')}, ` +
-                        `but is booked in from ${min.format('YYYY-MM-DD')}`,
+                        `requested check-in on ${formatDate(checkIn, 'YYYY-MM-DD')}, ` +
+                        `but is booked in from ${formatDate(min, 'YYYY-MM-DD')}`,
                 });
             }
 
-            if (!max.isSame(request.checkOut, 'day')) {
+            if (!isSameDay(max, checkOut)) {
                 warnings.push({
                     volunteer: request.user.name,
                     warning:
-                        `requested check-out on ${dayjs(request.checkOut).format('YYYY-MM-DD')}, ` +
-                        `but is booked in until ${max.format('YYYY-MM-DD')}`,
+                        `requested check-out on ${formatDate(checkOut, 'YYYY-MM-DD')}, ` +
+                        `but is booked in until ${formatDate(max, 'YYYY-MM-DD')}`,
                 });
             }
         }

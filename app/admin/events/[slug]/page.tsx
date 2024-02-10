@@ -198,7 +198,7 @@ async function getRecentChanges(eventId: number) {
     }
 
     changes.sort((lhs, rhs) =>
-        Temporal.ZonedDateTime.compare(lhs.date, rhs.date));
+        Temporal.ZonedDateTime.compare(rhs.date, lhs.date));
 
     return changes.slice(0, 8).map(change => ({
         ...change,

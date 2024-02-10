@@ -17,16 +17,16 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
-import { dayjs } from '@lib/DateTime';
+import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 
 /**
  * Formats the difference between `from` and `to`.
  */
-function formatTimeDifference(from: dayjs.Dayjs, to: dayjs.Dayjs) {
-    const suffix = from.isAfter(to) ? ' ago' : '';
+function formatTimeDifference(from: Temporal.ZonedDateTime, to: Temporal.ZonedDateTime) {
+    const suffix = isAfter(from, to) ? ' ago' : '';
 
-    const earliest = from.isBefore(to) ? from : to;
-    const latest = from.isBefore(to) ? to : from;
+    const earliest = isBefore(from, to) ? from : to;
+    const latest = isBefore(from, to) ? to : from;
 
     function formatResponse(difference: number, unit: string, suffix: string) {
         return {
@@ -35,19 +35,24 @@ function formatTimeDifference(from: dayjs.Dayjs, to: dayjs.Dayjs) {
         };
     }
 
-    const differenceDays = latest.diff(earliest, 'days');
-    if (differenceDays >= 7 * 52)
-        return formatResponse(latest.diff(earliest, 'years'), 'year', suffix);
-    else if (differenceDays >= 7 * 8)
-        return formatResponse(latest.diff(earliest, 'weeks'), 'week', suffix);
-    else if (differenceDays >= 2)
+    const differenceDays = latest.since(earliest, { largestUnit: 'days' }).days;
+    if (differenceDays >= 7 * 52) {
+        return formatResponse(
+            latest.since(earliest, { largestUnit: 'years' }).years, 'year', suffix);
+    } else if (differenceDays >= 7 * 8) {
+        return formatResponse(
+            latest.since(earliest, { largestUnit: 'weeks' }).weeks, 'week', suffix);
+    } else if (differenceDays >= 2) {
         return formatResponse(differenceDays, 'day', suffix);
+    }
 
-    const differenceHours = latest.diff(earliest, 'hours');
-    if (differenceHours >= 2)
+    const differenceHours = latest.since(earliest, { largestUnit: 'hours' }).hours;
+    if (differenceHours >= 2) {
         return formatResponse(differenceHours, 'hour', suffix);
-    else
-        return formatResponse(latest.diff(earliest, 'minutes'), 'minute', suffix);
+    } else {
+        return formatResponse(
+            latest.since(earliest, { largestUnit:  'minutes' }).minutes, 'minute', suffix);
+    }
 }
 
 /**
@@ -70,18 +75,18 @@ interface EventDateTickerProps {
  * distinct states: (1) future event, (2) current event, (3) past event.
  */
 function EventDateTicker(props: EventDateTickerProps) {
-    const currentTime = dayjs();
+    const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
 
-    const startTime = dayjs(props.startTime);
-    const endTime = dayjs(props.endTime);
+    const startTime = Temporal.ZonedDateTime.from(props.startTime);
+    const endTime = Temporal.ZonedDateTime.from(props.endTime);
 
     let color: string | undefined = undefined;
     let difference: number;
     let unit: string;
 
-    if (currentTime.isBefore(startTime)) {
+    if (isBefore(currentTime, startTime)) {
         ({ difference, unit } = formatTimeDifference(currentTime, startTime));
-    } else if (currentTime.isBefore(endTime)) {
+    } else if (isBefore(currentTime, endTime)) {
         ({ difference, unit } = formatTimeDifference(currentTime, endTime));
         color = 'success.main';
     } else {

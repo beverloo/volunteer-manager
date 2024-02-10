@@ -14,7 +14,6 @@ import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tTasks } from '@lib/database';
 
-
 /**
  * The services for which health check can be carried out.
  */

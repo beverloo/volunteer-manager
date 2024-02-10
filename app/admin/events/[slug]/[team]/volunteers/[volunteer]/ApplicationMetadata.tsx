@@ -14,6 +14,7 @@ import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 import { Privilege } from '@lib/auth/Privileges';
@@ -126,8 +127,12 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
         hotelEligible: volunteer.hotelEligible,
         trainingEligible: volunteer.trainingEligible,
         registrationDate:
-            volunteer.registrationDate ? dayjs(volunteer.registrationDate).local()
-                                       : null
+            volunteer.registrationDate
+                ? dayjs(Temporal.ZonedDateTime
+                     .from(volunteer.registrationDate)
+                     .withTimeZone(Temporal.Now.timeZoneId()).toString({ timeZoneName: 'never' })
+                ).local()
+                : null
     }), [ volunteer ]);
 
     return (

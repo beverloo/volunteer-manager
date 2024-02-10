@@ -9,11 +9,10 @@ import { default as MuiLink } from '@mui/material/Link';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 
 import type { RefundRequestRowModel } from '@app/api/admin/refunds/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
-import { dayjs } from '@lib/DateTime';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <RefundsTable> component.
@@ -72,7 +71,8 @@ export function RefundsTable(props: RefundsTableProps) {
             editable: false,
             width: 100,
 
-            renderCell: params => dayjs(params.value).format('YYYY-MM-DD'),
+            renderCell: params =>
+                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'confirmed',

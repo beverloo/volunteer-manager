@@ -141,7 +141,7 @@ export class VertexAIClient {
         // Deal with the response. Surely there ought to be a nicer way of validating the response,
         // rather than assuming that it's correct. For now this will do however.
         if (typeof result === 'object' && Object.hasOwn(result, 'response')) {
-            const response = result.response;
+            const response = await result.response;
             if (Array.isArray(response.candidates) && response.candidates.length >= 1) {
                 const candidate = response.candidates[0];
                 if (candidate.content?.parts?.length >= 1)

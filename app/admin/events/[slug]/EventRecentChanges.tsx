@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
 import { RegistrationStatus } from '@lib/database/Types';
-import { Temporal } from '@lib/Temporal';
+import { Temporal, formatDuration } from '@lib/Temporal';
 
 /**
  * Whether the volunteer's application `status` is still pending.
@@ -95,7 +95,9 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                                 {change.update}
                             </Typography>
                             <Typography variant="body2">
-                                { 'FIXME' /* currentTime.to(change.date) */ }
+                                { formatDuration(
+                                    Temporal.ZonedDateTime.from(change.date).since(
+                                        currentTime, { largestUnit: 'years' })) }
                             </Typography>
                         </Stack>
                     );

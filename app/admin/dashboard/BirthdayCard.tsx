@@ -66,7 +66,6 @@ export function BirthdayCard(props: BirthdayCardProps) {
                 <List dense disablePadding>
                     { props.birthdays.map(({ name, birthdate }, index) =>
                         <ListItem disableGutters key={index}>
-
                             <ListItemIcon sx={{ minWidth: '40px' }}>
                                 <CelebrationIcon />
                             </ListItemIcon>
@@ -74,7 +73,6 @@ export function BirthdayCard(props: BirthdayCardProps) {
                                 primary={name}
                                 secondary={
                                     formatDate(Temporal.PlainDate.from(birthdate), 'MMMM D')} />
-
                         </ListItem> )}
                 </List>
             </CardContent>

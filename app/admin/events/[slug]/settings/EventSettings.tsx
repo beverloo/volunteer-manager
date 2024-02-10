@@ -17,6 +17,7 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
+import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -93,8 +94,14 @@ export function EventSettings(props: EventSettingsProps) {
 
     const defaultValues = {
         ...event,
-        startTime: dayjs(event.startTime).tz(event.timezone),
-        endTime: dayjs(event.endTime).tz(event.timezone),
+
+        startTime: dayjs(Temporal.ZonedDateTime.from(event.startTime).toString({
+            timeZoneName: 'never'
+        })).tz(event.timezone),
+
+        endTime: dayjs(Temporal.ZonedDateTime.from(event.endTime).toString({
+            timeZoneName: 'never'
+        })).tz(event.timezone),
     };
 
     return (

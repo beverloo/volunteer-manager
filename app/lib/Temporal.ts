@@ -291,3 +291,18 @@ export function isBefore<T>(input: T, reference: T): boolean {
         return Temporal.ZonedDateTime.compare(input, reference as any) < 0;
     throw new Error(`Invalid type given to isBefore(): ${typeof input}`);
 }
+
+/**
+ * Converts the given `date` in the user's local timezone to a Temporal `ZonedDateTime` object.
+ */
+export function fromLocalDate(date: Date): Temporal.ZonedDateTime {
+    return Temporal.Instant.fromEpochMilliseconds(date.getTime()).toZonedDateTimeISO('UTC');
+}
+
+/**
+ * Converts the given `input` to a regular JavaScript `Date` object.
+ */
+export function toLocalDate(input: Temporal.ZonedDateTime): Date {
+    return new Date(
+        input.withTimeZone(Temporal.Now.timeZoneId()).epochMilliseconds);
+}
