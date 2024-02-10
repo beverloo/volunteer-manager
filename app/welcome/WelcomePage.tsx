@@ -27,7 +27,6 @@ import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
-import { dayjs } from '@lib/DateTime';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
