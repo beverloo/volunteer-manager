@@ -13,6 +13,16 @@ import type {
 export const kDefaultLocale = 'en';
 
 /**
+ * Extends the `PickerValidDateLookup` type, which makes `temporal` available as an option in the
+ * `PickerValidDate` type used throughout MUI.
+ */
+declare module '@mui/x-date-pickers/models' {
+    interface PickerValidDateLookup {
+        'temporal': Temporal.ZonedDateTime;
+    }
+}
+
+/**
  * The format tokens that the Temporal adapter can deal with. This is based on the `formatDate()`
  * using which we format dates.
  */
@@ -148,14 +158,12 @@ const kFormats: AdapterFormats = {
  */
 export class TemporalAdapter implements MuiPickersAdapter<Temporal.ZonedDateTime, string> {
     constructor(
-        { locale, formats, instance }: AdapterOptions<string, typeof Temporal.ZonedDateTime>)
+        { locale, formats, instance }: AdapterOptions<string, typeof Temporal.ZonedDateTime> = {})
     {
-        if (!!formats)
-            throw new Error('TemporalAdapter::constructor({formats}) is not yet supported');
-
         if (!!instance)
             throw new Error('TemporalAdapter::constructor({instance}) is not yet supported');
 
+        this.formats = { ...kFormats, ...formats };
         this.locale = locale ?? kDefaultLocale;
     }
 
@@ -163,13 +171,13 @@ export class TemporalAdapter implements MuiPickersAdapter<Temporal.ZonedDateTime
     // Section: properties (public)
     // ---------------------------------------------------------------------------------------------
 
-    escapedCharacters = { start: '[', end: ']' };
-    formatTokenMap = kFormatTokenMap;
-    formats = kFormats;
-    isMUIAdapter = true;
-    isTimezoneCompatible = true;
-    lib = 'Temporal';
-    locale: string;
+    public escapedCharacters = { start: '[', end: ']' };
+    public formatTokenMap = kFormatTokenMap;
+    public formats = kFormats;
+    public isMUIAdapter = true;
+    public isTimezoneCompatible = true;
+    public lib = 'Temporal';
+    public locale: string;
 
     // ---------------------------------------------------------------------------------------------
     // Section: properties (private)
@@ -182,17 +190,31 @@ export class TemporalAdapter implements MuiPickersAdapter<Temporal.ZonedDateTime
     // ---------------------------------------------------------------------------------------------
 
     date(value?: any): Temporal.ZonedDateTime | null {
-        throw new Error('Method not implemented.');
+        return this.dateWithTimezone(value, Temporal.Now.timeZoneId());
     }
 
     dateWithTimezone<T extends string | null | undefined>(value: T, timezone: string)
         : DateBuilderReturnType<T, Temporal.ZonedDateTime>
     {
-        throw new Error('Method not implemented.');
+        type R = DateBuilderReturnType<T, Temporal.ZonedDateTime>;
+
+        if (value === null)
+            return <R> null;
+
+        if (timezone === 'default' || timezone === 'system')
+            timezone = Temporal.Now.timeZoneId();
+
+        if (value === undefined)
+            return <R> Temporal.Now.zonedDateTimeISO(timezone);
+
+        // TODO: Figure out which date and time formats we have to support. It might be necessary to
+        // always interpret `value` using the `Date` constructor (for now) and then convert.
+
+        return <R> Temporal.Instant.from(value!).toZonedDateTimeISO(timezone);
     }
 
     isNull(value: Temporal.ZonedDateTime | null): boolean {
-        throw new Error('Method not implemented.');
+        throw new Error('Method not implemented.');  // note: deleted in 7.0
     }
 
     isValid(value: any): boolean {
@@ -200,7 +222,7 @@ export class TemporalAdapter implements MuiPickersAdapter<Temporal.ZonedDateTime
     }
 
     parseISO(isoString: string): Temporal.ZonedDateTime {
-        throw new Error('Method not implemented.');
+        throw new Error('Method not implemented.');  // note: deleted in 7.0
     }
 
     parse(value: string, format: string): Temporal.ZonedDateTime | null {
@@ -208,7 +230,7 @@ export class TemporalAdapter implements MuiPickersAdapter<Temporal.ZonedDateTime
     }
 
     toISO(value: Temporal.ZonedDateTime): string {
-        throw new Error('Method not implemented.');
+        throw new Error('Method not implemented.');  // note: deleted in 7.0
     }
 
     toJsDate(value: Temporal.ZonedDateTime): Date {
