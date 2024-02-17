@@ -13,7 +13,7 @@ import { writeSetting, writeSettings } from '@lib/Settings';
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
  */
-export const kUpdateSettingsDefinition = z.object({
+export const kUpdateAiSettingsDefinition = z.object({
     request: z.object({
         /**
          * Personality that should be updated.
@@ -39,10 +39,10 @@ export const kUpdateSettingsDefinition = z.object({
     }),
 });
 
-export type UpdateSettingsDefinition = ApiDefinition<typeof kUpdateSettingsDefinition>;
+export type UpdateAiSettingsDefinition = ApiDefinition<typeof kUpdateAiSettingsDefinition>;
 
-type Request = ApiRequest<typeof kUpdateSettingsDefinition>;
-type Response = ApiResponse<typeof kUpdateSettingsDefinition>;
+type Request = ApiRequest<typeof kUpdateAiSettingsDefinition>;
+type Response = ApiResponse<typeof kUpdateAiSettingsDefinition>;
 
 /**
  * API that allows AI-related settings to be updated.

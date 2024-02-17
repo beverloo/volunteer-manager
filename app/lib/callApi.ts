@@ -41,6 +41,7 @@ import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPrefe
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
 import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
+import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
@@ -49,7 +50,7 @@ import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegrati
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
-import type { UpdateSettingsDefinition } from '@app/api/ai/updateSettings';
+import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
@@ -121,6 +122,7 @@ export type ApiEndpoints = {
         '/api/admin/update-permissions': UpdatePermissionsDefinition,
         '/api/admin/update-publication': UpdatePublicationDefinition,
         '/api/admin/update-role': UpdateRoleDefinition,
+        '/api/admin/update-settings': UpdateSettingsDefinition,
         '/api/admin/update-team': UpdateTeamDefinition,
         '/api/admin/update-volunteer': UpdateVolunteerDefinition,
         '/api/admin/vendors': VendorEndpoints['create'],
@@ -179,7 +181,7 @@ export type ApiEndpoints = {
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
-        '/api/ai/settings': UpdateSettingsDefinition,
+        '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],
     },

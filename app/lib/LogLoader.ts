@@ -185,6 +185,7 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated ticket refund settings for ${target?.name} during ${event}`;
     },
     [LogType.AdminUpdateRole]: (source, target, { role }) => `Updated the ${role} role settings`,
+    [LogType.AdminUpdateSettings]: 'Updated the Volunteer Manager settings',
     [LogType.AdminUpdateTeam]: (source, target, { team }) => `Updated the ${team} team settings`,
     [LogType.AdminUpdateTrainingPreferences]: (source, target, { event }) => {
         return `Updated their training preferences for ${event}`;

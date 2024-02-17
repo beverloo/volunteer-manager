@@ -9,6 +9,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import MailIcon from '@mui/icons-material/Mail';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
+import SettingsIcon from '@mui/icons-material/Settings';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
@@ -91,6 +92,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     privilege: Privilege.SystemAdministrator,
                     url: '/admin/system/scheduler',
                 },
+                {
+                    icon: <SettingsIcon />,
+                    label: 'Settings',
+                    privilege: Privilege.SystemAdministrator,
+                    url: '/admin/system/settings',
+                }
             ]
         },
     ];

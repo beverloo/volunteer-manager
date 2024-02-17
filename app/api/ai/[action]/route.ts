@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '@app/api/Action';
 
-import { updateSettings, kUpdateSettingsDefinition } from '../updateSettings';
+import { updateSettings, kUpdateAiSettingsDefinition } from '../updateSettings';
 
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
@@ -17,7 +17,7 @@ type RouteParams = { params: { action: string } };
 export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
     switch (params.action) {
         case 'settings':
-            return executeAction(request, kUpdateSettingsDefinition, updateSettings);
+            return executeAction(request, kUpdateAiSettingsDefinition, updateSettings);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

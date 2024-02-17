@@ -10,7 +10,6 @@ import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-
 
 import { default as MuiLink } from '@mui/material/Link';
 import Grid from '@mui/material/Unstable_Grid2';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { Section } from '@app/admin/components/Section';
