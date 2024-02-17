@@ -12,7 +12,7 @@ import Snackbar from '@mui/material/Snackbar';
 import type { AvailabilityTimeslot } from '@beverloo/volunteer-manager-timeline';
 import { AvailabilityTimeline } from '@beverloo/volunteer-manager-timeline';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
-import { dayjs } from '@lib/DateTime';
+import { Temporal } from '@lib/Temporal';
 
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
@@ -129,7 +129,7 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
 
     return (
         <>
-            <AvailabilityTimeline dayjs={dayjs} min={min} max={max}
+            <AvailabilityTimeline temporal={Temporal} min={min} max={max}
                                   dataTimezone="utc" displayTimezone={timezone} theme={theme}
                                   onChange={onChange} onDoubleClick={handleSettings}
                                   onError={handleError} readOnly={readOnly} timeslots={timeslots} />
