@@ -11,6 +11,7 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { noAccess } from '@app/api/Action';
+import { readSetting } from '@lib/Settings';
 import db, { tEvents, tRetention, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 /**
@@ -92,11 +93,6 @@ export type RetentionEndpoints =
 export type RetentionRowModel = z.infer<typeof kRetentionRowModel>;
 
 /**
- * How many historic events should be considered for retention planning?
- */
-const kNumHistoricEventsToConsider = 2;
-
-/**
  * The table will first be sorted by status, and this record decides the actual order.
  */
 const kRetentionSortOrder = {
@@ -160,11 +156,14 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
         const { event, teamId } = eventAndTeamId;
 
+        const numHistoricEventsToConsider =
+            await readSetting('retention-number-of-events-to-consider') ?? /* default= */ 2;
+
         const events = await db.selectFrom(tEvents)
             .selectOneColumn(tEvents.eventId)
             .where(tEvents.eventStartTime.lessThan(event.temporalStartTime))
             .orderBy(tEvents.eventStartTime, 'desc')
-            .limit(kNumHistoricEventsToConsider)
+            .limit(numHistoricEventsToConsider)
             .executeSelectMany();
 
         const retentionJoin = tRetention.forUseInLeftJoin();

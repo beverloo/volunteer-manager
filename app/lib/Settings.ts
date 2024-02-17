@@ -16,6 +16,9 @@ type SettingsMap = {
     // Availability:
     'availability-max-event-duration-minutes': number;
 
+    // Retention:
+    'retention-number-of-events-to-consider': number;
+
     // ---------------------------------------------------------------------------------------------
     // Generative AI settings
     // ---------------------------------------------------------------------------------------------
