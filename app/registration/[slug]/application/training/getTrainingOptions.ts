@@ -20,6 +20,7 @@ export async function getTrainingOptions(eventId: number) {
             trainingStart: tTrainings.trainingStart,
             trainingEnd: tTrainings.trainingEnd,
         })
+        .orderBy('trainingStart', 'asc')
         .executeSelectMany();
 
     return trainings.map(training => {
