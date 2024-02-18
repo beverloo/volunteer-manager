@@ -92,7 +92,7 @@ export function RegistrationLayout(props: RegistrationLayoutProps) {
                     {props.children}
                 </AuthenticationContext.Provider>
                 <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
-                    AnimeCon Volunteer Portal (<a href="https://github.com/AnimeNL/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
+                    AnimeCon Volunteer Portal (<a href="https://github.com/beverloo/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
                 </Typography>
             </Container>
         </>
