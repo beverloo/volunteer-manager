@@ -231,7 +231,10 @@ do {
                 { field: [ 'vendors', 'vendor_shirt_fit' ], type: 'ShirtFit' },
                 { field: [ 'vendors', 'vendor_shirt_size' ], type: 'ShirtSize' },
                 { field: [ 'vendors', 'vendor_team' ], type: 'VendorTeam' },
-
+                {
+                    field: [ 'whatsapp', 'whatsapp_channel_applications' ],
+                    type: 'WhatsAppChannelApplications'
+                },
             ].map(({ field, type }) => ({
                 tableName: field[0],
                 columnName: field[1],

@@ -70,6 +70,7 @@ import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/rout
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
 import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
+import type { WhatsAppEndpoints } from '@app/api/admin/whatsapp/recipients/[[...id]]/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -97,6 +98,7 @@ export type ApiEndpoints = {
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
         '/api/admin/trainings': TrainingsEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
+        '/api/admin/whatsapp/recipients': WhatsAppEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
@@ -131,6 +133,7 @@ export type ApiEndpoints = {
         '/api/admin/volunteer-list': VolunteerListDefinition,
         '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
+        '/api/admin/whatsapp/recipients': WhatsAppEndpoints['create'],
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/confirm-identity': ConfirmIdentityDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
@@ -169,6 +172,7 @@ export type ApiEndpoints = {
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
         '/api/admin/vendors/:id': VendorEndpoints['delete'],
+        '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
@@ -181,6 +185,7 @@ export type ApiEndpoints = {
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
+        '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['update'],
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],

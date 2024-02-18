@@ -72,6 +72,7 @@ export enum LogType {
     AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     AdminVendorMutation = 'admin-vendor-mutation',
+    AdminWhatsAppMutation = 'admin-whatsapp-mutation',
     ApplicationAvailabilityPreferences = 'application-availability-preferences',
     ApplicationHotelPreferences = 'application-hotel-preferences',
     ApplicationRefundRequest = 'application-refund-request',

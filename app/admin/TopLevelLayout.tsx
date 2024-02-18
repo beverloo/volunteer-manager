@@ -1,17 +1,19 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
-import MailIcon from '@mui/icons-material/Mail';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
@@ -52,12 +54,35 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             privilege: [ Privilege.SystemAdministrator, Privilege.SystemLogsAccess ],
         },
         {
+            icon: <ChatBubbleOutlineIcon />,
+            label: 'Communication',
+            privilege: [
+                Privilege.SystemOutboxAccess,
+                Privilege.SystemWhatsAppAccess,
+            ],
+
+            menu: [
+                {
+                    icon: <MailOutlineIcon />,
+                    label: 'E-mail',
+                    privilege: Privilege.SystemOutboxAccess,
+                    url: '/admin/system/outbox',
+                },
+                // TODO: Notifications
+                {
+                    icon: <WhatsAppIcon />,
+                    label: 'WhatsApp',
+                    privilege: Privilege.SystemWhatsAppAccess,
+                    url: '/admin/system/whatsapp',
+                }
+            ],
+        },
+        {
             icon: <DeviceHubIcon />,
             label: 'System',
             privilege: [
                 Privilege.SystemAiAccess,
                 Privilege.SystemLogsAccess,
-                Privilege.SystemOutboxAccess,
             ],
 
             defaultOpen: Privilege.SystemAdministrator,
@@ -79,12 +104,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     label: 'Logs',
                     privilege: Privilege.SystemLogsAccess,
                     url: '/admin/system/logs',
-                },
-                {
-                    icon: <MailIcon />,
-                    label: 'Outbox',
-                    privilege: Privilege.SystemOutboxAccess,
-                    url: '/admin/system/outbox',
                 },
                 {
                     icon: <ManageHistoryIcon />,

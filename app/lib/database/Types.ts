@@ -178,3 +178,12 @@ export enum VendorTeam {
     FirstAid = 'first-aid',
     Security = 'security',
 }
+
+/**
+ * Application information that should be broadcast to this user.
+ * @see Table `whatsapp`
+ */
+export enum WhatsAppChannelApplications {
+    All = 'All',
+    Team = 'Team',
+}

@@ -509,6 +509,58 @@ tables:
       CONSTRAINT `schedule_shift_id` FOREIGN KEY (`shift_id`) REFERENCES `shifts` (`shift_id`) ON DELETE CASCADE,
       CONSTRAINT `schedule_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: whatsapp
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: whatsapp_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: whatsapp_user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: whatsapp_channel_applications
+    type: enum('All','Team')
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: whatsapp_user_id
+    def: KEY whatsapp_user_id (whatsapp_user_id) USING BTREE
+    table: whatsapp
+    columns:
+    - whatsapp_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (whatsapp_id) USING BTREE
+    table: whatsapp
+    columns:
+    - whatsapp_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (whatsapp_id)
+    table: whatsapp
+    referencedTable: null
+    columns:
+    - whatsapp_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `whatsapp` (
+      `whatsapp_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `whatsapp_user_id` int(8) unsigned NOT NULL,
+      `whatsapp_channel_applications` enum('All','Team') DEFAULT NULL,
+      PRIMARY KEY (`whatsapp_id`),
+      KEY `whatsapp_user_id` (`whatsapp_user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: settings
   type: BASE TABLE
   comment: ""

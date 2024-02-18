@@ -40,6 +40,7 @@ import { UsersPasskeysTable } from './scheme/UsersPasskeysTable';
 import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
 import { VendorsTable } from './scheme/VendorsTable';
+import { WhatsappTable } from './scheme/WhatsappTable';
 
 // Export instances of each of the above table types that are for the app to use. Naming convention
 // matches that proposed by `ts-sql-query`, i.e. `FooTable` becomes `tFoo`.
@@ -152,6 +153,7 @@ export const tUsers = new class extends UsersTable {
         'string', CreateDateStringFragment(this.birthdate));
 }
 export const tVendors = new VendorsTable;
+export const tWhatsApp = new WhatsappTable;
 
 // Export the database connection pool as the default export from this file, for convenient access
 // to the database throughout the server-side of the Volunteer Manager.
