@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 
 import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -49,6 +51,9 @@ export interface VolunteerInfo {
     roleBadge?: RoleBadge;
     shiftCount: number;
     shiftSeconds?: number;
+
+    availabilityEligible: boolean;
+    availabilityConfirmed: boolean;
 
     hotelEligible?: number;
     hotelStatus?: 'available' | 'submitted' | 'skipped' | 'confirmed';
@@ -147,6 +152,21 @@ export function VolunteerTable(props: VolunteerTableProps) {
             flex: 1,
 
             renderCell: (params: GridRenderCellParams) => {
+                let availabilityIcon: React.ReactNode = undefined;
+                if (!!params.row.availabilityConfirmed) {
+                    availabilityIcon = (
+                        <Tooltip title="Availability preferences shared">
+                            <EventAvailableIcon color="success" fontSize="small" />
+                        </Tooltip>
+                    );
+                } else if (!!params.row.availabilityEligible) {
+                    availabilityIcon = (
+                        <Tooltip title="Pending availability preferences">
+                            <EventBusyIcon color="warning" fontSize="small" />
+                        </Tooltip>
+                    );
+                }
+
                 let hotelIcon: React.ReactNode = undefined;
                 switch (params.row.hotelStatus) {
                     case 'available':
@@ -234,6 +254,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
 
                 return (
                     <Stack direction="row" spacing={1}>
+                        {availabilityIcon}
                         {hotelIcon}
                         {refundIcon}
                         {trainingIcon}

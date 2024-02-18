@@ -8,8 +8,8 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles, tSchedule,
-    tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles,
+    tSchedule, tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
 
 /**
  * The volunteers page for a particular event lists the volunteers who have signed up and have been
@@ -32,6 +32,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
         TIMESTAMPDIFF(SECOND, ${scheduleJoin.scheduleTimeStart}, ${scheduleJoin.scheduleTimeEnd})`;
 
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tUsers)
@@ -58,6 +60,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),
             shiftSeconds: dbInstance.sum(shiftSecondsFragment),
 
+            availabilityEligible: tEvents.publishAvailability.equals(/* true= */ 1),
+            availabilityConfirmed: tUsersEvents.preferencesUpdated.isNotNull(),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
             refundRequested: refundsJoin.refundRequested.isNotNull(),
             refundConfirmed: refundsJoin.refundConfirmed.isNotNull(),
