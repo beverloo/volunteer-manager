@@ -13,12 +13,12 @@ import TextField from '@mui/material/TextField';
 /**
  * Festival Id filter to apply to the `activities` endpoint.
  */
-const kActivitiesFestivalIdFilter = /* AnimeCon 2023= */ 624;
+const kActivitiesFestivalIdFilter = /* AnimeCon 2024= */ 625;
 
 /**
  * Year filter to apply to the `timeslots` endpoint.
  */
-const kTimeslotsYearFilter = 2023;
+const kTimeslotsYearFilter = 2024;
 
 /**
  * Whether the results should be filtered for the purpose of being used as test results, as we make
