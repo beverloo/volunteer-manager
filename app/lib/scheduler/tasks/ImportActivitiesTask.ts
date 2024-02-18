@@ -990,24 +990,31 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         this.setIntervalForRepeatingTask(ImportActivitiesTask.kIntervalMaximum);
     }
 
-    private async selectCurrentOrUpcomingEventWithFestivalId(params: TaskParams) {
+    private async selectCurrentOrUpcomingEventWithFestivalId(params: TaskParams)
+        : Promise<{ festivalEndTime: Temporal.ZonedDateTime, festivalId?: number } | null>
+    {
         const dbInstance = db;
-        const baseQuery = dbInstance.selectFrom(tEvents)
-            .select({
-                festivalEndTime: tEvents.eventEndTime,
-                festivalId: tEvents.eventFestivalId,
-            })
-            .limit(/* only the first (upcoming) event= */ 1);
-
         if (!!params.festivalId) {
-            return baseQuery.where(tEvents.eventFestivalId.equals(params.festivalId))
+            return dbInstance.selectFrom(tEvents)
+                .select({
+                    festivalEndTime: tEvents.eventEndTime,
+                    festivalId: tEvents.eventFestivalId,
+                })
+                .limit(/* only the first (upcoming) event= */ 1)
+                .where(tEvents.eventFestivalId.equals(params.festivalId))
+                .executeSelectNoneOrOne();
+        } else {
+            return dbInstance.selectFrom(tEvents)
+                .select({
+                    festivalEndTime: tEvents.eventEndTime,
+                    festivalId: tEvents.eventFestivalId,
+                })
+                .where(tEvents.eventFestivalId.isNotNull())
+                    .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentDateTime()))
+                    .and(tEvents.eventHidden.equals(/* false= */ 0))
+                .limit(/* only the first (upcoming) event= */ 1)
                 .executeSelectNoneOrOne();
         }
-
-        return baseQuery.where(tEvents.eventFestivalId.isNotNull())
-            .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentDateTime()))
-            .and(tEvents.eventHidden.equals(/* false= */ 0))
-            .executeSelectNoneOrOne();
     }
 }
 
