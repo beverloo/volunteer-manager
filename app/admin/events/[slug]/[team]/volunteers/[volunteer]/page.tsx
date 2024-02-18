@@ -22,6 +22,7 @@ import { VolunteerIdentity } from './VolunteerIdentity';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+import { readSetting } from '@lib/Settings';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -149,6 +150,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
         );
     }
 
+    const availabilityStep = await readSetting('availability-time-step-minutes');
+
     const contactAccess =
         can(user, Privilege.EventVolunteerContactInfo) ||
         can(user, Privilege.VolunteerAdministrator);
@@ -163,8 +166,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
-            <ApplicationAvailability event={event} events={publicEvents} team={team.slug}
-                                     volunteer={volunteer} />
+            <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
+                                     team={team.slug} volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}
             {trainingManagement}

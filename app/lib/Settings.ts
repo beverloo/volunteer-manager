@@ -15,6 +15,7 @@ type SettingsMap = {
 
     // Availability:
     'availability-max-event-duration-minutes': number;
+    'availability-time-step-minutes': number;
 
     // Retention:
     'retention-number-of-events-to-consider': number;

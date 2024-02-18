@@ -63,6 +63,11 @@ export interface ApplicationAvailabilityProps {
     events: EventTimeslotEntry[];
 
     /**
+     * Time step, in minutes, defining the granularity of events in the exception view.
+     */
+    step?: number;
+
+    /**
      * Slug of the team that this application is part of.
      */
     team: string;
@@ -87,7 +92,7 @@ export interface ApplicationAvailabilityProps {
  * allows the senior to modify it. All modifications will be logged.
  */
 export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
-    const { event, team, volunteer } = props;
+    const { event, step, team, volunteer } = props;
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
@@ -234,8 +239,8 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={kStyles.sectionContent}>
-                        <AvailabilityTimelineImpl min={min} max={max} timezone={event.timezone}
-                                                  timeslots={timeslots}
+                        <AvailabilityTimelineImpl min={min} max={max} step={step}
+                                                  timezone={event.timezone} timeslots={timeslots}
                                                   onChange={handleTimelineChange} />
                     </AccordionDetails>
                 </Accordion>

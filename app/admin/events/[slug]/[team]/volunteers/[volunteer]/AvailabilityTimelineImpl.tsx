@@ -57,6 +57,11 @@ export interface AvailabilityTimelineImplProps {
     readOnly?: boolean;
 
     /**
+     * Time step, in minutes, defining the granularity of events in the exception view.
+     */
+    step?: number;
+
+    /**
      * Whether the component should be in dark or light mode. Defaults to `light`.
      */
     theme?: 'dark' | 'light';
@@ -78,7 +83,7 @@ export interface AvailabilityTimelineImplProps {
  * specific to the AnimeCon Volunteer Manager, integrated with MUI.
  */
 export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
-    const { min, max, onChange, readOnly, theme, timeslots, timezone } = props;
+    const { min, max, onChange, readOnly, step, theme, timeslots, timezone } = props;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -129,7 +134,7 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
 
     return (
         <>
-            <AvailabilityTimeline temporal={Temporal} min={min} max={max}
+            <AvailabilityTimeline temporal={Temporal} min={min} max={max} step={step}
                                   dataTimezone="utc" displayTimezone={timezone} theme={theme}
                                   onChange={onChange} onDoubleClick={handleSettings}
                                   onError={handleError} readOnly={readOnly} timeslots={timeslots} />

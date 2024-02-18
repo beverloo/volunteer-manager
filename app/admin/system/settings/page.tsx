@@ -37,13 +37,23 @@ export default async function IntegrationsPage() {
                     'preferences?',
             },
             {
+                setting: 'availability-time-step-minutes',
+                type: 'number',
+                defaultValue: 15,
+
+                label: 'Availability - time step',
+                description:
+                    'Time step, in minutes, defining granularity of events in availability ' +
+                    'exceptions.',
+            },
+            {
                 setting: 'retention-number-of-events-to-consider',
                 type: 'number',
                 defaultValue: 2,
 
                 label: 'Retention - historical events',
                 description: 'How many events should be considered for retention planning?',
-            }
+            },
         ],
     };
 
