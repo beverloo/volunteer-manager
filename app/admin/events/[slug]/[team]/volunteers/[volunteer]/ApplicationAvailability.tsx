@@ -113,17 +113,11 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     // Availability exceptions
     // ---------------------------------------------------------------------------------------------
 
-    const firstValidException = Temporal.ZonedDateTime.from(event.startTime).with({
-        hour: 0,
-        minute: 0,
-        second: 0,
-    });
+    const firstValidException = Temporal.ZonedDateTime.from(event.startTime)
+        .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 });
 
-    const lastValidException = Temporal.ZonedDateTime.from(event.endTime).add({ days: 1 }).with({
-        hour: 0,
-        minute: 0,
-        second: 0,
-    });
+    const lastValidException = Temporal.ZonedDateTime.from(event.endTime)
+        .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 });
 
     const min = firstValidException.toString({ timeZoneName: 'never' });
     const max = lastValidException.toString({ timeZoneName: 'never' });
