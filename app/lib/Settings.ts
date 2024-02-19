@@ -66,6 +66,10 @@ type SettingsMap = {
     'integration-vertex-top-k': number;
     'integration-vertex-top-p': number;
 
+    // WhatsApp:
+    'whatsapp-access-token': string;
+    'whatsapp-phone-number-id': string;
+
     // ---------------------------------------------------------------------------------------------
     // UserSettings defaults
     // ---------------------------------------------------------------------------------------------

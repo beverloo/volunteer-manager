@@ -1,35 +1,20 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 'use client';
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import type { WhatsAppSettings } from '@lib/integrations/whatsapp/WhatsAppClient';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
-
-/**
- * Settings applicable to the <WhatsApp> component that can be edited through this component.
- */
-export interface WhatsAppSettings {
-    /**
-     * Access token through which the WhatsApp For Business API can be reached.
-     */
-    accessToken: string;
-
-    /**
-     * Phone number ID as registered with the WhatsApp For Business API.
-     */
-    phoneNumberId: string;
-}
 
 /**
  * Props accepted by the <WhatsApp> component.
