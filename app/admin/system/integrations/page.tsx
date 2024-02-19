@@ -10,6 +10,7 @@ import { StatusHeader } from './StatusHeader';
 import { Privilege } from '@lib/auth/Privileges';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
+import { WhatsApp, type WhatsAppSettings } from './WhatsApp';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -51,6 +52,10 @@ export default async function IntegrationsPage() {
         'integration-vertex-token-limit',
         'integration-vertex-top-k',
         'integration-vertex-top-p',
+
+        // WhatsApp:
+        'whatsapp-access-token',
+        'whatsapp-phone-number-id',
     ]);
 
     const animeConSettings: AnimeConSettings = {
@@ -85,6 +90,11 @@ export default async function IntegrationsPage() {
         topP: settings['integration-vertex-top-p'] ?? 0.8,
     };
 
+    const whatsAppSettings: WhatsAppSettings = {
+        accessToken: settings['whatsapp-access-token'] ?? '',
+        phoneNumberId: settings['whatsapp-phone-number-id'] ?? '',
+    };
+
     return (
         <>
             <StatusHeader />
@@ -92,6 +102,7 @@ export default async function IntegrationsPage() {
             <Email settings={emailSettings} />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
+            <WhatsApp settings={whatsAppSettings} />
         </>
     );
 }

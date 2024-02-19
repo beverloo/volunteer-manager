@@ -53,15 +53,12 @@ export enum LogType {
     AdminResetPasswordLink = 'admin-reset-password-link',
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdateAiSetting = 'admin-update-ai-settings',
-    AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
     AdminUpdateAvailabilityPreferences = 'admin-update-availability-preferences',
     AdminUpdateAvatar = 'admin-update-avatar',
-    AdminUpdateEmailIntegration = 'admin-update-email-integration',
     AdminUpdateEvent = 'admin-update-event',
-    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
     AdminUpdateHotelPreferences = 'admin-update-hotel-preferences',
+    AdminUpdateIntegration = 'admin-update-integration',
     AdminUpdatePermission = 'admin-update-permission',
-    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
     AdminUpdateRefundRequest = 'admin-update-refund-request',
     AdminUpdateRole = 'admin-update-role',
     AdminUpdateSettings = 'admin-update-settings',
@@ -69,7 +66,6 @@ export enum LogType {
     AdminUpdateTeamVolunteer = 'admin-update-team-volunteer',
     AdminUpdateTeamVolunteerStatus = 'admin-update-team-volunteer-status',
     AdminUpdateTrainingPreferences = 'admin-update-training-preferences',
-    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     AdminVendorMutation = 'admin-vendor-mutation',
     AdminWhatsAppMutation = 'admin-whatsapp-mutation',
@@ -80,6 +76,13 @@ export enum LogType {
     DatabaseError = 'database-error',
     EventApplication = 'event-application',
     ExportDataAccess = 'export-data-access',
+
+    // Deprecated:
+    AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
+    AdminUpdateEmailIntegration = 'admin-update-email-integration',
+    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
+    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
+    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
 }
 
 /**

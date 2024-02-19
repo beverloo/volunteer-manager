@@ -55,6 +55,14 @@ export const kUpdateIntegrationDefinition = z.object({
          * Vertex AI settings that should be updated.
          */
         vertexAi: kVertexAiSettings.optional(),
+
+        /**
+         * WhatsApp API settings that should be updated.
+         */
+        whatsApp: z.object({
+            accessToken: z.string(),
+            phoneNumberId: z.string(),
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -92,9 +100,12 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateAnimeConIntegration,
+            type: LogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            data: {
+                integration: 'AnimeCon',
+            }
         });
     }
 
@@ -107,9 +118,12 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateEmailIntegration,
+            type: LogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            data: {
+                integration: 'e-mail',
+            }
         });
     }
 
@@ -122,9 +136,12 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateGoogleIntegration,
+            type: LogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            data: {
+                integration: 'Google',
+            }
         });
     }
 
@@ -138,9 +155,28 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateVertexIntegration,
+            type: LogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            data: {
+                integration: 'Vertex AI LLM',
+            }
+        });
+    }
+
+    if (request.whatsApp) {
+        await writeSettings({
+            'whatsapp-access-token': request.whatsApp.accessToken,
+            'whatsapp-phone-number-id': request.whatsApp.phoneNumberId,
+        });
+
+        await Log({
+            type: LogType.AdminUpdateIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                integration: 'WhatsApp',
+            }
         });
     }
 

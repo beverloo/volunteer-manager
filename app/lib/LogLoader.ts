@@ -164,7 +164,6 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdateAiSetting]: (source, target, { setting }) => {
         return `Updated the generative AI ${setting}`;
     },
-    [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
     [LogType.AdminUpdateAvailabilityPreferences]: (source, target, { event }) => {
         return `Updated their availability preferences for ${event}`;
     },
@@ -172,15 +171,15 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Updated ${action ?? 'settings'} for ${event}`;
     },
     [LogType.AdminUpdateAvatar]: (source, target) => `Updated ${target?.name}'s avatar`,
-    [LogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
-    [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
     [LogType.AdminUpdateHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
+    },
+    [LogType.AdminUpdateIntegration]: (source, target, { integration }) => {
+        return `Updated the ${integration} integration settings`;
     },
     [LogType.AdminUpdatePermission]: (source, target, data) => {
         return `Updated the permissions of ${target?.name}`;
     },
-    [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [LogType.AdminUpdateRefundRequest]: (source, target, { event }) => {
         return `Updated ticket refund settings for ${target?.name} during ${event}`;
     },
@@ -190,8 +189,6 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminUpdateTrainingPreferences]: (source, target, { event }) => {
         return `Updated their training preferences for ${event}`;
     },
-
-    [LogType.AdminUpdateVertexIntegration]: 'Updated the integration settings for Vertex AI',
     [LogType.AdminUpdateVolunteer]: (source, target, data) => {
         return `Updated the user information of ${target?.name}`;
     },
@@ -227,6 +224,13 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.ExportDataAccess]: (source, target, { event, type }) => {
         return `Accessed exported ${event} ${type} data`;
     },
+
+    // Deprecated:
+    [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
+    [LogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
+    [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
+    [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
+    [LogType.AdminUpdateVertexIntegration]: 'Updated the integration settings for Vertex AI',
 };
 
 /**
