@@ -96,7 +96,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <WebhookIcon />,
                     label: 'Integrations',
-                    privilege: Privilege.SystemAdministrator,
+                    privilege: Privilege.Administrator,
                     url: '/admin/system/integrations',
                 },
                 {

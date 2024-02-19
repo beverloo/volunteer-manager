@@ -20,7 +20,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function IntegrationsPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        privilege: Privilege.Administrator,
     });
 
     const settings = await readSettings([

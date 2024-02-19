@@ -43,7 +43,7 @@ export default async function WhatsAppPage() {
                     The following table contains all people who will receive notifications through
                     WhatsApp. Since group messaging is not available through the official API, we
                     need to consider message volume and cannot automatically send everything to
-                    everyone. In addition, message contents can be sensitive.
+                    everyone.
                 </Alert>
                 <RecipientTable users={users} />
             </Section>
