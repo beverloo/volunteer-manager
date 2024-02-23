@@ -89,7 +89,15 @@ export type MessageRequest = z.infer<typeof kMessageRequest>;
  * Type that describes a message response from the /message endpoint.
  */
 export const kMessageResponse = z.object({
-    foo: z.literal('bar'),
+    messaging_product: z.literal('whatsapp'),
+    contacts: z.array(z.object({
+        input: z.string(),
+        wa_id: z.string(),
+    })),
+    messages: z.array(z.object({
+        id: z.string(),
+        message_status: z.string().optional(),
+    })),
 });
 
 /**

@@ -57,6 +57,9 @@ export class WhatsAppClient {
         const logger = new WhatsAppLogger();
         await logger.initialise(recipientUserId, request);
 
+        let messageId: string | undefined;
+        let messageStatus: string | undefined;
+
         let responseData: MessageResponse | undefined;
         let responseStatus: number | undefined;
 
@@ -74,14 +77,18 @@ export class WhatsAppClient {
             });
 
             responseStatus = response.status;
-            responseData = kMessageResponse.parse(await response.json());
-            // TODO: Deal with the `responseData`.
+            responseData = await response.json();
 
+            const validatedResponse = kMessageResponse.parse(responseData);
+            if (validatedResponse.messages.length > 0) {
+                messageId = validatedResponse.messages[0].id;
+                messageStatus = validatedResponse.messages[0].message_status;
+            }
         } catch (error: any) {
             logger.reportException(error);
         }
 
-        await logger.finalise(responseStatus, responseData);
+        await logger.finalise(responseStatus, messageId, messageStatus, responseData);
 
         return isOK(responseStatus) && !!responseData && !logger.exception;
     }

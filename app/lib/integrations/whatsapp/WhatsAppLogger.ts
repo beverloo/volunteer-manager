@@ -46,7 +46,10 @@ export class WhatsAppLogger {
     /**
      * Finalises the logger with the given `responseStatus` and `responseData`.
      */
-    async finalise(responseStatus?: number, responseData?: MessageResponse): Promise<void> {
+    async finalise(
+        responseStatus?: number, messageId?: string, messageStatus?: string,
+        responseData?: MessageResponse)
+    {
         if (!this.#insertId || !this.#startTime)
             throw new Error('WhatsApp loggers must be initialised before being finalised.');
 
@@ -61,8 +64,9 @@ export class WhatsAppLogger {
                 whatsappMessageResponseStatus: responseStatus,
                 whatsappMessageResponseTime:
                     Number((process.hrtime.bigint() - this.#startTime) / 1000n / 1000n),
-
-                // TODO: Store the `responseData`
+                whatsappMessageResponseMessageId: messageId,
+                whatsappMessageResponseMessageStatus: messageStatus,
+                whatsappMessageResponseText: JSON.stringify(responseData),
             })
             .where(tWhatsAppMessages.whatsappMessageId.equals(this.#insertId))
             .executeUpdate();

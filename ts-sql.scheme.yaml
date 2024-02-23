@@ -2654,6 +2654,21 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: whatsapp_message_response_message_id
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_message_response_message_status
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_message_response_text
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   indexes:
   - name: whatsapp_message_recipient_user_id
     def: KEY whatsapp_message_recipient_user_id (whatsapp_message_recipient_user_id) USING BTREE
@@ -2691,6 +2706,9 @@ tables:
       `whatsapp_message_error_cause` text DEFAULT NULL,
       `whatsapp_message_response_status` int(8) unsigned DEFAULT NULL,
       `whatsapp_message_response_time` int(8) unsigned DEFAULT NULL,
+      `whatsapp_message_response_message_id` text DEFAULT NULL,
+      `whatsapp_message_response_message_status` text DEFAULT NULL,
+      `whatsapp_message_response_text` text DEFAULT NULL,
       PRIMARY KEY (`whatsapp_message_id`),
       KEY `whatsapp_message_recipient_user_id` (`whatsapp_message_recipient_user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
