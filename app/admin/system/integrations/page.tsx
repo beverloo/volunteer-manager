@@ -3,6 +3,7 @@
 
 import type { Metadata } from 'next';
 
+import type { WhatsAppSettings } from '@lib/integrations/whatsapp/WhatsAppClient';
 import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
@@ -10,7 +11,7 @@ import { StatusHeader } from './StatusHeader';
 import { Privilege } from '@lib/auth/Privileges';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
-import { WhatsApp, type WhatsAppSettings } from './WhatsApp';
+import { WhatsApp } from './WhatsApp';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
