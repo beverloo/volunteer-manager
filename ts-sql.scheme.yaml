@@ -2644,6 +2644,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: whatsapp_message_response_status
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: whatsapp_message_response_time
     type: int(8) unsigned
     nullable: true
@@ -2684,6 +2689,7 @@ tables:
       `whatsapp_message_error_message` text DEFAULT NULL,
       `whatsapp_message_error_stack` text DEFAULT NULL,
       `whatsapp_message_error_cause` text DEFAULT NULL,
+      `whatsapp_message_response_status` int(8) unsigned DEFAULT NULL,
       `whatsapp_message_response_time` int(8) unsigned DEFAULT NULL,
       PRIMARY KEY (`whatsapp_message_id`),
       KEY `whatsapp_message_recipient_user_id` (`whatsapp_message_recipient_user_id`)

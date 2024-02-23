@@ -58,10 +58,10 @@ export class WhatsAppLogger {
                 whatsappMessageErrorCause:
                     this.#exception?.cause ? JSON.stringify(this.#exception?.cause) : undefined,
 
+                whatsappMessageResponseStatus: responseStatus,
                 whatsappMessageResponseTime:
                     Number((process.hrtime.bigint() - this.#startTime) / 1000n / 1000n),
 
-                // TODO: Store the `responseStatus`
                 // TODO: Store the `responseData`
             })
             .where(tWhatsAppMessages.whatsappMessageId.equals(this.#insertId))

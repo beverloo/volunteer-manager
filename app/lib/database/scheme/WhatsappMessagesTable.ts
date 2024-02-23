@@ -25,6 +25,7 @@ export class WhatsappMessagesTable extends Table<DBConnection, 'WhatsappMessages
     whatsappMessageErrorMessage = this.optionalColumnWithDefaultValue('whatsapp_message_error_message', 'string');
     whatsappMessageErrorStack = this.optionalColumnWithDefaultValue('whatsapp_message_error_stack', 'string');
     whatsappMessageErrorCause = this.optionalColumnWithDefaultValue('whatsapp_message_error_cause', 'string');
+    whatsappMessageResponseStatus = this.optionalColumnWithDefaultValue('whatsapp_message_response_status', 'int');
     whatsappMessageResponseTime = this.optionalColumnWithDefaultValue('whatsapp_message_response_time', 'int');
 
     constructor() {

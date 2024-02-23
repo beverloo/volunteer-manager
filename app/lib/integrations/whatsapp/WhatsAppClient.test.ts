@@ -51,14 +51,15 @@ describe('WhatsAppClient', () => {
         });
 
         mockConnection.expect('update', (query, params) => {
-            expect(params).toHaveLength(6);
+            expect(params).toHaveLength(7);
             expect(params[0]).toBeNull();
             expect(params[1]).toBeNull();
             expect(params[2]).toBeNull();
             expect(params[3]).toBeNull();
 
-            expect(params[4]).toBeGreaterThan(/* time= */ 0);
-            expect(params[5]).toBe(/* insertId= */ 145);
+            expect(params[4]).toBe(/* responseStatus= */ 200);
+            expect(params[5]).toBeGreaterThan(/* time= */ 0);
+            expect(params[6]).toBe(/* insertId= */ 145);
         });
 
         const client = new WhatsAppClient({
@@ -87,8 +88,14 @@ describe('WhatsAppClient', () => {
     it('is able to detect non-OK response codes from the API endpoint', async () => {
         mockConnection.expect('insertReturningLastInsertedId', () => /* insertId= */ 123);
         mockConnection.expect('update', (query, params) => {
-            expect(params).toHaveLength(6);
-            // TODO: Non-OK response code logging
+            expect(params).toHaveLength(7);
+
+            expect(params[0]).toBe(/* errorName= */ 'ZodError');
+            expect(params[1]).toContain(/* errorMessage= */ 'Invalid literal value');
+            expect(params[2]).not.toBeNull();
+            expect(params[3]).toBeNull();
+
+            expect(params[4]).toBe(/* responseStatus= */ 404);
         });
 
         const client = new WhatsAppClient({
@@ -112,8 +119,14 @@ describe('WhatsAppClient', () => {
     it('is able to detect non-validating responses from the API endpoint', async () => {
         mockConnection.expect('insertReturningLastInsertedId', () => /* insertId= */ 123);
         mockConnection.expect('update', (query, params) => {
-            expect(params).toHaveLength(6);
-            // TODO: Non-validating response handling
+            expect(params).toHaveLength(7);
+
+            expect(params[0]).toBe(/* errorName= */ 'ZodError');
+            expect(params[1]).toContain(/* errorMessage= */ 'Invalid literal value');
+            expect(params[2]).not.toBeNull();
+            expect(params[3]).toBeNull();
+
+            expect(params[4]).toBe(/* responseStatus= */ 200);
         });
 
         const client = new WhatsAppClient({
@@ -145,14 +158,15 @@ describe('WhatsAppClient', () => {
         });
 
         mockConnection.expect('update', (query, params) => {
-            expect(params).toHaveLength(6);
+            expect(params).toHaveLength(7);
             expect(params[0]).toBe(/* errorName= */ 'Error');
             expect(params[1]).toBe(/* errorMessage= */ 'Something went wrong');
             expect(params[2]).not.toBeNull();
             expect(params[3]).toBeNull();
 
-            expect(params[4]).toBeGreaterThan(/* time= */ 0);
-            expect(params[5]).toBe(/* insertId= */ 123);
+            expect(params[4]).toBeNull();
+            expect(params[5]).toBeGreaterThan(/* time= */ 0);
+            expect(params[6]).toBe(/* insertId= */ 123);
         });
 
         const client = new WhatsAppClient({

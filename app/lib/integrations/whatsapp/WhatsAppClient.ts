@@ -74,10 +74,9 @@ export class WhatsAppClient {
             });
 
             responseStatus = response.status;
-            if (isOK(responseStatus)) {
-                responseData = kMessageResponse.parse(await response.json());
-                // TODO: Deal with the `responseData`.
-            }
+            responseData = kMessageResponse.parse(await response.json());
+            // TODO: Deal with the `responseData`.
+
         } catch (error: any) {
             logger.reportException(error);
         }
