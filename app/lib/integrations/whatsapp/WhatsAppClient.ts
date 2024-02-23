@@ -1,6 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { WhatsAppLoggerImpl } from './WhatsAppLogger';
 import { kMessageRequest, type MessageRequest } from './WhatsAppTypes';
 
 /**
@@ -38,23 +39,30 @@ export class WhatsAppClient {
      * Send a WhatsApp message. The `request` contains all the required information and will be
      * strictly validated, beyond TypeScript type validity.
      */
-    async sendMessage(request: MessageRequest) {
-        const validatedMessageRequest = kMessageRequest.parse(request);
+    async sendMessage(recipientUserId: number, request: MessageRequest): Promise<boolean> {
+        const logger = new WhatsAppLoggerImpl();
+        let result = true;
 
-        // TODO: Store the `request` in the database.
+        await logger.initialise(recipientUserId, request);
+        try {
+            const validatedMessageRequest = kMessageRequest.parse(request);
 
-        const response = await fetch(`${kEndpointBase}/${this.#settings.phoneNumberId}/messages`, {
-            method: 'POST',
-            headers: [
-                [ 'Authorization', `Bearer ${this.#settings.accessToken}` ],
-                [ 'Content-Type', 'application/json' ],
-            ],
-            body: JSON.stringify(validatedMessageRequest),
-        });
+            // TODO: Remove this hack used for testing purposes
+            if (validatedMessageRequest.to.startsWith('+31'))
+                throw new Error('Something went wrong');
 
-        // TODO: Something something error handling.
-        // TODO: Store the result (& message ID) in the database.
+            // TODO: Issue the request
+            // TODO: Obtain and validate the response
 
-        return await response.json();
+        } catch (error: any) {
+            logger.reportException(error);
+            result = false;
+        }
+
+        // TODO: Store the response w/ finalisation
+        await logger.finalise(undefined);
+
+        // TODO: Return whether sending the message was successful.
+        return result;
     }
 }
