@@ -34,7 +34,7 @@ function isOK(status?: number) { return !!status && status >= 200 && status <= 2
 /**
  * Base address of the endpoint to which we will be issuing API calls.
  */
-const kEndpointBase = 'xx-https://graph.facebook.com/v18.0';
+const kEndpointBase = 'https://graph.facebook.com/v18.0';
 
 /**
  * The WhatsApp client manages our interaction with the WhatsApp for Business API. It takes the
