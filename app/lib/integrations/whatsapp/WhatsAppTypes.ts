@@ -84,3 +84,15 @@ export const kMessageRequest = z.object({
  * Export the TypeScript type representing `kMessageRequest`.
  */
 export type MessageRequest = z.infer<typeof kMessageRequest>;
+
+/**
+ * Type that describes a message response from the /message endpoint.
+ */
+export const kMessageResponse = z.object({
+    foo: z.literal('bar'),
+});
+
+/**
+ * Export the TypeScript type representing `kMessageResponse`.
+ */
+export type MessageResponse = z.infer<typeof kMessageResponse>;

@@ -1,37 +1,21 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { MessageRequest } from './WhatsAppTypes';
+import type { MessageRequest, MessageResponse } from './WhatsAppTypes';
 import db, { tWhatsAppMessages } from '@lib/database';
 
 /**
- * Interface describing the WhatsApp logger.
+ * The `WhatsAppLogger` is able to encapsulate the lifetime of a WhatsApp message request and log
+ * all activity to the database.
  */
-export interface WhatsAppLogger {
-    /**
-     * Initialises the WhatsApp logger. Loggers may only be initialized once.
-     */
-    initialise(recipientUserId: number, request: MessageRequest): Promise<void>;
-
-    /**
-     * Finalises the logger with the given `response`.
-     */
-    finalise(response?: unknown): Promise<void>;
-
-    /**
-     * Reports an exception that happened while the WhatsApp message was being sent.
-     */
-    reportException(error: Error): void;
-}
-
-/**
- * Implementation of the `WhatsAppLogger` interface to use for production use cases.
- */
-export class WhatsAppLoggerImpl implements WhatsAppLogger {
+export class WhatsAppLogger {
     #exception?: Error = undefined;
     #startTime?: bigint = undefined;
     #insertId?: number = undefined;
 
+    /**
+     * Initialises the WhatsApp logger. Loggers may only be initialized once.
+     */
     async initialise(recipientUserId: number, request: MessageRequest): Promise<void> {
         if (!!this.#insertId)
             throw new Error('WhatsApp loggers may only be initialised once.');
@@ -47,11 +31,22 @@ export class WhatsAppLoggerImpl implements WhatsAppLogger {
             .executeInsert();
     }
 
+    /**
+     * Returns the exception iff one has been filed.
+     */
+    get exception() { return this.#exception; }
+
+    /**
+     * Reports an exception that happened while the WhatsApp message was being sent.
+     */
     reportException(error: Error): void {
         this.#exception = error;
     }
 
-    async finalise(response?: unknown): Promise<void> {
+    /**
+     * Finalises the logger with the given `responseStatus` and `responseData`.
+     */
+    async finalise(responseStatus?: number, responseData?: MessageResponse): Promise<void> {
         if (!this.#insertId || !this.#startTime)
             throw new Error('WhatsApp loggers must be initialised before being finalised.');
 
@@ -65,7 +60,9 @@ export class WhatsAppLoggerImpl implements WhatsAppLogger {
 
                 whatsappMessageResponseTime:
                     Number((process.hrtime.bigint() - this.#startTime) / 1000n / 1000n),
-                // TODO: Store the `response`
+
+                // TODO: Store the `responseStatus`
+                // TODO: Store the `responseData`
             })
             .where(tWhatsAppMessages.whatsappMessageId.equals(this.#insertId))
             .executeUpdate();

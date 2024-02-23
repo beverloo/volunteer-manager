@@ -16,6 +16,17 @@ describe('WhatsAppClient', () => {
     // Phone number ID to use instead of real information when testing.
     const kTestPhoneNumberId = '1234567890';
 
+    // Creates a fetch handler with the given `handler`, adhering to the `fetch()` signature.
+    function createFetchHandler(handler: (url: string, init: RequestInit) => [ number, object ]) {
+        return async (url: RequestInfo | URL, init?: RequestInit) => {
+            if (typeof url !== 'string' || typeof init !== 'object')
+                throw new Error('Only the fetch(string, object) signature is supported.');
+
+            const [ status, response ] = handler(url, init);
+            return new Response(JSON.stringify(response), { status });
+        };
+    }
+
     it('is able to validate all our templates', () => {
         const volunteerApplicationRequest = composeVolunteerApplicationRequest({
             to: '+3100000000',
@@ -53,7 +64,12 @@ describe('WhatsAppClient', () => {
         const client = new WhatsAppClient({
             accessToken: kTestAccessToken,
             phoneNumberId: kTestPhoneNumberId,
-        });
+        }, createFetchHandler((url, init) => {
+            expect(url).toContain(kTestPhoneNumberId);
+            expect(init.headers?.toString()).toContain(kTestAccessToken);
+
+            return [ 200, { foo: 'bar' } ]
+        }));
 
         const message = composeVolunteerApplicationRequest({
             to: '+4400000000',
@@ -66,6 +82,56 @@ describe('WhatsAppClient', () => {
 
         const response = await client.sendMessage(/* recipientUserId= */ 29, message);
         expect(response).toBeTrue();
+    });
+
+    it('is able to detect non-OK response codes from the API endpoint', async () => {
+        mockConnection.expect('insertReturningLastInsertedId', () => /* insertId= */ 123);
+        mockConnection.expect('update', (query, params) => {
+            expect(params).toHaveLength(6);
+            // TODO: Non-OK response code logging
+        });
+
+        const client = new WhatsAppClient({
+            accessToken: kTestAccessToken,
+            phoneNumberId: kTestPhoneNumberId,
+        }, createFetchHandler((url, init) => [ 404, { /* empty response */ } ]));
+
+        const message = composeVolunteerApplicationRequest({
+            to: '+4400000000',
+            firstName: 'John',
+            lastName: 'Doe',
+            eventSlug: '2024',
+            teamName: 'Stewards',
+            teamSlug: 'stewards.team'
+        });
+
+        const response = await client.sendMessage(/* recipientUserId= */ 29, message);
+        expect(response).toBeFalse();
+    });
+
+    it('is able to detect non-validating responses from the API endpoint', async () => {
+        mockConnection.expect('insertReturningLastInsertedId', () => /* insertId= */ 123);
+        mockConnection.expect('update', (query, params) => {
+            expect(params).toHaveLength(6);
+            // TODO: Non-validating response handling
+        });
+
+        const client = new WhatsAppClient({
+            accessToken: kTestAccessToken,
+            phoneNumberId: kTestPhoneNumberId,
+        }, createFetchHandler((url, init) => [ 200, { /* incomplete response */ } ]));
+
+        const message = composeVolunteerApplicationRequest({
+            to: '+4400000000',
+            firstName: 'John',
+            lastName: 'Doe',
+            eventSlug: '2024',
+            teamName: 'Stewards',
+            teamSlug: 'stewards.team'
+        });
+
+        const response = await client.sendMessage(/* recipientUserId= */ 29, message);
+        expect(response).toBeFalse();
     });
 
     it('is able to catch exceptions and store them in the database', async () => {
@@ -92,7 +158,9 @@ describe('WhatsAppClient', () => {
         const client = new WhatsAppClient({
             accessToken: kTestAccessToken,
             phoneNumberId: kTestPhoneNumberId,
-        });
+        }, createFetchHandler((url, init) => {
+            throw new Error('Something went wrong');
+        }));
 
         const message = composeVolunteerApplicationRequest({
             to: '+3100000000',

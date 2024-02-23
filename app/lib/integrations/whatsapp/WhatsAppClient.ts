@@ -1,8 +1,9 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { WhatsAppLoggerImpl } from './WhatsAppLogger';
-import { kMessageRequest, type MessageRequest } from './WhatsAppTypes';
+import type { MessageRequest, MessageResponse } from './WhatsAppTypes';
+import { WhatsAppLogger } from './WhatsAppLogger';
+import { kMessageRequest, kMessageResponse } from './WhatsAppTypes';
 
 /**
  * Settings required by the WhatsApp client.
@@ -20,9 +21,20 @@ export interface WhatsAppSettings {
 }
 
 /**
+ * Signature of the `fetch` function which can be injected for testing purposes.
+ */
+type FetchFn = typeof globalThis.fetch;
+
+/**
+ * Returns whether the given response `status` is an OK response.
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Response/ok
+ */
+function isOK(status?: number) { return !!status && status >= 200 && status <= 299; }
+
+/**
  * Base address of the endpoint to which we will be issuing API calls.
  */
-const kEndpointBase = 'https://graph.facebook.com/v18.0';
+const kEndpointBase = 'xx-https://graph.facebook.com/v18.0';
 
 /**
  * The WhatsApp client manages our interaction with the WhatsApp for Business API. It takes the
@@ -30,9 +42,11 @@ const kEndpointBase = 'https://graph.facebook.com/v18.0';
  */
 export class WhatsAppClient {
     #settings: WhatsAppSettings;
+    #fetch: FetchFn;
 
-    constructor(settings: WhatsAppSettings) {
+    constructor(settings: WhatsAppSettings, fetch?: FetchFn) {
         this.#settings = settings;
+        this.#fetch = fetch ?? globalThis.fetch;
     }
 
     /**
@@ -40,29 +54,36 @@ export class WhatsAppClient {
      * strictly validated, beyond TypeScript type validity.
      */
     async sendMessage(recipientUserId: number, request: MessageRequest): Promise<boolean> {
-        const logger = new WhatsAppLoggerImpl();
-        let result = true;
-
+        const logger = new WhatsAppLogger();
         await logger.initialise(recipientUserId, request);
+
+        let responseData: MessageResponse | undefined;
+        let responseStatus: number | undefined;
+
         try {
             const validatedMessageRequest = kMessageRequest.parse(request);
 
-            // TODO: Remove this hack used for testing purposes
-            if (validatedMessageRequest.to.startsWith('+31'))
-                throw new Error('Something went wrong');
+            const endpoint = `${kEndpointBase}/${this.#settings.phoneNumberId}/messages`;
+            const response = await this.#fetch(endpoint, {
+                method: 'POST',
+                headers: [
+                    [ 'Authorization', `Bearer ${this.#settings.accessToken}` ],
+                    [ 'Content-Type', 'application/json' ],
+                ],
+                body: JSON.stringify(validatedMessageRequest),
+            });
 
-            // TODO: Issue the request
-            // TODO: Obtain and validate the response
-
+            responseStatus = response.status;
+            if (isOK(responseStatus)) {
+                responseData = kMessageResponse.parse(await response.json());
+                // TODO: Deal with the `responseData`.
+            }
         } catch (error: any) {
             logger.reportException(error);
-            result = false;
         }
 
-        // TODO: Store the response w/ finalisation
-        await logger.finalise(undefined);
+        await logger.finalise(responseStatus, responseData);
 
-        // TODO: Return whether sending the message was successful.
-        return result;
+        return isOK(responseStatus) && !!responseData && !logger.exception;
     }
 }
