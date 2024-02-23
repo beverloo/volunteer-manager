@@ -4,8 +4,8 @@
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
+import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles,
@@ -60,7 +60,8 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),
             shiftSeconds: dbInstance.sum(shiftSecondsFragment),
 
-            availabilityEligible: tEvents.publishAvailability.equals(/* true= */ 1),
+            availabilityEligible:
+                tEvents.eventAvailabilityStatus.notEquals(EventAvailabilityStatus.Unavailable),
             availabilityConfirmed: tUsersEvents.preferencesUpdated.isNotNull(),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
             refundRequested: refundsJoin.refundRequested.isNotNull(),

@@ -162,7 +162,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                 } else if (!!params.row.availabilityEligible) {
                     availabilityIcon = (
                         <Tooltip title="Pending availability preferences">
-                            <EventBusyIcon color="warning" fontSize="small" />
+                            <EventBusyIcon color="disabled" fontSize="small" />
                         </Tooltip>
                     );
                 }
@@ -180,7 +180,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                     case 'submitted':
                         hotelIcon = (
                             <Tooltip title="Preferences shared, pending confirmation">
-                                <HotelIcon color="warning" fontSize="small" />
+                                <HotelIcon color="disabled" fontSize="small" />
                             </Tooltip>
                         );
                         break;
@@ -212,7 +212,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                 } else if (!!params.row.refundRequested) {
                     refundIcon = (
                         <Tooltip title="Ticket refund requested">
-                            <MonetizationOnIcon color="warning" fontSize="small" />
+                            <MonetizationOnIcon color="error" fontSize="small" />
                         </Tooltip>
                     );
                 }
@@ -230,7 +230,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                     case 'submitted':
                         trainingIcon = (
                             <Tooltip title="Preferences shared, pending confirmation">
-                                <HistoryEduIcon color="warning" fontSize="small" />
+                                <HistoryEduIcon color="disabled" fontSize="small" />
                             </Tooltip>
                         );
                         break;
