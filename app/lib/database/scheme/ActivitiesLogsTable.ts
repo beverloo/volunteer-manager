@@ -30,7 +30,7 @@ export class ActivitiesLogsTable extends Table<DBConnection, 'ActivitiesLogsTabl
     mutationFields = this.optionalColumnWithDefaultValue('mutation_fields', 'string');
     mutationSeverity = this.column<MutationSeverity>('mutation_severity', 'enum', 'MutationSeverity');
     mutationUserId = this.optionalColumnWithDefaultValue('mutation_user_id', 'int');
-    mutationDate = this.column<ZonedDateTime>('mutation_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    mutationDate = this.column<ZonedDateTime>('mutation_date', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_logs');

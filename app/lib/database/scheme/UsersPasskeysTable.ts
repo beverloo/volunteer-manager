@@ -23,12 +23,12 @@ export class UsersPasskeysTable extends Table<DBConnection, 'UsersPasskeysTable'
     userId = this.column('user_id', 'int');
     credentialId = this.column<Buffer>('credential_id', 'custom', 'Blob', BlobTypeAdapter);
     credentialName = this.optionalColumnWithDefaultValue('credential_name', 'string');
-    credentialCreated = this.columnWithDefaultValue<ZonedDateTime>('credential_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    credentialCreated = this.columnWithDefaultValue<ZonedDateTime>('credential_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     credentialOrigin = this.column('credential_origin', 'string');
     credentialPublicKey = this.column<Buffer>('credential_public_key', 'custom', 'Blob', BlobTypeAdapter);
     credentialDeviceType = this.column('credential_device_type', 'string');
     credentialBackedUp = this.column('credential_backed_up', 'int');
-    credentialLastUsed = this.optionalColumnWithDefaultValue<ZonedDateTime>('credential_last_used', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    credentialLastUsed = this.optionalColumnWithDefaultValue<ZonedDateTime>('credential_last_used', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     counter = this.column('counter', 'bigint');
 
     constructor() {

@@ -21,7 +21,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     firstName = this.column('first_name', 'string');
     lastName = this.column('last_name', 'string');
     gender = this.column('gender', 'string');
-    birthdate = this.optionalColumnWithDefaultValue<PlainDate>('birthdate', 'customComparable', 'date', TemporalTypeAdapter);
+    birthdate = this.optionalColumnWithDefaultValue<PlainDate>('birthdate', 'customLocalDate', 'date', TemporalTypeAdapter);
     phoneNumber = this.optionalColumnWithDefaultValue('phone_number', 'string');
     avatarId = this.optionalColumnWithDefaultValue('avatar_id', 'int');
     privileges = this.columnWithDefaultValue('privileges', 'bigint');

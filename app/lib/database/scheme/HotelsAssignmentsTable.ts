@@ -22,7 +22,7 @@ export class HotelsAssignmentsTable extends Table<DBConnection, 'HotelsAssignmen
     assignmentUserId = this.optionalColumnWithDefaultValue('assignment_user_id', 'int');
     assignmentName = this.optionalColumnWithDefaultValue('assignment_name', 'string');
     assignmentPrimary = this.columnWithDefaultValue('assignment_primary', 'int');
-    assignmentCreated = this.columnWithDefaultValue<ZonedDateTime>('assignment_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    assignmentCreated = this.columnWithDefaultValue<ZonedDateTime>('assignment_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('hotels_assignments');

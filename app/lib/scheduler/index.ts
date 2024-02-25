@@ -81,7 +81,7 @@ export async function scheduleTask<ParamsType = unknown>(
     const delayMsConstant = dbInstance.const(task.delayMs * 1000, 'int');
     const taskScheduledDate =
         dbInstance.fragmentWithType<Temporal.ZonedDateTime>(
-            'customComparable', 'timestamp', 'required', TemporalTypeAdapter).sql`
+            'customLocalDateTime', 'timestamp', 'required', TemporalTypeAdapter).sql`
                 CURRENT_TIMESTAMP() + INTERVAL ${delayMsConstant} MICROSECOND`;
 
     const taskId = await dbInstance.insertInto(tTasks)

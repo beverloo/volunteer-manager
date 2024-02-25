@@ -22,12 +22,12 @@ export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTim
     activityId = this.column('activity_id', 'int');
     timeslotId = this.column('timeslot_id', 'int');
     timeslotType = this.column<ActivityType>('timeslot_type', 'enum', 'ActivityType');
-    timeslotStartTime = this.column<ZonedDateTime>('timeslot_start_time', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    timeslotEndTime = this.column<ZonedDateTime>('timeslot_end_time', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    timeslotStartTime = this.column<ZonedDateTime>('timeslot_start_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    timeslotEndTime = this.column<ZonedDateTime>('timeslot_end_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     timeslotLocationId = this.column('timeslot_location_id', 'int');
-    timeslotCreated = this.column<ZonedDateTime>('timeslot_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    timeslotUpdated = this.column<ZonedDateTime>('timeslot_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    timeslotDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('timeslot_deleted', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    timeslotCreated = this.column<ZonedDateTime>('timeslot_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    timeslotUpdated = this.column<ZonedDateTime>('timeslot_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    timeslotDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('timeslot_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_timeslots');

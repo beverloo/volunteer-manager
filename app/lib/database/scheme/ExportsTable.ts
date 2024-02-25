@@ -24,9 +24,9 @@ export class ExportsTable extends Table<DBConnection, 'ExportsTable'> {
     exportEventId = this.column('export_event_id', 'int');
     exportType = this.column<ExportType>('export_type', 'enum', 'ExportType');
     exportJustification = this.column('export_justification', 'string');
-    exportCreatedDate = this.column<ZonedDateTime>('export_created_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    exportCreatedDate = this.column<ZonedDateTime>('export_created_date', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     exportCreatedUserId = this.column('export_created_user_id', 'int');
-    exportExpirationDate = this.column<ZonedDateTime>('export_expiration_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    exportExpirationDate = this.column<ZonedDateTime>('export_expiration_date', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     exportExpirationViews = this.column('export_expiration_views', 'int');
     exportEnabled = this.columnWithDefaultValue('export_enabled', 'int');
 

@@ -26,7 +26,7 @@ export class StorageTable extends Table<DBConnection, 'StorageTable'> {
     fileHash = this.column('file_hash', 'string');
     fileType = this.column<FileType>('file_type', 'enum', 'FileType');
     fileMimeType = this.column('file_mime_type', 'string');
-    fileDate = this.column<ZonedDateTime>('file_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    fileDate = this.column<ZonedDateTime>('file_date', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     fileData = this.column<Buffer>('file_data', 'custom', 'Blob', BlobTypeAdapter);
     userId = this.optionalColumnWithDefaultValue('user_id', 'int');
 

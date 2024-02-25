@@ -24,9 +24,9 @@ export class ActivitiesAreasTable extends Table<DBConnection, 'ActivitiesAreasTa
     areaType = this.column<ActivityType>('area_type', 'enum', 'ActivityType');
     areaName = this.column('area_name', 'string');
     areaDisplayName = this.optionalColumnWithDefaultValue('area_display_name', 'string');
-    areaCreated = this.column<ZonedDateTime>('area_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    areaUpdated = this.column<ZonedDateTime>('area_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    areaDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('area_deleted', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    areaCreated = this.column<ZonedDateTime>('area_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    areaUpdated = this.column<ZonedDateTime>('area_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    areaDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('area_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_areas');

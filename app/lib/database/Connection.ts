@@ -3,9 +3,7 @@
 
 import { type Pool, type PoolConfig, createPool } from 'mariadb';
 
-import type {
-    ComparableValueSource, DateTimeValueSource, DateValueSource, LocalDateTimeValueSource,
-    LocalDateValueSource, LocalTimeValueSource, OptionalType, StringValueSource, TimeValueSource }
+import type { CustomLocalDateTimeValueSource, DateTimeValueSource, LocalDateTimeValueSource }
     from 'ts-sql-query/expressions/values';
 
 import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
@@ -17,7 +15,7 @@ import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQue
 import { MockQueryRunner, type QueryType as MockQueryType }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
-import type { PlainDate, PlainTime, ZonedDateTime } from '@lib/Temporal';
+import type { ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
 /**
@@ -50,26 +48,13 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override allowEmptyString = true;
 
     /**
-     * The `currentDate()` helper refers to an SQL Fragment through which the server directly
-     * inserts the current date. This works orthogonal to the type we use to represent dates.
-     */
-    override currentDate()
-        : DateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          LocalDateValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          ComparableValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, PlainDate, PlainDate, 'required'>
-    {
-        return super.currentDate() as any;
-    }
-
-    /**
      * The `currentDateTime()` helper refers to an SQL Fragment through which the server directly
      * inserts the current date & time. This works orthogonal to the type we use to represent dates.
      */
     override currentDateTime()
         : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          ComparableValueSource<
+          CustomLocalDateTimeValueSource<
               NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
     {
         return super.currentDateTime() as any;
@@ -82,23 +67,10 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override currentTimestamp()
         : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
           LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          ComparableValueSource<
+          CustomLocalDateTimeValueSource<
               NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
     {
         return super.currentTimestamp() as any;
-    }
-
-    /**
-     * The `currentTimestamp()` helper refers to an SQL Fragment through which the server directly
-     * inserts the current time. This works orthogonal to the type we use to represent dates.
-     */
-    override currentTime()
-        : TimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          LocalTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          ComparableValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, PlainTime, PlainTime, 'required'>
-    {
-        return super.currentTime() as any;
     }
 }
 

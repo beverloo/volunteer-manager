@@ -25,9 +25,9 @@ export class ActivitiesLocationsTable extends Table<DBConnection, 'ActivitiesLoc
     locationName = this.column('location_name', 'string');
     locationDisplayName = this.optionalColumnWithDefaultValue('location_display_name', 'string');
     locationAreaId = this.column('location_area_id', 'int');
-    locationCreated = this.column<ZonedDateTime>('location_created', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    locationUpdated = this.column<ZonedDateTime>('location_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    locationDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('location_deleted', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    locationCreated = this.column<ZonedDateTime>('location_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    locationUpdated = this.column<ZonedDateTime>('location_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    locationDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('location_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('activities_locations');

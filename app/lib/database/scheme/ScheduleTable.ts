@@ -24,8 +24,8 @@ export class ScheduleTable extends Table<DBConnection, 'ScheduleTable'> {
     userId = this.column('user_id', 'int');
     eventId = this.column('event_id', 'int');
     shiftId = this.optionalColumnWithDefaultValue('shift_id', 'int');
-    scheduleTimeStart = this.column<ZonedDateTime>('schedule_time_start', 'customComparable', 'dateTime', TemporalTypeAdapter);
-    scheduleTimeEnd = this.column<ZonedDateTime>('schedule_time_end', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    scheduleTimeStart = this.column<ZonedDateTime>('schedule_time_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    scheduleTimeEnd = this.column<ZonedDateTime>('schedule_time_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('schedule');

@@ -25,7 +25,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     roleId = this.column('role_id', 'int');
-    registrationDate = this.optionalColumnWithDefaultValue<ZonedDateTime>('registration_date', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    registrationDate = this.optionalColumnWithDefaultValue<ZonedDateTime>('registration_date', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     registrationStatus = this.columnWithDefaultValue<RegistrationStatus>('registration_status', 'enum', 'RegistrationStatus');
     shirtFit = this.columnWithDefaultValue<ShirtFit>('shirt_fit', 'enum', 'ShirtFit');
     shirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('shirt_size', 'enum', 'ShirtSize');
@@ -38,7 +38,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');
     preferenceTimingEnd = this.optionalColumnWithDefaultValue('preference_timing_end', 'int');
     preferences = this.optionalColumnWithDefaultValue('preferences', 'string');
-    preferencesUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('preferences_updated', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    preferencesUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('preferences_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     fullyAvailable = this.columnWithDefaultValue('fully_available', 'int');
     includeCredits = this.columnWithDefaultValue('include_credits', 'int');
     includeSocials = this.columnWithDefaultValue('include_socials', 'int');

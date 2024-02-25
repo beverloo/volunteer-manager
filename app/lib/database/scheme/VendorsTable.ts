@@ -30,7 +30,7 @@ export class VendorsTable extends Table<DBConnection, 'VendorsTable'> {
     vendorGender = this.column<VendorGender>('vendor_gender', 'enum', 'VendorGender');
     vendorShirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('vendor_shirt_size', 'enum', 'ShirtSize');
     vendorShirtFit = this.optionalColumnWithDefaultValue<ShirtFit>('vendor_shirt_fit', 'enum', 'ShirtFit');
-    vendorModified = this.column<ZonedDateTime>('vendor_modified', 'customComparable', 'dateTime', TemporalTypeAdapter);
+    vendorModified = this.column<ZonedDateTime>('vendor_modified', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     vendorVisible = this.columnWithDefaultValue('vendor_visible', 'int');
 
     constructor() {

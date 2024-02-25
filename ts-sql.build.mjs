@@ -129,7 +129,7 @@ do {
                 columnType: /^date$/i,
                 generatedField: {
                     type: {
-                        kind: 'customComparable',
+                        kind: 'customLocalDate',
                         tsType: {
                             importPath: './app/lib/Temporal',
                             name: 'PlainDate',
@@ -148,7 +148,7 @@ do {
                 columnType: /^dateTime$/i,
                 generatedField: {
                     type: {
-                        kind: 'customComparable',
+                        kind: 'customLocalDateTime',
                         dbType: { name: 'dateTime' },
                         tsType: {
                             importPath: './app/lib/Temporal',
@@ -168,7 +168,7 @@ do {
                 columnType: /^time$/i,
                 generatedField: {
                     type: {
-                        kind: 'customComparable',
+                        kind: 'customLocalTime',
                         tsType: {
                             importPath: './app/lib/Temporal',
                             name: 'PlainTime',
@@ -187,7 +187,7 @@ do {
                 columnType: /^timestamp$/i,
                 generatedField: {
                     type: {
-                        kind: 'customComparable',
+                        kind: 'customLocalDateTime',
                         dbType: { name: 'timestamp' },
                         tsType: {
                             importPath: './app/lib/Temporal',

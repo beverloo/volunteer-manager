@@ -21,10 +21,10 @@ export class TrainingsAssignmentsTable extends Table<DBConnection, 'TrainingsAss
     assignmentUserId = this.optionalColumnWithDefaultValue('assignment_user_id', 'int');
     assignmentExtraId = this.optionalColumnWithDefaultValue('assignment_extra_id', 'int');
     assignmentTrainingId = this.optionalColumnWithDefaultValue('assignment_training_id', 'int');
-    assignmentUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('assignment_updated', 'customComparable', 'timestamp', TemporalTypeAdapter);
+    assignmentUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('assignment_updated', 'customLocalDateTime', 'timestamp', TemporalTypeAdapter);
     assignmentConfirmed = this.columnWithDefaultValue('assignment_confirmed', 'int');
     preferenceTrainingId = this.optionalColumnWithDefaultValue('preference_training_id', 'int');
-    preferenceUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('preference_updated', 'customComparable', 'timestamp', TemporalTypeAdapter);
+    preferenceUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('preference_updated', 'customLocalDateTime', 'timestamp', TemporalTypeAdapter);
 
     constructor() {
         super('trainings_assignments');

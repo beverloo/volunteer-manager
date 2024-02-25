@@ -20,7 +20,7 @@ export class TrainingsExtraTable extends Table<DBConnection, 'TrainingsExtraTabl
     eventId = this.column('event_id', 'int');
     trainingExtraName = this.columnWithDefaultValue('training_extra_name', 'string');
     trainingExtraEmail = this.columnWithDefaultValue('training_extra_email', 'string');
-    trainingExtraBirthdate = this.optionalColumnWithDefaultValue<PlainDate>('training_extra_birthdate', 'customComparable', 'date', TemporalTypeAdapter);
+    trainingExtraBirthdate = this.optionalColumnWithDefaultValue<PlainDate>('training_extra_birthdate', 'customLocalDate', 'date', TemporalTypeAdapter);
     trainingExtraVisible = this.columnWithDefaultValue('training_extra_visible', 'int');
 
     constructor() {

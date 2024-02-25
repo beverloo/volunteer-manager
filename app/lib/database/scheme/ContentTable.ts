@@ -24,7 +24,7 @@ export class ContentTable extends Table<DBConnection, 'ContentTable'> {
     contentProtected = this.columnWithDefaultValue('content_protected', 'int');
     content = this.column('content', 'string');
     revisionAuthorId = this.column('revision_author_id', 'int');
-    revisionDate = this.columnWithDefaultValue<ZonedDateTime>('revision_date', 'customComparable', 'timestamp', TemporalTypeAdapter);
+    revisionDate = this.columnWithDefaultValue<ZonedDateTime>('revision_date', 'customLocalDateTime', 'timestamp', TemporalTypeAdapter);
     revisionVisible = this.columnWithDefaultValue('revision_visible', 'int');
 
     constructor() {
