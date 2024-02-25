@@ -2807,6 +2807,16 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: activity_request_assignee
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_request_notes
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: activity_created
     type: datetime
     nullable: false
@@ -2876,6 +2886,8 @@ tables:
       `activity_type_video` tinyint(1) NOT NULL,
       `activity_visible` tinyint(1) NOT NULL,
       `activity_visible_reason` text DEFAULT NULL,
+      `activity_request_assignee` int(8) unsigned DEFAULT NULL,
+      `activity_request_notes` text DEFAULT NULL,
       `activity_created` datetime NOT NULL,
       `activity_updated` datetime NOT NULL,
       `activity_deleted` datetime DEFAULT NULL,

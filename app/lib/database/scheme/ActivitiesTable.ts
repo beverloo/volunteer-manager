@@ -36,6 +36,8 @@ export class ActivitiesTable extends Table<DBConnection, 'ActivitiesTable'> {
     activityTypeVideo = this.column('activity_type_video', 'int');
     activityVisible = this.column('activity_visible', 'int');
     activityVisibleReason = this.optionalColumnWithDefaultValue('activity_visible_reason', 'string');
+    activityRequestAssignee = this.optionalColumnWithDefaultValue('activity_request_assignee', 'int');
+    activityRequestNotes = this.optionalColumnWithDefaultValue('activity_request_notes', 'string');
     activityCreated = this.column<ZonedDateTime>('activity_created', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     activityUpdated = this.column<ZonedDateTime>('activity_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     activityDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('activity_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);

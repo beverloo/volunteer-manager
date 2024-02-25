@@ -65,6 +65,7 @@ import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program/changes/route';
 import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations/[[...id]]/route';
+import type { ProgramRequestEndpoints } from '@app/api/admin/program/requests/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
@@ -92,6 +93,7 @@ export type ApiEndpoints = {
         '/api/admin/program/areas': ProgramAreasEndpoints['list'],
         '/api/admin/program/changes': ProgramChangesEndpoints['list'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['list'],
+        '/api/admin/program/requests': ProgramRequestEndpoints['list'],
         '/api/admin/refunds': RefundRequestEndpoints['list'],
         '/api/admin/retention': RetentionEndpoints['list'],
         '/api/admin/scheduler': SchedulerEndpoints['list'],
@@ -181,7 +183,8 @@ export type ApiEndpoints = {
         '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['update'],
-        '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
+        '/api/admin/program/locations/:id': ProgramLocationsEndpoints['update'],
+        '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],

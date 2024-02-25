@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 25
+ * Next setting: 1 << 26
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -24,6 +24,7 @@ export enum Privilege {
     EventContentOverride                = 1 << 2,
     EventHotelManagement                = 1 << 12,
     EventRegistrationOverride           = 1 << 3,
+    EventRequestOwnership               = 1 << 25,
     EventRetentionManagement            = 1 << 21,
     EventScheduleOverride               = 1 << 4,
     EventSupportingTeams                = 1 << 22,
@@ -55,7 +56,10 @@ export type Privileges = bigint;
  * Returns whether the given |user| has been granted the given |privilege|. No need for null-checks
  * as the |user| argument can be considered optional, any falsy value will fall back to defaults.
  */
-export function can(user: User | undefined, privilege: Privilege): boolean {
+export function can(user: Privileges | User | undefined, privilege: Privilege): boolean {
+    if (typeof user === 'bigint')
+        return (user & BigInt(privilege)) !== 0n;
+
     return !!user && (user.privileges & BigInt(privilege)) !== 0n;
 }
 
@@ -77,6 +81,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventContentOverride,
         Privilege.EventHotelManagement,
         Privilege.EventRegistrationOverride,
+        Privilege.EventRequestOwnership,
         Privilege.EventRetentionManagement,
         Privilege.EventScheduleOverride,
         Privilege.EventSupportingTeams,
@@ -137,6 +142,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventHotelManagement]: 'Event access',
     [Privilege.EventRegistrationOverride]: 'Event access',
+    [Privilege.EventRequestOwnership]: 'Event access',
     [Privilege.EventRetentionManagement]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.EventSupportingTeams]: 'Event access',
@@ -171,6 +177,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventHotelManagement]: 'Manage hotel rooms',
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
+    [Privilege.EventRequestOwnership]: 'Manage program requests',
     [Privilege.EventRetentionManagement]: 'Multi-event retention access',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.EventSupportingTeams]: 'Manage first aid & security',
