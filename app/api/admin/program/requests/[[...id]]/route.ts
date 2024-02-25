@@ -29,7 +29,7 @@ const kProgramRequestRowModel = z.object({
     /**
      * Status of the program request. All requests must be manually verified by one of our leads.
      */
-    status: z.enum([ 'Unknown', 'Contacting', 'Scheduled' ]),
+    status: z.enum([ 'Unknown', 'Contacted', 'Scheduled' ]),
 
     /**
      * The person to whom the request has been assigned, if anyone.
@@ -83,7 +83,7 @@ const kProgramRequestSortOrder = {
     'Unknown': 0,
 
     // In progress:
-    'Contacting': 1,
+    'Contacted': 1,
 
     // Finished:
     'Scheduled': 2,
@@ -171,7 +171,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
             if (!!request.shifts.length)
                 status = 'Scheduled';
             else if (!!request.assignee)
-                status = 'Contacting';
+                status = 'Contacted';
             else
                 status = 'Unknown';
 
@@ -203,10 +203,47 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
         if (!event || !event.festivalId)
             notFound();
 
-        return { success: false, error: 'Not yet implemented' };
+        let requestAssignee: number | null = null;
+        if (!!row.assignee) {
+            requestAssignee = await db.selectFrom(tUsers)
+                .selectOneColumn(tUsers.userId)
+                .where(
+                    tUsers.firstName.concat(' ').concat(tUsers.lastName).equals(row.assignee))
+                .executeSelectNoneOrOne();
+        }
+
+        const affectedRows = await db.update(tActivities)
+            .set({
+                activityRequestAssignee: requestAssignee,
+                activityRequestNotes: row.notes,
+            })
+            .where(tActivities.activityId.equals(row.id))
+                .and(tActivities.activityFestivalId.equals(event.festivalId))
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async writeLog({ id, context }, mutation, props) {
-        // TODO: Log
+        const event = await getEventBySlug(context.event);
+        if (!event || !event.festivalId || mutation !== 'Updated')
+            return;
+
+        const activityTitle = await db.selectFrom(tActivities)
+            .selectOneColumn(tActivities.activityTitle)
+            .where(tActivities.activityId.equals(id))
+                .and(tActivities.activityFestivalId.equals(event.festivalId))
+                .and(tActivities.activityDeleted.isNull())
+            .executeSelectNoneOrOne();
+
+        await Log({
+            type: LogType.AdminEventProgramRequestUpdate,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                activity: activityTitle,
+                event: event.shortName,
+            }
+        });
     },
 });

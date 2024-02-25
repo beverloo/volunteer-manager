@@ -94,10 +94,10 @@ export function RequestDataTable(props: RequestDataTableProps) {
 
             renderCell: params => {
                 switch (params.value) {
-                    case 'Contacting':
+                    case 'Contacted':
                         return (
                             <Tooltip title="Someone is coordinating with the event owner">
-                                <Chip size="small" label="Contacting" color="warning" />
+                                <Chip size="small" label="Contacted" color="warning" />
                             </Tooltip>
                         );
 
@@ -124,6 +124,9 @@ export function RequestDataTable(props: RequestDataTableProps) {
             editable: !props.readOnly,
             sortable: false,
             flex: 2,
+
+            type: 'singleSelect',
+            valueOptions: [ ' ', ...props.leaders ],
         },
         {
             field: 'notes',
@@ -135,7 +138,6 @@ export function RequestDataTable(props: RequestDataTableProps) {
     ];
 
     for (const team of props.teams) {
-        console.log(team);
         columns.push({
             field: `id_${team.id}`,
             headerAlign: 'center',
