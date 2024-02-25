@@ -138,6 +138,18 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
             type: 'singleSelect',
             valueOptions: [ ' ', ...props.leaders ],
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        Unassigned
+                    </Typography>
+                );
+            }
         },
         {
             field: 'notes',
@@ -145,6 +157,18 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
             editable: true,
             sortable: false,
             flex: 3,
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        …
+                    </Typography>
+                );
+            }
         }
     ];
 

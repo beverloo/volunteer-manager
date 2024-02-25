@@ -8,11 +8,11 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import Box from '@mui/material/Box';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Chip from '@mui/material/Chip';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import type { ProgramRequestContext, ProgramRequestRowModel } from '@app/api/admin/program/requests/[[...id]]/route';
 import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
@@ -127,6 +127,18 @@ export function RequestDataTable(props: RequestDataTableProps) {
 
             type: 'singleSelect',
             valueOptions: [ ' ', ...props.leaders ],
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        Unassigned
+                    </Typography>
+                );
+            }
         },
         {
             field: 'notes',
@@ -134,6 +146,18 @@ export function RequestDataTable(props: RequestDataTableProps) {
             editable: !props.readOnly,
             sortable: false,
             flex: 3,
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        …
+                    </Typography>
+                );
+            }
         }
     ];
 
