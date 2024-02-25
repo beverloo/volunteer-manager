@@ -26,7 +26,8 @@ import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
+import db, { tActivities, tEvents, tEventsTeams, tShifts, tTeams, tUsersEvents }
+    from '@lib/database';
 
 /**
  * Fetch the information about the event identified by `eventSlug` that is applicable to the given
@@ -65,6 +66,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
         .where(tEvents.eventSlug.equals(eventSlug))
         .select({
             event: {
+                id: tEvents.eventId,
                 name: tEvents.eventShortName,
                 slug: tEvents.eventSlug,
                 festivalId: tEvents.eventFestivalId,
@@ -130,11 +132,25 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     // is how AnPlan maps the events, and we rely on the key to import information.
     const programEntry: AdminSidebarMenuEntry[] = [ /* empty */ ];
     if (!!info.event.festivalId) {
+        const shiftsJoin = tShifts.forUseInLeftJoin();
+        const unknownProgramEntries = await db.selectFrom(tActivities)
+            .leftJoin(shiftsJoin)
+                .on(shiftsJoin.shiftActivityId.equals(tActivities.activityId))
+                    .and(shiftsJoin.eventId.equals(info.event.id))
+            .where(tActivities.activityFestivalId.equals(info.event.festivalId))
+                .and(tActivities.activityHelpNeeded.equals(/* true= */ 1))
+                .and(tActivities.activityRequestAssignee.isNull())
+                .and(tActivities.activityDeleted.isNull())
+                .and(shiftsJoin.shiftId.isNull())
+            .selectCountAll()
+            .executeSelectOne();
+
         programEntry.push({
             icon: <EventNoteIcon />,
             label: 'Program',
             url: `/admin/events/${slug}/program/requests`,
-            urlPrefix: `/admin/events/${slug}/program`
+            urlPrefix: `/admin/events/${slug}/program`,
+            badge: unknownProgramEntries,
         });
     }
 
