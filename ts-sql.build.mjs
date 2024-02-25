@@ -222,6 +222,10 @@ do {
                 { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
+                {
+                    field: [ 'subscriptions', 'subscription_channel' ],
+                    type: 'SubscriptionChannel'
+                },
                 { field: [ 'tasks', 'task_invocation_result' ], type: 'TaskResult' },
                 { field: [ 'users_auth', 'auth_type' ], type: 'AuthType' },
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },
@@ -232,8 +236,8 @@ do {
                 { field: [ 'vendors', 'vendor_shirt_size' ], type: 'ShirtSize' },
                 { field: [ 'vendors', 'vendor_team' ], type: 'VendorTeam' },
                 {
-                    field: [ 'whatsapp', 'whatsapp_channel_applications' ],
-                    type: 'WhatsAppChannelApplications'
+                    field: [ 'subscriptions', 'subscription_channel_applications' ],
+                    type: 'SubscriptionChannelApplications'
                 },
             ].map(({ field, type }) => ({
                 tableName: field[0],

@@ -148,6 +148,24 @@ export enum ShirtSize {
 }
 
 /**
+ * The channel used for a particular (set of) subscriptions owned by a user.
+ * @see Table `subscriptions`
+ */
+export enum SubscriptionChannel {
+    WebPush = 'WebPush',
+    WhatsApp = 'WhatsApp',
+}
+
+/**
+ * Application information that should be broadcast to this user.
+ * @see Table `subscriptions`
+ */
+export enum SubscriptionChannelApplications {
+    All = 'All',
+    Team = 'Team',
+}
+
+/**
  * Possible results that can occur when running tasks.
  */
 export enum TaskResult {
@@ -177,13 +195,4 @@ export enum VendorGender {
 export enum VendorTeam {
     FirstAid = 'first-aid',
     Security = 'security',
-}
-
-/**
- * Application information that should be broadcast to this user.
- * @see Table `whatsapp`
- */
-export enum WhatsAppChannelApplications {
-    All = 'All',
-    Team = 'Team',
 }

@@ -28,6 +28,7 @@ import { ScheduleTable } from './scheme/ScheduleTable';
 import { SettingsTable } from './scheme/SettingsTable';
 import { ShiftsTable } from './scheme/ShiftsTable';
 import { StorageTable } from './scheme/StorageTable';
+import { SubscriptionsTable } from './scheme/SubscriptionsTable';
 import { TasksTable } from './scheme/TasksTable';
 import { TeamsRolesTable } from './scheme/TeamsRolesTable';
 import { TeamsTable } from './scheme/TeamsTable';
@@ -41,7 +42,6 @@ import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
 import { VendorsTable } from './scheme/VendorsTable';
 import { WhatsappMessagesTable } from './scheme/WhatsappMessagesTable';
-import { WhatsappTable } from './scheme/WhatsappTable';
 
 // Export instances of each of the above table types that are for the app to use. Naming convention
 // matches that proposed by `ts-sql-query`, i.e. `FooTable` becomes `tFoo`.
@@ -118,6 +118,7 @@ export const tSchedule = new ScheduleTable;
 export const tSettings = new SettingsTable;
 export const tShifts = new ShiftsTable;
 export const tStorage = new StorageTable;
+export const tSubscriptions = new SubscriptionsTable;
 export const tTasks = new class extends TasksTable {
     taskScheduledDateString = this.virtualColumnFromFragment(
         'string', CreateTimestampStringFragment(this.taskScheduledDate));
@@ -154,7 +155,6 @@ export const tUsers = new class extends UsersTable {
         'string', CreateDateStringFragment(this.birthdate));
 }
 export const tVendors = new VendorsTable;
-export const tWhatsApp = new WhatsappTable;
 export const tWhatsAppMessages = new WhatsappMessagesTable;
 
 // Export the database connection pool as the default export from this file, for convenient access

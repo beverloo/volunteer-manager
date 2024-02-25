@@ -13,15 +13,15 @@ import Tooltip from '@mui/material/Tooltip';
 
 import type { WhatsAppRowModel } from '@app/api/admin/whatsapp/recipients/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { WhatsAppChannelApplications } from '@lib/database/Types';
+import { SubscriptionChannelApplications } from '@lib/database/Types';
 
 /**
  * Channel options for the "applications" channel.
  */
 const kChannelApplicationsOptions = [
     { value: undefined, label: 'None' },
-    { value: WhatsAppChannelApplications.All, label: 'All applications' },
-    { value: WhatsAppChannelApplications.Team, label: 'Team applications' },
+    { value: SubscriptionChannelApplications.All, label: 'All applications' },
+    { value: SubscriptionChannelApplications.Team, label: 'Team applications' },
 ];
 
 /**
@@ -85,13 +85,13 @@ export function RecipientTable(props: RecipientTableProps) {
 
             renderCell: params => {
                 switch (params.value) {
-                    case WhatsAppChannelApplications.All:
+                    case SubscriptionChannelApplications.All:
                         return (
                             <Tooltip title="Receiving all applications">
                                 <CheckCircleIcon color="success" fontSize="small" />
                             </Tooltip>
                         );
-                    case WhatsAppChannelApplications.Team:
+                    case SubscriptionChannelApplications.Team:
                         return (
                             <Tooltip title="Receiving notifications from their team">
                                 <GroupWorkIcon color="success" fontSize="small" />
