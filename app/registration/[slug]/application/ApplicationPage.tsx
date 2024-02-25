@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, CheckboxElement, FormContainer } from 'react-hook-form-mui';
 
 import type { SxProps, Theme } from '@mui/system';
+import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import FaceIcon from '@mui/icons-material/Face';
@@ -17,10 +18,12 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAvatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { lighten } from '@mui/system/colorManipulator';
 
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
+import type { RegistrationStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { ApplicationParticipationForm, ApplicationAvailabilityForm } from './ApplicationParticipation';
 import { AuthenticationContext } from '../../AuthenticationContext';
@@ -75,6 +78,26 @@ export const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
+ * Information regarding an application by the same volunteer for one of our partnering teams.
+ */
+export interface PartneringTeamApplication {
+    /**
+     * Environment (e.g. "animecon.team") identifying the partnering team.
+     */
+    environment: string;
+
+    /**
+     * Name of the partnering team (e.g. "Volunteering Crew").
+     */
+    name: string;
+
+    /**
+     * Status of their their application with the partnering team.
+     */
+    status: RegistrationStatus;
+}
+
+/**
  * Props accepted by the <ApplicationPage> component.
  */
 export interface ApplicationPageProps {
@@ -87,6 +110,11 @@ export interface ApplicationPageProps {
      * The event for which data is being displayed on this page.
      */
     event: EventDataWithEnvironment;
+
+    /**
+     * Applications made by the same `user` with partnering teams.
+     */
+    partnerApplications: PartneringTeamApplication[];
 
     /**
      * The user who is currently signed in. We require someone to be signed in when applying, as
@@ -168,7 +196,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
                     Personal information
                 </Typography>
 
-                <Box sx={kStyles.identity}>
+                <Stack direction="row" alignItems="center" spacing={2} sx={kStyles.identity}>
                     { user &&
                         <Box sx={kStyles.identityKnown} onClick={requestAuthenticationFlow}>
                             <Stack alignItems="center" direction="row" spacing={2}>
@@ -192,7 +220,36 @@ export function ApplicationPage(props: ApplicationPageProps) {
                                 </Typography>
                             </Stack>
                         </Box> }
-                </Box>
+
+                    { props.partnerApplications.length > 0 &&
+                        <Stack spacing={0.5}>
+                            { props.partnerApplications.map((application, index) => {
+                                const label = `${application.name} application`;
+                                const link =
+                                    `https://${application.environment}/registration/` +
+                                    `${event.slug}/application`;
+
+                                return (
+                                    <Stack direction="row" spacing={1} key={index}>
+                                        <WarningAmberIcon color="primary" />
+                                        <Typography>
+                                            { application.status === 'Registered' &&
+                                                <>
+                                                    Your <MuiLink href={link}>{label}</MuiLink> is
+                                                    still being considered!
+                                                </> }
+                                            { application.status === 'Accepted' &&
+                                                <>
+                                                    Your <MuiLink href={link}>{label}</MuiLink> has
+                                                    already been accepted!
+                                                </> }
+                                        </Typography>
+                                    </Stack>
+                                );
+                            } )}
+                        </Stack> }
+
+                </Stack>
 
                 <Collapse in={accountError}>
                     <Typography color="error" sx={{ pb: 2 }}>

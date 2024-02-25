@@ -5,12 +5,14 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { type Content, getContent, getStaticContent } from '@lib/Content';
-import { ApplicationPage } from './ApplicationPage';
+import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
 import { ApplicationStatusPage } from './ApplicationStatusPage';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
+import db, { tTeams, tUsersEvents } from '@lib/database';
 
 /**
  * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
@@ -39,10 +41,29 @@ export default async function EventApplicationPage(props: NextRouterParams<'slug
         }
     }
 
+    let partnerApplications: PartneringTeamApplication[] = [];
+    if (state === 'application' && user) {
+        partnerApplications = await db.selectFrom(tUsersEvents)
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .where(tUsersEvents.userId.equals(user.userId))
+                .and(tUsersEvents.eventId.equals(event.eventId))
+                .and(tUsersEvents.registrationStatus.in(
+                    [ RegistrationStatus.Registered, RegistrationStatus.Accepted ]))
+            .select({
+                environment: tTeams.teamEnvironment,
+                name: tTeams.teamName,
+                status: tUsersEvents.registrationStatus,
+            })
+            .orderBy(tTeams.teamName, 'asc')
+            .executeSelectMany();
+    }
+
     return (
         <>
             { state === 'application' &&
                 <ApplicationPage content={content} user={user}
+                                 partnerApplications={partnerApplications}
                                  event={event.toEventData(environment.environmentName)} /> }
             { (state === 'status' && (registration && user)) &&
                 <ApplicationStatusPage event={event.toEventData(environment.environmentName)}
