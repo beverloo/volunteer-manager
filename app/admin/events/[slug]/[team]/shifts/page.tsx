@@ -14,10 +14,13 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 export default async function EventTeamShiftsPage(props: NextRouterParams<'slug' | 'team'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
+    // TODO: Mutable list with all the shifts that exist during the convention.
+    // TODO: Box with warnings regarding the shifts (e.g. out-of-sync entries).
+
     return (
         <Section title="Shifts" subtitle={team.name}>
             <SectionIntroduction important>
-                The schedule tool has not been implemented yet.
+                The shifts tool has not been implemented yet.
             </SectionIntroduction>
         </Section>
     );
