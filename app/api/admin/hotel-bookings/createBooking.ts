@@ -53,8 +53,8 @@ export async function createBooking(request: Request, props: ActionProps): Promi
     const insertId = await db.insertInto(tHotelsBookings)
         .set({
             eventId: event.eventId,
-            bookingCheckIn: Temporal.PlainDate.from(dayjs(event.startTime).format('YYYY-MM-DD')),
-            bookingCheckOut: Temporal.PlainDate.from(dayjs(event.endTime).format('YYYY-MM-DD')),
+            bookingCheckIn: Temporal.PlainDate.from(event.startTime),
+            bookingCheckOut: Temporal.PlainDate.from(event.endTime),
             bookingConfirmed: 0,
             bookingVisible: 1,
         })

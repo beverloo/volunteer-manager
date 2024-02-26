@@ -180,6 +180,8 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             slug: props.event.slug,
         });
 
+        router.refresh();
+
         return {
             id: response.id,
 
@@ -199,7 +201,7 @@ export function HotelAssignment(props: HotelAssignmentProps) {
 
             confirmed: false,
         } satisfies Booking;
-    }, [ props.event ]);
+    }, [ props.event, router ]);
 
     const commitEdit = useCallback(async (newRow: Booking, oldRow: Booking) => {
         const occupants = [];
