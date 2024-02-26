@@ -11,9 +11,11 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonIcon from '@mui/icons-material/Person';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -167,7 +169,6 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
         const trainingsSubQuery = dbInstance.selectFrom(tTrainingsAssignments)
             .where(tTrainingsAssignments.eventId.equals(info.event.id))
                 .and(tTrainingsAssignments.assignmentUserId.isNotNull())
-                .and(tTrainingsAssignments.preferenceTrainingId.isNotNull())
                 .and(tTrainingsAssignments.assignmentConfirmed.equals(/* false= */ 0))
             .selectCountAll()
             .forUseAsInlineQueryValue();
@@ -302,7 +303,19 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     privilege: Privilege.EventRetentionManagement,
                     url: `/admin/events/${slug}/${team.slug}/retention`,
                 },
+                {
+                    icon: <ScheduleIcon />,
+                    label: 'Schedule',
+                    privilege: Privilege.Administrator,  // todo: publish the page
+                    url: `/admin/events/${slug}/${team.slug}/schedule`,
+                },
                 ...securityEntry,
+                {
+                    icon: <PendingActionsIcon />,
+                    label: 'Shifts',
+                    privilege: Privilege.Administrator,  // todo: publish the page
+                    url: `/admin/events/${slug}/${team.slug}/shifts`,
+                },
                 {
                     icon: <PersonIcon />,
                     label: 'Volunteers',
