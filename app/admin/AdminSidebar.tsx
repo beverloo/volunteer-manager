@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
-import Badge from '@mui/material/Badge';
+import Badge, { type BadgeProps } from '@mui/material/Badge';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -90,6 +90,11 @@ interface AdminSidebarMenuButtonItem {
      * Optional badge that should be displayed on the menu item. Must be greater than zero.
      */
     badge?: number;
+
+    /**
+     * Severity of the badge that should be displayed, when included. Defaults to "default".
+     */
+    badgeSeverity?: BadgeProps['color'];
 
     /**
      * The URL for this list item entry. Must be absolute from the domain root.
@@ -259,7 +264,8 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
                                         primary={entry.label} />
 
                         { (typeof entry.badge === 'number' && entry.badge > 0) &&
-                            <Badge badgeContent={entry.badge} color="error" sx={{ mx: 2 }} /> }
+                            <Badge badgeContent={entry.badge} sx={{ mx: 2 }}
+                                   color={ entry.badgeSeverity ?? 'default' } /> }
 
                     </ListItemButton>
                 );

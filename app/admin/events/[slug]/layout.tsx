@@ -22,11 +22,12 @@ import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSidebar }
     from '../../AdminSidebar';
-import { Privilege } from '@lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-import db, { tActivities, tEvents, tEventsTeams, tShifts, tTeams, tUsersEvents }
+import db, { tActivities, tEvents, tEventsTeams, tHotelsAssignments, tHotelsBookings,
+    tHotelsPreferences, tRefunds, tShifts, tTeams, tTrainingsAssignments, tUsersEvents }
     from '@lib/database';
 
 /**
@@ -128,6 +129,65 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     // this is not yet supported by `ts-sql-query`. This'll do in the mean time.
     info.teams.sort((lhs, rhs) => lhs.name!.localeCompare(rhs.name!));
 
+    // If the user has the ability to see any of the additional menu items, execute a single query
+    // to understand how many outstanding items there are for hotels, refunds and trainings. Only
+    // the ones that the user is privileged to access will be populated.
+    let hotelBadge: number | undefined;
+    let refundsBadge: number | undefined;
+    let trainingsBadge: number | undefined;
+
+    if (can(user, Privilege.EventHotelManagement) ||
+            can(user, Privilege.EventTrainingManagement) ||
+            can(user, Privilege.Refunds))
+    {
+        const hotelsAssignmentsJoin = tHotelsAssignments.forUseInLeftJoin();
+        const hotelsBookingsJoin = tHotelsBookings.forUseInLeftJoin();
+
+        const dbInstance = db;
+        const hotelSubQuery = dbInstance.selectFrom(tHotelsPreferences)
+            .leftJoin(hotelsAssignmentsJoin)
+                .on(hotelsAssignmentsJoin.assignmentUserId.equals(tHotelsPreferences.userId))
+                    .and(hotelsAssignmentsJoin.eventId.equals(tHotelsPreferences.eventId))
+            .leftJoin(hotelsBookingsJoin)
+                .on(hotelsBookingsJoin.bookingId.equals(hotelsAssignmentsJoin.bookingId))
+                    .and(hotelsBookingsJoin.bookingVisible.equals(/* true= */ 1))
+            .where(tHotelsPreferences.eventId.equals(info.event.id))
+                .and(tHotelsPreferences.hotelId.isNotNull())
+                .and(hotelsAssignmentsJoin.assignmentId.isNull().or(
+                    hotelsBookingsJoin.bookingConfirmed.equals(/* false= */ 0)))
+            .selectCountAll()
+            .forUseAsInlineQueryValue();
+
+        const refundsSubQuery = dbInstance.selectFrom(tRefunds)
+            .where(tRefunds.eventId.equals(info.event.id))
+                .and(tRefunds.refundConfirmed.isNull())
+            .selectCountAll()
+            .forUseAsInlineQueryValue();
+
+        const trainingsSubQuery = dbInstance.selectFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.eventId.equals(info.event.id))
+                .and(tTrainingsAssignments.assignmentUserId.isNotNull())
+                .and(tTrainingsAssignments.preferenceTrainingId.isNotNull())
+                .and(tTrainingsAssignments.assignmentConfirmed.equals(/* false= */ 0))
+            .selectCountAll()
+            .forUseAsInlineQueryValue();
+
+        const badgeValues = await db.selectFromNoTable()
+            .select({
+                unconfirmedHotelRequests: hotelSubQuery,
+                unconfirmedRefunds: refundsSubQuery,
+                unconfirmedTrainings: trainingsSubQuery,
+            })
+            .executeSelectNoneOrOne();
+
+        if (can(user, Privilege.EventHotelManagement))
+            hotelBadge = badgeValues?.unconfirmedHotelRequests;
+        if (can(user, Privilege.Refunds))
+            refundsBadge = badgeValues?.unconfirmedRefunds;
+        if (can(user, Privilege.EventTrainingManagement))
+            trainingsBadge = badgeValues?.unconfirmedTrainings;
+    }
+
     // Only display the "Program" entry when an event has been associated with a Festival ID. This
     // is how AnPlan maps the events, and we rely on the key to import information.
     const programEntry: AdminSidebarMenuEntry[] = [ /* empty */ ];
@@ -151,6 +211,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             url: `/admin/events/${slug}/program/requests`,
             urlPrefix: `/admin/events/${slug}/program`,
             badge: unknownProgramEntries,
+            badgeSeverity: 'error',
         });
     }
 
@@ -166,6 +227,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             label: 'Hotels',
             privilege: Privilege.EventHotelManagement,
             url: `/admin/events/${slug}/hotels`,
+            badge: hotelBadge,
         },
         ...programEntry,
         {
@@ -173,12 +235,15 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
             label: 'Refunds',
             privilege: Privilege.Refunds,
             url: `/admin/events/${slug}/refunds`,
+            badge: refundsBadge,
+            badgeSeverity: 'error',
         },
         {
             icon: <HistoryEduIcon />,
             label: 'Trainings',
             privilege: Privilege.EventTrainingManagement,
             url: `/admin/events/${slug}/training`,
+            badge: trainingsBadge,
         },
         {
             icon: <SettingsIcon />,
@@ -223,6 +288,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     label: 'Applications',
                     url: `/admin/events/${slug}/${team.slug}/applications`,
                     badge: team.pendingApplications,
+                    badgeSeverity: 'error',
                 },
                 {
                     icon: <FeedOutlinedIcon />,
