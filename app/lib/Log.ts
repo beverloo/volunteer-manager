@@ -75,16 +75,6 @@ export enum LogType {
     DatabaseError = 'database-error',
     EventApplication = 'event-application',
     ExportDataAccess = 'export-data-access',
-
-    // Deprecated:
-    AdminHotelBookingCreate = 'admin-hotel-booking-create',
-    AdminHotelBookingDelete = 'admin-hotel-booking-delete',
-    AdminHotelBookingUpdate = 'admin-hotel-booking-update',
-    AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
-    AdminUpdateEmailIntegration = 'admin-update-email-integration',
-    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
-    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
-    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
 }
 
 /**

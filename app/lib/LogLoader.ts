@@ -46,6 +46,21 @@ export interface LogMessage {
 }
 
 /**
+ * Enumeration containing log types that have been deprecated. We still want to be able to display
+ * the origin log messages in a formatted manner, but autocomplete doesn't have to care.
+ */
+enum DeprecatedLogType {
+    AdminHotelBookingCreate = 'admin-hotel-booking-create',
+    AdminHotelBookingDelete = 'admin-hotel-booking-delete',
+    AdminHotelBookingUpdate = 'admin-hotel-booking-update',
+    AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
+    AdminUpdateEmailIntegration = 'admin-update-email-integration',
+    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
+    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
+    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
+};
+
+/**
  * Signature of log message formatting functions that can be used in the table below.
  */
 type LogMessageFormatFn =
@@ -56,7 +71,9 @@ type LogMessageFormatFn =
  * Formatting rules for each of the log message types. Strings with a series of special placeholders
  * may be used, alternatively a function may be used for more advanced processing.
  */
-const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = {
+const kLogMessageFormatter: {
+    [ key in (DeprecatedLogType | LogType) ]: string | LogMessageFormatFn
+} = {
     [LogType.AccountActivate]: 'Activated their account',
     [LogType.AccountIdentifyAccessCode]: 'Signed in using an access code',
     [LogType.AccountIdentifyPasskey]: 'Signed in using a passkey',
@@ -220,21 +237,26 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
         return `Accessed exported ${event} ${type} data`;
     },
 
-    // Deprecated:
-    [LogType.AdminHotelBookingCreate]: (source, target, { event }) => {
+    // ---------------------------------------------------------------------------------------------
+    // Deprecated
+    // ---------------------------------------------------------------------------------------------
+
+    [DeprecatedLogType.AdminHotelBookingCreate]: (source, target, { event }) => {
         return `Created a new hotel assignment for ${event}`;
     },
-    [LogType.AdminHotelBookingDelete]: (source, target, { event }) => {
+    [DeprecatedLogType.AdminHotelBookingDelete]: (source, target, { event }) => {
         return `Deleted a hotel assignment for ${event}`;
     },
-    [LogType.AdminHotelBookingUpdate]: (source, target, { event }) => {
+    [DeprecatedLogType.AdminHotelBookingUpdate]: (source, target, { event }) => {
         return `Updated a hotel assignment for ${event}`;
     },
-    [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
-    [LogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
-    [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
-    [LogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
-    [LogType.AdminUpdateVertexIntegration]: 'Updated the integration settings for Vertex AI',
+    [DeprecatedLogType.AdminUpdateAnimeConIntegration]:
+        'Updated the integration settings for AnimeCon',
+    [DeprecatedLogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
+    [DeprecatedLogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
+    [DeprecatedLogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
+    [DeprecatedLogType.AdminUpdateVertexIntegration]:
+        'Updated the integration settings for Vertex AI',
 };
 
 /**
