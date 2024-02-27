@@ -4,15 +4,12 @@
 import type { ApplicationDefinition } from '@app/api/event/application';
 import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabilityPreferences';
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
-import type { CreateBookingDefinition } from '@app/api/admin/hotel-bookings/createBooking';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
-import type { DeleteBookingDefinition } from '@app/api/admin/hotel-bookings/deleteBooking';
 import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePasskey';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
-import type { HotelDefinition } from '@app/api/admin/hotel';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
@@ -44,7 +41,6 @@ import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation
 import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
-import type { UpdateBookingDefinition } from '@app/api/admin/hotel-bookings/updateBooking';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
@@ -61,6 +57,8 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
+import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignments/[[...id]]/route';
+import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program/changes/route';
@@ -89,6 +87,8 @@ export type ApiEndpoints = {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/exports': ExportsEndpoints['list'],
+        '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['list'],
+        '/api/admin/hotels': HotelsEndpoints['list'],
         '/api/admin/outbox/:id': GetOutboxDefinition,
         '/api/admin/program/areas': ProgramAreasEndpoints['list'],
         '/api/admin/program/changes': ProgramChangesEndpoints['list'],
@@ -108,8 +108,8 @@ export type ApiEndpoints = {
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/exports': ExportsEndpoints['create'],
-        '/api/admin/hotel': HotelDefinition,
-        '/api/admin/hotel-bookings/:slug': CreateBookingDefinition,
+        '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
+        '/api/admin/hotels': HotelsEndpoints['create'],
         '/api/admin/logs': LogsDefinition,
         '/api/admin/program/areas': ProgramAreasEndpoints['create'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
@@ -169,7 +169,8 @@ export type ApiEndpoints = {
     'delete': {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
-        '/api/admin/hotel-bookings/:slug/:id': DeleteBookingDefinition,
+        '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['delete'],
+        '/api/admin/hotels/:id': HotelsEndpoints['delete'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
@@ -180,7 +181,8 @@ export type ApiEndpoints = {
     },
     'put': {
         '/api/admin/content/:id': ContentEndpoints['update'],
-        '/api/admin/hotel-bookings/:slug/:id': UpdateBookingDefinition,
+        '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['update'],
+        '/api/admin/hotels/:id': HotelsEndpoints['update'],
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['update'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['update'],

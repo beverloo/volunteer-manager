@@ -127,17 +127,9 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     [LogType.AdminHotelAssignVolunteerDelete]: (source, target, { event }) => {
         return `Removed ${target?.name}'s hotel room for ${event}`;
     },
-
-    [LogType.AdminHotelBookingCreate]: (source, target, { event }) => {
-        return `Created a new hotel assignment for ${event}`;
+    [LogType.AdminHotelBookingMutation]: (source, target, { event, mutation }) => {
+        return `${mutation} a new hotel assignment for ${event}`;
     },
-    [LogType.AdminHotelBookingDelete]: (source, target, { event }) => {
-        return `Deleted a hotel assignment for ${event}`;
-    },
-    [LogType.AdminHotelBookingUpdate]: (source, target, { event }) => {
-        return `Updated a hotel assignment for ${event}`;
-    },
-
     [LogType.AdminImpersonateVolunteer]: (source, target, data) => {
         return `Impersonated ${target?.name}'s account`;
     },
@@ -229,6 +221,15 @@ const kLogMessageFormatter: { [key in LogType]: string | LogMessageFormatFn } = 
     },
 
     // Deprecated:
+    [LogType.AdminHotelBookingCreate]: (source, target, { event }) => {
+        return `Created a new hotel assignment for ${event}`;
+    },
+    [LogType.AdminHotelBookingDelete]: (source, target, { event }) => {
+        return `Deleted a hotel assignment for ${event}`;
+    },
+    [LogType.AdminHotelBookingUpdate]: (source, target, { event }) => {
+        return `Updated a hotel assignment for ${event}`;
+    },
     [LogType.AdminUpdateAnimeConIntegration]: 'Updated the integration settings for AnimeCon',
     [LogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
     [LogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',

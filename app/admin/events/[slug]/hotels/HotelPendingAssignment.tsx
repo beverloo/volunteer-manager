@@ -11,7 +11,6 @@ import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { HotelRequest } from './HotelBookings';
 import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -22,7 +21,7 @@ export interface HotelPendingAssignmentProps {
     /**
      * The requests that have not been assigned to any rooms yet.
      */
-    requests: HotelRequest[];
+    requests: any[];
 }
 
 /**

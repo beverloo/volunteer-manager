@@ -43,9 +43,7 @@ export enum LogType {
     AdminExportMutation = 'admin-export-mutation',
     AdminHotelAssignVolunteer = 'admin-hotel-assign-volunteer',
     AdminHotelAssignVolunteerDelete = 'admin-hotel-assign-volunteer-delete',
-    AdminHotelBookingCreate = 'admin-hotel-booking-create',
-    AdminHotelBookingDelete = 'admin-hotel-booking-delete',
-    AdminHotelBookingUpdate = 'admin-hotel-booking-update',
+    AdminHotelBookingMutation = 'admin-hotel-booking-mutation',
     AdminImpersonateVolunteer = 'admin-impersonate-volunteer',
     AdminNardoMutation = 'admin-nardo-mutation',
     AdminProgramMutation = 'admin-program-mutation',
@@ -79,6 +77,9 @@ export enum LogType {
     ExportDataAccess = 'export-data-access',
 
     // Deprecated:
+    AdminHotelBookingCreate = 'admin-hotel-booking-create',
+    AdminHotelBookingDelete = 'admin-hotel-booking-delete',
+    AdminHotelBookingUpdate = 'admin-hotel-booking-update',
     AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
     AdminUpdateEmailIntegration = 'admin-update-email-integration',
     AdminUpdateGoogleIntegration = 'admin-update-google-integration',

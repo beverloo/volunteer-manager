@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import { createEvent, kCreateEventDefinition } from '../createEvent';
-import { hotel, kHotelDefinition } from '../hotel';
 import { logs, kLogsDefinition } from '../logs';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
@@ -41,8 +40,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     switch (action) {
         case 'create-event':
             return executeAction(request, kCreateEventDefinition, createEvent);
-        case 'hotel':
-            return executeAction(request, kHotelDefinition, hotel);
         case 'logs':
             return executeAction(request, kLogsDefinition, logs);
         case 'reset-access-code':

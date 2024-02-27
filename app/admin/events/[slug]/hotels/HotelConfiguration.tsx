@@ -6,54 +6,19 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
+import type { HotelsRowModel } from '@app/api/admin/hotels/[[...id]]/route';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { callApi } from '@lib/callApi';
 
 /**
  * Helper function for formatting prices in the configuration data table.
  */
 const kPriceFormatter = new Intl.NumberFormat('en-UK', { style: 'currency', currency: 'EUR' });
-
-/**
- * Configuration entry for hotel room items. Can be amended by the machinery on this page.
- */
-export interface HotelConfigurationEntry {
-    /**
-     * Unique ID of this entry in the hotel configuration.
-     */
-    id: number;
-
-    /**
-     * Description of the hotel in which the room is located.
-     */
-    hotelDescription: string;
-
-    /**
-     * Name of the hotel in which the room is located.
-     */
-    hotelName: string;
-
-    /**
-     * Name of the room that can be booked.
-     */
-    roomName: string;
-
-    /**
-     * Capacity of the room.
-     */
-    roomPeople: number;
-
-    /**
-     * Price of the room, in cents.
-     */
-    roomPrice: number;
-}
 
 /**
  * Props accepted by the <HotelConfiguration> component.
@@ -63,11 +28,6 @@ export interface HotelConfigurationProps {
      * Information about the event for which hotel rooms are being shown.
      */
     event: PageInfo['event'];
-
-    /**
-     * The hotel rooms that can be displayed by this component.
-     */
-    rooms: HotelConfigurationEntry[];
 }
 
 /**
@@ -76,50 +36,6 @@ export interface HotelConfigurationProps {
  */
 export function HotelConfiguration(props: HotelConfigurationProps) {
     const { event } = props;
-
-    async function commitAdd(): Promise<HotelConfigurationEntry> {
-        const response = await callApi('post', '/api/admin/hotel', {
-            event: event.slug,
-            create: { /* empty payload */ }
-        });
-
-        if (!response.id)
-            throw new Error('The server was unable to create a new hotel room.');
-
-        return {
-            id: response.id,
-            hotelDescription: '',
-            hotelName: '',
-            roomName: '',
-            roomPeople: 1,
-            roomPrice: 0,
-        };
-    }
-
-    async function commitDelete(oldRow: GridValidRowModel) {
-        await callApi('post', '/api/admin/hotel', {
-            event: event.slug,
-            delete: {
-                id: oldRow.id,
-            },
-        });
-    }
-
-    async function commitEdit(newRow: GridValidRowModel, oldRow: GridValidRowModel) {
-        const response = await callApi('post', '/api/admin/hotel', {
-            event: event.slug,
-            update: {
-                id: oldRow.id,
-                hotelDescription: newRow.hotelDescription,
-                hotelName: newRow.hotelName,
-                roomName: newRow.roomName,
-                roomPeople: newRow.roomPeople,
-                roomPrice: newRow.roomPrice,
-            }
-        });
-
-        return response.success ? newRow : oldRow;
-    }
 
     const router = useRouter();
 
@@ -134,7 +50,8 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
 
     }, [ event, router ]);
 
-    const columns: DataTableColumn[] = [
+    const context = { event: event.slug };
+    const columns: RemoteDataTableColumn<HotelsRowModel>[] = [
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -178,9 +95,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
             type: 'number',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
-                return kPriceFormatter.format(params.value / 100);
-            },
+            renderCell: params => kPriceFormatter.format(params.value / 100),
         }
     ];
 
@@ -194,9 +109,10 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
                     ? 'Hotel room information has been published to volunteers.'
                     : 'Hotel room information has not yet been published to volunteers.' }
             </PublishAlert>
-            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                           messageSubject="hotel room" rows={props.rooms} columns={columns}
-                           disableFooter dense pageSize={50} pageSizeOptions={[ 50 ]} />
+            <RemoteDataTable endpoint="/api/admin/hotels" context={context}
+                             columns={columns} defaultSort={{ field: 'hotelName', sort: 'asc' }}
+                             disableFooter enableCreate enableDelete enableUpdate
+                             refreshOnUpdate subject="hotel" />
         </Paper>
     );
 }
