@@ -10,9 +10,10 @@ import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tHotelsBookings, tTrainings } from '@lib/database';
+import db, { tHotelsAssignments, tHotelsBookings, tUsers, tUsersEvents } from '@lib/database';
 
 import { getHotelBookings } from './getHotelBookings';
+import { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Row model for an hotel assignment, as can be shown and modified in the administration area.
@@ -88,7 +89,62 @@ export type HotelsAssignmentsEndpoints =
  */
 export type HotelsAssignmentsRowModel = z.infer<typeof kHotelAssignmentRowModel>;
 
-function xLog(f: any) {} // ------------------------------------------------------------------------
+/**
+ * Individual hotel assignment, either as a user (`number`) or as an invitee (`string`).
+ */
+type HotelAssignment = number | string;
+
+/**
+ * Determines the intended assignments based on the given `row`. Only names will be consumed, which
+ * will automagically be linked to users when they participate in the given `eventId`.
+ */
+async function determineAssignmentsFromRow(eventId: number, row: HotelsAssignmentsRowModel) {
+    const assignments: HotelAssignment[] = [];
+
+    const names: string[] = [];
+    if (!!row.firstName)
+        names.push(row.firstName);
+    if (!!row.secondName)
+        names.push(row.secondName);
+    if (!!row.thirdName)
+        names.push(row.thirdName);
+
+    // Bail out if there are no assignments for the current room.
+    if (!names.length)
+        return assignments;
+
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
+    const users = await db.selectFrom(tUsers)
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(tUsers.userId))
+                .and(usersEventsJoin.eventId.equals(eventId))
+                .and(usersEventsJoin.registrationStatus.in(
+                    [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+        .where(tUsers.firstName.concat(' ').concat(tUsers.lastName).in(names))
+            .and(usersEventsJoin.teamId.isNotNull())
+        .select({
+            userId: tUsers.userId,
+            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+        })
+        .executeSelectMany();
+
+    for (const assignedName of names) {
+        let found = false;
+
+        for (const { userId, name } of users) {
+            if (name !== assignedName)
+                continue;
+
+            assignments.push(userId);
+            found = true;
+        }
+
+        if (!found)
+            assignments.push(assignedName);
+    }
+
+    return assignments;
+}
 
 /**
  * Implementation of the API.
@@ -163,7 +219,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
         if (!!affectedRows) {
             for (const uid of [ booking.firstUserId, booking.secondUserId, booking.thirdUserId ]) {
                 if (!!uid) {
-                    await xLog({
+                    await Log({
                         type: LogType.AdminHotelAssignVolunteerDelete,
                         severity: LogSeverity.Warning,
                         sourceUser: props.user,
@@ -192,7 +248,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
         };
     },
 
-    async update({ context, id, row }) {
+    async update({ context, id, row }, props) {
         const event = await getEventBySlug(context.event);
         if (!event)
             notFound();
@@ -214,14 +270,85 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
                 .and(tHotelsBookings.eventId.equals(event.id))
             .executeUpdate();
 
-        // TODO: Update assignments
+        const existingAssignments: HotelAssignment[] = [];
+        if (!!booking.firstName)
+            existingAssignments.push(booking.firstUserId ?? booking.firstName);
+        if (!!booking.secondName)
+            existingAssignments.push(booking.secondUserId ?? booking.secondName);
+        if (!!booking.thirdName)
+            existingAssignments.push(booking.thirdUserId ?? booking.thirdName);
+
+        const updatedAssignments: HotelAssignment[] =
+            await determineAssignmentsFromRow(event.id, row);
+
+        const assignmentsUpdated =
+            existingAssignments[0] !== updatedAssignments[0] ||
+            existingAssignments[1] !== updatedAssignments[1] ||
+            existingAssignments[2] !== updatedAssignments[2];
+
+        if (assignmentsUpdated) {
+            const dbInstance = db;
+            await dbInstance.transaction(async () => {
+                await dbInstance.deleteFrom(tHotelsAssignments)
+                    .where(tHotelsAssignments.bookingId.equals(id))
+                        .and(tHotelsAssignments.eventId.equals(event.id))
+                    .executeDelete();
+
+                await dbInstance.insertInto(tHotelsAssignments)
+                    .values(updatedAssignments.map((assignment, index) => ({
+                        bookingId: id,
+                        eventId: event.id,
+                        assignmentUserId: typeof assignment === 'number' ? assignment : null,
+                        assignmentName: typeof assignment === 'string' ? assignment : null,
+                        assignmentPrimary: index === 0 ? /* true= */ 1 : /* false= */ 0,
+                    })))
+                    .executeInsert();
+            });
+
+            const existingAssignmentSet = new Set([ ...existingAssignments ]);
+            const updatedAssignmentSet = new Set([ ...updatedAssignments ]);
+
+            for (const assignment of existingAssignmentSet.values()) {
+                if (typeof assignment !== 'number')
+                    continue;  // only log unassignments associated with volunteers
+                if (updatedAssignmentSet.has(assignment))
+                    continue;  // the volunteer still has an assignment
+
+                await Log({
+                    type: LogType.AdminHotelAssignVolunteerDelete,
+                    severity: LogSeverity.Warning,
+                    sourceUser: props.user,
+                    targetUser: assignment,
+                    data: {
+                        event: event.shortName,
+                    }
+                });
+            }
+
+            for (const assignment of updatedAssignmentSet.values()) {
+                if (typeof assignment !== 'number')
+                    continue;  // only log assignments associated with volunteers
+                if (existingAssignmentSet.has(assignment))
+                    continue;  // the volunteer already had an assignment
+
+                await Log({
+                    type: LogType.AdminHotelAssignVolunteer,
+                    severity: LogSeverity.Warning,
+                    sourceUser: props.user,
+                    targetUser: assignment,
+                    data: {
+                        event: event.shortName,
+                    }
+                });
+            }
+        }
 
         return { success: !!affectedRows };
     },
 
     async writeLog({ context }, mutation, props) {
         const event = await getEventBySlug(context.event);
-        await xLog({
+        await Log({
             type: LogType.AdminHotelBookingMutation,
             severity: LogSeverity.Info,
             sourceUser: props.user,
