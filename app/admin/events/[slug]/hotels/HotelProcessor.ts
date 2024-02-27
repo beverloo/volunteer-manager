@@ -21,7 +21,7 @@ interface AssignmentRecord {
  * table.
  */
 interface BookingRecord {
-
+    // TODO
 }
 
 /**
@@ -181,7 +181,12 @@ export class HotelProcessor {
         // --- has been assigned a room different from their preferences
         // --- requested check-in on YYYY-MM-DD, but is booked in from YYYY-MM-DD
         // --- requested check-out on YYYY-MM-DD, but is booked in until YYYY-MM-DD
-        return [];
+        return [
+            {
+                volunteer: 'AnimeCon Volunteer Manager',
+                warning: 'is not currently able to flag any issues!',
+            }
+        ];
     }
 
     /**

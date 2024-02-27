@@ -91,6 +91,16 @@ function RenderLinkifiedOccupant(
 }
 
 /**
+ * Returns a stringified, ISO representation of the given `input`.
+ */
+function toDateString(input: Date): string {
+    const month = `0${input.getMonth() + 1}`.substr(-2);
+    const date = `0${input.getDate()}`.substr(-2);
+
+    return `${input.getFullYear()}-${month}-${date}`;
+}
+
+/**
  * Props accepted by the <HotelAssignment> component.
  */
 export interface HotelAssignmentProps {
@@ -186,7 +196,14 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             width: 110,
 
-            // TODO: Date picker
+            type: 'date',
+            valueGetter: params => new Date(params.row.checkIn),
+            valueSetter: params => ({
+                ...params.row,
+                checkIn: toDateString(params.value),
+            }),
+
+            renderCell: params => params.row.checkIn,
         },
         {
             field: 'checkOut',
@@ -195,7 +212,14 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             editable: true,
             width: 110,
 
-            // TODO: Date picker
+            type: 'date',
+            valueGetter: params => new Date(params.row.checkOut),
+            valueSetter: params => ({
+                ...params.row,
+                checkOut: toDateString(params.value),
+            }),
+
+            renderCell: params => params.row.checkOut,
         },
         {
             field: 'confirmed',
