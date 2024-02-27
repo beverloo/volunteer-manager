@@ -3,16 +3,49 @@
 
 'use client';
 
-import { useMemo } from 'react';
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
-import { Temporal, formatDate } from '@lib/Temporal';
+import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
+
+/**
+ * Row model for a pending hotel request.
+ */
+export interface HotelPendingRequestRowModel {
+    /**
+     * Unique ID of the user who would like to request a hotel room.
+     */
+    id: number;
+
+    /**
+     * Name of the user who would like to request a hotel room.
+     */
+    name: string;
+
+    /**
+     * Environment of the team that the user is part of.
+     */
+    team: string;
+
+    /**
+     * Name of the hotel in which they would like to book a room.
+     */
+    hotel: string;
+
+    /**
+     * Dates (YYYY-MM-DD) on which the volunteer would like to check in, and out.
+     */
+    checkIn: string;
+    checkOut: string;
+
+    /**
+     * Date (YYYY-MM-DD) on which the volunteer requested the hotel room.
+     */
+    requested: string;
+}
 
 /**
  * Props accepted by the <HotelPendingAssignment> component.
@@ -21,7 +54,7 @@ export interface HotelPendingAssignmentProps {
     /**
      * The requests that have not been assigned to any rooms yet.
      */
-    requests: any[];
+    requests: HotelPendingRequestRowModel[];
 }
 
 /**
@@ -29,31 +62,14 @@ export interface HotelPendingAssignmentProps {
  * having a hotel room booking, but have not been assigned a room just yet.
  */
 export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
-    const requests = useMemo(() => props.requests.map(request => ({
-        id: request.id,
-
-        userId: request.user.id,
-        userName: request.user.name,
-        userTeam: request.user.team,
-
-        hotel: `${request.hotel.name} (${request.hotel.roomName})`,
-
-        checkIn: request.checkIn,
-        checkOut: request.checkOut,
-        updated: request.updated,
-
-    })), [ props.requests ]);
-
-    type PendingRequest = typeof requests[number];
-
-    const columns: DataTableColumn<PendingRequest>[] = [
+    const columns: DataTableColumn<HotelPendingRequestRowModel>[] = [
         {
-            field: 'userName',
+            field: 'name',
             headerName: 'Volunteer',
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams<PendingRequest>) => {
-                const href = `./${params.row.userTeam}/volunteers/${params.row.userId}`;
+            renderCell: params => {
+                const href = `./${params.row.team}/volunteers/${params.row.id}`;
                 return (
                     <MuiLink component={Link} href={href}>
                         {params.value}
@@ -70,25 +86,16 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             field: 'checkIn',
             headerName: 'Check in',
             width: 110,
-
-            renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
             field: 'checkOut',
             headerName: 'Check out',
             width: 110,
-
-            renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                formatDate(Temporal.PlainDate.from(params.value), 'YYYY-MM-DD'),
         },
         {
-            field: 'updated',
+            field: 'requested',
             headerName: 'Requested',
             width: 110,
-
-            renderCell: (params: GridRenderCellParams<PendingRequest>) =>
-                formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         }
     ];
 
@@ -97,8 +104,8 @@ export function HotelPendingAssignment(props: HotelPendingAssignmentProps) {
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Pending assignment
             </Typography>
-            <OLD_DataTable rows={requests} columns={columns} disableFooter dense
-                           pageSize={50} pageSizeOptions={[ 50 ]} />
+            <DataTable columns={columns} defaultSort={{ field: 'name', sort: 'asc' }} disableFooter
+                       pageSize={100} rows={props.requests} />
         </Paper>
     );
 }
