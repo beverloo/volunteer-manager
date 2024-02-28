@@ -4,9 +4,13 @@
 import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { KnowledgeConfiguration } from './KnowledgeConfiguration';
+import { KnowledgeList } from './KnowledgeList';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 
 /**
  * The FAQ provides a library of questions that we've received, or may receive from our visitors. It
@@ -14,10 +18,14 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * answer any questions that they may receive from Staff, visitors and guests alike.
  */
 export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 'team'>) {
-    const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
-
+    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
+
+    const accessConfiguration = can(user, Privilege.EventAdministrator);
+    const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
+
+    const scope = createKnowledgeBaseScope(event.id);
 
     return (
         <>
@@ -27,9 +35,10 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
                     expect from our guests, visitors and fellow volunteers, each with a prepared
                     answer.
                 </SectionIntroduction>
+                <KnowledgeList enableAuthorLink={enableAuthorLink} scope={scope} />
             </Section>
-            { /* TODO: Content list */ }
-            { /* TODO: Copy from last year */ }
+            { accessConfiguration &&
+                <KnowledgeConfiguration /> }
         </>
     );
 }

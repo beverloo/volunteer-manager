@@ -7,13 +7,13 @@ import { ContentType } from '@lib/database/Types';
 /**
  * Creates an event-based content scope, which is keyed by the event's ID, as well as the team's ID.
  */
-export function createEventScope(eventId: number, teamId: number, type?: ContentType)
+export function createEventScope(eventId: number, teamId: number)
     : ContentScope
 {
     return {
         eventId,
         teamId,
-        type: type ?? ContentType.Page,
+        type: ContentType.Page,
     };
 }
 
@@ -25,5 +25,16 @@ export function createGlobalScope(): ContentScope {
         eventId: /* none= */ 0,
         teamId: /* stewards= */ 2,
         type: ContentType.Page,
+    };
+}
+
+/**
+ * Creates a knowledge base scope for a given `eventId`.
+ */
+export function createKnowledgeBaseScope(eventId: number): ContentScope {
+    return {
+        eventId,
+        teamId: /* hosts= */ 3,
+        type: ContentType.FAQ,
     };
 }
