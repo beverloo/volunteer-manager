@@ -5,24 +5,32 @@ available in the current version:
 
   * Multi-tenant landing page referring visitors to all active events,
   * Registration portal for information backed by a CMS, allowing visitors to apply to join,
-    * Once approved, volunteers can express their hotel and training preferences. When confirmed by
-      a volunteering lead, they will receive real-time confirmation.
+    * Volunteers can use passkeys as opposed to passwords to access their accounts,
+    * Once approved, volunteers can express their hotel and training preferences, share their
+      availability and, after the event, request their ticket to be refunded.
   * Administration area for managing the volunteers,
     * Several dashboards summarising the current status of an event's organisation,
     * Flexible event management for any number of in-flight events at once,
+      * Automatic program sync with the AnimeCon AnPlan tool, including a changelog,
       * Automatic e-mail generation for mutations that directly impact volunteers,
       * Separated application and volunteer management systems, per team, per event,
       * Hotel booking management including support for non-volunteers and warnings,
+      * Retention management to easily approach volunteers who helped out before,
       * Training scheduling management including support for non-volunteers and warnings,
     * Full accountability through extensive logging, including any and all outgoing messages.
     * Powerful permission management based on assigned roles and expressly granted privileges,
     * Direct integration with our friends at [Del a Rie Advies](https://delarieadvies.nl).
+  * GDPR-compliant data export tool, enabling third parties to securely access the data they need
+    with strict limits on availability, time and request limits.
 
 The Volunteer Manager has integrations with [AnPlan](https://animecon.nl/),
 [Google Cloud](https://cloud.google.com) and the
 [Google Vertex AI API](https://cloud.google.com/vertex-ai/docs/reference/rest) for sourcing event
 information and implementing certain functionality. A MySQL (or MariaDB) database is used, for which
 we use the excellent [ts-sql-query](https://ts-sql-query.readthedocs.io/en/stable/) library.
+
+A [purpose built scheduler](app/lib/scheduler/) is included to execute one-off and repeating tasks
+outside of user requests, enabling the Volunteer Manager to optimise for imediate responsiveness.
 
 ## Building and deploying
 
