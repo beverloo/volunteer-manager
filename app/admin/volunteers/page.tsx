@@ -63,7 +63,7 @@ export default async function VolunteersPage() {
                 This table lists all volunteers who helped us out since 2010. Not all e-mail
                 addresses and phone numbers are known.
             </Alert>
-            <VolunteerDataTable enableFilter teamColours={teamColours} volunteers={volunteers} />
+            <VolunteerDataTable teamColours={teamColours} volunteers={volunteers} />
         </Paper>
     );
 }

@@ -6,7 +6,6 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import LocalPoliceIcon from '@mui/icons-material/LocalPolice';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
@@ -14,14 +13,25 @@ import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
-import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
-import { OLD_DataTable } from '@app/admin/DataTable';
+import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
+
+/**
+ * Row model for each volunteer that should be displayed in the overview table.
+ */
+interface VolunteerRowModel {
+    id: number;
+    username?: string;
+    name: string;
+    teams?: string;
+    activated: boolean;
+    admin: boolean;
+}
 
 /**
  * Props accepted by the <VolunteerDataTable> component.
  */
-export type VolunteerDataTableProps = DataTableBaseProps & {
+export interface VolunteerDataTableProps {
     /**
      * Information about the teams and their theme colours.
      */
@@ -34,14 +44,7 @@ export type VolunteerDataTableProps = DataTableBaseProps & {
     /**
      * The data that should be shown in the volunteer data table.
      */
-    volunteers: {
-        id: number;
-        username?: string;
-        name: string;
-        teams?: string;
-        activated: boolean;
-        admin: boolean;
-    }[];
+    volunteers: VolunteerRowModel[];
 }
 
 /**
@@ -57,14 +60,14 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
 
     }, [ props.teamColours ]);
 
-    const columns: DataTableColumn[] = [
+    const columns: DataTableColumn<VolunteerRowModel>[] = [
         {
             field: 'id',
             headerName: /* empty= */ '',
             sortable: false,
             width: 50,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <MuiLink component={Link} href={kVolunteerBase + params.value} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
                 </MuiLink>,
@@ -75,26 +78,21 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
-                return (
-                    <>
-                        <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
-                            {params.value}
-                        </MuiLink>
-                        { !!params.row.admin &&
-                            <Tooltip title="Administrator">
-                                <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
-                            </Tooltip> }
-
-                        { !params.row.activated &&
-                            <Tooltip title="Pending activation">
-                                <ReportGmailerrorredIcon color="error" fontSize="small"
-                                                         sx={{ ml: 1 }} />
-                            </Tooltip> }
-
-                    </>
-                );
-            },
+            renderCell: params =>
+                <>
+                    <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
+                        {params.value}
+                    </MuiLink>
+                    { !!params.row.admin &&
+                        <Tooltip title="Administrator">
+                            <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
+                        </Tooltip> }
+                    { !params.row.activated &&
+                        <Tooltip title="Pending activation">
+                            <ReportGmailerrorredIcon color="error" fontSize="small"
+                                                     sx={{ ml: 1 }} />
+                        </Tooltip> }
+                </>,
         },
         {
             field: 'username',
@@ -108,7 +106,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             sortable: false,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 const chips = params.value?.split(',').sort();
                 if (!Array.isArray(chips))
                     return undefined;
@@ -124,5 +122,6 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
-    return <OLD_DataTable dense columns={columns} rows={props.volunteers} {...props} />
+    return <DataTable columns={columns} rows={props.volunteers} enableFilter pageSize={25}
+                      defaultSort={{ field: 'name', sort: 'asc' }} />;
 }
