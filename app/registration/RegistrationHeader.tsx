@@ -89,7 +89,7 @@ export function RegistrationHeader(props: RegistrationHeaderProps) {
                                                       sx={kStyles.avatar}>
                                                   {initials}
                                               </Avatar> }
-                                          label={props.user.firstName}
+                                          label={ props.user.displayName ?? props.user.firstName }
                                           onClick={props.onUserChipClick} /> }
             { !props.user &&
                 <AuthenticationHeaderChip clickable

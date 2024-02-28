@@ -53,7 +53,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             userId: tUsersEvents.userId,
             username: tUsers.username,
             firstName: tUsers.firstName,
-            lastName: tUsers.lastName,
+            name: tUsers.name,
             avatarFileHash: storageJoin.fileHash,
             phoneNumber: tUsers.phoneNumber,
             roleId: tUsersEvents.roleId,

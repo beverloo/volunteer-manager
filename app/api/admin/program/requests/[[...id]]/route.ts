@@ -147,7 +147,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
             .select({
                 id: tActivities.activityId,
                 activity: tActivities.activityTitle,
-                assignee: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
+                assignee: usersJoin.name,
                 notes: tActivities.activityRequestNotes,
 
                 shifts: dbInstance.aggregateAsArray({
@@ -207,8 +207,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
         if (!!row.assignee) {
             requestAssignee = await db.selectFrom(tUsers)
                 .selectOneColumn(tUsers.userId)
-                .where(
-                    tUsers.firstName.concat(' ').concat(tUsers.lastName).equals(row.assignee))
+                .where(tUsers.name.equals(row.assignee))
                 .executeSelectNoneOrOne();
         }
 

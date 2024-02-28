@@ -35,7 +35,7 @@ export default async function EventTeamRetentionPage(props: NextRouterParams<'sl
             .and(usersEventJoin.registrationStatus.isNull())
         .select({
             id: tRetention.userId,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             email: tUsers.username,
             phoneNumber: tUsers.phoneNumber,
         })
@@ -49,7 +49,7 @@ export default async function EventTeamRetentionPage(props: NextRouterParams<'sl
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
-        .selectOneColumn(tUsers.firstName.concat(' ').concat(tUsers.lastName))
+        .selectOneColumn(tUsers.name)
         .orderBy(tUsers.firstName, 'asc')
         .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();

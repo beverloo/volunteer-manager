@@ -24,7 +24,7 @@ export default async function ProgramRequestsPage(props: NextRouterParams<'slug'
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
         .select({
-            username: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            username: tUsers.name,
             privileges: tUsers.privileges,
         })
         .orderBy(tUsers.firstName, 'asc')

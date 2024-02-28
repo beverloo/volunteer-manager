@@ -63,7 +63,7 @@ export interface VolunteerIdentityProps {
     contactInfo?: ContactInfo;
     volunteer: {
         firstName: string;
-        lastName: string;
+        name: string;
         registrationStatus: RegistrationStatus;
         avatarFileHash?: string;
         roleName: string;
@@ -141,11 +141,11 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                 <Stack direction="row" spacing={2} alignItems="center"
                     divider={ <Divider orientation="vertical" flexItem /> }>
                     <Avatar editable onChange={handleUploadAvatar} src={avatarSrc}>
-                        {volunteer.firstName} {volunteer.lastName}
+                        {volunteer.name}
                     </Avatar>
                     <Box>
                         <Typography variant="subtitle1">
-                            {volunteer.firstName} {volunteer.lastName}
+                            {volunteer.name}
                             { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
                                 <Tooltip title={`${volunteer.firstName} no longer participates`}>
                                     <Chip label="cancelled" size="small" color="error"

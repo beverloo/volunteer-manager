@@ -29,6 +29,11 @@ export interface User {
     lastName: string;
 
     /**
+     * The name using which we should refer to the user.
+     */
+    displayName?: string;
+
+    /**
      * URL using which this user's avatar can be retrieved.
      */
     avatarUrl?: string;

@@ -118,8 +118,12 @@ export function IdentityDialog(props: IdentityDialogProps) {
                     </Grid>
                     <Grid xs={12} md={9}>
                         <Typography variant="h6">
-                            {user.firstName} {user.lastName}
+                            { user.displayName ?? `${user.firstName} ${user.lastName}` }
                         </Typography>
+                        { !!user.displayName &&
+                            <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                                also known as {user.firstName} {user.lastName}
+                            </Typography> }
                         <Typography>
                             You are signed in to your account.
                         </Typography>

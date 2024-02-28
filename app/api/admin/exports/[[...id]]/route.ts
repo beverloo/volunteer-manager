@@ -210,7 +210,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 type: tExports.exportType,
                 justification: tExports.exportJustification,
                 createdOn: tExports.exportCreatedDate,
-                createdBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                createdBy: tUsers.name,
                 createdByUserId: tUsers.userId,
                 expirationDate: tExports.exportExpirationDate,
                 expirationViews: tExports.exportExpirationViews,

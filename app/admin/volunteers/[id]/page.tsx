@@ -30,6 +30,7 @@ export interface VolunteerInfo {
         username?: string;
         firstName: string;
         lastName: string;
+        displayName?: string;
         gender: string;
         birthdate?: string;  // YYYY-MM-DD
         phoneNumber?: string;
@@ -59,6 +60,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            displayName: tUsers.displayName,
             gender: tUsers.gender,
             birthdate: tUsers.birthdateString,
             phoneNumber: tUsers.phoneNumber,
@@ -148,7 +150,7 @@ export async function generateMetadata(props: NextRouterParams<'id'>): Promise<M
 
     const user = await db.selectFrom(tUsers)
         .where(tUsers.userId.equals(userId))
-        .select({ name: tUsers.firstName.concat(' ').concat(tUsers.lastName) })
+        .select({ name: tUsers.name })
         .executeSelectNoneOrOne();
 
     if (user)

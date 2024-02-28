@@ -1150,6 +1150,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: display_name
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: gender
     type: varchar(32)
     nullable: false
@@ -1214,6 +1219,7 @@ tables:
       `username` varchar(64) DEFAULT NULL,
       `first_name` varchar(64) NOT NULL,
       `last_name` varchar(64) NOT NULL,
+      `display_name` varchar(64) DEFAULT NULL,
       `gender` varchar(32) NOT NULL,
       `birthdate` date DEFAULT NULL,
       `phone_number` varchar(32) DEFAULT NULL,

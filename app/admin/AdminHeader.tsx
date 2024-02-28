@@ -101,7 +101,7 @@ export function AdminHeader(props: AdminHeaderProps) {
 
                 <Stack direction="row" spacing={2} alignItems="center">
                     <Typography color="primary.contrastText">
-                        {user.firstName}
+                        { user.displayName ?? user.firstName }
                     </Typography>
                     <Avatar src={user.avatarUrl}>
                         {user.firstName} {user.lastName}

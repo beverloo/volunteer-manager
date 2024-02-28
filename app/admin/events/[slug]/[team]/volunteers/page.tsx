@@ -54,7 +54,7 @@ export default async function VolunteersPage(props: NextRouterParams<'slug' | 't
             id: tUsers.userId,
             date: tUsersEvents.registrationDateString,
             status: tUsersEvents.registrationStatus,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             role: tRoles.roleName,
             roleBadge: tRoles.roleBadge,
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),

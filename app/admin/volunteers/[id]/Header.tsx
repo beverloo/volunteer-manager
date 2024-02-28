@@ -261,7 +261,7 @@ export function Header(props: HeaderProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5">
-                {account.firstName} {account.lastName}
+                { account.displayName ?? `${account.firstName} ${account.lastName}` }
             </Typography>
             <ContrastBox sx={{ mt: 1, px: 2, py: 1 }}>
                 <Stack divider={ <Divider orientation="vertical" flexItem /> }

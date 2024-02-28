@@ -49,7 +49,7 @@ export async function generateUserContext(userId: number, event?: string): Promi
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .where(tUsers.userId.equals(userId))
         .select({
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             team: teamsJoin.teamTitle,
         })
         .executeSelectOne();

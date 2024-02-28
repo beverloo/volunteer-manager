@@ -194,7 +194,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                     [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
             .select({
                 id: tUsers.userId,
-                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                name: tUsers.name,
                 events: dbInstance.aggregateAsArray({
                     slug: tEvents.eventSlug,
                     name: tEvents.eventShortName,
@@ -204,7 +204,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                     status: usersEventsJoin.registrationStatus,
                 }),
                 retentionStatus: retentionJoin.retentionStatus,
-                retentionAssigneeName: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
+                retentionAssigneeName: usersJoin.name,
                 retentionNotes: retentionJoin.retentionNotes,
             })
             .groupBy(tUsersEvents.userId, usersEventsJoin.eventId)
@@ -277,8 +277,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
         if (!!row.assigneeName) {
             retentionAssigneeId = await db.selectFrom(tUsers)
                 .selectOneColumn(tUsers.userId)
-                .where(
-                    tUsers.firstName.concat(' ').concat(tUsers.lastName).equals(row.assigneeName))
+                .where(tUsers.name.equals(row.assigneeName))
                 .executeSelectNoneOrOne();
         }
 

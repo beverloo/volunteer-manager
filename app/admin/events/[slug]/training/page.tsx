@@ -47,7 +47,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         .select({
             userId: tUsersEvents.userId,
 
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             team: tTeams.teamEnvironment,
 
             preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,

@@ -142,8 +142,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             },
 
             sharing: dbInstance.aggregateAsArrayOfOneColumn(
-                hotelsAssignmentsJoin.assignmentName.valueWhenNull(
-                    usersJoin.firstName.concat(' ').concat(usersJoin.lastName))),
+                hotelsAssignmentsJoin.assignmentName.valueWhenNull(usersJoin.name)),
         })
         .groupBy(tHotelsAssignments.bookingId)
         .orderBy('checkIn', 'asc')

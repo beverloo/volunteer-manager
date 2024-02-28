@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 
 import type { VolunteerInfo } from './page';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
 
@@ -55,6 +54,7 @@ export function Information(props: InformationProps) {
                 userId: account.userId,
                 firstName: data.firstName,
                 lastName: data.lastName,
+                displayName: data.displayName ?? undefined,
                 username: data.username ?? undefined,
                 gender: data.gender,
                 birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD') : undefined,
@@ -84,14 +84,19 @@ export function Information(props: InformationProps) {
                     Information
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid xs={6} md={3}>
                         <TextFieldElement name="firstName" label="First name" type="text"
                                           fullWidth size="small" required
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid xs={6} md={3}>
                         <TextFieldElement name="lastName" label="Last name" type="text"
                                           fullWidth size="small" required
+                                          onChange={ () => setInvalidated(true) } />
+                    </Grid>
+                    <Grid xs={12} md={6}>
+                        <TextFieldElement name="displayName" label="Display name" type="text"
+                                          fullWidth size="small"
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
 

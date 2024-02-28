@@ -26,7 +26,7 @@ export default async function WhatsAppPage() {
         .where(tUsers.phoneNumber.isNotNull())
         .select({
             value: tUsers.userId,
-            label: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            label: tUsers.name,
         })
         .orderBy('label', 'asc')
         .executeSelectMany();

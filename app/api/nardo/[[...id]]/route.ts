@@ -125,7 +125,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
             .select({
                 id: tNardo.nardoId,
                 advice: tNardo.nardoAdvice,
-                authorName: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                authorName: tUsers.name,
                 authorUserId: tUsers.userId,
                 date: tNardo.nardoAuthorDateString,
             })

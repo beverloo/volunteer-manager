@@ -23,6 +23,11 @@ export const kUpdateVolunteerDefinition = z.object({
          * ID of the user for whom information is being updated.
          */
         userId: z.number(),
+
+        /**
+         * The name using which the volunteer should be identified throughout our system.
+         */
+        displayName: z.string().optional(),
     })),
     response: z.strictObject({
         /**
@@ -57,6 +62,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            displayName: tUsers.displayName,
             gender: tUsers.gender,
             birthdate: tUsers.birthdate,
             phoneNumber: tUsers.phoneNumber
@@ -73,11 +79,17 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             return { success: false, error: 'There already is an account with that email address' };
     }
 
+    const displayName =
+        (!!request.displayName && !!request.displayName.length)
+            ? request.displayName
+            : null;
+
     const affectedRows = await db.update(tUsers)
         .set({
             username: request.username,
             firstName: request.firstName,
             lastName: request.lastName,
+            displayName,
             gender: request.gender,
             birthdate: request.birthdate ? Temporal.PlainDate.from(request.birthdate) : null,
             phoneNumber: request.phoneNumber,

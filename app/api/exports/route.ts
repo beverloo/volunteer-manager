@@ -309,7 +309,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .where(tUsersEvents.eventId.equals(metadata.eventId))
                 .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .select({
-                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                name: tUsers.name,
                 role: tRoles.roleName,
                 included: tUsersEvents.includeCredits.valueWhenNull(/* true= */ 1),
             })
@@ -362,7 +362,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .where(tUsersEvents.eventId.equals(metadata.eventId))
             .select({
                 date: tRefunds.refundRequested,
-                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                name: tUsers.name,
                 ticketNumber: tRefunds.refundTicketNumber,
                 accountIban: tRefunds.refundAccountIban,
                 accountName: tRefunds.refundAccountName,
@@ -401,8 +401,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 .and(tTrainingsAssignments.assignmentConfirmed.equals(/* true= */ 1))
             .select({
                 date: tTrainings.trainingStart,
-                name: trainingsExtraJoin.trainingExtraName.valueWhenNull(
-                    usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
+                name: trainingsExtraJoin.trainingExtraName.valueWhenNull(usersJoin.name),
                 email: trainingsExtraJoin.trainingExtraEmail.valueWhenNull(usersJoin.username),
                 birthdate: trainingsExtraJoin.trainingExtraBirthdate.valueWhenNull(
                     usersJoin.birthdate),

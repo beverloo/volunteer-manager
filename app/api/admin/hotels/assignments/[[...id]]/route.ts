@@ -120,11 +120,11 @@ async function determineAssignmentsFromRow(eventId: number, row: HotelsAssignmen
                 .and(usersEventsJoin.eventId.equals(eventId))
                 .and(usersEventsJoin.registrationStatus.in(
                     [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
-        .where(tUsers.firstName.concat(' ').concat(tUsers.lastName).in(names))
+        .where(tUsers.name.in(names))
             .and(usersEventsJoin.teamId.isNotNull())
         .select({
             userId: tUsers.userId,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
         })
         .executeSelectMany();
 

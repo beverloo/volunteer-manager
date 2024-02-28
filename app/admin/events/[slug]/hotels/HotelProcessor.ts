@@ -86,7 +86,7 @@ export class HotelProcessor {
                 id: tHotelsAssignments.assignmentId,
                 userId: tHotelsAssignments.assignmentUserId,
                 name: tHotelsAssignments.assignmentName.valueWhenNull(
-                    usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
+                    usersJoin.name),
             })
             .executeSelectMany();
 
@@ -124,7 +124,7 @@ export class HotelProcessor {
                 .and(tHotelsPreferences.hotelId.isNotNull())
             .select({
                 userId: tHotelsPreferences.userId,
-                name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                name: tUsers.name,
                 team: tTeams.teamEnvironment,
                 hotelId: tHotelsPreferences.hotelId,
                 checkIn: tHotelsPreferences.hotelDateCheckIn,

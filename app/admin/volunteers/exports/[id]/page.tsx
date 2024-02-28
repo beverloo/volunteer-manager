@@ -47,7 +47,7 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
             expirationViews: tExports.exportExpirationViews,
             justification: tExports.exportJustification,
             userId: tExports.exportCreatedUserId,
-            userName: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            userName: tUsers.name,
             views: dbInstance.count(exportsLogsJoin.accessDate)
         })
         .groupBy(tExports.exportId)
@@ -69,7 +69,7 @@ export default async function VolunteersExportDetailsPage(props: NextRouterParam
             userAgent: tExportsLogs.accessUserAgent,
 
             userId: tExportsLogs.accessUserId,
-            userName: usersJoin.firstName.concat(' ').concat(usersJoin.lastName),
+            userName: usersJoin.name,
         })
         .executeSelectMany();
 

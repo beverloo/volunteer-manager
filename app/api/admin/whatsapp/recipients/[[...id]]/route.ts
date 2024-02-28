@@ -102,7 +102,7 @@ createDataTableApi(kWhatsAppRecipientRowModel, kWhatsAppRecipientContext, {
             .select({
                 id: tSubscriptions.subscriptionId,
                 userId: tSubscriptions.subscriptionUserId,
-                username: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                username: tUsers.name,
                 channelApplications: tSubscriptions.subscriptionChannelApplications,
             })
             .orderBy('username', 'asc')

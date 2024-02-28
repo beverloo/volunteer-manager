@@ -36,7 +36,7 @@ export default async function VolunteersPage() {
         .select({
             id: tUsers.userId,
             username: tUsers.username,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
             activated: tUsers.activated.equals(/* true= */ 1),
             admin: tUsers.privileges.modulo(2n).equals(/* true= */ 1n),

@@ -227,7 +227,7 @@ async function getRecentVolunteers(eventId: number) {
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,
             teamEnvironment: tTeams.teamEnvironment,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             status: tUsersEvents.registrationStatus,
         })
         .orderBy(tUsersEvents.registrationDate, 'desc')
@@ -262,7 +262,7 @@ async function getSeniorVolunteers(eventId: number) {
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,
             teamEnvironment: tTeams.teamEnvironment,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             status: tUsersEvents.registrationStatus,
         })
         .orderBy(rolesJoin.roleOrder, 'asc')

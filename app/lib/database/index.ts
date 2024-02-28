@@ -153,6 +153,7 @@ export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new class extends UsersTable {
     birthdateString = this.optionalVirtualColumnFromFragment(
         'string', CreateDateStringFragment(this.birthdate));
+    name = this.displayName.valueWhenNull(this.firstName.concat(' ').concat(this.lastName));
 }
 export const tVendors = new VendorsTable;
 export const tWhatsAppMessages = new WhatsappMessagesTable;

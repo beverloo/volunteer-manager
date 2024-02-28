@@ -35,7 +35,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
         .select({
             bookingId: tHotelsAssignments.bookingId,
             name: tHotelsAssignments.assignmentName.valueWhenNull(
-                usersJoin.firstName.concat(' ').concat(usersJoin.lastName)),
+                usersJoin.name),
 
             userId: tHotelsAssignments.assignmentUserId,
             team: teamsJoin.teamEnvironment,

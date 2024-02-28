@@ -20,6 +20,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     username = this.optionalColumnWithDefaultValue('username', 'string');
     firstName = this.column('first_name', 'string');
     lastName = this.column('last_name', 'string');
+    displayName = this.optionalColumnWithDefaultValue('display_name', 'string');
     gender = this.column('gender', 'string');
     birthdate = this.optionalColumnWithDefaultValue<PlainDate>('birthdate', 'customLocalDate', 'date', TemporalTypeAdapter);
     phoneNumber = this.optionalColumnWithDefaultValue('phone_number', 'string');

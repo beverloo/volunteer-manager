@@ -187,7 +187,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
                 updatedOn: tContent.revisionDateString,
-                updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                updatedBy: tUsers.name,
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
             })
@@ -216,7 +216,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 path: tContent.contentPath,
                 title: tContent.contentTitle,
                 updatedOn: tContent.revisionDateString,
-                updatedBy: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+                updatedBy: tUsers.name,
                 updatedByUserId: tUsers.userId,
                 protected: tContent.contentProtected.equals(/* true= */ 1),
             })

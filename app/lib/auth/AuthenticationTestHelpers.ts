@@ -28,6 +28,7 @@ export interface AuthenticationResult {
     username?: string,
     firstName: string,
     lastName: string,
+    displayName?: string,
     avatarFileHash?: string,
     privileges: bigint,
 }

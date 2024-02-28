@@ -67,7 +67,7 @@ export async function volunteerList(request: Request, props: ActionProps): Promi
             .and(usersEventsJoin.eventId.equals(request.excludeEventId ?? /* invalid= */ 0))
         .select({
             userId: tUsers.userId,
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             disabled: usersEventsJoin.roleId.isNotNull()
         })
         .orderBy('name', 'asc')

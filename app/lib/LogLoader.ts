@@ -106,7 +106,7 @@ const kLogMessageFormatter: {
     },
     [LogType.AdminEventCreate]: (source, target, { event }) => `Created the ${event} event`,
     [LogType.AdminEventHotelMutation]: (source, target, { eventName, mutation }) => {
-        return `${mutation} a new hotel room for ${eventName}`;
+        return `${mutation} an hotel room for ${eventName}`;
     },
     [LogType.AdminEventProgramRequestUpdate]: (source, target, { activity, event }) => {
         return `Updated the "${activity}" program request for ${event}`;
@@ -145,7 +145,7 @@ const kLogMessageFormatter: {
         return `Removed ${target?.name}'s hotel room for ${event}`;
     },
     [LogType.AdminHotelBookingMutation]: (source, target, { event, mutation }) => {
-        return `${mutation} a new hotel assignment for ${event}`;
+        return `${mutation} an hotel assignment for ${event}`;
     },
     [LogType.AdminImpersonateVolunteer]: (source, target, data) => {
         return `Impersonated ${target?.name}'s account`;
@@ -394,11 +394,11 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
 
             // Source user:
             sourceUserId: tLogs.logSourceUserId,
-            sourceUserName: sourceUserJoin.firstName.concat(' ').concat(sourceUserJoin.lastName),
+            sourceUserName: sourceUserJoin.name,
 
             // Target user:
             targetUserId: tLogs.logTargetUserId,
-            targetUserName: targetUserJoin.firstName.concat(' ').concat(targetUserJoin.lastName),
+            targetUserName: targetUserJoin.name,
         })
         .orderByFromString(normalizeSortModel(params.sortModel))
         .limit(params.limit ?? 100)

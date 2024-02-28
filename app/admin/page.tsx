@@ -43,7 +43,7 @@ async function fetchBirthdays(user: User) {
             .and(tUsers.birthdate.isNotNull())
         .where(tEvents.eventEndTime.greaterThan(thresholdDate))
         .select({
-            name: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            name: tUsers.name,
             birthdate: tUsers.birthdate,
         })
         .groupBy(tUsers.userId)

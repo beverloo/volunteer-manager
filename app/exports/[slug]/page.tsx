@@ -42,7 +42,7 @@ export default async function ExportsPage(props: NextRouterParams<'slug'>) {
             eventName: tEvents.eventShortName,
             type: tExports.exportType,
 
-            userName: tUsers.firstName.concat(' ').concat(tUsers.lastName),
+            userName: tUsers.name,
 
             enabled: tExports.exportEnabled.equals(/* true= */ 1),
             accessDateValid: tExports.exportExpirationDate.greaterThan(

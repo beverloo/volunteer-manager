@@ -115,6 +115,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             username: tUsers.username,
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
+            displayName: tUsers.displayName,
             avatarFileHash: storageJoin.fileHash,
             privileges: tUsers.privileges,
         });
@@ -168,6 +169,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
         username: authenticationResult.username,
         firstName: authenticationResult.firstName,
         lastName: authenticationResult.lastName,
+        displayName: authenticationResult.displayName,
         avatarUrl:
             authenticationResult.avatarFileHash ? getBlobUrl(authenticationResult.avatarFileHash)
                                                 : undefined,
