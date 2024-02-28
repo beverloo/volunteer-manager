@@ -3,6 +3,7 @@
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { AreaDataTable } from './AreaDataTable';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -13,3 +14,5 @@ export default async function ProgramAreasPage(props: NextRouterParams<'slug'>) 
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
     return <AreaDataTable event={event.slug} />;
 }
+
+export const generateMetadata = generateEventMetadataFn('Areas');

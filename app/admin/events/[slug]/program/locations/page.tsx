@@ -3,6 +3,7 @@
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { LocationDataTable } from './LocationDataTable';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivitiesAreas } from '@lib/database';
 
@@ -24,3 +25,5 @@ export default async function ProgramLocationsPage(props: NextRouterParams<'slug
 
     return <LocationDataTable areas={areas} context={{ event: event.slug }} />;
 }
+
+export const generateMetadata = generateEventMetadataFn('Locations');

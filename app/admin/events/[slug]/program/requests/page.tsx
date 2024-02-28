@@ -5,6 +5,7 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RegistrationStatus } from '@lib/database/Types';
 import { RequestDataTable } from './RequestDataTable';
 import { Privilege, can, expand } from '@lib/auth/Privileges';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
@@ -54,3 +55,5 @@ export default async function ProgramRequestsPage(props: NextRouterParams<'slug'
     return <RequestDataTable event={event.slug} leaders={leaders} readOnly={readOnly}
                              teams={teams} />;
 }
+
+export const generateMetadata = generateEventMetadataFn('Program requests');

@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ActivityDataTable, type ActivityDataTableEntry } from './ActivityDataTable';
 import { ActivityType } from '@lib/database/Types';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts } from '@lib/database';
@@ -97,3 +98,5 @@ export default async function ProgramActivitiesPage(props: NextRouterParams<'slu
     const activities = await fetchActivityEntries(event.festivalId);
     return <ActivityDataTable activities={activities} />;
 }
+
+export const generateMetadata = generateEventMetadataFn('Activities');
