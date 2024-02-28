@@ -8,6 +8,7 @@ import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
@@ -79,6 +80,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 name: teamsJoin.teamName,
                 slug: teamsJoin.teamEnvironment,
                 color: teamsJoin.teamColourLightTheme,
+                managesFaq: teamsJoin.teamManagesFaq.equals(/* true= */ 1),
                 managesFirstAid: teamsJoin.teamManagesFirstAid.equals(/* true= */ 1),
                 managesSecurity: teamsJoin.teamManagesSecurity.equals(/* true= */ 1),
                 pendingApplications: pendingApplicationsJoin.applications,
@@ -258,6 +260,15 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     ];
 
     for (const team of info.teams) {
+        const faqEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
+        if (team.managesFaq) {
+            faqEntry.push({
+                icon: <InfoOutlinedIcon />,
+                label: 'Knowledge base',
+                url: `/admin/events/${slug}/${team.slug}/faq`,
+            });
+        }
+
         const firstAidEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
         if (team.managesFirstAid) {
             firstAidEntry.push({
@@ -296,6 +307,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     label: 'Content',
                     url: `/admin/events/${slug}/${team.slug}/content`,
                 },
+                ...faqEntry,
                 ...firstAidEntry,
                 {
                     icon: <RepeatIcon />,

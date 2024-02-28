@@ -12,6 +12,9 @@ import {
     TemporalTypeAdapter,
 } from "../TemporalTypeAdapter";
 import {
+    ContentType,
+} from "../Types";
+import {
     ZonedDateTime,
 } from "../../Temporal";
 
@@ -21,6 +24,7 @@ export class ContentTable extends Table<DBConnection, 'ContentTable'> {
     teamId = this.column('team_id', 'int');
     contentPath = this.column('content_path', 'string');
     contentTitle = this.column('content_title', 'string');
+    contentType = this.column<ContentType>('content_type', 'enum', 'ContentType');
     contentProtected = this.columnWithDefaultValue('content_protected', 'int');
     content = this.column('content', 'string');
     revisionAuthorId = this.column('revision_author_id', 'int');

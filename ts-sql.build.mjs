@@ -212,6 +212,7 @@ do {
                 { field: [ 'activities_logs', 'mutation' ], type: 'Mutation' },
                 { field: [ 'activities_logs', 'mutation_severity' ], type: 'MutationSeverity' },
                 { field: [ 'activities_timeslots', 'timeslot_type' ], type: 'ActivityType' },
+                { field: [ 'content', 'content_type' ], type: 'ContentType' },
                 {
                     field: [ 'events', 'event_availability_status' ],
                     type: 'EventAvailabilityStatus'

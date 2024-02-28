@@ -15,6 +15,7 @@ export class TeamsTable extends Table<DBConnection, 'TeamsTable'> {
     teamTitle = this.column('team_title', 'string');
     teamDescription = this.column('team_description', 'string');
     teamEnvironment = this.column('team_environment', 'string');
+    teamManagesFaq = this.columnWithDefaultValue('team_manages_faq', 'int');
     teamManagesFirstAid = this.columnWithDefaultValue('team_manages_first_aid', 'int');
     teamManagesSecurity = this.columnWithDefaultValue('team_manages_security', 'int');
     teamColourDarkTheme = this.column('team_colour_dark_theme', 'string');

@@ -3,13 +3,13 @@
 
 import { z } from 'zod';
 
-import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
+import { ContentType } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
+import { createDataTableApi, type DataTableEndpoints } from '../../../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventSlugForId } from '@lib/EventLoader';
-
 import db, { tContent, tEvents, tTeams, tUsers } from '@lib/database';
 
 /**
@@ -71,6 +71,11 @@ const kContentContext = z.object({
          * Unique ID of the team content will be scoped to.
          */
         teamId: z.coerce.number(),
+
+        /**
+         * Kind of content that's being requested.
+         */
+        type: z.nativeEnum(ContentType),
     }),
 });
 
@@ -123,6 +128,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         const existingContent = await db.selectFrom(tContent)
             .where(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
                 .and(tContent.contentPath.equals(row.path))
                 .and(tContent.revisionVisible.equals(/* true= */ 1))
             .selectCountAll()
@@ -138,6 +144,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 teamId: context.teamId,
                 contentPath: row.path,
                 contentTitle: row.title,
+                contentType: context.type,
                 contentProtected: /* unprotected= */ 0,
                 content: '',
                 revisionAuthorId: props.user!.userId,
@@ -167,6 +174,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
                 .and(tContent.contentProtected.equals(/* false= */ 0))
             .executeUpdate(/* min= */ 0, /* max= */ 1);
 
@@ -181,6 +189,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
             .select({
                 id: tContent.contentId,
                 content: tContent.content,
@@ -210,6 +219,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 .on(tUsers.userId.equals(tContent.revisionAuthorId))
             .where(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
                 .and(tContent.revisionVisible.equals(/* true= */ 1))
             .select({
                 id: tContent.contentId,
@@ -239,6 +249,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
             .select({
                 path: tContent.contentPath,
                 protected: tContent.contentProtected.equals(/* true= */ 1)
@@ -257,6 +268,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             const duplicatedContent = await db.selectFrom(tContent)
                 .where(tContent.eventId.equals(context.eventId))
                     .and(tContent.teamId.equals(context.teamId))
+                    .and(tContent.contentType.equals(context.type))
                     .and(tContent.contentPath.equals(row.path))
                     .and(tContent.revisionVisible.equals(/* true= */ 1))
                 .select({ id: tContent.contentId })
@@ -278,6 +290,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
+                .and(tContent.contentType.equals(context.type))
             .executeUpdate();
 
         return { success: !!affectedRows };

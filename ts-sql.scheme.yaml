@@ -823,87 +823,6 @@ tables:
       KEY `storage_user_id` (`user_id`),
       CONSTRAINT `storage_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: teams
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: team_name
-    type: varchar(32)
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_title
-    type: varchar(128)
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_description
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_environment
-    type: varchar(32)
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_manages_first_aid
-    type: tinyint(1) unsigned
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: team_manages_security
-    type: tinyint(1) unsigned
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: team_colour_dark_theme
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_colour_light_theme
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (team_id) USING BTREE
-    table: teams
-    columns:
-    - team_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (team_id)
-    table: teams
-    referencedTable: null
-    columns:
-    - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `teams` (
-      `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `team_name` varchar(32) NOT NULL,
-      `team_title` varchar(128) NOT NULL,
-      `team_description` text NOT NULL,
-      `team_environment` varchar(32) NOT NULL,
-      `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
-      `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
-      `team_colour_dark_theme` varchar(16) NOT NULL,
-      `team_colour_light_theme` varchar(16) NOT NULL,
-      PRIMARY KEY (`team_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles
   type: BASE TABLE
   comment: ""
@@ -1837,123 +1756,6 @@ tables:
       `timeslot_deleted` datetime DEFAULT NULL,
       UNIQUE KEY `activity_id_2` (`activity_id`,`timeslot_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: content
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: content_id
-    type: int(10) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: content_path
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: content_title
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: content_protected
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: content
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: revision_author_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: revision_date
-    type: timestamp
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  - name: revision_visible
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-    comment: ""
-  indexes:
-  - name: event_id
-    def: KEY event_id (event_id, team_id) USING BTREE
-    table: content
-    columns:
-    - event_id
-    - team_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (content_id) USING BTREE
-    table: content
-    columns:
-    - content_id
-    comment: ""
-  - name: event_id_2
-    def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible) USING HASH
-    table: content
-    columns:
-    - event_id
-    - team_id
-    - content_path
-    - revision_visible
-    comment: ""
-  constraints:
-  - name: event_id_2
-    type: UNIQUE
-    def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible)
-    table: content
-    referencedTable: null
-    columns:
-    - event_id
-    - team_id
-    - content_path
-    - revision_visible
-    referencedColumns: []
-    comment: ""
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (content_id)
-    table: content
-    referencedTable: null
-    columns:
-    - content_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `content` (
-      `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-      `event_id` int(4) unsigned NOT NULL,
-      `team_id` int(4) unsigned NOT NULL,
-      `content_path` text NOT NULL,
-      `content_title` text NOT NULL,
-      `content_protected` tinyint(1) NOT NULL DEFAULT 0,
-      `content` text NOT NULL,
-      `revision_author_id` int(4) unsigned NOT NULL,
-      `revision_date` timestamp NOT NULL DEFAULT current_timestamp(),
-      `revision_visible` tinyint(1) NOT NULL DEFAULT 1,
-      PRIMARY KEY (`content_id`),
-      UNIQUE KEY `event_id_2` (`event_id`,`team_id`,`content_path`,`revision_visible`) USING HASH,
-      KEY `event_id` (`event_id`,`team_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: exports_logs
   type: BASE TABLE
   comment: ""
@@ -2283,6 +2085,93 @@ tables:
       `export_enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
       PRIMARY KEY (`export_id`),
       KEY `export_slug` (`export_slug`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: teams
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: team_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_title
+    type: varchar(128)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_description
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_environment
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_manages_faq
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: team_manages_first_aid
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: team_manages_security
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: team_colour_dark_theme
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_colour_light_theme
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (team_id) USING BTREE
+    table: teams
+    columns:
+    - team_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (team_id)
+    table: teams
+    referencedTable: null
+    columns:
+    - team_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `teams` (
+      `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `team_name` varchar(32) NOT NULL,
+      `team_title` varchar(128) NOT NULL,
+      `team_description` text NOT NULL,
+      `team_environment` varchar(32) NOT NULL,
+      `team_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_colour_dark_theme` varchar(16) NOT NULL,
+      `team_colour_light_theme` varchar(16) NOT NULL,
+      PRIMARY KEY (`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE
@@ -2900,6 +2789,129 @@ tables:
       PRIMARY KEY (`activity_id`),
       UNIQUE KEY `activity_id` (`activity_id`,`activity_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: content
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: content_id
+    type: int(10) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_path
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_title
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_type
+    type: enum('Page','FAQ')
+    nullable: false
+    default: null
+    comment: ""
+  - name: content_protected
+    type: tinyint(1)
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: content
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: revision_author_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: revision_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: revision_visible
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id, team_id) USING BTREE
+    table: content
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (content_id) USING BTREE
+    table: content
+    columns:
+    - content_id
+    comment: ""
+  - name: event_id_2
+    def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible) USING HASH
+    table: content
+    columns:
+    - event_id
+    - team_id
+    - content_path
+    - revision_visible
+    comment: ""
+  constraints:
+  - name: event_id_2
+    type: UNIQUE
+    def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible)
+    table: content
+    referencedTable: null
+    columns:
+    - event_id
+    - team_id
+    - content_path
+    - revision_visible
+    referencedColumns: []
+    comment: ""
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (content_id)
+    table: content
+    referencedTable: null
+    columns:
+    - content_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `content` (
+      `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `content_path` text NOT NULL,
+      `content_title` text NOT NULL,
+      `content_type` enum('Page','FAQ') NOT NULL,
+      `content_protected` tinyint(1) NOT NULL DEFAULT 0,
+      `content` text NOT NULL,
+      `revision_author_id` int(4) unsigned NOT NULL,
+      `revision_date` timestamp NOT NULL DEFAULT current_timestamp(),
+      `revision_visible` tinyint(1) NOT NULL DEFAULT 1,
+      PRIMARY KEY (`content_id`),
+      UNIQUE KEY `event_id_2` (`event_id`,`team_id`,`content_path`,`revision_visible`) USING HASH,
+      KEY `event_id` (`event_id`,`team_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_logs
   type: BASE TABLE
   comment: ""

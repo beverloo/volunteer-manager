@@ -22,6 +22,15 @@ export enum AuthType {
 }
 
 /**
+ * Type of content that's stored within a particular scope.
+ * @see Table `content`
+ */
+export enum ContentType {
+    FAQ = 'FAQ',
+    Page = 'Page',
+}
+
+/**
  * Status indicating whether volunteers can share their availability preferences.
  * @see Table `events`
  */

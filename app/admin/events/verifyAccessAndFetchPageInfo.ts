@@ -130,6 +130,11 @@ export interface PageInfoWithTeam extends PageInfo {
         id: number;
 
         /**
+         * Whether this team is responsible for managing the frequently asked questions.
+         */
+        managesFaq: boolean;
+
+        /**
          * Whether this team is responsible for managing the first aid team.
          */
         managesFirstAid: boolean;
@@ -237,6 +242,7 @@ export async function verifyAccessAndFetchPageInfo(
             id: tTeams.teamId,
             name: tTeams.teamName,
             slug: tTeams.teamEnvironment,
+            managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
             managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
             managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),
         })

@@ -5,12 +5,12 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { noAccess, type ActionProps } from '../Action';
-import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
+import { ContentType, EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
+import { noAccess, type ActionProps } from '../Action';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tContent, tEvents, tEventsTeams } from '@lib/database';
 
@@ -287,6 +287,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                     .values(pages.map((pageProps) => ({
                         eventId: event.eventId,
                         teamId: request.team!.id,
+                        contentType: ContentType.Page,
                         content: 'No content has been written yet…',
                         contentProtected: 1,
                         revisionAuthorId: props.user!.userId,
