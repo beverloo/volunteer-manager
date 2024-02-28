@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography';
 import type { RegisterDefinition } from '@app/api/auth/register';
 import { PasswordField } from './PasswordField';
 import { RegisterForm } from './RegisterForm';
-import { Temporal } from '@lib/Temporal';
+import { dayjs } from '@lib/DateTime';
 
 /**
  * Interface describing the information contained within a registration request. Will be shared with
@@ -73,7 +73,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
 
         // Format the |birthdate| in YYYY-MM-DD format because that's the only sensible format to
         // write down a date. Also happens to be how we store it in the database.
-        const birthdate = Temporal.PlainDate.from(rawBirthdate).toString();
+        const birthdate = dayjs(rawBirthdate).format('YYYY-MM-DD');
 
         try {
             await onSubmit(password, { ...rest, birthdate } as PartialRegistrationRequest);
