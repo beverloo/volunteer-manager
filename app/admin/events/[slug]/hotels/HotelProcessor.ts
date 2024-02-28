@@ -1,9 +1,13 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import symmetricDifference from 'set.prototype.symmetricdifference';
+
 import type { HotelPendingRequestRowModel } from './HotelPendingAssignment';
-import { Temporal, formatDate } from '@lib/Temporal';
-import db, { tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tTeams, tUsers }
+import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal, formatDate, isBefore } from '@lib/Temporal';
+
+import db, { tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tTeams, tUsers, tUsersEvents }
     from '@lib/database';
 
 /**
@@ -14,14 +18,9 @@ interface AssignmentRecord {
     id: number;
     userId?: number;
     name?: string;
-}
-
-/**
- * Record detailing the information stored about a booking. Roughly maps to the `hotels_bookings`
- * table.
- */
-interface BookingRecord {
-    // TODO
+    bookingHotelId?: number;
+    bookingCheckIn: Temporal.PlainDate;
+    bookingCheckOut: Temporal.PlainDate;
 }
 
 /**
@@ -62,11 +61,10 @@ export class HotelProcessor {
     #eventId: number;
 
     #assignments: Map</* assignmentId= */ number, AssignmentRecord> = new Map;
-    #bookings: Map</* bookingId=*/ number, BookingRecord> = new Map;
     #hotels: Map</* hotelId= */ number, HotelRecord> = new Map;
     #preferences: Map</* userId= */ number, PreferenceRecord> = new Map;
 
-    #assignmentsForUsers: Map</* userId= */ number, /* assignmentId= */ number> = new Map;
+    #assignmentsForUsers: Set</* userId= */ number> = new Set;
 
     constructor(eventId: number) {
         this.#eventId = eventId;
@@ -87,6 +85,10 @@ export class HotelProcessor {
                 userId: tHotelsAssignments.assignmentUserId,
                 name: tHotelsAssignments.assignmentName.valueWhenNull(
                     usersJoin.name),
+
+                bookingHotelId: tHotelsBookings.bookingHotelId,
+                bookingCheckIn: tHotelsBookings.bookingCheckIn,
+                bookingCheckOut: tHotelsBookings.bookingCheckOut,
             })
             .executeSelectMany();
 
@@ -94,10 +96,8 @@ export class HotelProcessor {
             this.#assignments.set(assignment.id, assignment);
 
             if (!!assignment.userId)
-                this.#assignmentsForUsers.set(assignment.userId, assignment.id);
+                this.#assignmentsForUsers.add(assignment.userId);
         }
-
-        // TODO: `bookings`
 
         const hotels = await db.selectFrom(tHotels)
             .where(tHotels.eventId.equals(this.#eventId))
@@ -118,6 +118,10 @@ export class HotelProcessor {
         const preferences = await db.selectFrom(tHotelsPreferences)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tHotelsPreferences.userId))
+            .innerJoin(tUsersEvents)
+                .on(tUsersEvents.userId.equals(tHotelsPreferences.userId))
+                    .and(tUsersEvents.eventId.equals(tHotelsPreferences.eventId))
+                    .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tHotelsPreferences.teamId))
             .where(tHotelsPreferences.eventId.equals(this.#eventId))
@@ -173,20 +177,121 @@ export class HotelProcessor {
      * Returns a list of warnings that should be displayed on the hotel room overview.
      */
     compileWarnings(): Warning[] {
-        // TODO: Warnings
-        // --- has been assigned to a booking that doesn't have a room (!hotelId)
-        // --- has been assigned a hotel room that's been deleted
-        // --- has been assigned a room multiple times (w/ overlap)
-        // --- cancelled, but has still been assigned a hotel room
-        // --- has been assigned a room different from their preferences
-        // --- requested check-in on YYYY-MM-DD, but is booked in from YYYY-MM-DD
-        // --- requested check-out on YYYY-MM-DD, but is booked in until YYYY-MM-DD
-        return [
-            {
-                volunteer: 'AnimeCon Volunteer Manager',
-                warning: 'is not currently able to flag any issues!',
+        const warnings: Warning[] = [];
+        const volunteers = new Map<number, AssignmentRecord[]>;
+
+        for (const assignment of this.#assignments.values()) {
+            if (!!assignment.bookingHotelId && !this.#hotels.has(assignment.bookingHotelId)) {
+                warnings.push({
+                    volunteer: assignment.name!,
+                    warning: 'is assigned to a hotel room that no longer exists.',
+                });
             }
-        ];
+
+            if (!!assignment.userId) {
+                if (volunteers.has(assignment.userId))
+                    volunteers.get(assignment.userId)!.push(assignment);
+                else
+                    volunteers.set(assignment.userId, [ assignment ]);
+
+                const preferences = this.#preferences.get(assignment.userId);
+                if (!preferences) {
+                    warnings.push({
+                        volunteer: assignment.name!,
+                        warning: 'is assigned to a booking, but is no longer participating.',
+                    });
+                } else if (!preferences.hotelId) {
+                    warnings.push({
+                        volunteer: assignment.name!,
+                        warning: 'is assigned to a booking, but indicated to not want a hotel room.'
+                    });
+                } else if (assignment.bookingHotelId !== preferences.hotelId) {
+                    warnings.push({
+                        volunteer: assignment.name!,
+                        warning: 'is assigned to a hotel room different from their preferences.',
+                    });
+                }
+
+                continue;
+            }
+
+            if (!assignment.bookingHotelId) {
+                warnings.push({
+                    volunteer: assignment.name!,
+                    warning: 'is assigned to a booking that doesn\'t have an associated room.',
+                });
+            }
+        }
+
+        function format(dates: string[]): string {
+            return dates.sort().map(date => formatDate(Temporal.PlainDate.from(date), 'dddd'))
+                .join(', ');
+        }
+
+        for (const assignments of volunteers.values()) {
+            const { userId, name } = assignments[0];
+
+            const preferences = this.#preferences.get(userId!);
+            if (!preferences || !preferences.checkIn || !preferences.checkOut)
+                continue;  // the "no longer participating" warning will have been shown
+
+            const bookedNights = new Set<string>;
+            const bookedNightsWarnings = new Set<string>;
+            const expectedNights = new Set<string>;
+
+            for (const assignment of assignments) {
+                let date = assignment.bookingCheckIn;
+                for (; isBefore(date, assignment.bookingCheckOut); date = date.add({ days: 1 })) {
+                    const dateString = date.toString();
+                    if (bookedNights.has(dateString))
+                        bookedNightsWarnings.add(dateString);
+
+                    bookedNights.add(dateString);
+                }
+            }
+
+            if (!!bookedNightsWarnings.size) {
+                warnings.push({
+                    volunteer: name!,
+                    warning:
+                        `is assigned to multiple rooms on ${format([ ...bookedNightsWarnings ])}.`
+                });
+            }
+
+            let date = preferences.checkIn;
+            for (; isBefore(date, preferences.checkOut); date = date.add({ days: 1 }))
+                expectedNights.add(date.toString());
+
+            const excessDays: string[] = [];
+            const missingDays: string[] = [];
+
+            const difference = symmetricDifference(bookedNights, expectedNights);
+            for (const day of difference) {
+                if (bookedNights.has(day))
+                    excessDays.push(day);
+                else
+                    missingDays.push(day);
+            }
+
+            if (!!excessDays.length) {
+                warnings.push({
+                    volunteer: name!,
+                    warning:
+                        `is assigned a room that they didn't request on ${format(excessDays)}.`
+                });
+            }
+
+            if (!!missingDays.length) {
+                warnings.push({
+                    volunteer: name!,
+                    warning:
+                        `requested a room on ${format(missingDays)} that hasn't been booked.`,
+                })
+            }
+        }
+
+        warnings.sort((lhs, rhs) => lhs.volunteer.localeCompare(rhs.volunteer));
+        return warnings;
     }
 
     /**
