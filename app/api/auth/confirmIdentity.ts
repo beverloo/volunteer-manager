@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import { Log, LogType, LogSeverity } from '@lib/Log';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { retrieveCredentials } from './passkeys/PasskeyUtils';
 import { storeUserChallenge } from './passkeys/PasskeyUtils';
@@ -51,6 +52,18 @@ type Response = ApiResponse<typeof kConfirmIdentityDefinition>;
  */
 export async function confirmIdentity(request: Request, props: ActionProps): Promise<Response> {
     const user = await isValidActivatedUser(request.username);
+
+    await Log({
+        type: LogType.AccountIdentityCheck,
+        severity: LogSeverity.Debug,
+        data: {
+            userId: user?.userId,
+            username: request.username,
+            origin: props.origin,
+            ip: props.ip,
+        }
+    });
+
     if (!user)
         return { success: false };
 

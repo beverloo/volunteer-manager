@@ -78,6 +78,7 @@ const kLogMessageFormatter: {
     [LogType.AccountIdentifyAccessCode]: 'Signed in using an access code',
     [LogType.AccountIdentifyPasskey]: 'Signed in using a passkey',
     [LogType.AccountIdentifyPassword]: 'Signed in using a password',
+    [LogType.AccountIdentityCheck]: 'Confirmed existence of an account',
     [LogType.AccountPasskeyCreate]: 'Created a passkey for their account',
     [LogType.AccountPasskeyDelete]: 'Deleted a passkey from their account',
     [LogType.AccountPasswordResetRequest]: 'Requested their password to be reset',
