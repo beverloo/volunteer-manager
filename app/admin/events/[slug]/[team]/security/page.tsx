@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -41,3 +42,5 @@ export default async function EventTeamSecurityPage(props: NextRouterParams<'slu
         </>
     );
 }
+
+export const generateMetadata = generateEventMetadataFn('Security');

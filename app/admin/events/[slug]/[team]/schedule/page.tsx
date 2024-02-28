@@ -4,6 +4,7 @@
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -22,3 +23,5 @@ export default async function EventTeamSchedulePage(props: NextRouterParams<'slu
         </Section>
     );
 }
+
+export const generateMetadata = generateEventMetadataFn('Schedule');

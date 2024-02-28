@@ -10,6 +10,7 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
 
@@ -77,3 +78,5 @@ export default async function EventTeamRetentionPage(props: NextRouterParams<'sl
         </>
     )
 }
+
+export const generateMetadata = generateEventMetadataFn('Retention');

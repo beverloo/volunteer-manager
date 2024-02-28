@@ -11,6 +11,7 @@ import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 
 /**
  * The FAQ provides a library of questions that we've received, or may receive from our visitors. It
@@ -42,3 +43,5 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
         </>
     );
 }
+
+export const generateMetadata = generateEventMetadataFn('Knowledge base');
