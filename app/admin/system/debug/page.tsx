@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
+import { DebugOptions } from './DebugOptions';
 import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -27,19 +28,22 @@ export default async function DebugPage() {
     debugValues['Headers'] = [ ...headers() ];
 
     return (
-        <Section title="Debugging information">
-            <Table size="small">
-                { Object.entries(debugValues).map(([ key, value ], index) =>
-                    <TableRow key={index}>
-                        <TableCell width="15%">
-                            <strong>{key}</strong>
-                        </TableCell>
-                        <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                            { JSON.stringify(value, undefined, /* space= */ 4) }
-                        </TableCell>
-                    </TableRow> )}
-            </Table>
-        </Section>
+        <>
+            <DebugOptions />
+            <Section title="Debugging information">
+                <Table size="small">
+                    { Object.entries(debugValues).map(([ key, value ], index) =>
+                        <TableRow key={index}>
+                            <TableCell width="15%">
+                                <strong>{key}</strong>
+                            </TableCell>
+                            <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+                                { JSON.stringify(value, undefined, /* space= */ 4) }
+                            </TableCell>
+                        </TableRow> )}
+                </Table>
+            </Section>
+        </>
     );
 }
 

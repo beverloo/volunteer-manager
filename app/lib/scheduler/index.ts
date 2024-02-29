@@ -9,7 +9,6 @@ import { globalScheduler } from './SchedulerImpl';
 
 import db, { tTasks } from '@lib/database';
 
-
 /**
  * Reschedules the task identified by the given `taskId` to run again, optionally on the given
  * `scheduler`. The task will be executed immediately. Only tasks that have already executed can be

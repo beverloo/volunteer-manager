@@ -3288,6 +3288,93 @@ tables:
       `location_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`location_id`,`location_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: error_logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: error_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: error_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: error_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: error_ip_address
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: error_origin
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: error_pathname
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: error_name
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: error_message
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: error_digest
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (error_id) USING BTREE
+    table: error_logs
+    columns:
+    - error_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (error_id)
+    table: error_logs
+    referencedTable: null
+    columns:
+    - error_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `error_logs` (
+      `error_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `error_date` datetime NOT NULL,
+      `error_user_id` int(8) unsigned DEFAULT NULL,
+      `error_ip_address` varchar(64) DEFAULT NULL,
+      `error_origin` varchar(64) NOT NULL,
+      `error_pathname` text NOT NULL,
+      `error_name` text NOT NULL,
+      `error_message` text NOT NULL,
+      `error_stack` text DEFAULT NULL,
+      `error_digest` text DEFAULT NULL,
+      PRIMARY KEY (`error_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_areas
   type: BASE TABLE
   comment: ""

@@ -7,8 +7,6 @@ import Link from 'next/link'
 
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 

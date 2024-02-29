@@ -7,6 +7,7 @@ import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePasskey';
+import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
@@ -153,6 +154,7 @@ export type ApiEndpoints = {
         '/api/auth/sign-out': SignOutDefinition,
         '/api/auth/update-account': UpdateAccountDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
+        '/api/error': ErrorDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,

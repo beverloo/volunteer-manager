@@ -10,6 +10,7 @@ import { ActivitiesLogsTable } from './scheme/ActivitiesLogsTable';
 import { ActivitiesTable } from './scheme/ActivitiesTable';
 import { ActivitiesTimeslotsTable } from './scheme/ActivitiesTimeslotsTable';
 import { ContentTable } from './scheme/ContentTable';
+import { ErrorLogsTable } from './scheme/ErrorLogsTable';
 import { EventsTable } from './scheme/EventsTable';
 import { EventsTeamsTable } from './scheme/EventsTeamsTable';
 import { ExportsLogsTable } from './scheme/ExportsLogsTable';
@@ -57,6 +58,7 @@ export const tContent = new class extends ContentTable {
     revisionDateString = this.virtualColumnFromFragment(
         'string', CreateTimestampStringFragment(this.revisionDate));
 }
+export const tErrorLogs = new ErrorLogsTable;
 export const tEvents = new class extends EventsTable {
     eventStartTimeString = this.virtualColumnFromFragment(
         'string', CreateDateTimeStringFragment(this.eventStartTime));
