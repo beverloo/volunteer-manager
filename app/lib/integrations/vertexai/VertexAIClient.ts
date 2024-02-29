@@ -1,9 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { GoogleAuth } from 'google-auth-library';
 import { VertexAI } from '@google-cloud/vertexai';
-import { default as aiplatform, helpers } from '@google-cloud/aiplatform';
 
 import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient';
 import { VertexSupportedModels } from './VertexSupportedModels';
@@ -91,7 +89,7 @@ export class VertexAIClient {
             case 'text-bison':
             case 'text-bison@001':
             case 'text-bison@002':
-                return this.predictTextBison(prompt);
+                throw new Error('The PaLM models are no longer supported.');
 
             case 'gemini-pro':
                 return this.predictTextGemini(prompt);
@@ -150,51 +148,6 @@ export class VertexAIClient {
         }
 
         return undefined;
-    }
-
-    /**
-     * Predicts responses to the given `prompt` using the Google Bison model. The response will be
-     * returned as a string when successful; `undefined` will be returned in all other cases.
-     */
-    private async predictTextBison(prompt: string): Promise<string | undefined> {
-        const promptArray = Array.isArray(prompt) ? prompt : [ prompt ];
-
-        const client = this.createClient();
-        const endpoint = this.composeTextPredictionEndpoint();
-
-        const response = await client.predict({
-            endpoint,
-            instances: promptArray.map(prompt => helpers.toValue({ prompt })!),
-            parameters: helpers.toValue({
-                maxOutputTokens: this.#settings.tokenLimit,
-                temperature: this.#settings.temperature,
-                topK: this.#settings.topK,
-                topP: this.#settings.topP,
-            }),
-        });
-
-        // Deal with the response. Surely there ought to be a nicer way of validating the response,
-        // rather than assuming that it's correct. For now this will do however.
-        if (Array.isArray(response) && response.length > 0) {
-            const predictions = response[0].predictions;
-            if (Array.isArray(predictions) && predictions.length > 0) {
-                const prediction = predictions[0];
-                if (prediction.structValue && prediction.structValue.fields) {
-                    const { content } = prediction.structValue.fields;
-                    return content.stringValue ?? undefined;
-                }
-            }
-        }
-    }
-
-    /**
-     * Creates a new instance of the prediction service.
-     */
-    private createClient() {
-        return new aiplatform.PredictionServiceClient({
-            apiEndpoint: `${this.#googleClient.location}-aiplatform.googleapis.com`,
-            credentials: JSON.parse(this.#googleClient.credentials),
-        });
     }
 
     /**
