@@ -6,10 +6,11 @@ import { notFound } from 'next/navigation';
 import Collapse from '@mui/material/Collapse';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { TrainingAssignments, type TrainingAssignment } from './TrainingAssignments';
+import { TrainingAssignments } from './TrainingAssignments';
 import { TrainingConfiguration } from './TrainingConfiguration';
 import { TrainingExternal } from './TrainingExternal';
 import { TrainingOverview, type TrainingConfirmation } from './TrainingOverview';
@@ -115,7 +116,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
     // Combine the information to create a comprehensive assignment table
     // ---------------------------------------------------------------------------------------------
 
-    const trainingAssignments: TrainingAssignment[] = [];
+    const trainingAssignments: TrainingsAssignmentsRowModel[] = [];
 
     for (const assignment of [ ...assignments, ...extraParticipants ]) {
         let preferredTrainingId: number | null | undefined = undefined;

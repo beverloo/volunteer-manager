@@ -30,7 +30,6 @@ import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
-import type { TrainingDefinition } from '@app/api/admin/training';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
@@ -67,6 +66,7 @@ import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/ro
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { RolesEndpoints } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
+import type { TrainingsAssignmentsEndpoints } from '@app/api/admin/trainings/assignments/[[...id]]/route';
 import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
 import type { TrainingsExtraEndpoints } from '@app/api/admin/trainings/extra/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
@@ -104,6 +104,7 @@ export type ApiEndpoints = {
         '/api/admin/scheduler': SchedulerEndpoints['list'],
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
         '/api/admin/trainings': TrainingsEndpoints['list'],
+        '/api/admin/trainings/assignments': TrainingsAssignmentsEndpoints['list'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
         '/api/admin/volunteers/roles': RolesEndpoints['list'],
@@ -123,7 +124,6 @@ export type ApiEndpoints = {
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/service-health': ServiceHealthDefinition,
-        '/api/admin/training': TrainingDefinition,
         '/api/admin/trainings': TrainingsEndpoints['create'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['create'],
         '/api/admin/update-activation': UpdateActivationDefinition,
@@ -194,6 +194,7 @@ export type ApiEndpoints = {
         '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
+        '/api/admin/trainings/assignments/:id': TrainingsAssignmentsEndpoints['update'],
         '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],

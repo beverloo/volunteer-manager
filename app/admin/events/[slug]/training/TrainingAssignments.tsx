@@ -4,10 +4,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -19,56 +17,17 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import { type DataTableColumn, OLD_DataTable } from '@app/admin/DataTable';
-import { callApi } from '@lib/callApi';
-
-/**
- * Information about an individual assignment. Volunteers must have indicated their preferences
- * before training managers are able to confirm their participation.
- */
-export interface TrainingAssignment {
-    /**
-     * Unique ID of this training session, either "user/ID" or "extra/ID".
-     */
-    id: string;
-
-    /**
-     * Full name of the participant.
-     */
-    name: string;
-
-    /**
-     * For volunteers who participate, their unique user ID and team identity, to link them.
-     */
-    userId?: number;
-    team?: string;
-
-    /**
-     * Their preferred training ID. `null` means that they would like to skip. `undefined` means
-     * that they have not expressed their preferences yet.
-     */
-    preferredTrainingId: number | null | undefined;
-
-    /**
-     * Their assigned training ID. `null` means that they are allowed to skip. `undefined` means
-     * that the training managers have not made a decision yet.
-     */
-    assignedTrainingId: number | null | undefined;
-
-    /**
-     * Whether the assignment has been confirmed, and can be communicated.
-     */
-    confirmed: boolean;
-}
+import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
  * Props accepted by the <TrainingAssignments> component.
  */
 export interface TrainingAssignmentsProps {
     /**
-     * The assignments that should be shown.
+     * The assignments that should be considered for warnings.
      */
-    assignments: TrainingAssignment[];
+    assignments: TrainingsAssignmentsRowModel[];
 
     /**
      * Slug of the event for which assignments are being shown.
@@ -94,7 +53,8 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
         return optionsMap;
     }, [ props.trainings ]);
 
-    const columns: DataTableColumn<TrainingAssignment>[] = [
+    const context = { event: props.event };
+    const columns: RemoteDataTableColumn<TrainingsAssignmentsRowModel>[] = [
         {
             field: 'name',
             headerName: 'Participant',
@@ -102,7 +62,7 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams<TrainingAssignment>) => {
+            renderCell: params => {
                 if (!params.row.userId || !params.row.team)
                     return params.value;
 
@@ -121,7 +81,7 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams<TrainingAssignment>) => {
+            renderCell: params => {
                 if (params.value === undefined) {
                     return (
                         <Tooltip title="Pending volunteer preferences">
@@ -150,7 +110,7 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             type: 'singleSelect',
             valueOptions: props.trainings,
 
-            renderCell: (params: GridRenderCellParams<TrainingAssignment>) => {
+            renderCell: params => {
                 if (params.value === undefined) {
                     return (
                         <Tooltip title="Pending approval">
@@ -177,34 +137,12 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             width: 100,
             type: 'boolean',
 
-            renderCell: (params: GridRenderCellParams<TrainingAssignment>) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
         }
     ];
-
-    const router = useRouter();
-
-    const commitEdit = useCallback(async (newRow: TrainingAssignment, oldRow: TrainingAssignment) =>
-    {
-        const response = await callApi('post', '/api/admin/training', {
-            event: props.event,
-            assignment: {
-                id: newRow.id,
-                assignedTrainingId: newRow.assignedTrainingId,
-                confirmed: newRow.confirmed,
-            },
-        });
-
-        if (!response.success)
-            return oldRow;
-
-        router.refresh();
-
-        return newRow.assignedTrainingId === -1 ? { ...newRow, assignedTrainingId: undefined }
-                                                : newRow;
-    }, [ props.event, router ]);
 
     // ---------------------------------------------------------------------------------------------
     // Compute the warnings that should be displayed regarding training sessions
@@ -266,8 +204,9 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                 Preferences must be indicated by volunteers and cannot be updated here. Assignments
                 will be tentative until the confirmation box is checked.
             </Alert>
-            <OLD_DataTable columns={columns} rows={props.assignments} commitEdit={commitEdit}
-                           pageSize={100} pageSizeOptions={[100]} disableFooter dense />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/trainings/assignments"
+                             defaultSort={{ field: 'name', sort: 'asc' }} context={context}
+                             enableUpdate pageSize={100} disableFooter />
             <Collapse in={warnings.length > 0}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
                     <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>
