@@ -29,12 +29,6 @@ export default async function VolunteersTeamsPage() {
         .select({
             id: tRoles.roleId,
             roleName: tRoles.roleName,
-            roleBadge: tRoles.roleBadge,
-            roleOrder: tRoles.roleOrder,
-            availabilityEventLimit: tRoles.roleAvailabilityEventLimit,
-            adminAccess: tRoles.roleAdminAccess.equals(/* true= */ 1),
-            hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
-            trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),
         })
         .orderBy(tRoles.roleOrder, 'asc')
         .orderBy(tRoles.roleName, 'asc')
@@ -73,7 +67,7 @@ export default async function VolunteersTeamsPage() {
                     infrequent operation and carries a high risk of breaking the Volunteer Manager.
                 </Alert>
             </Paper>
-            <Roles roles={roles} />
+            <Roles />
             { teams.map(team => <Team key={team.id} roles={roles} team={team} />) }
         </>
     );

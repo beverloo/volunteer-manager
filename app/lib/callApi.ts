@@ -43,7 +43,6 @@ import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
-import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
 import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
@@ -66,6 +65,7 @@ import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations
 import type { ProgramRequestEndpoints } from '@app/api/admin/program/requests/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
+import type { RolesEndpoints } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
 import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
@@ -103,6 +103,7 @@ export type ApiEndpoints = {
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
         '/api/admin/trainings': TrainingsEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
+        '/api/admin/volunteers/roles': RolesEndpoints['list'],
         '/api/admin/whatsapp/recipients': WhatsAppEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/nardo': NardoEndpoints['list'],
@@ -127,7 +128,6 @@ export type ApiEndpoints = {
         '/api/admin/update-integration': UpdateIntegrationDefinition,
         '/api/admin/update-permissions': UpdatePermissionsDefinition,
         '/api/admin/update-publication': UpdatePublicationDefinition,
-        '/api/admin/update-role': UpdateRoleDefinition,
         '/api/admin/update-settings': UpdateSettingsDefinition,
         '/api/admin/update-team': UpdateTeamDefinition,
         '/api/admin/update-volunteer': UpdateVolunteerDefinition,
@@ -190,6 +190,7 @@ export type ApiEndpoints = {
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
+        '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
         '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['update'],
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,

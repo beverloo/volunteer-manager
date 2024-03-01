@@ -3,45 +3,22 @@
 
 'use client';
 
-import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { DataTableColumn } from '@app/admin/DataTable';
-import type { UpdateRoleDefinition } from '@app/api/admin/updateRole';
-import { OLD_DataTable } from '@app/admin/DataTable';
+import type { RoleRowModel } from '@app/api/admin/volunteers/roles/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadge';
-import { callApi } from '@lib/callApi';
-
-/**
- * Interface representation of a role in the Volunteer Manager.
- */
-export type Role = UpdateRoleDefinition['request'];
-
-/**
- * Props accepted by the <Roles> component.
- */
-export interface RolesProps {
-    /**
-     * The roles that exist in the Volunteer Manager.
-     */
-    roles: Role[];
-}
 
 /**
  * The <Roles> component represents the roles that exist in the Volunteer Manager. Each role has a
  * few basic settings that can be manipulated as a Data Table.
  */
-export function Roles(props: RolesProps) {
-    const { roles } = props;
-
-    const columns: DataTableColumn[] = [
+export function Roles() {
+    const columns: RemoteDataTableColumn<RoleRowModel>[] = [
         {
             field: 'roleOrder',
             headerName: '#',
@@ -68,9 +45,9 @@ export function Roles(props: RolesProps) {
             sortable: false,
             flex: 1,
 
-            renderCell: (row: GridRenderCellParams) => {
-                return row.value ? <VolunteerBadge variant={row.value}
-                                                   fontSize="small" color="primary" />
+            renderCell: params => {
+                return params.value ? <VolunteerBadge variant={params.value}
+                                                      fontSize="small" color="primary" />
                                  : undefined;
             },
 
@@ -94,7 +71,7 @@ export function Roles(props: RolesProps) {
             type: 'boolean',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -108,7 +85,7 @@ export function Roles(props: RolesProps) {
             type: 'boolean',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -121,28 +98,12 @@ export function Roles(props: RolesProps) {
             sortable: false,
             type: 'boolean',
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
         }
     ];
-
-    const router = useRouter();
-
-    const commitEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await callApi('post', '/api/admin/update-role', {
-            ...newRow as Role,
-            roleBadge: newRow.roleBadge !== '(none)' ? newRow.roleBadge : undefined,
-        });
-
-        if (!response.success)
-            return oldRow;
-
-        router.refresh();
-        return newRow;
-
-    }, [ router ]);
 
     return (
         <Paper sx={{ p: 2 }}>
@@ -152,8 +113,8 @@ export function Roles(props: RolesProps) {
             <Alert severity="info" sx={{ mb: 2 }}>
                 This table is editable, and can be used to update the settings for each role.
             </Alert>
-            <OLD_DataTable dense disableFooter commitEdit={commitEdit}
-                           columns={columns} rows={roles} />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableUpdate
+                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} disableFooter />
         </Paper>
     );
 }

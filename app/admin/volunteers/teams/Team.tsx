@@ -18,7 +18,6 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { deepmerge } from '@mui/utils';
 
-import type { Role } from './Roles';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
@@ -56,7 +55,10 @@ export interface TeamProps {
      * The roles that are availble on the Volunteer Manager. Teams are composed of people in various
      * different roles, which can be selected in this component.
      */
-    roles: Role[];
+    roles: {
+        id: number;
+        roleName: string;
+    }[];
 
     /**
      * Information about the team that this component is representing.
