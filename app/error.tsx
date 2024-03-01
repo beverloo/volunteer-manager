@@ -48,6 +48,8 @@ export default function ErrorPage({ error }: { error: Error & { digest?: string 
         if (typeof window === 'undefined')
             return;  // only allow the effect handler to run in client code
 
+        console.error(error);
+
         if (typeof window.avpReportedErrors !== 'number') {
             window.avpLastReportedError = null;
             window.avpReportedErrors = 0;
