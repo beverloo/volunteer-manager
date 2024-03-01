@@ -22,11 +22,6 @@ export const kUpdatePublicationDefinition = z.object({
         event: z.string(),
 
         /**
-         * When set, will update whether availability preferences can be shared by volunteers.
-         */
-        publishAvailability: z.boolean().optional(),
-
-        /**
          * When set, will update whether hotel preferences can be shared by volunteers.
          */
         publishHotels: z.boolean().optional(),
@@ -65,7 +60,6 @@ export async function updatePublication(request: Request, props: ActionProps): P
     });
 
     const updates: {
-        publishAvailability?: number;
         publishHotels?: number;
         publishRefunds?: number;
         publishTrainings?: number;
@@ -78,23 +72,6 @@ export async function updatePublication(request: Request, props: ActionProps): P
 
     if (!eventName)
         notFound();
-
-    if (request.publishAvailability !== undefined) {
-        if (!can(props.user, Privilege.EventAdministrator))
-            noAccess();
-
-        updates.publishAvailability = !!request.publishAvailability ? 1 : 0;
-        await Log({
-            type: LogType.AdminEventPublishInfo,
-            severity: LogSeverity.Warning,
-            sourceUser: props.user,
-            data: {
-                event: eventName,
-                published: !!request.publishAvailability,
-                type: 'availability',
-            },
-        });
-    }
 
     if (request.publishHotels !== undefined) {
         if (!can(props.user, Privilege.EventHotelManagement))

@@ -3531,11 +3531,6 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
-  - name: publish_availability
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
   - name: publish_hotels
     type: tinyint(1)
     nullable: false
@@ -3586,7 +3581,6 @@ tables:
       `event_hotel_room_form` text DEFAULT NULL,
       `event_festival_id` int(8) unsigned DEFAULT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
-      `publish_availability` tinyint(1) NOT NULL DEFAULT 0,
       `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
       `publish_refunds` tinyint(1) NOT NULL DEFAULT 0,
       `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
