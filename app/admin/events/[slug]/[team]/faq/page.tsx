@@ -4,7 +4,7 @@
 import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { KnowledgeConfiguration } from './KnowledgeConfiguration';
+import { CreateQuestionForm } from './CreateQuestionForm';
 import { KnowledgeList } from './KnowledgeList';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
@@ -23,9 +23,7 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
     if (!team.managesFaq)
         notFound();
 
-    const accessConfiguration = can(user, Privilege.EventAdministrator);
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
-
     const scope = createKnowledgeBaseScope(event.id);
 
     return (
@@ -38,8 +36,9 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
                 </SectionIntroduction>
                 <KnowledgeList enableAuthorLink={enableAuthorLink} scope={scope} />
             </Section>
-            { accessConfiguration &&
-                <KnowledgeConfiguration /> }
+            <Section title="Create a new question">
+                <CreateQuestionForm scope={scope} />
+            </Section>
         </>
     );
 }
