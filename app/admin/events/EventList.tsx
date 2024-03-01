@@ -13,8 +13,7 @@ import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import type { DataTableColumn } from '@app/admin/DataTable';
-import { DataTable } from '@app/admin/components/DataTable';
+import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -106,7 +105,7 @@ export interface EventListProps {
  * cases it will be more complete than the menu drop-down list.
  */
 export function EventList(props: EventListProps) {
-    const columns: DataTableColumn[] = [
+    const columns: DataTableColumn<EventListEntry>[] = [
         {
             field: 'hidden',
             headerName: '',
