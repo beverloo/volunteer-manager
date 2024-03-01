@@ -25,11 +25,6 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
  */
 export interface TrainingAssignmentsProps {
     /**
-     * The assignments that should be considered for warnings.
-     */
-    assignments: TrainingsAssignmentsRowModel[];
-
-    /**
      * Slug of the event for which assignments are being shown.
      */
     event: string;
@@ -38,6 +33,11 @@ export interface TrainingAssignmentsProps {
      * Training configuration entries, which the preference/assignment options can be picked from.
      */
     trainings: { value: number; label: string; }[];
+
+    /**
+     * Warnings that should be displayed at the bottom of the assignment table.
+     */
+    warnings: { volunteer: string; warning: string }[];
 }
 
 /**
@@ -144,57 +144,6 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
         }
     ];
 
-    // ---------------------------------------------------------------------------------------------
-    // Compute the warnings that should be displayed regarding training sessions
-    // ---------------------------------------------------------------------------------------------
-
-    const warnings = useMemo(() => {
-        const warnings: { volunteer: string; warning: string }[] = [];
-
-        for (const assignment of props.assignments) {
-            if (assignment.preferredTrainingId === undefined)
-                continue;  // they have not shared their preferences yet
-
-            if (assignment.assignedTrainingId === undefined)
-                continue;  // their preferences have not been acknowledged yet
-
-            const preferredType = typeof assignment.preferredTrainingId;
-            const assignedType = typeof assignment.assignedTrainingId;
-
-            if (preferredType === 'number' && assignedType === 'number') {
-                if (assignment.preferredTrainingId !== assignment.assignedTrainingId) {
-                    warnings.push({
-                        volunteer: assignment.name,
-                        warning: 'has been assigned to a training different from their preferences',
-                    });
-                }
-            }
-
-            if (preferredType === 'number' && assignedType !== 'number') {
-                warnings.push({
-                    volunteer: assignment.name,
-                    warning: 'will be told to skip the training despite wanting to participate',
-                });
-            }
-
-            if (assignedType === 'number' && preferredType !== 'number') {
-                warnings.push({
-                    volunteer: assignment.name,
-                    warning: 'has been assigned to a training despite wanting to skip',
-                });
-            }
-        }
-
-        warnings.sort((lhs, rhs) => {
-            if (lhs.volunteer !== rhs.volunteer)
-                return lhs.volunteer.localeCompare(rhs.volunteer);
-
-            return lhs.warning.localeCompare(rhs.warning);
-        });
-
-        return warnings;
-    }, [ props.assignments ]);
-
     return (
         <Paper sx={{ p: 2, mt: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
@@ -207,10 +156,10 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             <RemoteDataTable columns={columns} endpoint="/api/admin/trainings/assignments"
                              defaultSort={{ field: 'name', sort: 'asc' }} context={context}
                              enableUpdate pageSize={100} disableFooter />
-            <Collapse in={warnings.length > 0}>
+            <Collapse in={!!props.warnings.length}>
                 <Alert severity="warning" sx={{ mt: 2 }}>
                     <Stack direction="column" spacing={0} sx={{ maxWidth: '100%' }}>
-                        { warnings.map(({ volunteer, warning }, index) =>
+                        { props.warnings.map(({ volunteer, warning }, index) =>
                             <Typography key={index} variant="body2">
                                 <strong>{volunteer}</strong> {warning}
                             </Typography> )}

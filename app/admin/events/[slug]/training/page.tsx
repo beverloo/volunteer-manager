@@ -14,6 +14,7 @@ import { TrainingAssignments } from './TrainingAssignments';
 import { TrainingConfiguration } from './TrainingConfiguration';
 import { TrainingExternal } from './TrainingExternal';
 import { TrainingOverview, type TrainingConfirmation } from './TrainingOverview';
+import { TrainingProcessor } from './TrainingProcessor';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
@@ -21,11 +22,11 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
     tUsers } from '@lib/database';
 
 export default async function EventTrainingPage(props: NextRouterParams<'slug'>) {
-    const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, user } = await verifyAccessAndFetchPageInfo(
+        props.params, Privilege.EventTrainingManagement);
 
-    // Training management is more restricted than the general event administration.
-    if (!can(user, Privilege.EventTrainingManagement))
-        notFound();
+    const processor = new TrainingProcessor(event.id);
+    await processor.initialise();
 
     const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
 
@@ -100,45 +101,33 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
         .executeSelectMany();
 
     // ---------------------------------------------------------------------------------------------
-    // Assemble the training options that are available for this event
-    // ---------------------------------------------------------------------------------------------
-
-    const trainingOptions = [
-        { value: -1, label: ' ' },
-        { value: 0, label: 'Skip the training' },
-        ...trainings.map(training => ({
-            value: training.id,
-            label: formatDate(training.trainingStart, 'dddd, MMMM D'),
-        })),
-    ];
-
-    // ---------------------------------------------------------------------------------------------
     // Combine the information to create a comprehensive assignment table
     // ---------------------------------------------------------------------------------------------
 
-    const trainingAssignments: TrainingsAssignmentsRowModel[] = [];
+    const trainingAssignments: Omit<TrainingsAssignmentsRowModel, 'id'>[] = [];
 
     for (const assignment of [ ...assignments, ...extraParticipants ]) {
         let preferredTrainingId: number | null | undefined = undefined;
-        let assignedTrainingId: number | null | undefined = undefined;
+        let assignedTrainingId: number | undefined = undefined;
 
         if (!!assignment.preferenceUpdated)
             preferredTrainingId = assignment.preferenceTrainingId ?? null;
 
         if (!!assignment.assignedUpdated)
-            assignedTrainingId = assignment.assignedTrainingId ?? null;
+            assignedTrainingId = assignment.assignedTrainingId ?? /* skip= */ 0;
 
         if ('trainingExtraName' in assignment) {
             trainingAssignments.push({
-                id: `extra/${assignment.id}`,
                 name: assignment.trainingExtraName,
+
+                // userId: none
+                // team: none
 
                 preferredTrainingId, assignedTrainingId,
                 confirmed: !!assignment.confirmed,
             });
         } else {
             trainingAssignments.push({
-                id: `user/${assignment.userId}`,
                 name: assignment.name,
 
                 userId: assignment.userId,
@@ -200,6 +189,9 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             Temporal.ZonedDateTime.from(rhs.date));
     });
 
+    const trainingOptions = processor.compileTrainingOptions();
+    const warnings = processor.compileWarnings();
+
     const enableExport = can(user, Privilege.VolunteerDataExports);
 
     return (
@@ -209,8 +201,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             </Collapse>
             <Collapse in={event.publishTrainings && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>
-                <TrainingAssignments assignments={trainingAssignments} event={event.slug}
-                                     trainings={trainingOptions} />
+                <TrainingAssignments event={event.slug} trainings={trainingOptions}
+                                     warnings={warnings}/>
             </Collapse>
             <TrainingExternal event={event} trainings={trainingOptions} />
             <TrainingConfiguration event={event} />
