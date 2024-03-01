@@ -5,14 +5,14 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { ContentType, EventAvailabilityStatus, FileType } from '@lib/database/Types';
+import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { noAccess, type ActionProps } from '../Action';
 import { storeBlobData } from '@lib/database/BlobStore';
-import db, { tContent, tEvents, tEventsTeams } from '@lib/database';
+import db, { tEvents } from '@lib/database';
 
 import { kTemporalZonedDateTime } from '../Types';
 
@@ -63,20 +63,6 @@ export const kUpdateEventDefinition = z.object({
          * The updated event slug that this event should be changed to.
          */
         eventSlug: z.string().optional(),
-
-        /**
-         * The team that should be updated as part of this event's settings.
-         */
-        team: z.object({
-            id: z.number(),
-
-            enableTeam: z.boolean(),
-            enableContent: z.boolean(),
-            enableRegistration: z.boolean(),
-            enableSchedule: z.boolean(),
-            targetSize: z.number(),
-            whatsappLink: z.string().optional(),
-        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -248,73 +234,6 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         }
 
         return { success: !!affectedRows, slug: request.eventSlug };
-    }
-
-    if (request.team !== undefined) {
-        const dbInstance = db;
-        const success = await dbInstance.transaction(async () => {
-            if (!request.team)
-                return false;  // microtasks, you know...
-
-            const affectedRows = await dbInstance.insertInto(tEventsTeams)
-                .set({
-                    eventId: event.eventId,
-                    teamId: request.team.id,
-                    teamTargetSize: request.team.targetSize,
-                    enableTeam: request.team.enableTeam ? 1 : 0,
-                    enableContent: request.team.enableContent ? 1 : 0,
-                    enableRegistration: request.team.enableRegistration ? 1 : 0,
-                    enableSchedule: request.team.enableSchedule ? 1 : 0,
-                    whatsappLink: request.team.whatsappLink,
-                })
-                .onConflictDoUpdateSet({
-                    teamTargetSize: request.team.targetSize,
-                    enableTeam: request.team.enableTeam ? 1 : 0,
-                    enableContent: request.team.enableContent ? 1 : 0,
-                    enableRegistration: request.team.enableRegistration ? 1 : 0,
-                    enableSchedule: request.team.enableSchedule ? 1 : 0,
-                    whatsappLink: request.team.whatsappLink,
-                })
-                .executeInsert();
-
-            if (!!affectedRows && request.team.enableTeam) {
-                const pages = [
-                    { contentPath: '', contentTitle: event.shortName },
-                    { contentPath: 'application', contentTitle: 'Apply to join' },
-                ];
-
-                await dbInstance.insertInto(tContent)
-                    .values(pages.map((pageProps) => ({
-                        eventId: event.eventId,
-                        teamId: request.team!.id,
-                        contentType: ContentType.Page,
-                        content: 'No content has been written yet…',
-                        contentProtected: 1,
-                        revisionAuthorId: props.user!.userId,
-                        revisionVisible: 1,
-                        ...pageProps,
-                    })))
-                    .onConflictDoNothing()
-                    .executeInsert();
-            }
-
-            return !!affectedRows;
-        });
-
-        if (success) {
-            await Log({
-                type: LogType.AdminUpdateEvent,
-                severity: LogSeverity.Warning,
-                sourceUser: props.user,
-                data: {
-                    action: 'team settings',
-                    event: event.shortName,
-                    team: request.team.id,
-                }
-            });
-        }
-
-        return { success };
     }
 
     return { success: false };

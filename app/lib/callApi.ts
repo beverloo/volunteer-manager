@@ -53,6 +53,7 @@ import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
+import type { EventTeamEndpoints } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignments/[[...id]]/route';
 import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
@@ -86,6 +87,7 @@ export type ApiEndpoints = {
     'get': {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
+        '/api/admin/event/teams': EventTeamEndpoints['list'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['list'],
         '/api/admin/hotels': HotelsEndpoints['list'],
@@ -181,6 +183,7 @@ export type ApiEndpoints = {
     },
     'put': {
         '/api/admin/content/:id': ContentEndpoints['update'],
+        '/api/admin/event/teams/:id': EventTeamEndpoints['update'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['update'],
         '/api/admin/hotels/:id': HotelsEndpoints['update'],
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],

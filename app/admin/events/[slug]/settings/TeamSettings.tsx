@@ -3,65 +3,15 @@
 
 'use client';
 
-import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { DataTableColumn } from '@app/admin/DataTable';
+import type { EventTeamRowModel } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { OLD_DataTable } from '@app/admin/DataTable';
-import { callApi } from '@lib/callApi';
-
-/**
- * Settings related to an individual team whose settings can be updated on this page.
- */
-export interface TeamSettings {
-    /**
-     * Unique ID of the team as it exists in the database.
-     */
-    id: number;
-
-    /**
-     * Name of the team that these settings are for.
-     */
-    name: string;
-
-    /**
-     * The ideal number of volunteers that we'll recruit into this team.
-     */
-    targetSize?: number;
-
-    /**
-     * Whether this team participates in this event at all.
-     */
-    enableTeam?: boolean;
-
-    /**
-     * Whether this team's volunteer portal highlights this event.
-     */
-    enableContent?: boolean;
-
-    /**
-     * Whether this team is currently accepting applications for new volunteers.
-     */
-    enableRegistration?: boolean;
-
-    /**
-     * Whether volunteers in this team can access the volunteer portal.
-     */
-    enableSchedule?: boolean;
-
-    /**
-     * Link that can be shared with accepted volunteers in this team to join the WhatsApp group.
-     */
-    whatsappLink?: string;
-}
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
  * Props accepted by the <TeamSettings> component.
@@ -71,11 +21,6 @@ export interface TeamSettingsProps {
      * Information about the event whose settings are being changed.
      */
     event: PageInfo['event'];
-
-    /**
-     * The teams that should be displayed as configurable on this page.
-     */
-    teams: TeamSettings[];
 }
 
 /**
@@ -84,9 +29,10 @@ export interface TeamSettingsProps {
  * well as targets regarding the number of volunteers that should participate.
  */
 export function TeamSettings(props: TeamSettingsProps) {
-    const { event, teams } = props;
+    const { event } = props;
 
-    const columns: DataTableColumn[] = [
+    const context = { event: props.event.slug };
+    const columns: RemoteDataTableColumn<EventTeamRowModel>[] = [
         {
             field: 'enableTeam',
             headerName: '',
@@ -95,7 +41,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             type: 'boolean',
             width: 75,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -127,7 +73,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             type: 'boolean',
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -141,7 +87,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             type: 'boolean',
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -155,7 +101,7 @@ export function TeamSettings(props: TeamSettingsProps) {
             type: 'boolean',
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
                                       : <CancelIcon fontSize="small" color="error" />;
             },
@@ -171,42 +117,18 @@ export function TeamSettings(props: TeamSettingsProps) {
         },
     ];
 
-    const router = useRouter();
-
-    const handleEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await callApi('post', '/api/admin/update-event', {
-            event: event.slug,
-            team: {
-                id: oldRow.id,
-
-                enableTeam: !!newRow.enableTeam,
-                enableContent: !!newRow.enableContent,
-                enableRegistration: !!newRow.enableRegistration,
-                enableSchedule: !!newRow.enableSchedule,
-                targetSize: newRow.targetSize,
-                whatsappLink: newRow.whatsappLink,
-            }
-        });
-
-        if (!response.success)
-            return oldRow;
-
-        router.refresh();
-        return newRow;
-
-    }, [ event, router ]);
-
     return (
         <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 2 }}>
+            <Typography variant="h5" sx={{ pb: 1 }}>
                 Team settings
             </Typography>
             <Alert severity="info" sx={{ mb: 2 }}>
                 Double click to edit the settings for <strong>{event.shortName}</strong> associated
                 with a particular team.
             </Alert>
-            <OLD_DataTable dense disableFooter columns={columns} rows={teams}
-                           commitEdit={handleEdit} />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/event/teams" context={context}
+                             enableUpdate defaultSort={{ field: 'name', sort: 'asc' }}
+                             disableFooter />
         </Paper>
     );
 }
