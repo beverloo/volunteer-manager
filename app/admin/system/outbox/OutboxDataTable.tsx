@@ -3,20 +3,16 @@
 
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 
-import type { GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
-import type { DataTableColumn, DataTableRowRequest } from '@app/admin/DataTable';
-import { OLD_DataTable } from '../../DataTable';
+import type { OutboxRowModel } from '@app/api/admin/outbox/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { callApi } from '@lib/callApi';
 
 /**
  * The <OutboxDataTable> component displays all e-mail messages that have been sent by the AnimeCon
@@ -25,15 +21,14 @@ import { callApi } from '@lib/callApi';
  */
 export function OutboxDataTable() {
     const localTz = Temporal.Now.timeZoneId();
-
-    const columns: DataTableColumn[] = [
+    const columns: RemoteDataTableColumn<OutboxRowModel>[] = [
         {
             field: 'id',
             headerName: '',
             sortable: false,
             width: 50,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <MuiLink component={Link} href={`./outbox/${params.value}`} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
                 </MuiLink>,
@@ -43,7 +38,7 @@ export function OutboxDataTable() {
             headerName: 'Date',
             width: 150,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss'),
@@ -54,7 +49,7 @@ export function OutboxDataTable() {
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.row.fromUserId)
                     return params.value;
 
@@ -71,7 +66,7 @@ export function OutboxDataTable() {
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.row.fromUserId)
                     return params.value;
 
@@ -88,7 +83,7 @@ export function OutboxDataTable() {
             sortable: true,
             flex: 3,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <MuiLink component={Link} href={`./outbox/${params.row.id}`}>
                     {params.value}
                 </MuiLink>,
@@ -102,21 +97,12 @@ export function OutboxDataTable() {
             sortable: true,
             width: 100,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 params.value ? <CheckCircleIcon fontSize="small" color="success" />
                              : <CancelIcon fontSize="small" color="error" />,
         },
     ];
 
-    const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
-        return await callApi('post', '/api/admin/outbox', {
-            page: request.page,
-            pageSize: request.pageSize,
-            sortModel: request.sortModel as any,
-        });
-    }, [ /* no deps */ ]);
-
-    return <OLD_DataTable dense onRequestRows={onRequestRows} columns={columns}
-                          initialSortItem={ { field: 'date', sort: 'desc' }}
-                          pageSize={50} pageSizeOptions={[ 25, 50, 100 ]} />;
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox"
+                            defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }

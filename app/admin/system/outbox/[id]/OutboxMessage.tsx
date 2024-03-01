@@ -16,7 +16,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 
-import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
+import type { OutboxRowModel } from '@app/api/admin/outbox/[[...id]]/route';
 import { DetailedLogs } from './DetailedLogs';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
@@ -36,12 +36,13 @@ export interface OutboxMessageProps {
  * volunteers. The message content will be retrieved through an API.
  */
 export function OutboxMessage(props: OutboxMessageProps) {
-    const [ message, setMessage ] = useState<GetOutboxDefinition['response'] | undefined>();
+    const [ message, setMessage ] = useState<OutboxRowModel | undefined>();
 
     useEffect(() => {
         setMessage(undefined);
         callApi('get', '/api/admin/outbox/:id', { id: props.id }).then(response => {
-            setMessage(response);
+            if (!!response.success)
+                setMessage(response.row);
         });
     }, [ props.id ]);
 

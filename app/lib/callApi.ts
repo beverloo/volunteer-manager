@@ -10,12 +10,9 @@ import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePassk
 import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
-import type { GetOutboxDefinition } from '@app/api/admin/outbox/getOutbox';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
-import type { ListOutboxDefinition } from '@app/api/admin/outbox/listOutbox';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
-import type { LogsDefinition } from '@app/api/admin/logs';
 import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
@@ -60,7 +57,9 @@ import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignments/[[...id]]/route';
 import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
+import type { LogsEndpoints } from '@app/api/admin/logs/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
+import type { OutboxEndpoints } from '@app/api/admin/outbox/[[...id]]/route';
 import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program/changes/route';
 import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations/[[...id]]/route';
@@ -90,7 +89,10 @@ export type ApiEndpoints = {
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['list'],
         '/api/admin/hotels': HotelsEndpoints['list'],
-        '/api/admin/outbox/:id': GetOutboxDefinition,
+        '/api/admin/logs': LogsEndpoints['list'],
+        '/api/admin/logs/:id': LogsEndpoints['get'],
+        '/api/admin/outbox': OutboxEndpoints['list'],
+        '/api/admin/outbox/:id': OutboxEndpoints['get'],
         '/api/admin/program/areas': ProgramAreasEndpoints['list'],
         '/api/admin/program/changes': ProgramChangesEndpoints['list'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['list'],
@@ -111,7 +113,6 @@ export type ApiEndpoints = {
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
         '/api/admin/hotels': HotelsEndpoints['create'],
-        '/api/admin/logs': LogsDefinition,
         '/api/admin/program/areas': ProgramAreasEndpoints['create'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
         '/api/admin/reset-access-code': ResetAccessCodeDefinition,
@@ -164,9 +165,6 @@ export type ApiEndpoints = {
         '/api/event/trainings': TrainingsDefinition,  // FIXME: move to GET?
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
-
-        // TODO: Move to GET when `writeToSearchParams` can deal with arrays:
-        '/api/admin/outbox': ListOutboxDefinition,
     },
     'delete': {
         '/api/admin/content/:id': ContentEndpoints['delete'],
@@ -218,6 +216,9 @@ function writeToSearchParams(searchParams: URLSearchParams, value: any, path: st
 
         return;
     }
+
+    if (typeof value === 'undefined')
+        return;
 
     searchParams.set(path.join('.'), `${value}`);
 }

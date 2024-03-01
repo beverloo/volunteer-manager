@@ -130,7 +130,7 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
                         Logs
                     </Typography>
                     <LogsDataTable filters={{ sourceOrTargetUserId: account.userId }}
-                                   pageSize={10} pageSizeOptions={[ 10, 25, 50 ]} />
+                                   pageSize={10} />
                 </Paper> }
 
             { can(user, Privilege.Administrator) &&

@@ -264,29 +264,17 @@ const kLogMessageFormatter: {
 };
 
 /**
- * Sort item indicating a sorting priority for the log items.
+ * Sort model to apply for the returned log items.
  */
-export interface LogsSortItem {
-    /**
-     * The field on which the sort should be applied.
-     */
-    field: 'date' | 'severity' | 'source' | 'target';
-
-    /**
-     * The direction of sorting that should be considered.
-     */
-    sort?: 'asc' | 'desc' | null;
+interface FetchLogsSort {
+    field: 'id' | 'data' | 'date' | 'message' | 'severity' | 'source' | 'target';
+    sort: 'asc' | 'desc' | null;
 }
 
 /**
  * Parameters that can be passed to the fetchLogs() function.
  */
-export interface FetchLogsParams {
-    /**
-     * Maximum number of messages to fetch. Defaults to 100.
-     */
-    limit?: number;
-
+interface FetchLogsParams {
     /**
      * Message severity to consider. Defaults to [Info, Warning, Error].
      */
@@ -298,20 +286,23 @@ export interface FetchLogsParams {
     sourceOrTargetUserId?: number;
 
     /**
-     * Result index at which to start the results. Defaults to 0.
-     */
-    start?: number;
-
-    /**
      * Sort model to apply for the returned log items. Defaults to date, in descending order.
      */
-    sortModel?: LogsSortItem[];
+    sort?: FetchLogsSort;
+
+    /**
+     * Pagination that should be applied to the logs data request.
+     */
+    pagination?: {
+        page: number;
+        pageSize: number;
+    },
 }
 
 /**
  * The response that a call to fetchLogs() can expect.
  */
-export interface FetchLogsResponse {
+interface FetchLogsResponse {
     /**
      * Total number of log messages that could be fetched, ignoring limitations.
      */
@@ -327,51 +318,47 @@ export interface FetchLogsResponse {
  * Normalizes the sort model based on the request's input, to something that the database is able to
  * deal with. The sort model will be applied in the query.
  */
-function normalizeSortModel(sortModel?: LogsSortItem[]): string {
-    const sortItems: string[] = [];
-    for (const { field, sort } of sortModel ?? [ { field: 'date', sort: 'desc' }]) {
-        let column: string;
-        switch (field) {
-            case 'date':
-            case 'severity':
-                column = field;
-                break;
+function normalizeSortModel(sortModel?: FetchLogsSort): string {
+    const { field, sort } = sortModel ?? { field: 'date', sort: 'asc' };
 
-            case 'source':
-                column = 'sourceUserName';
-                break;
+    let column: string;
+    switch (field) {
+        case 'id':
+        case 'data':
+        case 'date':
+        case 'severity':
+            column = field;
+            break;
 
-            case 'target':
-                column = 'targetUserName';
-                break;
+        case 'source':
+            column = 'sourceUserName';
+            break;
 
-            default:
-                throw new Error(`Unrecognised field: ${field}`);
-        }
+        case 'target':
+            column = 'targetUserName';
+            break;
 
-        let order: string;
-        switch (sort) {
-            case 'asc':
-            case 'desc':
-            case undefined:
-                order = sort ?? 'asc';
-                break;
-
-            case null:
-                order = 'asc nulls last';
-                break;
-
-            default:
-                throw new Error(`Unrecognised sort order: ${sort}`);
-        }
-
-        sortItems.push(`${column} ${order}`);
+        default:
+            throw new Error(`Unrecognised field: ${field}`);
     }
 
-    if (!sortItems.length)
-        return 'date asc';
+    let order: string;
+    switch (sort) {
+        case 'asc':
+        case 'desc':
+        case undefined:
+            order = sort ?? 'asc';
+            break;
 
-    return sortItems.join(', ');
+        case null:
+            order = 'asc nulls last';
+            break;
+
+        default:
+            throw new Error(`Unrecognised sort order: ${sort}`);
+    }
+
+    return `${column} ${order}`;
 }
 
 /**
@@ -393,7 +380,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
             severity: tLogs.logSeverity,
 
             // Columns that will be processed:
-            logData: tLogs.logData,
+            data: tLogs.logData,
             logType: tLogs.logType,
 
             // Source user:
@@ -404,9 +391,10 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
             targetUserId: tLogs.logTargetUserId,
             targetUserName: targetUserJoin.name,
         })
-        .orderByFromString(normalizeSortModel(params.sortModel))
-        .limit(params.limit ?? 100)
-        .offsetIfValue(params.start)
+        .orderByFromString(normalizeSortModel(params.sort))
+        .limitIfValue(params.pagination?.pageSize)
+            .offsetIfValue(params.pagination ? params.pagination.page * params.pagination.pageSize
+                                             : undefined)
         .where(tLogs.logSeverity.in(
             params.severity ?? [ LogSeverity.Info, LogSeverity.Warning, LogSeverity.Error ]));
 
@@ -423,7 +411,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
     const logs: LogMessage[] = [];
     for (const row of data) {
         const formatter = kLogMessageFormatter[row.logType as keyof typeof kLogMessageFormatter];
-        const data = row.logData ? JSON.parse(row.logData) : undefined;
+        const data = row.data ? JSON.parse(row.data) : undefined;
 
         let source = undefined;
         if (row.sourceUserId && row.sourceUserName)

@@ -3,27 +3,22 @@
 
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
-
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
-import type { DataTableBaseProps, DataTableColumn } from '@app/admin/DataTable';
-import type { DataTableRowRequest } from '@app/admin/DataTable';
-import { OLD_DataTable } from '../../DataTable';
+import type { LogsRowModel } from '@app/api/admin/logs/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { callApi } from '@lib/callApi';
 
 /**
  * Props made available to the <LogsDataTable> component.
  */
-export interface LogsDataTableProps extends Omit<DataTableBaseProps, 'dense'> {
+export interface LogsDataTableProps {
     /**
      * Filters to apply to the logs selection. Filters are optional, and will be communicated with
      * the server where the actual filtering will take place.
@@ -31,6 +26,11 @@ export interface LogsDataTableProps extends Omit<DataTableBaseProps, 'dense'> {
     filters?: {
         sourceOrTargetUserId?: number;
     };
+
+    /**
+     * Optional setting for the number of items that should be shown per page.
+     */
+    pageSize?: 10 | 25 | 50 | 100;
 }
 
 /**
@@ -38,18 +38,19 @@ export interface LogsDataTableProps extends Omit<DataTableBaseProps, 'dense'> {
  * transform the data and add interaction where applicable.
  */
 export function LogsDataTable(props: LogsDataTableProps) {
-    const { filters, ...dataTableProps } = props;
+    const { filters, pageSize } = props;
 
     const localTz = Temporal.Now.timeZoneId();
 
-    const columns: DataTableColumn[] = useMemo(() => ([
+    const context = { v: '1', userId: filters?.sourceOrTargetUserId } as const;
+    const columns: RemoteDataTableColumn<LogsRowModel>[] = [
         {
             field: 'severity',
             headerName: '',
             align: 'center',
             width: 50,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 switch (params.value) {
                     case 'Debug':
                         return <CircleOutlinedIcon color="action" />;
@@ -69,7 +70,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
             headerName: 'Date',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss'),
@@ -85,7 +86,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
             headerName: 'Source user',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.value)
                     return undefined;
 
@@ -101,7 +102,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
             headerName: 'Target user',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.value)
                     return undefined;
 
@@ -112,19 +113,9 @@ export function LogsDataTable(props: LogsDataTableProps) {
                 );
             },
         },
-    ]), [ localTz ]);
+    ];
 
-    const onRequestRows = useCallback(async (request: DataTableRowRequest) => {
-        return await callApi('post', '/api/admin/logs', {
-            filters: {
-                sourceOrTargetUserId: filters?.sourceOrTargetUserId,
-            },
-            page: request.page,
-            pageSize: request.pageSize,
-            sortModel: request.sortModel as any,
-        });
-    }, [ filters ]);
-
-    return <OLD_DataTable {...dataTableProps} dense onRequestRows={onRequestRows} columns={columns}
-                          initialSortItem={ { field: 'date', sort: 'desc' }} />;
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/logs" context={context}
+                            defaultSort={{ field: 'date', sort: 'desc' }}
+                            pageSize={ pageSize ?? 50 } />;
 }
