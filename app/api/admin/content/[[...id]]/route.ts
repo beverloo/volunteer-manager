@@ -310,8 +310,24 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 eventName: eventsJoin.eventShortName,
                 teamName: teamsJoin.teamName,
                 contentTitle: tContent.contentTitle,
+                contentType: tContent.contentType,
             })
             .executeSelectNoneOrOne();
+
+        if (contentContext?.contentType === ContentType.FAQ) {
+            await Log({
+                type: LogType.AdminKnowledgeBaseMutation,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                data: {
+                    mutation,
+                    event: contentContext.eventName,
+                    question: contentContext.contentTitle,
+                },
+            });
+
+            return;
+        }
 
         let resolvedContext = `with unknown context (id: ${id})`;
         if (contentContext) {

@@ -4,8 +4,9 @@
 import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { Section } from '@app/admin/components/Section';
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { ContentEditor } from '@app/admin/content/ContentEditor';
+import { SectionHeader } from '@app/admin/components/SectionHeader';
+import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
@@ -13,17 +14,17 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * This page displays an individual FAQ entry, which allows the volunteer to change both the
  * question and the answer to the question. A rich text editing component is made available.
  */
-export default async function EventTeamFaqEntryPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventFaqEntryPage(props: NextRouterParams<'slug' | 'team' | 'id'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
 
+    const scope = createKnowledgeBaseScope(event.id);
+
     return (
-        <Section title="Knowledge base" subtitle={event.shortName}>
-            <SectionIntroduction important>
-                The question page has not been implemented yet.
-            </SectionIntroduction>
-        </Section>
+        <ContentEditor contentId={parseInt(props.params.id)} pathHidden scope={scope}>
+            <SectionHeader title="Knowledge base" subtitle={event.shortName} sx={{ mb: 1 }} />
+        </ContentEditor>
     );
 }
 

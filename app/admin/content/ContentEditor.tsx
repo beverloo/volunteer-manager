@@ -41,6 +41,12 @@ export interface ContentEditorProps {
     contentId: number;
 
     /**
+     * Whether the path should be hidden in its entirety, in case it's not relevant for the type of
+     * contant for which the editor is being presented.
+     */
+    pathHidden?: boolean;
+
+    /**
      * Prefix to display at the beginning of the content's path.
      */
     pathPrefix?: string;
@@ -58,6 +64,8 @@ export interface ContentEditorProps {
  */
 export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>) {
     const ref = useRef<MDXEditorMethods>(null);
+
+    const [ defaultValues, setDefaultValues ] = useState<ContentRowModel>();
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -77,7 +85,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                 row: {
                     id: props.contentId,
                     content: ref.current.getMarkdown(),
-                    path: data.path,
+                    path: data.path ?? defaultValues?.path,
                     title: data.title,
                     updatedOn: '',  // ignored
                     updatedBy: '',  // ignored
@@ -95,9 +103,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
         } finally {
             setLoading(false);
         }
-    }, [ props.contentId, props.scope, ref ]);
-
-    const [ defaultValues, setDefaultValues ] = useState<ContentRowModel>();
+    }, [ defaultValues, props.contentId, props.scope, ref ]);
 
     const [ contentProtected, setContentProtected ] = useState<boolean>(false);
     const [ markdown, setMarkdown ] = useState<string>();
@@ -151,20 +157,22 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                         <TextFieldElement name="title" label="Content title" fullWidth size="small"
                                           required />
                     </Grid>
-                    <Grid xs={12}>
-                        <Stack direction="row" spacing={1}>
-                            { props.pathPrefix &&
-                                <Typography sx={{ pt: '9px' }}>
-                                    {props.pathPrefix}
-                                </Typography> }
-                            <TextFieldElement name="path" label="Content path" fullWidth
-                                              size="small" required={!contentProtected}
-                                              validation={{
-                                                  validate: contentProtected ? undefined
-                                                                             : validateContentPath
-                                              }} InputProps={{ readOnly: !!contentProtected }}/>
-                        </Stack>
-                    </Grid>
+                    { !props.pathHidden &&
+                        <Grid xs={12}>
+                            <Stack direction="row" spacing={1}>
+                                { props.pathPrefix &&
+                                    <Typography sx={{ pt: '9px' }}>
+                                        {props.pathPrefix}
+                                    </Typography> }
+                                <TextFieldElement name="path" label="Content path" fullWidth
+                                                  size="small" required={!contentProtected}
+                                                  validation={{
+                                                      validate:
+                                                          contentProtected ? undefined
+                                                                           : validateContentPath
+                                                  }} InputProps={{ readOnly: !!contentProtected }}/>
+                            </Stack>
+                        </Grid> }
                 </Grid>
             </Paper>
             <Paper sx={{ mt: 2, p: 2, pb: '0.1px' }}>

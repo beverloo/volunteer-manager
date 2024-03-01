@@ -151,6 +151,9 @@ const kLogMessageFormatter: {
     [LogType.AdminImpersonateVolunteer]: (source, target, data) => {
         return `Impersonated ${target?.name}'s account`;
     },
+    [LogType.AdminKnowledgeBaseMutation]: (source, target, { mutation, event, question }) => {
+        return `${mutation} the "${question}" question for ${event}`;
+    },
 
     [LogType.AdminNardoMutation]: (source, target, { mutation }) => {
         return `${mutation} an excellent piece of Del a Rie Advies`;

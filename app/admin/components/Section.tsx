@@ -3,24 +3,14 @@
 
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+
+import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 
 /**
  * Props accepted by the <Section> component.
  */
-export interface SectionProps {
-    /**
-     * Title of this section. Required.
-     */
-    title: string;
-
-    /**
-     * Subtitle to contextualize the header, displayed immediately adjacent to the title. Optional.
-     */
-    subtitle?: string;
-
-    // TODO: Privilege
-    // TODO: Action
+export interface SectionProps extends SectionHeaderProps {
+    // TODO: Additional options go here.
 }
 
 /**
@@ -36,16 +26,12 @@ export interface SectionProps {
  * require them, to enable interaction such as a clear button.
  */
 export function Section(props: React.PropsWithChildren<SectionProps>) {
+    const { children, ...sectionHeaderProps } = props;
+
     return (
         <Paper component={Stack} direction="column" spacing={2} sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: '-8px !important' }}>
-                {props.title}
-                { props.subtitle &&
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({props.subtitle})
-                    </Typography> }
-            </Typography>
-            {props.children}
+            <SectionHeader {...sectionHeaderProps} />
+            {children}
         </Paper>
     );
 }
