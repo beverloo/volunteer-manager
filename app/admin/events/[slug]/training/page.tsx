@@ -211,8 +211,7 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
                 <TrainingAssignments assignments={trainingAssignments} event={event.slug}
                                      trainings={trainingOptions} />
             </Collapse>
-            <TrainingExternal event={event} participants={extraParticipants}
-                              trainings={trainingOptions} />
+            <TrainingExternal event={event} trainings={trainingOptions} />
             <TrainingConfiguration event={event} />
         </>
     );

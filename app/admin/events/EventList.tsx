@@ -5,7 +5,6 @@
 
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -115,7 +114,7 @@ export function EventList(props: EventListProps) {
             align: 'center',
             width: 75,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 params.value ? kEventSuspendedIcon : kEventActiveIcon,
         },
         {
@@ -124,7 +123,7 @@ export function EventList(props: EventListProps) {
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <MuiLink component={Link} href={`/admin/events/${params.row.slug}`}>
                     {params.value}
                 </MuiLink>
@@ -135,7 +134,7 @@ export function EventList(props: EventListProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         },
         {
@@ -144,7 +143,7 @@ export function EventList(props: EventListProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD'),
         },
         {
@@ -153,7 +152,7 @@ export function EventList(props: EventListProps) {
             sortable: false,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.value.length)
                     return undefined;
 

@@ -8,7 +8,6 @@ import { createEvent, kCreateEventDefinition } from '../createEvent';
 import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { serviceHealth, kServiceHealthDefinition } from '../serviceHealth';
-import { trainingExtra, kTrainingExtraDefinition } from '../trainingExtra';
 import { training, kTrainingDefinition } from '../training';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updateEvent, kUpdateEventDefinition } from '../updateEvent';
@@ -44,8 +43,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kServiceHealthDefinition, serviceHealth);
         case 'training':
             return executeAction(request, kTrainingDefinition, training);
-        case 'training-extra':
-            return executeAction(request, kTrainingExtraDefinition, trainingExtra);
         case 'reset-password-link':
             return executeAction(request, kResetPasswordLinkDefinition, resetPasswordLink);
         case 'update-activation':

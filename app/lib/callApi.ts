@@ -31,7 +31,6 @@ import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
 import type { TrainingDefinition } from '@app/api/admin/training';
-import type { TrainingExtraDefinition } from '@app/api/admin/trainingExtra';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
@@ -69,6 +68,7 @@ import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/rout
 import type { RolesEndpoints } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
 import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
+import type { TrainingsExtraEndpoints } from '@app/api/admin/trainings/extra/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
 import type { WhatsAppEndpoints } from '@app/api/admin/whatsapp/recipients/[[...id]]/route';
 
@@ -104,6 +104,7 @@ export type ApiEndpoints = {
         '/api/admin/scheduler': SchedulerEndpoints['list'],
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
         '/api/admin/trainings': TrainingsEndpoints['list'],
+        '/api/admin/trainings/extra': TrainingsExtraEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
         '/api/admin/volunteers/roles': RolesEndpoints['list'],
         '/api/admin/whatsapp/recipients': WhatsAppEndpoints['list'],
@@ -122,9 +123,9 @@ export type ApiEndpoints = {
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/service-health': ServiceHealthDefinition,
-        '/api/admin/training-extra': TrainingExtraDefinition,
         '/api/admin/training': TrainingDefinition,
         '/api/admin/trainings': TrainingsEndpoints['create'],
+        '/api/admin/trainings/extra': TrainingsExtraEndpoints['create'],
         '/api/admin/update-activation': UpdateActivationDefinition,
         '/api/admin/update-event': UpdateEventDefinition,
         '/api/admin/update-integration': UpdateIntegrationDefinition,
@@ -176,6 +177,7 @@ export type ApiEndpoints = {
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
+        '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['delete'],
         '/api/admin/vendors/:id': VendorEndpoints['delete'],
         '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
@@ -192,6 +194,7 @@ export type ApiEndpoints = {
         '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
+        '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['update'],
         '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
         '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['update'],

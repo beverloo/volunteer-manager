@@ -5,12 +5,10 @@
 
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 
-import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
-
 import type { NardoRowModel } from '@app/api/nardo/[[...id]]/route';
+import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
@@ -40,7 +38,7 @@ export function NardoDataTable() {
             filterable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return (
                     <MuiLink component={Link} href={`/admin/volunteers/${params.row.authorUserId}`}>
                         {params.value}
@@ -54,7 +52,7 @@ export function NardoDataTable() {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD'),

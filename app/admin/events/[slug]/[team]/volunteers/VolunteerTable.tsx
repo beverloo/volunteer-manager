@@ -7,7 +7,6 @@ import Link from 'next/link';
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
@@ -100,7 +99,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
             sortable: false,
             width: 50,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <MuiLink component={Link} href={kVolunteerBase + params.value} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
                 </MuiLink>,
@@ -111,7 +110,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
             sortable: false,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 return (
                     <React.Fragment>
                         <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
@@ -136,7 +135,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
             sortable: true,
             width: 200,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <>
                     {params.value}
                     {params.row.shiftSeconds &&
@@ -151,7 +150,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
             sortable: false,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 let availabilityIcon: React.ReactNode = undefined;
                 if (!!params.row.availabilityConfirmed) {
                     availabilityIcon = (

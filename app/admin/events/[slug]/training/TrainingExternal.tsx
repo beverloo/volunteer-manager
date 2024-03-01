@@ -3,9 +3,6 @@
 
 'use client';
 
-import { useCallback } from 'react';
-
-import type { GridRenderCellParams, GridValidRowModel } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Paper from '@mui/material/Paper';
@@ -13,44 +10,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { OLD_DataTable, type DataTableColumn } from '@app/admin/DataTable';
+import type { TrainingsExtraRowModel } from '@app/api/admin/trainings/extra/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal } from '@lib/Temporal';
-import { callApi } from '@lib/callApi';
-
-/**
- * Configuration options available for extra training participants.
- */
-export interface TrainingExternalEntry {
-    /**
-     * Unique ID of this entry in the training configuration.
-     */
-    id: number;
-
-    /**
-     * Name of the participant who would like to join.
-     */
-    trainingExtraName?: string;
-
-    /**
-     * E-mail address of the participant who would like to join.
-     */
-    trainingExtraEmail?: string;
-
-    /**
-     * Date of birth of the participant, which we need for certification purposes.
-     */
-    trainingExtraBirthdate?: string;
-
-    /**
-     * Preferred training session that this volunteer would like to participate in, if any.
-     */
-    preferenceTrainingId?: number;
-
-    /**
-     * Date on which the preference was updated, if any.
-     */
-    preferenceUpdated?: string;
-}
 
 /**
  * Props accepted by the <TrainingExternal> component.
@@ -60,11 +22,6 @@ export interface TrainingExternalProps {
      * Information about the event for which extra training participants are being shown.
      */
     event: PageInfo['event'];
-
-    /**
-     * The extra training participants that can be displayed by this component.
-     */
-    participants: TrainingExternalEntry[];
 
     /**
      * The trainings that are available for the external folks to participate in.
@@ -79,60 +36,8 @@ export interface TrainingExternalProps {
 export function TrainingExternal(props: TrainingExternalProps) {
     const { event } = props;
 
-    async function commitAdd(): Promise<TrainingExternalEntry> {
-        const response = await callApi('post', '/api/admin/training-extra', {
-            event: event.slug,
-            create: { /* empty payload */ }
-        });
-
-        if (!response.id)
-            throw new Error('The server was unable to create a new participant.');
-
-        return {
-            id: response.id,
-            trainingExtraName: '',
-            trainingExtraEmail: '',
-            trainingExtraBirthdate: Temporal.Now.plainDateISO().toString(),
-            preferenceTrainingId: undefined,
-            preferenceUpdated: undefined,
-        };
-    }
-
-    async function commitDelete(oldRow: GridValidRowModel) {
-        await callApi('post', '/api/admin/training-extra', {
-            event: event.slug,
-            delete: {
-                id: oldRow.id,
-            },
-        });
-    }
-
-    const commitEdit = useCallback(async (newRow: GridValidRowModel, oldRow: GridValidRowModel) => {
-        const response = await callApi('post', '/api/admin/training-extra', {
-            event: event.slug,
-            update: {
-                id: oldRow.id,
-                trainingExtraName: newRow.trainingExtraName,
-                trainingExtraEmail: newRow.trainingExtraEmail,
-                trainingExtraBirthdate: newRow.trainingExtraBirthdate,
-                preferenceTrainingId: newRow.preferenceTrainingId,
-            }
-        });
-
-        if (!response.success)
-            return oldRow;
-
-        const copiedRow = newRow;
-        if (!!newRow.preferenceTrainingId)
-            copiedRow.preferenceUpdated = Temporal.Now.plainDateISO().toString();
-        else
-            copiedRow.preferenceUpdated = undefined;
-
-        return copiedRow;
-
-    }, [ event.slug ]);
-
-    const columns: DataTableColumn[] = [
+    const context = { event: event.slug };
+    const columns: RemoteDataTableColumn<TrainingsExtraRowModel>[] = [
         {
             field: 'id',
             headerName: /* empty= */ '',
@@ -160,8 +65,10 @@ export function TrainingExternal(props: TrainingExternalProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
-                Temporal.PlainDate.from(params.value).toString(),
+            renderCell: params => {
+                return !!params.value ? Temporal.PlainDate.from(params.value).toString()
+                                      : undefined;
+            },
         },
         {
             field: 'preferenceTrainingId',
@@ -173,7 +80,7 @@ export function TrainingExternal(props: TrainingExternalProps) {
             type: 'singleSelect',
             valueOptions: props.trainings,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!params.row.preferenceUpdated) {
                     return (
                         <Tooltip title="Pending preferences">
@@ -203,9 +110,9 @@ export function TrainingExternal(props: TrainingExternalProps) {
                 This table enables you to add people who would like to participate in the training
                 sessions, but are not part of our teams.
             </Alert>
-            <OLD_DataTable commitAdd={commitAdd} commitDelete={commitDelete} commitEdit={commitEdit}
-                           messageSubject="participant" rows={props.participants} columns={columns}
-                           disableFooter dense />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/trainings/extra"
+                             context={context} enableCreate enableDelete enableUpdate disableFooter
+                             defaultSort={{ field: 'trainingExtraName', sort: 'asc' }} />
         </Paper>
     );
 }

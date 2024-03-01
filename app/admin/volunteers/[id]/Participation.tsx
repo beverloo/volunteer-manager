@@ -5,7 +5,6 @@
 
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -97,7 +96,7 @@ export function Participation(props: ParticipationProps) {
             headerName: 'Event',
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 const { eventSlug, status, teamSlug } = params.row;
 
                 let href: string = '#';
@@ -130,7 +129,7 @@ export function Participation(props: ParticipationProps) {
             headerName: 'Team',
             flex: 1,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 <TeamChip label={params.value}
                           colours={{
                               dark: params.row.teamDarkThemeColour,

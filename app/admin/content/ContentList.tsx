@@ -5,7 +5,6 @@
 
 import Link from 'next/link';
 
-import type { GridRenderCellParams } from '@mui/x-data-grid';
 import { default as MuiLink } from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 
@@ -56,7 +55,7 @@ export function ContentList(props: ContentListProps) {
             sortable: true,
             flex: 3,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 const href = `./content/${params.row.id}`;
                 if (!props.pathPrefix) {
                     return (
@@ -91,7 +90,7 @@ export function ContentList(props: ContentListProps) {
             sortable: true,
             flex: 2,
 
-            renderCell: (params: GridRenderCellParams) =>
+            renderCell: params =>
                 formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD'),
@@ -102,7 +101,7 @@ export function ContentList(props: ContentListProps) {
             sortable: true,
             flex: 3,
 
-            renderCell: (params: GridRenderCellParams) => {
+            renderCell: params => {
                 if (!props.enableAuthorLink)
                     return params.value;
 
