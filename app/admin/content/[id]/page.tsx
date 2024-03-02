@@ -3,12 +3,10 @@
 
 import type { Metadata } from 'next';
 
-import Alert from '@mui/material/Alert';
-import Typography from '@mui/material/Typography';
-
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ContentEditor } from '@app/admin/content/ContentEditor';
 import { Privilege } from '@lib/auth/Privileges';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createGlobalScope } from '@app/admin/content/ContentScope';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -25,14 +23,11 @@ export default async function ContentEntryPage(props: NextRouterParams<'id'>) {
     const scope = createGlobalScope();
 
     return (
-        <ContentEditor contentId={parseInt(props.params.id)} scope={scope}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
-                Page editor
-            </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
+        <ContentEditor contentId={parseInt(props.params.id)} scope={scope} title="Page editor">
+            <SectionIntroduction>
                 You are updating <strong>global content</strong>, any changes you save will be
                 published immediately.
-            </Alert>
+            </SectionIntroduction>
         </ContentEditor>
     );
 }

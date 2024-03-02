@@ -3,13 +3,11 @@
 
 import type { Metadata } from 'next';
 
-import Alert from '@mui/material/Alert';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import { Privilege, can } from '@lib/auth/Privileges';
 import { ContentCreate } from './ContentCreate';
 import { ContentList } from './ContentList';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '../components/SectionIntroduction';
 import { createGlobalScope } from './ContentScope';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -28,22 +26,16 @@ export default async function ContentPage() {
 
     return (
         <>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ pb: 1 }}>
-                    Pages
-                </Typography>
+            <Section title="Pages">
                 <ContentList enableAuthorLink={enableAuthorLink} scope={scope} />
-            </Paper>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ pb: 1 }}>
-                    Create a new page
-                </Typography>
-                <Alert severity="info" sx={{ mb: 2 }}>
+            </Section>
+            <Section title="Create a new page">
+                <SectionIntroduction>
                     You can create new <strong>global content</strong>. These pages will however not
                     automatically be published, and rely on code changes.
-                </Alert>
+                </SectionIntroduction>
                 <ContentCreate scope={scope} />
-            </Paper>
+            </Section>
         </>
     );
 }

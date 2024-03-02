@@ -1,14 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Alert from '@mui/material/Alert';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ContentCreate } from '@app/admin/content/ContentCreate';
 import { ContentList } from '@app/admin/content/ContentList';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createEventScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -26,26 +24,17 @@ export default async function EventContentPage(props: NextRouterParams<'slug' | 
 
     return (
         <>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ pb: 1 }}>
-                    Pages
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({team.slug} for {event.shortName})
-                    </Typography>
-                </Typography>
+            <Section title="Pages" subtitle={team.slug}>
                 <ContentList enableAuthorLink={enableAuthorLink} pathPrefix={pathPrefix}
                              scope={scope} />
-            </Paper>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5" sx={{ pb: 1 }}>
-                    Create a new page
-                </Typography>
-                <Alert severity="info" sx={{ mb: 2 }}>
+            </Section>
+            <Section title="Create a new page">
+                <SectionIntroduction>
                     You can create a new page for the <strong>{team.name}</strong>, which will
                     immediately be published on <strong>{team.slug}</strong>.
-                </Alert>
+                </SectionIntroduction>
                 <ContentCreate pathPrefix={pathPrefix} scope={scope} />
-            </Paper>
+            </Section>
         </>
     );
 }

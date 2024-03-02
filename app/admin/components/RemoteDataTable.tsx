@@ -393,8 +393,8 @@ export function RemoteDataTable<
 
     return (
         <>
-            <Collapse in={!!error}>
-                <Alert severity="error" sx={{ mb: 2 }}>
+            <Collapse in={!!error} unmountOnExit>
+                <Alert severity="error">
                     {error}
                 </Alert>
             </Collapse>

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -19,6 +20,8 @@ import Typography from '@mui/material/Typography';
 
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import type { ContentRowModel, ContentScope } from '@app/api/admin/content/[[...id]]/route';
+import { Section } from '../components/Section';
+import { SectionHeader, type SectionHeaderProps } from '../components/SectionHeader';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { validateContentPath } from './ContentCreate';
@@ -34,7 +37,7 @@ const ContentEditorMdx = dynamic(() => import('./ContentEditorMdx'), { ssr: fals
 /**
  * Props accepted by the <ContentEditor> component.
  */
-export interface ContentEditorProps {
+export interface ContentEditorProps extends SectionHeaderProps {
     /**
      * Unique ID of the content that should be loaded. Will automatically be fetched from the API.
      */
@@ -63,6 +66,8 @@ export interface ContentEditorProps {
  * to the bundle size, while still being available when it needs to be.
  */
 export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>) {
+    const { children, contentId, pathHidden, pathPrefix, scope, ...sectionHeaderProps } = props;
+
     const ref = useRef<MDXEditorMethods>(null);
 
     const [ defaultValues, setDefaultValues ] = useState<ContentRowModel>();
@@ -80,10 +85,10 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                 throw new Error('Cannot locate the Markdown content on this page');
 
             const response = await callApi('put', '/api/admin/content/:id', {
-                id: props.contentId,
-                context: props.scope,
+                id: contentId,
+                context: scope,
                 row: {
-                    id: props.contentId,
+                    id: contentId,
                     content: ref.current.getMarkdown(),
                     path: data.path ?? defaultValues?.path,
                     title: data.title,
@@ -103,15 +108,15 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
         } finally {
             setLoading(false);
         }
-    }, [ defaultValues, props.contentId, props.scope, ref ]);
+    }, [ defaultValues, contentId, scope, ref ]);
 
     const [ contentProtected, setContentProtected ] = useState<boolean>(false);
     const [ markdown, setMarkdown ] = useState<string>();
 
     useEffect(() => {
         callApi('get', '/api/admin/content/:id', {
-            id: props.contentId,
-            context: props.scope
+            id: contentId,
+            context: scope
         }).then(response => {
             if (response.success) {
                 setDefaultValues({
@@ -128,71 +133,76 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                 setError(response.error ?? 'Unable to load the content from the server');
             }
         });
-    }, [ props.contentId, props.scope ]);
+    }, [ contentId, scope ]);
 
     if (!defaultValues) {
         return (
-            <Paper sx={{ p: 2 }}>
-                {props.children}
-                <Collapse in={!!error}>
+            <Section {...sectionHeaderProps}>
+                {children}
+                <Collapse in={!!error} unmountOnExit>
                     <Alert severity="error" sx={{ mb: 2 }}>
                         {error}
                     </Alert>
                 </Collapse>
-                <Skeleton variant="text" animation="wave" width="80%" height={16} />
-                <Skeleton variant="text" animation="wave" width="60%" height={16} />
-                <Skeleton variant="text" animation="wave" width="70%" height={16} />
-                <Skeleton variant="text" animation="wave" width="70%" height={16} />
-                <Skeleton variant="text" animation="wave" width="40%" height={16} />
-            </Paper>
+                <Box>
+                    <Skeleton variant="text" animation="wave" width="80%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="60%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="70%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="70%" height={16} />
+                    <Skeleton variant="text" animation="wave" width="40%" height={16} />
+                </Box>
+            </Section>
         );
     }
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSave}>
-            <Paper sx={{ p: 2 }}>
-                {props.children}
-                <Grid container spacing={2}>
-                    <Grid xs={12}>
-                        <TextFieldElement name="title" label="Content title" fullWidth size="small"
-                                          required />
-                    </Grid>
-                    { !props.pathHidden &&
+            <Stack direction="column" spacing={2}>
+                <Section {...sectionHeaderProps}>
+                    {children}
+                    <Grid container spacing={2} sx={{ margin: '8px -8px -8px -8px !important' }}>
                         <Grid xs={12}>
-                            <Stack direction="row" spacing={1}>
-                                { props.pathPrefix &&
-                                    <Typography sx={{ pt: '9px' }}>
-                                        {props.pathPrefix}
-                                    </Typography> }
-                                <TextFieldElement name="path" label="Content path" fullWidth
-                                                  size="small" required={!contentProtected}
-                                                  validation={{
-                                                      validate:
-                                                          contentProtected ? undefined
-                                                                           : validateContentPath
-                                                  }} InputProps={{ readOnly: !!contentProtected }}/>
-                            </Stack>
-                        </Grid> }
-                </Grid>
-            </Paper>
-            <Paper sx={{ mt: 2, p: 2, pb: '0.1px' }}>
-                <ContentEditorMdx innerRef={ref} markdown={markdown} />
-            </Paper>
-            <Paper sx={{ mt: 2, p: 2 }}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                    <LoadingButton loading={!!loading} variant="contained" type="submit">
-                        Save changes
-                    </LoadingButton>
-                    { error &&
-                        <Typography sx={{ color: 'error.main' }}>
-                            {error}
-                        </Typography> }
-                    { success &&
-                        <Typography sx={{ color: 'success.main' }}>
-                            {success}
-                        </Typography> }
-                </Stack>
-            </Paper>
+                            <TextFieldElement name="title" label="Content title" fullWidth
+                                              size="small" required />
+                        </Grid>
+                        { !pathHidden &&
+                            <Grid xs={12}>
+                                <Stack direction="row" spacing={1}>
+                                    { pathPrefix &&
+                                        <Typography sx={{ pt: '9px' }}>
+                                            {pathPrefix}
+                                        </Typography> }
+                                    <TextFieldElement name="path" label="Content path" fullWidth
+                                                      size="small" required={!contentProtected}
+                                                      validation={{
+                                                          validate:
+                                                              contentProtected ? undefined
+                                                                              : validateContentPath
+                                                      }} InputProps={{
+                                                          readOnly: !!contentProtected }} />
+                                </Stack>
+                            </Grid> }
+                    </Grid>
+                </Section>
+                <Section noHeader>
+                    <ContentEditorMdx innerRef={ref} markdown={markdown} />
+                </Section>
+                <Section noHeader>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <LoadingButton loading={!!loading} variant="contained" type="submit">
+                            Save changes
+                        </LoadingButton>
+                        { error &&
+                            <Typography sx={{ color: 'error.main' }}>
+                                {error}
+                            </Typography> }
+                        { success &&
+                            <Typography sx={{ color: 'success.main' }}>
+                                {success}
+                            </Typography> }
+                    </Stack>
+                </Section>
+            </Stack>
         </FormContainer>
     );
 }

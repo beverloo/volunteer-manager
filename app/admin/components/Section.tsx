@@ -7,11 +7,18 @@ import Stack from '@mui/material/Stack';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 
 /**
- * Props accepted by the <Section> component.
+ * Props accepted by the <Section> component, that are directly owned by the <Section< component.
+ * Other props, e.g. that of the header, will be included.
  */
-export interface SectionProps extends SectionHeaderProps {
+interface SectionOwnProps {
     // TODO: Additional options go here.
 }
+
+/**
+ * Props accepted by the <Section> component. The `SectionOwnProps` are included, and either a valid
+ * header or an explicit, boolean indication that no header should be included.
+ */
+export type SectionProps = SectionOwnProps & (SectionHeaderProps | { noHeader: true });
 
 /**
  * The <Section> component represents a visually separated section of a page in the administration
@@ -30,7 +37,7 @@ export function Section(props: React.PropsWithChildren<SectionProps>) {
 
     return (
         <Paper component={Stack} direction="column" spacing={2} sx={{ p: 2 }}>
-            <SectionHeader {...sectionHeaderProps} />
+            { !('noHeader' in sectionHeaderProps) && <SectionHeader {...sectionHeaderProps} /> }
             {children}
         </Paper>
     );
