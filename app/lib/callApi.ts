@@ -51,6 +51,7 @@ import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
+import type { EventShiftEndpoints } from '@app/api/admin/event/shifts/[[...id]]/route';
 import type { EventTeamEndpoints } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
 import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignments/[[...id]]/route';
@@ -87,6 +88,7 @@ export type ApiEndpoints = {
     'get': {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
+        '/api/admin/event/shifts': EventShiftEndpoints['list'],
         '/api/admin/event/teams': EventTeamEndpoints['list'],
         '/api/admin/exports': ExportsEndpoints['list'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['list'],
@@ -115,6 +117,7 @@ export type ApiEndpoints = {
     'post': {
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
+        '/api/admin/event/shifts': EventShiftEndpoints['create'],
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
         '/api/admin/hotels': HotelsEndpoints['create'],
@@ -171,6 +174,7 @@ export type ApiEndpoints = {
     },
     'delete': {
         '/api/admin/content/:id': ContentEndpoints['delete'],
+        '/api/admin/event/shifts/:id': EventShiftEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['delete'],
         '/api/admin/hotels/:id': HotelsEndpoints['delete'],
@@ -185,6 +189,7 @@ export type ApiEndpoints = {
     },
     'put': {
         '/api/admin/content/:id': ContentEndpoints['update'],
+        '/api/admin/event/shifts/:id': EventShiftEndpoints['update'],
         '/api/admin/event/teams/:id': EventTeamEndpoints['update'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['update'],
         '/api/admin/hotels/:id': HotelsEndpoints['update'],

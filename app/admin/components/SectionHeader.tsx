@@ -1,12 +1,21 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Privilege } from '@lib/auth/Privileges';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 /**
  * Props accepted by the <SectionHeader> component.
  */
 export interface SectionHeaderProps {
+    // TODO: Action
+
+    /**
+     * Privilege behind which availability of this section is gated, to inform the volunteer that
+     * not everyone has access to this information.
+     */
+    privilege?: Privilege;
+
     /**
      * Title of this section. Required.
      */
@@ -16,9 +25,6 @@ export interface SectionHeaderProps {
      * Subtitle to contextualize the header, displayed immediately adjacent to the title. Optional.
      */
     subtitle?: string;
-
-    // TODO: Privilege
-    // TODO: Action
 
     /**
      * The system prop that allows defining system overrides as well as additional CSS styles.

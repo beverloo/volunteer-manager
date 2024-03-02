@@ -152,8 +152,7 @@ export function RequestDataTable(props: RequestDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
-                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                         …
                     </Typography>
                 );

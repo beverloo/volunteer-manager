@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ContentEditor } from '@app/admin/content/ContentEditor';
-import { SectionHeader } from '@app/admin/components/SectionHeader';
 import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -22,9 +21,8 @@ export default async function EventFaqEntryPage(props: NextRouterParams<'slug' |
     const scope = createKnowledgeBaseScope(event.id);
 
     return (
-        <ContentEditor contentId={parseInt(props.params.id)} pathHidden scope={scope}>
-            <SectionHeader title="Knowledge base" subtitle={event.shortName} sx={{ mb: 1 }} />
-        </ContentEditor>
+        <ContentEditor contentId={parseInt(props.params.id)} pathHidden scope={scope}
+                       title="Knowledge base" subtitle={event.shortName} />
     );
 }
 
