@@ -4,6 +4,7 @@
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import ShareIcon from '@mui/icons-material/Share';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
@@ -27,6 +28,12 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
             label: 'Exports',
             privilege: Privilege.VolunteerDataExports,
             url: '/admin/volunteers/exports',
+        },
+        {
+            icon: <WorkspacesIcon />,
+            label: 'Shift categories',
+            privilege: Privilege.Administrator,
+            url: '/admin/volunteers/shifts',
         },
         {
             icon: <GroupsIcon />,

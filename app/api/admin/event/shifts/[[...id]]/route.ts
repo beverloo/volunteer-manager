@@ -112,8 +112,8 @@ async function validateContext(context: EventShiftContext['context']) {
  * implementation:
  *
  *     GET    /api/admin/event/shifts
- *     DELETE /api/admin/events/shifts/:id
- *     POST   /api/admin/events/shifts
+ *     DELETE /api/admin/event/shifts/:id
+ *     POST   /api/admin/event/shifts
  *     PUT    /api/admin/event/shifts/:id
  */
 export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftContext, {

@@ -3040,6 +3040,69 @@ tables:
       KEY `location_id` (`location_id`),
       KEY `area_id` (`area_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: shifts_categories
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: shift_category_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: shift_category_name
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_category_colour
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_category_excitement
+    type: double
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_category_order
+    type: int(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_category_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (shift_category_id) USING BTREE
+    table: shifts_categories
+    columns:
+    - shift_category_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (shift_category_id)
+    table: shifts_categories
+    referencedTable: null
+    columns:
+    - shift_category_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `shifts_categories` (
+      `shift_category_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `shift_category_name` varchar(32) NOT NULL,
+      `shift_category_colour` varchar(32) NOT NULL,
+      `shift_category_excitement` double NOT NULL,
+      `shift_category_order` int(8) NOT NULL,
+      `shift_category_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`shift_category_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""
@@ -3374,7 +3437,7 @@ tables:
       `error_stack` text DEFAULT NULL,
       `error_digest` text DEFAULT NULL,
       PRIMARY KEY (`error_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_areas
   type: BASE TABLE
   comment: ""
