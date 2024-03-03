@@ -3077,6 +3077,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: shift_category_count_contribution
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
   - name: shift_category_order
     type: int(8)
     nullable: false
@@ -3111,6 +3116,7 @@ tables:
       `shift_category_name` varchar(32) NOT NULL,
       `shift_category_colour` varchar(32) NOT NULL,
       `shift_category_excitement` double NOT NULL,
+      `shift_category_count_contribution` tinyint(1) NOT NULL,
       `shift_category_order` int(8) NOT NULL,
       `shift_category_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`shift_category_id`)

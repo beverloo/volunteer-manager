@@ -20,6 +20,7 @@ export class ShiftsCategoriesTable extends Table<DBConnection, 'ShiftsCategories
     shiftCategoryName = this.column('shift_category_name', 'string');
     shiftCategoryColour = this.column('shift_category_colour', 'string');
     shiftCategoryExcitement = this.column('shift_category_excitement', 'double');
+    shiftCategoryCountContribution = this.column('shift_category_count_contribution', 'int');
     shiftCategoryOrder = this.column('shift_category_order', 'int');
     shiftCategoryDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('shift_category_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 

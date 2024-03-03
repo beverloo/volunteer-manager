@@ -37,6 +37,8 @@ export enum LogType {
     AdminEventPublishInfo = 'admin-event-publish-info',
     AdminEventRetentionUpdate = 'admin-event-retention-update',
     AdminEventRoleUpdate = 'admin-event-role-update',
+    AdminEventShiftCategoryMutation = 'admin-event-shift-category-mutation',
+    AdminEventShiftMutation = 'admin-event-shift-mutation',
     AdminEventTeamUpdate = 'admin-event-team-update',
     AdminEventTrainingAssignment = 'admin-event-training-assignment',
     AdminEventTrainingMutation = 'admin-event-training',

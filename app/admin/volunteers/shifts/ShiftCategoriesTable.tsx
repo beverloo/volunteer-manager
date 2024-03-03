@@ -3,22 +3,47 @@
 
 'use client';
 
-import type { ValueOptions } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import FunctionsIcon from '@mui/icons-material/Functions';
+import Tooltip from '@mui/material/Tooltip';
 
 import type { EventShiftCategoriesRowModel } from '@app/api/admin/event/shifts/categories/[[...id]]/route';
-import { ExcitementIcon } from '@app/admin/components/ExcitementIcon';
+import { ExcitementIcon, kExcitementOptions } from '@app/admin/components/ExcitementIcon';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { createColourInterpolator } from '@lib/ColourInterpolator';
 
 /**
- * The base shift excitement options that can be selected.
+ * Props accepted by the <ColourRangeBox> component.
  */
-const kExcitementOptions: ValueOptions[] = [
-    { value: 0.00, label: 'Really boring work' },
-    { value: 0.25, label: 'Boring work' },
-    { value: 0.50, label: 'Dull work' },
-    { value: 0.75, label: 'Nice work' },
-    { value: 1.00, label: 'Great work' },
-];
+interface ColourRangeBoxProps {
+    /**
+     * The colour for which a colour range box should be shown.
+     */
+    colour: string;
+}
+
+/**
+ * Displays a rectangular box visualising the range of colours that can be assigned given the base
+ * `colour` for a given category of shifts.
+ */
+function ColourRangeBox(props: ColourRangeBoxProps) {
+    const interpolator = createColourInterpolator(props.colour);
+    const colours = [
+        [   0, interpolator(0) ],
+        [  33, interpolator(0.33) ],
+        [  66, interpolator(0.66) ],
+        [ 100, interpolator(1) ],
+    ].map(([ percentage, colour ]) => `${colour} ${percentage}%`);
+
+    return (
+        <Box sx={{ background: `linear-gradient(90deg, ${colours.join(', ')})`,
+                   borderRadius: 1,
+                   height: '1.5em',
+                   flex: 1 }} />
+    );
+}
 
 /**
  * The <ShiftCategoriesTable> component displays a data table that can be used to create, delete and
@@ -43,7 +68,7 @@ export function ShiftCategoriesTable() {
         {
             field: 'excitement',
             headerAlign: 'center',
-            headerName: 'Excitement',
+            headerName: 'Default excitement',
             editable: true,
             sortable: true,
             align: 'center',
@@ -56,11 +81,48 @@ export function ShiftCategoriesTable() {
                 <ExcitementIcon excitement={params.value} />,
         },
         {
-            field: 'color',
+            field: 'colour',
             headerAlign: 'center',
-            headerName: 'Color',
+            headerName: 'Colour',
+            description: 'Colours that will be assigned to shifts',
+            editable: true,
+            sortable: false,
             align: 'center',
             width: 200,
+
+            renderCell: params =>
+                <ColourRangeBox colour={params.value} />,
+        },
+        {
+            field: 'countContribution',
+            headerAlign: 'center',
+            headerName: /* no header= */ '',
+            editable: true,
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            type: 'boolean',
+            renderHeader: params =>
+                <Tooltip title="Will shifts count as contributions?">
+                    <FunctionsIcon fontSize="small" color="primary" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (!!params.value) {
+                    return (
+                        <Tooltip title="Shifts count as contributions">
+                            <CheckCircleIcon fontSize="small" color="success" />
+                        </Tooltip>
+                    );
+                } else {
+                    return (
+                        <Tooltip title="Shifts do not count as contributions">
+                            <CancelIcon fontSize="small" color="error" />
+                        </Tooltip>
+                    );
+                }
+            },
         }
     ];
 

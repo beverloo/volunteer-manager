@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tActivities, tEventsTeams, tEvents, tTeams, tSchedule, tShifts } from '@lib/database';
@@ -212,6 +213,21 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
         if (!event || !team)
             notFound();
 
-        // TODO
+        const shiftName = await db.selectFrom(tShifts)
+            .where(tShifts.shiftId.equals(id))
+            .selectOneColumn(tShifts.shiftName)
+            .executeSelectNoneOrOne();
+
+        await Log({
+            type: LogType.AdminEventShiftMutation,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                event: event.name,
+                team: team.name,
+                shift: shiftName,
+                mutation,
+            },
+        });
     },
 });

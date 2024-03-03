@@ -1,12 +1,25 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { ValueOptions } from '@mui/x-data-grid';
+
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import Tooltip from '@mui/material/Tooltip';
+
+/**
+ * The base shift excitement options that can be selected.
+ */
+export const kExcitementOptions: ValueOptions[] = [
+    { value: 0.00, label: 'Really boring shifts' },
+    { value: 0.25, label: 'Boring shifts' },
+    { value: 0.50, label: 'Dull shifts' },
+    { value: 0.75, label: 'Nice shifts' },
+    { value: 1.00, label: 'Great shifts' },
+];
 
 /**
  * Props accepted by the <ExcitementIcon> component.

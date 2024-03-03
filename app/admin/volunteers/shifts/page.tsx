@@ -1,6 +1,8 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Metadata } from 'next';
+
 import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -27,3 +29,7 @@ export default async function ShiftCategoriesPage() {
         </Section>
     );
 }
+
+export const metadata: Metadata = {
+    title: 'Shift categories | AnimeCon Volunteer Manager',
+};

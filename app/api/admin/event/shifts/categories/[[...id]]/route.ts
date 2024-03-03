@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../../createDataTableApi';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tShiftsCategories } from '@lib/database';
@@ -31,6 +32,11 @@ const kEventShiftCategoryRowModel = z.object({
      * Base excitement level for this category. Individual shifts may supersede.
      */
     excitement: z.number(),
+
+    /**
+     * Whether shifts in this category count towards someone's contribution.
+     */
+    countContribution: z.boolean(),
 
     /**
      * Ordering for this category.
@@ -82,8 +88,10 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
                 shiftCategoryName: kCategoryName,
                 shiftCategoryColour: kCategoryColour,
                 shiftCategoryExcitement: 0.5,
+                shiftCategoryCountContribution: /* true= */ 1,
                 shiftCategoryOrder: 0,
             })
+            .returningLastInsertedId()
             .executeInsert();
 
         return {
@@ -93,13 +101,23 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
                 name: kCategoryName,
                 colour: kCategoryColour,
                 excitement: kCategoryExcitement,
+                countContribution: true,
                 order: 0,
             },
         };
     },
 
     async delete({ id }) {
-        return { success: false };
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tShiftsCategories)
+            .set({
+                shiftCategoryDeleted: dbInstance.currentDateTime(),
+            })
+            .where(tShiftsCategories.shiftCategoryId.equals(id))
+                .and(tShiftsCategories.shiftCategoryDeleted.isNull())
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async list({ sort }) {
@@ -110,6 +128,8 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
                 name: tShiftsCategories.shiftCategoryName,
                 colour: tShiftsCategories.shiftCategoryColour,
                 excitement: tShiftsCategories.shiftCategoryExcitement,
+                countContribution:
+                    tShiftsCategories.shiftCategoryCountContribution.equals(/* true= */ 1),
                 order: tShiftsCategories.shiftCategoryOrder,
             })
             .orderBy(sort?.field ?? 'order', sort?.sort ?? 'asc')
@@ -122,11 +142,35 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
         };
     },
 
-    async update({ row }, props) {
-        return { success: false };
+    async update({ row }) {
+        const affectedRows = await db.update(tShiftsCategories)
+            .set({
+                shiftCategoryName: row.name,
+                shiftCategoryColour: row.colour,
+                shiftCategoryExcitement: row.excitement,
+                shiftCategoryCountContribution: row.countContribution ? 1 : 0,
+            })
+            .where(tShiftsCategories.shiftCategoryId.equals(row.id))
+                .and(tShiftsCategories.shiftCategoryDeleted.isNull())
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async writeLog({ id }, mutation, props) {
-        // TODO
+        const shiftCategoryName = await db.selectFrom(tShiftsCategories)
+            .where(tShiftsCategories.shiftCategoryId.equals(id))
+            .selectOneColumn(tShiftsCategories.shiftCategoryName)
+            .executeSelectNoneOrOne();
+
+        await Log({
+            type: LogType.AdminEventShiftCategoryMutation,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                category: shiftCategoryName,
+                mutation,
+            },
+        });
     },
 });

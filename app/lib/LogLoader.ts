@@ -121,6 +121,12 @@ const kLogMessageFormatter: {
     [LogType.AdminEventRoleUpdate]: (source, target, { role }) => {
         return `Updated their role to ${role} for an event`;
     },
+    [LogType.AdminEventShiftCategoryMutation]: (source, target, { category, mutation }) => {
+        return `${mutation} the "${category}" shift category`;
+    },
+    [LogType.AdminEventShiftMutation]: (source, target, { event, mutation, shift, team }) => {
+        return `${mutation} the "${shift}" ${team} shift for ${event}`;
+    },
     [LogType.AdminEventTeamUpdate]: (source, target, { sourceTeam, targetTeam }) => {
         return `Moved ${target?.name} from the ${sourceTeam} to the ${targetTeam}`;
     },
