@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 
 import type { Event } from '@lib/Event';
@@ -12,6 +11,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck, type AuthenticationContext, and } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
+import { nanoid } from '@lib/nanoid';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
 
 import { kExportTypePrivilege } from '@app/admin/volunteers/exports/ExportPrivileges';
@@ -131,7 +131,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
 
         executeActionCheckForEventAndType(props.authenticationContext, event, row.type);
 
-        const slug = uuid().replaceAll('-', '').slice(0, 16);
+        const slug = nanoid(/* size= */ 16);
         if (!slug || slug.length !== 16)
             return { success: false, error: 'Unable to generate an export slug' };
 
