@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import PaletteIcon from '@mui/icons-material/Palette';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -14,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import type { EventShiftContext, EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
 import { ExcitementIcon } from '@app/admin/components/ExcitementIcon';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Square } from '@app/admin/components/Square';
 
 /**
  * Formats the given number of `minutes` to a HH:MM string.
@@ -47,7 +49,7 @@ export function ShiftTable(props: ShiftTableProps) {
     if (!readOnly) {
         deleteColumn.push({
             field: 'id',
-            headerName: /* empty= */ '',
+            headerName: /* no header= */ '',
             sortable: false,
             width: 50,
         });
@@ -56,9 +58,30 @@ export function ShiftTable(props: ShiftTableProps) {
     const columns: RemoteDataTableColumn<EventShiftRowModel>[] = [
         ...deleteColumn,
         {
+            field: 'colour',
+            headerAlign: 'center',
+            headerName: /* no header= */ '',
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            renderHeader: params =>
+                <Tooltip title="Colour assigned to this shift">
+                    <PaletteIcon fontSize="small" color="primary" />
+                </Tooltip>,
+
+            renderCell: params =>
+                <Square colour={params.value} title="Colour assigned to this shift" />,
+        },
+        {
+            field: 'category',
+            headerName: 'Category',
+            width: 200,
+        },
+        {
             field: 'name',
             headerName: 'Shift',
-            flex: 1,
+            flex: 2,
 
             renderCell: params =>
                 <MuiLink component={Link} href={`./shifts/${params.row.id}`}>

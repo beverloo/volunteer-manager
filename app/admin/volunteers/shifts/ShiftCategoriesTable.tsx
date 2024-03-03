@@ -57,6 +57,10 @@ export function ShiftCategoriesTable() {
             editable: false,
             sortable: false,
             width: 50,
+
+            // The default shift category cannot be removed, as it's hardcoded in the source when
+            // new shifts are being created. It can be freely updated, of course.
+            isProtected: params => params.value === /* default= */ 1,
         },
         {
             field: 'name',

@@ -630,6 +630,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: shift_category_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
   - name: shift_name
     type: varchar(64)
     nullable: false
@@ -717,6 +722,7 @@ tables:
       `shift_identifier` varchar(8) NOT NULL,
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
+      `shift_category_id` int(8) unsigned NOT NULL,
       `shift_name` varchar(64) NOT NULL,
       `shift_activity_id` int(4) unsigned DEFAULT NULL,
       `shift_area_id` int(4) unsigned DEFAULT NULL,

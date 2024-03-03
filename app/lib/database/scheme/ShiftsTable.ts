@@ -14,6 +14,7 @@ export class ShiftsTable extends Table<DBConnection, 'ShiftsTable'> {
     shiftIdentifier = this.column('shift_identifier', 'string');
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
+    shiftCategoryId = this.column('shift_category_id', 'int');
     shiftName = this.column('shift_name', 'string');
     shiftActivityId = this.optionalColumnWithDefaultValue('shift_activity_id', 'int');
     shiftAreaId = this.optionalColumnWithDefaultValue('shift_area_id', 'int');

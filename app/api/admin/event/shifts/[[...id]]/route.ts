@@ -7,8 +7,10 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { createColourInterpolator, type ColourInterpolator } from '@lib/ColourInterpolator';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
-import db, { tActivities, tEventsTeams, tEvents, tTeams, tSchedule, tShifts } from '@lib/database';
+import db, { tActivities, tEventsTeams, tEvents, tTeams, tSchedule, tShifts, tShiftsCategories }
+    from '@lib/database';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -24,6 +26,16 @@ const kEventShiftRowModel = z.object({
      * Name of the shifts, describing what the volunteer will be doing.
      */
     name: z.string().optional(),
+
+    /**
+     * The colour that's assigned to this shift, calculated by the server.
+     */
+    colour: z.string(),
+
+    /**
+     * Name of the category that this shift is part of.
+     */
+    category: z.string(),
 
     /**
      * Number of hours that volunteers have been scheduled to work on this shift.
@@ -163,6 +175,9 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
         if (!event || !team)
             notFound();
 
+        if (sort?.field === 'colour')
+            throw new Error(`Invalid sorting key provided (v=${sort.field})`);
+
         const dbInstance = db;
 
         const activitiesJoin = tActivities.forUseInLeftJoin();
@@ -173,6 +188,8 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
                                   ${scheduleJoin.scheduleTimeEnd})`;
 
         const result = await dbInstance.selectFrom(tShifts)
+            .innerJoin(tShiftsCategories)
+                .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
             .leftJoin(activitiesJoin)
                 .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
                     .and(activitiesJoin.activityFestivalId.equalsIfValue(event.festivalId))
@@ -184,6 +201,8 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
             .select({
                 id: tShifts.shiftId,
                 name: tShifts.shiftName,
+                category: tShiftsCategories.shiftCategoryName,
+                categoryColour: tShiftsCategories.shiftCategoryColour,
                 hours: dbInstance.sum(shiftDurationFragment),
                 activityId: activitiesJoin.activityId,
                 activityName: activitiesJoin.activityTitle,
@@ -193,10 +212,36 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
             .orderBy(sort?.field ?? 'name', sort?.sort ?? 'asc')
             .executeSelectMany();
 
+        const categories = new Map</* name= */ string, ColourInterpolator>;
+        const categoryCounts = new Map</* name= */ string, [ number, number ]>;
+
+        for (const { id, category, categoryColour } of result) {
+            if (!categories.has(category))
+                categories.set(category, createColourInterpolator(categoryColour));
+
+            const currentCounts = categoryCounts.get(category);
+            if (!currentCounts)
+                categoryCounts.set(category, [ 0, 0 ]);
+            else
+                categoryCounts.set(category, [ currentCounts[0] + 1, currentCounts[1] + 1 ]);
+        }
+
         return {
             success: true,
             rowCount: result.length,
-            rows: result,
+            rows: result.map(shift => {
+                const [ shiftsInCategory, remaining ] = categoryCounts.get(shift.category)!;
+
+                const colourInterpolator = categories.get(shift.category)!;
+                const colour = colourInterpolator(remaining / shiftsInCategory);
+
+                categoryCounts.set(shift.category, [ shiftsInCategory, remaining - 1 ]);
+
+                return {
+                    ...shift,
+                    colour,
+                };
+            }),
         };
     },
 

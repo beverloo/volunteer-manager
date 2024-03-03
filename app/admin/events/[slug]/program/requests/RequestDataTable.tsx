@@ -15,7 +15,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ProgramRequestContext, ProgramRequestRowModel } from '@app/api/admin/program/requests/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { Square } from '@app/admin/components/Square';
 
 /**
  * Information about a particular team shown on the request overview table.
@@ -169,20 +170,8 @@ export function RequestDataTable(props: RequestDataTableProps) {
             align: 'center',
             width: 50,
 
-            renderHeader: params => {
-                return (
-                    <Tooltip title={team.name}>
-                        <Box sx={{
-                            backgroundColor: team.colour,
-                            border: '1px solid transparent',
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            height: '21px',
-                            width: '21px',
-                        }} />
-                    </Tooltip>
-                );
-            },
+            renderHeader: params =>
+                <Square colour={team.colour} title={team.name} />,
 
             renderCell: params => {
                 if (!Object.hasOwn(params.row.shifts, team.id)) {
