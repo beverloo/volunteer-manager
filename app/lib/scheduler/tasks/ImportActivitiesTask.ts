@@ -329,6 +329,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityType: ActivityType.Program,
                         activityTitle: currentActivity.title,
                         activityDescription: currentActivity.description,
+                        activityDescriptionWeb: currentActivity.webDescription,
+                        activityRules: currentActivity.rules,
                         activityUrl: currentActivity.url,
                         activityPrice: currentActivity.price,
                         activityHelpNeeded: currentActivity.helpNeeded ? 1 : 0,
@@ -550,6 +552,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 .set({
                     activityTitle: currentActivity.title,
                     activityDescription: currentActivity.description,
+                    activityDescriptionWeb: currentActivity.webDescription,
+                    activityRules: currentActivity.rules,
                     activityUrl: currentActivity.url,
                     activityPrice: currentActivity.price,
                     activityHelpNeeded: currentActivity.helpNeeded ? 1 : 0,
@@ -675,6 +679,20 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 weight: kUpdateSeverityLevel.Low,
                 stored: storedActivity.description,
                 current: currentActivity.description,
+                comparison: 'string',
+            },
+            {
+                name: 'description (web)',
+                weight: kUpdateSeverityLevel.Low,
+                stored: storedActivity.descriptionWeb,
+                current: currentActivity.webDescription,
+                comparison: 'string',
+            },
+            {
+                name: 'rules',
+                weight: kUpdateSeverityLevel.Moderate,
+                stored: storedActivity.rules,
+                current: currentActivity.rules,
                 comparison: 'string',
             },
             {
@@ -912,6 +930,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 title: tActivities.activityTitle,
                 description: tActivities.activityDescription,
+                descriptionWeb: tActivities.activityDescriptionWeb,
+                rules: tActivities.activityRules,
                 url: tActivities.activityUrl,
                 price: tActivities.activityPrice,
                 helpNeeded: tActivities.activityHelpNeeded,

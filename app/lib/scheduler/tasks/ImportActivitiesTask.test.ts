@@ -433,6 +433,8 @@ describe('ImportActivitiesTask', () => {
                 id: 100,
                 title: 'New title',
                 description: 'New description',
+                webDescription: 'New Web description',
+                rules: 'No smoking!',
                 url: null,
                 price: null,
                 helpNeeded: true,
@@ -481,6 +483,8 @@ describe('ImportActivitiesTask', () => {
             mutatedFields: [
                 'title',
                 'description',
+                'description (web)',
+                'rules',
                 'price',
                 'help needed flag',
                 'max visitors',

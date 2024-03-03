@@ -2642,6 +2642,16 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: activity_description_web
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: activity_rules
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: activity_url
     type: text
     nullable: true
@@ -2769,6 +2779,8 @@ tables:
       `activity_type` enum('Program','Internal') NOT NULL,
       `activity_title` text NOT NULL,
       `activity_description` text DEFAULT NULL,
+      `activity_description_web` text DEFAULT NULL,
+      `activity_rules` text DEFAULT NULL,
       `activity_url` text DEFAULT NULL,
       `activity_price` double DEFAULT NULL,
       `activity_help_needed` tinyint(1) NOT NULL,
@@ -3102,7 +3114,7 @@ tables:
       `shift_category_order` int(8) NOT NULL,
       `shift_category_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`shift_category_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
   comment: ""

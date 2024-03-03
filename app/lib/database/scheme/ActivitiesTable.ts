@@ -24,6 +24,8 @@ export class ActivitiesTable extends Table<DBConnection, 'ActivitiesTable'> {
     activityType = this.column<ActivityType>('activity_type', 'enum', 'ActivityType');
     activityTitle = this.column('activity_title', 'string');
     activityDescription = this.optionalColumnWithDefaultValue('activity_description', 'string');
+    activityDescriptionWeb = this.optionalColumnWithDefaultValue('activity_description_web', 'string');
+    activityRules = this.optionalColumnWithDefaultValue('activity_rules', 'string');
     activityUrl = this.optionalColumnWithDefaultValue('activity_url', 'string');
     activityPrice = this.optionalColumnWithDefaultValue('activity_price', 'double');
     activityHelpNeeded = this.column('activity_help_needed', 'int');
