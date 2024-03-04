@@ -55,7 +55,6 @@ export function ShiftCategoriesTable() {
             field: 'id',
             headerName: /* no header= */ '',
             editable: false,
-            sortable: false,
             width: 50,
 
             // The default shift category cannot be removed, as it's hardcoded in the source when
@@ -66,7 +65,6 @@ export function ShiftCategoriesTable() {
             field: 'name',
             headerName: 'Category',
             editable: true,
-            sortable: true,
             flex: 1,
         },
         {
@@ -74,7 +72,6 @@ export function ShiftCategoriesTable() {
             headerAlign: 'center',
             headerName: 'Default excitement',
             editable: true,
-            sortable: true,
             align: 'center',
             width: 200,
 
@@ -90,7 +87,6 @@ export function ShiftCategoriesTable() {
             headerName: 'Colour',
             description: 'Colours that will be assigned to shifts',
             editable: true,
-            sortable: false,
             align: 'center',
             width: 200,
 
@@ -102,7 +98,6 @@ export function ShiftCategoriesTable() {
             headerAlign: 'center',
             headerName: /* no header= */ '',
             editable: true,
-            sortable: false,
             align: 'center',
             width: 50,
 
@@ -133,6 +128,7 @@ export function ShiftCategoriesTable() {
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/event/shifts/categories"
                          defaultSort={{ field: 'order', sort: 'asc' }} subject="category"
-                         enableCreate enableDelete enableUpdate pageSize={50} disableFooter />
+                         enableCreate enableDelete enableReorder enableUpdate pageSize={50}
+                         disableFooter />
     );
 }

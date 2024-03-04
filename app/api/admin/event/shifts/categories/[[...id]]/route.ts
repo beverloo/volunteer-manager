@@ -142,6 +142,20 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
         };
     },
 
+    async reorder({ order }) {
+        const dbInstance = db;
+        await dbInstance.transaction(async () => {
+            for (let index = 0; index < order.length; ++index) {
+                await db.update(tShiftsCategories)
+                    .set({ shiftCategoryOrder: index })
+                    .where(tShiftsCategories.shiftCategoryId.equals(order[index]))
+                    .executeUpdate();
+            }
+        });
+
+        return { success: true };
+    },
+
     async update({ row }) {
         const affectedRows = await db.update(tShiftsCategories)
             .set({
@@ -158,6 +172,9 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
     },
 
     async writeLog({ id }, mutation, props) {
+        if (mutation === 'Reordered')
+            return;  // no need to log when someone changes the order of categories
+
         const shiftCategoryName = await db.selectFrom(tShiftsCategories)
             .where(tShiftsCategories.shiftCategoryId.equals(id))
             .selectOneColumn(tShiftsCategories.shiftCategoryName)
