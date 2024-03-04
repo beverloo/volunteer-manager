@@ -9,8 +9,7 @@ import { LicenseInfo } from '@mui/x-license-pro';
  * Install the MUI License key. The key itself is specified as an environment variable. When no key
  * is passed, a watermark will be shown instead when MUI X Pro features are being used.
  */
-if (!!process.env.APP_MUI_LICENSE_KEY)
-    LicenseInfo.setLicenseKey(process.env.APP_MUI_LICENSE_KEY);
+LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY!);
 
 /**
  * The <MuiLicense> element does nothing, but has a side effect of initialising the `LicenseInfo`
