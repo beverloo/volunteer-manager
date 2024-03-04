@@ -154,6 +154,29 @@ type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHand
 };
 
 /**
+ * Request and response expected for PUT requests with the purpose of reordering rows.
+ */
+type DataTableReorderHandlerRequest<Context extends ZodTypeAny> = DataTableContext<Context> & {
+    /**
+     * Unique ID of the row that's been moved.
+     */
+    id: number;
+
+    /**
+     * The order in which the rows should be sorted. Inclusive of all IDs that were known on the
+     * client.
+     */
+    order: number[];
+};
+
+type DataTableReorderHandlerResponse = DataTableHandlerErrorResponse | {
+    /**
+     * Whether the operation could be completed successfully.
+     */
+    success: true,
+};
+
+/**
  * Request and response expected for PUT requests with the purpose of updating rows.
  */
 type DataTableUpdateHandlerRequest<RowModel extends AnyZodObject,
@@ -176,6 +199,13 @@ type DataTableUpdateHandlerResponse = DataTableHandlerErrorResponse | {
      */
     success: true,
 };
+
+/**
+ * The input request format for PUT requests to this Data Table API's endpoint. The endpoint
+ * supports two formats - either updating a single row, or updating row order.
+ */
+type DataTablePutHandlerRequest<RowModel extends AnyZodObject, Context extends ZodTypeAny> =
+    DataTableReorderHandlerRequest<Context> | DataTableUpdateHandlerRequest<RowModel, Context>;
 
 /**
  * Request context that can be shared with the `writeLog` function.
@@ -208,7 +238,7 @@ export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends Zo
         response: DataTableListHandlerResponse<RowModel>,
     },
     update: {
-        request: DataTableUpdateHandlerRequest<RowModel, Context>,
+        request: DataTablePutHandlerRequest<RowModel, Context>,
         response: DataTableUpdateHandlerResponse,
     },
 };
@@ -222,7 +252,8 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
      */
     accessCheck?(request: DataTableContext<Context>,
-                 action: 'create' | 'delete' | 'get' | 'list' | 'update', props: ActionProps)
+                 action: 'create' | 'delete' | 'get' | 'list' | 'reorder' | 'update',
+                 props: ActionProps)
         : Promise<void> | void;
 
     /**
@@ -254,6 +285,13 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
         : Promise<DataTableListHandlerResponse<RowModel>>;
 
     /**
+     * Reorders the rows in the data table in accordance with the `request`, which contains all
+     * rows that were fetched. This functionality does not work well with pagination.
+     */
+    reorder?(request: DataTableReorderHandlerRequest<Context>, props: ActionProps)
+        : Promise<DataTableReorderHandlerResponse>;
+
+    /**
      * Updates a given row in the database. The full to-be-updated row must be given, including the
      * fields that are not editable. The row ID is mandatory in this request.
      */
@@ -265,7 +303,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
      * this action has taken place. This call will be _awaited_ for.
      */
     writeLog?(request: DataTableWriteLogRequest<Context>,
-              mutation: 'Created' | 'Deleted' | 'Updated', props: ActionProps)
+              mutation: 'Created' | 'Deleted' | 'Reordered' | 'Updated', props: ActionProps)
         : Promise<void> | void;
 }
 
@@ -461,8 +499,13 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
     const putInterface = z.object({
         request: zContext.and(z.object({
             id: z.coerce.number(),
-            row: rowModel.and(z.object({ id: z.number() })),
-        })),
+        })).and(
+            z.object({
+                row: rowModel.and(z.object({ id: z.number() })),
+            }).or(z.object({
+                order: z.array(z.number()),
+            }))
+        ),
         response: z.discriminatedUnion('success', [
             zErrorResponse,
             z.object({
@@ -473,19 +516,37 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
 
     const PUT: DataTableApiHandler = async(request, { params }) => {
         return executeAction(request, putInterface, async (innerRequest, props) => {
-            if (!implementation.update)
-                throw new Error('Cannot handle PUT requests without an update handler');
+            if ('order' in innerRequest) {
+                if (!implementation.reorder)
+                    throw new Error('Cannot handle PUT requests without an reorder handler');
 
-            if (innerRequest.id !== innerRequest.row.id)
-                throw new Error('ID mismatch between the route and the contained row');
+                if (innerRequest.order.length < 2)
+                    throw new Error('Expected at least two rows when reordering rows.');
 
-            await implementation.accessCheck?.(innerRequest, 'update', props);
+                await implementation.accessCheck?.(innerRequest, 'reorder', props);
 
-            const response = await implementation.update(innerRequest, props);
-            if (response.success)
-                await implementation.writeLog?.(innerRequest, 'Updated', props);
+                const response = await implementation.reorder(innerRequest, props);
+                if (response.success)
+                    await implementation.writeLog?.(innerRequest, 'Reordered', props);
 
-            return response;
+                return response;
+
+            } else {
+                if (!implementation.update)
+                    throw new Error('Cannot handle PUT requests without an update handler');
+
+                if (innerRequest.id !== innerRequest.row.id)
+                    throw new Error('ID mismatch between the route and the contained row');
+
+                await implementation.accessCheck?.(innerRequest, 'update', props);
+
+                const response = await implementation.update(innerRequest, props);
+                if (response.success)
+                    await implementation.writeLog?.(innerRequest, 'Updated', props);
+
+                return response;
+            }
+
         }, params);
     };
 

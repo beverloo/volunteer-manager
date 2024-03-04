@@ -6,8 +6,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { GridAlignment, GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
-    GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid-pro';
+import type {
+    GridAlignment, GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
+    GridRowModesModel, GridRowOrderChangeParams, GridSortItem, GridSortModel, GridValidRowModel
+} from '@mui/x-data-grid-pro';
+
 import { DataGridPro, GridRowModes } from '@mui/x-data-grid-pro';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -19,11 +22,20 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import { type ApiEndpoints, callApi } from '@lib/callApi';
+
+/**
+ * Icon used to be able to drag and re-order rows. We use a smaller icon than default to fit in with
+ * the dense-by-default look our data tables have.
+ */
+function RemoteDataTableMoveIcon() {
+    return <DragIndicatorIcon fontSize="small" color="primary" sx={{ mt: 0.25 }} />
+}
 
 /**
  * Type describing a column definition in the DataTable API.
@@ -90,6 +102,15 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     enableDelete?: `${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false;
 
     /**
+     * Whether rows can be reordered. An extra column will automatically be added to the table with
+     * drag handles, that the user is able to freely move upwards and downwards.
+     *
+     * @note The ability to sort rows is incompatible with manual reordering, thus we automatically
+     *       disable that when this property is set to a truthy value.
+     */
+    enableReorder?: `${Endpoint}/:id` extends keyof ApiEndpoints['put'] ? boolean : false;
+
+    /**
      * Whether rows can be updated. When set, rows can be double clicked to move to edit mode, after
      * which the full row will be sent to the server using a PUT request.
      */
@@ -136,7 +157,7 @@ export function RemoteDataTable<
 (
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
-    const { enableCreate, enableDelete, enableUpdate, refreshOnUpdate } = props;
+    const { enableCreate, enableDelete, enableReorder, enableUpdate, refreshOnUpdate } = props;
 
     const subject = props.subject ?? 'item';
     const context = useMemo(() =>
@@ -192,13 +213,18 @@ export function RemoteDataTable<
     }, [ context, enableCreate, props.columns, props.endpoint, subject ]);
 
     const columns = useMemo(() => {
-        if (!enableCreate && !enableDelete)
+        if (!enableCreate && !enableDelete && !enableReorder)
             return props.columns;
 
         const columns: GridColDef<RowModel>[] = [];
         for (const column of props.columns) {
+            let sortable: boolean | undefined = column.sortable;
+            if (enableReorder) {
+                sortable = /* mutually exclusive w/ reordering */ false;
+            }
+
             if (column.field !== 'id') {
-                columns.push(column);
+                columns.push({ ...column, sortable });
                 continue;
             }
 
@@ -248,12 +274,13 @@ export function RemoteDataTable<
                 headerAlign,
                 renderCell,
                 renderHeader,
+                sortable,
             });
         }
 
         return columns;
 
-    }, [ enableCreate, handleCreate, enableDelete, props.columns, subject ]);
+    }, [ enableCreate, handleCreate, enableDelete, enableReorder, props.columns, subject ]);
 
     // ---------------------------------------------------------------------------------------------
     // Capability: (R)ead existing rows
@@ -313,6 +340,43 @@ export function RemoteDataTable<
     // ---------------------------------------------------------------------------------------------
     // Capability: (U)pdate existing rows
     // ---------------------------------------------------------------------------------------------
+
+    const handleReorder = useCallback(async (params: GridRowOrderChangeParams) => {
+        if (params.oldIndex === params.targetIndex)
+            return;  // ignore no-op changes
+
+        if (params.oldIndex < 0 || params.oldIndex >= rows.length)
+            return;
+        if (params.targetIndex < 0 || params.targetIndex >= rows.length)
+            return;
+
+        setError(undefined);
+        try {
+            if (!enableReorder)
+                throw new Error('reorder actions are not supported for this type');
+
+            const copiedRows = [ ...rows ];
+            const copiedRow = copiedRows.splice(params.oldIndex, 1)[0];
+            copiedRows.splice(params.targetIndex, 0, copiedRow);
+
+            const response = await callApi('put', `${props.endpoint}` as any, {
+                ...context,
+                id: copiedRow.id,
+                order: copiedRows.map(row => row.id),
+            });
+
+            if (response.success) {
+                if (!!refreshOnUpdate)
+                    router.refresh();
+
+                setRows(copiedRows);
+            } else {
+                setError(response.error ?? 'Unable to update the row order');
+            }
+        } catch (error: any) {
+            setError(`Unable to update the row order (${error.message})`);
+        }
+    }, [ context, enableReorder, props.endpoint, refreshOnUpdate, router, rows ]);
 
     const handleUpdate = useCallback(async (newRow: RowModel, oldRow: RowModel) => {
         setError(undefined);
@@ -403,12 +467,16 @@ export function RemoteDataTable<
                          rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
                          processRowUpdate={handleUpdate} editMode={enableUpdate ? 'row' : undefined}
 
+                         rowReordering={enableReorder} onRowOrderChange={handleReorder}
+                         slots={{ rowReorderIcon: RemoteDataTableMoveIcon }}
+
                          pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
                          paginationModel={paginationModel}
                          onPaginationModelChange={handlePaginationModelChange}
 
                          sortingMode="server"
-                         sortModel={sortModel} onSortModelChange={handleSortModelChange}
+                         sortModel={ enableReorder ? undefined : sortModel }
+                         onSortModelChange={ enableReorder ? undefined : handleSortModelChange }
 
                          autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
                          loading={loading} hideFooter={!!props.disableFooter} />

@@ -20,18 +20,6 @@ import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadg
 export function Roles() {
     const columns: RemoteDataTableColumn<RoleRowModel>[] = [
         {
-            field: 'roleOrder',
-            headerName: '#',
-            headerAlign: 'center',
-            editable: true,
-            sortable: true,
-            align: 'center',
-            width: 75,
-
-            type: 'singleSelect',
-            valueOptions: [ 0, 1, 2, 3, 4, 5 ],
-        },
-        {
             field: 'roleName',
             headerName: 'Role',
             editable: true,
@@ -113,8 +101,9 @@ export function Roles() {
             <Alert severity="info" sx={{ mb: 2 }}>
                 This table is editable, and can be used to update the settings for each role.
             </Alert>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableUpdate
-                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} disableFooter />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
+                             enableUpdate defaultSort={{ field: 'roleOrder', sort: 'asc' }}
+                             disableFooter />
         </Paper>
     );
 }

@@ -92,7 +92,7 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
         });
     },
 
-    async list({ sort }) {
+    async list() {
         const roles = await db.selectFrom(tRoles)
             .select({
                 id: tRoles.roleId,
@@ -104,7 +104,7 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
                 hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
                 trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),
             })
-            .orderBy(sort?.field ?? 'roleOrder', sort?.sort ?? 'asc')
+            .orderBy('roleOrder', 'asc')
             .executeSelectMany();
 
         return {
@@ -112,6 +112,22 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
             rowCount: roles.length,
             rows: roles,
         };
+    },
+
+    async reorder({ order }) {
+        const dbInstance = db;
+        await dbInstance.transaction(async () => {
+            for (let index = 0; index < order.length; ++index) {
+                await db.update(tRoles)
+                    .set({ roleOrder: index })
+                    .where(tRoles.roleId.equals(order[index]))
+                    .executeUpdate();
+            }
+        });
+
+        return {
+            success: true,
+        }
     },
 
     async update({ row }) {
@@ -132,6 +148,9 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
     },
 
     async writeLog({ id }, mutation, props) {
+        if (mutation === 'Reordered')
+            return;  // no need to log when someone changes the order of roles
+
         const roleName = await db.selectFrom(tRoles)
             .where(tRoles.roleId.equals(id))
             .selectOneColumn(tRoles.roleName)
