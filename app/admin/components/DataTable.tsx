@@ -5,8 +5,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid';
-import { DataGrid, GridToolbarQuickFilter  } from '@mui/x-data-grid';
+import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridToolbarQuickFilter  } from '@mui/x-data-grid-pro';
 
 import type { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
@@ -135,15 +135,15 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
     }, [ /* no deps */ ]);
 
     return (
-        <DataGrid rows={props.rows} columns={props.columns}
+        <DataGridPro rows={props.rows} columns={props.columns}
 
-                  pageSizeOptions={[ 10, 25, 50, 100 ]}
-                  paginationModel={paginationModel}
-                  onPaginationModelChange={onPaginationModelChange}
+                     pageSizeOptions={[ 10, 25, 50, 100 ]}
+                     paginationModel={paginationModel}
+                     onPaginationModelChange={onPaginationModelChange}
 
-                  slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
+                     slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
 
-                  autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
-                  hideFooter={!!props.disableFooter} />
+                     autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
+                     hideFooter={!!props.disableFooter} />
     );
 }

@@ -7,8 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { GridAlignment, GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
-    GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid';
-import { DataGrid, GridRowModes } from '@mui/x-data-grid';
+    GridRowModesModel, GridSortItem, GridSortModel, GridValidRowModel } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridRowModes } from '@mui/x-data-grid-pro';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alert from '@mui/material/Alert';
@@ -399,19 +399,19 @@ export function RemoteDataTable<
                 </Alert>
             </Collapse>
 
-            <DataGrid columns={columns} rows={rows} rowCount={rowCount}
-                      rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
-                      processRowUpdate={handleUpdate} editMode={enableUpdate ? 'row' : undefined}
+            <DataGridPro columns={columns} rows={rows} rowCount={rowCount}
+                         rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
+                         processRowUpdate={handleUpdate} editMode={enableUpdate ? 'row' : undefined}
 
-                      pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
-                      paginationModel={paginationModel}
-                      onPaginationModelChange={handlePaginationModelChange}
+                         pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
+                         paginationModel={paginationModel}
+                         onPaginationModelChange={handlePaginationModelChange}
 
-                      sortingMode="server"
-                      sortModel={sortModel} onSortModelChange={handleSortModelChange}
+                         sortingMode="server"
+                         sortModel={sortModel} onSortModelChange={handleSortModelChange}
 
-                      autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
-                      loading={loading} hideFooter={!!props.disableFooter} />
+                         autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
+                         loading={loading} hideFooter={!!props.disableFooter} />
 
             <Dialog open={!!deleteCandidate} onClose={resetDeleteCandidate}>
                 <DialogTitle>

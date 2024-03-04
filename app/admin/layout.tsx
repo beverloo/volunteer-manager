@@ -3,6 +3,7 @@
 
 import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
+import { MuiLicense } from './components/MuiLicense';
 import { getHeaderEventsForUser } from './AdminUtils';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -15,9 +16,12 @@ export default async function RootAdminLayout(props: React.PropsWithChildren) {
     const events = await getHeaderEventsForUser(user);
 
     return (
-        <AdminLayout>
-            <AdminHeader events={events} user={user} />
-            {props.children}
-        </AdminLayout>
+        <>
+            <MuiLicense />
+            <AdminLayout>
+                <AdminHeader events={events} user={user} />
+                {props.children}
+            </AdminLayout>
+        </>
     );
 }
