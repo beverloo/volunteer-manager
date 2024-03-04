@@ -38,6 +38,11 @@ const kEventShiftRowModel = z.object({
     category: z.string(),
 
     /**
+     * Order of the category as defined in the shift category overview.
+     */
+    categoryOrder: z.number(),
+
+    /**
      * Number of hours that volunteers have been scheduled to work on this shift.
      */
     hours: z.number().optional(),
@@ -203,13 +208,15 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
                 name: tShifts.shiftName,
                 category: tShiftsCategories.shiftCategoryName,
                 categoryColour: tShiftsCategories.shiftCategoryColour,
+                categoryOrder: tShiftsCategories.shiftCategoryOrder,
                 hours: dbInstance.sum(shiftDurationFragment),
                 activityId: activitiesJoin.activityId,
                 activityName: activitiesJoin.activityTitle,
                 excitement: tShifts.shiftExcitement,
             })
             .groupBy(tShifts.shiftId)
-            .orderBy(sort?.field ?? 'name', sort?.sort ?? 'asc')
+            .orderBy(sort?.field ?? 'categoryOrder', sort?.sort ?? 'asc')
+                .orderBy('name', 'asc')
             .executeSelectMany();
 
         const categories = new Map</* name= */ string, ColourInterpolator>;

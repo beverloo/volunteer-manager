@@ -76,11 +76,13 @@ export function ShiftTable(props: ShiftTableProps) {
         {
             field: 'category',
             headerName: 'Category',
+            sortable: true,
             width: 200,
         },
         {
             field: 'name',
             headerName: 'Shift',
+            sortable: true,
             flex: 2,
 
             renderCell: params =>
@@ -91,6 +93,7 @@ export function ShiftTable(props: ShiftTableProps) {
         {
             field: 'hours',
             headerName: 'Scheduled',
+            sortable: true,
             flex: 1,
 
             renderCell: params => {
@@ -157,7 +160,7 @@ export function ShiftTable(props: ShiftTableProps) {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/event/shifts" context={context}
-                         defaultSort={{ field: 'id', sort: 'asc' }} subject="shift"
+                         defaultSort={{ field: 'categoryOrder', sort: 'asc' }} subject="shift"
                          enableDelete={!readOnly} pageSize={100} disableFooter />
     );
 }
