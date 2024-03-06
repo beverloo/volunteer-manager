@@ -471,7 +471,7 @@ export function RemoteDataTable<
                          slots={{ rowReorderIcon: RemoteDataTableMoveIcon }}
 
                          pageSizeOptions={[ 10, 25, 50, 100 ]} paginationMode="server"
-                         paginationModel={paginationModel}
+                         paginationModel={paginationModel} pagination
                          onPaginationModelChange={handlePaginationModelChange}
 
                          sortingMode="server"

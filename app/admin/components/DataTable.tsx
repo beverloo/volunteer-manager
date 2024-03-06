@@ -138,7 +138,7 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
         <DataGridPro rows={props.rows} columns={props.columns}
 
                      pageSizeOptions={[ 10, 25, 50, 100 ]}
-                     paginationModel={paginationModel}
+                     paginationModel={paginationModel} pagination
                      onPaginationModelChange={onPaginationModelChange}
 
                      slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
