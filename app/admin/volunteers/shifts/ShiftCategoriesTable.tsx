@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 import type { EventShiftCategoriesRowModel } from '@app/api/admin/event/shifts/categories/[[...id]]/route';
 import { ExcitementIcon, kExcitementOptions } from '@app/admin/components/ExcitementIcon';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { createColourInterpolator } from '@lib/ColourInterpolator';
+import { createColourInterpolator } from '@app/admin/lib/createColourInterpolator';
 
 /**
  * Props accepted by the <ColourRangeBox> component.
