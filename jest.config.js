@@ -10,10 +10,13 @@ const createJestConfig = nextJest({
  * Jest configuration applying to the Volunteer Manager.
  */
 module.exports = createJestConfig({
+    moduleNameMapper: {
+        '^d3-(.*)$': '<rootDir>/node_modules/d3-$1/dist/d3-$1.min.js',
+    },
+    testEnvironment: 'jest-environment-jsdom',
     testPathIgnorePatterns: [ 'e2e' ],
     setupFiles: [ 'whatwg-fetch' ],
     setupFilesAfterEnv: [ 'jest-extended/all' ],
-    testEnvironment: 'jest-environment-jsdom',
 });
 
 /**

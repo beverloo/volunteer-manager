@@ -7,10 +7,10 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { createColourInterpolator, type ColourInterpolator } from '@lib/ColourInterpolator';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
-import db, { tActivities, tEventsTeams, tEvents, tTeams, tSchedule, tShifts, tShiftsCategories }
-    from '@lib/database';
+import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
+
+import db, { tEventsTeams, tEvents, tTeams, tShifts } from '@lib/database';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -177,78 +177,43 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
 
     async list({ context, sort }) {
         const { event, team } = await validateContext(context);
-        if (!event || !team)
+        if (!event || !team || !event.festivalId)
             notFound();
 
-        if (sort?.field === 'colour')
-            throw new Error(`Invalid sorting key provided (v=${sort.field})`);
+        const shifts = await getShiftsForEvent(event.id, event.festivalId);
+        const shiftsForTeam = shifts.filter(shift => shift.team.id === team.id);
 
-        const dbInstance = db;
+        shiftsForTeam.sort((lhs, rhs) => {
+            let mutation: number = 0;
+            switch (sort?.field) {
+                case 'category':
+                    mutation = lhs.category.localeCompare(rhs.category);
+                    break;
+                case 'name':
+                    mutation = lhs.name.localeCompare(rhs.name);
+                    break;
+                case 'hours':
+                    mutation = lhs.scheduled.hours > rhs.scheduled.hours ? 1 : -1;
+                    break;
+            }
 
-        const activitiesJoin = tActivities.forUseInLeftJoin();
-        const scheduleJoin = tSchedule.forUseInLeftJoin();
-
-        const shiftDurationFragment = dbInstance.fragmentWithType('int', 'required').sql`
-            TIMESTAMPDIFF(MINUTE, ${scheduleJoin.scheduleTimeStart},
-                                  ${scheduleJoin.scheduleTimeEnd})`;
-
-        const result = await dbInstance.selectFrom(tShifts)
-            .innerJoin(tShiftsCategories)
-                .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
-            .leftJoin(activitiesJoin)
-                .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
-                    .and(activitiesJoin.activityFestivalId.equalsIfValue(event.festivalId))
-                    .and(activitiesJoin.activityDeleted.isNull())
-            .leftJoin(scheduleJoin)
-                .on(scheduleJoin.shiftId.equals(tShifts.shiftId))
-            .where(tShifts.eventId.equals(event.id))
-                .and(tShifts.teamId.equals(team.id))
-            .select({
-                id: tShifts.shiftId,
-                name: tShifts.shiftName,
-                category: tShiftsCategories.shiftCategoryName,
-                categoryColour: tShiftsCategories.shiftCategoryColour,
-                categoryOrder: tShiftsCategories.shiftCategoryOrder,
-                hours: dbInstance.sum(shiftDurationFragment),
-                activityId: activitiesJoin.activityId,
-                activityName: activitiesJoin.activityTitle,
-                excitement: tShifts.shiftExcitement,
-            })
-            .groupBy(tShifts.shiftId)
-            .orderBy(sort?.field ?? 'categoryOrder', sort?.sort ?? 'asc')
-                .orderBy('name', 'asc')
-            .executeSelectMany();
-
-        const categories = new Map</* name= */ string, ColourInterpolator>;
-        const categoryCounts = new Map</* name= */ string, [ number, number ]>;
-
-        for (const { id, category, categoryColour } of result) {
-            if (!categories.has(category))
-                categories.set(category, createColourInterpolator(categoryColour));
-
-            const currentCounts = categoryCounts.get(category);
-            if (!currentCounts)
-                categoryCounts.set(category, [ 0, 0 ]);
-            else
-                categoryCounts.set(category, [ currentCounts[0] + 1, currentCounts[1] + 1 ]);
-        }
+            return sort?.sort === 'asc' ? mutation : -mutation;
+        });
 
         return {
             success: true,
-            rowCount: result.length,
-            rows: result.map(shift => {
-                const [ shiftsInCategory, remaining ] = categoryCounts.get(shift.category)!;
-
-                const colourInterpolator = categories.get(shift.category)!;
-                const colour = colourInterpolator(remaining / shiftsInCategory);
-
-                categoryCounts.set(shift.category, [ shiftsInCategory, remaining - 1 ]);
-
-                return {
-                    ...shift,
-                    colour,
-                };
-            }),
+            rowCount: shiftsForTeam.length,
+            rows: shiftsForTeam.map(shift => ({
+                id: shift.id,
+                name: shift.name,
+                colour: shift.colour,
+                category: shift.category,
+                categoryOrder: 0,
+                hours: 0,
+                activityId: shift.activity?.id,
+                activityName: shift.activity?.name,
+                excitement: shift.excitement,
+            })),
         };
     },
 
