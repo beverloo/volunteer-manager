@@ -127,11 +127,11 @@ export async function trainingPreferences(request: Request, props: ActionProps):
             assignmentExtraId: null,
 
             preferenceTrainingId,
-            preferenceUpdated: dbInstance.currentDateTime()
+            preferenceUpdated: dbInstance.currentZonedDateTime()
         })
         .onConflictDoUpdateSet({
             preferenceTrainingId,
-            preferenceUpdated: dbInstance.currentDateTime()
+            preferenceUpdated: dbInstance.currentZonedDateTime()
         })
         .executeInsert();
 

@@ -115,7 +115,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 vendorGender: VendorGender.Other,
                 vendorShirtFit: null,
                 vendorShirtSize: null,
-                vendorModified: dbInstance.currentDateTime(),
+                vendorModified: dbInstance.currentZonedDateTime(),
                 vendorVisible: /* true= */ 1,
             })
             .returningLastInsertedId()
@@ -189,7 +189,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 vendorGender: row.gender,
                 vendorShirtFit: shirtFit,
                 vendorShirtSize: shirtSize,
-                vendorModified: dbInstance.currentDateTime()
+                vendorModified: dbInstance.currentZonedDateTime()
             })
             .where(tVendors.eventId.equals(event.eventId))
                 .and(tVendors.vendorId.equals(id))

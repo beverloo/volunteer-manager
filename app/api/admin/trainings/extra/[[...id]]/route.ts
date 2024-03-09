@@ -184,11 +184,11 @@ createDataTableApi(kTrainingExtraRowModel, kTrainingExtraContext, {
                         eventId: event.id,
                         assignmentExtraId: row.id,
                         preferenceTrainingId,
-                        preferenceUpdated: dbInstance.currentTimestamp(),
+                        preferenceUpdated: dbInstance.currentZonedDateTime(),
                     })
                     .onConflictDoUpdateSet({
                         preferenceTrainingId,
-                        preferenceUpdated: dbInstance.currentTimestamp(),
+                        preferenceUpdated: dbInstance.currentZonedDateTime(),
                     })
                     .executeInsert();
             }

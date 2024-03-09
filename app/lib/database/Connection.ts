@@ -3,11 +3,6 @@
 
 import { type Pool, type PoolConfig, createPool } from 'mariadb';
 
-import type { CustomLocalDateTimeValueSource, DateTimeValueSource, LocalDateTimeValueSource }
-    from 'ts-sql-query/expressions/values';
-
-import type { DB } from 'ts-sql-query/typeMarks/MariaDBDB';
-import type { NoTableOrViewRequired } from 'ts-sql-query/utils/ITableOrView';
 import { InterceptorQueryRunner, type QueryType }
     from 'ts-sql-query/queryRunners/InterceptorQueryRunner';
 import { MariaDBConnection } from 'ts-sql-query/connections/MariaDBConnection';
@@ -48,30 +43,11 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     override allowEmptyString = true;
 
     /**
-     * The `currentDateTime()` helper refers to an SQL Fragment through which the server directly
-     * inserts the current date & time. This works orthogonal to the type we use to represent dates.
+     * Value representing the current date and time. Evaluated on the database server.
      */
-    override currentDateTime()
-        : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          CustomLocalDateTimeValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
-    {
-        return super.currentDateTime() as any;
-    }
-
-    /**
-     * The `currentTimestamp()` helper refers to an SQL Fragment through which the server directly
-     * inserts the current date & time. This works orthogonal to the type we use to represent dates.
-     */
-    override currentTimestamp()
-        : DateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          LocalDateTimeValueSource<NoTableOrViewRequired<DB<'DBConnection'>>, 'required'> &
-          CustomLocalDateTimeValueSource<
-              NoTableOrViewRequired<DB<'DBConnection'>>, ZonedDateTime, ZonedDateTime, 'required'>
-    {
-        return super.currentTimestamp() as any;
-    }
+    currentZonedDateTime = this.buildFragmentWithArgs().as(() =>
+        this.fragmentWithType<ZonedDateTime>('customLocalDateTime', 'ZonedDateTime', 'required')
+            .sql`current_timestamp`);
 }
 
 /**

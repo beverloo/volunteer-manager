@@ -225,7 +225,7 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
         const dbInstance = db;
 
         let assignmentTrainingId: null | number;
-        let assignmentUpdated: null | ReturnType<typeof dbInstance.currentTimestamp>;
+        let assignmentUpdated: null | ReturnType<typeof dbInstance.currentZonedDateTime>;
 
         switch (row.assignedTrainingId) {
             case -1:   // reset
@@ -236,12 +236,12 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
 
             case 0:     // don't participate
                 assignmentTrainingId = null;
-                assignmentUpdated = dbInstance.currentTimestamp();
+                assignmentUpdated = dbInstance.currentZonedDateTime();
                 break;
 
             default:    // participate
                 assignmentTrainingId = row.assignedTrainingId!;
-                assignmentUpdated = dbInstance.currentTimestamp();
+                assignmentUpdated = dbInstance.currentZonedDateTime();
                 break;
         }
 

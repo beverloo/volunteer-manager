@@ -60,7 +60,7 @@ async function error(request: Request, props: ActionProps): Promise<Response> {
     const dbInstance = db;
     await dbInstance.insertInto(tErrorLogs)
         .set({
-            errorDate: dbInstance.currentDateTime(),
+            errorDate: dbInstance.currentZonedDateTime(),
             errorUserId: props.user?.userId,
             errorIpAddress: props.ip,
             errorOrigin: props.origin,

@@ -111,7 +111,7 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tShiftsCategories)
             .set({
-                shiftCategoryDeleted: dbInstance.currentDateTime(),
+                shiftCategoryDeleted: dbInstance.currentZonedDateTime(),
             })
             .where(tShiftsCategories.shiftCategoryId.equals(id))
                 .and(tShiftsCategories.shiftCategoryDeleted.isNull())

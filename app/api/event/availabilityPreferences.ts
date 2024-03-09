@@ -184,7 +184,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             preferenceHours: parseInt(request.serviceHours, 10),
             preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
-            preferencesUpdated: dbInstance.currentDateTime(),
+            preferencesUpdated: dbInstance.currentZonedDateTime(),
         })
         .setIfValue({
             availabilityExceptions: exceptions,

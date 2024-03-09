@@ -115,8 +115,8 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 areaFestivalId: event.festivalId,
                 areaType: ActivityType.Internal,
                 areaName: `Internal area #${newDisplayInternalAreaId}`,
-                areaCreated: dbInstance.currentDateTime(),
-                areaUpdated: dbInstance.currentDateTime(),
+                areaCreated: dbInstance.currentZonedDateTime(),
+                areaUpdated: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
 
@@ -130,7 +130,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 mutation: Mutation.Created,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime(),
+                mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
 
@@ -152,7 +152,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tActivitiesAreas)
             .set({
-                areaDeleted: dbInstance.currentDateTime(),
+                areaDeleted: dbInstance.currentZonedDateTime(),
             })
             .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
                 .and(tActivitiesAreas.areaId.equals(id))
@@ -167,7 +167,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 mutation: Mutation.Deleted,
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime(),
+                mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
 
@@ -234,7 +234,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 mutationFields: 'display name',
                 mutationSeverity: MutationSeverity.Important,
                 mutationUserId: props.user?.userId,
-                mutationDate: dbInstance.currentDateTime(),
+                mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
 

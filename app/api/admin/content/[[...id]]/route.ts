@@ -148,7 +148,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentProtected: /* unprotected= */ 0,
                 content: '',
                 revisionAuthorId: props.user!.userId,
-                revisionDate: dbInstance.currentTimestamp(),
+                revisionDate: dbInstance.currentZonedDateTime(),
                 revisionVisible: /* true= */ 1,
             })
             .returningLastInsertedId()
@@ -285,7 +285,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentTitle: row.title,
                 content: row.content,
                 revisionAuthorId: props.user!.userId,
-                revisionDate: db.currentTimestamp(),
+                revisionDate: db.currentZonedDateTime(),
             })
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))

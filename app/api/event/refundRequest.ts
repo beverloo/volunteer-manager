@@ -130,13 +130,13 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
             refundTicketNumber: request.request.ticketNumber,
             refundAccountIban: request.request.accountIban,
             refundAccountName: request.request.accountName,
-            refundRequested: dbInstance.currentDateTime(),
+            refundRequested: dbInstance.currentZonedDateTime(),
         })
         .onConflictDoUpdateSet({
             refundTicketNumber: request.request.ticketNumber,
             refundAccountIban: request.request.accountIban,
             refundAccountName: request.request.accountName,
-            refundRequested: dbInstance.currentDateTime(),
+            refundRequested: dbInstance.currentZonedDateTime(),
         })
         .executeInsert();
 

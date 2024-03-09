@@ -79,7 +79,7 @@ export async function storeBlobData(info: BlobInfo): Promise<number | false> {
             fileHash: hash,
             fileType: info.type,
             fileMimeType: info.mimeType,
-            fileDate: dbInstance.currentDateTime(),
+            fileDate: dbInstance.currentZonedDateTime(),
             fileData: info.bytes,
             userId: info.userId,
         })

@@ -212,7 +212,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                             mutation: mutation.mutation,
                             mutationFields: mutation.mutatedFields?.join(', '),
                             mutationSeverity: mutation.severity,
-                            mutationDate: dbInstance.currentDateTime(),
+                            mutationDate: dbInstance.currentZonedDateTime(),
                         })))
                         .executeInsert();
                 }
@@ -343,8 +343,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
                         activityVisible: currentActivity.visible ? 1 : 0,
                         activityVisibleReason: currentActivity.reasonInvisible,
-                        activityCreated: dbInstance.currentDateTime(),
-                        activityUpdated: dbInstance.currentDateTime(),
+                        activityCreated: dbInstance.currentZonedDateTime(),
+                        activityUpdated: dbInstance.currentZonedDateTime(),
                         activityDeleted: null,
                     }));
 
@@ -362,7 +362,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivities)
                     .set({
-                        activityDeleted: dbInstance.currentDateTime(),
+                        activityDeleted: dbInstance.currentZonedDateTime(),
                     })
                     .where(tActivities.activityId.equals(activityId)));
 
@@ -393,8 +393,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         areaFestivalId: festivalId,
                         areaType: ActivityType.Program,
                         areaName: currentArea.name,
-                        areaCreated: dbInstance.currentDateTime(),
-                        areaUpdated: dbInstance.currentDateTime(),
+                        areaCreated: dbInstance.currentZonedDateTime(),
+                        areaUpdated: dbInstance.currentZonedDateTime(),
                         areaDeleted: null,
                     }));
 
@@ -411,7 +411,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivitiesAreas)
                     .set({
-                        areaDeleted: dbInstance.currentDateTime(),
+                        areaDeleted: dbInstance.currentZonedDateTime(),
                     })
                     .where(tActivitiesAreas.areaId.equals(areaId)));
 
@@ -442,8 +442,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationType: ActivityType.Program,
                         locationName: currentLocation.useName ?? currentLocation.name,
                         locationAreaId: currentLocation.floorId,
-                        locationCreated: dbInstance.currentDateTime(),
-                        locationUpdated: dbInstance.currentDateTime(),
+                        locationCreated: dbInstance.currentZonedDateTime(),
+                        locationUpdated: dbInstance.currentZonedDateTime(),
                         locationDeleted: null,
                     }));
 
@@ -460,7 +460,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivitiesLocations)
                     .set({
-                        locationDeleted: dbInstance.currentDateTime(),
+                        locationDeleted: dbInstance.currentZonedDateTime(),
                     })
                     .where(tActivitiesLocations.locationId.equals(locationId)));
 
@@ -494,8 +494,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         timeslotStartTime: toZonedDateTime(currentTimeslot.dateStartsAt),
                         timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
-                        timeslotCreated: dbInstance.currentDateTime(),
-                        timeslotUpdated: dbInstance.currentDateTime(),
+                        timeslotCreated: dbInstance.currentZonedDateTime(),
+                        timeslotUpdated: dbInstance.currentZonedDateTime(),
                         timeslotDeleted: null,
                     }));
 
@@ -520,7 +520,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.deleted.push(dbInstance.update(tActivitiesTimeslots)
                     .set({
-                        timeslotDeleted: dbInstance.currentDateTime(),
+                        timeslotDeleted: dbInstance.currentZonedDateTime(),
                     })
                     .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id)));
 
@@ -566,7 +566,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityTypeVideo: currentActivity.activityType?.video ? 1 : 0,
                     activityVisible: currentActivity.visible ? 1 : 0,
                     activityVisibleReason: currentActivity.reasonInvisible,
-                    activityUpdated: dbInstance.currentDateTime(),
+                    activityUpdated: dbInstance.currentZonedDateTime(),
                     activityDeleted: null,
                 })
                 .where(tActivities.activityId.equals(storedActivity.id))
@@ -592,7 +592,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             mutations.updated.push(dbInstance.update(tActivitiesAreas)
                 .set({
                     areaName: currentArea.name,
-                    areaUpdated: dbInstance.currentDateTime(),
+                    areaUpdated: dbInstance.currentZonedDateTime(),
                     areaDeleted: null,
                 })
                 .where(tActivitiesAreas.areaId.equals(storedArea.id))
@@ -618,7 +618,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             mutations.updated.push(dbInstance.update(tActivitiesLocations)
                 .set({
                     locationName: currentLocation.useName ?? currentLocation.name,
-                    locationUpdated: dbInstance.currentDateTime(),
+                    locationUpdated: dbInstance.currentZonedDateTime(),
                     locationDeleted: null,
                 })
                 .where(tActivitiesLocations.locationId.equals(storedLocation.id))
@@ -646,7 +646,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     timeslotStartTime: toZonedDateTime(currentTimeslot.dateStartsAt),
                     timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                     timeslotLocationId: currentTimeslot.location.id,
-                    timeslotUpdated: dbInstance.currentDateTime(),
+                    timeslotUpdated: dbInstance.currentZonedDateTime(),
                     timeslotDeleted: null,
                 })
                 .where(tActivitiesTimeslots.timeslotId.equals(storedTimeslot.id!)));
@@ -1030,7 +1030,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     festivalId: tEvents.eventFestivalId,
                 })
                 .where(tEvents.eventFestivalId.isNotNull())
-                    .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentDateTime()))
+                    .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentZonedDateTime()))
                     .and(tEvents.eventHidden.equals(/* false= */ 0))
                 .limit(/* only the first (upcoming) event= */ 1)
                 .executeSelectNoneOrOne();
