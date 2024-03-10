@@ -58,6 +58,17 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     ).as(value => {
         return this.fragmentWithType('string', 'optional').sql`date_format(${value}, "%Y-%m-%d")`;
     });
+
+    /**
+     * Helper function to retrieve a string representation (ISO 8601, YYYY-MM-DDTHH:mm:ssZ[UTC]) of
+     * a DATETIME or TIMESTAMP column. Works for both required and optional columns.
+     */
+    dateTimeAsString = this.buildFragmentWithMaybeOptionalArgs(
+        this.arg<ZonedDateTime>('customLocalDateTime', 'ZonedDateTime', 'optional')
+    ).as(value => {
+        return this.fragmentWithType('string', 'optional')
+            .sql`date_format(${value}, "%Y-%m-%dT%TZ[UTC]")`;
+    });
 }
 
 /**

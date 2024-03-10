@@ -56,7 +56,8 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdated,
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-            assignedUpdated: trainingsAssignmentsJoin.assignmentUpdatedString,
+            assignedUpdated:
+                dbInstance.dateTimeAsString(trainingsAssignmentsJoin.assignmentUpdated),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })
@@ -77,10 +78,12 @@ export default async function EventTrainingPage(props: NextRouterParams<'slug'>)
             trainingExtraBirthdate: dbInstance.dateAsString(tTrainingsExtra.trainingExtraBirthdate),
 
             preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
-            preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdatedString,
+            preferenceUpdated:
+                dbInstance.dateTimeAsString(trainingsAssignmentsJoin.preferenceUpdated),
 
             assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-            assignedUpdated: trainingsAssignmentsJoin.assignmentUpdatedString,
+            assignedUpdated:
+                dbInstance.dateTimeAsString(trainingsAssignmentsJoin.assignmentUpdated),
 
             confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
         })

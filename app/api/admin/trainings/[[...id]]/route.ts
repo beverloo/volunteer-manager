@@ -137,8 +137,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kTrainingRowModel, 
                 id: tTrainings.trainingId,
                 address: tTrainings.trainingAddress,
                 capacity: tTrainings.trainingCapacity,
-                start: tTrainings.trainingStartString,
-                end: tTrainings.trainingEndString,
+                start: dbInstance.dateTimeAsString(tTrainings.trainingStart),
+                end: dbInstance.dateTimeAsString(tTrainings.trainingEnd),
             })
             .orderBy(sort?.field ?? 'start', sort?.sort ?? 'asc')
             .limitIfValue(pagination ? pagination.pageSize : null)

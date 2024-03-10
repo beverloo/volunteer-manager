@@ -87,15 +87,15 @@ export async function getRegistration(environmentName: string, event: Event, use
                 checkOut: dbInstance.dateAsString(hotelsPreferencesJoin.hotelDateCheckOut),
                 sharingPeople: hotelsPreferencesJoin.hotelSharingPeople,
                 sharingPreferences: hotelsPreferencesJoin.hotelSharingPreferences,
-                updated: hotelsPreferencesJoin.hotelPreferencesUpdatedString,
+                updated: dbInstance.dateTimeAsString(hotelsPreferencesJoin.hotelPreferencesUpdated),
             },
 
             refund: {
                 ticketNumber: refundsJoin.refundTicketNumber,
                 accountIban: refundsJoin.refundAccountIban,
                 accountName: refundsJoin.refundAccountName,
-                requested: refundsJoin.refundRequestedString,
-                confirmed: refundsJoin.refundConfirmedString,
+                requested: dbInstance.dateTimeAsString(refundsJoin.refundRequested),
+                confirmed: dbInstance.dateTimeAsString(refundsJoin.refundConfirmed),
             },
 
             trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
@@ -104,11 +104,11 @@ export async function getRegistration(environmentName: string, event: Event, use
             training: {
                 confirmed: trainingsAssignmentsJoin.assignmentConfirmed.equals(/* true= */ 1),
                 preference: trainingsAssignmentsJoin.preferenceTrainingId,
-                updated: trainingsAssignmentsJoin.preferenceUpdatedString,
+                updated: dbInstance.dateTimeAsString(trainingsAssignmentsJoin.preferenceUpdated),
 
-                preferenceDate: trainingsPreferenceJoin.trainingStartString,
-                assignedDate: trainingsAssignedJoin.trainingStartString,
-                assignedEndDate: trainingsAssignedJoin.trainingEndString,
+                preferenceDate: dbInstance.dateTimeAsString(trainingsPreferenceJoin.trainingStart),
+                assignedDate: dbInstance.dateTimeAsString(trainingsAssignedJoin.trainingStart),
+                assignedEndDate: dbInstance.dateTimeAsString(trainingsAssignedJoin.trainingEnd),
                 assignedAddress: trainingsAssignedJoin.trainingAddress,
             },
         })

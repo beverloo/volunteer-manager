@@ -182,11 +182,12 @@ export const { GET } = createDataTableApi(kOutboxRowModel, kOutboxContext, {
     },
 
     async get({ id }) {
-        const row = await db.selectFrom(tOutbox)
+        const dbInstance = db;
+        const row = await dbInstance.selectFrom(tOutbox)
             .select({
                 // Basic fields:
                 id: tOutbox.outboxId,
-                date: tOutbox.outboxTimestampString,
+                date: dbInstance.dateTimeAsString(tOutbox.outboxTimestamp),
                 from: tOutbox.outboxSender,
                 fromUserId: tOutbox.outboxSenderUserId,
                 to: tOutbox.outboxTo,
@@ -231,10 +232,11 @@ export const { GET } = createDataTableApi(kOutboxRowModel, kOutboxContext, {
     },
 
     async list({ pagination, sort }) {
-        const result = await db.selectFrom(tOutbox)
+        const dbInstance = db;
+        const result = await dbInstance.selectFrom(tOutbox)
             .select({
                 id: tOutbox.outboxId,
-                date: tOutbox.outboxTimestampString,
+                date: dbInstance.dateTimeAsString(tOutbox.outboxTimestamp),
                 from: tOutbox.outboxSender,
                 fromUserId: tOutbox.outboxSenderUserId,
                 to: tOutbox.outboxTo,

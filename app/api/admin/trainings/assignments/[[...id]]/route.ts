@@ -131,7 +131,8 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
                 preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdated,
 
                 assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-                assignedUpdated: trainingsAssignmentsJoin.assignmentUpdatedString,
+                assignedUpdated:
+                    dbInstance.dateTimeAsString(trainingsAssignmentsJoin.assignmentUpdated),
 
                 confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
             })
@@ -154,10 +155,12 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
                     dbInstance.dateAsString(tTrainingsExtra.trainingExtraBirthdate),
 
                 preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
-                preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdatedString,
+                preferenceUpdated:
+                    dbInstance.dateTimeAsString(trainingsAssignmentsJoin.preferenceUpdated),
 
                 assignedTrainingId: trainingsAssignmentsJoin.assignmentTrainingId,
-                assignedUpdated: trainingsAssignmentsJoin.assignmentUpdatedString,
+                assignedUpdated:
+                    dbInstance.dateTimeAsString(trainingsAssignmentsJoin.assignmentUpdated),
 
                 confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
             })

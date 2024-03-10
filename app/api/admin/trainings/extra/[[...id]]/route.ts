@@ -145,7 +145,8 @@ createDataTableApi(kTrainingExtraRowModel, kTrainingExtraContext, {
                 trainingExtraBirthdate:
                     dbInstance.dateAsString(tTrainingsExtra.trainingExtraBirthdate),
                 preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
-                preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdatedString,
+                preferenceUpdated:
+                    dbInstance.dateTimeAsString(trainingsAssignmentsJoin.preferenceUpdated),
             })
             .orderBy(sort?.field ?? 'trainingExtraName', sort?.sort ?? 'asc')
             .executeSelectMany();

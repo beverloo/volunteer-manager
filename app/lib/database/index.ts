@@ -1,9 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { CreateDateTimeStringFragment, CreateTimestampStringFragment }
-    from './DateTimeStringColumns';
-
 import { ActivitiesAreasTable } from './scheme/ActivitiesAreasTable';
 import { ActivitiesLocationsTable } from './scheme/ActivitiesLocationsTable';
 import { ActivitiesLogsTable } from './scheme/ActivitiesLogsTable';
@@ -51,63 +48,23 @@ import { WhatsappMessagesTable } from './scheme/WhatsappMessagesTable';
 export const tActivities = new ActivitiesTable;
 export const tActivitiesAreas = new ActivitiesAreasTable;
 export const tActivitiesLocations = new ActivitiesLocationsTable;
-export const tActivitiesLogs = new class extends ActivitiesLogsTable {
-    mutationDateString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.mutationDate));
-}
+export const tActivitiesLogs = new ActivitiesLogsTable;
 export const tActivitiesTimeslots = new ActivitiesTimeslotsTable;
-export const tContent = new class extends ContentTable {
-    revisionDateString = this.virtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.revisionDate));
-}
+export const tContent = new ContentTable;
 export const tErrorLogs = new ErrorLogsTable;
 export const tEventsDeadlines = new EventsDeadlinesTable;
-export const tEvents = new class extends EventsTable {
-    eventStartTimeString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.eventStartTime));
-    eventEndTimeString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.eventEndTime));
-    eventRefundsStartTimeString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.eventRefundsStartTime));
-    eventRefundsEndTimeString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.eventRefundsEndTime));
-}
+export const tEvents = new EventsTable;
 export const tEventsTeams = new EventsTeamsTable;
-export const tExports = new class extends ExportsTable {
-    exportCreatedDateString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.exportCreatedDate));
-    exportExpirationDateString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.exportExpirationDate));
-}
-export const tExportsLogs = new class extends ExportsLogsTable {
-    accessDateString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.accessDate));
-}
+export const tExports = new ExportsTable;
+export const tExportsLogs = new ExportsLogsTable;
 export const tHotels = new HotelsTable;
 export const tHotelsAssignments = new HotelsAssignmentsTable;
 export const tHotelsBookings = new HotelsBookingsTable;
-export const tHotelsPreferences = new class extends HotelsPreferencesTable {
-    hotelPreferencesUpdatedString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.hotelPreferencesUpdated));
-}
-export const tLogs = new class extends LogsTable {
-    logDateString = this.virtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.logDate));
-}
-export const tNardo = new class extends NardoTable {
-    nardoAuthorDateString = this.virtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.nardoAuthorDate));
-};
-export const tOutbox = new class extends OutboxTable {
-    outboxTimestampString = this.virtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.outboxTimestamp));
-}
-export const tRefunds = new class extends RefundsTable {
-    refundRequestedString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.refundRequested));
-    refundConfirmedString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.refundConfirmed));
-}
+export const tHotelsPreferences = new HotelsPreferencesTable;
+export const tLogs = new LogsTable;
+export const tNardo = new NardoTable;
+export const tOutbox = new OutboxTable;
+export const tRefunds = new RefundsTable;
 export const tRetention = new RetentionTable;
 export const tRoles = new RolesTable;
 export const tSchedule = new ScheduleTable;
@@ -116,32 +73,14 @@ export const tShiftsCategories = new ShiftsCategoriesTable;
 export const tShifts = new ShiftsTable;
 export const tStorage = new StorageTable;
 export const tSubscriptions = new SubscriptionsTable;
-export const tTasks = new class extends TasksTable {
-    taskScheduledDateString = this.virtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.taskScheduledDate));
-}
+export const tTasks = new TasksTable;
 export const tTeamsRoles = new TeamsRolesTable;
 export const tTeams = new TeamsTable;
-export const tTrainings = new class extends TrainingsTable {
-    trainingStartString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.trainingStart));
-    trainingEndString = this.virtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.trainingEnd));
-}
-export const tTrainingsAssignments = new class extends TrainingsAssignmentsTable {
-    assignmentUpdatedString = this.optionalVirtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.assignmentUpdated));
-    preferenceUpdatedString = this.optionalVirtualColumnFromFragment(
-        'string', CreateTimestampStringFragment(this.preferenceUpdated));
-}
+export const tTrainings = new TrainingsTable;
+export const tTrainingsAssignments = new TrainingsAssignmentsTable;
 export const tTrainingsExtra = new TrainingsExtraTable;
 export const tUsersAuth = new UsersAuthTable;
-export const tUsersEvents = new class extends UsersEventsTable {
-    registrationDateString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.registrationDate));
-    preferencesUpdatedString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateTimeStringFragment(this.preferencesUpdated));
-}
+export const tUsersEvents = new UsersEventsTable;
 export const tUsersPasskeys = new UsersPasskeysTable;
 export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new class extends UsersTable {
