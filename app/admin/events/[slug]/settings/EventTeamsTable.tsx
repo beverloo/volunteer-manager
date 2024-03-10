@@ -3,20 +3,17 @@
 
 'use client';
 
-import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 
 import type { EventTeamRowModel } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
- * Props accepted by the <TeamSettings> component.
+ * Props accepted by the <EventTeamsTable> component.
  */
-export interface TeamSettingsProps {
+export interface EventTeamsTableProps {
     /**
      * Information about the event whose settings are being changed.
      */
@@ -24,22 +21,24 @@ export interface TeamSettingsProps {
 }
 
 /**
- * The <TeamSettings> component allows administrators to change settings regarding the individual
+ * The <EventTeamsTable> component allows administrators to change settings regarding the individual
  * teams that take part in an event. Team settings include availability of content, the schedule, as
  * well as targets regarding the number of volunteers that should participate.
  */
-export function TeamSettings(props: TeamSettingsProps) {
+export function EventTeamsTable(props: EventTeamsTableProps) {
     const { event } = props;
 
     const context = { event: props.event.slug };
     const columns: RemoteDataTableColumn<EventTeamRowModel>[] = [
         {
             field: 'enableTeam',
+            headerAlign: 'center',
             headerName: '',
             editable: true,
             sortable: false,
             type: 'boolean',
-            width: 75,
+            align: 'center',
+            width: 50,
 
             renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
@@ -118,17 +117,8 @@ export function TeamSettings(props: TeamSettingsProps) {
     ];
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
-                Team settings
-            </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
-                Double click to edit the settings for <strong>{event.shortName}</strong> associated
-                with a particular team.
-            </Alert>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/event/teams" context={context}
-                             enableUpdate defaultSort={{ field: 'name', sort: 'asc' }}
-                             disableFooter />
-        </Paper>
+        <RemoteDataTable columns={columns} endpoint="/api/admin/event/teams" context={context}
+                         enableUpdate defaultSort={{ field: 'name', sort: 'asc' }}
+                         disableFooter />
     );
 }

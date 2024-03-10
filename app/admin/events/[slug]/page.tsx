@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Grid from '@mui/material/Unstable_Grid2';
+import Stack from '@mui/material/Stack';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { EventIdentityCard } from './EventIdentityCard';
@@ -14,9 +15,35 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tTrainingsAssignments, tTrainings,
-    tUsersEvents, tUsers, tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences,
-    tNardo, tRefunds } from '@lib/database';
+import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
+    tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
+    tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
+import { EventDeadlines } from './EventDeadlines';
+
+/**
+ * Returns the deadlines that exist for a particular event, so that they can be displayed on the
+ * dashboard page for everyone to see.
+ */
+async function getEventDeadlines(eventId: number) {
+    const usersJoin = tUsers.forUseInLeftJoin();
+
+    return db.selectFrom(tEventsDeadlines)
+        .leftJoin(usersJoin)
+            .on(usersJoin.userId.equals(tEventsDeadlines.deadlineOwnerId))
+        .select({
+            id: tEventsDeadlines.deadlineId,
+            date: tEventsDeadlines.deadlineDateString,
+            title: tEventsDeadlines.deadlineTitle,
+            description: tEventsDeadlines.deadlineDescription,
+            owner: usersJoin.name,
+        })
+        .where(tEventsDeadlines.eventId.equals(eventId))
+            .and(tEventsDeadlines.deadlineCompleted.isNull())
+            .and(tEventsDeadlines.deadlineDeleted.isNull())
+        .orderBy(tEventsDeadlines.deadlineDate, 'asc')
+            .orderBy(tEventsDeadlines.deadlineTitle, 'asc')
+        .executeSelectMany();
+}
 
 /**
  * Returns metadata about the event that's being shown, including hotel & training status and
@@ -199,7 +226,7 @@ async function getRecentChanges(eventId: number) {
     changes.sort((lhs, rhs) =>
         Temporal.ZonedDateTime.compare(rhs.date, lhs.date));
 
-    return changes.slice(0, 8).map(change => ({
+    return changes.slice(0, 12).map(change => ({
         ...change,
         date: change.date.toString(),
     }));
@@ -277,18 +304,12 @@ async function getSeniorVolunteers(eventId: number) {
 export default async function EventPage(props: NextRouterParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
+    const deadlines = await getEventDeadlines(event.id);
     const eventMetadata = await getEventMetadata(event.id);
     const participatingTeams = await getParticipatingTeams(event.id);
     const recentChanges = await getRecentChanges(event.id);
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
-
-    const advice = await db.selectFrom(tNardo)
-        .selectOneColumn(tNardo.nardoAdvice)
-        .where(tNardo.nardoVisible.equals(/* true= */ 1))
-        .orderBy(db.rawFragment`RAND()`)
-        .limit(1)
-        .executeSelectNoneOrOne() ?? undefined;
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
@@ -314,9 +335,14 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
                     <EventRecentChanges changes={recentChanges} event={event} />
                 </Grid> }
 
-            { seniorVolunteers.length > 0 &&
+            { (deadlines.length > 0 || seniorVolunteers.length > 0) &&
                 <Grid xs={6}>
-                    <EventSeniors advice={advice} event={event} volunteers={seniorVolunteers} />
+                    <Stack direction="column" spacing={2}>
+                        { deadlines.length > 0 &&
+                            <EventDeadlines event={event} deadlines={deadlines} /> }
+                        { seniorVolunteers.length > 0 &&
+                            <EventSeniors event={event} volunteers={seniorVolunteers} /> }
+                    </Stack>
                 </Grid> }
         </Grid>
     );

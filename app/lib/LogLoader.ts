@@ -108,6 +108,9 @@ const kLogMessageFormatter: {
         return `Applied for ${target?.name} to participate in ${event}`;
     },
     [LogType.AdminEventCreate]: (source, target, { event }) => `Created the ${event} event`,
+    [LogType.AdminEventDeadlineMutation]: (source, target, { event, mutation }) => {
+        return `${mutation} a deadline for ${event}`;
+    },
     [LogType.AdminEventHotelMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} an hotel room for ${eventName}`;
     },

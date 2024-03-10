@@ -11,6 +11,7 @@ import { ActivitiesTable } from './scheme/ActivitiesTable';
 import { ActivitiesTimeslotsTable } from './scheme/ActivitiesTimeslotsTable';
 import { ContentTable } from './scheme/ContentTable';
 import { ErrorLogsTable } from './scheme/ErrorLogsTable';
+import { EventsDeadlinesTable } from './scheme/EventsDeadlinesTable';
 import { EventsTable } from './scheme/EventsTable';
 import { EventsTeamsTable } from './scheme/EventsTeamsTable';
 import { ExportsLogsTable } from './scheme/ExportsLogsTable';
@@ -60,6 +61,10 @@ export const tContent = new class extends ContentTable {
         'string', CreateTimestampStringFragment(this.revisionDate));
 }
 export const tErrorLogs = new ErrorLogsTable;
+export const tEventsDeadlines = new class extends EventsDeadlinesTable {
+    deadlineDateString = this.virtualColumnFromFragment(
+        'string', CreateDateStringFragment(this.deadlineDate));
+};
 export const tEvents = new class extends EventsTable {
     eventStartTimeString = this.virtualColumnFromFragment(
         'string', CreateDateTimeStringFragment(this.eventStartTime));

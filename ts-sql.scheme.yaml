@@ -829,6 +829,88 @@ tables:
       KEY `storage_user_id` (`user_id`),
       CONSTRAINT `storage_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events_deadlines
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: deadline_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: deadline_date
+    type: date
+    nullable: false
+    default: null
+    comment: ""
+  - name: deadline_owner_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: deadline_title
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: deadline_description
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: deadline_completed
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: deadline_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: events_deadlines
+    columns:
+    - event_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (deadline_id) USING BTREE
+    table: events_deadlines
+    columns:
+    - deadline_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (deadline_id)
+    table: events_deadlines
+    referencedTable: null
+    columns:
+    - deadline_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events_deadlines` (
+      `deadline_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(8) unsigned NOT NULL,
+      `deadline_date` date NOT NULL,
+      `deadline_owner_id` int(8) unsigned DEFAULT NULL,
+      `deadline_title` text NOT NULL,
+      `deadline_description` text NOT NULL,
+      `deadline_completed` datetime DEFAULT NULL,
+      `deadline_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`deadline_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles
   type: BASE TABLE
   comment: ""
