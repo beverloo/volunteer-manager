@@ -10,7 +10,8 @@ import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 
-import db, { tEventsTeams, tEvents, tTeams, tShifts } from '@lib/database';
+import db, { tActivities, tEventsTeams, tEvents, tTeams, tShifts, tShiftsCategories }
+    from '@lib/database';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -61,6 +62,20 @@ const kEventShiftRowModel = z.object({
      * Excitement of this shift, indicated as a number between 0 and 1.
      */
     excitement: z.number(),
+
+    // ---------------------------------------------------------------------------------------------
+    // Fields only used when creating a new category, or updating an existing one:
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Unique ID of the category in which the shift should be created.
+     */
+    categoryId: z.number().optional(),
+
+    /**
+     * Unique ID of the location in which the shift will be taking place.
+     */
+    locationId: z.number().optional(),
 });
 
 /**
@@ -134,7 +149,8 @@ async function validateContext(context: EventShiftContext['context']) {
  *     POST   /api/admin/event/shifts
  *     PUT    /api/admin/event/shifts/:id
  */
-export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
+export const { DELETE, GET, POST, PUT } =
+createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
     async accessCheck({ context }, action, props) {
         let privilege: Privilege | undefined;
         switch (action) {
@@ -164,7 +180,65 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
         if (!event || !team)
             notFound();
 
-        return { success: false };
+        if (!row.categoryId)
+            return { success: false, error: 'Please give the shift a category.' };
+
+        const defaultExcitement = await db.selectFrom(tShiftsCategories)
+            .where(tShiftsCategories.shiftCategoryId.equals(row.categoryId))
+                .and(tShiftsCategories.shiftCategoryDeleted.isNull())
+            .selectOneColumn(tShiftsCategories.shiftCategoryExcitement)
+            .executeSelectOne();
+
+        let insertId: number;
+        if (!!row.activityId) {
+            const activityName = await db.selectFrom(tActivities)
+                .where(tActivities.activityId.equals(row.activityId))
+                    .and(tActivities.activityFestivalId.equalsIfValue(event.festivalId))
+                    .and(tActivities.activityDeleted.isNull())
+                .selectOneColumn(tActivities.activityTitle)
+                .executeSelectOne();
+
+            insertId = await db.insertInto(tShifts)
+                .set({
+                    eventId: event.id,
+                    teamId: team.id,
+                    shiftIdentifier: 'xx',
+                    shiftCategoryId: row.categoryId,
+                    shiftName: activityName,
+                    shiftActivityId: row.activityId,
+                    shiftExcitement: defaultExcitement,
+                })
+                .returningLastInsertedId()
+                .executeInsert();
+        } else {
+            if (!row.name || !row.name.length)
+                return { success: false, error: 'Please give the shift a name.' };
+            if (!row.locationId || !!row.locationId)
+                return { success: false, error: 'Please give the shift a location.' };
+
+            insertId = await db.insertInto(tShifts)
+                .set({
+                    eventId: event.id,
+                    teamId: team.id,
+                    shiftIdentifier: 'xx',
+                    shiftCategoryId: row.categoryId,
+                    shiftName: row.name,
+                    shiftExcitement: defaultExcitement,
+                })
+                .returningLastInsertedId()
+                .executeInsert();
+        }
+
+        return {
+            success: true,
+            row: {
+                id: insertId,
+                colour: '',  // won't be used
+                category: '',  // won't be used
+                categoryOrder: 0,  // won't be used
+                excitement: defaultExcitement,
+            },
+        };
     },
 
     async delete({ context, id }) {
@@ -226,6 +300,8 @@ export const { GET, PUT } = createDataTableApi(kEventShiftRowModel, kEventShiftC
     },
 
     async writeLog({ context, id }, mutation, props) {
+        return;
+
         const { event, team } = await validateContext(context);
         if (!event || !team)
             notFound();

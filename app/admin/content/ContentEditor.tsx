@@ -13,15 +13,14 @@ import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import type { ContentRowModel, ContentScope } from '@app/api/admin/content/[[...id]]/route';
+import type { SectionHeaderProps } from '../components/SectionHeader';
 import { Section } from '../components/Section';
-import { SectionHeader, type SectionHeaderProps } from '../components/SectionHeader';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { validateContentPath } from './ContentCreate';

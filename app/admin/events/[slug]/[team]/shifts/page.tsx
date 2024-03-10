@@ -6,8 +6,10 @@ import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { ShiftCreateSection } from './ShiftCreateSection';
 import { ShiftTable } from './ShiftTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { getShiftMetadata } from './getShiftMetadata';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -18,8 +20,9 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 export default async function EventTeamShiftsPage(props: NextRouterParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
-    // TODO: Mutable list with all the shifts that exist during the convention.
     // TODO: Box with warnings regarding the shifts (e.g. out-of-sync entries).
+
+    const { activities, categories, locations } = await getShiftMetadata(event.festivalId);
 
     const readOnly = !can(user, Privilege.EventShiftManagement);
     const warnings: any[] = [ ];
@@ -36,9 +39,9 @@ export default async function EventTeamShiftsPage(props: NextRouterParams<'slug'
             </CollapsableSection>
             { !readOnly &&
                 <Section title="Create a new shift" privilege={Privilege.EventShiftManagement}>
-                    <SectionIntroduction important>
-                        The shifts tool has not been implemented yet.
-                    </SectionIntroduction>
+                    <ShiftCreateSection activities={activities} categories={categories}
+                                        locations={locations} event={event.slug} team={team.slug}
+                                        readOnly={readOnly} />
                 </Section> }
         </>
     );
