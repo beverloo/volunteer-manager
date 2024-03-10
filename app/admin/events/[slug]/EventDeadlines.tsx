@@ -18,7 +18,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
-import { Temporal } from '@lib/Temporal';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Props accepted by the <EventDeadlines> component.
@@ -52,7 +52,8 @@ export function EventDeadlines(props: EventDeadlinesProps) {
                         titleTypographyProps={{ variant: 'subtitle2' }} />
             <Divider sx={{ visibility: 'hidden' }} />
             { props.deadlines.map(deadline => {
-                const difference = currentDate.until(Temporal.PlainDate.from(deadline.date), {
+                const deadlineDate = Temporal.PlainDate.from(deadline.date);
+                const difference = currentDate.until(deadlineDate, {
                     largestUnit: 'days',
                 });
 
@@ -68,7 +69,8 @@ export function EventDeadlines(props: EventDeadlinesProps) {
                     <Accordion key={deadline.id} disableGutters>
                         <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
                             <Stack direction="row" alignItems="center" spacing={2}>
-                                <Chip color={color} label={deadline.date} size="small" />
+                                <Chip color={color} label={formatDate(deadlineDate, 'MMMM Do')}
+                                      size="small" />
                                 <Typography variant="body2">
                                     {deadline.title}
                                 </Typography>
