@@ -300,8 +300,6 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
     },
 
     async writeLog({ context, id }, mutation, props) {
-        return;
-
         const { event, team } = await validateContext(context);
         if (!event || !team)
             notFound();
