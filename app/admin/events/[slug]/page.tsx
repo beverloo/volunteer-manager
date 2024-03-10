@@ -4,21 +4,27 @@
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 
+import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
-import { EventRecentChanges, type EventRecentChangesProps } from './EventRecentChanges';
+import { EventRecentChanges } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
 import { RegistrationStatus } from '@lib/database/Types';
-import { Temporal } from '@lib/Temporal';
+import { Temporal, isAfter } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
     tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
 import { EventDeadlines } from './EventDeadlines';
+
+/**
+ * Updates within how many minutes of each other should be merged together?
+ */
+const kMergeUpdateWindowMinutes = 60;
 
 /**
  * Returns the deadlines that exist for a particular event, so that they can be displayed on the
@@ -176,50 +182,87 @@ async function getRecentChanges(eventId: number) {
             name: preferenceUpdate.name,
             userId: preferenceUpdate.userId,
             team: preferenceUpdate.team,
+            teamName: preferenceUpdate.teamName,
             status: preferenceUpdate.status,
         };
 
+        // Applications will never be merged with other updates, as they are important.
         if (!!preferenceUpdate.applicationCreated) {
             changes.push({
                 ...commonChange,
-                update: `applied to join the ${preferenceUpdate.teamName}`,
-                date: preferenceUpdate.applicationCreated
+                updates: [ 'application' ],
+
+                // Availability preferences will be updated as part of the application process, so
+                // subtract a second from the application to make sure it's listed below the update.
+                date: preferenceUpdate.applicationCreated.subtract({ seconds: 1 }),
             });
         }
 
         if (preferenceUpdate.status !== RegistrationStatus.Accepted)
             continue;
 
-        if (!!preferenceUpdate.availabilityPreferencesUpdated) {
-            changes.push({
-                ...commonChange,
-                update: 'updated their availability preferences',
-                date: preferenceUpdate.availabilityPreferencesUpdated
-            });
-        }
-
-        if (!!preferenceUpdate.hotelPreferencesUpdated) {
-            changes.push({
-                ...commonChange,
-                update: 'updated their hotel preferences',
-                date: preferenceUpdate.hotelPreferencesUpdated
-            });
-        }
-
+        // Refund requests will never be merged with other updates, as they are important.
         if (!!preferenceUpdate.refundRequestUpdated) {
             changes.push({
                 ...commonChange,
-                update: 'requested their ticket to be refunded',
+                updates: [ 'refund' ],
                 date: preferenceUpdate.refundRequestUpdated
             });
         }
 
-        if (!!preferenceUpdate.trainingPreferencesUpdated) {
-            changes.push({
-                ...commonChange,
-                update: 'updated their training preferences',
-                date: preferenceUpdate.trainingPreferencesUpdated
-            });
+        // Merge the volunteer's updates to availability, hotel and training preferences together
+        // to the same moment in case they all happened within an hour of each other.
+        const updatesToVerify: { [k in EventRecentChangeUpdate]?: Temporal.ZonedDateTime } = {};
+
+        if (!!preferenceUpdate.availabilityPreferencesUpdated)
+            updatesToVerify['availability'] = preferenceUpdate.availabilityPreferencesUpdated;
+        if (!!preferenceUpdate.hotelPreferencesUpdated)
+            updatesToVerify['hotel'] = preferenceUpdate.hotelPreferencesUpdated;
+        if (!!preferenceUpdate.trainingPreferencesUpdated)
+            updatesToVerify['training'] = preferenceUpdate.trainingPreferencesUpdated;
+
+        // (1) Align all changes on the timestamp of the most recent update, when within the window.
+        for (const [ lhsChange, lhsUpdated ] of Object.entries(updatesToVerify)) {
+            for (const [ rhsChange, rhsUpdated ] of Object.entries(updatesToVerify)) {
+                if (lhsChange === rhsChange)
+                    continue;  // don't "merge" a change to itself
+
+                const difference = lhsUpdated.until(rhsUpdated, { largestUnit: 'minutes' });
+                const absoluteDifferenceInMinutes = Math.abs(difference.minutes);
+                if (absoluteDifferenceInMinutes > kMergeUpdateWindowMinutes)
+                    continue;  // the updates were made too far apart
+
+                if (isAfter(lhsUpdated, rhsUpdated))
+                    updatesToVerify[rhsChange as EventRecentChangeUpdate] = lhsUpdated;
+                else
+                    updatesToVerify[lhsChange as EventRecentChangeUpdate] = rhsUpdated;
+            }
+        }
+
+        // (2) Merge all the changes together and report them as updates.
+        for (const [ lhsChange, lhsUpdated ] of Object.entries(updatesToVerify)) {
+            if (!Object.hasOwn(updatesToVerify, lhsChange))
+                continue;  // this change has been merged
+
+            const updates: EventRecentChangeUpdate[] = [
+                lhsChange as EventRecentChangeUpdate
+            ];
+
+            // (2a) Execute the merge. We compare microseconds, but they'll be identical anyway.
+            for (const [ rhsChange, rhsUpdated ] of Object.entries(updatesToVerify)) {
+                if (lhsChange === rhsChange)
+                    continue;  // don't "merge" a change to itself
+                if (lhsUpdated.epochMicroseconds !== rhsUpdated.epochMicroseconds)
+                    continue;  // the changes happened at different moments
+
+                const update = rhsChange as EventRecentChangeUpdate;
+
+                updates.push(update);
+                delete updatesToVerify[update];
+            }
+
+            // (2b) Announce the change, so that it can be rendered on the dashboard.
+            changes.push({ ...commonChange, updates, date: lhsUpdated });
         }
     }
 
@@ -310,6 +353,8 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
     const recentChanges = await getRecentChanges(event.id);
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
+
+    console.log(recentChanges[6]);
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">

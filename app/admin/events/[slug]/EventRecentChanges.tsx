@@ -26,6 +26,29 @@ function isApplicationPending(status: RegistrationStatus): boolean {
 }
 
 /**
+ * Writes a description for the change based on the given `updates`.
+ */
+function writeDescription(updates: EventRecentChangeUpdate[], teamName: string): string {
+    if (updates.includes('application'))
+        return `applied to join the ${teamName}`;
+    if (updates.includes('refund'))
+        return 'requested a refund for their ticket';
+
+    updates.sort();
+    if (updates.length === 1)
+        return `updated their ${updates[0]} preferences`;
+
+    const finalUpdate = updates.pop();
+    return `updated their ${updates.join(', ')} and ${finalUpdate} preferences`;
+}
+
+/**
+ * The individual update that happened during a change.
+ */
+export type EventRecentChangeUpdate =
+    'application' | 'availability' | 'hotel' | 'refund' | 'training';
+
+/**
  * Props accepted by the <EventRecentChanges> component.
  */
 export interface EventRecentChangesProps {
@@ -46,6 +69,7 @@ export interface EventRecentChangesProps {
          */
         userId: number;
         team: string;
+        teamName: string;
 
         /**
          * Registration status of this volunteer. Applications are shown, but will have to be linked
@@ -54,9 +78,9 @@ export interface EventRecentChangesProps {
         status: RegistrationStatus;
 
         /**
-         * Textual description of the update - what changed?
+         * What changed for the volunteer during this change?
          */
-        update: string;
+        updates: EventRecentChangeUpdate[];
 
         /**
          * Date and time during which the update was made.
@@ -92,7 +116,7 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                                 <MuiLink component={Link} href={href} sx={{ pr: 0.5 }}>
                                     {change.name}
                                 </MuiLink>
-                                {change.update}
+                                {writeDescription(change.updates, change.teamName)}
                             </Typography>
                             <Typography variant="body2">
                                 { formatDuration(
