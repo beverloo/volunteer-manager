@@ -354,8 +354,6 @@ export default async function EventPage(props: NextRouterParams<'slug'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
-    console.log(recentChanges[6]);
-
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
             <Grid xs={3}>

@@ -1,8 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
-
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
@@ -95,7 +93,6 @@ export interface EventRecentChangesProps {
  */
 export function EventRecentChanges(props: EventRecentChangesProps) {
     const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
-
     return (
         <Card>
             <CardHeader avatar={ <RssFeedIcon color="primary" /> }
@@ -113,10 +110,10 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                         <Stack key={index} direction="row" justifyContent="space-between"
                                alignItems="center" sx={{ mx: 2, my: 1 }}>
                             <Typography variant="body2">
-                                <MuiLink component={Link} href={href} sx={{ pr: 0.5 }}>
+                                <MuiLink component={Link} href={href}>
                                     {change.name}
                                 </MuiLink>
-                                {writeDescription(change.updates, change.teamName)}
+                                {' '}{ writeDescription(change.updates, change.teamName) }
                             </Typography>
                             <Typography variant="body2">
                                 { formatDuration(
