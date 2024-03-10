@@ -201,7 +201,7 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
-                event: event!.name,
+                event: event!.shortName,
                 mutation,
             },
         });
