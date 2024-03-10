@@ -62,7 +62,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             lastName: tUsers.lastName,
             displayName: tUsers.displayName,
             gender: tUsers.gender,
-            birthdate: tUsers.birthdateString,
+            birthdate: dbInstance.dateAsString(tUsers.birthdate),
             phoneNumber: tUsers.phoneNumber,
             privileges: tUsers.privileges,
             activated: tUsers.activated,

@@ -10,7 +10,7 @@ import { MariaDBPoolQueryRunner } from 'ts-sql-query/queryRunners/MariaDBPoolQue
 import { MockQueryRunner, type QueryType as MockQueryType }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
-import type { ZonedDateTime } from '@lib/Temporal';
+import type { PlainDate, ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
 /**
@@ -48,6 +48,16 @@ export class DBConnection extends MariaDBConnection<'DBConnection'> {
     currentZonedDateTime = this.buildFragmentWithArgs().as(() =>
         this.fragmentWithType<ZonedDateTime>('customLocalDateTime', 'ZonedDateTime', 'required')
             .sql`current_timestamp`);
+
+    /**
+     * Helper function to retrieve a string representation (YYYY-MM-DD) of a DATE column. Works for
+     * both required and optional columns.
+     */
+    dateAsString = this.buildFragmentWithMaybeOptionalArgs(
+        this.arg<PlainDate>('customLocalDate', 'PlainDate', 'optional')
+    ).as(value => {
+        return this.fragmentWithType('string', 'optional').sql`date_format(${value}, "%Y-%m-%d")`;
+    });
 }
 
 /**

@@ -130,7 +130,8 @@ createDataTableApi(kTrainingExtraRowModel, kTrainingExtraContext, {
 
         const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
 
-        const results = await db.selectFrom(tTrainingsExtra)
+        const dbInstance = db;
+        const results = await dbInstance.selectFrom(tTrainingsExtra)
             .leftJoin(trainingsAssignmentsJoin)
                 .on(trainingsAssignmentsJoin.eventId.equals(tTrainingsExtra.eventId))
                 .and(trainingsAssignmentsJoin.assignmentExtraId.equals(
@@ -141,7 +142,8 @@ createDataTableApi(kTrainingExtraRowModel, kTrainingExtraContext, {
                 id: tTrainingsExtra.trainingExtraId,
                 trainingExtraName: tTrainingsExtra.trainingExtraName,
                 trainingExtraEmail: tTrainingsExtra.trainingExtraEmail,
-                trainingExtraBirthdate: tTrainingsExtra.trainingExtraBirthdateString,
+                trainingExtraBirthdate:
+                    dbInstance.dateAsString(tTrainingsExtra.trainingExtraBirthdate),
                 preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
                 preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdatedString,
             })

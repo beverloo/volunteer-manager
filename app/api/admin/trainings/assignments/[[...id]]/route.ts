@@ -150,7 +150,8 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
 
                 trainingExtraName: tTrainingsExtra.trainingExtraName,
                 trainingExtraEmail: tTrainingsExtra.trainingExtraEmail,
-                trainingExtraBirthdate: tTrainingsExtra.trainingExtraBirthdateString,
+                trainingExtraBirthdate:
+                    dbInstance.dateAsString(tTrainingsExtra.trainingExtraBirthdate),
 
                 preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
                 preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdatedString,

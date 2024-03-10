@@ -149,12 +149,13 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
 
         const usersJoin = tUsers.forUseInLeftJoin();
 
-        const deadlines = await db.selectFrom(tEventsDeadlines)
+        const dbInstance = db;
+        const deadlines = await dbInstance.selectFrom(tEventsDeadlines)
             .leftJoin(usersJoin)
                 .on(usersJoin.userId.equals(tEventsDeadlines.deadlineOwnerId))
             .select({
                 id: tEventsDeadlines.deadlineId,
-                date: tEventsDeadlines.deadlineDateString,
+                date: dbInstance.dateAsString(tEventsDeadlines.deadlineDate),
                 title: tEventsDeadlines.deadlineTitle,
                 description: tEventsDeadlines.deadlineDescription,
                 ownerUserId: usersJoin.userId,

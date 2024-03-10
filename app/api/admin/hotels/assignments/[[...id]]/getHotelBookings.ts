@@ -53,7 +53,9 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
     }
 
     const hotelsJoin = tHotels.forUseInLeftJoin();
-    const bookings = await db.selectFrom(tHotelsBookings)
+
+    const dbInstance = db;
+    const bookings = await dbInstance.selectFrom(tHotelsBookings)
         .leftJoin(hotelsJoin)
             .on(hotelsJoin.hotelId.equals(tHotelsBookings.bookingHotelId))
         .where(tHotelsBookings.eventId.equals(eventId))
@@ -67,8 +69,8 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
             hotelRoomName: hotelsJoin.hotelRoomName,
             hotelVisible: hotelsJoin.hotelRoomVisible,
 
-            checkIn: tHotelsBookings.bookingCheckInString,
-            checkOut: tHotelsBookings.bookingCheckOutString,
+            checkIn: dbInstance.dateAsString(tHotelsBookings.bookingCheckIn),
+            checkOut: dbInstance.dateAsString(tHotelsBookings.bookingCheckOut),
             confirmed: tHotelsBookings.bookingConfirmed,
         })
         .orderBy('confirmed', 'desc')

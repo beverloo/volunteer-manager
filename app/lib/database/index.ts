@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { CreateDateStringFragment, CreateDateTimeStringFragment, CreateTimestampStringFragment }
+import { CreateDateTimeStringFragment, CreateTimestampStringFragment }
     from './DateTimeStringColumns';
 
 import { ActivitiesAreasTable } from './scheme/ActivitiesAreasTable';
@@ -61,10 +61,7 @@ export const tContent = new class extends ContentTable {
         'string', CreateTimestampStringFragment(this.revisionDate));
 }
 export const tErrorLogs = new ErrorLogsTable;
-export const tEventsDeadlines = new class extends EventsDeadlinesTable {
-    deadlineDateString = this.virtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.deadlineDate));
-};
+export const tEventsDeadlines = new EventsDeadlinesTable;
 export const tEvents = new class extends EventsTable {
     eventStartTimeString = this.virtualColumnFromFragment(
         'string', CreateDateTimeStringFragment(this.eventStartTime));
@@ -88,17 +85,8 @@ export const tExportsLogs = new class extends ExportsLogsTable {
 }
 export const tHotels = new HotelsTable;
 export const tHotelsAssignments = new HotelsAssignmentsTable;
-export const tHotelsBookings = new class extends HotelsBookingsTable {
-    bookingCheckInString = this.virtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.bookingCheckIn));
-    bookingCheckOutString = this.virtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.bookingCheckOut));
-}
+export const tHotelsBookings = new HotelsBookingsTable;
 export const tHotelsPreferences = new class extends HotelsPreferencesTable {
-    hotelDateCheckInString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.hotelDateCheckIn));
-    hotelDateCheckOutString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.hotelDateCheckOut));
     hotelPreferencesUpdatedString = this.virtualColumnFromFragment(
         'string', CreateDateTimeStringFragment(this.hotelPreferencesUpdated));
 }
@@ -146,10 +134,7 @@ export const tTrainingsAssignments = new class extends TrainingsAssignmentsTable
     preferenceUpdatedString = this.optionalVirtualColumnFromFragment(
         'string', CreateTimestampStringFragment(this.preferenceUpdated));
 }
-export const tTrainingsExtra = new class extends TrainingsExtraTable {
-    trainingExtraBirthdateString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.trainingExtraBirthdate));
-}
+export const tTrainingsExtra = new TrainingsExtraTable;
 export const tUsersAuth = new UsersAuthTable;
 export const tUsersEvents = new class extends UsersEventsTable {
     registrationDateString = this.optionalVirtualColumnFromFragment(
@@ -160,8 +145,6 @@ export const tUsersEvents = new class extends UsersEventsTable {
 export const tUsersPasskeys = new UsersPasskeysTable;
 export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new class extends UsersTable {
-    birthdateString = this.optionalVirtualColumnFromFragment(
-        'string', CreateDateStringFragment(this.birthdate));
     name = this.displayName.valueWhenNull(this.firstName.concat(' ').concat(this.lastName));
 }
 export const tVendors = new VendorsTable;

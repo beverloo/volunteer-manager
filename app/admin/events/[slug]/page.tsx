@@ -33,12 +33,13 @@ const kMergeUpdateWindowMinutes = 60;
 async function getEventDeadlines(eventId: number) {
     const usersJoin = tUsers.forUseInLeftJoin();
 
+    const dbInstance = db;
     return db.selectFrom(tEventsDeadlines)
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(tEventsDeadlines.deadlineOwnerId))
         .select({
             id: tEventsDeadlines.deadlineId,
-            date: tEventsDeadlines.deadlineDateString,
+            date: dbInstance.dateAsString(tEventsDeadlines.deadlineDate),
             title: tEventsDeadlines.deadlineTitle,
             description: tEventsDeadlines.deadlineDescription,
             owner: usersJoin.name,

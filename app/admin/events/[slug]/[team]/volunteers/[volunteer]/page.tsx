@@ -100,8 +100,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 hotelId: tHotelsPreferences.hotelId,
                 sharingPeople: tHotelsPreferences.hotelSharingPeople,
                 sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
-                checkIn: tHotelsPreferences.hotelDateCheckInString,
-                checkOut: tHotelsPreferences.hotelDateCheckOutString,
+                checkIn: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckIn),
+                checkOut: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckOut),
             })
             .executeSelectNoneOrOne() ?? undefined;
 
