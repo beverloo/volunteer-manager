@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -11,46 +11,41 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import device from './lib/Device';
 
 export function ClientTest() {
+
     const [ messages, setMessages ] = useState<string[]>([]);
 
-    useEffect(() => {
-        if (typeof globalThis.animeCon === 'undefined')
-            return;
+    async function executeBooleanCommand(label: string, fn: () => Promise<boolean>) {
+        setMessages(messages => [ `Executing command: ${label}`, ...messages ]);
+        const result = await fn();
+        setMessages(messages => [ `Result: ${!!result ? 'true' : 'false' }`, ...messages ]);
+    }
 
-        function messageListener(event: any) {
-            setMessages(messages => [ event.data, ...messages ]);
-        }
-
-        globalThis.animeCon.addEventListener('message', messageListener);
-        return () => globalThis.animeCon.removeEventListener('message', messageListener);
-
-    }, [ /* no dependencies */ ]);
+    async function executeIpCommand() {
+        setMessages(messages => [ 'Executing command: ip', ...messages ]);
+        const result = await device.getIpAddresses();
+        setMessages(messages => [ `Result: ${result.join(', ')}`, ...messages ]);
+    }
 
     function setBrightness(value: number) {
-        globalThis.animeCon.postMessage(`brightness:${value}`);
+        executeBooleanCommand('brightness', () => device.setBrightness(value));
     }
 
     function setKiosk(enabled: boolean) {
-        globalThis.animeCon.postMessage(`kiosk:${enabled ? 'enable' : 'disable'}`);
+        if (enabled)
+            executeBooleanCommand('kiosk (enable)', () => device.enableKiosk());
+        else
+            executeBooleanCommand('kiosk (disable)', () => device.disableKiosk());
     }
 
     async function setLight(r: number, g: number, b: number) {
-        globalThis.animeCon.postMessage(`light:KEEP:RED:0:${r}`);
-        await wait(30);
-        globalThis.animeCon.postMessage(`light:KEEP:GREEN:0:${g}`);
-        await wait(40);
-        globalThis.animeCon.postMessage(`light:KEEP:BLUE:0:${b}`);
+        executeBooleanCommand('light', () => device.setLightColour(r, g, b));
     }
 
-    function openLight(open: boolean) {
-        globalThis.animeCon.postMessage(`light:${open ? 'open' : 'close'}`);
-    }
-
-    function requestIp() {
-        globalThis.animeCon.postMessage('ip');
+    function reconnectLight() {
+        executeBooleanCommand('light (reconnect)', () => device.reconnectLightSerialPort());
     }
 
     return (
@@ -92,14 +87,13 @@ export function ClientTest() {
                     <Typography variant="subtitle1">
                         Light²
                     </Typography>
-                    <Button variant="outlined" onClick={ () => openLight(true) }>Open</Button>
-                    <Button variant="outlined" onClick={ () => openLight(false) }>Close</Button>
+                    <Button variant="outlined" onClick={ () => reconnectLight() }>Reconnect</Button>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={2}>
                     <Typography variant="subtitle1">
                         Misc
                     </Typography>
-                    <Button variant="outlined" onClick={ () => requestIp() }>IP</Button>
+                    <Button variant="outlined" onClick={ () => executeIpCommand() }>IP</Button>
                 </Stack>
             </Stack>
             <Box>
