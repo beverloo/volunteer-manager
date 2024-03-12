@@ -49,7 +49,7 @@ export function ClientTest() {
     }
 
     return (
-        <Paper sx={{ p: 2, m: 4 }}>
+        <Paper sx={{ p: 2 }}>
             <Typography variant="h5">
                 Display test component
             </Typography>
@@ -76,6 +76,9 @@ export function ClientTest() {
                     <Button variant="outlined" onClick={ () => setLight(255, 0, 0) }>Red</Button>
                     <Button variant="outlined" onClick={ () => setLight(0, 255, 0) }>Green</Button>
                     <Button variant="outlined" onClick={ () => setLight(0, 0, 255) }>Blue</Button>
+                    <Button variant="outlined" onClick={ () => setLight(255, 95, 0) }>
+                        Orange
+                    </Button>
                     <Button variant="outlined" onClick={ () => setLight(255, 255, 0) }>
                         Yellow
                     </Button>
