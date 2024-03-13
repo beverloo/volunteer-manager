@@ -104,6 +104,9 @@ const kLogMessageFormatter: {
     [LogType.AdminContentMutation]: (source, target, { mutation, context }) => {
         return `${mutation} page ${context}`;
     },
+    [LogType.AdminDisplayMutation]: (source, target, { mutation, identifier, label }) => {
+        return `${mutation} the "${identifier}" physical display` + (!!label ? ` (${label})` : '');
+    },
     [LogType.AdminEventApplication]: (source, target, { event }) => {
         return `Applied for ${target?.name} to participate in ${event}`;
     },

@@ -51,6 +51,7 @@ import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
+import type { DisplaysEndpoints } from '@app/api/admin/displays/[[...id]]/route';
 import type { EventDeadlinesEndpoints } from '@app/api/admin/event/deadlines/[[...id]]/route';
 import type { EventShiftCategoriesEndpoints } from '@app/api/admin/event/shifts/categories/[[...id]]/route';
 import type { EventShiftEndpoints } from '@app/api/admin/event/shifts/[[...id]]/route';
@@ -90,6 +91,7 @@ export type ApiEndpoints = {
     'get': {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
+        '/api/admin/displays': DisplaysEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['list'],
         '/api/admin/event/shifts': EventShiftEndpoints['list'],
@@ -180,6 +182,7 @@ export type ApiEndpoints = {
     },
     'delete': {
         '/api/admin/content/:id': ContentEndpoints['delete'],
+        '/api/admin/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['delete'],
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['delete'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['delete'],
@@ -197,6 +200,7 @@ export type ApiEndpoints = {
     },
     'put': {
         '/api/admin/content/:id': ContentEndpoints['update'],
+        '/api/admin/displays/:id': DisplaysEndpoints['update'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['update'],
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['update'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['update'],

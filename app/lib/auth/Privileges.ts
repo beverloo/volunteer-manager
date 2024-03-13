@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 27
+ * Next setting: 1 << 28
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -36,6 +36,7 @@ export enum Privilege {
     // Privileges captured by SystemAdministrator:
     SystemAiAccess                      = 1 << 18,
     SystemContentAccess                 = 1 << 16,
+    SystemDisplayAccess                 = 1 << 27,
     SystemLogsAccess                    = 1 << 5,
     SystemNardoAccess                   = 1 << 19,
     SystemOutboxAccess                  = 1 << 17,
@@ -95,6 +96,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.SystemAdministrator]: [
         Privilege.SystemAiAccess,
         Privilege.SystemContentAccess,
+        Privilege.SystemDisplayAccess,
         Privilege.SystemLogsAccess,
         Privilege.SystemNardoAccess,
         Privilege.SystemOutboxAccess,
@@ -156,6 +158,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.SystemAdministrator]: 'Special access',
     [Privilege.SystemAiAccess]: 'System access',
     [Privilege.SystemContentAccess]: 'System access',
+    [Privilege.SystemDisplayAccess]: 'System access',
     [Privilege.SystemLogsAccess]: 'System access',
     [Privilege.SystemNardoAccess]: 'System access',
     [Privilege.SystemOutboxAccess]: 'System access',
@@ -192,6 +195,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.SystemAdministrator]: 'System administrator',
     [Privilege.SystemAiAccess]: 'Generative AI prompts',
     [Privilege.SystemContentAccess]: 'Global content access',
+    [Privilege.SystemDisplayAccess]: 'Display access',
     [Privilege.SystemLogsAccess]: 'Logs access',
     [Privilege.SystemNardoAccess]: 'Manage Del a Rie Advies',
     [Privilege.SystemOutboxAccess]: 'Outbox access',

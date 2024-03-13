@@ -25,6 +25,17 @@ export default async function IntegrationsPage() {
     // default values in case none could be retrieved from the database. The page's content will be
     // dynamically composed based on this configuration.
     const settingsConfiguration: { [k: string]: ConfigurableSetting[] } = {
+        'Display settings': [
+            {
+                setting: 'display-max-time-since-check-in-days',
+                type: 'number',
+                defaultValue: 90,
+
+                label: 'Maximum time since check-in',
+                description:
+                    'After how many days of inactivity should we stop considering a display?',
+            }
+        ],
         'Event settings': [
             {
                 setting: 'availability-max-event-duration-minutes',

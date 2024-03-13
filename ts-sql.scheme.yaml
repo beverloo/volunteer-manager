@@ -567,6 +567,87 @@ tables:
       PRIMARY KEY (`subscription_id`),
       KEY `whatsapp_user_id` (`subscription_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: displays
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: display_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: display_identifier
+    type: varchar(4)
+    nullable: false
+    default: null
+    comment: ""
+  - name: display_label
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: display_event_id
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: display_location_id
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: display_check_in
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: display_check_in_ip
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: display_locked
+    type: tinyint(1)
+    nullable: false
+    default: null
+    comment: ""
+  - name: display_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (display_id) USING BTREE
+    table: displays
+    columns:
+    - display_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (display_id)
+    table: displays
+    referencedTable: null
+    columns:
+    - display_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `displays` (
+      `display_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `display_identifier` varchar(4) NOT NULL,
+      `display_label` varchar(64) DEFAULT NULL,
+      `display_event_id` int(8) DEFAULT NULL,
+      `display_location_id` int(8) DEFAULT NULL,
+      `display_check_in` datetime NOT NULL,
+      `display_check_in_ip` varchar(64) NOT NULL,
+      `display_locked` tinyint(1) NOT NULL,
+      `display_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`display_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: settings
   type: BASE TABLE
   comment: ""
@@ -910,7 +991,7 @@ tables:
       `deadline_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`deadline_id`),
       KEY `event_id` (`event_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles
   type: BASE TABLE
   comment: ""

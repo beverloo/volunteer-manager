@@ -29,6 +29,7 @@ export enum LogType {
     AdminClearHotelPreferences = 'admin-clear-hotel-preferences',
     AdminClearRefundRequest = 'admin-clear-refund-request',
     AdminClearTrainingPreferences = 'admin-clear-training-preferences',
+    AdminDisplayMutation = 'admin-display-mutation',
     AdminContentMutation = 'admin-content-mutation',
     AdminEventApplication = 'admin-event-application',
     AdminEventCreate = 'admin-event-create',

@@ -11,6 +11,7 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import SettingsIcon from '@mui/icons-material/Settings';
+import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
@@ -82,11 +83,18 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             label: 'System',
             privilege: [
                 Privilege.SystemAiAccess,
+                Privilege.SystemDisplayAccess,
                 Privilege.SystemLogsAccess,
             ],
 
             defaultOpen: Privilege.SystemAdministrator,
             menu: [
+                {
+                    icon: <TabletIcon />,
+                    label: 'Displays',
+                    privilege: Privilege.SystemDisplayAccess,
+                    url: '/admin/system/displays',
+                },
                 {
                     icon: <ModelTrainingIcon />,
                     label: 'Generative AI',
