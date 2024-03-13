@@ -3,28 +3,39 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
+import type { SvgIconProps } from '@mui/material/SvgIcon';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+import { DisplayContext } from './DisplayContext';
+import { Temporal, formatDate } from '@lib/Temporal';
+import { refreshContext } from './DisplayController';
 
 /**
  * Component that displays the current time, following the device's local timezone. It will update
  * every minute automatically, although the internal state is updated more frequently.
  */
-function CurrentTime() {
-    const [ date, setDate ] = useState(new Date);
+function CurrentTime(props: { timezone?: string }) {
+    const [ date, setDate ] = useState(Temporal.Now.zonedDateTimeISO(props.timezone));
 
     useEffect(() => {
-        const timer = setInterval(() => setDate(new Date), /* 5 seconds= */ 5000);
+        const timer = setInterval(() => {
+            setDate(Temporal.Now.zonedDateTimeISO(props.timezone));
+        }, /* 5 seconds= */ 5000);
+
         return () => clearInterval(timer);
     });
 
-    return `${('0' + date.getHours()).substr(-2)}:${('0' + date.getMinutes()).substr(-2)}`;
+    return formatDate(date, 'HH:mm');
 }
 
 /**
@@ -32,17 +43,38 @@ function CurrentTime() {
  * current time and an overflow menu granting access to device configuration.
  */
 export function DisplayHeader() {
+    const context = useContext(DisplayContext);
+
+    const [ refreshActive, setRefreshActive ] = useState<boolean>(false);
+    const [ refreshResult, setRefreshResult ] = useState<SvgIconProps['color']>('inherit');
+
+    const handleRefresh = useCallback(async () => {
+        setRefreshActive(true);
+        setRefreshResult(/* default= */ 'inherit');
+        setRefreshResult(await refreshContext() ? 'success' : 'error');
+        setRefreshActive(false);
+        setTimeout(() => setRefreshResult(/* default= */ 'inherit'), 2500);
+    }, [ /* no dependencies */ ]);
+
     return (
         <Paper sx={{ px: 2, py: 1 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
                 <Typography variant="h5">
-                    AnimeCon Volunteering Teams
+                    { context?.label ?? 'AnimeCon Volunteering Teams' }
                 </Typography>
                 <Stack direction="row" alignItems="center" spacing={2}
                        divider={ <Divider orientation="vertical" flexItem /> }>
                     <Typography variant="button" sx={{ pr: 1 }}>
-                        <CurrentTime />
+                        <CurrentTime timezone={context?.timezone} />
                     </Typography>
+                    { !!refreshActive &&
+                        <Box sx={{ px: 1, pt: 0.75 }}>
+                            <CircularProgress color="inherit" size={24} />
+                        </Box> }
+                    { !refreshActive &&
+                        <IconButton onClick={handleRefresh}>
+                            <RefreshIcon color={refreshResult} />
+                        </IconButton> }
                     <IconButton>
                         <SettingsIcon />
                     </IconButton>

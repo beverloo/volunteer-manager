@@ -4,8 +4,8 @@
 import Stack from '@mui/material/Stack';
 
 import { DisplayContainer } from './DisplayContainer';
+import { DisplayController } from './DisplayController';
 import { DisplayHeader } from './DisplayHeader';
-import { DisplayTheme } from './DisplayTheme';
 
 /**
  * The <DisplayLayout> component is the root layout of the Volunteer Manager Display, which shows
@@ -14,13 +14,13 @@ import { DisplayTheme } from './DisplayTheme';
  */
 export default function DisplayLayout(props: React.PropsWithChildren) {
     return (
-        <DisplayTheme>
+        <DisplayController>
             <Stack direction="column" spacing={4} sx={{ p: 4, height: '100%' }}>
                 <DisplayHeader />
                 <DisplayContainer>
                     {props.children}
                 </DisplayContainer>
             </Stack>
-        </DisplayTheme>
+        </DisplayController>
     );
 }

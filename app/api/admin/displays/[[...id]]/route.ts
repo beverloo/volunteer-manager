@@ -80,7 +80,7 @@ export type DisplaysRowModel = z.infer<typeof kDisplaysRowModel>;
  *     DELETE /api/admin/displays/:id
  *     PUT    /api/admin/displays/:id
  */
-export const { GET, DELETE, POST, PUT } = createDataTableApi(kDisplaysRowModel, kDisplaysContext, {
+export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDisplaysContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             privilege: Privilege.SystemDisplayAccess,

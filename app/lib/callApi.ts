@@ -7,6 +7,7 @@ import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
 import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePasskey';
+import type { DisplayDefinition } from '@app/api/display/route';
 import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
@@ -118,6 +119,7 @@ export type ApiEndpoints = {
         '/api/admin/volunteers/roles': RolesEndpoints['list'],
         '/api/admin/whatsapp/recipients': WhatsAppEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
+        '/api/display': DisplayDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
     'post': {
