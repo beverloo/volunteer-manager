@@ -100,7 +100,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
         return { success: !!affectedRows };
     },
 
-    async list() {
+    async list({ pagination }) {
         const maximumDaysSinceCheckIn = await readSetting('display-max-time-since-check-in-days');
 
         const currentDateTime = Temporal.Now.zonedDateTimeISO('utc');
@@ -122,12 +122,15 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
                 .and(tDisplays.displayCheckIn.greaterThan(minimumDateTime))
             .orderBy('lastCheckIn', 'desc')
                 .orderBy('label', 'asc')
-            .executeSelectMany();
+            .limitIfValue(pagination?.pageSize)
+                .offsetIfValue(pagination ? pagination.page * pagination.pageSize
+                                          : undefined)
+            .executeSelectPage();
 
         return {
             success: true,
-            rowCount: displays.length,
-            rows: displays,
+            rowCount: displays.count,
+            rows: displays.data,
         };
     },
 

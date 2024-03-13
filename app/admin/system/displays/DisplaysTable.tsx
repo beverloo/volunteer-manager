@@ -199,7 +199,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/displays"
-                         defaultSort={{ field: 'id', sort: 'asc' }} subject="display"
-                         enableUpdate enableDelete disableFooter />
+                         defaultSort={{ field: 'id', sort: 'asc' }} subject="display" pageSize={25}
+                         enableUpdate enableDelete />
     );
 }
