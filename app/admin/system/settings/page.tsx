@@ -27,6 +27,15 @@ export default async function IntegrationsPage() {
     const settingsConfiguration: { [k: string]: ConfigurableSetting[] } = {
         'Display settings': [
             {
+                setting: 'display-check-in-rate-seconds',
+                type: 'number',
+                defaultValue: 60,
+
+                label: 'Check-in interval',
+                description:
+                    'Every how many seconds should displays "phone home" for updated information?',
+            },
+            {
                 setting: 'display-max-time-since-check-in-days',
                 type: 'number',
                 defaultValue: 90,

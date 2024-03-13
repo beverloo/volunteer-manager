@@ -5,7 +5,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, executeAction, noAccess } from '../Action';
+import { executeAction, noAccess, type ActionProps } from '../Action';
+import { readSetting } from '@lib/Settings';
 
 /**
  * Interface definition for the Display API, exposed through /api/display.
@@ -27,6 +28,11 @@ const kDisplayDefinition = z.object({
          * Timezone in which the display operates. Will affect the local time.
          */
         timezone: z.string(),
+
+        /**
+         * How frequently should the display check in? Indicated in milliseconds.
+         */
+        updateFrequencyMs: z.number(),
     }),
 });
 
@@ -43,10 +49,14 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     if (!props.ip)
         noAccess();
 
+    const updateFrequencySeconds = await readSetting('display-check-in-rate-seconds') ?? 300;
+    const updateFrequencyMs = Math.max(10, updateFrequencySeconds) * 1000;
+
     return {
         identifier: 'todo',
-        label: 'Display name',
+        label: 'Display name 10',
         timezone: 'Europe/Amsterdam',
+        updateFrequencyMs,
     };
 }
 
