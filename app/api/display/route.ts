@@ -136,6 +136,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             .on(activitiesLocationsJoin.locationId.equals(tDisplays.displayLocationId))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(tDisplays.displayEventId))
+        .where(tDisplays.displayId.equals(displayId))
         .select({
             identifier: tDisplays.displayIdentifier,
             label: tDisplays.displayLabel,
