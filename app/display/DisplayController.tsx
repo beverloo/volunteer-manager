@@ -65,7 +65,7 @@ export function DisplayController(props: React.PropsWithChildren) {
 
         return () => clearInterval(timer);
 
-    }, [ updateFrequencyMs ])
+    }, [ updateFrequencyMs ]);
 
     // Effect that actually updates the context. This is done by making a network call to the
     // Display API, which identifies the displays based on an identifier assigned by the server,

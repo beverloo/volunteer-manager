@@ -4,10 +4,12 @@
 'use client';
 
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SvgIconProps } from '@mui/material/SvgIcon';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -44,6 +46,34 @@ function CurrentTime(props: { timezone?: string }) {
  */
 export function DisplayHeader() {
     const context = useContext(DisplayContext);
+    const router = useRouter();
+
+    const [ showDevEnvironment, setShowDevEnvironment ] = useState<boolean>(false);
+
+    const handleDevEnvironment = useCallback(() => {
+        if (!!context?.devEnvironment)
+            router.push(context.devEnvironment);
+
+    }, [ context?.devEnvironment, router ]);
+
+    useEffect(() => {
+        if (!!context && !!context.devEnvironment) {
+            try {
+                const currentUrl = new URL(window.location.href);
+                const devUrl = new URL(context.devEnvironment);
+
+                if (currentUrl.host !== devUrl.host) {
+                    setShowDevEnvironment(true);
+                    return;
+                }
+            } catch (error: any) {
+                console.error(`Invalid devEnvironment setting: ${context.devEnvironment}`);
+            }
+        }
+
+        setShowDevEnvironment(false);
+
+    }, [ context ]);
 
     const [ refreshActive, setRefreshActive ] = useState<boolean>(false);
     const [ refreshResult, setRefreshResult ] = useState<SvgIconProps['color']>('inherit');
@@ -74,6 +104,10 @@ export function DisplayHeader() {
                     { !refreshActive &&
                         <IconButton onClick={handleRefresh}>
                             <RefreshIcon color={refreshResult} />
+                        </IconButton> }
+                    { !!showDevEnvironment &&
+                        <IconButton onClick={handleDevEnvironment}>
+                            <DeveloperBoardIcon color="inherit" />
                         </IconButton> }
                     <IconButton>
                         <SettingsIcon />

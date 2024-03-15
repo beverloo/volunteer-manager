@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { executeAction, noAccess, type ActionProps } from '../Action';
-import { readSetting } from '@lib/Settings';
+import { readSettings } from '@lib/Settings';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
 import db, { tActivitiesLocations, tDisplays, tEvents } from '@lib/database';
 
@@ -25,6 +25,21 @@ const kDisplayDefinition = z.object({
          * Label that should be shown on the display. Expected to make sense to humans.
          */
         label: z.string(),
+
+        /**
+         * Optional link to the development environment.
+         */
+        devEnvironment: z.string().optional(),
+
+        /**
+         * Whether the device should be locked.
+         */
+        locked: z.boolean(),
+
+        /**
+         * Whether the device has been fully provisioned and is ready for use.
+         */
+        provisioned: z.boolean(),
 
         /**
          * Timezone in which the display operates. Will affect the local time.
@@ -66,7 +81,12 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     if (!props.ip)
         noAccess();
 
-    const updateFrequencySeconds = await readSetting('display-check-in-rate-seconds') ?? 300;
+    const settings = await readSettings([
+        'display-check-in-rate-seconds',
+        'display-dev-environment-link',
+    ]);
+
+    const updateFrequencySeconds = settings['display-check-in-rate-seconds'] ?? 300;
     const updateFrequencyMs = Math.max(10, updateFrequencySeconds) * 1000;
 
     // ---------------------------------------------------------------------------------------------
@@ -119,26 +139,23 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         .select({
             identifier: tDisplays.displayIdentifier,
             label: tDisplays.displayLabel,
+            locked: tDisplays.displayLocked.equals(/* true= */ 1),
+            timezone: eventsJoin.eventTimezone,
 
             // Event information:
             eventId: eventsJoin.eventId,
-            timezone: eventsJoin.eventTimezone,
 
             // Location information:
             locationId: activitiesLocationsJoin.locationId,
         })
         .executeSelectOne();
 
-    // ---------------------------------------------------------------------------------------------
-    // Step 3: Read dynamic information about the volunteers at the location
-    // ---------------------------------------------------------------------------------------------
-
-    // TODO: Include the list of volunteers
-    // TODO: Include the device locked status
-
     return {
         identifier: configuration.identifier,
         label: configuration.label ?? 'AnimeCon Volunteering Teams',
+        devEnvironment: settings['display-dev-environment-link'],
+        locked: configuration.locked,
+        provisioned: !!configuration.eventId && !!configuration.locationId,
         timezone: configuration.timezone ?? 'Europe/Amsterdam',
         updateFrequencyMs,
     };

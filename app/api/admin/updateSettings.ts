@@ -27,7 +27,7 @@ export const kUpdateSettingsDefinition = z.object({
             /**
              * Value that the setting should be set to.
              */
-            value: z.number().or(z.string().min(1)),
+            value: z.number().or(z.string()),
 
         })).min(1),
     }),

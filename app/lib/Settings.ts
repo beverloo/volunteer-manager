@@ -14,6 +14,7 @@ type SettingsMap = {
     // ---------------------------------------------------------------------------------------------
 
     'display-check-in-rate-seconds': number;
+    'display-dev-environment-link': string;
     'display-max-time-since-check-in-days': number;
 
     // ---------------------------------------------------------------------------------------------

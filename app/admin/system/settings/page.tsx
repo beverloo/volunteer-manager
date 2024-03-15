@@ -36,6 +36,15 @@ export default async function IntegrationsPage() {
                     'Every how many seconds should displays "phone home" for updated information?',
             },
             {
+                setting: 'display-dev-environment-link',
+                type: 'string',
+                defaultValue: '',
+
+                label: 'Dev environment link',
+                description:
+                    'When set, a menu item will be included linking through to this URL.',
+            },
+            {
                 setting: 'display-max-time-since-check-in-days',
                 type: 'number',
                 defaultValue: 90,
