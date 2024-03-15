@@ -146,3 +146,5 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
 
 // The /api/display route only provides a single API - call it straight away.
 export const GET = (request: NextRequest) => executeAction(request, kDisplayDefinition, display);
+
+export const dynamic = 'force-dynamic';
