@@ -153,7 +153,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
 
     return {
         identifier: configuration.identifier,
-        label: configuration.label ?? 'AnimeCon Volunteering Teams',
+        label: configuration.label ?? 'AnimeCon Display',
         devEnvironment: settings['display-dev-environment-link'],
         locked: configuration.locked,
         provisioned: !!configuration.eventId && !!configuration.locationId,
