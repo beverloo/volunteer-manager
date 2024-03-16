@@ -157,7 +157,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         devEnvironment: settings['display-dev-environment-link'],
         locked: configuration.locked,
         provisioned: !!configuration.eventId && !!configuration.locationId,
-        timezone: configuration.timezone ?? 'Europe/Amsterdam',
+        timezone: configuration.timezone ?? 'UTC',
         updateFrequencyMs,
     };
 }

@@ -340,7 +340,7 @@ export function DisplayHeader() {
                         <Stack direction="row" alignItems="center" spacing={3}
                             divider={ <Divider orientation="vertical" flexItem /> }>
                             <Typography variant="h2" sx={{ pr: 1.75 }}>
-                                <CurrentTime />
+                                <CurrentTime timezone={context?.timezone} />
                             </Typography>
                             <IconButton size="large" onClick={handleOpenMenu}>
                                 <MenuIcon color="disabled" />
