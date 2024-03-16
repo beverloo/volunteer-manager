@@ -4,6 +4,12 @@
 'use client';
 
 /**
+ * Mock the global `Audio` type if it's not available, as the server-side Next.js compile complains.
+ */
+if (typeof globalThis.Audio === 'undefined')
+    globalThis.Audio = class { play() { /* void */ } } as any;
+
+/**
  * Types of audio that can be played by the display.
  */
 type AudioTypes = 'ping';
