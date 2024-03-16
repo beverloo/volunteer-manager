@@ -8,12 +8,17 @@ import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
+import Popover from '@mui/material/Popover';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import WifiFindIcon from '@mui/icons-material/WifiFind';
@@ -21,6 +26,7 @@ import WifiFindIcon from '@mui/icons-material/WifiFind';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { refreshContext } from './DisplayController';
+import device from './lib/Device';
 
 /**
  * Component that displays the current time, following the device's local timezone. It will update
@@ -38,6 +44,51 @@ function CurrentTime(props: { timezone?: string }) {
     });
 
     return formatDate(date, 'HH:mm');
+}
+
+/**
+ * The <DisplayHeaderMenuIpAddresses> component displays a button that, when pressed, presents a
+ * popover listing the IP addresses that have been assigned to the display.
+ */
+function DisplayHeaderMenuIpAddresses() {
+    const [ anchorEl, setAnchorEl ] = useState<HTMLButtonElement | undefined>();
+    const [ ipAddresses, setIpAddresses ] = useState<string[]>([ /* empty state */ ]);
+
+    const handleClose = useCallback(() => {
+        setAnchorEl(undefined);
+        setTimeout(() => setIpAddresses([ ]), 300);
+    }, [ /* no dependencies */ ]);
+
+    const handleOpen = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        device.getIpAddresses().then(ipAddresses => {
+            if (!!ipAddresses)
+                setIpAddresses(ipAddresses.sort());
+        });
+    }, [ /* no dependencies */ ]);
+
+    return (
+        <>
+            <IconButton onClick={handleOpen}>
+                <WifiFindIcon />
+            </IconButton>
+            <Popover anchorEl={anchorEl} open={!!anchorEl} onClose={handleClose}
+                     anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                     transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                     slotProps={{ paper: { sx: { backgroundColor: '#15191c' } } }}>
+                <Box sx={{ p: 2, pb: 1 }}>
+                    { !ipAddresses.length && <CircularProgress color="inherit" size={24} /> }
+                    { !!ipAddresses.length &&
+                        <List dense disablePadding>
+                            {ipAddresses.map(ipAddress =>
+                                <ListItem key={ipAddress}>
+                                    <ListItemText primary={ipAddress} />
+                                </ListItem> )}
+                        </List> }
+                </Box>
+            </Popover>
+        </>
+    );
 }
 
 /**
@@ -108,9 +159,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                 <IconButton disabled={devEnvironmentDisabled} onClick={navigateToDevEnvironment}>
                     <DeveloperBoardIcon />
                 </IconButton>
-                <IconButton>
-                    <WifiFindIcon />
-                </IconButton>
+                <DisplayHeaderMenuIpAddresses />
             </Stack>
         </Stack>
     );
