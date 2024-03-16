@@ -58,6 +58,9 @@ function createDisplayTheme() {
                 default: '#0b0b0b',
                 paper: '#2c3339',
             },
+            secondary: {
+                main: '#eeeeee',
+            },
         },
         typography: {
             h1: {
@@ -72,6 +75,9 @@ function createDisplayTheme() {
                 ...kTextFont.style,
                 fontSize: '1rem',
                 color: '#a1a1a1',
+            },
+            body1: {
+                ...kTextFont.style,
             },
         },
     });

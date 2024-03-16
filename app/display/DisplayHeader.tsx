@@ -19,6 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
 import Popover from '@mui/material/Popover';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import WifiFindIcon from '@mui/icons-material/WifiFind';
@@ -27,6 +28,12 @@ import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { refreshContext } from './DisplayController';
 import device from './lib/Device';
+
+/**
+ * Global value indicating the brightness of the device. Used to consistently represent the value
+ * in the slider even when the component gets remounted.
+ */
+let globalBrightnessValue: number = 50;
 
 /**
  * Component that displays the current time, following the device's local timezone. It will update
@@ -44,6 +51,46 @@ function CurrentTime(props: { timezone?: string }) {
     });
 
     return formatDate(date, 'HH:mm');
+}
+
+/**
+ * The <DisplayHeaderMenuBrightness> component displays a brightness control, through which the
+ * intensity of the display's screen can be controlled.
+ */
+function DisplayHeaderMenuBrightness() {
+    const [ currentOperation, setCurrentOperation ] = useState<Promise<boolean> | undefined>();
+    const [ value, setValue ] = useState<number>(globalBrightnessValue);
+
+    const handleChange = useCallback((event: unknown, value: number | number[]) => {
+        if (typeof value !== 'number')
+            return;  // make TypeScript happy
+
+        globalBrightnessValue = value;
+        setValue(value);
+
+    }, [ /* no dependencies */ ]);
+
+    const handleChangeCommitted = useCallback((event: unknown, value: number | number[]) => {
+        if (typeof value !== 'number')
+            return;  // make TypeScript happy
+
+        setCurrentOperation(currentOperation => {
+            if (!!currentOperation)
+                return currentOperation.then(() => device.setBrightness(value));
+            else
+                return device.setBrightness(value);
+        });
+    }, [ /* no dependencies */ ]);
+
+    return (
+        <Box>
+            <Typography variant="body1" gutterBottom>
+                Screen brightness
+            </Typography>
+            <Slider value={value} min={10} max={250} step={10} shiftStep={10} color="secondary"
+                    onChangeCommitted={handleChangeCommitted} onChange={handleChange} />
+        </Box>
+    );
 }
 
 /**
@@ -136,8 +183,8 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 
     }, [ context?.devEnvironment, router ]);
 
-    // TODO: Brightness control
-    // TODO: IP addresses
+    // TODO: Last check-in time confirmation
+    // TODO: Local unlock ability
     // TODO: Refresh
 
     return (
@@ -153,6 +200,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                         This display has not been provisioned yet. Please ask a volunteering lead
                         for assistance.
                     </DisplayHeaderMenuWarning> }
+                <DisplayHeaderMenuBrightness />
             </Stack>
             <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
                    justifyContent="flex-end" spacing={2}>
