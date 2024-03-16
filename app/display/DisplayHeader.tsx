@@ -31,10 +31,14 @@ import { refreshContext } from './DisplayController';
 import device from './lib/Device';
 
 /**
- * Global value indicating the brightness of the device. Used to consistently represent the value
- * in the slider even when the component gets remounted.
+ * Global value indicating the brightness of the device.
  */
 let globalBrightnessValue: number = 50;
+
+/**
+ * Global value indicating the volume of the device.
+ */
+let globalVolumeValue: number = 50;
 
 /**
  * Component that displays the current time, following the device's local timezone. It will update
@@ -59,7 +63,6 @@ function CurrentTime(props: { timezone?: string }) {
  * intensity of the display's screen can be controlled.
  */
 function DisplayHeaderMenuBrightness() {
-    const [ currentOperation, setCurrentOperation ] = useState<Promise<boolean> | undefined>();
     const [ value, setValue ] = useState<number>(globalBrightnessValue);
 
     const handleChange = useCallback((event: unknown, value: number | number[]) => {
@@ -75,12 +78,8 @@ function DisplayHeaderMenuBrightness() {
         if (typeof value !== 'number')
             return;  // make TypeScript happy
 
-        setCurrentOperation(currentOperation => {
-            if (!!currentOperation)
-                return currentOperation.then(() => device.setBrightness(value));
-            else
-                return device.setBrightness(value);
-        });
+        device.setBrightness(value);
+
     }, [ /* no dependencies */ ]);
 
     return (
@@ -89,6 +88,41 @@ function DisplayHeaderMenuBrightness() {
                 Screen brightness
             </Typography>
             <Slider value={value} min={10} max={250} step={10} shiftStep={10} color="secondary"
+                    onChangeCommitted={handleChangeCommitted} onChange={handleChange} />
+        </Box>
+    );
+}
+
+/**
+ * The <DisplayHeaderMenuVolume> component displays a volume control, through which the volume of
+ * the device's speakers can be controlled.
+ */
+function DisplayHeaderMenuVolume() {
+    const [ value, setValue ] = useState<number>(globalVolumeValue);
+
+    const handleChange = useCallback((event: unknown, value: number | number[]) => {
+        if (typeof value !== 'number')
+            return;  // make TypeScript happy
+
+        globalVolumeValue = value;
+        setValue(value);
+
+    }, [ /* no dependencies */ ]);
+
+    const handleChangeCommitted = useCallback((event: unknown, value: number | number[]) => {
+        if (typeof value !== 'number')
+            return;  // make TypeScript happy
+
+        device.setVolume(value);
+
+    }, [ /* no dependencies */ ]);
+
+    return (
+        <Box>
+            <Typography variant="body1" gutterBottom>
+                Volume
+            </Typography>
+            <Slider value={value} min={10} max={250} step={15} shiftStep={10} color="secondary"
                     onChangeCommitted={handleChangeCommitted} onChange={handleChange} />
         </Box>
     );
@@ -202,6 +236,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                         for assistance.
                     </DisplayHeaderMenuWarning> }
                 <DisplayHeaderMenuBrightness />
+                <DisplayHeaderMenuVolume />
             </Stack>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>

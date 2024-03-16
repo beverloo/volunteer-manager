@@ -263,7 +263,6 @@ const kDeviceInstance = new class {
      * Called when the given `message` has been received.
      */
     private onMessage(message: string): void {
-        console.log(message);
         this.#command?.onMessage(message);
     }
 };
