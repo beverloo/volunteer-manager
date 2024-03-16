@@ -283,7 +283,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                                 onClick={navigateToDevEnvironment}>
                         <DeveloperBoardIcon />
                     </IconButton>
-                    { !isLockedValue() && <DisplayHeaderMenuLockedIcon /> }
+                    { isLockedValue() && <DisplayHeaderMenuLockedIcon /> }
                     <DisplayHeaderMenuIpAddresses />
                 </Stack>
             </Stack>

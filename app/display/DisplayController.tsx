@@ -8,7 +8,8 @@ import { useEffect, useState } from 'react';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
 import { callApi } from '@lib/callApi';
-import { onceInitialiseGlobals } from './Globals';
+import { onceInitialiseGlobals, isLockedValue, setLockedValue } from './Globals';
+import device from './lib/Device';
 
 /**
  * Define the `globalThis.animeCon` property. This is injected in the WebView used to display the
@@ -74,14 +75,19 @@ export function DisplayController(props: React.PropsWithChildren) {
     // Display API, which identifies the displays based on an identifier assigned by the server,
     // that is then stored in a cookie on the client. Invalidated through various signals.
     useEffect(() => {
-        try {
-            callApi('get', '/api/display', { /* no input is required */ }).then(context => {
-                setContext(context);
-                setUpdateFrequencyMs(context.updateFrequencyMs);
-            });
-        } catch (error: any) {
-            console.error(error);
-        }
+        callApi('get', '/api/display', { /* no input is required */ }).then(context => {
+            setContext(context);
+            setUpdateFrequencyMs(context.updateFrequencyMs);
+
+            // Automatically lock (or unlock) the device based on the received `context`. No
+            // feedback is given, other than the "lock" icon shown in the overflow menu.
+            if (context.locked !== isLockedValue()) {
+                context.locked ? device.enableKiosk()
+                               : device.disableKiosk();
+
+                setLockedValue(context.locked);
+            }
+        });
     }, [ invalidationCounter ]);
 
     return (
