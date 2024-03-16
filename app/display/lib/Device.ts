@@ -51,7 +51,7 @@ class Command<ResultType = never> {
 
         this.#executionResolver = undefined;
 
-        if (!response || !response.startsWith('success:'))
+        if (!response || !response.startsWith('success'))
             return [ /* success= */ false, /* result= */ undefined ];
 
         const result = response.substring(8);
@@ -180,13 +180,27 @@ const kDeviceInstance = new class {
         if (red < 0 || green < 0 || blue < 0 || red > 255 || green > 255 || blue > 255)
             return false;
 
-        globalThis.animeCon.postMessage(`light:KEEP:RED:0:${red}`);
-        await wait(25);  // let the driver catch up with itself
+        return this.executeCommand(`lightset:${red},${green},${blue}`);
+    }
 
-        globalThis.animeCon.postMessage(`light:KEEP:GREEN:0:${green}`);
-        await wait(25);  // let the driver catch up with itself
+    // ---------------------------------------------------------------------------------------------
 
-        return this.executeCommand(`light:KEEP:BLUE:0:${blue}`);
+    /**
+     * Returns the device's current volume level, or `undefined` when it couldn't be determined.
+     */
+    public async getVolume(): Promise<number | undefined> {
+        const result = await this.executeTypedCommand<number>('volume:get', 'number');
+        return result[1];
+    }
+
+    /**
+     * Updates the device's volume to the given `volume`, which must be a number between 0 and 255.
+     */
+    public async setVolume(volume: number): Promise<boolean> {
+        if (volume < 0 || volume > 255)
+            return false;
+
+        return this.executeCommand(`volume:${volume}`);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -235,7 +249,7 @@ const kDeviceInstance = new class {
             const commandInstance = new Command<ResultType>(command, commandType);
             this.#command = commandInstance;
 
-            const result = await this.#command.execute();
+            const result = await commandInstance.execute();
             wait(/* timeoutMs= */ 1000).then(() => commandInstance.onTimeout());
 
             this.#command = undefined;
@@ -249,6 +263,7 @@ const kDeviceInstance = new class {
      * Called when the given `message` has been received.
      */
     private onMessage(message: string): void {
+        console.log(message);
         this.#command?.onMessage(message);
     }
 };
