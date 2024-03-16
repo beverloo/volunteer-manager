@@ -27,7 +27,7 @@ export const kUpdateSettingsDefinition = z.object({
             /**
              * Value that the setting should be set to.
              */
-            value: z.number().or(z.string()),
+            value: z.boolean().or(z.number().or(z.string())),
 
         })).min(1),
     }),
@@ -53,7 +53,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
         privilege: Privilege.SystemAdministrator,
     });
 
-    const settings: { [k: string]: number | string } = { /* will be composed */ };
+    const settings: { [k: string]: boolean | number | string } = { /* will be composed */ };
     for (const { setting, value } of request.settings)
         settings[setting] = value;
 

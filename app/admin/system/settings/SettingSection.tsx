@@ -3,8 +3,10 @@
 
 'use client';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
 import React, { useCallback, useState } from 'react';
+
+import { type FieldValues, FormContainer, CheckboxElement, TextFieldElement }
+    from 'react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -23,6 +25,7 @@ export type ConfigurableSetting = {
     label: string;
     description?: string;
 } & (
+    { type: 'boolean'; defaultValue: boolean; value?: boolean; } |
     { type: 'number'; defaultValue: number; value?: number; } |
     { type: 'string'; defaultValue: string; value?: string; }
 );
@@ -79,7 +82,7 @@ export function SettingSection(props: SettingSectionProps) {
         }
     }, [ props.settings ]);
 
-    const defaultValues: Record<string, number | string | undefined> = {};
+    const defaultValues: Record<string, boolean | number | string | undefined> = {};
     for (const { setting, defaultValue, value } of Object.values(props.settings))
         defaultValues[setting] = value ?? defaultValue;
 
@@ -99,6 +102,9 @@ export function SettingSection(props: SettingSectionProps) {
                                     </Typography> }
                             </Grid>
                             <Grid xs={8} alignSelf="center">
+                                { setting.type === 'boolean' &&
+                                    <CheckboxElement name={setting.setting} size="small"
+                                                      onChange={handleChange} /> }
                                 { setting.type === 'number' &&
                                     <TextFieldElement name={setting.setting} type="number"
                                                       size="small" fullWidth

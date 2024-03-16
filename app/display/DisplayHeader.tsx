@@ -97,7 +97,7 @@ function DisplayHeaderMenuBrightness() {
  * The <DisplayHeaderMenuVolume> component displays a volume control, through which the volume of
  * the device's speakers can be controlled.
  */
-function DisplayHeaderMenuVolume() {
+function DisplayHeaderMenuVolume(props: { confirmVolumeChanges?: boolean }) {
     const [ value, setValue ] = useState<number>(getVolumeValue());
 
     const handleChange = useCallback((event: unknown, value: number | number[]) => {
@@ -113,9 +113,12 @@ function DisplayHeaderMenuVolume() {
         if (typeof value !== 'number')
             return;  // make TypeScript happy
 
-        device.setVolume(value).then(() => audio.play('ping'));
+        device.setVolume(value).then(() => {
+            if (!!props.confirmVolumeChanges)
+                audio.play('ping');
+        });
 
-    }, [ /* no dependencies */ ]);
+    }, [ props.confirmVolumeChanges ]);
 
     return (
         <Box>
@@ -294,7 +297,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                     Refresh
                 </LoadingButton>
                 <DisplayHeaderMenuBrightness />
-                <DisplayHeaderMenuVolume />
+                <DisplayHeaderMenuVolume confirmVolumeChanges={context?.confirmVolumeChanges} />
             </Stack>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>

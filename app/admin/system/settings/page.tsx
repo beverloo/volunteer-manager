@@ -36,6 +36,15 @@ export default async function IntegrationsPage() {
                     'Every how many seconds should displays "phone home" for updated information?',
             },
             {
+                setting: 'display-confirm-volume-change',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Confirm volume changes',
+                description:
+                    'When set, a sound will play to confirm volume changes on the device.',
+            },
+            {
                 setting: 'display-dev-environment-link',
                 type: 'string',
                 defaultValue: '',

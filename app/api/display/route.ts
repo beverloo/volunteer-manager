@@ -47,6 +47,11 @@ const kDisplayDefinition = z.object({
         timezone: z.string(),
 
         /**
+         * Whether volume changes should be audibly confirmed.
+         */
+        confirmVolumeChanges: z.boolean(),
+
+        /**
          * How frequently should the display check in? Indicated in milliseconds.
          */
         updateFrequencyMs: z.number(),
@@ -83,6 +88,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
 
     const settings = await readSettings([
         'display-check-in-rate-seconds',
+        'display-confirm-volume-change',
         'display-dev-environment-link',
     ]);
 
@@ -158,6 +164,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         locked: configuration.locked,
         provisioned: !!configuration.eventId && !!configuration.locationId,
         timezone: configuration.timezone ?? 'UTC',
+        confirmVolumeChanges: !!settings['display-confirm-volume-change'],
         updateFrequencyMs,
     };
 }
