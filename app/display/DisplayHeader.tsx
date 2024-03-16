@@ -36,6 +36,8 @@ import {
     getBrightnessValue, setBrightnessValue, isLockedValue, hasRecentlyUpdated, getVolumeValue,
     setVolumeValue } from './Globals';
 import { refreshContext } from './DisplayController';
+
+import audio from './lib/Audio';
 import device from './lib/Device';
 
 /**
@@ -111,7 +113,7 @@ function DisplayHeaderMenuVolume() {
         if (typeof value !== 'number')
             return;  // make TypeScript happy
 
-        device.setVolume(value);
+        device.setVolume(value).then(() => audio.play('ping'));
 
     }, [ /* no dependencies */ ]);
 
@@ -328,7 +330,7 @@ export function DisplayHeader() {
     return (
         <>
             <Paper elevation={0} sx={{ px: 2, py: 1, background: 'none' }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="flex-end" justifyContent="space-between">
                     <Box>
                         <Typography variant="h1" sx={{ pb: .5 }}>
                             { context?.label ?? 'AnimeCon Display' }

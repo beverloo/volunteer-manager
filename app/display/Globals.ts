@@ -31,6 +31,8 @@ export function onceInitialiseGlobals() {
     device.getVolume().then(volume => {
         globalThis.animeConVolumeValue = volume ?? /* default= */ 0;
     });
+
+    device.disableKiosk();
 }
 
 /**
