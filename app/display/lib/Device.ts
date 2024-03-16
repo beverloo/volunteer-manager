@@ -20,8 +20,77 @@ declare module globalThis {
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
+ * Type of command that's being executed.
+ */
+type CommandType = 'default' | 'ip' | 'number' | 'string';
+
+/**
+ * Class that executes a particular command and waits for a result to become available. It supports
+ * return types based on the type of result that's indicated in the constructor.
+ */
+class Command<ResultType = never> {
+    #command: string;
+    #commandType: CommandType;
+
+    #executionResolver?: (value?: string) => void;
+
+    constructor(command: string, commandType: CommandType) {
+        this.#command = command;
+        this.#commandType = commandType;
+    }
+
+    /**
+     * Executes the `#command` over the existing `postMessage` connection, if any, until either an
+     * `error` or `success` response is seen from the host.
+     */
+    public async execute(): Promise<[ boolean, ResultType | undefined ]> {
+        const response = await new Promise<string | undefined>(resolve => {
+            this.#executionResolver = resolve;
+            globalThis.animeCon.postMessage(this.#command);
+        });
+
+        this.#executionResolver = undefined;
+
+        if (!response || !response.startsWith('success:'))
+            return [ /* success= */ false, /* result= */ undefined ];
+
+        const result = response.substring(8);
+
+        switch (this.#commandType) {
+            case 'default':
+                return [ /* success= */ true, /* result= */ undefined ];
+
+            case 'number':
+                return [ /* success= */ true, parseInt(result, 10) as ResultType ]
+
+            case 'string':
+                return [ /* success= */ true, result as ResultType ];
+
+            default:
+                throw new Error(`Unrecognised command type: ${this.#commandType}`);
+        }
+    }
+
+    /**
+     * To be called when the given `message` is received while this command is top of stack.
+     */
+    public onMessage(message: string): void {
+        this.#executionResolver?.(message);
+    }
+
+    /**
+     * To be called when execution of this command has timed out.
+     */
+    public onTimeout(): void {
+        this.#executionResolver?.();
+    }
+}
+
+/**
  * The Device class contains the necessary functionality for the Volunteer Manager to interact with
- * the Display device.
+ * the Display device. The Java-side driver app is implemented in the following repository:
+ *
+ * @see https://github.com/beverloo/volunteer-manager-display
  */
 const kDeviceInstance = new class {
     constructor() {
@@ -49,6 +118,14 @@ const kDeviceInstance = new class {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the device's current brightness level, or `undefined` when it couldn't be determined.
+     */
+    public async getBrightness(): Promise<number | undefined> {
+        const result = await this.executeTypedCommand<number>('brightness:get', 'number');
+        return result[1];
+    }
 
     /**
      * Updates the device's screen brightness to the given `brightness`, which must be a number
@@ -118,66 +195,61 @@ const kDeviceInstance = new class {
      * Reads the IP addresses that have been assigned to the network interfaces on the device, both
      * IPv4 and IPv6. Convenient for diagnostics.
      */
-    public async getIpAddresses(): Promise<string[]> {
-        return await this.executeCommand('ip', /* capture= */ 'ip');
+    public async getIpAddresses(): Promise<string[] | undefined> {
+        const result = await this.executeTypedCommand<string>('ip', 'string');
+        if (!result[0] || typeof result[1] !== 'string')
+            return /* failure= */ undefined;
+
+        return result[1].split(';');
     }
 
     // ---------------------------------------------------------------------------------------------
 
-    #executingCommandCapture: undefined | 'ip';
-    #executingCommandMessages: undefined | string[];
-
-    #executingCommandResolver: undefined | ((result: any) => void);
+    #command: Command<any> | undefined = undefined;
+    #commandStack: Promise<void> = Promise.resolve();
 
     /**
-     * Executes the given `command` on the device. If this code is running on another machine, then
-     * this method will shortcut execution and return `false` immediately.
+     * Executes the given `command`. Returns whether the host app confirmed that it was successful.
      */
-    private async executeCommand<T = boolean>(command: string, capture?: 'ip'): Promise<T> {
+    private async executeCommand(command: string): Promise<boolean> {
+        const result = await this.executeTypedCommand<never>(command, 'default');
+        return result[0];
+    }
+
+    /**
+     * Executes the given `command`, which should be executed as `commandType`. Returns a boolean
+     * indicating whether the host app confirmed that it was successful, and the return value.
+     */
+    private async executeTypedCommand<ResultType>(command: string, commandType: CommandType)
+        : Promise<[ boolean, ResultType | undefined ]>
+    {
         if (!this.isDevice())
-            return false as T;
+            return [ /* success= */ false, /* result= */ undefined ];
 
-        // If another command is still in flight, opportunistically wait for it to finish. If it
-        // doesn't, we fail it and proceed with our own, in case some operation has locked up.
-        if (!!this.#executingCommandResolver) {
-            await wait(1000);
-            if (!!this.#executingCommandResolver)
-                this.#executingCommandResolver(/* result= */ false);
-        }
-
-        return new Promise(resolve => {
-            this.#executingCommandCapture = capture;
-            this.#executingCommandMessages = [ /* empty array */ ];
-            this.#executingCommandResolver = resolve;
-
-            globalThis.animeCon.postMessage(command);
+        let commandResolver: (foo: [ boolean, ResultType | undefined ]) => void;
+        const commandPromise = new Promise<[ boolean, ResultType | undefined ]>(resolve => {
+            commandResolver = resolve;
         });
+
+        this.#commandStack = this.#commandStack.then(async () => {
+            const commandInstance = new Command<ResultType>(command, commandType);
+            this.#command = commandInstance;
+
+            const result = await this.#command.execute();
+            wait(/* timeoutMs= */ 1000).then(() => commandInstance.onTimeout());
+
+            this.#command = undefined;
+            commandResolver(result);
+        });
+
+        return commandPromise;
     }
 
     /**
      * Called when the given `message` has been received.
      */
     private onMessage(message: string): void {
-        if (message.startsWith('success')) {
-            switch (this.#executingCommandCapture) {
-                case 'ip':
-                    return this.#executingCommandResolver?.(this.#executingCommandMessages);
-                default:
-                    return this.#executingCommandResolver?.(/* result= */ true);
-            }
-        } else if (message.startsWith('error')) {
-            switch (this.#executingCommandCapture) {
-                case 'ip':
-                    return this.#executingCommandResolver?.([ /* no addresses */ ]);
-                default:
-                    return this.#executingCommandResolver?.(/* result= */ false);
-            }
-        } else if (!!this.#executingCommandCapture) {
-            if (message.startsWith(this.#executingCommandCapture)) {
-                this.#executingCommandMessages?.push(
-                    message.substring(this.#executingCommandCapture.length + 1));
-            }
-        }
+        this.#command?.onMessage(message);
     }
 };
 
