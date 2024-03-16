@@ -63,6 +63,8 @@ function createDisplayTheme() {
             },
         },
         typography: {
+            fontFamily: kTextFont.style.fontFamily,
+
             h1: {
                 ...kHeaderFont.style,
                 fontSize: '2.15rem',
@@ -72,12 +74,8 @@ function createDisplayTheme() {
                 fontSize: '3.6rem',
             },
             subtitle1: {
-                ...kTextFont.style,
                 fontSize: '1rem',
                 color: '#a1a1a1',
-            },
-            body1: {
-                ...kTextFont.style,
             },
         },
     });
