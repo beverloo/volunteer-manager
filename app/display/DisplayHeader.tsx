@@ -12,9 +12,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
@@ -22,6 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import LoadingButton, { type LoadingButtonProps } from '@mui/lab/LoadingButton';
 import LockIcon from '@mui/icons-material/Lock';
 import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
@@ -224,6 +223,21 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 
     const router = useRouter();
 
+    const [ refreshColor, setRefreshColor ] = useState<LoadingButtonProps['color']>('secondary');
+    const [ refreshLoading, setRefreshLoading ] = useState<boolean>(false);
+
+    const handleRefresh = useCallback(async () => {
+        setRefreshLoading(true);
+        {
+            const result = await refreshContext();
+            !!result ? setRefreshColor('success')
+                     : setRefreshColor('error');
+        }
+        setTimeout(() => setRefreshColor('secondary'), 3000);
+        setRefreshLoading(false);
+
+    }, [ /* no dependencies */ ]);
+
     const [ devEnvironmentDisabled, setDevEnvironmentDisabled ] = useState<boolean>(false);
     useEffect(() => {
         setDevEnvironmentDisabled(false);
@@ -248,9 +262,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 
     }, [ context?.devEnvironment, router ]);
 
-    // TODO: Last check-in time confirmation
-    // TODO: Local unlock ability
-    // TODO: Refresh
+    // TODO: Last check-in time warning
 
     return (
         <Stack direction="column" justifyContent="space-between" sx={{ height: '100%' }}>
@@ -269,6 +281,10 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                     <Alert severity="success" sx={{ backgroundColor: '#08440c', color: '#ffffff' }}>
                         This display is fully operational.
                     </Alert> }
+                <LoadingButton fullWidth variant="outlined" color={refreshColor}
+                               loading={refreshLoading} onClick={handleRefresh}>
+                    Refresh
+                </LoadingButton>
                 <DisplayHeaderMenuBrightness />
                 <DisplayHeaderMenuVolume />
             </Stack>

@@ -16,7 +16,8 @@ import device from './lib/Device';
  * Volunteer Manager on the AnimeCon Display devices, as a message port.
  */
 declare module globalThis {
-    let animeConRefresh: undefined | (() => Promise<boolean>);
+    let animeConRefreshListeners: ((result: boolean) => void)[];
+    let animeConRefresh: undefined | (() => void);
 }
 
 /**
@@ -28,7 +29,16 @@ const kDefaultUpdateFrequencyMs = /* 5 minutes= */ 5 * 60 * 1000;
  * Helper function to manually refresh the context with the server. Should be sparsely used.
  */
 export async function refreshContext(): Promise<boolean> {
-    return globalThis.animeConRefresh?.() ?? false;
+    if (!Array.isArray(globalThis.animeConRefreshListeners))
+        globalThis.animeConRefreshListeners = [];
+
+    if (!globalThis.animeConRefresh)
+        return false;  // the <DisplayController> component is not mounted
+
+    return new Promise(resolve => {
+        globalThis.animeConRefreshListeners.push(resolve);
+        globalThis.animeConRefresh?.();
+    });
 }
 
 /**
@@ -50,11 +60,9 @@ export function DisplayController(props: React.PropsWithChildren) {
     // refresh operations elsewhere in the user interface. The helper will be unassigned when this
     // component is unmounted as no further refreshes can be requested anymore.
     useEffect(() => {
-        globalThis.animeConRefresh = async () => {
+        globalThis.animeConRefreshListeners = [];
+        globalThis.animeConRefresh = () =>
             setInvalidationCounter(invalidationCounter => invalidationCounter + 1);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            return true;
-        };
 
         return () => globalThis.animeConRefresh = undefined;
 
@@ -87,6 +95,18 @@ export function DisplayController(props: React.PropsWithChildren) {
 
                 setLockedValue(context.locked);
             }
+
+            // Announce that the update has been completed to any listeners.
+            for (const listener of globalThis.animeConRefreshListeners)
+                listener(/* result= */ true);
+
+        }).catch(error => {
+            // Announce that the update could not be completed to any listeners.
+            for (const listener of globalThis.animeConRefreshListeners)
+                listener(/* result= */ false);
+
+        }).finally(() => {
+            globalThis.animeConRefreshListeners = [ /* empty list */ ];
         });
     }, [ invalidationCounter ]);
 
