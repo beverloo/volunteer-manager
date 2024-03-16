@@ -3,12 +3,14 @@
 
 'use client';
 
+import { Temporal } from '@lib/Temporal';
 import device from './lib/Device';
 
 declare module globalThis {
     let animeConBrightnessValue: number;
     let animeConInitialised: boolean;
     let animeConLockedValue: boolean;
+    let animeConUpdatedInstant: Temporal.Instant;
     let animeConVolumeValue: number;
 }
 
@@ -57,6 +59,28 @@ export function isLockedValue(): boolean {
  */
 export function setLockedValue(value: boolean): void {
     globalThis.animeConLockedValue = value;
+}
+
+/**
+ * Marks the display as having updated at this moment.
+ */
+export function markUpdateCompleted(): void {
+    globalThis.animeConUpdatedInstant = Temporal.Now.instant();
+}
+
+/**
+ * Returns whether the display has recently updated. An update will be considered updated if the
+ * most recent update was five minutes ago or less.
+ */
+export function hasRecentlyUpdated(): boolean {
+    if (!globalThis.animeConUpdatedInstant)
+        return false;
+
+    const difference = globalThis.animeConUpdatedInstant.until(Temporal.Now.instant(), {
+        largestUnit: 'second',
+    });
+
+    return difference.seconds <= 5 * 60;
 }
 
 /**

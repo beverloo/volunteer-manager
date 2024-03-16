@@ -32,7 +32,9 @@ import WifiFindIcon from '@mui/icons-material/WifiFind';
 
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { getBrightnessValue, setBrightnessValue, getVolumeValue, setVolumeValue, isLockedValue } from './Globals';
+import {
+    getBrightnessValue, setBrightnessValue, isLockedValue, hasRecentlyUpdated, getVolumeValue,
+    setVolumeValue } from './Globals';
 import { refreshContext } from './DisplayController';
 import device from './lib/Device';
 
@@ -46,7 +48,7 @@ function CurrentTime(props: { timezone?: string }) {
     useEffect(() => {
         const timer = setInterval(() => {
             setDate(Temporal.Now.zonedDateTimeISO(props.timezone));
-        }, /* 5 seconds= */ 5000);
+        }, /* 3 seconds= */ 3000);
 
         return () => clearInterval(timer);
     });
@@ -262,8 +264,6 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 
     }, [ context?.devEnvironment, router ]);
 
-    // TODO: Last check-in time warning
-
     return (
         <Stack direction="column" justifyContent="space-between" sx={{ height: '100%' }}>
             <Stack direction="column" spacing={2}>
@@ -277,7 +277,12 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                         This display has not been provisioned yet. Please ask a volunteering lead
                         for assistance.
                     </DisplayHeaderMenuWarning> }
-                { (!!context && !!context.provisioned) &&
+                { (!!context && !!context.provisioned && !hasRecentlyUpdated()) &&
+                    <DisplayHeaderMenuWarning>
+                        This display is operational, but has not been able to update in the past
+                        five minutes.
+                    </DisplayHeaderMenuWarning> }
+                { (!!context && !!context.provisioned && hasRecentlyUpdated()) &&
                     <Alert severity="success" sx={{ backgroundColor: '#08440c', color: '#ffffff' }}>
                         This display is fully operational.
                     </Alert> }

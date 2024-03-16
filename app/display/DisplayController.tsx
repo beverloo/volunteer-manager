@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
 import { callApi } from '@lib/callApi';
-import { onceInitialiseGlobals, isLockedValue, setLockedValue } from './Globals';
+import { onceInitialiseGlobals, markUpdateCompleted, isLockedValue, setLockedValue } from './Globals';
 import device from './lib/Device';
 
 /**
@@ -95,6 +95,9 @@ export function DisplayController(props: React.PropsWithChildren) {
 
                 setLockedValue(context.locked);
             }
+
+            // Mark the update as having completed, hiding a warning in the menu.
+            markUpdateCompleted();
 
             // Announce that the update has been completed to any listeners.
             for (const listener of globalThis.animeConRefreshListeners)
