@@ -287,7 +287,8 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                         This display is fully operational.
                     </Alert> }
                 <LoadingButton fullWidth variant="outlined" color={refreshColor}
-                               loading={refreshLoading} onClick={handleRefresh}>
+                               loading={refreshLoading} onClick={handleRefresh}
+                               sx={{ transition: 'border-color .3s ease-in, color .3s ease-in' }}>
                     Refresh
                 </LoadingButton>
                 <DisplayHeaderMenuBrightness />
