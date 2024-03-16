@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import Divider from '@mui/material/Divider';
@@ -202,12 +203,19 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                     </DisplayHeaderMenuWarning> }
                 <DisplayHeaderMenuBrightness />
             </Stack>
-            <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
-                   justifyContent="flex-end" spacing={2}>
-                <IconButton disabled={devEnvironmentDisabled} onClick={navigateToDevEnvironment}>
-                    <DeveloperBoardIcon />
-                </IconButton>
-                <DisplayHeaderMenuIpAddresses />
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                    { !!context &&
+                        <Chip label={context.identifier} size="small" sx={{ pt: 0.25 }} /> }
+                </Box>
+                <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
+                       spacing={2}>
+                    <IconButton disabled={devEnvironmentDisabled}
+                                onClick={navigateToDevEnvironment}>
+                        <DeveloperBoardIcon />
+                    </IconButton>
+                    <DisplayHeaderMenuIpAddresses />
+                </Stack>
             </Stack>
         </Stack>
     );
