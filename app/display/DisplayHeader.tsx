@@ -27,18 +27,9 @@ import WifiFindIcon from '@mui/icons-material/WifiFind';
 
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
+import { getBrightnessValue, setBrightnessValue, getVolumeValue, setVolumeValue } from './Globals';
 import { refreshContext } from './DisplayController';
 import device from './lib/Device';
-
-/**
- * Global value indicating the brightness of the device.
- */
-let globalBrightnessValue: number = 50;
-
-/**
- * Global value indicating the volume of the device.
- */
-let globalVolumeValue: number = 50;
 
 /**
  * Component that displays the current time, following the device's local timezone. It will update
@@ -63,13 +54,13 @@ function CurrentTime(props: { timezone?: string }) {
  * intensity of the display's screen can be controlled.
  */
 function DisplayHeaderMenuBrightness() {
-    const [ value, setValue ] = useState<number>(globalBrightnessValue);
+    const [ value, setValue ] = useState<number>(getBrightnessValue());
 
     const handleChange = useCallback((event: unknown, value: number | number[]) => {
         if (typeof value !== 'number')
             return;  // make TypeScript happy
 
-        globalBrightnessValue = value;
+        setBrightnessValue(value);
         setValue(value);
 
     }, [ /* no dependencies */ ]);
@@ -98,13 +89,13 @@ function DisplayHeaderMenuBrightness() {
  * the device's speakers can be controlled.
  */
 function DisplayHeaderMenuVolume() {
-    const [ value, setValue ] = useState<number>(globalVolumeValue);
+    const [ value, setValue ] = useState<number>(getVolumeValue());
 
     const handleChange = useCallback((event: unknown, value: number | number[]) => {
         if (typeof value !== 'number')
             return;  // make TypeScript happy
 
-        globalVolumeValue = value;
+        setVolumeValue(value);
         setValue(value);
 
     }, [ /* no dependencies */ ]);

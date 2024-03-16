@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
 import { callApi } from '@lib/callApi';
+import { onceInitialiseGlobals } from './Globals';
 
 /**
  * Define the `globalThis.animeCon` property. This is injected in the WebView used to display the
@@ -39,6 +40,8 @@ export function DisplayController(props: React.PropsWithChildren) {
     const [ invalidationCounter, setInvalidationCounter ] = useState<number>(0);
     const [ updateFrequencyMs, setUpdateFrequencyMs ] =
         useState<number>(kDefaultUpdateFrequencyMs);
+
+    onceInitialiseGlobals();
 
     // TODO: Somehow reflect the result of the `animeConRefresh` helper.
 
