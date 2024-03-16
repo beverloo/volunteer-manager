@@ -11,12 +11,18 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import LockIcon from '@mui/icons-material/Lock';
 import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
 import Popover from '@mui/material/Popover';
@@ -27,7 +33,7 @@ import WifiFindIcon from '@mui/icons-material/WifiFind';
 
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { getBrightnessValue, setBrightnessValue, getVolumeValue, setVolumeValue } from './Globals';
+import { getBrightnessValue, setBrightnessValue, getVolumeValue, setVolumeValue, isLockedValue } from './Globals';
 import { refreshContext } from './DisplayController';
 import device from './lib/Device';
 
@@ -74,7 +80,7 @@ function DisplayHeaderMenuBrightness() {
     }, [ /* no dependencies */ ]);
 
     return (
-        <Box>
+        <Box sx={{ pt: 2 }}>
             <Typography variant="body1" gutterBottom>
                 Screen brightness
             </Typography>
@@ -165,6 +171,39 @@ function DisplayHeaderMenuIpAddresses() {
 }
 
 /**
+ * The <DisplayHeaderMenuLockedIcon> displays a lock icon when the device is locked, or nothing when
+ * it's not. Clicking on the icon reveals an alert dialog with a lie.
+ */
+function DisplayHeaderMenuLockedIcon() {
+    const [ open, setOpen ] = useState<boolean>(false);
+
+    const handleOpen = useCallback(() => setOpen(true), [ /* no dependencies */ ]);
+    const handleClose = useCallback(() => setOpen(false), [ /* no dependencies */ ]);
+
+    return (
+        <>
+            <IconButton onClick={handleOpen}>
+                <LockIcon />
+            </IconButton>
+            <Dialog open={open} onClose={handleClose} fullWidth>
+                <DialogTitle>
+                    Unlock this device
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        This device has been locked by volunteering leads. If absolutely needed, it
+                        can be unlocked by loudly saying the following phrase near the device:
+                    </Typography>
+                    <Typography sx={{ borderLeft: '4px solid #666', pl: 2, mt: 2, mb: 1 }}>
+                        そうならいいね
+                    </Typography>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+}
+
+/**
  * The <DisplayHeaderMenuWarning> component displays a warning that's to be displayed in the menu,
  * to inform the reader that something is very wrong.
  */
@@ -226,6 +265,10 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                         This display has not been provisioned yet. Please ask a volunteering lead
                         for assistance.
                     </DisplayHeaderMenuWarning> }
+                { (!!context && !!context.provisioned) &&
+                    <Alert severity="success" sx={{ backgroundColor: '#08440c', color: '#ffffff' }}>
+                        This display is fully operational.
+                    </Alert> }
                 <DisplayHeaderMenuBrightness />
                 <DisplayHeaderMenuVolume />
             </Stack>
@@ -240,6 +283,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
                                 onClick={navigateToDevEnvironment}>
                         <DeveloperBoardIcon />
                     </IconButton>
+                    { !isLockedValue() && <DisplayHeaderMenuLockedIcon /> }
                     <DisplayHeaderMenuIpAddresses />
                 </Stack>
             </Stack>
@@ -254,7 +298,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 export function DisplayHeader() {
     const context = useContext(DisplayContext);
 
-    const [ menuOpen, setMenuOpen ] = useState<boolean>(true);
+    const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
 
     const handleCloseMenu = useCallback(() => setMenuOpen(false), [ /* no dependencies */ ]);
     const handleOpenMenu = useCallback(() => setMenuOpen(true), [ /* no dependencies */ ]);
