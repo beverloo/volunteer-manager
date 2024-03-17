@@ -130,6 +130,11 @@ export interface PageInfoWithTeam extends PageInfo {
         id: number;
 
         /**
+         * Colour assigned to the team, to be used in the user interface.
+         */
+        colour: string;
+
+        /**
          * Whether this team is responsible for managing the frequently asked questions.
          */
         managesFaq: boolean;
@@ -148,6 +153,11 @@ export interface PageInfoWithTeam extends PageInfo {
          * Name of the team as it can be represented in the user interface.
          */
         name: string;
+
+        /**
+         * Plural word to use when talking about a member of this team.
+         */
+        plural: string;
 
         /**
          * Slug through which this team can be identified in the URL.
@@ -240,7 +250,9 @@ export async function verifyAccessAndFetchPageInfo(
         .where(tTeams.teamEnvironment.equals(params.team!))
         .select({
             id: tTeams.teamId,
+            colour: tTeams.teamColourLightTheme,
             name: tTeams.teamName,
+            plural: tTeams.teamPlural,
             slug: tTeams.teamEnvironment,
             managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
             managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),

@@ -29,6 +29,9 @@ type SettingsMap = {
     // Retention:
     'retention-number-of-events-to-consider': number;
 
+    // Schedule:
+    'schedule-time-step-minutes': number;
+
     // ---------------------------------------------------------------------------------------------
     // Generative AI settings
     // ---------------------------------------------------------------------------------------------

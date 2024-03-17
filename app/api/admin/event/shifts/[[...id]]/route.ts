@@ -9,9 +9,10 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
-
 import db, { tActivities, tEventsTeams, tEvents, tTeams, tShifts, tShiftsCategories }
     from '@lib/database';
+
+import { kShiftDemand } from './demand';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -76,6 +77,11 @@ const kEventShiftRowModel = z.object({
      * Unique ID of the location in which the shift will be taking place.
      */
     locationId: z.number().optional(),
+
+    /**
+     * Demand that exists for this shift. Other fields will be ignored when provided.
+     */
+    demand: z.string().optional(),
 });
 
 /**
@@ -296,6 +302,28 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         if (!event || !team)
             notFound();
 
+        if (!!row.demand) {
+            try {
+                const jsDemand = JSON.parse(row.demand);
+                kShiftDemand.parse(jsDemand);  // throws on invalid data
+            } catch (error: any) {
+                console.error(row.demand, error);
+                return { success: false };
+            }
+
+            const affectedRows = await db.update(tShifts)
+                .set({
+                    shiftDemand: row.demand
+                })
+                .where(tShifts.shiftId.equals(row.id))
+                    .and(tShifts.eventId.equals(event.id))
+                    .and(tShifts.teamId.equals(team.id))
+                    .and(tShifts.shiftDeleted.isNull())
+                .executeUpdate();
+
+            return { success: !!affectedRows };
+        }
+
         return { success: false };
     },
 
@@ -303,6 +331,9 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         const { event, team } = await validateContext(context);
         if (!event || !team)
             notFound();
+
+        if (mutation === 'Updated')
+            return;  // todo: remove this
 
         const shiftName = await db.selectFrom(tShifts)
             .where(tShifts.shiftId.equals(id))

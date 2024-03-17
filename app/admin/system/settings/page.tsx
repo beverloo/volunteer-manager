@@ -92,6 +92,15 @@ export default async function IntegrationsPage() {
                 label: 'Retention - historical events',
                 description: 'How many events should be considered for retention planning?',
             },
+            {
+                setting: 'schedule-time-step-minutes',
+                type: 'number',
+                defaultValue: 15,
+
+                label: 'Schedule - time step',
+                description:
+                    'Time step, in minutes, defining granularity of shifts in the scheduling tools.'
+            }
         ],
     };
 
