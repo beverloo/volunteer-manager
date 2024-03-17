@@ -696,11 +696,6 @@ tables:
     default: null
     extraDef: auto_increment
     comment: ""
-  - name: shift_identifier
-    type: varchar(8)
-    nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
@@ -726,17 +721,7 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
-  - name: shift_area_id
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
   - name: shift_location_id
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_location_name
     type: varchar(32)
     nullable: true
     default: "NULL"
@@ -810,15 +795,12 @@ tables:
   def: |-
     CREATE TABLE `shifts` (
       `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `shift_identifier` varchar(8) NOT NULL,
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
       `shift_category_id` int(8) unsigned NOT NULL,
       `shift_name` varchar(64) NOT NULL,
       `shift_activity_id` int(4) unsigned DEFAULT NULL,
-      `shift_area_id` int(4) unsigned DEFAULT NULL,
       `shift_location_id` varchar(32) DEFAULT NULL,
-      `shift_location_name` varchar(32) DEFAULT NULL,
       `shift_demand` text DEFAULT NULL,
       `shift_excitement` double NOT NULL,
       `shift_deleted` datetime DEFAULT NULL,

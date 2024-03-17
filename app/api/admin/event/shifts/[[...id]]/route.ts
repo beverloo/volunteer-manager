@@ -208,7 +208,6 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                 .set({
                     eventId: event.id,
                     teamId: team.id,
-                    shiftIdentifier: 'xx',
                     shiftCategoryId: row.categoryId,
                     shiftName: activityName,
                     shiftActivityId: row.activityId,
@@ -226,7 +225,6 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                 .set({
                     eventId: event.id,
                     teamId: team.id,
-                    shiftIdentifier: 'xx',
                     shiftCategoryId: row.categoryId,
                     shiftName: row.name,
                     shiftExcitement: defaultExcitement,
