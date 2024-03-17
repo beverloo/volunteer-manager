@@ -3,6 +3,8 @@
 
 'use client';
 
+import { useMemo } from 'react';
+
 import { Temporal } from '@lib/Temporal';
 
 import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
@@ -39,6 +41,12 @@ export interface ShiftDemandTimelineProps {
      * Groups of information that should be shown on the timeline in an immutable fashion.
      */
     immutableGroups: ShiftDemandTimelineGroup[];
+
+    /**
+     * Whether demand from groups other than `mutableGroup` and the `timeline` group should be
+     * removed from view. They should still be passed on to this component.
+     */
+    localGroupOnly?: boolean;
 
     /**
      * Group of information that should be shown on the timeline in a mutable fashion.
@@ -84,12 +92,19 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
     const { min, max, readOnly, step, timezone } = props;
 
     const groups: ShiftGroup[] = [ props.mutableGroup ];
-    const immutableEntries: ShiftEntry[] = [];
+    const immutableEntries: ShiftEntry[] = useMemo(() => {
+        const immutableEntries: ShiftEntry[] = [];
+        for (const group of props.immutableGroups) {
+            if (!props.localGroupOnly && group.metadata.id !== 'timeslot')
+                continue;  // ignore the group
 
-    for (const group of props.immutableGroups) {
+            immutableEntries.push(...group.entries);
+        }
+        return immutableEntries;
+    }, [ props.immutableGroups, props.localGroupOnly ]);
+
+    for (const group of props.immutableGroups)
         groups.push(group.metadata);
-        immutableEntries.push(...group.entries);
-    }
 
     return (
         <>
