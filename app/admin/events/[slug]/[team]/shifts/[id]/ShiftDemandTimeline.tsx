@@ -3,10 +3,12 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 import { Temporal } from '@lib/Temporal';
-
 import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
@@ -91,6 +93,17 @@ export interface ShiftDemandTimelineProps {
 export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
     const { min, max, readOnly, step, timezone } = props;
 
+    // ---------------------------------------------------------------------------------------------
+
+    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
+
+    const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no deps */ ]);
+    const handleError = useCallback((action: 'create' | 'update', reason: 'overlap') => {
+        setErrorOpen(true);
+    }, [ /* no deps */ ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     const groups: ShiftGroup[] = [ props.mutableGroup ];
     const immutableEntries: ShiftEntry[] = useMemo(() => {
         const immutableEntries: ShiftEntry[] = [];
@@ -111,7 +124,13 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
             <ShiftTimeline temporal={Temporal} min={min} max={max} step={step} dataTimezone="utc"
                            displayTimezone={timezone} defaultGroup={props.mutableGroup.id}
                            groups={groups} readOnly={readOnly} mutableEntries={props.mutableEntries}
-                           immutableEntries={immutableEntries} onChange={props.onChange} />
+                           immutableEntries={immutableEntries} onChange={props.onChange}
+                           onError={handleError} />
+            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
+                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
+                    Shifts for this team cannot overlap with each other
+                </Alert>
+            </Snackbar>
         </>
     );
 }
