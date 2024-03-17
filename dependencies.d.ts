@@ -8,5 +8,5 @@ declare module 'simple-sha256' {
 }
 
 declare module 'set.prototype.symmetricdifference' {
-    export default function(set: Set, otherSet: Set): Set;
+    export default function<T>(set: Set<T>, otherSet: Set<T>): Set<T>;
 }
