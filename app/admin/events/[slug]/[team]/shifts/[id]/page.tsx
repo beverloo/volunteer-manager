@@ -12,6 +12,7 @@ import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftDemandSection } from './ShiftDemandSection';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { readSetting } from '@lib/Settings';
+import { readUserSetting } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivitiesTimeslots, tShifts, tTeams } from '@lib/database';
 
@@ -73,6 +74,8 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     const warnings: any[] = [ ];
 
     const step = await readSetting('schedule-time-step-minutes');
+    const localGroupOnly = await readUserSetting(
+        user.userId, 'user-admin-schedule-display-other-teams');
 
     // ---------------------------------------------------------------------------------------------
 
@@ -173,7 +176,8 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                 </SectionIntroduction>
                 <ShiftDemandSection event={event} team={team} immutableGroups={immutableGroups}
                                     mutableGroup={mutableGroup} mutableEntries={mutableEntries}
-                                    readOnly={readOnly} shiftId={shift.id} step={step} />
+                                    readOnly={readOnly} shiftId={shift.id} step={step}
+                                    localGroupOnly={localGroupOnly} />
             </Section>
             <CollapsableSection in={!!warnings.length} title="Shift warnings">
                 <SectionIntroduction important>

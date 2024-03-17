@@ -151,7 +151,9 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
         setDemandChangeLoading(true);
         setLocalGroupOnly(checked);
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await callApi('post', '/api/auth/settings', {
+                adminScheduleDisplayOtherTeams: checked,
+            });
         } finally {
             setDemandChangeLoading(false);
         }
@@ -168,7 +170,7 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
             .toString({ timeZoneName: 'never' });
 
     return (
-        <FormContainer onSuccess={handleSubmit}>
+        <FormContainer defaultValues={{ demand: !!props.localGroupOnly }} onSuccess={handleSubmit}>
             <Box>
                 <ShiftDemandTimeline min={min} max={max} readOnly={readOnly} step={step}
                                      timezone={event.timezone} immutableGroups={immutableGroups}

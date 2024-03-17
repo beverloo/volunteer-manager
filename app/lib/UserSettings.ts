@@ -8,8 +8,12 @@ import db, { tSettings, tUsersSettings } from '@lib/database';
  * on a per user basis. These are complementary to regular settings, and regular settings can be
  * used to configure default values for these.
  */
-type UserSettingsMap = {
-    // No user settings exist yet.
+export type UserSettingsMap = {
+    // ---------------------------------------------------------------------------------------------
+    // Admin settings
+    // ---------------------------------------------------------------------------------------------
+
+    'user-admin-schedule-display-other-teams': boolean;
 };
 
 /**
