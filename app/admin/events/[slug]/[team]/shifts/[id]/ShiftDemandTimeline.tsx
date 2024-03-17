@@ -3,16 +3,24 @@
 
 'use client';
 
+import { SelectElement } from 'react-hook-form-mui';
 import { useCallback, useMemo, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
 import { Temporal } from '@lib/Temporal';
+import { SettingDialog } from '@app/admin/components/SettingDialog';
+
 import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
 export type { ShiftEntry, ShiftGroup };
+
+/**
+ * Promise resolver function used with the ability to modify demand.
+ */
+type PromiseResolver = (value?: ShiftEntry) => void;
 
 /**
  * Interface that defines the information associated with a group of information that is to be shown
@@ -104,6 +112,56 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ selectedShiftEntry, setSelectedShiftEntry ] = useState<ShiftEntry | undefined>();
+    const [ selectedResolver, setSelectedResolver ] = useState<PromiseResolver | undefined>();
+
+    const handleSettings = useCallback(async (entry: ShiftEntry) => {
+        return new Promise<ShiftEntry | undefined>(resolve => {
+            setSelectedShiftEntry(entry);
+            setSelectedResolver(() => resolve);
+        });
+    }, [ /* no deps */ ]);
+
+    const handleSettingsClose =
+        useCallback(() => setSelectedShiftEntry(undefined), [ /* no deps */ ]);
+
+    const handleSettingsDelete = useCallback(async () => {
+        if (!selectedShiftEntry || !selectedResolver)
+            return { error: <>I forgot which shift was selected, sorry!</> };
+
+        selectedResolver(/* delete= */ undefined);
+        return { close: true } as const;
+
+    }, [ selectedResolver, selectedShiftEntry ]);
+
+    const handleSettingsUpdate = useCallback(async (data: any) => {
+        if (!selectedShiftEntry || !selectedResolver)
+            return { error: <>I forgot which shift was selected, sorry!</> };
+
+        if (typeof data.volunteers !== 'number' || data.volunteers < 1 || data.volunteers > 10)
+            return { error: <>I don't know which state to update to, sorry!</> };
+
+        selectedResolver({ ...selectedShiftEntry, volunteers: data.volunteers });
+        return { close: true } as const;
+
+    }, [ selectedResolver, selectedShiftEntry ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const numberOfVolunteerOptions = useMemo(() => {
+        const { singular, plural } =
+            typeof props.mutableGroup.label === 'object'
+                ? props.mutableGroup.label
+                : { singular: 'volunteer', plural: 'volunteers' };
+
+        return Array(10).fill(null).map((_, index) => ({
+            id: index + 1,
+            label: `${index + 1} ${index === 0 ? singular : plural}`,
+        }));
+    }, [ props.mutableGroup ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     const groups: ShiftGroup[] = [ props.mutableGroup ];
     const immutableEntries: ShiftEntry[] = useMemo(() => {
         const immutableEntries: ShiftEntry[] = [];
@@ -125,7 +183,14 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
                            displayTimezone={timezone} defaultGroup={props.mutableGroup.id}
                            groups={groups} readOnly={readOnly} mutableEntries={props.mutableEntries}
                            immutableEntries={immutableEntries} onChange={props.onChange}
-                           onError={handleError} />
+                           onDoubleClick={handleSettings} onError={handleError} />
+            <SettingDialog title="Number of volunteers" delete open={!!selectedShiftEntry}
+                           onClose={handleSettingsClose} onDelete={handleSettingsDelete}
+                           onSubmit={handleSettingsUpdate}
+                           defaultValues={ selectedShiftEntry ?? {} }>
+                <SelectElement name="volunteers" size="small" fullWidth sx={{ mt: '1px' }}
+                               options={numberOfVolunteerOptions} />
+            </SettingDialog>
             <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
                 <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
                     Shifts for this team cannot overlap with each other
