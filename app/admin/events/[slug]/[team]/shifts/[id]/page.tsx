@@ -13,9 +13,54 @@ import { ShiftDemandSection } from './ShiftDemandSection';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tActivitiesTimeslots, tShifts } from '@lib/database';
+import db, { tActivitiesTimeslots, tShifts, tTeams } from '@lib/database';
 
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
+
+/**
+ * Converts the given `demandString` to an array of `ShiftEntry` instances for the given `teamId`.
+ * When the string cannot be validated according to `kShiftDemand`, all entries will be ignored.
+ */
+function toShiftEntries(demandString: string, teamId: number): ShiftEntry[] {
+    const entries: ShiftEntry[] = [];
+    try {
+        const demand = JSON.parse(demandString);
+        kShiftDemand.parse(demand);  // throws on invalid data
+
+        for (let id = 0; id < demand.length; ++id) {
+            entries.push({
+                id: 1000 * teamId + id,
+                start: demand[id].start,
+                end: demand[id].end,
+                group: teamId,
+                volunteers: demand[id].volunteers,
+            });
+        }
+    } catch (error: any) {
+        console.error(`Ignoring stored shift demand data: ${error.message}`, demandString);
+    }
+
+    return entries;
+}
+
+/**
+ * Data necessary for a particular team in order to convert it to a `ShiftGroup` entry.
+ */
+type TeamInfoForGroup = { id: number; colour: string; plural: string; };
+
+/**
+ * Converts the given `team` to an instance of `ShiftGroup`, as is required by the demand timeline.
+ */
+function toShiftGroup(team: TeamInfoForGroup): ShiftGroup {
+    return {
+        id: team.id,
+        label: {
+            singular: team.plural.replace(/s$/, ''),
+            plural: team.plural,
+        },
+        color: team.colour,
+    }
+}
 
 /**
  * This page displays an individual shift, its configuration, time allocation and warnings. The
@@ -81,41 +126,38 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             });
         }
 
+        const otherTeams = await dbInstance.selectFrom(tShifts)
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tShifts.teamId))
+            .where(tShifts.eventId.equals(event.id))
+                .and(tShifts.shiftActivityId.equals(shift.activityId))
+                .and(tShifts.teamId.notEquals(team.id))
+                .and(tShifts.shiftDeleted.isNull())
+            .select({
+                demand: tShifts.shiftDemand,
+                team: {
+                    id: tTeams.teamId,
+                    colour: tTeams.teamColourLightTheme,
+                    plural: tTeams.teamPlural,
+                },
+            })
+            .executeSelectMany();
 
+        for (const { demand, team } of otherTeams) {
+            if (!demand)
+                continue;
 
-        // TODO: Shifts from other teams.
-    }
-
-    const mutableEntries: ShiftEntry[] = [];
-    if (!!shift.demand) {
-        try {
-            const demand = JSON.parse(shift.demand);
-            kShiftDemand.parse(demand);  // throws on invalid data
-
-            for (let id = 0; id < demand.length; ++id) {
-                mutableEntries.push({
-                    id: 1000 * team.id + id,
-                    start: demand[id].start,
-                    end: demand[id].end,
-                    group: team.id,
-                    volunteers: demand[id].volunteers,
-                });
-            }
-        } catch (error: any) {
-            console.error(`Ignoring stored shift demand data: ${error.message}`, shift.demand);
+            immutableGroups.push({
+                entries: toShiftEntries(demand, team.id),
+                metadata: toShiftGroup(team),
+            });
         }
     }
 
-    const mutableGroup: ShiftGroup = {
-        id: team.id,
-        label: {
-            singular: team.plural.replace(/s$/, ''),
-            plural: team.plural,
-        },
-        color: team.colour,
-    };
-
-
+    const mutableGroup = toShiftGroup(team);
+    const mutableEntries: ShiftEntry[] = [];
+    if (!!shift.demand)
+        mutableEntries.push(...toShiftEntries(shift.demand, team.id));
 
     return (
         <>
