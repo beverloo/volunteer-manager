@@ -131,6 +131,16 @@ export enum ScheduleType {
 }
 
 /**
+ * Degree of expected overlap for the scheduled demand of a shift.
+ * @see Table `shifts`
+ */
+export enum ShiftDemandOverlap {
+    None = 'None',
+    Partial = 'Partial',
+    Cover = 'Cover',
+}
+
+/**
  * Fit of a t-shirt that a volunteer has requested in a registration.
  * @see Table `users_events`
  * @see Table `vendors`

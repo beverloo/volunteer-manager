@@ -14,11 +14,11 @@ import Tooltip from '@mui/material/Tooltip';
  * The base shift excitement options that can be selected.
  */
 export const kExcitementOptions: ValueOptions[] = [
-    { value: 0.00, label: 'Really boring shifts' },
-    { value: 0.25, label: 'Boring shifts' },
-    { value: 0.50, label: 'Dull shifts' },
-    { value: 0.75, label: 'Nice shifts' },
-    { value: 1.00, label: 'Great shifts' },
+    { value: 0.00, id: 0.00, label: 'Really boring shifts' },
+    { value: 0.25, id: 0.25, label: 'Boring shifts' },
+    { value: 0.50, id: 0.50, label: 'Dull shifts' },
+    { value: 0.75, id: 0.75, label: 'Nice shifts' },
+    { value: 1.00, id: 1.00, label: 'Great shifts' },
 ];
 
 /**

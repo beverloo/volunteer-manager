@@ -3,14 +3,28 @@
 
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { FieldValues } from 'react-hook-form-mui';
-import Stack from '@mui/material/Stack';
+import type { ValueOptions } from '@mui/x-data-grid-pro';
+import Grid from '@mui/material/Unstable_Grid2';
+
+import { SelectElement, TextareaAutosizeElement } from 'react-hook-form-mui';
 
 import type { EventShiftContext, EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
 import { ShiftSettingsForm } from '../ShiftSettingsForm';
 import { callApi } from '@lib/callApi';
+
+import { kExcitementOptions } from '@app/admin/components/ExcitementIcon';
+
+/**
+ * Options available for expected shift overlap. Warnings will be based on this option.
+ */
+const kOverlapOptions: ValueOptions[] = [
+    { id: 'None', label: 'No overlap with timeslots is required' },
+    { id: 'Partial', label: 'All timeslots need partial coverage' },
+    { id: 'Cover', label: 'All timeslots need full coverage' },
+];
 
 /**
  * Props accepted by the <ShiftSettingsSection> component.
@@ -48,6 +62,11 @@ export interface ShiftSettingsSectionProps extends EventShiftContext {
  * eventually to volunteers.
  */
 export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
+    const { readOnly } = props;
+
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
+
+    const handleChange = useCallback(() => setInvalidated(true), [ /* no dependencies */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         const response = await callApi('put', '/api/admin/event/shifts/:id', {
             context: props.context,
@@ -58,7 +77,9 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
                 activityId: data.activityId,
                 categoryId: data.categoryId,
                 locationId: data.locationId,
-                excitement: 0,
+                description: data.fields.description,
+                demandOverlap: data.fields.overlap,
+                excitement: data.fields.excitement,
 
                 colour: '',  // ignored
                 category: '',  // ignored
@@ -69,16 +90,31 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
         if (!response.success)
             throw new Error(response.error ?? 'The shift could not be updated in the database.');
 
+        setInvalidated(false);
+
     }, [ props.context, props.shift ]);
 
     return (
         <>
-            <ShiftSettingsForm includeName onSubmit={handleSubmit} {...props}>
-                <Stack direction="column" spacing={2}>
-                    { /* TODO: Shift excitement */ }
-                    { /* TODO: Shift expected overlap */ }
-                    { /* TODO: Shift description */ }
-                </Stack>
+            <ShiftSettingsForm {...props} includeName invalidated={invalidated}
+                               onSubmit={handleSubmit}>
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                    <Grid xs={6}>
+                        <SelectElement name="excitement" label="Excitement level" fullWidth required
+                                       options={kExcitementOptions} size="small" type="number"
+                                       disabled={readOnly} onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={6}>
+                        <SelectElement name="overlap" label="Timeslot overlap" fullWidth required
+                                       options={kOverlapOptions} size="small" disabled={readOnly}
+                                       onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={12}>
+                        <TextareaAutosizeElement name="description" label="Description"
+                                                 size="small" fullWidth disabled={readOnly}
+                                                 onChange={handleChange} />
+                    </Grid>
+                </Grid>
             </ShiftSettingsForm>
         </>
     );

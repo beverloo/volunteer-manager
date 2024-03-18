@@ -3920,10 +3920,20 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: shift_description
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: shift_demand
     type: text
     nullable: true
     default: "NULL"
+    comment: ""
+  - name: shift_demand_overlap
+    type: enum('None','Partial','Cover')
+    nullable: false
+    default: "'Cover'"
     comment: ""
   - name: shift_excitement
     type: double
@@ -3995,7 +4005,9 @@ tables:
       `shift_name` varchar(64) NOT NULL,
       `shift_activity_id` int(8) unsigned DEFAULT NULL,
       `shift_location_id` int(8) unsigned DEFAULT NULL,
+      `shift_description` text DEFAULT NULL,
       `shift_demand` text DEFAULT NULL,
+      `shift_demand_overlap` enum('None','Partial','Cover') NOT NULL DEFAULT 'Cover',
       `shift_excitement` double NOT NULL,
       `shift_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`shift_id`),

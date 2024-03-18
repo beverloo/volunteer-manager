@@ -7,6 +7,7 @@ import { type FieldValues, FormContainer, TextFieldElement, SelectElement }
     from 'react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
+import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 
 import type { EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
@@ -45,6 +46,11 @@ export interface ShiftSettingsFormProps {
      * Whether the `name` field should be included for either type of shift.
      */
     includeName?: boolean;
+
+    /**
+     * Whether the form has been invalidated and the submit should be shown.
+     */
+    invalidated?: boolean;
 
     /**
      * Callback to be invoked when the form is being submitted. Submission is considered to be
@@ -90,10 +96,17 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
                     if (typeof data.activityId !== 'number' || !data.activityId)
                         throw new Error('Please pick an activity for the shift.');
 
+                    if (!!props.includeName) {
+                        if (typeof data.name !== 'string' || !data.name.length)
+                            throw new Error('Please give the shift a name.');
+                    }
+
                     await onSubmit({
                         categoryId: data.categoryId,
                         activityId: data.activityId,
                         name: !!props.includeName ? data.name : undefined,
+
+                        fields: data,
                     });
 
                     break;
@@ -109,6 +122,8 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
                         categoryId: data.categoryId,
                         locationId: data.locationId,
                         name: data.name,
+
+                        fields: data,
                     });
 
                     break;
@@ -124,13 +139,17 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
 
     return (
         <FormContainer defaultValues={{ ...shift, type }} onSuccess={handleSubmit}>
-            <Stack direction="column" spacing={2}>
-                <SelectElement name="categoryId" label="Category" options={props.categories}
-                               size="small" fullWidth required disabled={readOnly} />
-                <SelectElement name="type" label="Type of shift" options={kShiftTypeOptions}
-                               size="small" fullWidth onChange={handleChangeType}
-                               required disabled={readOnly}/>
-            </Stack>
+            <Grid container spacing={2}>
+                <Grid xs={12} md={6}>
+                    <SelectElement name="categoryId" label="Category" options={props.categories}
+                                   size="small" fullWidth required disabled={readOnly} />
+                </Grid>
+                <Grid xs={12} md={6}>
+                    <SelectElement name="type" label="Type of shift" options={kShiftTypeOptions}
+                                   size="small" fullWidth onChange={handleChangeType}
+                                   required disabled={readOnly}/>
+                </Grid>
+            </Grid>
             <Collapse in={type === 'program'}>
                 <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
                     <SelectElement name="activityId" label="Associated activity"
@@ -151,7 +170,8 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
                 </Stack>
             </Collapse>
             {props.children}
-            <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
+            <SubmitCollapse error={error} open={!!invalidated || !!props.invalidated}
+                            loading={loading} sx={{ mt: 2 }} />
         </FormContainer>
     );
 }

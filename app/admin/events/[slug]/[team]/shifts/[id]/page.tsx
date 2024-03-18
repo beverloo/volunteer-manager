@@ -97,8 +97,11 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             categoryId: tShiftsCategories.shiftCategoryId,
             categoryOrder: tShiftsCategories.shiftCategoryOrder,
             activityId: tShifts.shiftActivityId,
-            excitement: tShifts.shiftExcitement,
+            locationId: tShifts.shiftLocationId,
+            description: tShifts.shiftDescription,
             demand: tShifts.shiftDemand,
+            overlap: tShifts.shiftDemandOverlap,
+            excitement: tShifts.shiftExcitement,
         })
         .executeSelectNoneOrOne();
 

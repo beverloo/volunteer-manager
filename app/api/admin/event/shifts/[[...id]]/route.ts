@@ -13,6 +13,7 @@ import db, { tActivities, tEventsTeams, tEvents, tTeams, tShifts, tShiftsCategor
     from '@lib/database';
 
 import { kShiftDemand } from './demand';
+import { ShiftDemandOverlap } from '@lib/database/Types';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -79,9 +80,19 @@ const kEventShiftRowModel = z.object({
     locationId: z.number().optional(),
 
     /**
+     * Textual description of what the shift is about. May contain Markdown.
+     */
+    description: z.string().optional(),
+
+    /**
      * Demand that exists for this shift. Other fields will be ignored when provided.
      */
     demand: z.string().optional(),
+
+    /**
+     * Expected overlap between the shifts and any and all timeslots.
+     */
+    demandOverlap: z.nativeEnum(ShiftDemandOverlap).optional(),
 });
 
 /**
@@ -338,15 +349,21 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         if (!row.name || !row.name.length)
             return { success: false, error: 'Please give the shift a name.' };
 
+        if (!row.excitement || row.excitement < 0 || row.excitement > 1)
+            return { success: false, error: 'Please give the shift an excitement level.' };
+
+        if (!row.demandOverlap)
+            return { success: false, error: 'Please give the shift an expected timeslot overlap.' };
+
         const affectedRows = await db.update(tShifts)
             .set({
                 shiftCategoryId: row.categoryId,
                 shiftName: row.name,
                 shiftActivityId: row.activityId,
                 shiftLocationId: row.locationId,
-                // TODO: Excitement
-                // TODO: Expected overlap
-                // TODO: Description
+                shiftDescription: row.description,
+                shiftDemandOverlap: row.demandOverlap,
+                shiftExcitement: row.excitement,
             })
             .where(tShifts.shiftId.equals(row.id))
                 .and(tShifts.eventId.equals(event.id))
