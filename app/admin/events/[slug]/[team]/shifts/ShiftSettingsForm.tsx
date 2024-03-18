@@ -42,6 +42,11 @@ export interface ShiftSettingsFormProps {
     locations: { id: number; label: string }[];
 
     /**
+     * Whether the `name` field should be included for either type of shift.
+     */
+    includeName?: boolean;
+
+    /**
      * Callback to be invoked when the form is being submitted. Submission is considered to be
      * successful unless an exception is thrown. (I.e. the promise is rejected.)
      */
@@ -63,14 +68,16 @@ export interface ShiftSettingsFormProps {
  * both for creating new shifts, and managing existing shifts. The form may be displayed in read-
  * only mode in case a volunteer does not have permission to change the settings.
  */
-export function ShiftSettingsForm(props: ShiftSettingsFormProps) {
+export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFormProps>) {
     const { onSubmit, readOnly, shift } = props;
 
     const [ error, setError ] = useState<string | undefined>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    const [ type, setType ] = useState<'program' | 'initiative' | undefined>();
+    const [ type, setType ] = useState<'program' | 'initiative' | undefined>(
+        !!shift ? (!!shift.activityId ? 'program' : 'initiative')
+                : undefined);
 
     const handleChangeType = useCallback((value: 'program' | 'initiative') => setType(value), []);
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
@@ -80,12 +87,13 @@ export function ShiftSettingsForm(props: ShiftSettingsFormProps) {
         try {
             switch (data.type) {
                 case 'program':
-                    if (typeof data.activity !== 'number' || !data.activity)
+                    if (typeof data.activityId !== 'number' || !data.activityId)
                         throw new Error('Please pick an activity for the shift.');
 
                     await onSubmit({
-                        categoryId: data.category,
-                        activityId: data.activity,
+                        categoryId: data.categoryId,
+                        activityId: data.activityId,
+                        name: !!props.includeName ? data.name : undefined,
                     });
 
                     break;
@@ -94,12 +102,12 @@ export function ShiftSettingsForm(props: ShiftSettingsFormProps) {
                     if (typeof data.name !== 'string' || !data.name.length)
                         throw new Error('Please give the shift a name.');
 
-                    if (typeof data.location !== 'number' || !data.location)
+                    if (typeof data.locationId !== 'number' || !data.locationId)
                         throw new Error('Please give the shift a location.');
 
                     await onSubmit({
-                        categoryId: data.category,
-                        locationId: data.location,
+                        categoryId: data.categoryId,
+                        locationId: data.locationId,
                         name: data.name,
                     });
 
@@ -112,31 +120,37 @@ export function ShiftSettingsForm(props: ShiftSettingsFormProps) {
         } finally {
             setLoading(false);
         }
-    }, [ onSubmit ]);
+    }, [ onSubmit, props.includeName ]);
 
     return (
-        <FormContainer defaultValues={shift} onSuccess={handleSubmit}>
+        <FormContainer defaultValues={{ ...shift, type }} onSuccess={handleSubmit}>
             <Stack direction="column" spacing={2}>
-                <SelectElement name="category" label="Category" options={props.categories}
+                <SelectElement name="categoryId" label="Category" options={props.categories}
                                size="small" fullWidth required disabled={readOnly} />
                 <SelectElement name="type" label="Type of shift" options={kShiftTypeOptions}
                                size="small" fullWidth onChange={handleChangeType}
                                required disabled={readOnly}/>
             </Stack>
             <Collapse in={type === 'program'}>
-                <SelectElement name="activity" label="Activity" options={props.activities}
-                               size="small" fullWidth onChange={handleChange} sx={{ mt: 2 }}
-                               disabled={readOnly} />
+                <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
+                    <SelectElement name="activityId" label="Associated activity"
+                                   options={props.activities} size="small" fullWidth
+                                   onChange={handleChange} disabled={readOnly} />
+                    { !!props.includeName &&
+                        <TextFieldElement name="name" label="Shift name" fullWidth size="small"
+                                          onChange={handleChange} disabled={readOnly} /> }
+                </Stack>
             </Collapse>
             <Collapse in={type === 'initiative'}>
                 <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                    <TextFieldElement name="name" label="Name" fullWidth size="small"
+                    <TextFieldElement name="name" label="Shift name" fullWidth size="small"
                                       onChange={handleChange} disabled={readOnly} />
-                    <SelectElement name="location" label="Location" options={props.locations}
+                    <SelectElement name="locationId" label="Location" options={props.locations}
                                    size="small" fullWidth onChange={handleChange}
                                    disabled={readOnly} />
                 </Stack>
             </Collapse>
+            {props.children}
             <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
         </FormContainer>
     );

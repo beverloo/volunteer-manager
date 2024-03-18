@@ -322,7 +322,39 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
             return { success: !!affectedRows };
         }
 
-        return { success: false };
+        if (!row.categoryId)
+            return { success: false, error: 'Please give the shift a category.' };
+
+        if (!row.activityId && !row.locationId) {
+            return {
+                success: false,
+                error: 'Please give the shift either an activity or a location.'
+            };
+        }
+
+        if (!!row.activityId && !!row.locationId)
+            return { success: false, error: 'A shift cannot both have an activity and a location.' }
+
+        if (!row.name || !row.name.length)
+            return { success: false, error: 'Please give the shift a name.' };
+
+        const affectedRows = await db.update(tShifts)
+            .set({
+                shiftCategoryId: row.categoryId,
+                shiftName: row.name,
+                shiftActivityId: row.activityId,
+                shiftLocationId: row.locationId,
+                // TODO: Excitement
+                // TODO: Expected overlap
+                // TODO: Description
+            })
+            .where(tShifts.shiftId.equals(row.id))
+                .and(tShifts.eventId.equals(event.id))
+                .and(tShifts.teamId.equals(team.id))
+                .and(tShifts.shiftDeleted.isNull())
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async writeLog({ context, id }, mutation, props) {

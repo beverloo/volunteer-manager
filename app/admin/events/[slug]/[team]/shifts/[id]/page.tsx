@@ -10,11 +10,13 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftDemandSection } from './ShiftDemandSection';
+import { ShiftSettingsSection } from './ShiftSettingsSection';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
+import { getShiftMetadata } from '../getShiftMetadata';
 import { readSetting } from '@lib/Settings';
 import { readUserSetting } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tActivitiesTimeslots, tShifts, tTeams } from '@lib/database';
+import db, { tActivitiesTimeslots, tShifts, tShiftsCategories, tTeams } from '@lib/database';
 
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
 
@@ -79,7 +81,10 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
 
     // ---------------------------------------------------------------------------------------------
 
-    const shift = await db.selectFrom(tShifts)
+    const dbInstance = db;
+    const shift = await dbInstance.selectFrom(tShifts)
+        .innerJoin(tShiftsCategories)
+            .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
         .where(tShifts.shiftId.equals(parseInt(props.params.id)))
             .and(tShifts.eventId.equals(event.id))
             .and(tShifts.teamId.equals(team.id))
@@ -87,7 +92,12 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
         .select({
             id: tShifts.shiftId,
             name: tShifts.shiftName,
+            colour: dbInstance.const('-unused-', 'string'),
+            category: tShiftsCategories.shiftCategoryName,
+            categoryId: tShiftsCategories.shiftCategoryId,
+            categoryOrder: tShiftsCategories.shiftCategoryOrder,
             activityId: tShifts.shiftActivityId,
+            excitement: tShifts.shiftExcitement,
             demand: tShifts.shiftDemand,
         })
         .executeSelectNoneOrOne();
@@ -102,7 +112,6 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
 
     const immutableGroups: ShiftDemandTimelineGroup[] = [];
     if (!!shift.activityId) {
-        const dbInstance = db;
         const timeslots = await dbInstance.selectFrom(tActivitiesTimeslots)
             .where(tActivitiesTimeslots.activityId.equals(shift.activityId))
                 .and(tActivitiesTimeslots.timeslotDeleted.isNull())
@@ -162,12 +171,18 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     if (!!shift.demand)
         mutableEntries.push(...toShiftEntries(shift.demand, team.id));
 
+    const { activities, categories, locations } = await getShiftMetadata(event.festivalId);
+    const context = {
+        event: event.slug,
+        team: team.slug,
+    };
+
     return (
         <>
             <Section title={`${shift.name} shift`}>
-                <SectionIntroduction important>
-                    The shifts tool has not been implemented yet.
-                </SectionIntroduction>
+                <ShiftSettingsSection activities={activities} categories={categories}
+                                      context={context} locations={locations} readOnly={readOnly}
+                                      shift={shift} />
             </Section>
             <Section title="Volunteering demand">
                 <SectionIntroduction important={!mutableEntries.length}>

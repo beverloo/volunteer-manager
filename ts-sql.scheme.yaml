@@ -686,130 +686,6 @@ tables:
       `setting_value` text NOT NULL,
       UNIQUE KEY `setting_name` (`setting_name`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: shifts
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: shift_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: shift_category_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: shift_name
-    type: varchar(64)
-    nullable: false
-    default: null
-    comment: ""
-  - name: shift_activity_id
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_location_id
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_demand
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: shift_excitement
-    type: double
-    nullable: false
-    default: null
-    comment: ""
-  - name: shift_deleted
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: event_id
-    def: KEY event_id (event_id, team_id) USING BTREE
-    table: shifts
-    columns:
-    - event_id
-    - team_id
-    comment: ""
-  - name: shifts_team_id
-    def: KEY shifts_team_id (team_id) USING BTREE
-    table: shifts
-    columns:
-    - team_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (shift_id) USING BTREE
-    table: shifts
-    columns:
-    - shift_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (shift_id)
-    table: shifts
-    referencedTable: null
-    columns:
-    - shift_id
-    referencedColumns: []
-    comment: ""
-  - name: shifts_event_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-    table: shifts
-    referencedTable: events
-    columns:
-    - event_id
-    referencedColumns:
-    - event_id
-    comment: ""
-  - name: shifts_team_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
-    table: shifts
-    referencedTable: teams
-    columns:
-    - team_id
-    referencedColumns:
-    - team_id
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `shifts` (
-      `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `event_id` int(4) unsigned NOT NULL,
-      `team_id` int(4) unsigned NOT NULL,
-      `shift_category_id` int(8) unsigned NOT NULL,
-      `shift_name` varchar(64) NOT NULL,
-      `shift_activity_id` int(4) unsigned DEFAULT NULL,
-      `shift_location_id` varchar(32) DEFAULT NULL,
-      `shift_demand` text DEFAULT NULL,
-      `shift_excitement` double NOT NULL,
-      `shift_deleted` datetime DEFAULT NULL,
-      PRIMARY KEY (`shift_id`),
-      KEY `event_id` (`event_id`,`team_id`),
-      KEY `shifts_team_id` (`team_id`),
-      CONSTRAINT `shifts_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
-      CONSTRAINT `shifts_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: storage
   type: BASE TABLE
   comment: ""
@@ -4004,6 +3880,130 @@ tables:
       `task_invocation_time_ms` double DEFAULT NULL,
       PRIMARY KEY (`task_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: shifts
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: shift_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_category_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_name
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_activity_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_location_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_demand
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: shift_excitement
+    type: double
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id, team_id) USING BTREE
+    table: shifts
+    columns:
+    - event_id
+    - team_id
+    comment: ""
+  - name: shifts_team_id
+    def: KEY shifts_team_id (team_id) USING BTREE
+    table: shifts
+    columns:
+    - team_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (shift_id) USING BTREE
+    table: shifts
+    columns:
+    - shift_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (shift_id)
+    table: shifts
+    referencedTable: null
+    columns:
+    - shift_id
+    referencedColumns: []
+    comment: ""
+  - name: shifts_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: shifts
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: shifts_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: shifts
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `shifts` (
+      `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `shift_category_id` int(8) unsigned NOT NULL,
+      `shift_name` varchar(64) NOT NULL,
+      `shift_activity_id` int(8) unsigned DEFAULT NULL,
+      `shift_location_id` int(8) unsigned DEFAULT NULL,
+      `shift_demand` text DEFAULT NULL,
+      `shift_excitement` double NOT NULL,
+      `shift_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`shift_id`),
+      KEY `event_id` (`event_id`,`team_id`),
+      KEY `shifts_team_id` (`team_id`),
+      CONSTRAINT `shifts_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `shifts_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:
@@ -4084,26 +4084,6 @@ relations:
   - user_id
   parentCardinality: Exactly one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
-  virtual: false
-- table: shifts
-  columns:
-  - event_id
-  cardinality: Zero or more
-  parentTable: events
-  parentColumns:
-  - event_id
-  parentCardinality: Exactly one
-  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-  virtual: false
-- table: shifts
-  columns:
-  - team_id
-  cardinality: Zero or more
-  parentTable: teams
-  parentColumns:
-  - team_id
-  parentCardinality: Exactly one
-  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 - table: storage
   columns:
@@ -4204,6 +4184,26 @@ relations:
   - user_id
   parentCardinality: Exactly one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
+- table: shifts
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: shifts
+  columns:
+  - team_id
+  cardinality: Zero or more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 functions: []
 driver:
