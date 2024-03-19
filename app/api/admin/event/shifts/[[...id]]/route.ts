@@ -46,9 +46,14 @@ const kEventShiftRowModel = z.object({
     categoryOrder: z.number(),
 
     /**
-     * Number of hours that volunteers have been scheduled to work on this shift.
+     * Number of minutes that this shift has been expected to schedule.
      */
-    hours: z.number().optional(),
+    demandInMinutes: z.number().optional(),
+
+    /**
+     * Number of minutes that volunteers have been scheduled to work on this shift.
+     */
+    scheduledInMinutes: z.number().optional(),
 
     /**
      * Unique ID of the program activity with which this shift is associated.
@@ -281,8 +286,11 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                 case 'name':
                     mutation = lhs.name.localeCompare(rhs.name);
                     break;
-                case 'hours':
-                    mutation = lhs.scheduled.hours > rhs.scheduled.hours ? 1 : -1;
+                case 'demandInMinutes':
+                    mutation = lhs.demandInMinutes > rhs.demandInMinutes ? 1 : -1;
+                    break;
+                case 'scheduledInMinutes':
+                    mutation = lhs.scheduledInMinutes > rhs.scheduledInMinutes ? 1 : -1;
                     break;
             }
 
@@ -298,9 +306,11 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                 colour: shift.colour,
                 category: shift.category,
                 categoryOrder: 0,
-                hours: 0,
+                demandInMinutes: shift.demandInMinutes,
+                scheduledInMinutes: shift.scheduledInMinutes,
                 activityId: shift.activity?.id,
                 activityName: shift.activity?.name,
+                description: shift.description,
                 excitement: shift.excitement,
             })),
         };

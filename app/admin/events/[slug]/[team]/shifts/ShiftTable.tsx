@@ -6,6 +6,7 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PaletteIcon from '@mui/icons-material/Palette';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
@@ -83,7 +84,7 @@ export function ShiftTable(props: ShiftTableProps) {
             field: 'name',
             headerName: 'Shift',
             sortable: true,
-            flex: 2,
+            flex: 3,
 
             renderCell: params =>
                 <MuiLink component={Link} href={`./shifts/${params.row.id}`}>
@@ -91,10 +92,28 @@ export function ShiftTable(props: ShiftTableProps) {
                 </MuiLink>,
         },
         {
-            field: 'hours',
+            field: 'demandInMinutes',
+            headerName: 'Demand',
+            sortable: true,
+            flex: 2,
+
+            renderCell: params => {
+                if (!params.value) {
+                    return (
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            …
+                        </Typography>
+                    );
+                }
+
+                return <>{formatMinutes(params.value)} hours</>;
+            },
+        },
+        {
+            field: 'scheduledInMinutes',
             headerName: 'Scheduled',
             sortable: true,
-            flex: 1,
+            flex: 2,
 
             renderCell: params => {
                 if (!params.value) {
@@ -116,7 +135,7 @@ export function ShiftTable(props: ShiftTableProps) {
             align: 'center',
             width: 50,
 
-            renderHeader: params =>
+            renderHeader: () =>
                 <Tooltip title="Initiative or program?">
                     <NewReleasesIcon fontSize="small" color="primary" />
                 </Tooltip>,
@@ -141,6 +160,35 @@ export function ShiftTable(props: ShiftTableProps) {
             }
         },
         {
+            field: 'description',
+            headerAlign: 'center',
+            headerName: /* empty= */ '',
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Shift description written?">
+                    <DescriptionOutlinedIcon fontSize="small" color="primary" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (!!params.value && !!params.value.length) {
+                    return (
+                        <Tooltip title="Description has been written">
+                            <DescriptionOutlinedIcon fontSize="small" color="success" />
+                        </Tooltip>
+                    );
+                } else {
+                    return (
+                        <Tooltip title="Description is missing">
+                            <DescriptionOutlinedIcon fontSize="small" color="warning" />
+                        </Tooltip>
+                    );
+                }
+            },
+        },
+        {
             field: 'excitement',
             headerAlign: 'center',
             headerName: /* empty= */ '',
@@ -148,7 +196,7 @@ export function ShiftTable(props: ShiftTableProps) {
             align: 'center',
             width: 50,
 
-            renderHeader: params =>
+            renderHeader: () =>
                 <Tooltip title="Volunteer sentiment">
                     <SentimentSatisfiedAltIcon fontSize="small" color="primary" />
                 </Tooltip>,

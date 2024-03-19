@@ -1,8 +1,13 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { createColourInterpolator, type ColourInterpolator } from './createColourInterpolator';
-import db, { tActivities, tShifts, tShiftsCategories, tTeams } from '@lib/database';
+import db, { tActivities, tSchedule, tShifts, tShiftsCategories, tTeams, tUsersEvents }
+    from '@lib/database';
+
+import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
 
 /**
  * Information representing a shift.
@@ -46,20 +51,19 @@ interface Shift {
     };
 
     /**
-     * Number of hours that have been requested for this shifts & the number of individual shifts.
+     * Number of minutes that have been requested for this shifts.
      */
-    requested: {
-        hours: number;
-        shifts: number;
-    };
+    demandInMinutes: number;
 
     /**
-     * Number of hours that have been scheduled for this shifts & number of individual shifts.
+     * Number of hours that have been scheduled for this shifts.
      */
-    scheduled: {
-        hours: number;
-        shifts: number;
-    };
+    scheduledInMinutes: number;
+
+    /**
+     * Description that should be shared with volunteers regarding this shift.
+     */
+    description?: string;
 
     /**
      * Excitement level, between 0 and 1 inclusive, associated with this shift.
@@ -68,13 +72,46 @@ interface Shift {
 }
 
 /**
+ * Calculates the number of minutes of demand scheduled for this shift, based on the given `demand`,
+ * which must validate according to the `kShiftDemand` type.
+ */
+function calculateDemandMinutes(demand?: string): number {
+    if (!demand || demand.length < 4)
+        return 0;  // no demand has been defined
+
+    let totalMinutes = 0;
+    try {
+        const demandArray = JSON.parse(demand);
+        const normalizedDemandArray = kShiftDemand.parse(demandArray);
+
+        for (const { start, end, volunteers } of normalizedDemandArray) {
+            const startInstant = Temporal.Instant.from(start);
+            const endInstant = Temporal.Instant.from(end);
+
+            const difference = startInstant.until(endInstant, { largestUnit: 'minutes' });
+            totalMinutes += difference.minutes * volunteers;
+        }
+    } catch (error: any) {
+        console.error('Invalid demand value seen in a serialised shift.');
+    }
+
+    return totalMinutes;
+}
+
+/**
  * Reads the shifts for the given `eventId` from the database, and returns them as an array. Both
  * the shifts' order and colours will be resolved automatically.
  */
 export async function getShiftsForEvent(eventId: number, festivalId: number): Promise<Shift[]> {
     const activitiesJoin = tActivities.forUseInLeftJoin();
+    const scheduleJoin = tSchedule.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
-    const results = await db.selectFrom(tShifts)
+    const dbInstance = db;
+    const scheduleDurationMinuteFragment = dbInstance.fragmentWithType('int', 'required').sql`
+        TIMESTAMPDIFF(MINUTE, ${scheduleJoin.scheduleTimeStart}, ${scheduleJoin.scheduleTimeEnd})`;
+
+    const results = await dbInstance.selectFrom(tShifts)
         .innerJoin(tShiftsCategories)
             .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
         .innerJoin(tTeams)
@@ -83,6 +120,12 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
                 .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
                     .and(activitiesJoin.activityFestivalId.equalsIfValue(festivalId))
                     .and(activitiesJoin.activityDeleted.isNull())
+        .leftJoin(scheduleJoin)
+            .on(scheduleJoin.shiftId.equals(tShifts.shiftId))
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(scheduleJoin.userId))
+                .and(usersEventsJoin.eventId.equals(scheduleJoin.eventId))
+                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .where(tShifts.eventId.equals(eventId))
         .select({
             id: tShifts.shiftId,
@@ -100,10 +143,12 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
                 id: activitiesJoin.activityId,
                 name: activitiesJoin.activityTitle,
             },
-            // TODO: requested
-            // TODO: scheduled
+            demand: tShifts.shiftDemand,
+            scheduledInMinutes: dbInstance.sum(scheduleDurationMinuteFragment),
+            description: tShifts.shiftDescription,
             excitement: tShifts.shiftExcitement,
         })
+        .groupBy(tShifts.shiftId)
         .orderBy(tShiftsCategories.shiftCategoryOrder, 'asc')
             .orderBy(tShifts.shiftName, 'asc')
         .executeSelectMany();
@@ -163,8 +208,8 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
             ...shift,
             category: shift.category.name,
             colour: colourInterpolator(colourPosition),
-            requested: { hours: 0, shifts: 0 },
-            scheduled: { hours: 0, shifts: 0 },
+            demandInMinutes: calculateDemandMinutes(shift.demand),
+            scheduledInMinutes: shift.scheduledInMinutes ?? 0,
         };
     });
 }
