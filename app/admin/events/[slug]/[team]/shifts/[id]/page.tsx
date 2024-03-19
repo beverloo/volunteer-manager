@@ -1,12 +1,16 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+import { default as MuiLink } from '@mui/material/Link';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { ScheduledShiftsSection } from './ScheduledShiftsSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftDemandSection } from './ShiftDemandSection';
@@ -16,9 +20,10 @@ import { getShiftMetadata } from '../getShiftMetadata';
 import { readSetting } from '@lib/Settings';
 import { readUserSetting } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tActivitiesTimeslots, tShifts, tShiftsCategories, tTeams } from '@lib/database';
+import db, { tActivitiesTimeslots, tSchedule, tShifts, tShiftsCategories, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
+import { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Converts the given `demandString` to an array of `ShiftEntry` instances for the given `teamId`.
@@ -108,6 +113,8 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     if (!shift)
         notFound();
 
+    const shiftsForActivity: number[] = [ shift.id ];
+
     // ---------------------------------------------------------------------------------------------
     // Compose the information required for the Volunteering Demand section. This combines timeslots
     // sourced from the festival program, shifts from the `team`, and shifts from other teams.
@@ -149,6 +156,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                 .and(tShifts.teamId.notEquals(team.id))
                 .and(tShifts.shiftDeleted.isNull())
             .select({
+                id: tShifts.shiftId,
                 demand: tShifts.shiftDemand,
                 team: {
                     id: tTeams.teamId,
@@ -158,7 +166,9 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             })
             .executeSelectMany();
 
-        for (const { demand, team } of otherTeams) {
+        for (const { id, demand, team } of otherTeams) {
+            shiftsForActivity.push(id);
+
             if (!demand)
                 continue;
 
@@ -168,6 +178,54 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             });
         }
     }
+
+    // ---------------------------------------------------------------------------------------------
+    // Compose the information regarding volunteers who actually have been scheduled on this shift,
+    // again, across the different teams. The associated section will only be presented when at
+    // least one shift has been scheduled.
+    // ---------------------------------------------------------------------------------------------
+
+    const scheduledShifts = await dbInstance.selectFrom(tSchedule)
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tSchedule.userId))
+        .innerJoin(tUsersEvents)
+            .on(tUsersEvents.userId.equals(tSchedule.userId))
+                .and(tUsersEvents.eventId.equals(tSchedule.eventId))
+                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .where(tSchedule.shiftId.in(shiftsForActivity))
+        .select({
+            team: {
+                id: tTeams.teamId,
+                colour: tTeams.teamColourLightTheme,
+                plural: tTeams.teamPlural,
+            },
+            shifts: dbInstance.aggregateAsArray({
+                id: tSchedule.scheduleId,
+                start: tSchedule.scheduleTimeStart,
+                end: tSchedule.scheduleTimeEnd,
+                group: tTeams.teamId,
+                label: tUsers.name,
+                volunteers: dbInstance.const(1, 'int'),
+            }),
+        })
+        .groupBy(tTeams.teamId)
+        .executeSelectMany();
+
+    const scheduledShiftGroups: ShiftDemandTimelineGroup[] = [];
+    for (const { team, shifts } of scheduledShifts) {
+        scheduledShiftGroups.push({
+            entries: shifts.map(shift => ({
+                ...shift,
+                start: shift.start.toString({ timeZoneName: 'never' }),
+                end: shift.end.toString({ timeZoneName: 'never' }),
+            })),
+            metadata: toShiftGroup(team),
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     const mutableGroup = toShiftGroup(team);
     const mutableEntries: ShiftEntry[] = [];
@@ -202,6 +260,20 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                     The shifts tool has not been implemented yet.
                 </SectionIntroduction>
             </CollapsableSection>
+            { !!scheduledShiftGroups.length &&
+                <Section title="Volunteering schedule">
+                    { /* TODO: Make this section user collapsable, and remember the state */ }
+                    { /* TODO: Maybe hoist the "show other teams" checkbox to a separate box? */ }
+                    <SectionIntroduction>
+                        The following volunteers have been scheduled for this shift. This is for
+                        your information—use the{' '}
+                        <MuiLink component={Link} href="../schedule">
+                            Scheduling Tool
+                        </MuiLink>
+                        {' '}to make changes.
+                    </SectionIntroduction>
+                    <ScheduledShiftsSection event={event} groups={scheduledShiftGroups} />
+                </Section> }
         </>
     );
 }
