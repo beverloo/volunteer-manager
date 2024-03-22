@@ -3,12 +3,15 @@
 
 import { notFound } from 'next/navigation';
 
+import ScheduleIcon from '@mui/icons-material/Schedule';
+
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tHotelsPreferences, tRefunds, tRoles, tStorage, tTrainingsAssignments, tUsers, tUsersEvents }
-    from '@lib/database';
+import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
+    tTrainingsAssignments, tUsers, tUsersEvents } from '@lib/database';
 
 import { ApplicationAvailability } from './ApplicationAvailability';
 import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
@@ -19,6 +22,7 @@ import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
+import { VolunteerSchedule } from './VolunteerSchedule';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
@@ -35,6 +39,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
     const { user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const storageJoin = tStorage.forUseInLeftJoin();
+
+    // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
     const volunteer = await dbInstance.selectFrom(tUsersEvents)
@@ -85,9 +91,32 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!volunteer)
         notFound();
 
+    const contactAccess =
+        can(user, Privilege.EventVolunteerContactInfo) ||
+        can(user, Privilege.VolunteerAdministrator);
+
+    const contactInfo =
+        contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
+                      : undefined;
+
+    // ---------------------------------------------------------------------------------------------
+    // Schedule:
+    // ---------------------------------------------------------------------------------------------
+
+    const schedule: any[] = [];
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
+    // Availability preferences:
+    // ---------------------------------------------------------------------------------------------
+
     let publicEvents: EventTimeslotEntry[] = [];
     if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
         publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
+
+    // ---------------------------------------------------------------------------------------------
+    // Hotel preferences:
+    // ---------------------------------------------------------------------------------------------
 
     let hotelManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {
@@ -113,6 +142,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
         );
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Refund request:
+    // ---------------------------------------------------------------------------------------------
+
     let refundRequest: React.ReactNode = undefined;
     if (can(user, Privilege.Refunds)) {
         const refund = await db.selectFrom(tRefunds)
@@ -130,6 +163,10 @@ export default async function EventVolunteerPage(props: RouterParams) {
                                       volunteerUserId={volunteer.userId} />
         );
     }
+
+    // ---------------------------------------------------------------------------------------------
+    // Training preferences:
+    // ---------------------------------------------------------------------------------------------
 
     let trainingManagement: React.ReactNode = undefined;
     if (can(user, Privilege.EventTrainingManagement) && !!volunteer.isTrainingEligible) {
@@ -150,21 +187,19 @@ export default async function EventVolunteerPage(props: RouterParams) {
         );
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     const availabilityStep = await readSetting('availability-time-step-minutes');
-
-    const contactAccess =
-        can(user, Privilege.EventVolunteerContactInfo) ||
-        can(user, Privilege.VolunteerAdministrator);
-
-    const contactInfo =
-        contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
-                      : undefined;
 
     return (
         <>
             <VolunteerHeader event={event} team={team} volunteer={volunteer} user={user} />
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
+            { !!schedule.length &&
+                <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule">
+                    <VolunteerSchedule event={event} />
+                </ExpandableSection> }
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
                                      team={team.slug} volunteer={volunteer} />
