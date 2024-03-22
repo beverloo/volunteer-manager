@@ -60,6 +60,7 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
         },
         {
             field: 'type',
+            display: 'flex',
             headerName: '',
             align: 'center',
             editable: false,
@@ -104,7 +105,7 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
+                    <Typography component="span" variant="body2"
                                 sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                         {params.row.name}
                     </Typography>

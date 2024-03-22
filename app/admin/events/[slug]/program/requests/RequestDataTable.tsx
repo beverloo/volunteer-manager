@@ -134,7 +134,7 @@ export function RequestDataTable(props: RequestDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
+                    <Typography component="span" variant="body2"
                                 sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                         Unassigned
                     </Typography>
@@ -153,7 +153,7 @@ export function RequestDataTable(props: RequestDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                    <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
                         …
                     </Typography>
                 );
@@ -164,6 +164,7 @@ export function RequestDataTable(props: RequestDataTableProps) {
     for (const team of props.teams) {
         columns.push({
             field: `id_${team.id}`,
+            display: 'flex',
             headerAlign: 'center',
             editable: false,
             sortable: false,

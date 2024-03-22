@@ -108,6 +108,7 @@ export function EventList(props: EventListProps) {
     const columns: DataTableColumn<EventListEntry>[] = [
         {
             field: 'hidden',
+            display: 'flex',
             headerName: '',
             sortable: false,
             align: 'center',
@@ -147,6 +148,7 @@ export function EventList(props: EventListProps) {
         },
         {
             field: 'teams',
+            display: 'flex',
             headerName: 'Teams',
             sortable: false,
             flex: 2,

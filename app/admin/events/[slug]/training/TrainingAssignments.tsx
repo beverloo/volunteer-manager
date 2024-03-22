@@ -90,7 +90,8 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                     );
                 } else if (params.value === null) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             Skip the training
                         </Typography>
                     );
@@ -119,7 +120,8 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
                     );
                 } else if (params.value === null || params.value === 0) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             Skip the training
                         </Typography>
                     );

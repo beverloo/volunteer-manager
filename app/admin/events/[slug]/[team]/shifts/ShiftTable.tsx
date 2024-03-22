@@ -60,6 +60,7 @@ export function ShiftTable(props: ShiftTableProps) {
         ...deleteColumn,
         {
             field: 'colour',
+            display: 'flex',
             headerAlign: 'center',
             headerName: /* no header= */ '',
             sortable: false,
@@ -100,7 +101,8 @@ export function ShiftTable(props: ShiftTableProps) {
             renderCell: params => {
                 if (!params.value) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             …
                         </Typography>
                     );
@@ -118,7 +120,8 @@ export function ShiftTable(props: ShiftTableProps) {
             renderCell: params => {
                 if (!params.value) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             …
                         </Typography>
                     );
@@ -129,6 +132,7 @@ export function ShiftTable(props: ShiftTableProps) {
         },
         {
             field: 'activityId',
+            display: 'flex',
             headerAlign: 'center',
             headerName: /* empty= */ '',
             sortable: false,
@@ -161,6 +165,7 @@ export function ShiftTable(props: ShiftTableProps) {
         },
         {
             field: 'description',
+            display: 'flex',
             headerAlign: 'center',
             headerName: /* empty= */ '',
             sortable: false,
@@ -190,6 +195,7 @@ export function ShiftTable(props: ShiftTableProps) {
         },
         {
             field: 'excitement',
+            display: 'flex',
             headerAlign: 'center',
             headerName: /* empty= */ '',
             sortable: false,

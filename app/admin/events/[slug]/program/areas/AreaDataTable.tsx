@@ -40,6 +40,7 @@ export function AreaDataTable(context: AreaDataTableProps) {
         },
         {
             field: 'type',
+            display: 'flex',
             headerName: '',
             align: 'center',
             editable: false,
@@ -84,7 +85,7 @@ export function AreaDataTable(context: AreaDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
+                    <Typography component="span" variant="body2"
                                 sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                         {params.row.name}
                     </Typography>

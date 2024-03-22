@@ -63,6 +63,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
     const columns: DataTableColumn<VolunteerRowModel>[] = [
         {
             field: 'id',
+            display: 'flex',
             headerName: /* empty= */ '',
             sortable: false,
             width: 50,
@@ -74,6 +75,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
         {
             field: 'name',
+            display: 'flex',
             headerName: 'Name',
             sortable: true,
             flex: 1,
@@ -102,6 +104,7 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
         {
             field: 'teams',
+            display: 'flex',
             headerName: 'Teams',
             sortable: false,
             flex: 1,

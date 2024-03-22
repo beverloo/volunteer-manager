@@ -50,7 +50,8 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
                     default:
                         return (
-                            <Typography variant="body2" sx={{ color: 'action.active' }}>
+                            <Typography component="span" variant="body2"
+                                        sx={{ color: 'action.active' }}>
                                 {params.value}
                             </Typography>
                         );
@@ -144,7 +145,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
+                    <Typography component="span" variant="body2"
                                 sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                         Unassigned
                     </Typography>
@@ -163,7 +164,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                     return params.value;
 
                 return (
-                    <Typography variant="body2"
+                    <Typography component="span" variant="body2"
                                 sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                         …
                     </Typography>

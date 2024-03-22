@@ -46,6 +46,7 @@ export function LogsDataTable(props: LogsDataTableProps) {
     const columns: RemoteDataTableColumn<LogsRowModel>[] = [
         {
             field: 'severity',
+            display: 'flex',
             headerName: '',
             align: 'center',
             width: 50,

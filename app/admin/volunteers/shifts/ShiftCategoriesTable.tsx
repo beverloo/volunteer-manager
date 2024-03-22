@@ -69,6 +69,7 @@ export function ShiftCategoriesTable() {
         },
         {
             field: 'excitement',
+            display: 'flex',
             headerAlign: 'center',
             headerName: 'Default excitement',
             editable: true,
@@ -83,6 +84,7 @@ export function ShiftCategoriesTable() {
         },
         {
             field: 'colour',
+            display: 'flex',
             headerAlign: 'center',
             headerName: 'Colour',
             description: 'Colours that will be assigned to shifts',

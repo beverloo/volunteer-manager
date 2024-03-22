@@ -32,6 +32,7 @@ export function ProgramHistory(props: ProgramHistoryProps) {
     const columns: RemoteDataTableColumn<ProgramChangesRowModel>[] = [
         {
             field: 'severity',
+            display: 'flex',
             headerName: '',
             align: 'center',
             sortable: true,
@@ -96,7 +97,8 @@ export function ProgramHistory(props: ProgramHistoryProps) {
             renderCell: params => {
                 if (!params.value || !params.value.name) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             AnPlan
                         </Typography>
                     );

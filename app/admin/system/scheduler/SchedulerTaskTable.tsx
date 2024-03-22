@@ -29,6 +29,7 @@ export function SchedulerTaskTable() {
     const columns: RemoteDataTableColumn<SchedulerRowModel>[] = [
         {
             field: 'state',
+            display: 'flex',
             headerName: '',
             sortable: false,
             align: 'center',
@@ -69,6 +70,7 @@ export function SchedulerTaskTable() {
         },
         {
             field: 'date',
+            display: 'flex',
             headerName: 'Scheduled for…',
             sortable: false,
             flex: 1,
@@ -101,6 +103,7 @@ export function SchedulerTaskTable() {
         },
         {
             field: 'executionInterval',
+            display: 'flex',
             headerName: '',
             sortable: false,
             align: 'center',
@@ -131,7 +134,8 @@ export function SchedulerTaskTable() {
             renderCell: params => {
                 if (!params.value) {
                     return (
-                        <Typography sx={{ color: 'text.disabled' }} variant="body2">
+                        <Typography component="span" sx={{ color: 'text.disabled' }}
+                                    variant="body2">
                             n/a
                         </Typography>
                     );

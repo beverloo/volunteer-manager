@@ -82,7 +82,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
 
                 return (
                     <>
-                        <Typography variant="body2"
+                        <Typography component="span" variant="body2"
                                     sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
                             Unprovisioned
                         </Typography>
@@ -112,7 +112,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
                 }
 
                 return (
-                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                    <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
                         …
                     </Typography>
                 );
@@ -139,7 +139,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
                 }
 
                 return (
-                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                    <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
                         …
                     </Typography>
                 );
@@ -157,7 +157,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
 
                 return (
                     <Tooltip title={params.row.lastCheckInIp}>
-                        <Typography variant="body2">
+                        <Typography component="span" variant="body2">
                             { formatDuration(difference) }
                         </Typography>
                     </Tooltip>

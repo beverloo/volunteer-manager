@@ -84,6 +84,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
     const columns: DataTableColumn<ActivityDataTableEntry>[] = [
         {
             field: 'id',
+            display: 'flex',
             headerName: '',
             align: 'center',
             sortable: false,
@@ -120,6 +121,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         },
         {
             field: 'location',
+            display: 'flex',
             headerName: 'Location',
             flex: 1,
 
@@ -151,6 +153,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         },
         {
             field: 'helpRequested',
+            display: 'flex',
             headerName: '',
             align: 'center',
             sortable: true,
@@ -180,6 +183,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         },
         {
             field: 'visible',
+            display: 'flex',
             headerName: '',
             align: 'center',
             sortable: true,

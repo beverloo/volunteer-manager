@@ -28,6 +28,7 @@ export function Roles() {
         },
         {
             field: 'roleBadge',
+            display: 'flex',
             headerName: 'Badge',
             editable: true,
             sortable: false,

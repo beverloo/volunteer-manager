@@ -68,14 +68,15 @@ export function ExportTable() {
                 const value = Temporal.ZonedDateTime.from(params.value);
                 if (Temporal.ZonedDateTime.compare(now, value) >= 0) {
                     return (
-                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             expired
                         </Typography>
                     );
                 } else {
                     return (
                         <Tooltip title={formatDate(value, 'YYYY-MM-DD [at] HH:mm:ss')}>
-                            <Typography variant="body2">
+                            <Typography component="span" variant="body2">
                                 { formatDuration(now.until(value)) }
                             </Typography>
                         </Tooltip>
@@ -90,7 +91,7 @@ export function ExportTable() {
             flex: 1,
 
             renderCell: params =>
-                <Typography variant="body2">
+                <Typography component="span" variant="body2">
                     {params.row.views}{' '}
                     <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
                         / {params.value}

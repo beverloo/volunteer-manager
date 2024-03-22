@@ -228,12 +228,14 @@ export function RemoteDataTable<
                 continue;
             }
 
-            let align: GridAlignment | undefined = column.align;
-            let headerAlign: GridAlignment | undefined = column.headerAlign;
+            let align = column.align;
+            let display = column.display;
+            let headerAlign = column.headerAlign;
 
             let renderCell: GridColDef['renderCell'] = column.renderCell;
             if (enableDelete) {
                 align = 'center';
+                display = 'flex';
                 renderCell = (params: GridRenderCellParams) => {
                     if (column.isProtected && column.isProtected(params)) {
                         return (
@@ -271,6 +273,7 @@ export function RemoteDataTable<
             columns.push({
                 ...column,
                 align,
+                display,
                 headerAlign,
                 renderCell,
                 renderHeader,

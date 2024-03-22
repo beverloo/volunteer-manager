@@ -24,6 +24,7 @@ export function OutboxDataTable() {
     const columns: RemoteDataTableColumn<OutboxRowModel>[] = [
         {
             field: 'id',
+            display: 'flex',
             headerName: '',
             sortable: false,
             width: 50,
@@ -90,6 +91,7 @@ export function OutboxDataTable() {
         },
         {
             field: 'delivered',
+            display: 'flex',
             headerName: 'Accepted',
             headerAlign: 'center',
             align: 'center',
