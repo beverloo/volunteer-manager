@@ -81,7 +81,7 @@ export function EventDeadlines(props: EventDeadlinesProps) {
                             </Typography>
                             { !!deadline.owner &&
                                 <Typography variant="caption" sx={{ fontStyle: 'italic' }}>
-                                    Assigned to {deadline.owner}.
+                                    Assigned to {deadline.owner}
                                 </Typography> }
                         </AccordionDetails>
                     </Accordion>
