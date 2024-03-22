@@ -3,7 +3,7 @@
 
 'use client';
 
-import { LicenseInfo } from '@mui/x-license-pro';
+import { LicenseInfo } from '@mui/x-license';
 
 /**
  * Install the MUI License key. The key itself is specified as an environment variable. When no key

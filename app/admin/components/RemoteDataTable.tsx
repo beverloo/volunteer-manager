@@ -478,7 +478,8 @@ export function RemoteDataTable<
                          sortModel={ enableReorder ? undefined : sortModel }
                          onSortModelChange={ enableReorder ? undefined : handleSortModelChange }
 
-                         autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
+                         initialState={{ density: 'compact' }}
+                         autoHeight disableColumnMenu hideFooterSelectedRowCount
                          loading={loading} hideFooter={!!props.disableFooter} />
 
             <Dialog open={!!deleteCandidate} onClose={resetDeleteCandidate}>

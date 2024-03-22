@@ -64,10 +64,10 @@ export function EventDeadlinesTable(props: EventDeadlinesTableProps) {
             width: 125,
 
             type: 'date',
-            valueGetter: params => new Date(params.row.date),
-            valueSetter: params => ({
-                ...params.row,
-                date: toDateString(params.value),
+            valueGetter: (value, row) => new Date(row.date),
+            valueSetter: (value, row) => ({
+                ...row,
+                date: toDateString(value),
             }),
 
             renderCell: params => params.row.date,

@@ -3,8 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import type { ValueOptions } from '@mui/x-data-grid-pro';
-
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
 import { Privilege } from '@lib/auth/Privileges';

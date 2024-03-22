@@ -62,10 +62,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             sortable: true,
             flex: 2,
 
-            valueGetter: params => toLocalDate(Temporal.ZonedDateTime.from(params.row.start)),
-            valueSetter: params => ({
-                ...params.row,
-                start: fromLocalDate(params.value).toString(),
+            valueGetter: (value, row) => toLocalDate(Temporal.ZonedDateTime.from(row.start)),
+            valueSetter: (value, row) => ({
+                ...row,
+                start: fromLocalDate(value).toString(),
             }),
 
             renderCell: params =>
@@ -81,10 +81,10 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
             sortable: true,
             flex: 2,
 
-            valueGetter: params => toLocalDate(Temporal.ZonedDateTime.from(params.row.end)),
-            valueSetter: params => ({
-                ...params.row,
-                end: fromLocalDate(params.value).toString(),
+            valueGetter: (value, row) => toLocalDate(Temporal.ZonedDateTime.from(row.end)),
+            valueSetter: (value, row) => ({
+                ...row,
+                end: fromLocalDate(value).toString(),
             }),
 
             renderCell: params =>

@@ -143,7 +143,8 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
 
                      slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
 
-                     autoHeight density="compact" disableColumnMenu hideFooterSelectedRowCount
+                     initialState={{ density: 'compact' }}
+                     autoHeight disableColumnMenu hideFooterSelectedRowCount
                      hideFooter={!!props.disableFooter} />
     );
 }

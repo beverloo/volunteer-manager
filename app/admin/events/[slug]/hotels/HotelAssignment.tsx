@@ -197,10 +197,10 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             width: 110,
 
             type: 'date',
-            valueGetter: params => new Date(params.row.checkIn),
-            valueSetter: params => ({
-                ...params.row,
-                checkIn: toDateString(params.value),
+            valueGetter: (value, row) => new Date(row.checkIn),
+            valueSetter: (value, row) => ({
+                ...row,
+                checkIn: toDateString(value),
             }),
 
             renderCell: params => params.row.checkIn,
@@ -213,10 +213,10 @@ export function HotelAssignment(props: HotelAssignmentProps) {
             width: 110,
 
             type: 'date',
-            valueGetter: params => new Date(params.row.checkOut),
-            valueSetter: params => ({
-                ...params.row,
-                checkOut: toDateString(params.value),
+            valueGetter: (value, row) => new Date(row.checkOut),
+            valueSetter: (value, row) => ({
+                ...row,
+                checkOut: toDateString(value),
             }),
 
             renderCell: params => params.row.checkOut,
