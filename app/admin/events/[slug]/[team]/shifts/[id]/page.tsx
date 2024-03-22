@@ -10,11 +10,13 @@ import type { NextRouterParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
 import { ScheduledShiftsSection } from './ScheduledShiftsSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftDemandSection } from './ShiftDemandSection';
 import { ShiftSettingsSection } from './ShiftSettingsSection';
+import { ShiftTeamVisibilityContext } from './ShiftTeamVisibilityContext';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { getShiftMetadata } from '../getShiftMetadata';
 import { readSetting } from '@lib/Settings';
@@ -23,7 +25,6 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tActivitiesTimeslots, tSchedule, tShifts, tShiftsCategories, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
-import { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Converts the given `demandString` to an array of `ShiftEntry` instances for the given `teamId`.
@@ -81,7 +82,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     const warnings: any[] = [ ];
 
     const step = await readSetting('schedule-time-step-minutes');
-    const localGroupOnly = await readUserSetting(
+    const includeAllTeams = await readUserSetting(
         user.userId, 'user-admin-schedule-display-other-teams');
 
     // ---------------------------------------------------------------------------------------------
@@ -245,35 +246,36 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                                       context={context} locations={locations} readOnly={readOnly}
                                       shift={shift} />
             </Section>
-            <Section title="Volunteering demand">
-                <SectionIntroduction important={!mutableEntries.length}>
-                    Indicate what the agreed volunteering demand for this shift is: how many people
-                    are expected to be scheduled on this shift, and when.
-                </SectionIntroduction>
-                <ShiftDemandSection event={event} team={team} immutableGroups={immutableGroups}
-                                    mutableGroup={mutableGroup} mutableEntries={mutableEntries}
-                                    readOnly={readOnly} shiftId={shift.id} step={step}
-                                    localGroupOnly={localGroupOnly} />
-            </Section>
-            <CollapsableSection in={!!warnings.length} title="Shift warnings">
-                <SectionIntroduction important>
-                    The shifts tool has not been implemented yet.
-                </SectionIntroduction>
-            </CollapsableSection>
-            { !!scheduledShiftGroups.length &&
-                <Section title="Volunteering schedule">
-                    { /* TODO: Make this section user collapsable, and remember the state */ }
-                    { /* TODO: Maybe hoist the "show other teams" checkbox to a separate box? */ }
-                    <SectionIntroduction>
-                        The following volunteers have been scheduled for this shift. This is for
-                        your information—use the{' '}
-                        <MuiLink component={Link} href="../schedule">
-                            Scheduling Tool
-                        </MuiLink>
-                        {' '}to make changes.
+            <ShiftTeamVisibilityContext includeAllTeams={includeAllTeams}>
+                <Section title="Volunteering demand">
+                    <SectionIntroduction important={!mutableEntries.length}>
+                        Indicate what the agreed volunteering demand for this shift is: how many
+                        people are expected to be scheduled on this shift, and when.
                     </SectionIntroduction>
-                    <ScheduledShiftsSection event={event} groups={scheduledShiftGroups} />
-                </Section> }
+                    <ShiftDemandSection event={event} team={team} immutableGroups={immutableGroups}
+                                        mutableGroup={mutableGroup} mutableEntries={mutableEntries}
+                                        readOnly={readOnly} shiftId={shift.id} step={step} />
+                </Section>
+                <CollapsableSection in={!!warnings.length} title="Shift warnings">
+                    <SectionIntroduction important>
+                        The shifts tool has not been implemented yet.
+                    </SectionIntroduction>
+                </CollapsableSection>
+                { !!scheduledShiftGroups.length &&
+                    <Section title="Volunteering schedule">
+                        { /* TODO: Make this section user collapsable, and remember the state */ }
+                        <SectionIntroduction>
+                            The following volunteers have been scheduled for this shift. This is for
+                            your information—use the{' '}
+                            <MuiLink component={Link} href="../schedule">
+                                Scheduling Tool
+                            </MuiLink>
+                            {' '}to make changes.
+                        </SectionIntroduction>
+                        <ScheduledShiftsSection event={event} groups={scheduledShiftGroups}
+                                                teamId={team.id} />
+                    </Section> }
+            </ShiftTeamVisibilityContext>
         </>
     );
 }

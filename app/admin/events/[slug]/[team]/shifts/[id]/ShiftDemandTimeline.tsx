@@ -4,13 +4,14 @@
 'use client';
 
 import { SelectElement } from 'react-hook-form-mui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
 import { Temporal } from '@lib/Temporal';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
+import { VisibilityContext } from './ShiftTeamVisibilityContext';
 
 import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
@@ -51,12 +52,6 @@ export interface ShiftDemandTimelineProps {
      * Groups of information that should be shown on the timeline in an immutable fashion.
      */
     immutableGroups: ShiftDemandTimelineGroup[];
-
-    /**
-     * Whether demand from groups other than `mutableGroup` and the `timeline` group should be
-     * removed from view. They should still be passed on to this component.
-     */
-    localGroupOnly?: boolean;
 
     /**
      * Group of information that should be shown on the timeline in a mutable fashion.
@@ -100,6 +95,8 @@ export interface ShiftDemandTimelineProps {
  */
 export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
     const { min, max, readOnly, step, timezone } = props;
+
+    const includeAllTeams = useContext(VisibilityContext);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -166,13 +163,13 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
     const immutableEntries: ShiftEntry[] = useMemo(() => {
         const immutableEntries: ShiftEntry[] = [];
         for (const group of props.immutableGroups) {
-            if (!props.localGroupOnly && group.metadata.id !== 'timeslot')
+            if (!includeAllTeams && group.metadata.id !== 'timeslot')
                 continue;  // ignore the group
 
             immutableEntries.push(...group.entries);
         }
         return immutableEntries;
-    }, [ props.immutableGroups, props.localGroupOnly ]);
+    }, [ props.immutableGroups, includeAllTeams ]);
 
     for (const group of props.immutableGroups)
         groups.push(group.metadata);

@@ -3,12 +3,10 @@
 
 'use client';
 
-import { FormContainer, CheckboxElement } from 'react-hook-form-mui';
-import { useCallback, useEffect, useState } from 'react';
+import { FormContainer } from 'react-hook-form-mui';
+import { useCallback, useState } from 'react';
 
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Stack from '@mui/material/Stack';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
@@ -16,7 +14,6 @@ import { ShiftDemandTimeline } from './ShiftDemandTimeline';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import { ContrastBox } from '@app/admin/components/ContrastBox';
 
 /**
  * Props accepted by the <ShiftDemandSection> component.
@@ -31,12 +28,6 @@ export interface ShiftDemandSectionProps {
      * Groups of information that should be shown on the timeline in an immutable fashion.
      */
     immutableGroups: ShiftDemandTimelineGroup[];
-
-    /**
-     * Whether demand from groups other than `mutableGroup` and the `timeline` group should be
-     * removed from view. They should still be passed on to this component.
-     */
-    localGroupOnly?: boolean;
 
     /**
      * Group of information that should be shown on the timeline in a mutable fashion.
@@ -140,26 +131,6 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
     }, [ entries, event, props.shiftId, team ]);
 
     // ---------------------------------------------------------------------------------------------
-    // Section: Control of the "demand from other teams" option
-    // ---------------------------------------------------------------------------------------------
-
-    const [ localGroupOnly, setLocalGroupOnly ] = useState<boolean>(!!props.localGroupOnly);
-
-    const [ demandChangeLoading, setDemandChangeLoading ] = useState<boolean>(false);
-
-    const handleDemandChange = useCallback(async (event: unknown, checked: boolean) => {
-        setDemandChangeLoading(true);
-        setLocalGroupOnly(checked);
-        try {
-            await callApi('post', '/api/auth/settings', {
-                adminScheduleDisplayOtherTeams: checked,
-            });
-        } finally {
-            setDemandChangeLoading(false);
-        }
-    }, [ /* no dependencies */ ]);
-
-    // ---------------------------------------------------------------------------------------------
 
     const min = Temporal.ZonedDateTime.from(event.startTime)
         .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
@@ -170,20 +141,13 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
             .toString({ timeZoneName: 'never' });
 
     return (
-        <FormContainer defaultValues={{ demand: !!props.localGroupOnly }} onSuccess={handleSubmit}>
+        <FormContainer onSuccess={handleSubmit}>
             <Box>
                 <ShiftDemandTimeline min={min} max={max} readOnly={readOnly} step={step}
                                      timezone={event.timezone} immutableGroups={immutableGroups}
                                      mutableGroup={mutableGroup} mutableEntries={entries}
-                                     localGroupOnly={!!localGroupOnly} onChange={handleChange} />
+                                     onChange={handleChange} />
             </Box>
-            <ContrastBox sx={{ mt: 2, px: 2, py: 1 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <CheckboxElement name="demand" label="Show demand planned by the other teams"
-                                     size="small" onChange={handleDemandChange} />
-                    { demandChangeLoading && <CircularProgress size={24} /> }
-                </Stack>
-            </ContrastBox>
             <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
         </FormContainer>
     );

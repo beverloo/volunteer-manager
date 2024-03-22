@@ -3,11 +3,12 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { ShiftDemandTimelineGroup } from './ShiftDemandTimeline';
 import { Temporal } from '@lib/Temporal';
+import { VisibilityContext } from './ShiftTeamVisibilityContext';
 
 import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
@@ -25,6 +26,11 @@ export interface ScheduledShiftsSectionProps {
      * The groups (read: teams) for whom shifts have been scheduled.
      */
     groups: ShiftDemandTimelineGroup[];
+
+    /**
+     * Unique ID of the team for whom the page primarily is being shown.
+     */
+    teamId: number;
 }
 
 /**
@@ -34,18 +40,24 @@ export interface ScheduledShiftsSectionProps {
 export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
     const { event } = props;
 
+    const includeAllTeams = useContext(VisibilityContext);
+
     const [ immutableEntries, groups ] = useMemo(() => {
         const immutableEntries: ShiftEntry[] = [];
         const groups: ShiftGroup[] = [];
 
         for (const { entries, metadata } of props.groups) {
             groups.push(metadata);
+
+            if (!includeAllTeams && metadata.id !== props.teamId)
+                continue;
+
             immutableEntries.push(...entries);
         }
 
         return [ immutableEntries, groups ];
 
-    }, [ props.groups ]);
+    }, [ includeAllTeams, props.groups, props.teamId ]);
 
     const min = Temporal.ZonedDateTime.from(event.startTime)
         .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
