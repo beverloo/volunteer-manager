@@ -42,6 +42,15 @@ let globalAdminTheme: Theme | undefined;
 export function createAdminTheme(mode: PaletteMode): Theme {
     if (!globalAdminTheme || globalAdminTheme.palette.mode !== mode) {
         globalAdminTheme = createTheme(deepmerge(kThemePaletteModeMixins[mode], {
+            components: {
+                MuiDataGrid: {
+                    styleOverrides: {
+                        root: {
+                            '--DataGrid-containerBackground': 'transparent',
+                        }
+                    },
+                },
+            },
             palette: {
                 mode,
 
