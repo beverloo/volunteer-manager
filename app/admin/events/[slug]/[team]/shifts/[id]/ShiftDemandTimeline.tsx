@@ -73,8 +73,8 @@ export interface ShiftDemandTimelineProps {
 }
 
 /**
- * The <ShiftDemandTimeline> component implements the <ShiftTimeline> component provided by our
- * calendar library, with additional user interface expected by the Volunteer Manager.
+ * The <ShiftDemandTimeline> component implements the <Timeline> component provided by our calendar
+ * library, with additional user interface expected by the Volunteer Manager.
  */
 export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
     const { onChange, event, readOnly, step, team } = props;
@@ -147,6 +147,7 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
                 ];
             }
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ includeAllTeams ]);
 
     // ---------------------------------------------------------------------------------------------
