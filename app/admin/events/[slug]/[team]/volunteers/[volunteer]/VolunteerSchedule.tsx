@@ -3,11 +3,11 @@
 
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { Temporal } from '@lib/Temporal';
-
-import { ShiftTimeline } from '@beverloo/volunteer-manager-timeline';
-import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
+import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 
 /**
  * Props accepted by the <VolunteerSchedule> component.
@@ -17,6 +17,11 @@ export interface VolunteerScheduleProps {
      * Information about the event this volunteer will participate in.
      */
     event: PageInfo['event'];
+
+    /**
+     * The schedule that should be displayed for this volunteer. It's immutable.
+     */
+    schedule: TimelineEvent[];
 }
 
 /**
@@ -24,7 +29,9 @@ export interface VolunteerScheduleProps {
  * which displays all their (un)availability and shifts in a concise manner.
  */
 export function VolunteerSchedule(props: VolunteerScheduleProps) {
-    const { event } = props;
+    const { event, schedule } = props;
+
+    const router = useRouter();
 
     const min = Temporal.ZonedDateTime.from(event.startTime)
         .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
@@ -34,8 +41,16 @@ export function VolunteerSchedule(props: VolunteerScheduleProps) {
         .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 })
             .toString({ timeZoneName: 'never' });
 
+    async function handleDoubleClick(event: TimelineEvent): Promise<undefined> {
+        if (!event.animeConShiftId || !event.animeConShiftTeam)
+            return;
+
+        router.push(`../../${event.animeConShiftTeam}/shifts/${event.animeConShiftId}`);
+        return undefined;
+    }
+
     return (
-        <ShiftTimeline temporal={Temporal} min={min} max={max} defaultGroup={0} readOnly
-                       groups={[]} immutableEntries={[]} />
+        <Timeline min={min} max={max} displayTimezone={event.timezone} events={schedule}
+                  onDoubleClick={handleDoubleClick} dense disableGutters readOnly />
     );
 }

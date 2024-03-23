@@ -95,6 +95,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
     const columns: DataTableColumn<VolunteerInfo>[] = [
         {
             field: 'id',
+            display: 'flex',
             headerName: '',
             sortable: false,
             width: 50,
@@ -106,6 +107,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
         },
         {
             field: 'name',
+            display: 'flex',
             headerName: 'Name',
             sortable: false,
             flex: 1,
@@ -146,6 +148,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
         },
         {
             field: 'status',
+            display: 'flex',
             headerName: 'Status',
             sortable: false,
             flex: 1,

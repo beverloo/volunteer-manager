@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
@@ -26,6 +27,7 @@ import { VolunteerSchedule } from './VolunteerSchedule';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
@@ -103,8 +105,43 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // Schedule:
     // ---------------------------------------------------------------------------------------------
 
-    const schedule: any[] = [];
-    // TODO
+    const schedule: TimelineEvent[] = [];
+    const scheduledShifts = await dbInstance.selectFrom(tSchedule)
+        .innerJoin(tShifts)
+            .on(tShifts.shiftId.equals(tSchedule.shiftId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tShifts.teamId))
+        .where(tSchedule.eventId.equals(event.id))
+            .and(tSchedule.userId.equals(volunteer.userId))
+        .select({
+            id: tSchedule.scheduleId,
+            start: tSchedule.scheduleTimeStart,
+            end: tSchedule.scheduleTimeEnd,
+            title: tShifts.shiftName,
+
+            shiftId: tSchedule.shiftId,
+            shiftTeam: tTeams.teamEnvironment,
+        })
+        .executeSelectMany();
+
+    if (!!scheduledShifts.length && !!event.festivalId) {
+        const shifts = await getShiftsForEvent(event.id, event.festivalId);
+        const shiftMap = new Map(shifts.map(shift => ([ shift.id, shift.colour ])));
+
+        for (const scheduledShift of scheduledShifts) {
+            schedule.push({
+                id: scheduledShift.id,
+                start: scheduledShift.start.toString({ timeZoneName: 'never' }),
+                end: scheduledShift.end.toString({ timeZoneName: 'never' }),
+                color: shiftMap.get(scheduledShift.shiftId!),
+                title: scheduledShift.title,
+
+                // Private data to enable double clicking on shift entries:
+                animeConShiftId: scheduledShift.shiftId!,
+                animeConShiftTeam: scheduledShift.shiftTeam,
+            });
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Availability preferences:
@@ -190,6 +227,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     const availabilityStep = await readSetting('availability-time-step-minutes');
+    const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
     return (
         <>
@@ -197,8 +235,9 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             { !!schedule.length &&
-                <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule">
-                    <VolunteerSchedule event={event} />
+                <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
+                                   subtitle={scheduleSubTitle}>
+                    <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
