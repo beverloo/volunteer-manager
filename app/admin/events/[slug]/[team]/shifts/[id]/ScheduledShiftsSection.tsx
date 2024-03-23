@@ -4,14 +4,12 @@
 'use client';
 
 import { useContext, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { ShiftDemandTimelineGroup } from './ShiftDemandTimeline';
 import { Temporal } from '@lib/Temporal';
+import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 import { VisibilityContext } from './ShiftTeamVisibilityContext';
-
-import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
-import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
 /**
  * Props accepted by the <ScheduledShiftsSection> component.
@@ -23,9 +21,9 @@ export interface ScheduledShiftsSectionProps {
     event: PageInfo['event'];
 
     /**
-     * The groups (read: teams) for whom shifts have been scheduled.
+     * The individual shifts that have been scheduled so far.
      */
-    groups: ShiftDemandTimelineGroup[];
+    shifts: TimelineEvent[];
 
     /**
      * Unique ID of the team for whom the page primarily is being shown.
@@ -41,23 +39,10 @@ export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
     const { event } = props;
 
     const includeAllTeams = useContext(VisibilityContext);
+    const shifts = useMemo(() => props.shifts.filter(shift => {
+        return includeAllTeams || shift.animeConTeamId === props.teamId;
 
-    const [ immutableEntries, groups ] = useMemo(() => {
-        const immutableEntries: ShiftEntry[] = [];
-        const groups: ShiftGroup[] = [];
-
-        for (const { entries, metadata } of props.groups) {
-            groups.push(metadata);
-
-            if (!includeAllTeams && metadata.id !== props.teamId)
-                continue;
-
-            immutableEntries.push(...entries);
-        }
-
-        return [ immutableEntries, groups ];
-
-    }, [ includeAllTeams, props.groups, props.teamId ]);
+    }), [ includeAllTeams, props.shifts, props.teamId ]);
 
     const min = Temporal.ZonedDateTime.from(event.startTime)
         .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
@@ -67,9 +52,18 @@ export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
         .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 })
             .toString({ timeZoneName: 'never' });
 
+    const router = useRouter();
+
+    async function handleDoubleClick(event: TimelineEvent): Promise<undefined> {
+        if (!event.animeConTeam || !event.animeConUserId)
+            return;
+
+        router.push(`../../${event.animeConTeam}/volunteers/${event.animeConUserId}`);
+        return undefined;
+    }
+
     return (
-        <ShiftTimeline temporal={Temporal} min={min} max={max} dataTimezone="utc" readOnly
-                       displayTimezone={event.timezone} defaultGroup={/* invalid= */ 0}
-                       groups={groups} immutableEntries={immutableEntries} mutableEntries={[]} />
+        <Timeline min={min} max={max} displayTimezone={event.timezone} events={shifts}
+                  onDoubleClick={handleDoubleClick} dense disableGutters readOnly />
     );
 }

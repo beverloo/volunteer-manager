@@ -8,6 +8,7 @@ import { default as MuiLink } from '@mui/material/Link';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
+import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
@@ -186,6 +187,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     // least one shift has been scheduled.
     // ---------------------------------------------------------------------------------------------
 
+    const scheduled: TimelineEvent[] = [];
     const scheduledShifts = await dbInstance.selectFrom(tSchedule)
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tSchedule.userId))
@@ -197,32 +199,24 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .where(tSchedule.shiftId.in(shiftsForActivity))
         .select({
-            team: {
-                id: tTeams.teamId,
-                colour: tTeams.teamColourLightTheme,
-                plural: tTeams.teamPlural,
-            },
-            shifts: dbInstance.aggregateAsArray({
-                id: tSchedule.scheduleId,
-                start: tSchedule.scheduleTimeStart,
-                end: tSchedule.scheduleTimeEnd,
-                group: tTeams.teamId,
-                label: tUsers.name,
-                volunteers: dbInstance.const(1, 'int'),
-            }),
+            id: tSchedule.scheduleId,
+            start: tSchedule.scheduleTimeStart,
+            end: tSchedule.scheduleTimeEnd,
+            color: tTeams.teamColourLightTheme,
+            title: tUsers.name,
+
+            // Internal information to provide filtering and linkification capabilities:
+            animeConTeam: tTeams.teamEnvironment,
+            animeConTeamId: tTeams.teamId,
+            animeConUserId: tUsers.userId,
         })
-        .groupBy(tTeams.teamId)
         .executeSelectMany();
 
-    const scheduledShiftGroups: ShiftDemandTimelineGroup[] = [];
-    for (const { team, shifts } of scheduledShifts) {
-        scheduledShiftGroups.push({
-            entries: shifts.map(shift => ({
-                ...shift,
-                start: shift.start.toString({ timeZoneName: 'never' }),
-                end: shift.end.toString({ timeZoneName: 'never' }),
-            })),
-            metadata: toShiftGroup(team),
+    for (const scheduledShift of scheduledShifts) {
+        scheduled.push({
+            ...scheduledShift,
+            start: scheduledShift.start.toString({ timeZoneName: 'never' }),
+            end: scheduledShift.end.toString({ timeZoneName: 'never' }),
         });
     }
 
@@ -261,7 +255,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                         The shifts tool has not been implemented yet.
                     </SectionIntroduction>
                 </CollapsableSection>
-                { !!scheduledShiftGroups.length &&
+                { !!scheduled.length &&
                     <Section title="Volunteering schedule">
                         { /* TODO: Make this section user collapsable, and remember the state */ }
                         <SectionIntroduction>
@@ -272,8 +266,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                             </MuiLink>
                             {' '}to make changes.
                         </SectionIntroduction>
-                        <ScheduledShiftsSection event={event} groups={scheduledShiftGroups}
-                                                teamId={team.id} />
+                        <ScheduledShiftsSection event={event} shifts={scheduled} teamId={team.id} />
                     </Section> }
             </ShiftTeamVisibilityContext>
         </>
