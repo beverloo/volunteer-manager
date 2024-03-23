@@ -4,39 +4,37 @@
 'use client';
 
 import { SelectElement } from 'react-hook-form-mui';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
-
-import { Temporal } from '@lib/Temporal';
+import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
+import { Temporal } from '@lib/Temporal';
+import { Timeline, type TimelineEvent, type TimelineEventMutation } from '@app/admin/components/Timeline';
 import { VisibilityContext } from './ShiftTeamVisibilityContext';
-
-import { ShiftTimeline, type ShiftEntry, type ShiftGroup } from '@beverloo/volunteer-manager-timeline';
-import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
-
-export type { ShiftEntry, ShiftGroup };
 
 /**
  * Promise resolver function used with the ability to modify demand.
  */
-type PromiseResolver = (value?: ShiftEntry) => void;
+type PromiseResolver = (value?: TimelineEventMutation) => void;
 
 /**
- * Interface that defines the information associated with a group of information that is to be shown
- * on the timeline. This could be mutable shifts, but also immutable shifts or timeslot entries.
+ * Information about the team for which demand is being managed.
  */
-export interface ShiftDemandTimelineGroup {
+export interface ShiftDemandTeamInfo {
     /**
-     * Entries that are associated with this group.
+     * HTML color used to represent the team that's being managed.
      */
-    entries: ShiftEntry[];
+    colour: string;
 
     /**
-     * Metadata describing what this group is about.
+     * Plural label to use when identifying this team.
      */
-    metadata: ShiftGroup;
+    plural: string;
+
+    /**
+     * Unique slug of the team, required when updating shifts.
+     */
+    slug: string;
 }
 
 /**
@@ -46,32 +44,17 @@ export interface ShiftDemandTimelineProps {
     /**
      * Called when any mutation has been made to the demand.
      */
-    onChange?: (entries: ShiftEntry[]) => void;
+    onChange?: (events: TimelineEvent[]) => void;
 
     /**
-     * Groups of information that should be shown on the timeline in an immutable fashion.
+     * Entries that should be shown on the timeline. Uncontrolled.
      */
-    immutableGroups: ShiftDemandTimelineGroup[];
+    entries: TimelineEvent[];
 
     /**
-     * Group of information that should be shown on the timeline in a mutable fashion.
+     * Information about the event for which the demand section is being shown.
      */
-    mutableGroup: ShiftGroup;
-
-    /**
-     * Entries that are associated with the mutable group.
-     */
-    mutableEntries: ShiftEntry[];
-
-    /**
-     * The minimum date and time to display on the timeline. Inclusive.
-     */
-    min: string;
-
-    /**
-     * The maximum date and time to display on the timeline. Exclusive.
-     */
-    max: string;
+    event: PageInfo['event'];
 
     /**
      * Whether the timeline should be shown in read-only mode, i.e. everything is immutable.
@@ -84,9 +67,9 @@ export interface ShiftDemandTimelineProps {
     step?: number;
 
     /**
-     * The timezone in which the timeline should be shown.
+     * Information about the team for which demand is being managed.
      */
-    timezone: string;
+    team: ShiftDemandTeamInfo;
 }
 
 /**
@@ -94,26 +77,20 @@ export interface ShiftDemandTimelineProps {
  * calendar library, with additional user interface expected by the Volunteer Manager.
  */
 export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
-    const { min, max, readOnly, step, timezone } = props;
+    const { onChange, event, readOnly, step, team } = props;
 
     const includeAllTeams = useContext(VisibilityContext);
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
-
-    const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no deps */ ]);
-    const handleError = useCallback((action: 'create' | 'update', reason: 'overlap') => {
-        setErrorOpen(true);
-    }, [ /* no deps */ ]);
-
-    // ---------------------------------------------------------------------------------------------
-
-    const [ selectedShiftEntry, setSelectedShiftEntry ] = useState<ShiftEntry | undefined>();
+    const [ selectedShiftEntry, setSelectedShiftEntry ] = useState<TimelineEvent | undefined>();
     const [ selectedResolver, setSelectedResolver ] = useState<PromiseResolver | undefined>();
 
-    const handleSettings = useCallback(async (entry: ShiftEntry) => {
-        return new Promise<ShiftEntry | undefined>(resolve => {
+    const handleSettings = useCallback(async (entry: TimelineEvent) => {
+        if (!entry.editable || !entry.volunteers || !entry.animeConLabel)
+            return undefined;
+
+        return new Promise<TimelineEventMutation | undefined>(resolve => {
             setSelectedShiftEntry(entry);
             setSelectedResolver(() => resolve);
         });
@@ -126,7 +103,7 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
         if (!selectedShiftEntry || !selectedResolver)
             return { error: <>I forgot which shift was selected, sorry!</> };
 
-        selectedResolver(/* delete= */ undefined);
+        selectedResolver({ delete: true });
         return { close: true } as const;
 
     }, [ selectedResolver, selectedShiftEntry ]);
@@ -138,49 +115,75 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
         if (typeof data.volunteers !== 'number' || data.volunteers < 1 || data.volunteers > 10)
             return { error: <>I don't know which state to update to, sorry!</> };
 
-        selectedResolver({ ...selectedShiftEntry, volunteers: data.volunteers });
+        selectedResolver({
+            update: {
+                ...selectedShiftEntry,
+                volunteers: data.volunteers,
+                title: data.volunteers === 1
+                    ? `1 ${selectedShiftEntry.animeConLabel.singular}`
+                    : `${data.volunteers} ${selectedShiftEntry.animeConLabel.plural}`
+            },
+        });
+
         return { close: true } as const;
 
     }, [ selectedResolver, selectedShiftEntry ]);
 
     // ---------------------------------------------------------------------------------------------
 
-    const numberOfVolunteerOptions = useMemo(() => {
-        const { singular, plural } =
-            typeof props.mutableGroup.label === 'object'
-                ? props.mutableGroup.label
-                : { singular: 'volunteer', plural: 'volunteers' };
-
-        return Array(10).fill(null).map((_, index) => ({
-            id: index + 1,
-            label: `${index + 1} ${index === 0 ? singular : plural}`,
-        }));
-    }, [ props.mutableGroup ]);
+    const [ entries, setEntries ] = useState<TimelineEvent[]>(props.entries);
+    useEffect(() => {
+        setEntries(entries => {
+            const mutableEntries = entries.filter(entry => !!entry.editable);
+            if (!!includeAllTeams) {
+                return [
+                    ...props.entries.filter(entry => !entry.editable),
+                    ...mutableEntries,
+                ];
+            } else {
+                return [
+                    ...props.entries.filter(entry => entry.title === 'Timeslot'),
+                    ...mutableEntries,
+                ];
+            }
+        });
+    }, [ includeAllTeams ]);
 
     // ---------------------------------------------------------------------------------------------
 
-    const groups: ShiftGroup[] = [ props.mutableGroup ];
-    const immutableEntries: ShiftEntry[] = useMemo(() => {
-        const immutableEntries: ShiftEntry[] = [];
-        for (const group of props.immutableGroups) {
-            if (!includeAllTeams && group.metadata.id !== 'timeslot')
-                continue;  // ignore the group
+    const numberOfVolunteerOptions = Array(10).fill(null).map((_, index) => ({
+        id: index + 1,
+        label: `${index + 1} ${index === 0 ? team.plural.replace(/s$/, '') : team.plural}`,
+    }));
 
-            immutableEntries.push(...group.entries);
-        }
-        return immutableEntries;
-    }, [ props.immutableGroups, includeAllTeams ]);
+    // ---------------------------------------------------------------------------------------------
 
-    for (const group of props.immutableGroups)
-        groups.push(group.metadata);
+    const min = Temporal.ZonedDateTime.from(event.startTime)
+        .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
+            .toString({ timeZoneName: 'never' });
+
+    const max = Temporal.ZonedDateTime.from(event.endTime)
+        .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 })
+            .toString({ timeZoneName: 'never' });
+
+    const eventDefaults: Partial<TimelineEvent> = {
+        color: team.colour,
+        editable: true,
+        title: `1 ${team.plural.replace(/s$/, '')}`,
+
+        // Internal information:
+        volunteers: 1,
+        animeConLabel: {
+            singular: team.plural.replace(/s$/, ''),
+            plural: team.plural,
+        },
+    };
 
     return (
         <>
-            <ShiftTimeline temporal={Temporal} min={min} max={max} step={step} dataTimezone="utc"
-                           displayTimezone={timezone} defaultGroup={props.mutableGroup.id}
-                           groups={groups} readOnly={readOnly} mutableEntries={props.mutableEntries}
-                           immutableEntries={immutableEntries} onChange={props.onChange}
-                           onDoubleClick={handleSettings} onError={handleError} />
+            <Timeline min={min} max={max} displayTimezone={event.timezone} events={entries}
+                      eventDefaults={eventDefaults} onChange={onChange}
+                      onDoubleClick={handleSettings} dense readOnly={readOnly} step={step} />
             <SettingDialog title="Number of volunteers" delete open={!!selectedShiftEntry}
                            onClose={handleSettingsClose} onDelete={handleSettingsDelete}
                            onSubmit={handleSettingsUpdate}
@@ -188,11 +191,6 @@ export function ShiftDemandTimeline(props: ShiftDemandTimelineProps) {
                 <SelectElement name="volunteers" size="small" fullWidth sx={{ mt: '1px' }}
                                options={numberOfVolunteerOptions} />
             </SettingDialog>
-            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
-                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
-                    Shifts for this team cannot overlap with each other
-                </Alert>
-            </Snackbar>
         </>
     );
 }

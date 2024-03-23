@@ -3,7 +3,11 @@
 
 'use client';
 
+import { useCallback, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
+
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 
 import { Temporal } from '@lib/Temporal';
 import { Timeline as TimelineInternal } from '@beverloo/volunteer-manager-timeline';
@@ -21,7 +25,13 @@ export type { TimelineEvent, TimelineEventMutation };
 /**
  * Props accepted by the <Timeline> event.
  */
-export type TimelineProps = Omit<TimelineInternalProps, 'dataTimezone' | 'temporal' | 'theme'>;
+export type TimelineProps =
+    Omit<TimelineInternalProps, 'dataTimezone' | 'onError' | 'temporal' | 'theme'> & {
+        /**
+         * Subject to identify what this timeline is dealing with. Defaults to "event".
+         */
+        subject?: string;
+    };
 
 /**
  * The <Timeline> component is a generic timeline that supports both mutable and immutable entries,
@@ -29,7 +39,42 @@ export type TimelineProps = Omit<TimelineInternalProps, 'dataTimezone' | 'tempor
  * whose styling will adjust based on configuration.
  */
 export function Timeline(props: TimelineProps) {
+    const subject = props.subject ?? 'event';
     const theme = useTheme();
-    return <TimelineInternal {...props} dataTimezone="utc" temporal={Temporal}
-                             theme={theme.palette.mode} />;
+
+    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
+    const [ errorMessage, setErrorMessage ] = useState<string | undefined>();
+
+    const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no dependencies */ ]);
+    const handleError = useCallback((action: 'create' | 'update', reason: 'invalid' | 'overlap') =>
+    {
+        switch (reason) {
+            case 'invalid':
+                setErrorMessage(`Cannot schedule the ${subject} at that time`);
+                break;
+
+            case 'overlap':
+                setErrorMessage(`Cannot overlap with another ${subject}`);
+                break;
+
+            default:
+                setErrorMessage('Something went wrong');
+                break;
+        }
+
+        setErrorOpen(true);
+
+    }, [ subject ]);
+
+    return (
+        <>
+            <TimelineInternal {...props} dataTimezone="utc" temporal={Temporal}
+                              theme={theme.palette.mode} onError={handleError} />
+            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
+                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
+                    {errorMessage}
+                </Alert>
+            </Snackbar>
+        </>
+    );
 }

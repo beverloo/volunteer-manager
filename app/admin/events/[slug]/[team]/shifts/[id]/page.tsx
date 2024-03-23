@@ -1,13 +1,10 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { default as MuiLink } from '@mui/material/Link';
-
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
+import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -28,48 +25,41 @@ import db, { tActivitiesTimeslots, tSchedule, tShifts, tShiftsCategories, tTeams
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
 
 /**
- * Converts the given `demandString` to an array of `ShiftEntry` instances for the given `teamId`.
- * When the string cannot be validated according to `kShiftDemand`, all entries will be ignored.
+ * Converts the given `demandStr`, assuming that it is valid, to a series of `TimelineEvent` entries
+ * for the given `team`. The events will be immutable unless `editable` is set.
  */
-function toShiftEntries(demandString: string, teamId: number): ShiftEntry[] {
-    const entries: ShiftEntry[] = [];
-    try {
-        const demand = JSON.parse(demandString);
-        kShiftDemand.parse(demand);  // throws on invalid data
+function demandToTimelineEvents(
+    demandStr: string | undefined, team: ShiftDemandTeamInfo, editable?: boolean): TimelineEvent[]
+{
+    const timelineEvents: TimelineEvent[] = [];
+    if (!!demandStr && demandStr.length > 4) {
+        try {
+            const demand = JSON.parse(demandStr);
+            const label = {
+                singular: team.plural.replace(/s$/, ''),
+                plural: team.plural,
+            };
 
-        for (let id = 0; id < demand.length; ++id) {
-            entries.push({
-                id: 1000 * teamId + id,
-                start: demand[id].start,
-                end: demand[id].end,
-                group: teamId,
-                volunteers: demand[id].volunteers,
-            });
+            kShiftDemand.parse(demand);  // throws on invalid data
+
+            for (const { start, end, volunteers } of demand) {
+                timelineEvents.push({
+                    id: `${team.slug}/${timelineEvents.length}`,
+                    start, end, editable,
+                    color: team.colour,
+                    title: `${volunteers} ${volunteers === 1 ? label.singular : label.plural}`,
+
+                    // Internal information:
+                    animeConLabel: label,
+                    volunteers,
+                });
+            }
+        } catch (error: any) {
+            console.warn(`Unable to parse demand for ${team}: ${error.message}`);
         }
-    } catch (error: any) {
-        console.error(`Ignoring stored shift demand data: ${error.message}`, demandString);
     }
 
-    return entries;
-}
-
-/**
- * Data necessary for a particular team in order to convert it to a `ShiftGroup` entry.
- */
-type TeamInfoForGroup = { id: number; colour: string; plural: string; };
-
-/**
- * Converts the given `team` to an instance of `ShiftGroup`, as is required by the demand timeline.
- */
-function toShiftGroup(team: TeamInfoForGroup): ShiftGroup {
-    return {
-        id: team.id,
-        label: {
-            singular: team.plural.replace(/s$/, ''),
-            plural: team.plural,
-        },
-        color: team.colour,
-    }
+    return timelineEvents;
 }
 
 /**
@@ -106,8 +96,8 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             activityId: tShifts.shiftActivityId,
             locationId: tShifts.shiftLocationId,
             description: tShifts.shiftDescription,
-            demand: tShifts.shiftDemand,
             overlap: tShifts.shiftDemandOverlap,
+            demand: tShifts.shiftDemand,
             excitement: tShifts.shiftExcitement,
         })
         .executeSelectNoneOrOne();
@@ -115,14 +105,14 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     if (!shift)
         notFound();
 
-    const shiftsForActivity: number[] = [ shift.id ];
-
     // ---------------------------------------------------------------------------------------------
     // Compose the information required for the Volunteering Demand section. This combines timeslots
     // sourced from the festival program, shifts from the `team`, and shifts from other teams.
     // ---------------------------------------------------------------------------------------------
 
-    const immutableGroups: ShiftDemandTimelineGroup[] = [];
+    const demand: TimelineEvent[] = demandToTimelineEvents(shift.demand, team, /*editable=*/ true);
+    const shiftsForActivity = new Set([ shift.id ]);
+
     if (!!shift.activityId) {
         const timeslots = await dbInstance.selectFrom(tActivitiesTimeslots)
             .where(tActivitiesTimeslots.activityId.equals(shift.activityId))
@@ -134,50 +124,37 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
             })
             .executeSelectMany();
 
-        if (timeslots.length) {
-            immutableGroups.push({
-                entries: timeslots.map(timeslot => ({
-                    id: timeslot.id,
-                    start: timeslot.start.toString({ timeZoneName: 'never' }),
-                    end: timeslot.end.toString({ timeZoneName: 'never' }),
-                    group: 'timeslot',
-                })),
-                metadata: {
-                    id: 'timeslot',
-                    label: 'Timeslot',
-                    color: '#ffeb3b',
-                },
+        for (const { id, start, end } of timeslots) {
+            demand.push({
+                id: `timeslot/${id}`,
+                start: start.toString({ timeZoneName: 'never' }),
+                end: end.toString({ timeZoneName: 'never' }),
+                color: '#ffeb3b',
+                editable: false,  // timeslots cannot be modified
+                title: 'Timeslot',
             });
         }
 
-        const otherTeams = await dbInstance.selectFrom(tShifts)
+        const externalDemand = await dbInstance.selectFrom(tShifts)
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tShifts.teamId))
             .where(tShifts.eventId.equals(event.id))
                 .and(tShifts.shiftActivityId.equals(shift.activityId))
-                .and(tShifts.teamId.notEquals(team.id))
-                .and(tShifts.shiftDeleted.isNull())
+                .and(tShifts.shiftId.notEquals(shift.id))
             .select({
-                id: tShifts.shiftId,
-                demand: tShifts.shiftDemand,
+                shiftId: tShifts.shiftId,
+                shiftDemand: tShifts.shiftDemand,
                 team: {
-                    id: tTeams.teamId,
                     colour: tTeams.teamColourLightTheme,
                     plural: tTeams.teamPlural,
+                    slug: tTeams.teamEnvironment,
                 },
             })
             .executeSelectMany();
 
-        for (const { id, demand, team } of otherTeams) {
-            shiftsForActivity.push(id);
-
-            if (!demand)
-                continue;
-
-            immutableGroups.push({
-                entries: toShiftEntries(demand, team.id),
-                metadata: toShiftGroup(team),
-            });
+        for (const { shiftId, shiftDemand, team } of externalDemand) {
+            demand.push(...demandToTimelineEvents(shiftDemand, team, /* editable= */ false));
+            shiftsForActivity.add(shiftId);
         }
     }
 
@@ -197,7 +174,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                 .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
-        .where(tSchedule.shiftId.in(shiftsForActivity))
+        .where(tSchedule.shiftId.in([ ...shiftsForActivity ]))
         .select({
             id: tSchedule.scheduleId,
             start: tSchedule.scheduleTimeStart,
@@ -222,33 +199,23 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
 
     // ---------------------------------------------------------------------------------------------
 
-    const mutableGroup = toShiftGroup(team);
-    const mutableEntries: ShiftEntry[] = [];
-    if (!!shift.demand)
-        mutableEntries.push(...toShiftEntries(shift.demand, team.id));
-
     const { activities, categories, locations } = await getShiftMetadata(event.festivalId);
-    const context = {
-        event: event.slug,
-        team: team.slug,
-    };
 
     return (
         <>
-            <Section title={`${shift.name} shift`}>
+            <Section title={`${shift.name} shift`} subtitle={team.name}>
                 <ShiftSettingsSection activities={activities} categories={categories}
-                                      context={context} locations={locations} readOnly={readOnly}
-                                      shift={shift} />
+                                      context={{ event: event.slug, team: team.slug }}
+                                      locations={locations} readOnly={readOnly} shift={shift} />
             </Section>
             <ShiftTeamVisibilityContext includeAllTeams={includeAllTeams}>
                 <Section title="Volunteering demand">
-                    <SectionIntroduction important={!mutableEntries.length}>
+                    <SectionIntroduction important={!demand.length}>
                         Indicate what the agreed volunteering demand for this shift is: how many
                         people are expected to be scheduled on this shift, and when.
                     </SectionIntroduction>
-                    <ShiftDemandSection event={event} team={team} immutableGroups={immutableGroups}
-                                        mutableGroup={mutableGroup} mutableEntries={mutableEntries}
-                                        readOnly={readOnly} shiftId={shift.id} step={step} />
+                    <ShiftDemandSection event={event} readOnly={readOnly} demand={demand}
+                                        shiftId={shift.id} step={step} team={team} />
                 </Section>
                 <CollapsableSection in={!!warnings.length} title="Shift warnings">
                     <SectionIntroduction important>
@@ -256,18 +223,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                     </SectionIntroduction>
                 </CollapsableSection>
                 { !!scheduled.length &&
-                    <Section title="Volunteering schedule">
-                        { /* TODO: Make this section user collapsable, and remember the state */ }
-                        <SectionIntroduction>
-                            The following volunteers have been scheduled for this shift. This is for
-                            your information—use the{' '}
-                            <MuiLink component={Link} href="../schedule">
-                                Scheduling Tool
-                            </MuiLink>
-                            {' '}to make changes.
-                        </SectionIntroduction>
-                        <ScheduledShiftsSection event={event} shifts={scheduled} teamId={team.id} />
-                    </Section> }
+                    <ScheduledShiftsSection event={event} shifts={scheduled} teamId={team.id} /> }
             </ShiftTeamVisibilityContext>
         </>
     );

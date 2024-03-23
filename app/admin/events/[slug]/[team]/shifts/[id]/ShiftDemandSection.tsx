@@ -9,10 +9,9 @@ import { useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { ShiftDemandTimelineGroup, ShiftEntry, ShiftGroup } from './ShiftDemandTimeline';
-import { ShiftDemandTimeline } from './ShiftDemandTimeline';
+import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
+import { ShiftDemandTimeline, type ShiftDemandTeamInfo } from './ShiftDemandTimeline';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -25,19 +24,10 @@ export interface ShiftDemandSectionProps {
     event: PageInfoWithTeam['event'];
 
     /**
-     * Groups of information that should be shown on the timeline in an immutable fashion.
+     * Demand that exists for this shift. Includes immutable entries such as timeslots and demand
+     * created for other teams, as well as mutable entries, namely demand for the current team.
      */
-    immutableGroups: ShiftDemandTimelineGroup[];
-
-    /**
-     * Group of information that should be shown on the timeline in a mutable fashion.
-     */
-    mutableGroup: ShiftGroup;
-
-    /**
-     * Entries that are associated with the mutable group.
-     */
-    mutableEntries: ShiftEntry[];
+    demand: TimelineEvent[];
 
     /**
      * Whether the demand section should be shown in read-only mode.
@@ -57,7 +47,7 @@ export interface ShiftDemandSectionProps {
     /**
      * Information about the team for whom demand is being shown.
      */
-    team: PageInfoWithTeam['team'];
+    team: ShiftDemandTeamInfo;
 }
 
 /**
@@ -66,19 +56,20 @@ export interface ShiftDemandSectionProps {
  * other teams involved in this festival may have scheduled.
  */
 export function ShiftDemandSection(props: ShiftDemandSectionProps) {
-    const { immutableGroups, mutableGroup, event, readOnly, step, team } = props;
+    const { demand, event, readOnly, step, team } = props;
 
     const [ error, setError ] = useState<string | undefined>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    const [ entries, setEntries ] = useState<ShiftEntry[]>(props.mutableEntries);
+    const [ entries, setEntries ] = useState<TimelineEvent[]>(demand);
 
     // ---------------------------------------------------------------------------------------------
     // Section: Management of the demand table
     // ---------------------------------------------------------------------------------------------
 
-    const handleChange = useCallback((entries: ShiftEntry[]) => {
+    const handleChange = useCallback((entries: TimelineEvent[]) => {
+        console.log('xx:', entries);
         setEntries(entries);
         setInvalidated(true);
     }, [ /* no dependencies */ ]);
@@ -89,6 +80,8 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
         try {
             const normalisedEntries = [];
             for (const entry of entries) {
+                if (!Object.hasOwn(entry, 'editable') || !entry.editable)
+                    continue;  // the entry is not editable
                 if (!Object.hasOwn(entry, 'start') || !Object.hasOwn(entry, 'end'))
                     continue;  // invalid entry due to the calendar library
                 if (!Object.hasOwn(entry, 'volunteers') || typeof entry.volunteers !== 'number')
@@ -130,23 +123,11 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
         }
     }, [ entries, event, props.shiftId, team ]);
 
-    // ---------------------------------------------------------------------------------------------
-
-    const min = Temporal.ZonedDateTime.from(event.startTime)
-        .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
-            .toString({ timeZoneName: 'never' });
-
-    const max = Temporal.ZonedDateTime.from(event.endTime)
-        .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 })
-            .toString({ timeZoneName: 'never' });
-
     return (
         <FormContainer onSuccess={handleSubmit}>
             <Box>
-                <ShiftDemandTimeline min={min} max={max} readOnly={readOnly} step={step}
-                                     timezone={event.timezone} immutableGroups={immutableGroups}
-                                     mutableGroup={mutableGroup} mutableEntries={entries}
-                                     onChange={handleChange} />
+                <ShiftDemandTimeline onChange={handleChange} entries={entries} event={event}
+                                     readOnly={readOnly} step={step} team={team} />
             </Box>
             <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />
         </FormContainer>

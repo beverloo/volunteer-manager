@@ -3,10 +3,16 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { default as MuiLink } from '@mui/material/Link';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import { ExpandableSection } from '@app/admin/components/ExpandableSection';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { Temporal } from '@lib/Temporal';
 import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 import { VisibilityContext } from './ShiftTeamVisibilityContext';
@@ -62,8 +68,21 @@ export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
         return undefined;
     }
 
+    const subtitle = shifts.length === 1 ? '1 shift' : `${shifts.length} shifts`;
+
     return (
-        <Timeline min={min} max={max} displayTimezone={event.timezone} events={shifts}
-                  onDoubleClick={handleDoubleClick} dense disableGutters readOnly />
+        <ExpandableSection icon={ <ScheduleIcon color="info" /> }
+                           title="Volunteering schedule" subtitle={subtitle}>
+            <SectionIntroduction>
+                The following volunteers have been scheduled for this shift. This is for
+                your information—use the{' '}
+                <MuiLink component={Link} href="../schedule">
+                    Scheduling Tool
+                </MuiLink>
+                {' '}to make changes.
+            </SectionIntroduction>
+            <Timeline min={min} max={max} displayTimezone={event.timezone} events={shifts}
+                      onDoubleClick={handleDoubleClick} dense disableGutters readOnly />
+        </ExpandableSection>
     );
 }
