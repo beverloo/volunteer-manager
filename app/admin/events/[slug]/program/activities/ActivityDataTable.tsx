@@ -17,6 +17,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { ProgramActivitiesRowModel } from '@app/api/admin/program/activities/[[...id]]/route';
+import { ActivityType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
@@ -39,6 +40,17 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
     const columns: RemoteDataTableColumn<ProgramActivitiesRowModel>[] = [
         {
             field: 'id',
+            headerName: '',
+            align: 'center',
+            editable: false,
+            sortable: false,
+            width: 50,
+
+            // Only internal entries can be removed, AnPlan data is considered read-only.
+            isProtected: params => params.row.type !== ActivityType.Internal,
+        },
+        {
+            field: 'anplanLink',
             display: 'flex',
             headerName: '',
             align: 'center',
@@ -46,7 +58,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             width: 50,
 
             renderCell: params => {
-                if (!params.row.anplanLink) {
+                if (!params.value) {
                     return (
                         <Tooltip title="This activity does not exist in AnPlan">
                             <LaunchIcon color="disabled" fontSize="small" />
@@ -55,7 +67,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                 } else {
                     return (
                         <Tooltip title="Open this activity in AnPlan">
-                            <IconButton component={Link} href={params.row.anplanLink}
+                            <IconButton component={Link} href={params.value}
                                         target="_blank">
                                 <LaunchIcon color="info" fontSize="small" />
                             </IconButton>
@@ -67,6 +79,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         {
             field: 'title',
             headerName: 'Activity',
+            sortable: true,
             flex: 2,
 
             renderCell: params =>
@@ -78,6 +91,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             field: 'location',
             display: 'flex',
             headerName: 'Location',
+            sortable: false,
             flex: 1,
 
             renderCell: params => {
@@ -92,6 +106,12 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                                     ({params.row.timeslots}x)
                                 </Typography> }
                         </>
+                    );
+                } else if (params.value === 'No locations…') {
+                    return (
+                        <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                            {params.value}
+                        </Typography>
                     );
                 } else {
                     return (
@@ -165,8 +185,8 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
     return (
         <Box sx={{ p: 2 }}>
             <RemoteDataTable columns={columns} endpoint="/api/admin/program/activities"
-                             context={context} pageSize={10}
-                             defaultSort={{ field: 'title', sort: 'asc' }} />
+                             context={context} pageSize={10} enableCreate enableDelete
+                             defaultSort={{ field: 'title', sort: 'asc' }} subject="activity" />
         </Box>
     );
 }

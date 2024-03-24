@@ -10,7 +10,7 @@ import { Log, LogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts } from '@lib/database';
+import db, { tActivities, tActivitiesLocations, tActivitiesLogs, tActivitiesTimeslots, tShifts } from '@lib/database';
 
 /**
  * Row model of a program's activities.
@@ -20,6 +20,11 @@ const kProgramActivityRowModel = z.object({
      * Unique ID of this activity.
      */
     id: z.number(),
+
+    /**
+     * Type of this activity, i.e. sourced from AnPlan or internal to our system.
+     */
+    type: z.nativeEnum(ActivityType),
 
     /**
      * Title of the activity.
@@ -88,18 +93,121 @@ export type ProgramActivitiesRowModel = z.infer<typeof kProgramActivityRowModel>
 export type ProgramActivitiesContext = z.infer<typeof kProgramActivityContext>;
 
 /**
+ * Offset to use for internal Activity IDs, to avoid overlap with AnPlan data.
+ */
+const kInternalActivityIdOffset = 10_000_000;
+
+/**
  * The Program Activities API is implemented as a regular DataTable API.
  * The following endpoints are provided by this implementation:
  *
+ *     DELETE /api/admin/program/activities/:id
  *     GET    /api/admin/program/activities
+ *     POST   /api/admin/program/activities
+ *     PUT    /api/admin/program/activities/:id
+ *
  */
-export const { GET } =
+export const { DELETE, GET, POST, PUT } =
 createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
     async accessCheck({ context }, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
         });
+    },
+
+    async create({ context }, props) {
+        const event = await getEventBySlug(context.event);
+        if (!event || !event.festivalId)
+            notFound();
+
+        const highestInternalActivityId = await db.selectFrom(tActivities)
+            .where(tActivities.activityId.greaterThan(kInternalActivityIdOffset))
+            .selectOneColumn(tActivities.activityId)
+            .orderBy(tActivities.activityId, 'desc').limit(1)
+            .executeSelectNoneOrOne();
+
+        const newInternalActivityId = (highestInternalActivityId ?? kInternalActivityIdOffset) + 1;
+        const newDisplayInternalActivityId = newInternalActivityId - kInternalActivityIdOffset;
+
+        const dbInstance = db;
+        const insertedRows = await dbInstance.insertInto(tActivities)
+            .set({
+                activityId: newInternalActivityId,
+                activityFestivalId: event.festivalId,
+                activityType: ActivityType.Internal,
+                activityTitle: `Internal activity #${newDisplayInternalActivityId}`,
+                activityHelpNeeded: /* true= */ 1,
+                activityTypeAdultsOnly: /* false= */ 0,
+                activityTypeCompetition: /* false= */ 0,
+                activityTypeCosplay: /* false= */ 0,
+                activityTypeEvent: /* false= */ 0,
+                activityTypeGameRoom: /* false= */ 0,
+                activityTypeVideo: /* false= */ 0,
+                activityVisible: /* false= */ 0,
+                activityVisibleReason: 'Internal to the Volunteer Manager',
+                activityCreated: dbInstance.currentZonedDateTime(),
+                activityUpdated: dbInstance.currentZonedDateTime(),
+            })
+            .executeInsert();
+
+        if (!insertedRows)
+            return { success: false, error: 'Unable to write the new activity to the database…' };
+
+        await dbInstance.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                activityId: newInternalActivityId,
+                mutation: Mutation.Created,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentZonedDateTime(),
+            })
+            .executeInsert();
+
+        return {
+            success: true,
+            row: {
+                id: newInternalActivityId,
+                type: ActivityType.Internal,
+                title: `Internal activity #${newDisplayInternalActivityId}`,
+                location: 'No locations…',
+                timeslots: 0,
+                helpRequested: true,
+                shiftScheduled: false,
+                visible: false,
+            },
+        };
+    },
+
+    async delete({ context, id }, props) {
+        const event = await getEventBySlug(context.event);
+        if (!event || !event.festivalId)
+            notFound();
+
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivities)
+            .set({
+                activityDeleted: dbInstance.currentZonedDateTime(),
+            })
+            .where(tActivities.activityFestivalId.equals(event.festivalId))
+                .and(tActivities.activityId.equals(id))
+                .and(tActivities.activityType.equals(ActivityType.Internal))
+                .and(tActivities.activityDeleted.isNull())
+            .executeUpdate();
+
+        await dbInstance.insertInto(tActivitiesLogs)
+            .set({
+                festivalId: event.festivalId,
+                activityId: id,
+                mutation: Mutation.Deleted,
+                mutationSeverity: MutationSeverity.Important,
+                mutationUserId: props.user?.userId,
+                mutationDate: dbInstance.currentZonedDateTime(),
+            })
+            .executeInsert();
+
+        return { success: !!affectedRows };
     },
 
     async list({ context, pagination, sort }) {
@@ -183,6 +291,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
 
                 return {
                     id: activity.id,
+                    type: activity.type,
                     title: activity.title,
                     location,
                     locationId,
@@ -194,6 +303,37 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 }
             }),
         };
+    },
+
+    async update({ context, id, row }, props) {
+        const event = await getEventBySlug(context.event);
+        if (!event || !event.festivalId)
+            notFound();
+
+        return { success: false };
+    },
+
+    async writeLog({ context, id }, mutation, props) {
+        return;
+
+        const event = await getEventBySlug(context.event);
+        const locationName = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaId.equals(id))
+            .selectOneColumn(tActivitiesAreas.areaDisplayName.valueWhenNull(
+                tActivitiesAreas.areaName))
+            .executeSelectNoneOrOne();
+
+        await Log({
+            type: LogType.AdminProgramMutation,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                event: event?.shortName,
+                entityType: 'area',
+                entity: locationName,
+                mutation
+            },
+        });
     },
 });
 
