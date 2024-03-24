@@ -175,6 +175,7 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .where(tSchedule.shiftId.in([ ...shiftsForActivity ]))
+            .and(tSchedule.scheduleDeleted.isNull())
         .select({
             id: tSchedule.scheduleId,
             start: tSchedule.scheduleTimeStart,

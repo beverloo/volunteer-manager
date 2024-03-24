@@ -113,6 +113,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             .on(tTeams.teamId.equals(tShifts.teamId))
         .where(tSchedule.eventId.equals(event.id))
             .and(tSchedule.userId.equals(volunteer.userId))
+            .and(tSchedule.scheduleDeleted.isNull())
         .select({
             id: tSchedule.scheduleId,
             start: tSchedule.scheduleTimeStart,

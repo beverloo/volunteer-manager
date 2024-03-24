@@ -122,6 +122,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
                     .and(activitiesJoin.activityDeleted.isNull())
         .leftJoin(scheduleJoin)
             .on(scheduleJoin.shiftId.equals(tShifts.shiftId))
+                .and(scheduleJoin.scheduleDeleted.isNull())
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(scheduleJoin.userId))
                 .and(usersEventsJoin.eventId.equals(scheduleJoin.eventId))

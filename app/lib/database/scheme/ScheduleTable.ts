@@ -22,6 +22,9 @@ export class ScheduleTable extends Table<DBConnection, 'ScheduleTable'> {
     shiftId = this.column('shift_id', 'int');
     scheduleTimeStart = this.column<ZonedDateTime>('schedule_time_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     scheduleTimeEnd = this.column<ZonedDateTime>('schedule_time_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    scheduleUpdatedBy = this.column('schedule_updated_by', 'int');
+    scheduleUpdated = this.column<ZonedDateTime>('schedule_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    scheduleDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('schedule_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
 
     constructor() {
         super('schedule');
