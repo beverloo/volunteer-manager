@@ -122,15 +122,6 @@ export enum RoleBadge {
 }
 
 /**
- * Types of shift that can be stored in the database.
- * @see Table `schedule`
- */
-export enum ScheduleType {
-    Shift = 'shift',
-    Unavailable = 'unavailable',
-}
-
-/**
  * Degree of expected overlap for the scheduled demand of a shift.
  * @see Table `shifts`
  */

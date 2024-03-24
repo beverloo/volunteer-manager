@@ -221,7 +221,6 @@ do {
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },
                 { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
-                { field: [ 'schedule', 'schedule_type' ], type: 'ScheduleType' },
                 { field: [ 'shifts', 'shift_demand_overlap' ], type: 'ShiftDemandOverlap' },
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
                 {

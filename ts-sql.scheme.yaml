@@ -391,30 +391,25 @@ tables:
   comment: ""
   columns:
   - name: schedule_id
-    type: int(4) unsigned
+    type: int(8) unsigned
     nullable: false
     default: null
     extraDef: auto_increment
     comment: ""
-  - name: schedule_type
-    type: enum('unavailable','shift')
-    nullable: false
-    default: null
-    comment: ""
   - name: user_id
-    type: int(4) unsigned
+    type: int(8) unsigned
     nullable: false
     default: null
     comment: ""
   - name: event_id
-    type: int(4) unsigned
+    type: int(8) unsigned
     nullable: false
     default: null
     comment: ""
   - name: shift_id
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
+    type: int(8) unsigned
+    nullable: false
+    default: null
     comment: ""
   - name: schedule_time_start
     type: datetime
@@ -494,11 +489,10 @@ tables:
   triggers: []
   def: |-
     CREATE TABLE `schedule` (
-      `schedule_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
-      `schedule_type` enum('unavailable','shift') NOT NULL,
-      `user_id` int(4) unsigned NOT NULL,
-      `event_id` int(4) unsigned NOT NULL,
-      `shift_id` int(4) unsigned DEFAULT NULL,
+      `schedule_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` int(8) unsigned NOT NULL,
+      `event_id` int(8) unsigned NOT NULL,
+      `shift_id` int(8) unsigned NOT NULL,
       `schedule_time_start` datetime NOT NULL,
       `schedule_time_end` datetime NOT NULL,
       PRIMARY KEY (`schedule_id`),
@@ -4084,7 +4078,7 @@ relations:
   parentTable: shifts
   parentColumns:
   - shift_id
-  parentCardinality: Zero or one
+  parentCardinality: Exactly one
   def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
   virtual: false
 - table: schedule

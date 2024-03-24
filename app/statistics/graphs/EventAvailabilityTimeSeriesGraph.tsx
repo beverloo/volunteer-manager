@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { type DashboardAreaGraphSeries, DashboardGraph } from '../DashboardGraph';
-import { ScheduleType } from '@lib/database/Types';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 import { computeColor } from '../ColorUtils';
 import db, { tSchedule, tUsersEvents } from '@lib/database';
@@ -35,7 +34,6 @@ export async function EventAvailabilityTimeSeriesGraph(props: { eventId: number;
             .and(tUsersEvents.teamId.equals(props.teamId))
         .select({
             schedule: dbInstance.aggregateAsArray({
-                type: tSchedule.scheduleType,
                 start: tSchedule.scheduleTimeStart,
                 end: tSchedule.scheduleTimeEnd,
             }),
@@ -90,20 +88,8 @@ export async function EventAvailabilityTimeSeriesGraph(props: { eventId: number;
                     continue;
                 }
 
-                switch (schedule[0].type) {
-                    case ScheduleType.Shift:
-                        activityToIncrement = 'shift';
-                        restingBuckets = kRestingTimeBucketCount;
-                        break;
-
-                    case ScheduleType.Unavailable:
-                        activityToIncrement = 'unavailable';
-                        break;
-
-                    default:
-                        throw new Error(`Unrecognised schedule type: ${schedule[0].type}`);
-                }
-
+                activityToIncrement = 'shift';
+                restingBuckets = kRestingTimeBucketCount;
                 break;
             }
 
