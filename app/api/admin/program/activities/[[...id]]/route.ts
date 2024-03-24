@@ -258,7 +258,8 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 visible: tActivities.activityVisible,
             })
             .groupBy(tActivities.activityId)
-            .orderBy(sortField, sortDirection)
+            .orderBy('type', 'desc')
+                .orderBy(sortField, sortDirection)
             .limitIfValue(pagination ? pagination.pageSize : null)
                 .offsetIfValue(pagination ? pagination.page * pagination.pageSize : null)
             .executeSelectPage();
@@ -310,7 +311,18 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
         if (!event || !event.festivalId)
             notFound();
 
-        return { success: false };
+        const affectedRows = await db.update(tActivities)
+            .set({
+                activityTitle: row.title,
+                // TODO: activityLocationId?
+            })
+            .where(tActivities.activityId.equals(id))
+                .and(tActivities.activityFestivalId.equals(event.festivalId))
+                .and(tActivities.activityType.equals(ActivityType.Internal))
+                .and(tActivities.activityDeleted.isNull())
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async writeLog({ context, id }, mutation, props) {

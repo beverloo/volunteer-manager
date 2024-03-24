@@ -131,6 +131,11 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     endpoint: Endpoint;
 
     /**
+     * Callback that will be invoked to determine whether a particular cell is editable.
+     */
+    isCellEditable?: (params: GridCellParams<RowModel, unknown>) => boolean;
+
+    /**
      * The default number of rows that can be displayed per page. Defaults to 50.
      */
     pageSize?: 10 | 25 | 50 | 100;
@@ -469,6 +474,7 @@ export function RemoteDataTable<
             <DataGridPro columns={columns} rows={rows} rowCount={rowCount}
                          rowModesModel={rowModesModel} onRowModesModelChange={setRowModesModel}
                          processRowUpdate={handleUpdate} editMode={enableUpdate ? 'row' : undefined}
+                         isCellEditable={props.isCellEditable}
 
                          rowReordering={enableReorder} onRowOrderChange={handleReorder}
                          slots={{ rowReorderIcon: RemoteDataTableMoveIcon }}

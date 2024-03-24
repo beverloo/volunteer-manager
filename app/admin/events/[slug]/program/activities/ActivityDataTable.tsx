@@ -4,7 +4,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useCallback } from 'react';
 
+import type { GridCellParams, ValueOptions } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -28,6 +30,11 @@ export interface ActivityDataTableProps {
      * Unique slug of the event for which activities should be shown.
      */
     event: string;
+
+    /**
+     * The locations that can be assigned to internal activities.
+     */
+    locations: ValueOptions[];
 }
 
 /**
@@ -54,6 +61,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             display: 'flex',
             headerName: '',
             align: 'center',
+            editable: false,
             sortable: false,
             width: 50,
 
@@ -79,18 +87,26 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         {
             field: 'title',
             headerName: 'Activity',
+            editable: true,
             sortable: true,
             flex: 2,
 
-            renderCell: params =>
-                <MuiLink component={Link} href={`./activities/${params.row.id}`}>
-                    {params.value}
-                </MuiLink>,
+            renderCell: params => {
+                if (params.row.type === ActivityType.Internal)
+                    return params.value;
+
+                return (
+                    <MuiLink component={Link} href={`./activities/${params.row.id}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
-            field: 'location',
+            field: 'locationId',
             display: 'flex',
             headerName: 'Location',
+            editable: true,
             sortable: false,
             flex: 1,
 
@@ -99,7 +115,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                     return (
                         <>
                             <MuiLink component={Link} href="./locations">
-                                {params.value}
+                                {params.row.location}
                             </MuiLink>
                             { params.row.timeslots > 1 &&
                                 <Typography variant="body2" sx={{ pl: .5, color: 'text.disabled' }}>
@@ -107,16 +123,16 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                                 </Typography> }
                         </>
                     );
-                } else if (params.value === 'No locations…') {
+                } else if (params.row.location === 'No locations…') {
                     return (
                         <Typography variant="body2" sx={{ color: 'text.disabled' }}>
-                            {params.value}
+                            {params.row.location}
                         </Typography>
                     );
                 } else {
                     return (
                         <>
-                            {params.value}
+                            {params.row.location}
                             { params.row.timeslots > 1 &&
                                 <Typography variant="body2" sx={{ pl: .5, color: 'text.disabled' }}>
                                     ({params.row.timeslots}x)
@@ -125,12 +141,16 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                     );
                 }
             },
+
+            type: 'singleSelect',
+            valueOptions: props.locations,
         },
         {
             field: 'helpRequested',
             display: 'flex',
             headerName: '',
             align: 'center',
+            editable: false,
             sortable: true,
             width: 50,
 
@@ -161,6 +181,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             display: 'flex',
             headerName: '',
             align: 'center',
+            editable: false,
             sortable: true,
             width: 50,
 
@@ -182,11 +203,26 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         }
     ];
 
+    // Only the title and location of Internal activities can be adjusted, everything else is frozen
+    // as the values are imported from AnPlan, an external system. Determine this dynamically:
+    const isCellEditable =
+        useCallback((params: GridCellParams<ProgramActivitiesRowModel, unknown>) => {
+            if (![ 'title', 'locationId' ].includes(params.colDef.field))
+                return false;  // invalid column
+
+            if (params.row.type !== ActivityType.Internal)
+                return false;  // AnPlan-sourced activity
+
+            return true;
+
+        }, [ /* no dependencies */ ]);
+
     return (
         <Box sx={{ p: 2 }}>
             <RemoteDataTable columns={columns} endpoint="/api/admin/program/activities"
                              context={context} pageSize={10} enableCreate enableDelete
-                             defaultSort={{ field: 'title', sort: 'asc' }} subject="activity" />
+                             enableUpdate defaultSort={{ field: 'title', sort: 'asc' }}
+                             isCellEditable={isCellEditable} subject="activity" />
         </Box>
     );
 }
