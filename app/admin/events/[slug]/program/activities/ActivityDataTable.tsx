@@ -16,72 +16,27 @@ import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
-
-/**
- * Individual entry that should be shown in the <ActivityDataTable> component.
- */
-export interface ActivityDataTableEntry {
-    /**
-     * Unique ID for the activity that's being shown.
-     */
-    id: number;
-
-    /**
-     * Title of the activity.
-     */
-    title: string;
-
-    /**
-     * Location in which the activity will be hosted. May be an arbitrary string when there either
-     * are multiple locations, or no locations at all.
-     */
-    location: string;
-    locationId?: number;
-
-    /**
-     * Number of timeslots that have been scheduled for this particular activity.
-     */
-    timeslots: number;
-
-    /**
-     * Whether volunteering help was requested by the organisers of this activity.
-     */
-    helpRequested: boolean;
-
-    /**
-     * Whether one or more shifts have been scheduled for this activity.
-     */
-    shiftScheduled: boolean;
-
-    /**
-     * Whether the activity is visible to the public, or private to the organisation.
-     */
-    visible: boolean;
-
-    /**
-     * Link to this activity in AnPlan, only when it's sourced from the program.
-     */
-    anplanLink?: string;
-}
+import type { ProgramActivitiesRowModel } from '@app/api/admin/program/activities/[[...id]]/route';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
  * Props accepted by the <ActivityDataTable> component.
  */
 export interface ActivityDataTableProps {
     /**
-     * The activities that should be shown in the table.
+     * Unique slug of the event for which activities should be shown.
      */
-    activities: ActivityDataTableEntry[];
+    event: string;
 }
 
 /**
- * The <ActivityDataTable> component displays a local data table containing all the activities that
+ * The <ActivityDataTable> component displays a remote data table containing all the activities that
  * are known to the program of a particular festival. It links through to a separate page for each
- * activity displaying more information and timeslots.
+ * activity displaying more information and timeslots. Activities can be created as well.
  */
 export function ActivityDataTable(props: ActivityDataTableProps) {
-    const columns: DataTableColumn<ActivityDataTableEntry>[] = [
+    const context = { event: props.event };
+    const columns: RemoteDataTableColumn<ProgramActivitiesRowModel>[] = [
         {
             field: 'id',
             display: 'flex',
@@ -209,8 +164,9 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
 
     return (
         <Box sx={{ p: 2 }}>
-            <DataTable columns={columns} rows={props.activities} enableFilter pageSize={10}
-                       defaultSort={{ field: 'title', sort: 'asc' }} />
+            <RemoteDataTable columns={columns} endpoint="/api/admin/program/activities"
+                             context={context} pageSize={10}
+                             defaultSort={{ field: 'title', sort: 'asc' }} />
         </Box>
     );
 }

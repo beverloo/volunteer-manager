@@ -64,6 +64,7 @@ import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
 import type { LogsEndpoints } from '@app/api/admin/logs/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
 import type { OutboxEndpoints } from '@app/api/admin/outbox/[[...id]]/route';
+import type { ProgramActivitiesEndpoints } from '@app/api/admin/program/activities/[[...id]]/route';
 import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program/changes/route';
 import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations/[[...id]]/route';
@@ -105,6 +106,7 @@ export type ApiEndpoints = {
         '/api/admin/logs/:id': LogsEndpoints['get'],
         '/api/admin/outbox': OutboxEndpoints['list'],
         '/api/admin/outbox/:id': OutboxEndpoints['get'],
+        '/api/admin/program/activities': ProgramActivitiesEndpoints['list'],
         '/api/admin/program/areas': ProgramAreasEndpoints['list'],
         '/api/admin/program/changes': ProgramChangesEndpoints['list'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['list'],
@@ -132,6 +134,7 @@ export type ApiEndpoints = {
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
         '/api/admin/hotels': HotelsEndpoints['create'],
+        '/api/admin/program/activities': ProgramActivitiesEndpoints['create'],
         '/api/admin/program/areas': ProgramAreasEndpoints['create'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
         '/api/admin/reset-access-code': ResetAccessCodeDefinition,
@@ -193,6 +196,7 @@ export type ApiEndpoints = {
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['delete'],
         '/api/admin/hotels/:id': HotelsEndpoints['delete'],
+        '/api/admin/program/activities/:id': ProgramActivitiesEndpoints['delete'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
@@ -212,6 +216,7 @@ export type ApiEndpoints = {
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['update'],
         '/api/admin/hotels/:id': HotelsEndpoints['update'],
         '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
+        '/api/admin/program/activities/:id': ProgramActivitiesEndpoints['list'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['update'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['update'],
         '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
