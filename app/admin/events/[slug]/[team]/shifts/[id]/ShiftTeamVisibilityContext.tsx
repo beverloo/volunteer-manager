@@ -44,7 +44,7 @@ export function ShiftTeamVisibilityContext(
         setIncludeAllTeams(checked);
         try {
             await callApi('post', '/api/auth/settings', {
-                adminScheduleDisplayOtherTeams: checked,
+                'user-admin-shifts-display-other-teams': checked,
             });
         } finally {
             setLoading(false);

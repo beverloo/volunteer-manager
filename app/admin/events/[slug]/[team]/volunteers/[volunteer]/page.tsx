@@ -29,6 +29,7 @@ import { getTrainingOptions } from '@app/registration/[slug]/application/trainin
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
+import { readUserSetting } from '@lib/UserSettings';
 
 type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
 
@@ -228,6 +229,9 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     const availabilityStep = await readSetting('availability-time-step-minutes');
+    const defaultExpanded =
+        await readUserSetting(user.userId, 'user-admin-volunteers-expand-shifts');
+
     const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
     return (
@@ -237,7 +241,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
                                contactInfo={contactInfo} volunteer={volunteer} />
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
-                                   subtitle={scheduleSubTitle}>
+                                   subtitle={scheduleSubTitle} defaultExpanded={defaultExpanded}
+                                   setting="user-admin-volunteers-expand-shifts">
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
             <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />

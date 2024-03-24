@@ -1,7 +1,9 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type React from 'react';
+'use client';
+
+import { type default as React, useCallback } from 'react';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -10,7 +12,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
+import type { UserSetting } from '@lib/UserSettings';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <ExpandableSection> component, that are directly owned by the component.
@@ -25,6 +29,11 @@ export type ExpandableSectionProps = SectionHeaderProps & {
      * The icon that should be shown in the expandable section's header, if any.
      */
     icon?: React.ReactNode;
+
+    /**
+     * The setting that should be updated when expandable state changes.
+     */
+    setting?: UserSetting;
 }
 
 /**
@@ -34,8 +43,18 @@ export type ExpandableSectionProps = SectionHeaderProps & {
 export function ExpandableSection(props: React.PropsWithChildren<ExpandableSectionProps>) {
     const { children, defaultExpanded, icon, ...sectionHeaderProps } = props;
 
+    const handleStoreSetting = useCallback((event: unknown, expanded: boolean) => {
+        if (!props.setting)
+            return;  // no setting to update
+
+        callApi('post', '/api/auth/settings', { [props.setting]: expanded }).catch(error =>
+            console.warn(`Unable to store a user setting (${props.setting}): ${error}`));
+
+    }, [ props.setting ]);
+
     return (
         <Paper component={Accordion} defaultExpanded={defaultExpanded} disableGutters
+               onChange={handleStoreSetting}
                sx={{ '&::before': { backgroundColor: 'transparent' } }}>
             <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
                 <Stack direction="row" alignItems="center" spacing={2}>

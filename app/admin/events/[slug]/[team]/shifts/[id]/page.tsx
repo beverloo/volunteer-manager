@@ -18,7 +18,7 @@ import { ShiftTeamVisibilityContext } from './ShiftTeamVisibilityContext';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { getShiftMetadata } from '../getShiftMetadata';
 import { readSetting } from '@lib/Settings';
-import { readUserSetting } from '@lib/UserSettings';
+import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivitiesTimeslots, tSchedule, tShifts, tShiftsCategories, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -73,8 +73,13 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
     const warnings: any[] = [ ];
 
     const step = await readSetting('schedule-time-step-minutes');
-    const includeAllTeams = await readUserSetting(
-        user.userId, 'user-admin-schedule-display-other-teams');
+    const userSettings = await readUserSettings(user.userId, [
+        'user-admin-shifts-display-other-teams',
+        'user-admin-shifts-expand-shifts',
+    ]);
+
+    const expandSchedule = userSettings['user-admin-shifts-expand-shifts'] ?? false;
+    const includeAllTeams = userSettings['user-admin-shifts-display-other-teams'] ?? false;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -224,7 +229,8 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
                     </SectionIntroduction>
                 </CollapsableSection>
                 { !!scheduled.length &&
-                    <ScheduledShiftsSection event={event} shifts={scheduled} teamId={team.id} /> }
+                    <ScheduledShiftsSection defaultExpanded={expandSchedule}
+                                            event={event} shifts={scheduled} teamId={team.id} /> }
             </ShiftTeamVisibilityContext>
         </>
     );

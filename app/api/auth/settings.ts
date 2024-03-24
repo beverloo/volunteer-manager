@@ -11,12 +11,10 @@ import { writeUserSettings, type UserSettingsMap } from '@lib/UserSettings';
  * Interface definition for the Settings API, exposed through /api/auth/settings.
  */
 export const kSettingsDefinition = z.object({
-    request: z.object({
-        /**
-         * Whether the user should be shown information from other teams in the scheduling tools.
-         */
-        adminScheduleDisplayOtherTeams: z.boolean().optional(),
-    }),
+    /**
+     * Input is any key-value pair that resolves to a known user setting.
+     */
+    request: z.record(z.string(), z.any()),
     response: z.strictObject({
         /**
          * Whether the setting(s) were updated successfully.
@@ -36,21 +34,44 @@ type Request = ApiRequest<typeof kSettingsDefinition>;
 type Response = ApiResponse<typeof kSettingsDefinition>;
 
 /**
+ * The string representation of the type expected for the setting named `Key`.
+ */
+type SettingStringType<Key extends keyof UserSettingsMap> =
+    UserSettingsMap[Key] extends boolean ? 'boolean'
+        : UserSettingsMap[Key] extends number ? 'number'
+        : UserSettingsMap[Key] extends string ? 'string' : 'unknown';
+
+/**
  * API that allows users to change their user settings.
  */
 export async function settings(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user)
         noAccess();
 
+    // User settings that are allowed to be updated using this interface.
+    const kAllowedUserSettings: { [k in keyof UserSettingsMap]: SettingStringType<k> } = {
+        'user-admin-shifts-display-other-teams': 'boolean',
+        'user-admin-shifts-expand-shifts': 'boolean',
+        'user-admin-volunteers-expand-shifts': 'boolean',
+    };
+
     const settingsToUpdate: { [k in keyof UserSettingsMap]?: UserSettingsMap[k] } = {};
-    if (typeof request.adminScheduleDisplayOtherTeams === 'boolean') {
-        settingsToUpdate['user-admin-schedule-display-other-teams'] =
-            request.adminScheduleDisplayOtherTeams;
+    for (const [ setting, value ] of Object.entries(request)) {
+        if (!Object.hasOwn(kAllowedUserSettings, setting)) {
+            console.error(`Unrecognised setting: ${setting}`);
+            continue;
+        }
+
+        if (typeof value !== kAllowedUserSettings[setting as keyof UserSettingsMap]) {
+            console.error(`Invalid setting value type: ${setting}, ${value}`);
+            continue;
+        }
+
+        settingsToUpdate[setting as keyof UserSettingsMap] = value;
     }
 
-    if (!Object.keys(settingsToUpdate).length)
-        return { success: true };
+    if (!!Object.keys(settingsToUpdate).length)
+        await writeUserSettings(props.user.userId, settingsToUpdate as any);
 
-    await writeUserSettings(props.user.userId, settingsToUpdate as any);
     return { success: true };
 }

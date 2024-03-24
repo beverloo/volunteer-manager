@@ -22,6 +22,11 @@ import { VisibilityContext } from './ShiftTeamVisibilityContext';
  */
 export interface ScheduledShiftsSectionProps {
     /**
+     * Whether this section should be expanded by default.
+     */
+    defaultExpanded?: boolean;
+
+    /**
      * Information about the event for which the demand section is being shown.
      */
     event: PageInfo['event'];
@@ -42,7 +47,7 @@ export interface ScheduledShiftsSectionProps {
  * are assigned to particular volunteers. The view combines shifts from all different teams.
  */
 export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
-    const { event } = props;
+    const { defaultExpanded, event } = props;
 
     const includeAllTeams = useContext(VisibilityContext);
     const shifts = useMemo(() => props.shifts.filter(shift => {
@@ -71,7 +76,8 @@ export function ScheduledShiftsSection(props: ScheduledShiftsSectionProps) {
     const subtitle = shifts.length === 1 ? '1 shift' : `${shifts.length} shifts`;
 
     return (
-        <ExpandableSection icon={ <ScheduleIcon color="info" /> }
+        <ExpandableSection icon={ <ScheduleIcon color="info" /> } defaultExpanded={defaultExpanded}
+                           setting="user-admin-shifts-expand-shifts"
                            title="Volunteering schedule" subtitle={subtitle}>
             <SectionIntroduction>
                 The following volunteers have been scheduled for this shift. This is for

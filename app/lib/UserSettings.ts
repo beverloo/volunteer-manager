@@ -13,8 +13,15 @@ export type UserSettingsMap = {
     // Admin settings
     // ---------------------------------------------------------------------------------------------
 
-    'user-admin-schedule-display-other-teams': boolean;
+    'user-admin-shifts-display-other-teams': boolean;
+    'user-admin-shifts-expand-shifts': boolean;
+    'user-admin-volunteers-expand-shifts': boolean;
 };
+
+/**
+ * Type containing all setting names known to the system.
+ */
+export type UserSetting = keyof UserSettingsMap;
 
 /**
  * Reads the user setting with the given `setting`, or `undefined` when it cannot be loaded and no
