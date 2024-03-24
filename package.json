@@ -52,6 +52,7 @@
     "iron-webcrypto": "^1.1.0",
     "mariadb": "^3.3.0",
     "marked": "^12.0.1",
+    "mui-color-input": "^2.0.3",
     "mui-markdown": "^1.1.13",
     "next": "14.1.4",
     "nodemailer": "^6.9.13",

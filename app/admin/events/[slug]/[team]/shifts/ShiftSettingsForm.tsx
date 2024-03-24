@@ -66,7 +66,7 @@ export interface ShiftSettingsFormProps {
     /**
      * Default values that should be applied to the form, if any.
      */
-    shift?: EventShiftRowModel;
+    shift?: Omit<EventShiftRowModel, 'colour'> & { colour?: string; };
 }
 
 /**

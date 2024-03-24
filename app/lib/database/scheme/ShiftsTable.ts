@@ -26,6 +26,7 @@ export class ShiftsTable extends Table<DBConnection, 'ShiftsTable'> {
     shiftName = this.column('shift_name', 'string');
     shiftActivityId = this.optionalColumnWithDefaultValue('shift_activity_id', 'int');
     shiftLocationId = this.optionalColumnWithDefaultValue('shift_location_id', 'int');
+    shiftColour = this.optionalColumnWithDefaultValue('shift_colour', 'string');
     shiftDescription = this.optionalColumnWithDefaultValue('shift_description', 'string');
     shiftDemand = this.optionalColumnWithDefaultValue('shift_demand', 'string');
     shiftDemandOverlap = this.columnWithDefaultValue<ShiftDemandOverlap>('shift_demand_overlap', 'enum', 'ShiftDemandOverlap');

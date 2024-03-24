@@ -144,6 +144,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
                 id: activitiesJoin.activityId,
                 name: activitiesJoin.activityTitle,
             },
+            colour: tShifts.shiftColour,
             demand: tShifts.shiftDemand,
             scheduledInMinutes: dbInstance.sum(scheduleDurationMinuteFragment),
             description: tShifts.shiftDescription,
@@ -160,7 +161,10 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
         /* name= */ string, Map</* teamId= */ number,
                                 [ /* total= */ number, /* remaining= */ number ]>>;
 
-    for (const { category, team } of results) {
+    for (const { category, colour, team } of results) {
+        if (!!colour)
+            continue;  // this result has a hardcoded colour
+
         if (!categories.has(category.name))
             categories.set(category.name, createColourInterpolator(category.colour));
 
@@ -178,37 +182,42 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
 
     // (2) Process the `results` to associate them with the right colour.
     return results.map(shift => {
-        const teamCounts = categoryCounts.get(shift.category.name)!;
+        let colour = shift.colour;
+        if (!colour && categoryCounts.has(shift.category.name)) {
+            const teamCounts = categoryCounts.get(shift.category.name)!;
 
-        const [ total, remaining ] = teamCounts.get(shift.team.id)!;
-        teamCounts.set(shift.team.id, [ total, remaining - 1 ]);
+            const [ total, remaining ] = teamCounts.get(shift.team.id)!;
+            teamCounts.set(shift.team.id, [ total, remaining - 1 ]);
 
-        let range: { min: number; max: number };
-        switch (total) {
-            case 1:
-                range = { min: 0.7, max: 0.7 };
-                break;
-            case 2:
-                range = { min: 0.4, max: 0.7 };
-                break;
-            case 3:
-                range = { min: 0.2, max: 0.8 };
-                break;
-            default:
-                range = { min: 0, max: 1 };
-                break;
+            let range: { min: number; max: number };
+            switch (total) {
+                case 1:
+                    range = { min: 0.7, max: 0.7 };
+                    break;
+                case 2:
+                    range = { min: 0.4, max: 0.7 };
+                    break;
+                case 3:
+                    range = { min: 0.2, max: 0.8 };
+                    break;
+                default:
+                    range = { min: 0, max: 1 };
+                    break;
+            }
+
+            const colourInterpolator = categories.get(shift.category.name)!;
+            const colourPosition =
+                total === 1
+                    ? /* fixed point= */ 0.7
+                    : range.min + ((range.max - range.min) / (total - 1)) * (total - remaining);
+
+            colour = colourInterpolator(colourPosition);
         }
-
-        const colourInterpolator = categories.get(shift.category.name)!;
-        const colourPosition =
-            total === 1
-                ? /* fixed point= */ 0.7
-                : range.min + ((range.max - range.min) / (total - 1)) * (total - remaining);
 
         return {
             ...shift,
             category: shift.category.name,
-            colour: colourInterpolator(colourPosition),
+            colour: colour!,
             demandInMinutes: calculateDemandMinutes(shift.demand),
             scheduledInMinutes: shift.scheduledInMinutes ?? 0,
         };

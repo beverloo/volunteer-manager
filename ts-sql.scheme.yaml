@@ -386,141 +386,6 @@ tables:
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: schedule
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: schedule_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: user_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: shift_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: schedule_time_start
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: schedule_time_end
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: schedule_updated_by
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: schedule_updated
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: schedule_deleted
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: schedule_event_id
-    def: KEY schedule_event_id (event_id) USING BTREE
-    table: schedule
-    columns:
-    - event_id
-    comment: ""
-  - name: schedule_shift_id
-    def: KEY schedule_shift_id (shift_id) USING BTREE
-    table: schedule
-    columns:
-    - shift_id
-    comment: ""
-  - name: schedule_user_id
-    def: KEY schedule_user_id (user_id) USING BTREE
-    table: schedule
-    columns:
-    - user_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (schedule_id) USING BTREE
-    table: schedule
-    columns:
-    - schedule_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (schedule_id)
-    table: schedule
-    referencedTable: null
-    columns:
-    - schedule_id
-    referencedColumns: []
-    comment: ""
-  - name: schedule_event_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-    table: schedule
-    referencedTable: events
-    columns:
-    - event_id
-    referencedColumns:
-    - event_id
-    comment: ""
-  - name: schedule_shift_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
-    table: schedule
-    referencedTable: shifts
-    columns:
-    - shift_id
-    referencedColumns:
-    - shift_id
-    comment: ""
-  - name: schedule_user_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
-    table: schedule
-    referencedTable: users
-    columns:
-    - user_id
-    referencedColumns:
-    - user_id
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `schedule` (
-      `schedule_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `user_id` int(8) unsigned NOT NULL,
-      `event_id` int(8) unsigned NOT NULL,
-      `shift_id` int(8) unsigned NOT NULL,
-      `schedule_time_start` datetime NOT NULL,
-      `schedule_time_end` datetime NOT NULL,
-      `schedule_updated_by` int(8) unsigned NOT NULL,
-      `schedule_updated` datetime NOT NULL,
-      `schedule_deleted` datetime DEFAULT NULL,
-      PRIMARY KEY (`schedule_id`),
-      KEY `schedule_event_id` (`event_id`),
-      KEY `schedule_shift_id` (`shift_id`),
-      KEY `schedule_user_id` (`user_id`),
-      CONSTRAINT `schedule_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
-      CONSTRAINT `schedule_shift_id` FOREIGN KEY (`shift_id`) REFERENCES `shifts` (`shift_id`) ON DELETE CASCADE,
-      CONSTRAINT `schedule_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: subscriptions
   type: BASE TABLE
   comment: ""
@@ -3932,6 +3797,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: shift_colour
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: shift_description
     type: text
     nullable: true
@@ -4017,6 +3887,7 @@ tables:
       `shift_name` varchar(64) NOT NULL,
       `shift_activity_id` int(8) unsigned DEFAULT NULL,
       `shift_location_id` int(8) unsigned DEFAULT NULL,
+      `shift_colour` varchar(32) DEFAULT NULL,
       `shift_description` text DEFAULT NULL,
       `shift_demand` text DEFAULT NULL,
       `shift_demand_overlap` enum('None','Partial','Cover') NOT NULL DEFAULT 'Cover',
@@ -4027,6 +3898,159 @@ tables:
       KEY `shifts_team_id` (`team_id`),
       CONSTRAINT `shifts_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
       CONSTRAINT `shifts_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: schedule
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: schedule_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: shift_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_time_start
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_time_end
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_updated_by
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: schedule_event_id
+    def: KEY schedule_event_id (event_id) USING BTREE
+    table: schedule
+    columns:
+    - event_id
+    comment: ""
+  - name: schedule_shift_id
+    def: KEY schedule_shift_id (shift_id) USING BTREE
+    table: schedule
+    columns:
+    - shift_id
+    comment: ""
+  - name: schedule_updated_by
+    def: KEY schedule_updated_by (schedule_updated_by) USING BTREE
+    table: schedule
+    columns:
+    - schedule_updated_by
+    comment: ""
+  - name: schedule_user_id
+    def: KEY schedule_user_id (user_id) USING BTREE
+    table: schedule
+    columns:
+    - user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (schedule_id) USING BTREE
+    table: schedule
+    columns:
+    - schedule_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (schedule_id)
+    table: schedule
+    referencedTable: null
+    columns:
+    - schedule_id
+    referencedColumns: []
+    comment: ""
+  - name: schedule_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: schedule
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+    comment: ""
+  - name: schedule_shift_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
+    table: schedule
+    referencedTable: shifts
+    columns:
+    - shift_id
+    referencedColumns:
+    - shift_id
+    comment: ""
+  - name: schedule_updated_by
+    type: FOREIGN KEY
+    def: FOREIGN KEY (schedule_updated_by) REFERENCES users (user_id)
+    table: schedule
+    referencedTable: users
+    columns:
+    - schedule_updated_by
+    referencedColumns:
+    - user_id
+    comment: ""
+  - name: schedule_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: schedule
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `schedule` (
+      `schedule_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` int(8) unsigned NOT NULL,
+      `event_id` int(8) unsigned NOT NULL,
+      `shift_id` int(8) unsigned NOT NULL,
+      `schedule_time_start` datetime NOT NULL,
+      `schedule_time_end` datetime NOT NULL,
+      `schedule_updated_by` int(8) unsigned NOT NULL,
+      `schedule_updated` datetime NOT NULL,
+      `schedule_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`schedule_id`),
+      KEY `schedule_event_id` (`event_id`),
+      KEY `schedule_shift_id` (`shift_id`),
+      KEY `schedule_user_id` (`user_id`),
+      KEY `schedule_updated_by` (`schedule_updated_by`),
+      CONSTRAINT `schedule_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+      CONSTRAINT `schedule_shift_id` FOREIGN KEY (`shift_id`) REFERENCES `shifts` (`shift_id`) ON DELETE CASCADE,
+      CONSTRAINT `schedule_updated_by` FOREIGN KEY (`schedule_updated_by`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+      CONSTRAINT `schedule_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
@@ -4078,36 +4102,6 @@ relations:
   - user_id
   parentCardinality: Zero or one
   def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
-  virtual: false
-- table: schedule
-  columns:
-  - event_id
-  cardinality: Zero or more
-  parentTable: events
-  parentColumns:
-  - event_id
-  parentCardinality: Exactly one
-  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-  virtual: false
-- table: schedule
-  columns:
-  - shift_id
-  cardinality: Zero or more
-  parentTable: shifts
-  parentColumns:
-  - shift_id
-  parentCardinality: Exactly one
-  def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
-  virtual: false
-- table: schedule
-  columns:
-  - user_id
-  cardinality: Zero or more
-  parentTable: users
-  parentColumns:
-  - user_id
-  parentCardinality: Exactly one
-  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 - table: storage
   columns:
@@ -4228,6 +4222,46 @@ relations:
   - team_id
   parentCardinality: Exactly one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: schedule
+  columns:
+  - event_id
+  cardinality: Zero or more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: schedule
+  columns:
+  - shift_id
+  cardinality: Zero or more
+  parentTable: shifts
+  parentColumns:
+  - shift_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
+  virtual: false
+- table: schedule
+  columns:
+  - schedule_updated_by
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (schedule_updated_by) REFERENCES users (user_id)
+  virtual: false
+- table: schedule
+  columns:
+  - user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Exactly one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 functions: []
 driver:

@@ -3,12 +3,13 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { FieldValues } from 'react-hook-form-mui';
 import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import { MuiColorInput } from 'mui-color-input';
 import { SelectElement, TextareaAutosizeElement } from 'react-hook-form-mui';
 
 import type { EventShiftContext, EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
@@ -53,7 +54,7 @@ export interface ShiftSettingsSectionProps extends EventShiftContext {
     /**
      * Default values that should be applied to the form, if any.
      */
-    shift: EventShiftRowModel;
+    shift: Omit<EventShiftRowModel, 'colour'> & { colour?: string; };
 }
 
 /**
@@ -64,6 +65,7 @@ export interface ShiftSettingsSectionProps extends EventShiftContext {
 export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
     const { readOnly } = props;
 
+    const [ colour, setColour ] = useState<string>(props.shift.colour ?? '#ffffff');
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
 
     const handleChange = useCallback(() => setInvalidated(true), [ /* no dependencies */ ]);
@@ -77,11 +79,11 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
                 activityId: data.activityId,
                 categoryId: data.categoryId,
                 locationId: data.locationId,
+                colour: colour || '#ffffff',  // defaults to #ffffff for no override
                 description: data.fields.description,
                 demandOverlap: data.fields.overlap,
                 excitement: data.fields.excitement,
 
-                colour: '',  // ignored
                 category: '',  // ignored
                 categoryOrder: 0,  // ignored
             },
@@ -92,7 +94,15 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
 
         setInvalidated(false);
 
-    }, [ props.context, props.shift ]);
+    }, [ colour, props.context, props.shift ]);
+
+    const handleColourChange = useCallback((colour: string) => {
+        setColour(colour);
+        setInvalidated(true);
+    }, [ /* no dependencies */ ]);
+
+    // Reset the colour when another shift is being rendered.
+    useEffect(() => setColour(props.shift.colour ?? '#ffffff'), [ props.shift.colour ]);
 
     return (
         <>
@@ -105,6 +115,12 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
                                        disabled={readOnly} onChange={handleChange} />
                     </Grid>
                     <Grid xs={6}>
+                        <MuiColorInput format="hex" value={colour} label="Override colour" fullWidth
+                                       size="small" isAlphaHidden disabled={readOnly}
+                                       sx={{ '& input[value="#ffffff"]': { color: 'transparent' } }}
+                                       fallbackValue="#ffffff" onChange={handleColourChange} />
+                    </Grid>
+                    <Grid xs={12}>
                         <SelectElement name="overlap" label="Timeslot overlap" fullWidth required
                                        options={kOverlapOptions} size="small" disabled={readOnly}
                                        onChange={handleChange} />

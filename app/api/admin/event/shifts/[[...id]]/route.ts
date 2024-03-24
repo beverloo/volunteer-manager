@@ -371,7 +371,8 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                 shiftName: row.name,
                 shiftActivityId: row.activityId,
                 shiftLocationId: row.locationId,
-                shiftDescription: row.description,
+                shiftColour: row.colour === '#ffffff' ? null : row.colour,
+                shiftDescription: row.description || null,
                 shiftDemandOverlap: row.demandOverlap,
                 shiftExcitement: row.excitement,
             })

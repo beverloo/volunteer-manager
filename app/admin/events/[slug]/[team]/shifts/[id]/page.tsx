@@ -89,10 +89,10 @@ export default async function EventTeamShiftPage(props: NextRouterParams<'slug' 
         .select({
             id: tShifts.shiftId,
             name: tShifts.shiftName,
-            colour: dbInstance.const('-unused-', 'string'),
             category: tShiftsCategories.shiftCategoryName,
             categoryId: tShiftsCategories.shiftCategoryId,
             categoryOrder: tShiftsCategories.shiftCategoryOrder,
+            colour: tShifts.shiftColour,
             activityId: tShifts.shiftActivityId,
             locationId: tShifts.shiftLocationId,
             description: tShifts.shiftDescription,
