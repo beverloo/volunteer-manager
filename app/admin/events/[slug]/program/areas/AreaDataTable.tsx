@@ -41,11 +41,17 @@ export function AreaDataTable(context: AreaDataTableProps) {
         {
             field: 'type',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             editable: false,
             sortable: false,
             width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Open the area in AnPlan">
+                    <LaunchIcon color="primary" fontSize="small" />
+                </Tooltip>,
 
             renderCell: params => {
                 if (params.value === ActivityType.Internal || !params.row.anplanLink) {

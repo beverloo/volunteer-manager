@@ -59,11 +59,17 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         {
             field: 'anplanLink',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             editable: false,
             sortable: false,
             width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Open the activity in AnPlan">
+                    <LaunchIcon color="primary" fontSize="small" />
+                </Tooltip>,
 
             renderCell: params => {
                 if (!params.value) {
@@ -168,11 +174,17 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         {
             field: 'helpRequested',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             editable: false,
             sortable: true,
             width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Has help been requested?">
+                    <NewReleasesIcon color="primary" fontSize="small" />
+                </Tooltip>,
 
             renderCell: params => {
                 if (params.row.shiftScheduled) {
@@ -199,11 +211,17 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         {
             field: 'visible',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             editable: false,
             sortable: true,
             width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Has the activity been published?">
+                    <VisibilityIcon color="primary" fontSize="small" />
+                </Tooltip>,
 
             renderCell: params => {
                 if (!!params.value) {

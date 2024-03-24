@@ -61,22 +61,28 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
         {
             field: 'type',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             editable: false,
             sortable: false,
             width: 50,
 
+            renderHeader: () =>
+                <Tooltip title="Open the location in AnPlan">
+                    <LaunchIcon color="primary" fontSize="small" />
+                </Tooltip>,
+
             renderCell: params => {
                 if (params.value === ActivityType.Internal || !params.row.anplanLink) {
                     return (
-                        <Tooltip title="This area does not exist in AnPlan">
+                        <Tooltip title="This location does not exist in AnPlan">
                             <LaunchIcon color="disabled" fontSize="small" />
                         </Tooltip>
                     );
                 } else {
                     return (
-                        <Tooltip title="Open this area in AnPlan">
+                        <Tooltip title="Open this location in AnPlan">
                             <IconButton component={Link} href={params.row.anplanLink}
                                         target="_blank">
                                 <LaunchIcon color="info" fontSize="small" />

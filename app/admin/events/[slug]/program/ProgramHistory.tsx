@@ -11,6 +11,7 @@ import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
@@ -33,10 +34,16 @@ export function ProgramHistory(props: ProgramHistoryProps) {
         {
             field: 'severity',
             display: 'flex',
+            headerAlign: 'center',
             headerName: '',
             align: 'center',
             sortable: true,
             width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Priority of this change">
+                    <CircleOutlinedIcon color="primary" fontSize="small" />
+                </Tooltip>,
 
             renderCell: params => {
                 switch (params.value) {
