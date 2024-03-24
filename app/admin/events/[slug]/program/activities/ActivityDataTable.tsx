@@ -144,6 +144,26 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
 
             type: 'singleSelect',
             valueOptions: props.locations,
+
+            valueSetter: (value, row) => {
+                let locationName: string = 'No locations…';
+                for (const location of props.locations) {
+                    if (typeof location !== 'object' || !('value' in location))
+                        continue;  // non-object ValueOption
+
+                    if (location.value !== value)
+                        continue;  // unrelated ValueOption
+
+                    locationName = location.label;
+                    break;
+                }
+
+                return {
+                    ...row,
+                    locationId: value,
+                    location: locationName,
+                };
+            },
         },
         {
             field: 'helpRequested',

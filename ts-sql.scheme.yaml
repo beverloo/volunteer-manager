@@ -2594,6 +2594,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: activity_location_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: Only for internal activities
   - name: activity_type_adults_only
     type: tinyint(1)
     nullable: false
@@ -2707,6 +2712,7 @@ tables:
       `activity_price` double DEFAULT NULL,
       `activity_help_needed` tinyint(1) NOT NULL,
       `activity_max_visitors` int(8) DEFAULT NULL,
+      `activity_location_id` int(8) unsigned DEFAULT NULL COMMENT 'Only for internal activities',
       `activity_type_adults_only` tinyint(1) NOT NULL,
       `activity_type_competition` tinyint(1) NOT NULL,
       `activity_type_cosplay` tinyint(1) NOT NULL,

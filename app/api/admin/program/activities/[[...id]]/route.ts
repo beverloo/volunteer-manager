@@ -216,6 +216,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             notFound();
 
         const activitiesLocationsJoin = tActivitiesLocations.forUseInLeftJoin();
+        const activitiesLocationsInternalJoin = tActivitiesLocations.forUseInLeftJoinAs('al');
         const activitiesTimeslotsJoin = tActivitiesTimeslots.forUseInLeftJoin();
         const shiftsJoin = tShifts.forUseInLeftJoin();
 
@@ -238,6 +239,9 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             .leftJoin(activitiesLocationsJoin)
                 .on(activitiesLocationsJoin.locationId.equals(
                     activitiesTimeslotsJoin.timeslotLocationId))
+            .leftJoin(activitiesLocationsInternalJoin)
+                .on(activitiesLocationsInternalJoin.locationId.equals(
+                    tActivities.activityLocationId))
             .leftJoin(shiftsJoin)
                 .on(shiftsJoin.shiftActivityId.equals(tActivities.activityId))
             .where(tActivities.activityFestivalId.equals(event.festivalId))
@@ -246,6 +250,11 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 id: tActivities.activityId,
                 title: tActivities.activityTitle,
                 type: tActivities.activityType,
+
+                // For internal activities only:
+                locationId: activitiesLocationsInternalJoin.locationId,
+                locationName: activitiesLocationsInternalJoin.locationDisplayName.valueWhenNull(
+                    activitiesLocationsInternalJoin.locationName),
 
                 timeslots: dbInstance.aggregateAsArray({
                     locationId: activitiesLocationsJoin.locationId,
@@ -272,12 +281,13 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 if (activity.type === ActivityType.Program)
                     anplanLink = getAnPlanActivityUrl(activity.id);
 
-                let location: string;
+                let location: string = 'No locations…';
                 let locationId: number | undefined;
 
-                if (!activity.timeslots.length) {
-                    location = 'No locations…';
-                } else {
+                if (activity.type === ActivityType.Internal && !!activity.locationName) {
+                    location = activity.locationName;
+                    locationId = activity.locationId;
+                } else if (!!activity.timeslots.length) {
                     const uniqueLocations = new Set<number>();
                     for (const { locationId, locationName } of activity.timeslots)
                         uniqueLocations.add(locationId);
@@ -311,10 +321,12 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
         if (!event || !event.festivalId)
             notFound();
 
-        const affectedRows = await db.update(tActivities)
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tActivities)
             .set({
                 activityTitle: row.title,
-                // TODO: activityLocationId?
+                activityLocationId: row.locationId || null,
+                activityUpdated: dbInstance.currentZonedDateTime(),
             })
             .where(tActivities.activityId.equals(id))
                 .and(tActivities.activityFestivalId.equals(event.festivalId))
@@ -322,17 +334,29 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 .and(tActivities.activityDeleted.isNull())
             .executeUpdate();
 
+        if (!!affectedRows) {
+            await dbInstance.insertInto(tActivitiesLogs)
+                .set({
+                    festivalId: event.festivalId,
+                    activityId: id,
+                    mutation: Mutation.Updated,
+                    mutationFields: 'title, location',
+                    mutationSeverity: MutationSeverity.Important,
+                    mutationUserId: props.user?.userId,
+                    mutationDate: dbInstance.currentZonedDateTime(),
+                })
+                .executeInsert();
+        }
+
         return { success: !!affectedRows };
     },
 
     async writeLog({ context, id }, mutation, props) {
-        return;
-
         const event = await getEventBySlug(context.event);
-        const locationName = await db.selectFrom(tActivitiesAreas)
-            .where(tActivitiesAreas.areaId.equals(id))
-            .selectOneColumn(tActivitiesAreas.areaDisplayName.valueWhenNull(
-                tActivitiesAreas.areaName))
+        const activityName = await db.selectFrom(tActivities)
+            .where(tActivities.activityId.equals(id))
+                .and(tActivities.activityType.equals(ActivityType.Internal))
+            .selectOneColumn(tActivities.activityTitle)
             .executeSelectNoneOrOne();
 
         await Log({
@@ -341,8 +365,8 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             sourceUser: props.user,
             data: {
                 event: event?.shortName,
-                entityType: 'area',
-                entity: locationName,
+                entityType: 'activity',
+                entity: activityName,
                 mutation
             },
         });
