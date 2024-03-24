@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 
 import Alert from '@mui/material/Alert';
@@ -44,6 +44,9 @@ export function Timeline(props: TimelineProps) {
 
     const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
     const [ errorMessage, setErrorMessage ] = useState<string | undefined>();
+    const [ mounted, setMounted ] = useState<boolean>(false);
+
+    useEffect(() => setMounted(true), [ /* no dependencies */ ]);
 
     const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no dependencies */ ]);
     const handleError = useCallback((action: 'create' | 'update', reason: 'invalid' | 'overlap') =>
@@ -65,6 +68,11 @@ export function Timeline(props: TimelineProps) {
         setErrorOpen(true);
 
     }, [ subject ]);
+
+    // Only render timelines on the client, never on the server. This is meaningful because the
+    // calendar component calculates text colour, which yields different results.
+    if (!mounted)
+        return null;
 
     return (
         <>
