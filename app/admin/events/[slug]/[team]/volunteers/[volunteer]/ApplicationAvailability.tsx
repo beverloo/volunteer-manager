@@ -17,14 +17,17 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { darken, lighten } from '@mui/system';
 
-import type { AvailabilityTimeslot } from '@beverloo/volunteer-manager-timeline';
 import type { EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { AvailabilityTimelineImpl } from './AvailabilityTimelineImpl';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
+import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+
+import { kAvailabilityTimelineColours, kAvailabilityTimelineTitles }
+    from './AvailabilityTimelineImpl';
 
 /**
  * Custom styles applied to the <AdminHeader> & related components.
@@ -124,11 +127,8 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     const lastValidException = Temporal.ZonedDateTime.from(event.endTime)
         .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 });
 
-    const min = firstValidException.toString({ timeZoneName: 'never' });
-    const max = lastValidException.toString({ timeZoneName: 'never' });
-
-    const [ timeslots, setTimeslots ] = useState<AvailabilityTimeslot[]>(() => {
-        const initialTimeslots: AvailabilityTimeslot[] = [];
+    const [ timeslots, setTimeslots ] = useState<TimelineEvent[]>(() => {
+        const initialTimeslots: TimelineEvent[] = [];
         if (volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 2) {
             try {
                 const unverifiedTimeslots = JSON.parse(volunteer.availabilityExceptions);
@@ -141,11 +141,24 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                     if (isBefore(lastValidException, start))
                         continue;  // exception happens after the event
 
+                    let state: keyof typeof kAvailabilityTimelineTitles = 'unavailable';
+                    switch (timeslot.state) {
+                        case 'available':
+                        case 'avoid':
+                        case 'unavailable':
+                            state = timeslot.state;
+                            break;
+                    }
+
                     initialTimeslots.push({
-                        id: `anime_${initialTimeslots.length}`,
+                        id: `anime/${initialTimeslots.length}`,
                         start: start.toString({ timeZoneName: 'never' }),
                         end: end.toString({ timeZoneName: 'never' }),
-                        state: timeslot.state,
+                        title: kAvailabilityTimelineTitles[state],
+                        color: kAvailabilityTimelineColours[state],
+
+                        // Internal properties:
+                        animeConState: state,
                     });
                 }
             } catch (error: any) {
@@ -156,7 +169,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         return initialTimeslots;
     });
 
-    const handleTimelineChange = useCallback((timeslots: AvailabilityTimeslot[]) => {
+    const handleTimelineChange = useCallback((timeslots: TimelineEvent[]) => {
         setTimeslots(timeslots);
         handleChange();  // also shows the "save changes" button
     }, [ handleChange ]);
@@ -178,11 +191,27 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                 }
             }
 
+            const exceptions: Array<{
+                start: string;
+                end: string;
+                state: 'available' | 'avoid' | 'unavailable'; }> = [];
+
+            for (const timeslot of timeslots) {
+                if (!timeslot.start || !timeslot.end || !timeslot.animeConState)
+                    continue;  // invalid `timeslot`
+
+                exceptions.push({
+                    start: timeslot.start,
+                    end: timeslot.end,
+                    state: timeslot.animeConState,
+                });
+            }
+
             const response = await callApi('post', '/api/event/availability-preferences', {
                 environment: team,
                 event: event.slug,
                 eventPreferences: eventPreferences,
-                exceptions: timeslots,
+                exceptions,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
@@ -239,8 +268,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={kStyles.sectionContent}>
-                        <AvailabilityTimelineImpl min={min} max={max} step={step}
-                                                  timezone={event.timezone} timeslots={timeslots}
+                        <AvailabilityTimelineImpl event={event} step={step} timeslots={timeslots}
                                                   onChange={handleTimelineChange} />
                     </AccordionDetails>
                 </Accordion>

@@ -6,20 +6,39 @@
 import { SelectElement } from 'react-hook-form-mui';
 import { useCallback, useState } from 'react';
 
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
-
-import type { AvailabilityTimeslot } from '@beverloo/volunteer-manager-timeline';
-import { AvailabilityTimeline } from '@beverloo/volunteer-manager-timeline';
+import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import type { TimelineEventMutation } from '@beverloo/volunteer-manager-timeline';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { Temporal } from '@lib/Temporal';
-
-import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
+import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 
 /**
  * Promise resolver function used with the ability to modify timeslots.
  */
-type PromiseResolver = (value?: AvailabilityTimeslot) => void;
+type PromiseResolver = (response?: TimelineEventMutation) => void;
+
+/**
+ * States that are valid for the availability timeline.
+ */
+type ValidStates = 'available' | 'avoid' | 'unavailable';
+
+/**
+ * Colours to use in the <AvailabilityTimeline> component.
+ */
+export const kAvailabilityTimelineColours: { [k in ValidStates]: string } = {
+    available: '#2E7D32',
+    avoid: '#FFC107',
+    unavailable: '#37474F',
+};
+
+/**
+ * Titles to use in the <AvailabilityTimelineImpl> component.
+ */
+export const kAvailabilityTimelineTitles: { [k in ValidStates]: string } = {
+    available: 'Available',
+    avoid: 'Avoid',
+    unavailable: 'Unavailable',
+};
 
 /**
  * Options that can be chosen in the availability exception configuration dialog.
@@ -35,26 +54,15 @@ const kExceptionTypeOptions = [
  */
 export interface AvailabilityTimelineImplProps {
     /**
-     * The minimum date and time to display on the calendar. Inclusive.
-     */
-    min: string;
-
-    /**
-     * The maximum date and time to display on the calendar. Exclusive.
-     */
-    max: string;
-
-    /**
      * Called when any mutation has been made to the availability timeline, which includes created
      * events, updated events and deleted events.
      */
-    onChange?: (timeslots: AvailabilityTimeslot[]) => void;
+    onChange?: (timeslots: TimelineEvent[]) => void;
 
     /**
-     * Whether the timeline should be displayed in read only mode, which means that no modifications
-     * can be made to content on the timeline at all. Defaults to _off_.
+     * The event for which the timeline is being shown.
      */
-    readOnly?: boolean;
+    event: PageInfo['event'];
 
     /**
      * Time step, in minutes, defining the granularity of events in the exception view.
@@ -62,20 +70,10 @@ export interface AvailabilityTimelineImplProps {
     step?: number;
 
     /**
-     * Whether the component should be in dark or light mode. Defaults to `light`.
-     */
-    theme?: 'dark' | 'light';
-
-    /**
      * The timeslots that should be displayed on the timeline. Timeslots should not overlap with
      * each other, as availability state is mutually exclusive information.
      */
-    timeslots: AvailabilityTimeslot[];
-
-    /**
-     * The timezone in which the data should be displayed. Input data is assumed to be UTC.
-     */
-    timezone: string;
+    timeslots: TimelineEvent[];
 }
 
 /**
@@ -83,72 +81,81 @@ export interface AvailabilityTimelineImplProps {
  * specific to the AnimeCon Volunteer Manager, integrated with MUI.
  */
 export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
-    const { min, max, onChange, readOnly, step, theme, timeslots, timezone } = props;
+    const { onChange, event, step, timeslots } = props;
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
-
-    const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no deps */ ]);
-    const handleError = useCallback((action: 'create' | 'update', reason: 'overlap') => {
-        setErrorOpen(true);
-    }, [ /* no deps */ ]);
-
-    // ---------------------------------------------------------------------------------------------
-
-    const [ selectedTimeslot, setSelectedTimeslot ] = useState<AvailabilityTimeslot | undefined>();
+    const [ selectedEvent, setSelectedEvent ] = useState<TimelineEvent | undefined>();
     const [ selectedResolver, setSelectedResolver ] = useState<PromiseResolver | undefined>();
 
-    const handleSettings = useCallback(async (timeslot: AvailabilityTimeslot) => {
-        return new Promise<AvailabilityTimeslot | undefined>(resolve => {
-            setSelectedTimeslot(timeslot);
+    const handleSettings = useCallback(async (event: TimelineEvent) => {
+        return new Promise<TimelineEventMutation | undefined>(resolve => {
+            setSelectedEvent(event);
             setSelectedResolver(() => resolve);
         });
     }, [ /* no deps */ ]);
 
     const handleSettingsClose =
-        useCallback(() => setSelectedTimeslot(undefined), [ /* no deps */ ]);
+        useCallback(() => setSelectedEvent(undefined), [ /* no deps */ ]);
 
     const handleSettingsDelete = useCallback(async () => {
-        if (!selectedTimeslot || !selectedResolver)
+        if (!selectedEvent || !selectedResolver)
             return { error: <>I forgot which timeslot was selected, sorry!</> };
 
-        selectedResolver(/* delete= */ undefined);
+        selectedResolver(/* delete= */ { delete: true });
         return { close: true } as const;
 
-    }, [ selectedResolver, selectedTimeslot ]);
+    }, [ selectedResolver, selectedEvent ]);
 
     const handleSettingsUpdate = useCallback(async (data: any) => {
-        if (!selectedTimeslot || !selectedResolver)
+        if (!selectedEvent || !selectedResolver)
             return { error: <>I forgot which timeslot was selected, sorry!</> };
 
-        if (![ 'unavailable', 'avoid', 'available' ].includes(data.state))
+        if (![ 'unavailable', 'avoid', 'available' ].includes(data.animeConState))
             return { error: <>I don't know which state to update to, sorry!</> };
 
-        selectedResolver({ ...selectedTimeslot, state: data.state });
+        const state = data.animeConState as ValidStates;
+        selectedResolver({
+            update: {
+                ...selectedEvent,
+                title: kAvailabilityTimelineTitles[state],
+                color: kAvailabilityTimelineColours[state],
+                animeConState: state
+            }
+        });
+
         return { close: true } as const;
 
-    }, [ selectedResolver, selectedTimeslot ]);
+    }, [ selectedResolver, selectedEvent ]);
 
     // ---------------------------------------------------------------------------------------------
 
+    const eventDefaults: Partial<TimelineEvent> = {
+        title: kAvailabilityTimelineTitles['unavailable'],
+        color: kAvailabilityTimelineColours['unavailable'],
+        animeConState: 'unavailable',
+    };
+
+    const min = Temporal.ZonedDateTime.from(event.startTime)
+        .withTimeZone(event.timezone).with({ hour: 6, minute: 0, second: 0 })
+            .toString({ timeZoneName: 'never' });
+
+    const max = Temporal.ZonedDateTime.from(event.endTime)
+        .withTimeZone(event.timezone).with({ hour: 22, minute: 0, second: 0 })
+            .toString({ timeZoneName: 'never' });
+
     return (
         <>
-            <AvailabilityTimeline temporal={Temporal} min={min} max={max} step={step}
-                                  dataTimezone="utc" displayTimezone={timezone} theme={theme}
-                                  onChange={onChange} onDoubleClick={handleSettings}
-                                  onError={handleError} readOnly={readOnly} timeslots={timeslots} />
-            <SettingDialog title="Availability exception" delete open={!!selectedTimeslot}
+            <Timeline min={min} max={max} step={step} displayTimezone={event.timezone}
+                      events={timeslots} onChange={onChange} onDoubleClick={handleSettings}
+                      disableGutters eventDefaults={eventDefaults} eventOverlap={false}
+                      subject="exception" />
+            <SettingDialog title="Availability exception" delete open={!!selectedEvent}
                            onClose={handleSettingsClose} onDelete={handleSettingsDelete}
-                           onSubmit={handleSettingsUpdate} defaultValues={ selectedTimeslot ?? {} }>
-                <SelectElement name="state" size="small" fullWidth sx={{ mt: '1px' }}
+                           onSubmit={handleSettingsUpdate} defaultValues={ selectedEvent ?? {} }>
+                <SelectElement name="animeConState" size="small" fullWidth sx={{ mt: '1px' }}
                                options={kExceptionTypeOptions} />
             </SettingDialog>
-            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
-                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
-                    Exceptions cannot overlap with each other
-                </Alert>
-            </Snackbar>
         </>
     );
 }
