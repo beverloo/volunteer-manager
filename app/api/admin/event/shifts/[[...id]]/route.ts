@@ -390,9 +390,6 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         if (!event || !team)
             notFound();
 
-        if (mutation === 'Updated')
-            return;  // todo: remove this
-
         const shiftName = await db.selectFrom(tShifts)
             .where(tShifts.shiftId.equals(id))
             .selectOneColumn(tShifts.shiftName)
