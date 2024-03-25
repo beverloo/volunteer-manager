@@ -13,6 +13,9 @@ export type UserSettingsMap = {
     // Admin settings
     // ---------------------------------------------------------------------------------------------
 
+    'user-admin-schedule-date': string;
+    'user-admin-schedule-expand-warnings': boolean;
+    'user-admin-schedule-inclusive-shifts': boolean;
     'user-admin-shifts-display-other-teams': boolean;
     'user-admin-shifts-expand-shifts': boolean;
     'user-admin-volunteers-expand-shifts': boolean;
