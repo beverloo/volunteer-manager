@@ -8,7 +8,7 @@ import { Section } from '@app/admin/components/Section';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { Schedule } from './Schedule';
+import { ScheduleImpl } from './ScheduleImpl';
 
 /**
  * The Schedule page enables leads to build the comprehensive schedules defining where volunteers
@@ -32,7 +32,7 @@ export default async function EventTeamSchedulePage(props: NextRouterParams<'slu
     return (
         <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
             <Section noHeader>
-                <Schedule />
+                <ScheduleImpl />
             </Section>
             <ScheduleWarnings
                 defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />

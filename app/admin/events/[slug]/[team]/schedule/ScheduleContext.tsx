@@ -132,7 +132,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     return (
         <ScheduleContext.Provider value={scheduleContext}>
-            <Stack component={Paper} direction="row" spacing={2} sx={{ p: 2 }}
+            <Stack component={Paper} direction="row" spacing={2} sx={{ px: 2, py: '13px' }}
                    justifyContent="space-between" alignItems="center">
                 <SectionHeader title="Schedule" subtitle={props.team.name} sx={{ mb: 0 }} />
                 <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
