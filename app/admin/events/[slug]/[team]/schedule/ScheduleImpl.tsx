@@ -8,7 +8,7 @@ import { useContext, useMemo } from 'react';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 
-import type { ScheduleMarker, ScheduleResource } from '@app/admin/components/Schedule';
+import type { ScheduleEvent, ScheduleMarker, ScheduleResource } from '@app/admin/components/Schedule';
 import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 
@@ -31,7 +31,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     // Compose the resources that should be shown on the schedule
     // ---------------------------------------------------------------------------------------------
 
-    const { markers, resources } = useMemo(() => {
+    const { events, markers, resources } = useMemo(() => {
+        const events: ScheduleEvent[] = [];
         const markers: ScheduleMarker[] = [];
         const resources: ScheduleResource[] = [];
 
@@ -39,6 +40,16 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             for (const roleResource of context.schedule.resources) {
                 for (const humanResource of roleResource.children) {
                     // TODO: Process markers
+
+                    if (!roleResource.collapsed && !events.length) {
+                        events.push({
+                            id: 'event/0',
+                            start: '2024-06-07T14:00:00Z',
+                            end: '2024-06-07T16:30:00Z',
+                            title: 'Shift',
+                            resource: humanResource.id,
+                        });
+                    }
                 }
 
                 resources.push({
@@ -48,7 +59,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             }
         }
 
-        return { markers, resources };
+        return { events, markers, resources };
 
     }, [ context.schedule ])
 
@@ -73,7 +84,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     return (
         <Paper>
-            <Schedule min={min} max={max} markers={markers} resources={resources}
+            <Schedule min={min} max={max} events={events} markers={markers} resources={resources}
                       displayTimezone="Europe/Amsterdam" subject="shift" />
         </Paper>
     );
