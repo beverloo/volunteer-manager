@@ -4,7 +4,6 @@
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { ScheduleContextImpl, type ScheduleInfo } from './ScheduleContext';
 import { ScheduleWarnings } from './ScheduleWarnings';
-import { Section } from '@app/admin/components/Section';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -31,9 +30,7 @@ export default async function EventTeamSchedulePage(props: NextRouterParams<'slu
 
     return (
         <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
-            <Section noHeader>
-                <ScheduleImpl />
-            </Section>
+            <ScheduleImpl />
             <ScheduleWarnings
                 defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />
         </ScheduleContextImpl>

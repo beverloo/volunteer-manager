@@ -11,6 +11,7 @@ import type { DisplayDefinition } from '@app/api/display/route';
 import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
+import type { GetScheduleDefinition } from '@app/api/admin/event/schedule/getSchedule';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
@@ -96,6 +97,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/displays': DisplaysEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
+        '/api/admin/event/schedule': GetScheduleDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['list'],
         '/api/admin/event/shifts': EventShiftEndpoints['list'],
         '/api/admin/event/teams': EventTeamEndpoints['list'],

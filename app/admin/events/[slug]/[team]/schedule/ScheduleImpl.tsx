@@ -3,9 +3,13 @@
 
 'use client';
 
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { useContext, useMemo } from 'react';
+
+import Paper from '@mui/material/Paper';
+import Skeleton from '@mui/material/Skeleton';
 
 import type { ScheduleMarker, ScheduleResource } from '@app/admin/components/Schedule';
+import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 
 /**
@@ -21,57 +25,56 @@ export interface ScheduleImplProps {
  * order. Furthermore, it supports all filtering options elsewhere in the user interface.
  */
 export function ScheduleImpl(props: ScheduleImplProps) {
-    const markers: ScheduleMarker[] = [
+    const context = useContext(ScheduleContext);
 
-    ];
+    // ---------------------------------------------------------------------------------------------
+    // Compose the resources that should be shown on the schedule
+    // ---------------------------------------------------------------------------------------------
 
-    const resources: ScheduleResource[] = [
-        {
-            id: 'staff',
-            name: 'Staff',
+    const { markers, resources } = useMemo(() => {
+        const markers: ScheduleMarker[] = [];
+        const resources: ScheduleResource[] = [];
 
-            collapsed: true,
-            children: [
-                { id: 1, name: 'Aiden' },
-                { id: 2, name: 'Alex' }
-            ],
+        if (!!context.schedule) {
+            for (const roleResource of context.schedule.resources) {
+                for (const humanResource of roleResource.children) {
+                    // TODO: Process markers
+                }
 
-            eventCreation: false,
-        },
-        {
-            id: 'seniors',
-            name: 'Seniors',
-
-            children: [
-                { id: 10, name: 'Carter' },
-                { id: 20, name: 'Ellis' },
-                { id: 30, name: 'Hayden' }
-            ],
-
-            eventCreation: false,
-        },
-        {
-            id: 'stewards',
-            name: 'Stewards',
-
-            children: [
-                { id: 100, name: 'Jude' },
-                { id: 200, name: 'Kit' },
-                { id: 300, name: 'Lane' },
-                { id: 400, name: 'Remi' },
-                { id: 500, name: 'Robin' },
-                { id: 600, name: 'Storm' },
-            ],
-
-            eventCreation: false,
+                resources.push({
+                    ...roleResource,
+                    name: `${roleResource.name} (${roleResource.children.length})`,
+                });
+            }
         }
-    ];
 
+        return { markers, resources };
+
+    }, [ context.schedule ])
+
+    // TODO: Scheduled shifts
+
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO: Apply the different date ranges
     const min = '2024-06-07T10:00:00+02:00';
     const max = '2024-06-09T22:00:00+02:00';
 
+    if (!resources.length) {
+        return (
+            <Paper sx={{ p: 2 }}>
+                <Skeleton animation="wave" height={12} width="91%" />
+                <Skeleton animation="wave" height={12} width="98%" />
+                <Skeleton animation="wave" height={12} width="93%" />
+                <Skeleton animation="wave" height={12} width="85%" />
+            </Paper>
+        );
+    }
+
     return (
-        <Schedule min={min} max={max} markers={markers} resources={resources}
-                  displayTimezone="Europe/Amsterdam" />
+        <Paper>
+            <Schedule min={min} max={max} markers={markers} resources={resources}
+                      displayTimezone="Europe/Amsterdam" />
+        </Paper>
     );
 }

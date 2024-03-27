@@ -9,8 +9,8 @@ import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
-import db, { tActivities, tEventsTeams, tEvents, tTeams, tShifts, tShiftsCategories }
-    from '@lib/database';
+import { validateContext } from '../../validateContext';
+import db, { tActivities, tShifts, tShiftsCategories } from '@lib/database';
 
 import { kShiftDemand } from './demand';
 import { ShiftDemandOverlap } from '@lib/database/Types';
@@ -132,35 +132,6 @@ export type EventShiftRowModel = z.infer<typeof kEventShiftRowModel>;
  * Export type definition for the API's context.
  */
 export type EventShiftContext = z.infer<typeof kEventShiftContext>;
-
-/**
- * Validates that the given `context` is correct, and returns an object containing both the event
- * and team information loaded from the database.
- */
-async function validateContext(context: EventShiftContext['context']) {
-    const result = await db.selectFrom(tEvents)
-        .innerJoin(tTeams)
-            .on(tTeams.teamEnvironment.equals(context.team))
-        .innerJoin(tEventsTeams)
-            .on(tEventsTeams.teamId.equals(tTeams.teamId))
-                .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
-        .where(tEvents.eventSlug.equals(context.event))
-        .select({
-            event: {
-                id: tEvents.eventId,
-                festivalId: tEvents.eventFestivalId,
-                name: tEvents.eventShortName,
-            },
-            team: {
-                id: tTeams.teamId,
-                name: tTeams.teamName,
-            },
-        })
-        .groupBy(tEvents.eventId)
-        .executeSelectNoneOrOne();
-
-    return result ?? { event: undefined, team: undefined };
-}
 
 /**
  * This is implemented as a regular DataTable API. The following endpoints are provided by this

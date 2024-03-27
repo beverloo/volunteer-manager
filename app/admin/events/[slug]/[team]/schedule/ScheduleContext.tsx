@@ -15,10 +15,12 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 
+import type { GetScheduleResult } from '@app/api/admin/event/schedule/getSchedule';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { SectionHeader } from '@app/admin/components/SectionHeader';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+import useSWR from 'swr';
 
 /**
  * Information regarding the schedule context.
@@ -33,6 +35,11 @@ export interface ScheduleInfo {
      * Whether it should be possible to schedule shifts owned by the other teams.
      */
     inclusiveShifts: boolean;
+
+    /**
+     * The schedule, as it was retrieved from the server. Updates periodically.
+     */
+    schedule?: GetScheduleResult;
 }
 
 /**
@@ -40,9 +47,13 @@ export interface ScheduleInfo {
  * browsing sessions for the signed in user.
  */
 export const ScheduleContext = createContext<ScheduleInfo>({
-    date: undefined,
     inclusiveShifts: false,
 });
+
+/**
+ * Fetcher used to retrieve the schedule from the server.
+ */
+const scheduleFetcher = (url: string) => fetch(url).then(r => r.json()).then(r => r.schedule);
 
 /**
  * Props accepted by the <ScheduleContextImpl> component.
@@ -127,8 +138,14 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     }, [ /* no dependencies */ ]);
 
+    // Load the schedule using SWR. This
+    const endpoint = `/api/admin/event/schedule?event=${props.event.slug}&team=${props.team.slug}`;
+    const { data, error, isLoading } = useSWR<GetScheduleResult>(endpoint, scheduleFetcher, {
+        // TODO: Select the appropriate options
+    });
+
     const scheduleContext: ScheduleInfo =
-        useMemo(() => ({ date, inclusiveShifts }), [ date, inclusiveShifts ]);
+        useMemo(() => ({ date, inclusiveShifts, schedule: data }), [ data, date, inclusiveShifts ]);
 
     return (
         <ScheduleContext.Provider value={scheduleContext}>
