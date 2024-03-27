@@ -12,6 +12,13 @@ import { validateContext } from '../validateContext';
 import db, { tRoles, tUsers, tUsersEvents } from '@lib/database';
 
 /**
+ * Type that defines a marker that can be added as part of the schedule.
+ */
+const kScheduleMarkerDefinition = z.object({
+
+});
+
+/**
  * Type that describes the contents of a schedule as it will be consumed by the client.
  */
 export const kScheduleDefinition = z.object({
@@ -44,8 +51,20 @@ export const kScheduleDefinition = z.object({
              */
             name: z.string(),
 
-            // TODO: Avoid
-            // TODO: Unavailable
+            /**
+             * When indicated, the number of hours this volunteer would like to help out with.
+             */
+            hours: z.number().optional(),
+
+            /**
+             * When applicable, times we should avoid scheduling shifts for this volunteer.
+             */
+            avoid: z.array(kScheduleMarkerDefinition).optional(),
+
+            /**
+             * When applicable, times during which the volunteer will not be available.
+             */
+            unavailable: z.array(kScheduleMarkerDefinition).optional(),
         })),
 
         /**
@@ -93,6 +112,27 @@ export const kGetScheduleDefinition = z.object({
     }),
 });
 
+/**
+ * Information necessary to determine the markers for a given volunteer.
+ */
+type MarkerInput = {
+    // TODO: availabilityExceptions
+    // TODO: availabilityTimeslots
+    // TODO: preferenceTimingStart
+    // TODO: preferenceTimingEnd
+};
+
+/**
+ * Determines the markers to apply for a particular volunteer. This speaks to their availability,
+ * exceptions to their availability and their preferred working hours.
+ */
+function determineMarkersForVolunteer(volunteer: MarkerInput) {
+    return {
+        avoid: undefined,
+        unavailable: undefined,
+    }
+}
+
 export type GetScheduleDefinition = ApiDefinition<typeof kGetScheduleDefinition>;
 
 type Request = ApiRequest<typeof kGetScheduleDefinition>;
@@ -136,9 +176,14 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             children: dbInstance.aggregateAsArray({
                 id: tUsers.userId,
                 name: tUsers.name,
+                hours: tUsersEvents.preferenceHours,
+                // TODO: availabilityExceptions
+                // TODO: availabilityTimeslots
+                // TODO: preferenceTimingStart
+                // TODO: preferenceTimingEnd
             }),
 
-            collapsed: dbInstance.const(false, 'boolean'),
+            collapsed: tRoles.roleScheduleCollapse,
         })
         .groupBy(tRoles.roleId)
         .orderBy(tRoles.roleOrder, 'asc')
@@ -147,13 +192,25 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     for (const roleResource of resources) {
         const roleId = `role/${roleResource.id}`;
 
-        roleResource.children.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+        const children: GetScheduleResult['resources'][number]['children'] = [];
+        for (const humanResource of roleResource.children) {
+            const { avoid, unavailable } = determineMarkersForVolunteer(humanResource);
+
+            children.push({
+                id: humanResource.id,
+                name: humanResource.name,
+                hours: humanResource.hours,
+                avoid, unavailable,
+            });
+        }
+
+        children.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
 
         schedule.resources.push({
             id: roleId,
             name: roleResource.name,
-            children: roleResource.children,
-            collapsed: roleResource.collapsed,
+            children: children,
+            collapsed: !!roleResource.collapsed,
         });
     }
 

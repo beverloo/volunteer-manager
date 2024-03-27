@@ -74,7 +74,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     return (
         <Paper>
             <Schedule min={min} max={max} markers={markers} resources={resources}
-                      displayTimezone="Europe/Amsterdam" />
+                      displayTimezone="Europe/Amsterdam" subject="shift" />
         </Paper>
     );
 }

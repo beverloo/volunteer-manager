@@ -351,6 +351,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: role_schedule_collapse
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
   - name: role_training_eligible
     type: tinyint(1)
     nullable: false
@@ -383,6 +388,7 @@ tables:
       `role_availability_event_limit` int(8) unsigned NOT NULL,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
+      `role_schedule_collapse` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
