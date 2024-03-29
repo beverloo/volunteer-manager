@@ -10,7 +10,7 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { validateContext } from '../validateContext';
-import db, { tRoles, tUsers, tUsersEvents } from '@lib/database';
+import db, { tActivities, tActivitiesTimeslots, tRoles, tUsers, tUsersEvents } from '@lib/database';
 
 import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
 import { readSettings } from '@lib/Settings';
@@ -248,8 +248,8 @@ type AvailabilityInfo = {
  * Information necessary to determine the markers for a given volunteer.
  */
 type AvailabilityInput = {
-    availabilityExceptions: string;
-    // TODO: availabilityTimeslots
+    availabilityExceptions?: string;
+    availabilityTimeslots?: string;
     // TODO: preferenceTimingStart
     // TODO: preferenceTimingEnd
 };
@@ -258,7 +258,9 @@ type AvailabilityInput = {
  * Determines the availability for the given `volunteer`. This can be used to create markers to
  * indicate their availability, and to calculate warnings when those are ignored.
  */
-function determineAvailabilityForVolunteer(volunteer: AvailabilityInput): AvailabilityInfo {
+function determineAvailabilityForVolunteer(
+    volunteer: AvailabilityInput, timeslots: Map<number, AvailabilityEntry>): AvailabilityInfo
+{
     const available: AvailabilityEntry[] = [];
     const availability: AvailabilityInfo = {
         avoid: [],
@@ -283,7 +285,23 @@ function determineAvailabilityForVolunteer(volunteer: AvailabilityInput): Availa
                         break;
                 }
             }
-        } catch (error: any) {}
+        } catch (error: any) { console.warn(`Invalid availability exceptions seen: ${volunteer}`); }
+    }
+
+    if (!!volunteer.availabilityTimeslots && volunteer.availabilityTimeslots.length > 2) {
+        try {
+            const availabilityTimeslots =
+                volunteer.availabilityTimeslots.split(',').map(v => parseInt(v, 10));
+
+            for (const timeslotId of availabilityTimeslots) {
+                const timeslot = timeslots.get(timeslotId);
+                if (!timeslot)
+                    continue;  // invalid timeslot
+
+                // TODO: Ignore if this overlaps with `available`
+                availability.avoid.push(timeslot);
+            }
+        } catch (error: any) { console.warn(`Invalid availability timeslots seen: ${volunteer}`); }
     }
 
     return availability;
@@ -330,6 +348,22 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
+    const timeslotData = await dbInstance.selectFrom(tActivities)
+        .innerJoin(tActivitiesTimeslots)
+            .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
+        .where(tActivities.activityFestivalId.equals(event.festivalId!))
+            .and(tActivities.activityDeleted.isNull())
+            .and(tActivitiesTimeslots.timeslotDeleted.isNull())
+        .select({
+            id: tActivitiesTimeslots.timeslotId,
+            start: tActivitiesTimeslots.timeslotStartTime,
+            end: tActivitiesTimeslots.timeslotEndTime,
+        })
+        .executeSelectMany();
+
+    const timeslots = new Map(timeslotData.map(
+        timeslot => [ timeslot.id, { start: timeslot.start, end: timeslot.end } ]));
+
     const resources = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
@@ -347,7 +381,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 name: tUsers.name,
                 hours: tUsersEvents.preferenceHours,
                 availabilityExceptions: tUsersEvents.availabilityExceptions,
-                // TODO: availabilityTimeslots
+                availabilityTimeslots: tUsersEvents.availabilityTimeslots,
                 // TODO: preferenceTimingStart
                 // TODO: preferenceTimingEnd
             }),
@@ -363,7 +397,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
         const children: GetScheduleResult['resources'][number]['children'] = [];
         for (const humanResource of roleResource.children) {
-            const { avoid, unavailable } = determineAvailabilityForVolunteer(humanResource);
+            const { avoid, unavailable } =
+                determineAvailabilityForVolunteer(humanResource, timeslots);
 
             let volunteerMarkerId = 0;
             for (const { start, end } of avoid) {
