@@ -93,6 +93,40 @@ export default async function IntegrationsPage() {
                 description: 'How many events should be considered for retention planning?',
             },
             {
+                setting: 'schedule-day-view-start-time',
+                type: 'string',
+                defaultValue: '08:00',
+
+                label: 'Schedule - start time (day view; HH:MM)',
+                description: 'Time at which the day starts on schedule',
+            },
+            {
+                setting: 'schedule-day-view-end-time',
+                type: 'string',
+                defaultValue: '27:30',
+
+                label: 'Schedule - end time (day view; HH:MM)',
+                description:
+                    'Time at which the day ends on the schedule. May continue beyond midnight to ' +
+                    'finish on the next day',
+            },
+            {
+                setting: 'schedule-event-view-start-hours',
+                type: 'number',
+                defaultValue: 4,
+
+                label: 'Schedule - start hours (event view)',
+                description: 'Number of hours before opening that shifts can be scheduled',
+            },
+            {
+                setting: 'schedule-event-view-end-hours',
+                type: 'number',
+                defaultValue: 4,
+
+                label: 'Schedule - end hours (event view)',
+                description: 'Number of hours after closing that shifts can be scheduled',
+            },
+            {
                 setting: 'schedule-time-step-minutes',
                 type: 'number',
                 defaultValue: 15,

@@ -30,6 +30,10 @@ type SettingsMap = {
     'retention-number-of-events-to-consider': number;
 
     // Schedule:
+    'schedule-day-view-start-time': string;
+    'schedule-day-view-end-time': string;
+    'schedule-event-view-start-hours': number;
+    'schedule-event-view-end-hours': number;
     'schedule-time-step-minutes': number;
 
     // ---------------------------------------------------------------------------------------------

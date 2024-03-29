@@ -7,9 +7,13 @@ import { z } from 'zod';
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { validateContext } from '../validateContext';
 import db, { tRoles, tUsers, tUsersEvents } from '@lib/database';
+
+import { kTemporalPlainDate } from '@app/api/Types';
+import { readSettings } from '@lib/Settings';
 
 /**
  * Type that defines a marker that can be added as part of the schedule.
@@ -22,6 +26,16 @@ const kScheduleMarkerDefinition = z.object({
  * Type that describes the contents of a schedule as it will be consumed by the client.
  */
 export const kScheduleDefinition = z.object({
+    /**
+     * Minimum time that should be displayed on the timeline.
+     */
+    min: z.string(),
+
+    /**
+     * Maximum time that should be displayed on the timeline.
+     */
+    max: z.string(),
+
     /**
      * The resources that should be shown on the schedule. Resources are volunteers, grouped by the
      * role that they have been assigned to, and then shown in alphabetical order.
@@ -72,6 +86,11 @@ export const kScheduleDefinition = z.object({
          */
         collapsed: z.boolean(),
     })),
+
+    /**
+     * Timezone in which the event will be taking place.
+     */
+    timezone: z.string(),
 });
 
 /**
@@ -93,6 +112,12 @@ export const kGetScheduleDefinition = z.object({
          * URL-safe slug of the team for which the schedule is being retrieved.
          */
         team: z.string(),
+
+        /**
+         * Optional date on which the schedule should focus, if any. Defaults to the entire event
+         * when omitted.
+         */
+        date: kTemporalPlainDate.optional(),
     }),
     response: z.strictObject({
         /**
@@ -111,6 +136,71 @@ export const kGetScheduleDefinition = z.object({
         schedule: kScheduleDefinition.optional(),
     }),
 });
+
+/**
+ * Returns a time that is guaranteed to be valid. The `input` will be used when it confirms to the
+ * "HH:MM" syntax, otherwise `defaultValue` will be returned.
+ */
+function validateTime(input: string | undefined, defaultValue: string): string {
+    if (/^\d{1,2}:[0-5][0-9]$/.test(input || ''))
+        return input!;
+
+    return defaultValue;
+}
+
+/**
+ * Input that should be given in order to determine the date range.
+ */
+type DateRangeInput = {
+    date?: Temporal.PlainDate,
+    event: {
+        startTime: Temporal.ZonedDateTime,
+        endTime: Temporal.ZonedDateTime,
+        timezone: string;
+    },
+    settings: {
+        'schedule-day-view-start-time'?: string,
+        'schedule-day-view-end-time'?: string,
+        'schedule-event-view-start-hours'?: number,
+        'schedule-event-view-end-hours'?: number,
+    }
+};
+
+/**
+ * Determines the date range for the schedule view. This is dependent on the dates during which the
+ * event will be taking place, and whether the schedule for an individual day has been requested.
+ */
+function determineDateRange(input: DateRangeInput) {
+    if (!!input.date) {
+        const startOfDay = input.date.toZonedDateTime({
+            timeZone: input.event.timezone,
+            plainTime: '00:00:00',
+        });
+
+        const startTime = validateTime(input.settings['schedule-day-view-start-time'], '08:00');
+        const endTime = validateTime(input.settings['schedule-day-view-end-time'], '27:30');
+
+        const [ startHours, startMinutes ] = startTime.split(':').map(v => parseInt(v, 10));
+        const [ endHours, endMinutes ] = endTime.split(':').map(v => parseInt(v, 10));
+
+        return {
+            min: startOfDay.add({ hours: startHours, minutes: startMinutes })
+                .toString({ timeZoneName: 'never' }),
+            max: startOfDay.add({ hours: endHours, minutes: endMinutes })
+                .toString({ timeZoneName: 'never' }),
+        };
+    }
+
+    const startHours = input.settings['schedule-event-view-start-hours'] ?? 4;
+    const endHours = input.settings['schedule-event-view-end-hours'] ?? 2;
+
+    return {
+        min: input.event.startTime.subtract({ hours: startHours })
+            .toString({ timeZoneName: 'never' }),
+        max: input.event.endTime.add({ hours: endHours })
+            .toString({ timeZoneName: 'never' }),
+    };
+}
 
 /**
  * Information necessary to determine the markers for a given volunteer.
@@ -152,8 +242,19 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (!event || !team)
         notFound();
 
+    const settings = await readSettings([
+        'schedule-day-view-start-time',
+        'schedule-day-view-end-time',
+        'schedule-event-view-start-hours',
+        'schedule-event-view-end-hours',
+    ]);
+
+    const { min, max } = determineDateRange({ date: request.date, event, settings });
+
     const schedule: GetScheduleResult = {
+        min, max,
         resources: [],
+        timezone: event.timezone,
     };
 
     // ---------------------------------------------------------------------------------------------

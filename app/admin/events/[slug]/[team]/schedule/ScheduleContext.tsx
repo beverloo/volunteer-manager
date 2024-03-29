@@ -27,11 +27,6 @@ import useSWR from 'swr';
  */
 export interface ScheduleInfo {
     /**
-     * The date (in a Temporal PlainDate-compatible format) that the schedule should focus on.
-     */
-    date?: string;
-
-    /**
      * Whether it should be possible to schedule shifts owned by the other teams.
      */
     inclusiveShifts: boolean;
@@ -72,7 +67,7 @@ export interface ScheduleContextImplProps {
     /**
      * Default values that should be set in the context.
      */
-    defaultContext: ScheduleInfo;
+    defaultContext: ScheduleInfo & { date?: string };
 }
 
 /**
@@ -138,14 +133,26 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     }, [ /* no dependencies */ ]);
 
-    // Load the schedule using SWR. This
-    const endpoint = `/api/admin/event/schedule?event=${props.event.slug}&team=${props.team.slug}`;
+    // Load the schedule using SWR. The endpoint will be composed based on the props and the date,
+    // following which we will acquire the necessary information from the server.
+    const endpoint = useMemo(() => {
+        const endpointParams = new URLSearchParams;
+        endpointParams.set('event', props.event.slug);
+        endpointParams.set('team', props.team.slug);
+
+        if (!!date)
+            endpointParams.set('date', date);
+
+        return `/api/admin/event/schedule?${endpointParams.toString()}`;
+
+    }, [ date, props.event.slug, props.team.slug ]);
+
     const { data, error, isLoading } = useSWR<GetScheduleResult>(endpoint, scheduleFetcher, {
         // TODO: Select the appropriate options
     });
 
     const scheduleContext: ScheduleInfo =
-        useMemo(() => ({ date, inclusiveShifts, schedule: data }), [ data, date, inclusiveShifts ]);
+        useMemo(() => ({ inclusiveShifts, schedule: data }), [ data, inclusiveShifts ]);
 
     return (
         <ScheduleContext.Provider value={scheduleContext}>

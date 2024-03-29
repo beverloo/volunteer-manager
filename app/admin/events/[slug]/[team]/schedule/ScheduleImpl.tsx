@@ -67,11 +67,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    // TODO: Apply the different date ranges
-    const min = '2024-06-07T10:00:00+02:00';
-    const max = '2024-06-09T22:00:00+02:00';
-
-    if (!resources.length) {
+    if (!context.schedule || !resources.length) {
         return (
             <Paper sx={{ p: 2 }}>
                 <Skeleton animation="wave" height={12} width="91%" />
@@ -84,8 +80,9 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     return (
         <Paper>
-            <Schedule min={min} max={max} events={events} markers={markers} resources={resources}
-                      displayTimezone="Europe/Amsterdam" subject="shift" />
+            <Schedule min={context.schedule.min} max={context.schedule.max} events={events}
+                      markers={markers} resources={resources}
+                      displayTimezone={context.schedule.timezone} subject="shift" />
         </Paper>
     );
 }

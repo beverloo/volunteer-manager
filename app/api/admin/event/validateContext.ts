@@ -23,8 +23,13 @@ export async function validateContext(context: Context) {
         .select({
             event: {
                 id: tEvents.eventId,
-                festivalId: tEvents.eventFestivalId,
                 name: tEvents.eventShortName,
+
+                festivalId: tEvents.eventFestivalId,
+
+                startTime: tEvents.eventStartTime,
+                endTime: tEvents.eventEndTime,
+                timezone: tEvents.eventTimezone,
             },
             team: {
                 id: tTeams.teamId,
