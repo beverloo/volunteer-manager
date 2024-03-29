@@ -338,20 +338,24 @@ function determineAvailabilityForVolunteer(input: AvailabilityInput): Availabili
 
         let currentDay = firstDay;
         while (Temporal.ZonedDateTime.compare(currentDay, lastDay) <= 0) {
-            let unavailableStartHour: number = 0;
-            if (currentDay.epochSeconds !== firstDay.epochSeconds &&
-                    volunteer.preferenceTimingEnd < dailyStartHour) {
-                unavailableStartHour = volunteer.preferenceTimingEnd;
-            }
-
-            let unavailableEndHour: number = dailyStartHour;
+            let startHour: number;
             if (currentDay.epochSeconds === firstDay.epochSeconds)
-                unavailableEndHour = eventStartScheduleHour;
+                startHour = 0;  // midnight, event hasn't started yet
+            else if (volunteer.preferenceTimingEnd > dailyStartHour)
+                startHour = volunteer.preferenceTimingEnd - 24;
+            else
+                startHour = volunteer.preferenceTimingEnd;
+
+            let endHour: number = /* FIXME= */ 8;
+            if (currentDay.epochSeconds === firstDay.epochSeconds)
+                endHour = eventStartScheduleHour;
+            else
+                endHour = volunteer.preferenceTimingStart;
 
             // TODO: Ignore or amend if this overlaps with `available`
             availability.unavailable.push({
-                start: currentDay.with({ hour: unavailableStartHour }),
-                end: currentDay.with({ hour: unavailableEndHour }),
+                start: currentDay.add({ hours: startHour }),
+                end: currentDay.add({ hours: endHour }),
             });
 
             currentDay = currentDay.add({ days: 1 });
