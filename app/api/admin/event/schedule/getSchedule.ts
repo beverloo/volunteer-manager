@@ -237,6 +237,16 @@ type AvailabilityEntry = {
 };
 
 /**
+ * Adjusts the given `entry` based on the `available` times, during which the volunteer will always
+ * be marked as available. This may result in the `entry` being dropped entirely, either its start
+ * or end time being adjusted, or for the `entry` to be split in multiple entries.
+ */
+function adjustForAvailableTimeslots(entry: AvailabilityEntry, available: AvailabilityEntry[]) {
+    // TODO: Implement this method.
+    return [ entry ];
+}
+
+/**
  * Information that represents a particular volunteer's availability.
  */
 type AvailabilityInfo = {
@@ -256,6 +266,7 @@ type AvailabilityInput = {
     settings: {
         'schedule-day-view-start-time'?: string,
         'schedule-event-view-start-hours'?: number,
+        'schedule-event-view-end-hours'?: number,
     },
     timeslots: Map<number, AvailabilityEntry>,
     volunteer: {
@@ -312,8 +323,9 @@ function determineAvailabilityForVolunteer(input: AvailabilityInput): Availabili
                 if (!timeslot)
                     continue;  // invalid timeslot
 
-                // TODO: Ignore or amend if this overlaps with `available`
-                availability.avoid.push(timeslot);
+                const adjustedTimeslot = adjustForAvailableTimeslots(timeslot, available);
+                if (!!adjustedTimeslot)
+                    availability.avoid.push(...adjustedTimeslot);
             }
         } catch (error: any) { console.warn(`Invalid availability timeslots seen: ${volunteer}`); }
     }
@@ -346,19 +358,40 @@ function determineAvailabilityForVolunteer(input: AvailabilityInput): Availabili
             else
                 startHour = volunteer.preferenceTimingEnd;
 
-            let endHour: number = /* FIXME= */ 8;
-            if (currentDay.epochSeconds === firstDay.epochSeconds)
-                endHour = eventStartScheduleHour;
-            else
+            let endHour: number;
+            if (currentDay.epochSeconds === firstDay.epochSeconds) {
+                if (eventStartScheduleHour < volunteer.preferenceTimingStart)
+                    endHour = volunteer.preferenceTimingStart;
+                else
+                    endHour = eventStartScheduleHour;
+            } else {
                 endHour = volunteer.preferenceTimingStart;
+            }
 
-            // TODO: Ignore or amend if this overlaps with `available`
-            availability.unavailable.push({
+            const timeslot: AvailabilityEntry = {
                 start: currentDay.add({ hours: startHour }),
                 end: currentDay.add({ hours: endHour }),
-            });
+            };
+
+            const adjustedTimeslot = adjustForAvailableTimeslots(timeslot, available);
+            if (!!adjustedTimeslot)
+                availability.unavailable.push(...adjustedTimeslot);
 
             currentDay = currentDay.add({ days: 1 });
+        }
+
+        // Add one more timeslot after the event has finished, until midnight, to complete the
+        // timeline. This ensures that everything looks consistent.
+        {
+            const closingTimeslot: AvailabilityEntry = {
+                end: lastDay.with({ hour: 23, minute: 59, second: 59 }),
+                start: event.endTime.withTimeZone(event.timezone)
+                    .add({ hours: settings['schedule-event-view-end-hours'] ?? 2 }),
+            };
+
+            const adjustedTimeslot = adjustForAvailableTimeslots(closingTimeslot, available);
+            if (!!adjustedTimeslot)
+                availability.unavailable.push(...adjustedTimeslot);
         }
     }
 
