@@ -591,6 +591,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         .where(tSchedule.eventId.equals(event.id))
             .and(tSchedule.scheduleDeleted.isNull())
             .and(tSchedule.userId.in(users))
+            .and(tSchedule.scheduleTimeEnd.greaterOrEquals(min))
+            .and(tSchedule.scheduleTimeStart.lessOrEquals(max))
         .select({
             id: tSchedule.scheduleId,
             start: tSchedule.scheduleTimeStart,
