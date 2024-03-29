@@ -52,26 +52,15 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                 });
             }
 
-            for (const roleResource of context.schedule.resources) {
-                for (const humanResource of roleResource.children) {
-                    // TODO: Process markers
-
-                    if (!roleResource.collapsed && !events.length) {
-                        events.push({
-                            id: 'event/0',
-                            start: '2023-06-09T14:00:00Z',
-                            end: '2023-06-09T16:30:00Z',
-                            title: 'Shift',
-                            resource: humanResource.id,
-                        });
-                    }
-                }
-
+            for (const resource of context.schedule.resources) {
                 resources.push({
-                    ...roleResource,
-                    name: `${roleResource.name} (${roleResource.children.length})`,
+                    ...resource,
+                    name: `${resource.name} (${resource.children.length})`,
                 });
             }
+
+            for (const shift of context.schedule.shifts)
+                events.push(shift);
         }
 
         return { events, markers, resources };

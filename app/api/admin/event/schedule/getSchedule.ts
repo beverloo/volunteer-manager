@@ -10,10 +10,12 @@ import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { validateContext } from '../validateContext';
-import db, { tActivities, tActivitiesTimeslots, tRoles, tUsers, tUsersEvents } from '@lib/database';
+import db, { tActivities, tActivitiesTimeslots, tRoles, tSchedule, tShifts, tShiftsCategories,
+    tUsers, tUsersEvents } from '@lib/database';
 
 import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
 import { readSettings } from '@lib/Settings';
+import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 
 /**
  * Type describing an availability exception, as stored in the database.
@@ -115,6 +117,42 @@ export const kScheduleDefinition = z.object({
          * Whether the row should be collapsed by default.
          */
         collapsed: z.boolean(),
+    })),
+
+    /**
+     * The shifts that have been scheduled on the timeline. Each must carry a moment at which they
+     * start and end, a title and a colour.
+     */
+    shifts: z.array(z.object({
+        /**
+         * Unique ID of the shift as it exists in the database.
+         */
+        id: z.number(),
+
+        /**
+         * Date and time at which the shift starts.
+         */
+        start: z.string(),
+
+        /**
+         * Date and time at which the shift ends.
+         */
+        end: z.string(),
+
+        /**
+         * Title of the shift, as it should be presented.
+         */
+        title: z.string(),
+
+        /**
+         * Colour in which the shift should be displayed on the schedule.
+         */
+        color: z.string(),
+
+        /**
+         * Unique ID of the volunteer for whom this shift exists.
+         */
+        resource: z.number(),
     })),
 
     /**
@@ -439,6 +477,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         max: max.toString({ timeZoneName: 'never' }),
         markers: [],
         resources: [],
+        shifts: [],
         timezone: event.timezone,
     };
 
@@ -450,7 +489,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const timeslotData = await dbInstance.selectFrom(tActivities)
         .innerJoin(tActivitiesTimeslots)
             .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
-        .where(tActivities.activityFestivalId.equals(event.festivalId!))
+        .where(tActivities.activityFestivalId.equals(event.festivalId ?? 0))
             .and(tActivities.activityDeleted.isNull())
             .and(tActivitiesTimeslots.timeslotDeleted.isNull())
         .select({
@@ -463,6 +502,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const timeslots = new Map(timeslotData.map(
         timeslot => [ timeslot.id, { start: timeslot.start, end: timeslot.end } ]));
 
+    const users: number[] = [];
     const resources = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
@@ -502,7 +542,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             let volunteerMarkerId = 0;
             for (const { start, end } of avoid) {
                 schedule.markers.push({
-                    id: `avoid/${humanResource.id}/${++volunteerMarkerId}`,
+                    id: `${humanResource.id}/m/a/${++volunteerMarkerId}`,
                     start: adjustedStringForDisplay(start),
                     end: adjustedStringForDisplay(end),
                     resource: humanResource.id,
@@ -512,7 +552,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
             for (const { start, end } of unavailable) {
                 schedule.markers.push({
-                    id: `unavailable/${humanResource.id}/${++volunteerMarkerId}`,
+                    id: `${humanResource.id}/m/u/${++volunteerMarkerId}`,
                     start: adjustedStringForDisplay(start),
                     end: adjustedStringForDisplay(end),
                     resource: humanResource.id,
@@ -526,6 +566,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 id: humanResource.id,
                 name: humanResource.name,
             });
+
+            users.push(humanResource.id);
         }
 
         children.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
@@ -536,6 +578,43 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             children: children,
             collapsed: !!roleResource.collapsed,
         });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Retrieve information about the assigned shifts.
+    // ---------------------------------------------------------------------------------------------
+
+    const shifts = await getShiftsForEvent(event.id, event.festivalId ?? 0);
+    const shiftsMap = new Map(shifts.map(shift => [ shift.id, shift ]));
+
+    const scheduledShifts = await dbInstance.selectFrom(tSchedule)
+        .where(tSchedule.eventId.equals(event.id))
+            .and(tSchedule.scheduleDeleted.isNull())
+            .and(tSchedule.userId.in(users))
+        .select({
+            id: tSchedule.scheduleId,
+            start: tSchedule.scheduleTimeStart,
+            end: tSchedule.scheduleTimeEnd,
+            resource: tSchedule.userId,
+            shiftId: tSchedule.shiftId,
+        })
+        .executeSelectMany();
+
+    for (const scheduledShift of scheduledShifts) {
+        const shift = shiftsMap.get(scheduledShift.shiftId);
+        if (!shift)
+            continue;  // the |scheduledShift| is not associated with a valid shift
+
+        schedule.shifts.push({
+            id: scheduledShift.id,
+            start: scheduledShift.start.toString({ timeZoneName: 'never' }),
+            end: scheduledShift.end.toString({ timeZoneName: 'never' }),
+            title: shift.name,
+            color: shift.colour,
+            resource: scheduledShift.resource,
+        });
+
+        // TODO: Compute warnings
     }
 
     return {
