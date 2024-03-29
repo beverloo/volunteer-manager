@@ -248,25 +248,38 @@ type AvailabilityInfo = {
  * Information necessary to determine the markers for a given volunteer.
  */
 type AvailabilityInput = {
-    availabilityExceptions?: string;
-    availabilityTimeslots?: string;
-    // TODO: preferenceTimingStart
-    // TODO: preferenceTimingEnd
+    event: {
+        startTime: Temporal.ZonedDateTime,
+        endTime: Temporal.ZonedDateTime,
+        timezone: string,
+    },
+    settings: {
+        'schedule-day-view-start-time'?: string,
+        'schedule-event-view-start-hours'?: number,
+    },
+    timeslots: Map<number, AvailabilityEntry>,
+    volunteer: {
+        availabilityExceptions?: string;
+        availabilityTimeslots?: string;
+        preferenceTimingStart?: number;
+        preferenceTimingEnd?: number;
+    }
 };
 
 /**
  * Determines the availability for the given `volunteer`. This can be used to create markers to
  * indicate their availability, and to calculate warnings when those are ignored.
  */
-function determineAvailabilityForVolunteer(
-    volunteer: AvailabilityInput, timeslots: Map<number, AvailabilityEntry>): AvailabilityInfo
-{
+function determineAvailabilityForVolunteer(input: AvailabilityInput): AvailabilityInfo {
+    const { event, settings, timeslots, volunteer } = input;
+
     const available: AvailabilityEntry[] = [];
     const availability: AvailabilityInfo = {
         avoid: [],
         unavailable: [],
     };
 
+    // (1) Process availability exceptions. These take precedence over other blocks.
     if (!!volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 4) {
         try {
             const availabilityExceptionsString = JSON.parse(volunteer.availabilityExceptions);
@@ -288,6 +301,7 @@ function determineAvailabilityForVolunteer(
         } catch (error: any) { console.warn(`Invalid availability exceptions seen: ${volunteer}`); }
     }
 
+    // (2) Process timelines. These will be marked as "avoid" on the volunteer's schedule.
     if (!!volunteer.availabilityTimeslots && volunteer.availabilityTimeslots.length > 2) {
         try {
             const availabilityTimeslots =
@@ -298,10 +312,50 @@ function determineAvailabilityForVolunteer(
                 if (!timeslot)
                     continue;  // invalid timeslot
 
-                // TODO: Ignore if this overlaps with `available`
+                // TODO: Ignore or amend if this overlaps with `available`
                 availability.avoid.push(timeslot);
             }
         } catch (error: any) { console.warn(`Invalid availability timeslots seen: ${volunteer}`); }
+    }
+
+    // (3) Process the volunteer's preferred start and end times for helping out.
+    if (volunteer.preferenceTimingStart !== undefined &&
+            volunteer.preferenceTimingEnd !== undefined) {
+        // Determine the first and the last day:
+        const firstDay =
+            event.startTime.withTimeZone(event.timezone).with({ hour: 0, minute: 0, second: 0 });
+        const lastDay =
+            event.endTime.withTimeZone(event.timezone).with({ hour: 0, minute: 0, second: 0 });
+
+        // Determine the hour on which the first festival day will start:
+        const eventStartHour = event.startTime.withTimeZone(event.timezone).hour;
+        const eventStartScheduleHour =
+            eventStartHour - (settings['schedule-event-view-start-hours'] ?? 4);
+
+        // Determine the hour on which a regular festival day will start:
+        const dailyStartTime = validateTime(settings['schedule-day-view-start-time'], '08:00');
+        const dailyStartHour = parseInt(dailyStartTime.split(':')[0], 10);
+
+        let currentDay = firstDay;
+        while (Temporal.ZonedDateTime.compare(currentDay, lastDay) <= 0) {
+            let unavailableStartHour: number = 0;
+            if (currentDay.epochSeconds !== firstDay.epochSeconds &&
+                    volunteer.preferenceTimingEnd < dailyStartHour) {
+                unavailableStartHour = volunteer.preferenceTimingEnd;
+            }
+
+            let unavailableEndHour: number = dailyStartHour;
+            if (currentDay.epochSeconds === firstDay.epochSeconds)
+                unavailableEndHour = eventStartScheduleHour;
+
+            // TODO: Ignore or amend if this overlaps with `available`
+            availability.unavailable.push({
+                start: currentDay.with({ hour: unavailableStartHour }),
+                end: currentDay.with({ hour: unavailableEndHour }),
+            });
+
+            currentDay = currentDay.add({ days: 1 });
+        }
     }
 
     return availability;
@@ -382,8 +436,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 hours: tUsersEvents.preferenceHours,
                 availabilityExceptions: tUsersEvents.availabilityExceptions,
                 availabilityTimeslots: tUsersEvents.availabilityTimeslots,
-                // TODO: preferenceTimingStart
-                // TODO: preferenceTimingEnd
+                preferenceTimingStart: tUsersEvents.preferenceTimingStart,
+                preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
             }),
 
             collapsed: tRoles.roleScheduleCollapse,
@@ -397,8 +451,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
         const children: GetScheduleResult['resources'][number]['children'] = [];
         for (const humanResource of roleResource.children) {
-            const { avoid, unavailable } =
-                determineAvailabilityForVolunteer(humanResource, timeslots);
+            const { avoid, unavailable } = determineAvailabilityForVolunteer({
+                event, settings, timeslots, volunteer: humanResource });
 
             let volunteerMarkerId = 0;
             for (const { start, end } of avoid) {
