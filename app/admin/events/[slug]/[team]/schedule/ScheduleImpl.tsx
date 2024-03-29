@@ -55,6 +55,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             for (const resource of context.schedule.resources) {
                 resources.push({
                     ...resource,
+                    eventCreation: false,
                     name: `${resource.name} (${resource.children.length})`,
                 });
             }
@@ -84,7 +85,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     return (
         <Paper>
-            <Schedule min={context.schedule.min} max={context.schedule.max} events={events}
+            <Schedule min={context.schedule.min} max={context.schedule.max}
+                      events={events} eventOverlap={false}
                       markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
         </Paper>
