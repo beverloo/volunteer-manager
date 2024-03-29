@@ -9,13 +9,13 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
+import { readSettings } from '@lib/Settings';
 import { validateContext } from '../validateContext';
-import db, { tActivities, tActivitiesTimeslots, tRoles, tSchedule, tShifts, tShiftsCategories,
-    tUsers, tUsersEvents } from '@lib/database';
+import db, { tActivities, tActivitiesTimeslots, tRoles, tSchedule, tUsers, tUsersEvents }
+    from '@lib/database';
 
 import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
-import { readSettings } from '@lib/Settings';
-import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 
 /**
  * Type describing an availability exception, as stored in the database.

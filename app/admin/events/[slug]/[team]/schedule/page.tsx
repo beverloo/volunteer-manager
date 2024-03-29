@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
-import { ScheduleContextImpl, type ScheduleInfo } from './ScheduleContext';
+import { ScheduleContextImpl } from './ScheduleContext';
 import { ScheduleWarnings } from './ScheduleWarnings';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
@@ -23,7 +23,7 @@ export default async function EventTeamSchedulePage(props: NextRouterParams<'slu
         'user-admin-schedule-inclusive-shifts',
     ]);
 
-    const defaultContext: ScheduleInfo = {
+    const defaultContext = {
         date: userSettings['user-admin-schedule-date'],
         inclusiveShifts: userSettings['user-admin-schedule-inclusive-shifts'] ?? false,
     };
