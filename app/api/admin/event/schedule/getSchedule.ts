@@ -398,6 +398,14 @@ function determineAvailabilityForVolunteer(input: AvailabilityInput): Availabili
     return availability;
 }
 
+/**
+ * Adjusts the given `dateTime` for display purposes. The calendar component has an issue where the
+ * calculations go a bit wonky, and taking off a minute for presentational purposes only helps.
+ */
+function adjustedStringForDisplay(dateTime: Temporal.ZonedDateTime): string {
+    return dateTime.subtract({ minutes: 1 }).toString({ timeZoneName: 'never' });
+}
+
 export type GetScheduleDefinition = ApiDefinition<typeof kGetScheduleDefinition>;
 
 type Request = ApiRequest<typeof kGetScheduleDefinition>;
@@ -495,8 +503,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             for (const { start, end } of avoid) {
                 schedule.markers.push({
                     id: `avoid/${humanResource.id}/${++volunteerMarkerId}`,
-                    start: start.toString({ timeZoneName: 'never' }),
-                    end: end.toString({ timeZoneName: 'never' }),
+                    start: adjustedStringForDisplay(start),
+                    end: adjustedStringForDisplay(end),
                     resource: humanResource.id,
                     type: 'avoid',
                 });
@@ -505,14 +513,14 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             for (const { start, end } of unavailable) {
                 schedule.markers.push({
                     id: `unavailable/${humanResource.id}/${++volunteerMarkerId}`,
-                    start: start.toString({ timeZoneName: 'never' }),
-                    end: end.toString({ timeZoneName: 'never' }),
+                    start: adjustedStringForDisplay(start),
+                    end: adjustedStringForDisplay(end),
                     resource: humanResource.id,
                     type: 'unavailable',
                 });
             }
 
-            // TODO: Compute arnings
+            // TODO: Compute warnings
 
             children.push({
                 id: humanResource.id,

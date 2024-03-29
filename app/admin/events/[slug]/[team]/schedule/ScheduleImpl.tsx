@@ -13,6 +13,14 @@ import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 
 /**
+ * Background color to issue to markers on the schedule, depending on what they represent.
+ */
+const kMarkerBackgroundColor = {
+    avoid: '#ffe082',
+    unavailable: '#eceff1',
+};
+
+/**
  * Props accepted by the <ScheduleImpl> component.
  */
 export interface ScheduleImplProps {
@@ -40,7 +48,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             for (const marker of context.schedule.markers) {
                 markers.push({
                     ...marker,
-                    background: 'pink',
+                    background: kMarkerBackgroundColor[marker.type],
                 });
             }
 
