@@ -37,6 +37,13 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         const resources: ScheduleResource[] = [];
 
         if (!!context.schedule) {
+            for (const marker of context.schedule.markers) {
+                markers.push({
+                    ...marker,
+                    background: 'pink',
+                });
+            }
+
             for (const roleResource of context.schedule.resources) {
                 for (const humanResource of roleResource.children) {
                     // TODO: Process markers
@@ -44,8 +51,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                     if (!roleResource.collapsed && !events.length) {
                         events.push({
                             id: 'event/0',
-                            start: '2024-06-07T14:00:00Z',
-                            end: '2024-06-07T16:30:00Z',
+                            start: '2023-06-09T14:00:00Z',
+                            end: '2023-06-09T16:30:00Z',
                             title: 'Shift',
                             resource: humanResource.id,
                         });

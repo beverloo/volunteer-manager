@@ -12,14 +12,28 @@ import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { validateContext } from '../validateContext';
 import db, { tRoles, tUsers, tUsersEvents } from '@lib/database';
 
-import { kTemporalPlainDate } from '@app/api/Types';
+import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
 import { readSettings } from '@lib/Settings';
 
 /**
- * Type that defines a marker that can be added as part of the schedule.
+ * Type describing an availability exception, as stored in the database.
+ * @todo Use this definition in all other places.
  */
-const kScheduleMarkerDefinition = z.object({
+const kAvailabilityException = z.object({
+    /**
+     * Date and time on which the exception will start, in ISO 8601 format in UTC.
+     */
+    start: kTemporalZonedDateTime,
 
+    /**
+     * Date and time on which the exception will end, in ISO 8601 format in UTC.
+     */
+    end: kTemporalZonedDateTime,
+
+    /**
+     * State of this volunteer's availability during that period of time.
+     */
+    state: z.enum([ 'available', 'avoid', 'unavailable' ]),
 });
 
 /**
@@ -35,6 +49,37 @@ export const kScheduleDefinition = z.object({
      * Maximum time that should be displayed on the timeline.
      */
     max: z.string(),
+
+    /**
+     * Markers that should be added to the schedule. These are used to indicate when individual
+     * volunteers are not available, or when shifts should be avoided.
+     */
+    markers: z.array(z.object({
+        /**
+         * Unique ID of the marker.
+         */
+        id: z.string(),
+
+        /**
+         * Date and time at which the marker should start.
+         */
+        start: z.string(),
+
+        /**
+         * Date and time at which the marker should end.
+         */
+        end: z.string(),
+
+        /**
+         * Unique ID of the volunteer for whom this marker has been created.
+         */
+        resource: z.number(),
+
+        /**
+         * Type of marker that should be added to the schedule.
+         */
+        type: z.enum([ 'avoid', 'unavailable' ]),
+    })),
 
     /**
      * The resources that should be shown on the schedule. Resources are volunteers, grouped by the
@@ -64,21 +109,6 @@ export const kScheduleDefinition = z.object({
              * Name of the volunteer, as they should be referred to.
              */
             name: z.string(),
-
-            /**
-             * When indicated, the number of hours this volunteer would like to help out with.
-             */
-            hours: z.number().optional(),
-
-            /**
-             * When applicable, times we should avoid scheduling shifts for this volunteer.
-             */
-            avoid: z.array(kScheduleMarkerDefinition).optional(),
-
-            /**
-             * When applicable, times during which the volunteer will not be available.
-             */
-            unavailable: z.array(kScheduleMarkerDefinition).optional(),
         })),
 
         /**
@@ -184,10 +214,8 @@ function determineDateRange(input: DateRangeInput) {
         const [ endHours, endMinutes ] = endTime.split(':').map(v => parseInt(v, 10));
 
         return {
-            min: startOfDay.add({ hours: startHours, minutes: startMinutes })
-                .toString({ timeZoneName: 'never' }),
-            max: startOfDay.add({ hours: endHours, minutes: endMinutes })
-                .toString({ timeZoneName: 'never' }),
+            min: startOfDay.add({ hours: startHours, minutes: startMinutes }),
+            max: startOfDay.add({ hours: endHours, minutes: endMinutes }),
         };
     }
 
@@ -195,32 +223,70 @@ function determineDateRange(input: DateRangeInput) {
     const endHours = input.settings['schedule-event-view-end-hours'] ?? 2;
 
     return {
-        min: input.event.startTime.subtract({ hours: startHours })
-            .toString({ timeZoneName: 'never' }),
-        max: input.event.endTime.add({ hours: endHours })
-            .toString({ timeZoneName: 'never' }),
+        min: input.event.startTime.subtract({ hours: startHours }),
+        max: input.event.endTime.add({ hours: endHours }),
     };
 }
 
 /**
+ * Information contained within a particular availability entry.
+ */
+type AvailabilityEntry = {
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
+};
+
+/**
+ * Information that represents a particular volunteer's availability.
+ */
+type AvailabilityInfo = {
+    avoid: AvailabilityEntry[];
+    unavailable: AvailabilityEntry[];
+};
+
+/**
  * Information necessary to determine the markers for a given volunteer.
  */
-type MarkerInput = {
-    // TODO: availabilityExceptions
+type AvailabilityInput = {
+    availabilityExceptions: string;
     // TODO: availabilityTimeslots
     // TODO: preferenceTimingStart
     // TODO: preferenceTimingEnd
 };
 
 /**
- * Determines the markers to apply for a particular volunteer. This speaks to their availability,
- * exceptions to their availability and their preferred working hours.
+ * Determines the availability for the given `volunteer`. This can be used to create markers to
+ * indicate their availability, and to calculate warnings when those are ignored.
  */
-function determineMarkersForVolunteer(volunteer: MarkerInput) {
-    return {
-        avoid: undefined,
-        unavailable: undefined,
+function determineAvailabilityForVolunteer(volunteer: AvailabilityInput): AvailabilityInfo {
+    const available: AvailabilityEntry[] = [];
+    const availability: AvailabilityInfo = {
+        avoid: [],
+        unavailable: [],
+    };
+
+    if (!!volunteer.availabilityExceptions && volunteer.availabilityExceptions.length > 4) {
+        try {
+            const availabilityExceptionsString = JSON.parse(volunteer.availabilityExceptions);
+            const availabilityExceptions =
+                z.array(kAvailabilityException).parse(availabilityExceptionsString);
+
+            for (const { start, end, state } of availabilityExceptions) {
+                switch (state) {
+                    case 'available':
+                        available.push({ start, end });
+                        break;
+
+                    case 'avoid':
+                    case 'unavailable':
+                        availability[state].push({ start, end });
+                        break;
+                }
+            }
+        } catch (error: any) {}
     }
+
+    return availability;
 }
 
 export type GetScheduleDefinition = ApiDefinition<typeof kGetScheduleDefinition>;
@@ -252,7 +318,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const { min, max } = determineDateRange({ date: request.date, event, settings });
 
     const schedule: GetScheduleResult = {
-        min, max,
+        min: min.toString({ timeZoneName: 'never' }),
+        max: max.toString({ timeZoneName: 'never' }),
+        markers: [],
         resources: [],
         timezone: event.timezone,
     };
@@ -278,7 +346,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 id: tUsers.userId,
                 name: tUsers.name,
                 hours: tUsersEvents.preferenceHours,
-                // TODO: availabilityExceptions
+                availabilityExceptions: tUsersEvents.availabilityExceptions,
                 // TODO: availabilityTimeslots
                 // TODO: preferenceTimingStart
                 // TODO: preferenceTimingEnd
@@ -295,13 +363,34 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
         const children: GetScheduleResult['resources'][number]['children'] = [];
         for (const humanResource of roleResource.children) {
-            const { avoid, unavailable } = determineMarkersForVolunteer(humanResource);
+            const { avoid, unavailable } = determineAvailabilityForVolunteer(humanResource);
+
+            let volunteerMarkerId = 0;
+            for (const { start, end } of avoid) {
+                schedule.markers.push({
+                    id: `avoid/${humanResource.id}/${++volunteerMarkerId}`,
+                    start: start.toString({ timeZoneName: 'never' }),
+                    end: end.toString({ timeZoneName: 'never' }),
+                    resource: humanResource.id,
+                    type: 'avoid',
+                });
+            }
+
+            for (const { start, end } of unavailable) {
+                schedule.markers.push({
+                    id: `unavailable/${humanResource.id}/${++volunteerMarkerId}`,
+                    start: start.toString({ timeZoneName: 'never' }),
+                    end: end.toString({ timeZoneName: 'never' }),
+                    resource: humanResource.id,
+                    type: 'unavailable',
+                });
+            }
+
+            // TODO: Compute arnings
 
             children.push({
                 id: humanResource.id,
                 name: humanResource.name,
-                hours: humanResource.hours,
-                avoid, unavailable,
             });
         }
 
