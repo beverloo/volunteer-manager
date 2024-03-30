@@ -152,6 +152,7 @@ function DesktopNavigationEntry(props: DesktopNavigationEntryProps) {
     );
 }
 
+// TODO:
 type NavigationProps = any;
 
 /**

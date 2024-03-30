@@ -14,6 +14,7 @@ import { ApplicationBar } from './components/ApplicationBar';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
 import { DesktopNavigation } from './components/DesktopNavigation';
+import { MobileNavigation } from './components/MobileNavigation';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
@@ -35,6 +36,7 @@ const kStyles: Record<string, SystemStyleObject<Theme>> = {
         width: {
             md: `calc(100% - ${2 * kDesktopMenuWidthPx}px)`,
         },
+        padding: 2,
     },
 };
 
@@ -58,7 +60,9 @@ export default async function ScheduleLayout(props: React.PropsWithChildren) {
                         {props.children}
                     </Stack>
                 </Stack>
-                { /* TODO: Mobile navigation */ }
+                <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                    <MobileNavigation />
+                </Box>
             </ScheduleContextManager>
         </ScheduleTheme>
     );
