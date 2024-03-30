@@ -9,18 +9,9 @@ import Stack from '@mui/material/Stack';
 import { ScheduleContextManager } from './ScheduleContextManager';
 import { ScheduleTheme } from './ScheduleTheme';
 import { determineEnvironment } from '@lib/Environment';
+import { ApplicationBar } from './components/ApplicationBar';
 
-/**
- * Maximum width, in pixels, the portal should use on desktop platforms. We use the `md` breakpoint
- * from MUI as the CSS media query, which equates 900px for the full viewport width.
- */
-const kDesktopMaximumWidthPx = 1280;
-
-/**
- * Width, in pixels, the main menu should occupy on desktop platforms. This is a fixed size, and
- * will be applied no matter the width that will be taken by the content.
- */
-const kDesktopMenuWidthPx = 275;
+import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
@@ -56,7 +47,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren) {
     return (
         <ScheduleTheme>
             <ScheduleContextManager>
-                { /* TODO: ApplicationBar */ }
+                <ApplicationBar />
                 <Stack direction="row" sx={kStyles.container}>
                     { /* TODO: Desktop navigation */ }
                     <Stack direction="column" spacing={2} sx={kStyles.content}>
