@@ -5,9 +5,6 @@ import type React from 'react';
 
 import Container from '@mui/material/Container';
 
-import { ContentContainer } from './layout/ContentContainer';
-import { HeaderContainer } from './layout/HeaderContainer';
-import { NavigationContainer } from './layout/NavigationContainer';
 import { determineEnvironment } from '@lib/Environment';
 
 /**
@@ -22,10 +19,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren) {
         <Container disableGutters maxWidth={false} sx={{ height: '100vh',
                                                          backgroundColor: '#eff6ff' }}>
             <h1>{environment?.environmentName}</h1>
-
-            <ContentContainer>
-                {props.children}
-            </ContentContainer>
+            {props.children}
         </Container>
     );
 }
