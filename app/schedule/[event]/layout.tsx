@@ -4,6 +4,7 @@
 import type React from 'react';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
 import { ScheduleContextManager } from './ScheduleContextManager';
@@ -12,6 +13,7 @@ import { determineEnvironment } from '@lib/Environment';
 import { ApplicationBar } from './components/ApplicationBar';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
+import { DesktopNavigation } from './components/DesktopNavigation';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
@@ -49,7 +51,9 @@ export default async function ScheduleLayout(props: React.PropsWithChildren) {
             <ScheduleContextManager>
                 <ApplicationBar />
                 <Stack direction="row" sx={kStyles.container}>
-                    { /* TODO: Desktop navigation */ }
+                    <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                        <DesktopNavigation />
+                    </Box>
                     <Stack direction="column" spacing={2} sx={kStyles.content}>
                         {props.children}
                     </Stack>
