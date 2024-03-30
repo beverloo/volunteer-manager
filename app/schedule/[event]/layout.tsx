@@ -3,9 +3,47 @@
 
 import type React from 'react';
 
-import Container from '@mui/material/Container';
+import type { SystemStyleObject, Theme } from '@mui/system';
+import Stack from '@mui/material/Stack';
 
+import { ScheduleContextManager } from './ScheduleContextManager';
+import { ScheduleTheme } from './ScheduleTheme';
 import { determineEnvironment } from '@lib/Environment';
+
+/**
+ * Maximum width, in pixels, the portal should use on desktop platforms. We use the `md` breakpoint
+ * from MUI as the CSS media query, which equates 900px for the full viewport width.
+ */
+const kDesktopMaximumWidthPx = 1280;
+
+/**
+ * Width, in pixels, the main menu should occupy on desktop platforms. This is a fixed size, and
+ * will be applied no matter the width that will be taken by the content.
+ */
+const kDesktopMenuWidthPx = 275;
+
+/**
+ * Styling rules used for <ScheduleLayout> and friends.
+ */
+const kStyles: Record<string, SystemStyleObject<Theme>> = {
+    container: {
+        margin: 'auto',
+        maxWidth: {
+            md: kDesktopMaximumWidthPx,
+        },
+        paddingRight: {
+            md: 2,
+        }
+    },
+
+    content: {
+        flexGrow: 1,
+        maxWidth: '100%',
+        width: {
+            md: `calc(100% - ${2 * kDesktopMenuWidthPx}px)`,
+        },
+    },
+};
 
 /**
  * The <ScheduleLayout> component is the main page of the scheduling tool, that allows volunteers to
@@ -16,10 +54,17 @@ export default async function ScheduleLayout(props: React.PropsWithChildren) {
     const environment = await determineEnvironment();
 
     return (
-        <Container disableGutters maxWidth={false} sx={{ height: '100vh',
-                                                         backgroundColor: '#eff6ff' }}>
-            <h1>{environment?.environmentName}</h1>
-            {props.children}
-        </Container>
+        <ScheduleTheme>
+            <ScheduleContextManager>
+                { /* TODO: ApplicationBar */ }
+                <Stack direction="row" sx={kStyles.container}>
+                    { /* TODO: Desktop navigation */ }
+                    <Stack direction="column" spacing={2} sx={kStyles.content}>
+                        {props.children}
+                    </Stack>
+                </Stack>
+                { /* TODO: Mobile navigation */ }
+            </ScheduleContextManager>
+        </ScheduleTheme>
     );
 }
