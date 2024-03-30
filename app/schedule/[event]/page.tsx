@@ -4,6 +4,7 @@
 import Typography from '@mui/material/Typography';
 
 import { Privilege } from '@lib/auth/Privileges';
+import { Section } from './components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -16,8 +17,10 @@ export default async function ScheduleMainPage() {
     });
 
     return (
-        <Typography variant="body1">
-            This page is not available yet.
-        </Typography>
+        <Section>
+            <Typography variant="body1">
+                This page is not available yet.
+            </Typography>
+        </Section>
     );
 }
