@@ -4,18 +4,25 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from '@mui/material/AppBar';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { alpha, styled } from '@mui/material/styles';
 
 import { SearchResults } from './SearchResults';
+import { callApi } from '@lib/callApi';
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from '../Constants';
 
 /**
@@ -135,6 +142,7 @@ export interface ApplicationBarProps {
 export function ApplicationBar(props: ApplicationBarProps) {
     const title = 'Schedule';
 
+    const router = useRouter();
     const searchBarRef = useRef<HTMLInputElement>();
 
     useEffect(() => {
@@ -207,7 +215,26 @@ export function ApplicationBar(props: ApplicationBarProps) {
     // User menu functionality
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const [ userMenuAnchor, setUserMenuAnchor ] = useState<any>(null);
+    const [ userMenuOpen, setUserMenuOpen ] = useState(false);
+
+    // Callbacks to open and/or close the user menu.
+    const closeUserMenu = useCallback(() => setUserMenuOpen(false), [ /* no dependencies */ ]);
+    const openUserMenu = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+        setUserMenuAnchor(event.currentTarget);
+        setUserMenuOpen(true);
+    }, [ /* no dependencies */ ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    // Signs the user out of their account, and forwards them back to the home page since the
+    // schedule app is only available to signed in and participating volunteers.
+    const handleSignOut = useCallback(async () => {
+        const response = await callApi('post', '/api/auth/sign-out', { /* no params */ });
+        if (response.success)
+            router.push(response.returnUrl ?? '/');
+
+    }, [ router ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -229,7 +256,7 @@ export function ApplicationBar(props: ApplicationBarProps) {
                                          onKeyUp={handleSearchKeyUp}
                                          value={searchQuery} />
                     </Search>
-                    <IconButton size="large" color="inherit">
+                    <IconButton onClick={openUserMenu} size="large" color="inherit">
                         <AccountCircle />
                     </IconButton>
                 </Toolbar>
@@ -238,7 +265,24 @@ export function ApplicationBar(props: ApplicationBarProps) {
             <SearchResults anchorEl={searchBarAnchor} commit={searchBarRequestCommit}
                            onClose={closeSearchResults} query={searchQuery} />
 
-            { /* TODO: Overflow menu */ }
+            <Menu anchorEl={userMenuAnchor}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  onClose={closeUserMenu}
+                  open={userMenuOpen}>
+
+                { /* TODO: Dark mode toggle */ }
+
+                <MenuItem dense onClick={handleSignOut}>
+                    <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                        Sign out
+                    </ListItemText>
+                </MenuItem>
+
+            </Menu>
         </>
     );
 }
