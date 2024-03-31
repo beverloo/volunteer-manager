@@ -138,12 +138,12 @@ export default async function IntegrationsPage() {
         ],
         'Schedule settings': [
             {
-                setting: 'schedule-search-result-limit',
-                type: 'number',
-                defaultValue: 5,
+                setting: 'schedule-knowledge-base',
+                type: 'boolean',
+                defaultValue: true,
 
-                label: 'Inline search result limit',
-                description: 'Maximum number of inline search results that will be shown',
+                label: 'Knowledge base',
+                description: 'Whether the knowledge base should be enabled',
             },
             {
                 setting: 'schedule-search-candidate-fuzziness',
@@ -160,6 +160,14 @@ export default async function IntegrationsPage() {
 
                 label: 'Search result candidate (min score)',
                 description: 'Minimum score [0-1] required for a candidate to be considered',
+            },
+            {
+                setting: 'schedule-search-result-limit',
+                type: 'number',
+                defaultValue: 5,
+
+                label: 'Search result limit (inline)',
+                description: 'Maximum number of inline search results that will be shown',
             },
         ],
     };

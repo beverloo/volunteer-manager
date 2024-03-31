@@ -26,15 +26,20 @@ const kPublicSchedule = z.strictObject({
      */
     config: z.strictObject({
         /**
-         * Maximum number of inline search results to show at once.
+         * Whether the knowledge base should be enabled.
          */
-        inlineSearchResultLimit: z.number(),
+        enableKnowledgeBase: z.boolean(),
 
         /**
          * Amount of fuzziness to apply to the search results. While this allows minor compensation
          * for typos, a high value could lead to less relevant results being presented to the user.
          */
         searchResultFuzziness: z.number(),
+
+        /**
+         * Maximum number of inline search results to show at once.
+         */
+        searchResultLimit: z.number(),
 
         /**
          * Minimum search score required for a result to be considered for presentation to the user.
@@ -111,7 +116,6 @@ const kPublicSchedule = z.strictObject({
  * Type definition of the public schedule information.
  */
 export type PublicSchedule = z.infer<typeof kPublicSchedule>;
-export type PublicScheduleArea = PublicSchedule['program']['areas'][string];
 
 /**
  * Interface definition for the public Schedule API, exposed through /api/event/schedule.
@@ -150,6 +154,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         notFound();
 
     const settings = await readSettings([
+        'schedule-knowledge-base',
         'schedule-search-candidate-fuzziness',
         'schedule-search-candidate-minimum-score',
         'schedule-search-result-limit',
@@ -158,8 +163,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const schedule: Response = {
         slug: event.slug,
         config: {
-            inlineSearchResultLimit: settings['schedule-search-result-limit'] ?? 5,
+            enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
+            searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
         },
         program: {

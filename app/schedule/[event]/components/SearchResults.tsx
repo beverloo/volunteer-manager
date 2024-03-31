@@ -199,7 +199,7 @@ export function SearchResults(props: SearchResultsProps) {
         if (!query || !query.length || !schedule)
             return [ /* no results */ ];
 
-        return Search(schedule, query, schedule.config.inlineSearchResultLimit);
+        return Search(schedule, query, schedule.config.searchResultLimit);
 
     }, [ schedule, query ]);
 

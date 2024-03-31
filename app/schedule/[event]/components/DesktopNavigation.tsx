@@ -13,6 +13,7 @@ import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -209,16 +210,20 @@ export function DesktopNavigation(props: NavigationProps) {
                                             href={ scheduleBaseUrl + '/shifts/' }
                                             icon={ <AccessTimeIcon /> } label="Your shifts" /> }
                 <DesktopNavigationEntry active={ props.active === 'areas' } badge={activeEvents}
-                                        href={ scheduleBaseUrl + '/areas/' }
+                                        href={ scheduleBaseUrl + '/areas' }
                                         icon={ <EventNoteIcon /> } label="Events" />
                 <List dense sx={kStyles.areas}>
                     { areas.map((area, index) =>
                         <DesktopNavigationEntry key={index} href={area.url}
                                                 icon={ <ArrowRightIcon /> } label={area.name} /> )}
                 </List>
+                { !!schedule.config.enableKnowledgeBase &&
+                    <DesktopNavigationEntry active={false} href={ scheduleBaseUrl + '/knowledge' }
+                                            icon={ <InfoOutlinedIcon /> }
+                                            label="Knowledge base" /> }
                 <DesktopNavigationEntry active={ props.active === 'volunteers' }
                                         badge={ props.badgeActiveVolunteers }
-                                        href={ scheduleBaseUrl + '/volunteers/' }
+                                        href={ scheduleBaseUrl + '/volunteers' }
                                         icon={ <GroupIcon /> } label="Volunteers" />
             </List>
         </>
