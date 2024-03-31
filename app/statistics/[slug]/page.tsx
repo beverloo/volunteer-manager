@@ -46,7 +46,8 @@ export default async function StatisticsEventPage(props: NextRouterParams<'slug'
         notFound();
 
     // Check (3): Require the signed in user to have access to the event data.
-    if (!authenticationContext.events.has(eventSlug)) {
+    const eventAccess = authenticationContext.events.get(eventSlug);
+    if (!eventAccess || !eventAccess.admin) {
         const eventAdministrator = can(authenticationContext.user, Privilege.EventAdministrator);
         if (!eventAdministrator && !eventEnvironmentData.enableContent)
             notFound();

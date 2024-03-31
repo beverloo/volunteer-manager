@@ -32,7 +32,7 @@ export default async function RootPage() {
     let registrationEvent: Event | undefined;
     let registration: Registration | undefined;
 
-    let adminAccess: string[] = [];
+    const adminAccess: string[] = [];
 
     if (user) {
         for (const event of events) {
@@ -45,7 +45,10 @@ export default async function RootPage() {
             break;
         }
 
-        adminAccess = [ ...authenticationContext.events.keys() ];
+        for (const { admin, event } of authenticationContext.events.values()) {
+            if (!!admin)
+                adminAccess.push(event);
+        }
     }
 
     const eventDatas = events.map(event => event.toEventData(environment.environmentName));

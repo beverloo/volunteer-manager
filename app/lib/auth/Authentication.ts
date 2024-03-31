@@ -184,10 +184,8 @@ export async function authenticateUser(params: AuthenticateUserParams)
         if (entry.isEventHidden)
             continue;  // the event has been suspended
 
-        if (!entry.isRoleAdmin)
-            continue;  // role does not grant administrator access
-
         events.set(entry.event, {
+            admin: !!entry.isRoleAdmin,
             event: entry.event,
             team: entry.team,
         });

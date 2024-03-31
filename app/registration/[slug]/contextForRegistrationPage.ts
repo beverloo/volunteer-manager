@@ -57,6 +57,8 @@ export async function contextForRegistrationPage(slug: string)
 
     const registration = await getRegistration(environment.environmentName, event, user?.userId);
     if (!can(user, Privilege.EventContentOverride)) {
+        // Note that we deliberately skip checking whether the `user` has administration access to
+        // the event, as (a) it being active and (b) them participating in it satisfies our bar.
         if (!authenticationContext.user || !authenticationContext.events.has(slug)) {
             const environmentData = event.getEnvironmentData(environment.environmentName);
             if (!environmentData?.enableContent)
