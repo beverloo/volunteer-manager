@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -15,6 +15,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { alpha, styled } from '@mui/material/styles';
 
+import { SearchResults } from './SearchResults';
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from '../Constants';
 
 /**
@@ -115,6 +116,11 @@ const kStyles: Record<string, SystemStyleObject<Theme>> = {
 }
 
 /**
+ * Types of HTML element types that are used by MUI to take user input in the search functionality.
+ */
+type MUIInputElement = HTMLTextAreaElement | HTMLInputElement;
+
+/**
  * Props accepted by the <ApplicationBar> component.
  */
 export interface ApplicationBarProps {
@@ -129,7 +135,6 @@ export interface ApplicationBarProps {
 export function ApplicationBar(props: ApplicationBarProps) {
     const title = 'Schedule';
 
-    const [ searchQuery, setSearchQuery ] = useState<string>('');
     const searchBarRef = useRef<HTMLInputElement>();
 
     useEffect(() => {
@@ -137,20 +142,74 @@ export function ApplicationBar(props: ApplicationBarProps) {
             if (!searchBarRef.current)
                 return;
 
-            // We support two actions: <ctrl>+<f> to start searching, and <esc> to stop searching
-            // when the search bar is currently focused. The <esc> key will bubble.
-            if (!!event.ctrlKey && event.keyCode === /* f= */ 70) {
-                searchBarRef.current.focus();
-                event.preventDefault();
-            } else if (event.keyCode === /* escape= */ 27) {
-                searchBarRef.current.blur();
-                // let the "escape" fall through...
-            }
+            if (!event.ctrlKey || event.keyCode !== /* f= */ 70)
+                return;
+
+            event.preventDefault();
+            searchBarRef.current.focus();
         }
 
         window.addEventListener('keydown', interceptSearchKey);
         return () => window.removeEventListener('keydown', interceptSearchKey);
     });
+
+    // ---------------------------------------------------------------------------------------------
+    // Search functionality
+    // ---------------------------------------------------------------------------------------------
+
+    const [ searchBarAnchor, setSearchBarAnchor ] = useState<any>(null);
+    const [ searchBarClearFocus, setSearchBarClearFocus ] = useState<boolean>(false);
+    const [ searchBarRequestCommit, setSearchBarRequestCommit ] = useState<boolean>(false);
+    const [ searchQuery, setSearchQuery ] = useState<string>('');
+
+    const closeSearchResults = useCallback(() => {
+        setSearchQuery(/* no query= */ '');
+        setSearchBarClearFocus(true);
+        setSearchBarRequestCommit(false);
+    }, [ /* no dependencies */ ]);
+
+    // Called when the value of the search bar has changed. Until the search is committed (through
+    // the enter key), search results will appear anchored to the search bar.
+    const handleSearchChange = useCallback((event: React.ChangeEvent<MUIInputElement>) => {
+        if (searchBarAnchor !== event.target)
+            setSearchBarAnchor(event.target);
+
+        setSearchQuery(event.target.value);
+
+    }, [ searchBarAnchor ]);
+
+    // Called when the user releases a key. The <Enter> and <Escape> keys have special behaviour,
+    // as they respectively commit the search (i.e. navigate) and close the search results.
+    const handleSearchKeyUp = useCallback((event: React.KeyboardEvent<MUIInputElement>) => {
+        switch (event.key) {
+            case 'Enter':
+                setSearchBarRequestCommit(true);
+                break;
+
+            case 'Escape':
+                closeSearchResults();
+                break;
+        }
+    }, [ closeSearchResults ]);
+
+    // Clears focus from the search bar programmatically. Deliberately done in an effect as opposed
+    // to real time, to avoid UI jank by doing too many things at the same time.
+    useEffect(() => {
+        if (searchBarClearFocus) {
+            if (document.activeElement instanceof HTMLElement)
+                document.activeElement.blur();
+
+            setSearchBarClearFocus(false);
+        }
+    }, [ searchBarClearFocus ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // User menu functionality
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
 
     return (
         <>
@@ -166,6 +225,8 @@ export function ApplicationBar(props: ApplicationBarProps) {
                         <StyledInputBase placeholder="Search..."
                                          inputProps={{ 'aria-label': 'search' }}
                                          inputRef={searchBarRef}
+                                         onChange={handleSearchChange}
+                                         onKeyUp={handleSearchKeyUp}
                                          value={searchQuery} />
                     </Search>
                     <IconButton size="large" color="inherit">
@@ -173,7 +234,10 @@ export function ApplicationBar(props: ApplicationBarProps) {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            { /* TODO: Search results */ }
+
+            <SearchResults anchorEl={searchBarAnchor} commit={searchBarRequestCommit}
+                           onClose={closeSearchResults} query={searchQuery} />
+
             { /* TODO: Overflow menu */ }
         </>
     );

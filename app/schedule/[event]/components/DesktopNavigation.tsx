@@ -5,7 +5,6 @@
 
 import Link from 'next/link';
 import { useContext, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -18,7 +17,6 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { darken, lighten, styled } from '@mui/material/styles';
 
 import { ScheduleContext } from '../ScheduleContext';
