@@ -44,7 +44,7 @@ describe('AuthenticationContext', () => {
         expect(user?.lastName).toEqual('Example');
     });
 
-    it('is able to execute dedicated access checks: "admin"', async () => {
+    it('is able to execute dedicated access checks: "admin"', () => {
         // Case (1): Visitors are never administrators
         const visitorAuthenticationContext = { user: undefined };
         try {
@@ -66,7 +66,7 @@ describe('AuthenticationContext', () => {
         // Case (3): Implicit administrators through a role assignment
         const implicitAdminAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2024', { event: '2024', team: 'stewards.team' }],
+                [ '2024', { admin: true, event: '2024', team: 'stewards.team' }],
             ]),
         });
 
@@ -82,7 +82,7 @@ describe('AuthenticationContext', () => {
         }
     });
 
-    it('is able to execute dedicated access checks: "admin-event"', async () => {
+    it('is able to execute dedicated access checks: "admin-event"', () => {
         // Case (1): Visitors are never administrators
         const visitorAuthenticationContext = { user: undefined };
         try {
@@ -105,17 +105,33 @@ describe('AuthenticationContext', () => {
         // Case (3): Implicit administrators through a role assignment to the applicable event
         const implicitAdminAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2024', { event: '2024', team: 'stewards.team' }],
+                [ '2024', { admin: true, event: '2024', team: 'stewards.team' }],
             ]),
         });
 
         executeAccessCheck(
             implicitAdminAuthenticationContext, { check: 'admin-event', event: '2024' });
 
-        // Case (4): No administrator access when there is no assignment for the applicable event
+        // Case (4): Participation in an event does not equate being granted access.
+        const participationAuthenticationContext = buildAuthenticationContext({
+            events: new Map([
+                [ '2024', { admin:  /* ----> */ false, event: '2024', team: 'stewards.team' }],
+            ]),
+        });
+
+        try {
+            executeAccessCheck(
+                participationAuthenticationContext, { check: 'admin-event', event: '2024' });
+
+            fail('executeAccessCheck was expected to throw');
+        } catch (error: any) {
+            expect(isNotFoundError(error)).toBeTrue();
+        }
+
+        // Case (5): No administrator access when there is no assignment for the applicable event
         const wrongEventAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2017', { event: '2017', team: 'hosts.team' }],
+                [ '2017', { admin: true, event: '2017', team: 'hosts.team' }],
             ]),
         });
 
@@ -128,7 +144,7 @@ describe('AuthenticationContext', () => {
             expect(isNotFoundError(error)).toBeTrue();
         }
 
-        // Case (5): Users without either are not administrators
+        // Case (6): Users without either are not administrators
         const userAuthenticationContext = buildAuthenticationContext();
         try {
             executeAccessCheck(userAuthenticationContext, { check: 'admin-event', event: '2024' });
@@ -138,7 +154,45 @@ describe('AuthenticationContext', () => {
         }
     });
 
-    it('is able to execute privilege-based access checks, including OR and AND sets', async () => {
+    it('is able to execute dedicated access checks: "event"', () => {
+        // Case (1): Visitors are never granted access
+        const visitorAuthenticationContext = buildAuthenticationContext();
+        try {
+            executeAccessCheck(visitorAuthenticationContext, { check: 'event', event: '2025' });
+            fail('executeAccessCheck was expected to throw');
+        } catch (error: any) {
+            expect(isNotFoundError(error)).toBeTrue();
+        }
+
+        // Case (2): Participants are granted access (w/o administrator access):
+        const participantAuthenticationContext = buildAuthenticationContext({
+            events: new Map([
+                [ '2025', { admin: /** ----> **/ false, event: '2025', team: 'hosts.team' }],
+            ]),
+        });
+
+        executeAccessCheck(participantAuthenticationContext, { check: 'event', event: '2025' });
+
+        // Case (3): Participants are granted access (w/ administrator access):
+        const administratorAuthenticationContext = buildAuthenticationContext({
+            events: new Map([
+                [ '2025', { admin: /** ----> **/ true, event: '2025', team: 'hosts.team' }],
+            ]),
+        });
+
+        executeAccessCheck(administratorAuthenticationContext, { check: 'event', event: '2025' });
+
+        // Case (4): People with the schedule override permission always have access:
+        const privilegedAuthenticationContext = buildAuthenticationContext({
+            user: {
+                privileges: BigInt(Privilege.EventScheduleOverride),
+            }
+        });
+
+        executeAccessCheck(privilegedAuthenticationContext, { check: 'event', event: '2025' });
+    });
+
+    it('is able to execute privilege-based access checks, including OR and AND sets', () => {
         const authenticationContext = buildAuthenticationContext({
             user: {
                 privileges: BigInt(Privilege.EventHotelManagement),

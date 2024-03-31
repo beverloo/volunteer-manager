@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import { Privilege } from '@lib/auth/Privileges';
+import type { NextRouterParams } from '@lib/NextRouterParams';
 import { Section } from './components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,11 +11,8 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleMainPage> component contains the main page of the schedule, that shows an overview
  * of the things we'd like the volunteer to know about.
  */
-export default async function ScheduleMainPage() {
-    await requireAuthenticationContext({
-        privilege: Privilege.Administrator,
-    });
-
+export default async function ScheduleMainPage(props: NextRouterParams<'event'>) {
+    await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
         <Section>
             <Typography variant="body1">

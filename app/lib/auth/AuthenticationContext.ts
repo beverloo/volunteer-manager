@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AuthType } from '@lib/database/Types';
-import { Privilege, can, type Privileges } from './Privileges';
+import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
@@ -18,6 +18,11 @@ const headers = import('next/headers');
  * volunteering roles grant administrative access. Only active events will be considered.
  */
 export interface UserEventAuthenticationContext {
+    /**
+     * Whether the user has admin access to this event, as opposed to regular participation.
+     */
+    admin: boolean;
+
     /**
      * Unique slug of the event ("2024"), through which it is identified in URLs.
      */
@@ -120,6 +125,14 @@ type AuthenticationAccessCheckTypes =
     { check: 'admin-event', event: string } |
 
     /**
+     * Access to the schedule for a particular event. This is the case when either:
+     *   (1) The user has the Administrator privilege,
+     *   (2) The user has admin access to the given `event`, which must be active,
+     *   (3) The event's schedule has been published by an event administrator.
+     */
+    { check: 'event', event: string } |
+
+    /**
      * Access checks may be omitted in favour of only checking for privileges.
      */
     { };
@@ -168,13 +181,27 @@ export function executeAccessCheck(
         switch (access.check) {
             case 'admin':
                 if (!can(context.user, Privilege.EventAdministrator)) {
-                    if (!context.events.size)
+                    let eventsWithAdminAccess = 0;
+                    for (const { admin } of context.events.values()) {
+                        if (!!admin)
+                            eventsWithAdminAccess++;
+                    }
+
+                    if (!eventsWithAdminAccess)
                         notFound();
                 }
                 break;
 
             case 'admin-event':
                 if (!can(context.user, Privilege.EventAdministrator)) {
+                    const eventAccess = context.events.get(access.event);
+                    if (!eventAccess || !eventAccess.admin)
+                        notFound();
+                }
+                break;
+
+            case 'event':
+                if (!can(context.user, Privilege.EventScheduleOverride)) {
                     if (!context.events.has(access.event))
                         notFound();
                 }
