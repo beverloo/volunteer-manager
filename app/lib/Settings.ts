@@ -90,6 +90,7 @@ type SettingsMap = {
     // Schedule settings:
     // ---------------------------------------------------------------------------------------------
 
+    'schedule-del-a-rie-advies': boolean;
     'schedule-knowledge-base': boolean;
     'schedule-search-candidate-fuzziness': number;
     'schedule-search-candidate-minimum-score': number;

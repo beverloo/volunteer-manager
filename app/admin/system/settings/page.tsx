@@ -138,6 +138,14 @@ export default async function IntegrationsPage() {
         ],
         'Schedule settings': [
             {
+                setting: 'schedule-del-a-rie-advies',
+                type: 'boolean',
+                defaultValue: true,
+
+                label: 'Del a Rie Advies',
+                description: 'Whether the advice service should be enabled',
+            },
+            {
                 setting: 'schedule-knowledge-base',
                 type: 'boolean',
                 defaultValue: true,

@@ -109,6 +109,7 @@ const kPublicSchedule = z.strictObject({
     }),
 
     // TODO: knowledge
+    // TODO: nardo
     // TODO: volunteers
 });
 
@@ -154,6 +155,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         notFound();
 
     const settings = await readSettings([
+        'schedule-del-a-rie-advies',
         'schedule-knowledge-base',
         'schedule-search-candidate-fuzziness',
         'schedule-search-candidate-minimum-score',
