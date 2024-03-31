@@ -40,6 +40,12 @@ export function KnowledgeList(props: KnowledgeListProps) {
             width: 50,
         },
         {
+            field: 'categoryName',
+            headerName: 'Category',
+            sortable: true,
+            flex: 1,
+        },
+        {
             field: 'title',
             headerName: 'Question',
             sortable: true,
@@ -83,7 +89,7 @@ export function KnowledgeList(props: KnowledgeListProps) {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/content" context={props.scope}
-                         defaultSort={{ field: 'id', sort: 'asc' }} pageSize={25}
+                         defaultSort={{ field: 'categoryOrder', sort: 'asc' }} pageSize={25}
                          enableDelete subject="knowledge base article" />
     );
 }

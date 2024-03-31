@@ -6,7 +6,11 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
+    from 'react-hook-form-mui';
+
+import type { ValueOptions } from '@mui/x-data-grid-pro';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import type { ContentScope } from '@app/api/admin/content/[[...id]]/route';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
@@ -17,6 +21,11 @@ import { nanoid } from '@lib/nanoid';
  * Props accepted by the <CreateQuestionForm> component.
  */
 export interface CreateQuestionFormProps {
+    /**
+     * Categories to which a question can be added.
+     */
+    categories: ValueOptions[];
+
     /**
      * Scope that should be used for sourcing the knowledge.
      */
@@ -43,12 +52,13 @@ export function CreateQuestionForm(props: CreateQuestionFormProps) {
                 context: props.scope,
                 row: {
                     path: nanoid(/* size= */ 8),
+                    categoryId: data.category,
                     title: data.question,
                 },
             });
 
             if (response.success)
-                router.push(`./faq/${response.row.id}`);
+                router.push(`./knowledge/${response.row.id}`);
             else
                 setError(response.error ?? 'Unable to create the new question');
         } catch (error: any) {
@@ -60,8 +70,18 @@ export function CreateQuestionForm(props: CreateQuestionFormProps) {
 
     return (
         <FormContainer onSuccess={handleSubmit}>
-            <TextFieldElement name="question" label="Question…" fullWidth size="small"
-                              onChange={handleChange} />
+            <Grid container spacing={2}>
+                <Grid xs={12} md={4}>
+                    <SelectElement name="category" label="Category" fullWidth size="small"
+                                   onChange={handleChange} options={props.categories} required />
+                </Grid>
+                <Grid xs={12} md={8}>
+                    <TextFieldElement name="question" label="Question…" fullWidth size="small"
+                                      onChange={handleChange} required />
+                </Grid>
+            </Grid>
+
+
             <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
         </FormContainer>
     );

@@ -8,7 +8,8 @@ import { type DataTableEndpoints, createDataTableApi } from '../../../../createD
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tContentCategories } from '@lib/database';
+import db, { tContentCategories, tContent } from '@lib/database';
+import { ContentType } from '@lib/database/Types';
 
 /**
  * Row model for a content category.
@@ -118,6 +119,17 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
         if (!event)
             notFound();
 
+        const remainingQuestions = await db.selectFrom(tContent)
+            .where(tContent.eventId.equals(event.id))
+                .and(tContent.contentType.equals(ContentType.FAQ))
+                .and(tContent.contentCategoryId.equals(id))
+                .and(tContent.revisionVisible.equals(/* true= */ 1))
+            .selectCountAll()
+            .executeSelectOne();
+
+        if (remainingQuestions > 0)
+            return { success: false, error: 'Unable to remove categories that contain questions' };
+
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tContentCategories)
             .set({
@@ -207,8 +219,6 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
                 .and(tContentCategories.categoryId.equals(id))
             .selectOneColumn(tContentCategories.categoryTitle)
             .executeSelectNoneOrOne();
-
-        return;
 
         await Log({
             type: LogType.AdminKnowledgeBaseCategoryMutation,

@@ -14,6 +14,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSetting } from '@lib/UserSettings';
+import db, { tContentCategories } from '@lib/database';
 
 /**
  * The FAQ provides a library of questions that we've received, or may receive from our visitors. It
@@ -24,6 +25,17 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
+
+    // Select the categories
+    const categories = await db.selectFrom(tContentCategories)
+        .where(tContentCategories.eventId.equals(event.id))
+            .and(tContentCategories.categoryDeleted.isNull())
+        .select({
+            id: tContentCategories.categoryId,
+            label: tContentCategories.categoryTitle,
+        })
+        .orderBy(tContentCategories.categoryOrder, 'asc')
+        .executeSelectMany();
 
     // Whether the `<KnowledgeCategories>` section should be expanded by default.
     const expandCategories = await readUserSetting(
@@ -42,9 +54,17 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
                 </SectionIntroduction>
                 <KnowledgeList enableAuthorLink={enableAuthorLink} scope={scope} />
             </Section>
-            <Section title="Create a new question">
-                <CreateQuestionForm scope={scope} />
-            </Section>
+            { !categories.length &&
+                <Section title="Create a new question">
+                    <SectionIntroduction important>
+                        You need to <strong>create a category</strong> before individual questions
+                        can be added.
+                    </SectionIntroduction>
+                </Section> }
+            { !!categories.length &&
+                <Section title="Create a new question">
+                    <CreateQuestionForm categories={categories} scope={scope} />
+                </Section> }
             <KnowledgeCategories defaultExpanded={expandCategories} event={event.slug} />
         </>
     );

@@ -10,7 +10,7 @@ import { Temporal } from '@lib/Temporal';
 import { createDataTableApi, type DataTableEndpoints } from '../../../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventSlugForId } from '@lib/EventLoader';
-import db, { tContent, tEvents, tTeams, tUsers } from '@lib/database';
+import db, { tContent, tContentCategories, tEvents, tTeams, tUsers } from '@lib/database';
 
 /**
  * Row model for a piece of content, as can be shown or edited through the administration panel.
@@ -30,6 +30,21 @@ const kContentRowModel = z.object({
      * Path of the content, excluding any prefixes (e.g. "privacy").
      */
     path: z.string().regex(/^[/.a-zA-Z0-9-]*$/),
+
+    /**
+     * Optional category ID indicating which content category this belongs to.
+     */
+    categoryId: z.number().optional(),
+
+    /**
+     * Optional name of the category that this content belongs to.
+     */
+    categoryName: z.string().optional(),
+
+    /**
+     * Order of the category. Only exposed for ordering reasons (d'oh).
+     */
+    categoryOrder: z.number().optional(),
 
     /**
      * Title of the content.
@@ -143,6 +158,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 eventId: context.eventId,
                 teamId: context.teamId,
                 contentPath: row.path,
+                contentCategoryId: row.categoryId,
                 contentTitle: row.title,
                 contentType: context.type,
                 contentProtected: /* unprotected= */ 0,
@@ -214,9 +230,13 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
 
         const dbInstance = db;
 
+        const contentCategoriesJoin = tContentCategories.forUseInLeftJoin();
+
         const { count, data } = await dbInstance.selectFrom(tContent)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tContent.revisionAuthorId))
+            .leftJoin(contentCategoriesJoin)
+                .on(contentCategoriesJoin.categoryId.equals(tContent.contentCategoryId))
             .where(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
                 .and(tContent.contentType.equals(context.type))
@@ -224,6 +244,9 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .select({
                 id: tContent.contentId,
                 path: tContent.contentPath,
+                categoryId: contentCategoriesJoin.categoryId,
+                categoryName: contentCategoriesJoin.categoryTitle,
+                categoryOrder: contentCategoriesJoin.categoryOrder,
                 title: tContent.contentTitle,
                 updatedOn: dbInstance.dateTimeAsString(tContent.revisionDate),
                 updatedBy: tUsers.name,
@@ -231,6 +254,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 protected: tContent.contentProtected.equals(/* true= */ 1),
             })
             .orderBy(sort?.field ?? 'path', sort?.sort ?? 'asc')
+                .orderBy('title', 'asc')
             .limitIfValue(pagination ? pagination.pageSize : null)
                 .offsetIfValue(pagination ? pagination.page * pagination.pageSize : null)
             .executeSelectPage();

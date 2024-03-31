@@ -25,6 +25,7 @@ export class ContentTable extends Table<DBConnection, 'ContentTable'> {
     contentPath = this.column('content_path', 'string');
     contentTitle = this.column('content_title', 'string');
     contentType = this.column<ContentType>('content_type', 'enum', 'ContentType');
+    contentCategoryId = this.optionalColumnWithDefaultValue('content_category_id', 'int');
     contentProtected = this.columnWithDefaultValue('content_protected', 'int');
     content = this.column('content', 'string');
     revisionAuthorId = this.column('revision_author_id', 'int');

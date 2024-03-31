@@ -4064,6 +4064,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: content_category_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: content_protected
     type: tinyint(1)
     nullable: false
@@ -4143,6 +4148,7 @@ tables:
       `content_path` text NOT NULL,
       `content_title` text NOT NULL,
       `content_type` enum('Page','FAQ') NOT NULL,
+      `content_category_id` int(8) unsigned DEFAULT NULL,
       `content_protected` tinyint(1) NOT NULL DEFAULT 0,
       `content` text NOT NULL,
       `revision_author_id` int(4) unsigned NOT NULL,
