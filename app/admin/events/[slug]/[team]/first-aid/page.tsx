@@ -7,7 +7,7 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
 import { VendorTable } from './VendorTable';
 import { VendorTeam } from '@lib/database/Types';
@@ -18,7 +18,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The first aid team (normally supporting the Stewards) is responsible for making sure that all our
  * visitors are safe, and any incidents are taken care of.
  */
-export default async function EventTeamFirstAidPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventTeamFirstAidPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventSupportingTeams);
 

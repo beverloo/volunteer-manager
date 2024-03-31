@@ -9,7 +9,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentType } from '@lib/database/Types';
 import { Header } from '../../components/Header';
 import { Markdown } from '@components/Markdown';
@@ -21,7 +21,7 @@ import db, { tContent, tContentCategories } from '@lib/database';
  * category of the knowledge base. All questions will be alphabetically listed on this page.
  */
 export default async function ScheduleKnowledgeCategoryPage(
-    props: NextRouterParams<'category' | 'event'>)
+    props: NextPageParams<'category' | 'event'>)
 {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
 

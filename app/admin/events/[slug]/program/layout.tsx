@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextLayoutParams } from '@lib/NextRouterParams';
 import { ProgramHistory } from './ProgramHistory';
 import { ProgramNavigation } from './ProgramNavigation';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -15,7 +15,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * up the Program section of the Volunteer Manager. A program is bound to an event.
  */
 export default async function ProgramLayout(
-    props: React.PropsWithChildren<NextRouterParams<'slug'>>)
+    props: React.PropsWithChildren<NextLayoutParams<'slug'>>)
 {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
     if (!event.festivalId)

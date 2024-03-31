@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityExpectations, type AvailabilityDayInfo, type AvailabilityExpectation } from './AvailabilityExpectations';
 import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
@@ -33,7 +33,7 @@ function isSameDay(one: Temporal.ZonedDateTime, two: Temporal.ZonedDateTime) {
  * The <EventApplicationAvailabilityPage> component enables our volunteers to indicate when they
  * will be around at the festival, and which events they really want to attend.
  */
-export default async function EventApplicationAvailabilityPage(props: NextRouterParams<'slug'>) {
+export default async function EventApplicationAvailabilityPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in

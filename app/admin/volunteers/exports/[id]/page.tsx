@@ -8,7 +8,7 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ExportAccess } from './ExportAccess';
 import { ExportMetadata } from './ExportMetadata';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -21,7 +21,7 @@ import { kExportTypePrivilege } from '../ExportPrivileges';
  * The <VolunteersExportDetailsPage> component is the page that displays detailed information about
  * a particular data export. This includes both metadata and access logs.
  */
-export default async function VolunteersExportDetailsPage(props: NextRouterParams<'id'>) {
+export default async function VolunteersExportDetailsPage(props: NextPageParams<'id'>) {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerDataExports,

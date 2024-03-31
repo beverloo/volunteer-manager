@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
 import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
@@ -16,7 +16,7 @@ import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, t
  * accepted into the team. Each volunteer has a detailed page that will be linked to as well. Users
  * who have event administrator permission can "import" any volunteer into this event.
  */
-export default async function VolunteersPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function VolunteersPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;

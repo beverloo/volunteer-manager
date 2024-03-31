@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Section } from '../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleLocationsPage> component displays a list of all locations that are available on the
  * convention grounds. This is not a typically reachable page, but expected due to our URL layout.
  */
-export default async function ScheduleLocationsPage(props: NextRouterParams<'event'>) {
+export default async function ScheduleLocationsPage(props: NextPageParams<'event'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
         <Section>

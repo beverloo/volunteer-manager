@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege, can  } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
@@ -20,7 +20,7 @@ import { RejectedApplications } from './RejectedApplications';
  * for people who want to participate in this event. Event administrators can also directly create
  * new applications on this page themselves.
  */
-export default async function EventApplicationsPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventApplicationsPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;

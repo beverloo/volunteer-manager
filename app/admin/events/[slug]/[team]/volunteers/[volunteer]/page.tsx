@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -31,7 +31,7 @@ import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 import { readUserSetting } from '@lib/UserSettings';
 
-type RouterParams = NextRouterParams<'slug' | 'team' | 'volunteer'>;
+type RouterParams = NextPageParams<'slug' | 'team' | 'volunteer'>;
 
 /**
  * Displays information about an individual volunteer and their participation in a particular event.

@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Section } from '../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleEventsPage> component display a page listing all active events, which then link
  * through to the event page for that particular event. This may not be exposed in user interface.
  */
-export default async function ScheduleEventsPage(props: NextRouterParams<'event'>) {
+export default async function ScheduleEventsPage(props: NextPageParams<'event'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
         <Section>

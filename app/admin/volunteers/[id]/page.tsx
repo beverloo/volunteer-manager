@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Header } from './Header';
 import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
@@ -102,7 +102,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
  * Displays information about an individual volunteer, uniquely identified by their ID. Data will
  * be fetched from the database prior to being displayed.
  */
-export default async function VolunteerPage(props: NextRouterParams<'id'>) {
+export default async function VolunteerPage(props: NextPageParams<'id'>) {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerAdministrator,
@@ -143,7 +143,7 @@ export default async function VolunteerPage(props: NextRouterParams<'id'>) {
  * Dynamically generates metadata for this request by fetching the volunteer's real name from the
  * database, and using this as the page title. MysQL connections are pooled.
  */
-export async function generateMetadata(props: NextRouterParams<'id'>): Promise<Metadata> {
+export async function generateMetadata(props: NextPageParams<'id'>): Promise<Metadata> {
     const userId = parseInt(props.params.id, 10);
     if (isNaN(userId))
         return { /* no updates */ };

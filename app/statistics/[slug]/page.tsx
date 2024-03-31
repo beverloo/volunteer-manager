@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { Suspense } from 'react';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { DashboardContainer } from '../DashboardContainer';
 import { DashboardGraphFallback } from '../DashboardGraph';
 import { EventAgeDistributionGraph } from '../graphs/EventAgeDistributionGraph';
@@ -26,7 +26,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * Statistics specific to a particular event. The `slug` will be validated as one of the unique
  * event slugs we have stored in the database.
  */
-export default async function StatisticsEventPage(props: NextRouterParams<'slug'>) {
+export default async function StatisticsEventPage(props: NextPageParams<'slug'>) {
     const authenticationContext = await requireAuthenticationContext({
         privilege: Privilege.Statistics,
     });

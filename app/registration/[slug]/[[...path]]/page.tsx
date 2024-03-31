@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationContent } from '../../RegistrationContent';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
@@ -13,7 +13,7 @@ import { getContent } from '@lib/Content';
  * The <EventContentPage> component displays arbitrary content for a particular event. Senior+
  * volunteers can freely create content as they see fit, which will be served by this component.
  */
-export default async function EventContentPage(props: NextRouterParams<'slug', 'path'>) {
+export default async function EventContentPage(props: NextPageParams<'slug', 'path'>) {
     const { path, slug } = props.params;
 
     const context = await contextForRegistrationPage(slug);

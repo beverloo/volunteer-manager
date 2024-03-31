@@ -5,7 +5,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
 import { EventRecentChanges } from './EventRecentChanges';
@@ -345,7 +345,7 @@ async function getSeniorVolunteers(eventId: number) {
  * The <EventPage> component gathers the required information for the event-specific dashboard,
  * which concisely displays the status and progress of organising an individual event.
  */
-export default async function EventPage(props: NextRouterParams<'slug'>) {
+export default async function EventPage(props: NextPageParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const deadlines = await getEventDeadlines(event.id);

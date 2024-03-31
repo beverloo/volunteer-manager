@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getContent, getStaticContent } from '@lib/Content';
 import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
 import { ApplicationStatusPage } from './ApplicationStatusPage';
@@ -18,7 +18,7 @@ import db, { tTeams, tUsersEvents } from '@lib/database';
  * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
  * one of our events, or for them to see the status of their current application.
  */
-export default async function EventApplicationPage(props: NextRouterParams<'slug'>) {
+export default async function EventApplicationPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
     if (!context)
         notFound();

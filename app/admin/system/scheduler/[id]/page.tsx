@@ -13,7 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { DetailedLogs } from '../../outbox/[id]/DetailedLogs';
 import { GotoTaskButton } from './GotoTaskButton';
 import { Privilege } from '@lib/auth/Privileges';
@@ -26,7 +26,7 @@ import db, { tTasks } from '@lib/database';
  * The task page gives details about the execution of an individual task, including all logs, timing
  * and exception information. It allows system administrators to inspect what went wrong.
  */
-export default async function TaskPage(props: NextRouterParams<'id'>) {
+export default async function TaskPage(props: NextPageParams<'id'>) {
     if (!props.params.id)
         notFound();
 

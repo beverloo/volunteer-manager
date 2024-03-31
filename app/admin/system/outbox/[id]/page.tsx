@@ -3,7 +3,7 @@
 
 import type { Metadata } from 'next';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { OutboxMessage } from './OutboxMessage';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -13,7 +13,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * Manager. It includes all metainformation, including logs regarding the result. This entire page
  * is rendered client-side as it depends on an API.
  */
-export default async function OutboxPage(props: NextRouterParams<'id'>) {
+export default async function OutboxPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.SystemOutboxAccess,

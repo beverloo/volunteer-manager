@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import Collapse from '@mui/material/Collapse';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
@@ -21,7 +21,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra, tUsersEvents,
     tUsers } from '@lib/database';
 
-export default async function EventTrainingPage(props: NextRouterParams<'slug'>) {
+export default async function EventTrainingPage(props: NextPageParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventTrainingManagement);
 

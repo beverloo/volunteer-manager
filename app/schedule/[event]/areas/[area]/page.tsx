@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Section } from '../../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleAreaPage> component displays an overview of the locations that are part of a given
  * area, together with information on what's currently happening within them.
  */
-export default async function ScheduleAreaPage(props: NextRouterParams<'area' | 'event'>) {
+export default async function ScheduleAreaPage(props: NextPageParams<'area' | 'event'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
         <Section>

@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
@@ -17,7 +17,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * assigned to our volunteers. Shifts linked to program entries will automatically warn when they
  * end up out of sync.
  */
-export default async function EventTeamShiftsPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventTeamShiftsPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     // TODO: Box with warnings regarding the shifts (e.g. out-of-sync entries).

@@ -8,7 +8,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
 import { Markdown } from '@components/Markdown';
 import { RefundConfirmation } from './RefundConfirmation';
@@ -23,7 +23,7 @@ import db, { tEvents } from '@lib/database';
  * after the event has finished. Availability of this page is time limited and can be configured by
  * specific event administrators.
  */
-export default async function EventApplicationRefundPage(props: NextRouterParams<'slug'>) {
+export default async function EventApplicationRefundPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in

@@ -3,12 +3,12 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextLayoutParams } from '@lib/NextRouterParams';
 import { RegistrationContentContainer } from '../RegistrationContentContainer';
 import { RegistrationLayout } from '../RegistrationLayout';
 import { contextForRegistrationPage } from './contextForRegistrationPage';
 
-type RegistrationEventLayoutProps = React.PropsWithChildren<NextRouterParams<'slug'>>;
+type RegistrationEventLayoutProps = React.PropsWithChildren<NextLayoutParams<'slug'>>;
 
 /**
  * Root layout for the registration page belonging to a particular event.

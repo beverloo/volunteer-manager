@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { AiExplorer } from './AiExplorer';
 import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
@@ -16,7 +16,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The prompt explorer page allows volunteers to test the results of a particular AI prompt. While
  * all settings can be changed here, none of them can be stored.
  */
-export default async function AiPromptExplorer(props: NextRouterParams<'prompt'>) {
+export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) {
     await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.SystemAiAccess,

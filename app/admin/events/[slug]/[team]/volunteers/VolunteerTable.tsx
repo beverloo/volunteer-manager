@@ -23,7 +23,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
@@ -67,7 +67,7 @@ export interface VolunteerInfo {
 /**
  * Props accepted by the <VolunteerTable> component.
  */
-export interface VolunteerTableProps extends NextRouterParams<'slug' | 'team'> {
+export interface VolunteerTableProps extends NextPageParams<'slug' | 'team'> {
     /**
      * Whether a link to the data export tool should be displayed on the page.
      */

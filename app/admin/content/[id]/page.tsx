@@ -3,7 +3,7 @@
 
 import type { Metadata } from 'next';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentEditor } from '@app/admin/content/ContentEditor';
 import { Privilege } from '@lib/auth/Privileges';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -14,7 +14,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ContentEntryPage> page displays an individual piece of content that can be edited by
  * the volunteer. The <ContentEditor> component takes care of the actual behaviour.
  */
-export default async function ContentEntryPage(props: NextRouterParams<'id'>) {
+export default async function ContentEntryPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.SystemContentAccess,

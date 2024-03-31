@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Section } from '../../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleVolunteerPage> component display a page for a particular volunteer, identified by
  * their userId in the URL. The volunteer page contains their schedule as well.
  */
-export default async function ScheduleVolunteerPage(props: NextRouterParams<'event' | 'volunteer'>)
+export default async function ScheduleVolunteerPage(props: NextPageParams<'event' | 'volunteer'>)
 {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (

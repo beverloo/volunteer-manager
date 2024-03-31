@@ -6,7 +6,7 @@ import Collapse from '@mui/material/Collapse';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
@@ -18,7 +18,7 @@ import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
  * The retention page displays a recruiting tool to understand how participants from the past two
  * events are interested in participating in the upcoming event.
  */
-export default async function EventTeamRetentionPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventTeamRetentionPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const usersEventJoin = tUsersEvents.forUseInLeftJoin();

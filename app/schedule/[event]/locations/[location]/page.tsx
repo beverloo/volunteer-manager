@@ -3,7 +3,7 @@
 
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Section } from '../../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,7 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The <ScheduleLocationPage> component displays an overview of a location and the events that will
  * be happening therein. The user will be automatically redirected when there's only a single event.
  */
-export default async function ScheduleLocationPage(props: NextRouterParams<'event' | 'location'>) {
+export default async function ScheduleLocationPage(props: NextPageParams<'event' | 'location'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
         <Section>

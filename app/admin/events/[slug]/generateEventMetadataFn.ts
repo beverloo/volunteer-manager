@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import db, { tEvents } from '@lib/database';
 
 /**
@@ -14,7 +14,7 @@ const kTitleCache = new Map();
  * Generates metadata for one of the sub-pages of a particular event based on the given `title`,
  * and the `props` which include the event's slug. Will cause a database query.
  */
-async function generateMetadata(props: NextRouterParams<'slug'>, title?: string)
+async function generateMetadata(props: NextPageParams<'slug'>, title?: string)
     : Promise<Metadata>
 {
     const { slug } = props.params;
@@ -43,5 +43,5 @@ async function generateMetadata(props: NextRouterParams<'slug'>, title?: string)
  * Generates a `generateMetadata` compatible-function for an event with the given `title`.
  */
 export function generateEventMetadataFn(title?: string) {
-    return (props: NextRouterParams<'slug'>) => generateMetadata(props, title);
+    return (props: NextPageParams<'slug'>) => generateMetadata(props, title);
 }

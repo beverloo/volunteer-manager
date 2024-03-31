@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ExportAvailable } from './ExportAvailable';
 import { ExportLayout } from './ExportLayout';
 import { ExportUnavailable } from './ExportUnavailable';
@@ -23,7 +23,7 @@ import db, { tEvents, tExports, tExportsLogs, tUsers } from '@lib/database';
  * Each of these will be flagged to the visitor in a clear manner. The person who shared the data
  * with them will also be identified, so that they can request a new link if necessary.
  */
-export default async function ExportsPage(props: NextRouterParams<'slug'>) {
+export default async function ExportsPage(props: NextPageParams<'slug'>) {
     const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
 
     const dbInstance = db;

@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
@@ -66,7 +66,7 @@ function demandToTimelineEvents(
  * This page displays an individual shift, its configuration, time allocation and warnings. The
  * actual volunteers cannot be adjusted; this is something that has to be done on the schedule page.
  */
-export default async function EventTeamShiftPage(props: NextRouterParams<'slug' | 'team' | 'id'>) {
+export default async function EventTeamShiftPage(props: NextPageParams<'slug' | 'team' | 'id'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const readOnly = !can(user, Privilege.EventShiftManagement);

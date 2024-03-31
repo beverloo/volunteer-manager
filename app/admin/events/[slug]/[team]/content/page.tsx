@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentCreate } from '@app/admin/content/ContentCreate';
 import { ContentList } from '@app/admin/content/ContentList';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -15,7 +15,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <EventContentPage> page lists the content that's associated with a particular team and a
  * particular event. It includes a mixture of required (fixed) content and dynamic content.
  */
-export default async function EventContentPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventContentPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);

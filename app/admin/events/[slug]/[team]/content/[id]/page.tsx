@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentEditor } from '@app/admin/content/ContentEditor';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createEventScope } from '@app/admin/content/ContentScope';
@@ -12,7 +12,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <EventContentEntryPage> page displays an individual piece of content that can be edited by
  * the volunteer. The <ContentEditor> component takes care of the actual behaviour.
  */
-export default async function EventContentEntryPage(props: NextRouterParams<'slug' | 'team' | 'id'>)
+export default async function EventContentEntryPage(props: NextPageParams<'slug' | 'team' | 'id'>)
 {
     const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
 

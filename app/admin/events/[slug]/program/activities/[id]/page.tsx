@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { formatDate } from '@lib/Temporal';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -27,7 +27,7 @@ const kUpdateFormat = ' dddd, MMMM D, [at] HH:mm';
  * The <ProgramLayout> component contains the common elements between the different pages that make
  * up the Program section of the Volunteer Manager. A program is bound to an event.
  */
-export default async function ProgramActivityPage(props: NextRouterParams<'slug' | 'id'>) {
+export default async function ProgramActivityPage(props: NextPageParams<'slug' | 'id'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const activityId = parseInt(props.params.id, 10);

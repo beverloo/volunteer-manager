@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationStatus } from '@lib/database/Types';
 import { RequestDataTable } from './RequestDataTable';
 import { Privilege, can, expand } from '@lib/auth/Privileges';
@@ -13,7 +13,7 @@ import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/dat
  * The <ProgramRequestsPage> component lists the program entries where the organiser has requested
  * help from the volunteering teams. Requests must be managed directly by our team.
  */
-export default async function ProgramRequestsPage(props: NextRouterParams<'slug'>) {
+export default async function ProgramRequestsPage(props: NextPageParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const unfilteredLeaders = await db.selectFrom(tUsersEvents)

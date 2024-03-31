@@ -7,7 +7,7 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -16,7 +16,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The security team (normally supporting the Stewards) is responsible for the physical security of
  * our visitors and volunteers. They're a vendor team, and therefore not considered volunteers.
  */
-export default async function EventTeamSecurityPage(props: NextRouterParams<'slug' | 'team'>) {
+export default async function EventTeamSecurityPage(props: NextPageParams<'slug' | 'team'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventSupportingTeams);
 

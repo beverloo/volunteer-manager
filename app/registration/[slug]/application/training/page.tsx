@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
@@ -22,7 +22,7 @@ import { getTrainingOptions } from './getTrainingOptions';
  * training session they would like to participate in, if any. Not all volunteers are eligible
  * to participate in the trainings.
  */
-export default async function EventApplicationTrainingPage(props: NextRouterParams<'slug'>) {
+export default async function EventApplicationTrainingPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in

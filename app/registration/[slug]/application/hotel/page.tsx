@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 
-import type { NextRouterParams } from '@lib/NextRouterParams';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { HotelConfirmation } from './HotelConfirmation';
 import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@components/Markdown';
@@ -22,7 +22,7 @@ import { getStaticContent } from '@lib/Content';
  * they would like to stay in during the event. Not all volunteers have the ability to make this
  * selection, as the number of available hotel rooms is limited.
  */
-export default async function EventApplicationHotelsPage(props: NextRouterParams<'slug'>) {
+export default async function EventApplicationHotelsPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
