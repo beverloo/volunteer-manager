@@ -210,8 +210,8 @@ export function DesktopNavigation(props: NavigationProps) {
                                             badge={ props.badgeActiveShifts }
                                             href={ scheduleBaseUrl + '/shifts/' }
                                             icon={ <AccessTimeIcon /> } label="Your shifts" /> }
-                <DesktopNavigationEntry active={ props.active === 'events' } badge={activeEvents}
-                                        href={ scheduleBaseUrl + '/events/' }
+                <DesktopNavigationEntry active={ props.active === 'areas' } badge={activeEvents}
+                                        href={ scheduleBaseUrl + '/areas/' }
                                         icon={ <EventNoteIcon /> } label="Events" />
                 <List dense sx={kStyles.areas}>
                     { areas.map((area, index) =>
