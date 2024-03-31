@@ -6,11 +6,13 @@ import { notFound } from 'next/navigation';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
+import { ActivityType, ContentType } from '@lib/database/Types';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots } from '@lib/database';
-import { ActivityType } from '@lib/database/Types';
 import { readSettings } from '@lib/Settings';
+
+import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
+    tContentCategories } from '@lib/database';
 
 /**
  * Interface definition for the information contained within a public schedule.
@@ -46,6 +48,37 @@ const kPublicSchedule = z.strictObject({
          */
         searchResultMinimumScore: z.number(),
     }),
+
+    /**
+     * The event's kwowledge base, however, without the answers. These will be loaded on demand.
+     */
+    knowledge: z.array(z.strictObject({
+        /**
+         * Unique ID of the knowledge base category.
+         */
+        id: z.number(),
+
+        /**
+         * Name of the icon using which the category should be represented.
+         */
+        icon: z.string(),
+
+        /**
+         * Title of the category, to be used in the user interface.
+         */
+        title: z.string(),
+
+        /**
+         * Description of the category, to be used in the user interface.
+         */
+        description: z.string().optional(),
+
+        /**
+         * Record containing all questions (keys) that exist in this category, each valued by the
+         * unique Id of the question in the database to enable deep links.
+         */
+        questions: z.record(z.string(), z.string()),
+    })),
 
     /**
      * Information about the event's program.
@@ -108,7 +141,6 @@ const kPublicSchedule = z.strictObject({
         // TODO: timeslots
     }),
 
-    // TODO: knowledge
     // TODO: nardo
     // TODO: volunteers
 });
@@ -170,6 +202,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
         },
+        knowledge: [ /* empty */ ],
         program: {
             areas: { /* empty */ },
             locations: { /* empty */ },
@@ -182,10 +215,40 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                                          : currentServerTime;
 
     // ---------------------------------------------------------------------------------------------
-    // Source information about the event's program.
+    // Source information about the event's knowledge base.
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
+    if (schedule.config.enableKnowledgeBase) {
+        const knowledge = await dbInstance.selectFrom(tContentCategories)
+            .innerJoin(tContent)
+                .on(tContent.contentCategoryId.equals(tContentCategories.categoryId))
+                    .and(tContent.revisionVisible.equals(/* true= */ 1))
+            .where(tContentCategories.eventId.equals(event.id))
+                .and(tContentCategories.categoryDeleted.isNull())
+            .select({
+                id: tContentCategories.categoryId,
+                icon: tContentCategories.categoryIcon,
+                title: tContentCategories.categoryTitle,
+                description: tContentCategories.categoryDescription,
+                questions: dbInstance.aggregateAsArray({
+                    id: tContent.contentPath,
+                    question: tContent.contentTitle,
+                }),
+            })
+            .executeSelectMany();
+
+        schedule.knowledge = knowledge.map(category => ({
+            ...category,
+            questions: Object.fromEntries(
+                category.questions.map(({ id, question }) => [ question, id ])),
+        }));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Source information about the event's program.
+    // ---------------------------------------------------------------------------------------------
+
     const activities = await dbInstance.selectFrom(tActivities)
         .innerJoin(tActivitiesTimeslots)
             .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))

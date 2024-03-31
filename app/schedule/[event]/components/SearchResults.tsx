@@ -7,6 +7,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -53,7 +54,7 @@ interface SearchResult {
     /**
      * Type of search result to display.
      */
-    type: 'area' | 'location';
+    type: 'area' | 'knowledge' | 'location';
 
     /**
      * The avatar to display at the start of the search result, if any. When given, this should be
@@ -84,6 +85,7 @@ interface SearchResult {
  */
 const kSearchScoreTypeBonus: { [K in SearchResult['type']]: number } = {
     area: 0.1,
+    knowledge: 0.05,
     location: 0.1,
 };
 
@@ -125,6 +127,24 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
         }
     }
 
+    if (schedule.config.enableKnowledgeBaseSearch) {
+        for (const category of schedule.knowledge) {
+            for (const [ question, id ] of Object.entries(category.questions)) {
+                const score = stringScoreEx(
+                    question, query, normalisedQuery, schedule.config.searchResultFuzziness);
+
+                if (score >= schedule.config.searchResultMinimumScore) {
+                    results.push({
+                        type: 'knowledge',
+                        href: `${scheduleBaseUrl}/knowledge/${category.id}?q=${id}`,
+                        label: question,
+                        score: score + kSearchScoreTypeBonus.knowledge,
+                    });
+                }
+            }
+        }
+    }
+
     for (const location of Object.values(schedule.program.locations)) {
         const score = stringScoreEx(
             location.name, query, normalisedQuery, schedule.config.searchResultFuzziness);
@@ -140,7 +160,6 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
     }
 
     // TODO: Events
-    // TODO: Knowledge base
     // TODO: Volunteers
 
     // ---------------------------------------------------------------------------------------------
@@ -247,6 +266,14 @@ export function SearchResults(props: SearchResultsProps) {
                                 avatar = (
                                     <ListItemCenteredIcon>
                                         <MapsHomeWorkIcon color="primary" />
+                                    </ListItemCenteredIcon>
+                                );
+                                break;
+
+                            case 'knowledge':
+                                avatar = (
+                                    <ListItemCenteredIcon>
+                                        <HelpOutlineIcon color="primary" />
                                     </ListItemCenteredIcon>
                                 );
                                 break;
