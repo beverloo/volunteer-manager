@@ -5,14 +5,11 @@
 
 import { createContext } from 'react';
 
-/**
- * Context conveyed for the schedule app. This is updated periodically by the layout, which will
- * then be made available to each of the components within the schedule.
- */
-export type ScheduleContextInfo = { /* todo */ };
+import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
 
 /**
- * The <ScheduleContext> carries information about the schedule to display.
+ * The <ScheduleContext> carries information about the schedule to display. It's sourced directly
+ * from the server by the `ScheduleContextManager`, which also intends to keep it up-to-date.
  */
-export const ScheduleContext = createContext<ScheduleContextInfo | undefined>(
+export const ScheduleContext = createContext<PublicSchedule | undefined>(
     /* unprovisioned= */ undefined);

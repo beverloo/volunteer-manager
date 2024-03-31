@@ -3,7 +3,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import Badge from '@mui/material/Badge';
@@ -15,6 +16,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
+
+import { ScheduleContext } from '../ScheduleContext';
 
 // TODO:
 function navigateToOption(...args: any[]) {}
@@ -33,26 +36,43 @@ export function MobileNavigation(props: NavigationProps) {
     props = {
         active: undefined,
         badgeActiveShifts: 1,
-        badgeActiveEvents: 1,
         badgeActiveVolunteers: 1,
-        event: {
-            areas: () => [] as any[],
-            identifier: '2024',
-        },
-        showAdministration: false,
         volunteer: undefined,
     };
 
-    const { event, volunteer } = props;
+    const { event } = props;
 
-    if (props.showAdministration)
-        console.warn('The administration button is not supported in mobile navigation.');
+    // ---------------------------------------------------------------------------------------------
+
+    const router = useRouter();
+    const schedule = useContext(ScheduleContext);
+    const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
+
+    const [ activeEvents, areas ] = useMemo(() => {
+        let activeEvents: number = 0;
+
+        const areas: { id: string; name: string; }[] = [];
+        if (!!schedule) {
+            for (const area of Object.values(schedule.program.areas)) {
+                activeEvents += area.active;
+                areas.push({
+                    id: area.id,
+                    name: area.name,
+                });
+            }
+
+            areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+        }
+        return [ activeEvents, areas ];
+
+    }, [ schedule ]);
+
 
     // Compose the activity icons part of the bottom navigation bar. Detail is deliberately lost
     // as the numeric dots take up too much space within the menu.
     const eventsIcon =
-        props.badgeActiveEvents ? <Badge color="error" variant="dot"><EventNoteIcon /></Badge>
-                                : <EventNoteIcon />;
+        !!activeEvents ? <Badge color="error" variant="dot"><EventNoteIcon /></Badge>
+                       : <EventNoteIcon />;
 
     const shiftsIcon =
         props.badgeActiveShifts ? <Badge color="error" variant="dot"><AccessTimeIcon /></Badge>
@@ -66,9 +86,6 @@ export function MobileNavigation(props: NavigationProps) {
     // can be selected, rather than having a full page for click-through.
     const [ anchorElement, setAnchorElement ] = useState<Element | null>(null);
 
-    // Array with all of the areas that are part of the location.
-    const areas = [ ...event.areas() ];
-
     // Handles navigation to one of the top-level bottom navigation options.
     function handleNavigation(e: React.SyntheticEvent<Element, Event>, value: string) {
         switch (value) {
@@ -81,28 +98,28 @@ export function MobileNavigation(props: NavigationProps) {
         }
     }
 
-    // Handles navigation to a particular area, through the area specialization.
-    function handleAreaNavigation(areaIdentifier?: string) {
-        setAnchorElement(/* value= */ null);
-        navigateToOption(event.identifier, 'events', areaIdentifier);
-    }
+    // Navigates to the given `areaId`. When the `areaId` is not given, the user will be navigated
+    // to the area overview page instead, which lists all the areas that exist.
+    const handleAreaNavigation = useCallback((areaId?: string) => {
+        if (!!areaId)
+            router.push(`${scheduleBaseUrl}/areas/${areaId}`);
+        else
+            router.push(`${scheduleBaseUrl}/areas`);
+
+    }, [ router, scheduleBaseUrl ]);
 
     return (
         <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2 }} elevation={3}>
             <BottomNavigation onChange={handleNavigation} value={props.active}>
-                <BottomNavigationAction label="Overview"
-                                        value="overview"
-                                        icon={ <HomeIcon /> } />
+                <BottomNavigationAction icon={ <HomeIcon /> } label="Overview"
+                                        value="overview" />
                 { props.volunteer &&
-                    <BottomNavigationAction label="Shifts"
-                                            value="shifts"
-                                            icon={shiftsIcon} /> }
-                <BottomNavigationAction label="Events"
-                                        value="events"
-                                        icon={eventsIcon} />
-                <BottomNavigationAction label="Volunteers"
-                                        value="volunteers"
-                                        icon={volunteersIcon} />
+                    <BottomNavigationAction icon={shiftsIcon} label="Shifts"
+                                            value="shifts" /> }
+                <BottomNavigationAction icon={eventsIcon} label="Events"
+                                        value="events" />
+                <BottomNavigationAction icon={volunteersIcon} label="Volunteers"
+                                        value="volunteers" />
             </BottomNavigation>
             <Menu anchorEl={anchorElement}
                   anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
@@ -113,12 +130,12 @@ export function MobileNavigation(props: NavigationProps) {
 
                 { areas.map((area, index) =>
                     <MenuItem key={index} divider={index === areas.length - 1}
-                              onClick={e => handleAreaNavigation(area.identifier)}
+                              onClick={ () => handleAreaNavigation(area.id) }
                               sx={{ justifyContent: 'center' }}>
                         {area.name}
                     </MenuItem>) }
 
-                <MenuItem onClick={e => handleAreaNavigation(/* area= */ undefined)}
+                <MenuItem onClick={ () => handleAreaNavigation(/* areaId= */ undefined) }
                           sx={{ justifyContent: 'center' }}>Active events</MenuItem>
 
             </Menu>

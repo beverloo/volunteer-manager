@@ -3,10 +3,11 @@
 
 'use client';
 
-import { useCallback, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import GroupIcon from '@mui/icons-material/Group';
@@ -18,8 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { darken, lighten, styled } from '@mui/material/styles';
 
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-
+import { ScheduleContext } from '../ScheduleContext';
 import { kDesktopMenuWidthPx } from '../Constants';
 
 /**
@@ -165,55 +165,64 @@ export function DesktopNavigation(props: NavigationProps) {
     props = {
         active: undefined,
         badgeActiveShifts: 1,
-        badgeActiveEvents: 1,
         badgeActiveVolunteers: 1,
-        event: {
-            areas: () => [] as any[],
-            identifier: '2024',
-        },
         showAdministration: false,
         volunteer: undefined,
     };
 
-    const eventBaseUrl = `/schedule/${props.event.identifier}`;
+    const schedule = useContext(ScheduleContext);
+    const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
+
+    const [ activeEvents, areas ] = useMemo(() => {
+        let activeEvents: number = 0;
+
+        const areas: { name: string; url: string }[] = [];
+        if (!!schedule) {
+            for (const area of Object.values(schedule.program.areas)) {
+                activeEvents += area.active;
+                areas.push({
+                    name: area.name,
+                    url: `${scheduleBaseUrl}/areas/${area.id}`,
+                });
+            }
+
+            areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+        }
+        return [ activeEvents, areas ];
+
+    }, [ schedule, scheduleBaseUrl ]);
+
+    if (!schedule)
+        return undefined;
 
     return (
         <>
             <DesktopNavigationLogo />
             <List sx={kStyles.container}>
                 <DesktopNavigationEntry active={ props.active === 'overview' }
-                                        href={ eventBaseUrl + '/' }
-                                        icon={ <HomeIcon /> }
-                                        label="Overview" />
+                                        href={scheduleBaseUrl}
+                                        icon={ <HomeIcon /> } label="Overview" />
                 { props.volunteer &&
                     <DesktopNavigationEntry active={ props.active === 'shifts' }
                                             badge={ props.badgeActiveShifts }
-                                            href={ eventBaseUrl + '/shifts/' }
-                                            icon={ <AccessTimeIcon /> }
-                                            label="Your shifts" /> }
-                <DesktopNavigationEntry active={ props.active === 'events' }
-                                        badge={ props.badgeActiveEvents }
-                                        href={ eventBaseUrl + '/events/' }
-                                        icon={ <EventNoteIcon /> }
-                                        label="Events" />
+                                            href={ scheduleBaseUrl + '/shifts/' }
+                                            icon={ <AccessTimeIcon /> } label="Your shifts" /> }
+                <DesktopNavigationEntry active={ props.active === 'events' } badge={activeEvents}
+                                        href={ scheduleBaseUrl + '/events/' }
+                                        icon={ <EventNoteIcon /> } label="Events" />
                 <List dense sx={kStyles.areas}>
-                    { [ ...props.event.areas() ].map((area, index) =>
-                        <DesktopNavigationEntry
-                            key={index}
-                            href={ eventBaseUrl + `/events/${area.identifier}/` }
-                            icon={ <ArrowRightIcon /> }
-                            label={ area.name } /> )}
+                    { areas.map((area, index) =>
+                        <DesktopNavigationEntry key={index} href={area.url}
+                                                icon={ <ArrowRightIcon /> } label={area.name} /> )}
                 </List>
                 <DesktopNavigationEntry active={ props.active === 'volunteers' }
                                         badge={ props.badgeActiveVolunteers }
-                                        href={ eventBaseUrl + '/volunteers/' }
-                                        icon={ <GroupIcon /> }
-                                        label="Volunteers" />
+                                        href={ scheduleBaseUrl + '/volunteers/' }
+                                        icon={ <GroupIcon /> } label="Volunteers" />
                 { props.showAdministration &&
                     <DesktopNavigationEntry active={ props.active === 'admin' }
-                                            href={ eventBaseUrl + '/admin/' }
-                                            icon={ <SettingsIcon /> }
-                                            label="Administration" /> }
+                                            href={ scheduleBaseUrl + '/admin/' }
+                                            icon={ <SettingsIcon /> } label="Administration" /> }
             </List>
         </>
     );
