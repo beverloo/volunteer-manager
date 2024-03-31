@@ -7,9 +7,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
-import Avatar from '@mui/material/Avatar';
 import List from '@mui/material/List';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -19,6 +17,7 @@ import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import { styled } from '@mui/material/styles';
 
 import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
+import { Alert } from './Alert';
 import { ScheduleContext } from '../ScheduleContext';
 import { normalizeString, stringScoreEx } from '@lib/StringScore';
 
@@ -45,15 +44,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  */
 const ListItemCenteredIcon = styled(ListItemIcon)(({ theme }) => ({
     paddingLeft: theme.spacing(.5),
-}));
-
-/**
- * Regular <Avatar> component except for the sizing, which has been made smaller for search results
- * to be presented in a consistently sized manner. Avatars are conventionally larger than icons.
- */
-const SmallAvatar = styled(Avatar)(({ theme }) => ({
-    width: theme.spacing(4),
-    height: theme.spacing(4),
 }));
 
 /**
@@ -221,7 +211,15 @@ export function SearchResults(props: SearchResultsProps) {
 
     }, [ onClose, router ]);
 
-    // TODO: Handle `commit`
+    // When `commit` is set to true, the top search result (if any) will be committed as if the user
+    // clicked on it. The search view will be closed immediately.
+    if (commit) {
+        if (results.length > 0)
+            router.push(results[0].href);
+
+        onClose();
+        return <></>;
+    }
 
     if (!anchorEl || !schedule || !query)
         return undefined;
@@ -236,9 +234,9 @@ export function SearchResults(props: SearchResultsProps) {
                  onClose={onClose}>
 
             { !results.length &&
-                <>
-                    No results could be found.
-                </> }
+                <Alert severity="warning">
+                    No search results could be found
+                </Alert> }
 
             { !!results.length &&
                 <List disablePadding>
