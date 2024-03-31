@@ -3,7 +3,9 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useContext, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -28,7 +30,9 @@ import { kDesktopMenuWidthPx } from '../Constants';
  */
 const kStyles: Record<string, SystemStyleObject<Theme>> = {
     container: {
-        paddingX: 2,
+        paddingLeft: 2,
+        paddingRight: 0,
+        paddingY: 1,
     },
 
     header: {
@@ -42,7 +46,7 @@ const kStyles: Record<string, SystemStyleObject<Theme>> = {
     },
 
     areas: {
-        marginLeft: 4,
+        marginLeft: 3,
     },
 
     item: {
@@ -134,14 +138,14 @@ interface DesktopNavigationEntryProps {
  */
 function DesktopNavigationEntry(props: DesktopNavigationEntryProps) {
     const { active, badge, href, icon, label } = props;
-
     return (
-        <ListItemButton selected={active}
-                        sx={kStyles.item}>
+        <ListItemButton component={Link} href={href} selected={active} sx={kStyles.item}>
 
-            <ListItemIcon>
-                {icon}
-            </ListItemIcon>
+            { !!icon &&
+                <ListItemIcon>
+                    {icon}
+                </ListItemIcon> }
+
             <ListItemText primaryTypographyProps={{ color: 'text.secondary' }}
                           primary={label} />
 
@@ -166,7 +170,6 @@ export function DesktopNavigation(props: NavigationProps) {
         active: undefined,
         badgeActiveShifts: 1,
         badgeActiveVolunteers: 1,
-        showAdministration: false,
         volunteer: undefined,
     };
 
@@ -219,10 +222,6 @@ export function DesktopNavigation(props: NavigationProps) {
                                         badge={ props.badgeActiveVolunteers }
                                         href={ scheduleBaseUrl + '/volunteers/' }
                                         icon={ <GroupIcon /> } label="Volunteers" />
-                { props.showAdministration &&
-                    <DesktopNavigationEntry active={ props.active === 'admin' }
-                                            href={ scheduleBaseUrl + '/admin/' }
-                                            icon={ <SettingsIcon /> } label="Administration" /> }
             </List>
         </>
     );

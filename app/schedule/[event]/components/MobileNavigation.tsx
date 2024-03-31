@@ -28,7 +28,7 @@ type NavigationProps = any;
 /**
  * This component powers the main navigation capability of the volunteer portal, with a user
  * interface optimized for display on mobile devices. A bottom bar navigation will be displayed, in
- * which the active item will be highlighted. Administrators get an additional option.
+ * which the active item will be highlighted.
  *
  * https://mui.com/components/bottom-navigation/
  */

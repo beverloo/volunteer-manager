@@ -137,11 +137,15 @@ export function ApplicationBar(props: ApplicationBarProps) {
             if (!searchBarRef.current)
                 return;
 
-            if (!event.ctrlKey || event.keyCode !== /* f= */ 70)
-                return;
-
-            event.preventDefault();
-            searchBarRef.current.focus();
+            // We support two actions: <ctrl>+<f> to start searching, and <esc> to stop searching
+            // when the search bar is currently focused. The <esc> key will bubble.
+            if (!!event.ctrlKey && event.keyCode === /* f= */ 70) {
+                searchBarRef.current.focus();
+                event.preventDefault();
+            } else if (event.keyCode === /* escape= */ 27) {
+                searchBarRef.current.blur();
+                // let the "escape" fall through...
+            }
         }
 
         window.addEventListener('keydown', interceptSearchKey);
