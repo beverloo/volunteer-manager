@@ -33,6 +33,11 @@ const kPublicSchedule = z.strictObject({
         enableKnowledgeBase: z.boolean(),
 
         /**
+         * Whether searching through the knowledge base should be enabled.
+         */
+        enableKnowledgeBaseSearch: z.boolean(),
+
+        /**
          * Amount of fuzziness to apply to the search results. While this allows minor compensation
          * for typos, a high value could lead to less relevant results being presented to the user.
          */
@@ -189,6 +194,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const settings = await readSettings([
         'schedule-del-a-rie-advies',
         'schedule-knowledge-base',
+        'schedule-knowledge-base-search',
         'schedule-search-candidate-fuzziness',
         'schedule-search-candidate-minimum-score',
         'schedule-search-result-limit',
@@ -198,6 +204,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         slug: event.slug,
         config: {
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
+            enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,

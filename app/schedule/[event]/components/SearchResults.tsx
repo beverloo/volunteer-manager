@@ -136,7 +136,7 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
                 if (score >= schedule.config.searchResultMinimumScore) {
                     results.push({
                         type: 'knowledge',
-                        href: `${scheduleBaseUrl}/knowledge/${category.id}?q=${id}`,
+                        href: `${scheduleBaseUrl}/knowledge/${category.id}?q=${id}#${id}`,
                         label: question,
                         score: score + kSearchScoreTypeBonus.knowledge,
                     });

@@ -20,10 +20,10 @@ export interface NextRouterParams<SingleComponentParams extends string,
          * Parameters that were included in the URL.
          */
         [P in MultiComponentParams]?: string[];
-    } & {
-        /**
-         * Search parameters given in the URL.
-         */
-        searchParams: Record<string, string>;
     };
+
+    /**
+     * Search parameters given in the URL.
+     */
+    searchParams: Record<string, string>;
 }
