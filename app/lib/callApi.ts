@@ -53,6 +53,7 @@ import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
+import type { ContentCategoriesEndpoints } from '@app/api/admin/content/categories/[[...id]]/route';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
 import type { DisplaysEndpoints } from '@app/api/admin/displays/[[...id]]/route';
 import type { EventDeadlinesEndpoints } from '@app/api/admin/event/deadlines/[[...id]]/route';
@@ -93,6 +94,7 @@ type ApiResponseType<T> = T extends { response: object } ? T['response'] : void;
  */
 export type ApiEndpoints = {
     'get': {
+        '/api/admin/content/categories': ContentCategoriesEndpoints['list'],
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/displays': DisplaysEndpoints['list'],
@@ -128,6 +130,7 @@ export type ApiEndpoints = {
         '/api/nardo': NardoEndpoints['list'],
     },
     'post': {
+        '/api/admin/content/categories': ContentCategoriesEndpoints['create'],
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['create'],
@@ -190,6 +193,7 @@ export type ApiEndpoints = {
         '/api/nardo': NardoEndpoints['create'],
     },
     'delete': {
+        '/api/admin/content/categories/:id': ContentCategoriesEndpoints['delete'],
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['delete'],
@@ -209,6 +213,7 @@ export type ApiEndpoints = {
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
     'put': {
+        '/api/admin/content/categories/:id': ContentCategoriesEndpoints['update'],
         '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/displays/:id': DisplaysEndpoints['update'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['update'],

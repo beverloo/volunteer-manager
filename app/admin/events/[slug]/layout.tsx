@@ -260,12 +260,12 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
     ];
 
     for (const team of info.teams) {
-        const faqEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
+        const knowledgeEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
         if (team.managesFaq) {
-            faqEntry.push({
+            knowledgeEntry.push({
                 icon: <InfoOutlinedIcon />,
                 label: 'Knowledge base',
-                url: `/admin/events/${slug}/${team.slug}/faq`,
+                url: `/admin/events/${slug}/${team.slug}/knowledge`,
             });
         }
 
@@ -307,7 +307,7 @@ export default async function EventLayout(props: React.PropsWithChildren<EventLa
                     label: 'Content',
                     url: `/admin/events/${slug}/${team.slug}/content`,
                 },
-                ...faqEntry,
+                ...knowledgeEntry,
                 ...firstAidEntry,
                 {
                     icon: <RepeatIcon />,

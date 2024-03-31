@@ -50,6 +50,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
 
     // User settings that are allowed to be updated using this interface.
     const kAllowedUserSettings: { [k in keyof UserSettingsMap]: SettingStringType<k> } = {
+        'user-admin-knowledge-expand-categories': 'boolean',
         'user-admin-schedule-date': 'string',
         'user-admin-schedule-expand-warnings': 'boolean',
         'user-admin-schedule-inclusive-shifts': 'boolean',

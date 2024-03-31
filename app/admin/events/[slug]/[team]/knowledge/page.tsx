@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { NextRouterParams } from '@lib/NextRouterParams';
 import { CreateQuestionForm } from './CreateQuestionForm';
+import { KnowledgeCategories } from './KnowledgeCategories';
 import { KnowledgeList } from './KnowledgeList';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
@@ -12,6 +13,7 @@ import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { readUserSetting } from '@lib/UserSettings';
 
 /**
  * The FAQ provides a library of questions that we've received, or may receive from our visitors. It
@@ -22,6 +24,10 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
+
+    // Whether the `<KnowledgeCategories>` section should be expanded by default.
+    const expandCategories = await readUserSetting(
+        user.userId, 'user-admin-knowledge-expand-categories');
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
     const scope = createKnowledgeBaseScope(event.id);
@@ -39,6 +45,7 @@ export default async function EventTeamFaqPage(props: NextRouterParams<'slug' | 
             <Section title="Create a new question">
                 <CreateQuestionForm scope={scope} />
             </Section>
+            <KnowledgeCategories defaultExpanded={expandCategories} event={event.slug} />
         </>
     );
 }

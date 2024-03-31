@@ -46,7 +46,7 @@ export function KnowledgeList(props: KnowledgeListProps) {
             flex: 3,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./faq/${params.row.id}`}>
+                <MuiLink component={Link} href={`./knowledge/${params.row.id}`}>
                     {params.value}
                 </MuiLink>,
         },

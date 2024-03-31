@@ -50,6 +50,7 @@ export enum LogType {
     AdminHotelAssignVolunteerDelete = 'admin-hotel-assign-volunteer-delete',
     AdminHotelBookingMutation = 'admin-hotel-booking-mutation',
     AdminImpersonateVolunteer = 'admin-impersonate-volunteer',
+    AdminKnowledgeBaseCategoryMutation = 'admin-knowledge-base-category-mutation',
     AdminKnowledgeBaseMutation = 'admin-knowledge-base-mutation',
     AdminNardoMutation = 'admin-nardo-mutation',
     AdminProgramMutation = 'admin-program-mutation',
