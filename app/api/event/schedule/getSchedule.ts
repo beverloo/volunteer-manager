@@ -10,6 +10,7 @@ import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots } from '@lib/database';
 import { ActivityType } from '@lib/database/Types';
+import { readSettings } from '@lib/Settings';
 
 /**
  * Interface definition for the information contained within a public schedule.
@@ -19,6 +20,27 @@ const kPublicSchedule = z.strictObject({
      * Unique slug of the event for which the schedule is being shown.
      */
     slug: z.string(),
+
+    /**
+     * Configuration that should be conveyed to the client. Affects behaviour of the schedule app.
+     */
+    config: z.strictObject({
+        /**
+         * Maximum number of inline search results to show at once.
+         */
+        inlineSearchResultLimit: z.number(),
+
+        /**
+         * Amount of fuzziness to apply to the search results. While this allows minor compensation
+         * for typos, a high value could lead to less relevant results being presented to the user.
+         */
+        searchResultFuzziness: z.number(),
+
+        /**
+         * Minimum search score required for a result to be considered for presentation to the user.
+         */
+        searchResultMinimumScore: z.number(),
+    }),
 
     /**
      * Information about the event's program.
@@ -127,12 +149,23 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (!event || !event.festivalId)
         notFound();
 
+    const settings = await readSettings([
+        'schedule-search-candidate-fuzziness',
+        'schedule-search-candidate-minimum-score',
+        'schedule-search-result-limit',
+    ]);
+
     const schedule: Response = {
+        slug: event.slug,
+        config: {
+            inlineSearchResultLimit: settings['schedule-search-result-limit'] ?? 5,
+            searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
+            searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
+        },
         program: {
             areas: { /* empty */ },
             locations: { /* empty */ },
         },
-        slug: event.slug,
     };
 
     //const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');

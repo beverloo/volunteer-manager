@@ -136,6 +136,32 @@ export default async function IntegrationsPage() {
                     'Time step, in minutes, defining granularity of shifts in the scheduling tools.'
             }
         ],
+        'Schedule settings': [
+            {
+                setting: 'schedule-search-result-limit',
+                type: 'number',
+                defaultValue: 5,
+
+                label: 'Inline search result limit',
+                description: 'Maximum number of inline search results that will be shown',
+            },
+            {
+                setting: 'schedule-search-candidate-fuzziness',
+                type: 'number',
+                defaultValue: 0.04,
+
+                label: 'Search result candidate (fuzziness)',
+                description: 'Fuzziness [0-1] to apply to search result matching',
+            },
+            {
+                setting: 'schedule-search-candidate-minimum-score',
+                type: 'number',
+                defaultValue: 0.37,
+
+                label: 'Search result candidate (min score)',
+                description: 'Minimum score [0-1] required for a candidate to be considered',
+            },
+        ],
     };
 
     // In two steps, gather, then inject all the configured values included in the configuration.
