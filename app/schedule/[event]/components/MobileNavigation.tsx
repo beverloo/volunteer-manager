@@ -3,8 +3,9 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useContext, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import Badge from '@mui/material/Badge';
@@ -34,19 +35,24 @@ type NavigationProps = any;
  */
 export function MobileNavigation(props: NavigationProps) {
     props = {
-        active: undefined,
         badgeActiveShifts: 1,
         badgeActiveVolunteers: 1,
         volunteer: undefined,
     };
 
-    const { event } = props;
-
     // ---------------------------------------------------------------------------------------------
 
+    const pathname = usePathname();
     const router = useRouter();
+
     const schedule = useContext(ScheduleContext);
     const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
+    const scheduleNavigationValue = useMemo(() => {
+        return pathname.substring(scheduleBaseUrl.length + 1).replace(/\/.*$/, '');
+
+    }, [ pathname, scheduleBaseUrl ]);
+
+    console.log(scheduleNavigationValue);
 
     const [ activeEvents, areas ] = useMemo(() => {
         let activeEvents: number = 0;
@@ -67,7 +73,6 @@ export function MobileNavigation(props: NavigationProps) {
 
     }, [ schedule ]);
 
-
     // Compose the activity icons part of the bottom navigation bar. Detail is deliberately lost
     // as the numeric dots take up too much space within the menu.
     const eventsIcon =
@@ -86,18 +91,6 @@ export function MobileNavigation(props: NavigationProps) {
     // can be selected, rather than having a full page for click-through.
     const [ anchorElement, setAnchorElement ] = useState<Element | null>(null);
 
-    // Handles navigation to one of the top-level bottom navigation options.
-    function handleNavigation(e: React.SyntheticEvent<Element, Event>, value: string) {
-        switch (value) {
-            case 'events':
-                setAnchorElement(e.currentTarget);
-                break;
-            default:
-                navigateToOption(event.identifier, value);
-                break;
-        }
-    }
-
     // Navigates to the given `areaId`. When the `areaId` is not given, the user will be navigated
     // to the area overview page instead, which lists all the areas that exist.
     const handleAreaNavigation = useCallback((areaId?: string) => {
@@ -106,18 +99,34 @@ export function MobileNavigation(props: NavigationProps) {
         else
             router.push(`${scheduleBaseUrl}/areas`);
 
+        setAnchorElement(null);
+
+    }, [ router, scheduleBaseUrl ]);
+
+    // Called when a navigation is requested to the given `value`. We special case the areas, as
+    // an overflow menu with the available areas will be shown instead.
+    const handleNavigation = useCallback((event: React.SyntheticEvent, value: string) => {
+        switch (value) {
+            case 'areas':
+                setAnchorElement(event.currentTarget);
+                break;
+            // TODO: shifts
+            case 'volunteers':
+                router.push(`${scheduleBaseUrl}/volunteers`);
+                break;
+            default:
+                router.push(scheduleBaseUrl);
+                break;
+        }
     }, [ router, scheduleBaseUrl ]);
 
     return (
         <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2 }} elevation={3}>
-            <BottomNavigation onChange={handleNavigation} value={props.active}>
-                <BottomNavigationAction icon={ <HomeIcon /> } label="Overview"
-                                        value="overview" />
+            <BottomNavigation onChange={handleNavigation} value={scheduleNavigationValue}>
+                <BottomNavigationAction icon={ <HomeIcon /> } label="Overview" value="" />
                 { props.volunteer &&
-                    <BottomNavigationAction icon={shiftsIcon} label="Shifts"
-                                            value="shifts" /> }
-                <BottomNavigationAction icon={eventsIcon} label="Events"
-                                        value="events" />
+                    <BottomNavigationAction icon={shiftsIcon} label="Shifts" value="shifts" /> }
+                <BottomNavigationAction icon={eventsIcon} label="Events" value="areas" />
                 <BottomNavigationAction icon={volunteersIcon} label="Volunteers"
                                         value="volunteers" />
             </BottomNavigation>
@@ -131,11 +140,13 @@ export function MobileNavigation(props: NavigationProps) {
                 { areas.map((area, index) =>
                     <MenuItem key={index} divider={index === areas.length - 1}
                               onClick={ () => handleAreaNavigation(area.id) }
+                              selected={ pathname.endsWith(`/areas/${area.id}`) }
                               sx={{ justifyContent: 'center' }}>
                         {area.name}
                     </MenuItem>) }
 
                 <MenuItem onClick={ () => handleAreaNavigation(/* areaId= */ undefined) }
+                          selected={ pathname.endsWith('/areas') }
                           sx={{ justifyContent: 'center' }}>Active events</MenuItem>
 
             </Menu>

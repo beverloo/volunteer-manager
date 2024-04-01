@@ -5,6 +5,7 @@
 
 import Link from 'next/link';
 import { useContext, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -166,14 +167,19 @@ type NavigationProps = any;
  */
 export function DesktopNavigation(props: NavigationProps) {
     props = {
-        active: undefined,
         badgeActiveShifts: 1,
         badgeActiveVolunteers: 1,
         volunteer: undefined,
     };
 
+    const pathname = usePathname();
+
     const schedule = useContext(ScheduleContext);
     const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
+    const schedulePathname = useMemo(() => {
+        return pathname.substring(scheduleBaseUrl.length);
+
+    }, [ pathname, scheduleBaseUrl ]);
 
     const [ activeEvents, areas ] = useMemo(() => {
         let activeEvents: number = 0;
@@ -201,27 +207,30 @@ export function DesktopNavigation(props: NavigationProps) {
         <>
             <DesktopNavigationLogo />
             <List sx={kStyles.container}>
-                <DesktopNavigationEntry active={ props.active === 'overview' }
+                <DesktopNavigationEntry active={ schedulePathname === '' }
                                         href={scheduleBaseUrl}
                                         icon={ <HomeIcon /> } label="Overview" />
                 { props.volunteer &&
-                    <DesktopNavigationEntry active={ props.active === 'shifts' }
+                    <DesktopNavigationEntry active={ false }
                                             badge={ props.badgeActiveShifts }
                                             href={ scheduleBaseUrl + '/shifts/' }
                                             icon={ <AccessTimeIcon /> } label="Your shifts" /> }
-                <DesktopNavigationEntry active={ props.active === 'areas' } badge={activeEvents}
+                <DesktopNavigationEntry active={ schedulePathname === '/areas' }
+                                        badge={activeEvents}
                                         href={ scheduleBaseUrl + '/areas' }
                                         icon={ <EventNoteIcon /> } label="Events" />
                 <List dense sx={kStyles.areas}>
                     { areas.map((area, index) =>
-                        <DesktopNavigationEntry key={index} href={area.url}
+                        <DesktopNavigationEntry key={index} active={ pathname === area.url }
+                                                href={area.url}
                                                 icon={ <ArrowRightIcon /> } label={area.name} /> )}
                 </List>
                 { !!schedule.config.enableKnowledgeBase &&
-                    <DesktopNavigationEntry active={false} href={ scheduleBaseUrl + '/knowledge' }
+                    <DesktopNavigationEntry active={ schedulePathname.startsWith('/knowledge') }
+                                            href={ scheduleBaseUrl + '/knowledge' }
                                             icon={ <InfoOutlinedIcon /> }
                                             label="Knowledge base" /> }
-                <DesktopNavigationEntry active={ props.active === 'volunteers' }
+                <DesktopNavigationEntry active={ schedulePathname.startsWith('/volunteers') }
                                         badge={ props.badgeActiveVolunteers }
                                         href={ scheduleBaseUrl + '/volunteers' }
                                         icon={ <GroupIcon /> } label="Volunteers" />

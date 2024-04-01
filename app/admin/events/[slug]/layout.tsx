@@ -20,6 +20,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 
+import type { NextLayoutParams } from '@lib/NextRouterParams';
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
@@ -94,35 +95,15 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
 }
 
 /**
- * Props accepted by the <EventLayout> component.
- */
-interface EventLayoutProps {
-    /**
-     * Parameters passed to the component by the NextJS router.
-     */
-    params: {
-        /**
-         * The slug included in the URL. Used to uniquely identify the event.
-         */
-        slug: string;
-
-        /**
-         * Search parameters given in the URL.
-         */
-        searchParams: Record<string, string>;
-    };
-}
-
-/**
  * Layout of the event overview page in the volunteer portal administration area. This shows the
  * options available to Senior+ volunteers for the organisation of a particular event.
  */
-export default async function EventLayout(props: React.PropsWithChildren<EventLayoutProps>) {
+export default async function EventLayout(props: React.PropsWithChildren<NextLayoutParams<'slug'>>)
+{
     if (typeof props.params.slug !== 'string' || !props.params.slug.length)
         notFound();
 
     const { slug } = props.params;
-
     const { user } = await requireAuthenticationContext();
 
     const info = await fetchEventSidebarInformation(user, slug);
