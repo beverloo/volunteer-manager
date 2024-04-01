@@ -1,23 +1,14 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Typography from '@mui/material/Typography';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Section } from '../components/Section';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { AreaList } from './AreaList';
 
 /**
  * The <ScheduleEventsPage> component displays an overview of the areas that are part of the
- * event's location, and the events that are active therein.
+ * event's location, and the events that are active therein.  Authentication is skipped as this page
+ * only consumes data already shared with the client.
  */
-export default async function ScheduleAreasPage(props: NextPageParams<'event'>) {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
-    return (
-        <Section>
-            <Typography variant="body1">
-                This page is not available yet (/areas)
-            </Typography>
-        </Section>
-    );
+export default function ScheduleAreasPage(props: NextPageParams<'event'>) {
+    return <AreaList />;
 }

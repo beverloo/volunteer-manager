@@ -4,6 +4,7 @@
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { Header } from '../components/Header';
 import { Section } from '../components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -14,10 +15,6 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function ScheduleEventsPage(props: NextPageParams<'event'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return (
-        <Section>
-            <Typography variant="body1">
-                This page is not available yet (/events)
-            </Typography>
-        </Section>
+        <Header title="Active events" />
     );
 }
