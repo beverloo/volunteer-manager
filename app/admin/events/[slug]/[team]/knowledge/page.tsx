@@ -26,7 +26,7 @@ export default async function EventTeamFaqPage(props: NextPageParams<'slug' | 't
     if (!team.managesFaq)
         notFound();
 
-    // Select the categories
+    // Select the categories that questions can be associated with.
     const categories = await db.selectFrom(tContentCategories)
         .where(tContentCategories.eventId.equals(event.id))
             .and(tContentCategories.categoryDeleted.isNull())

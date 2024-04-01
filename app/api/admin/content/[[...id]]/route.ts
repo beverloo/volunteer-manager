@@ -198,10 +198,15 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
     },
 
     async get({ context, id }) {
+        const contentCategoriesJoin = tContentCategories.forUseInLeftJoin();
+
         const dbInstance = db;
         const row = await dbInstance.selectFrom(tContent)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tContent.revisionAuthorId))
+            .leftJoin(contentCategoriesJoin)
+                .on(contentCategoriesJoin.categoryId.equals(tContent.contentCategoryId))
+                    .and(contentCategoriesJoin.categoryDeleted.isNull())
             .where(tContent.contentId.equals(id))
                 .and(tContent.eventId.equals(context.eventId))
                 .and(tContent.teamId.equals(context.teamId))
@@ -210,6 +215,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 id: tContent.contentId,
                 content: tContent.content,
                 path: tContent.contentPath,
+                categoryId: contentCategoriesJoin.categoryId,
                 title: tContent.contentTitle,
                 updatedOn: dbInstance.dateTimeAsString(tContent.revisionDate),
                 updatedBy: tUsers.name,
@@ -306,6 +312,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         const affectedRows = await db.update(tContent)
             .set({
                 contentPath: row.path,
+                contentCategoryId: row.categoryId,
                 contentTitle: row.title,
                 content: row.content,
                 revisionAuthorId: props.user!.userId,

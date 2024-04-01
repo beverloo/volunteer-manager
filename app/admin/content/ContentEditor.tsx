@@ -6,8 +6,10 @@
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
+    from 'react-hook-form-mui';
 
+import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
@@ -38,6 +40,11 @@ const ContentEditorMdx = dynamic(() => import('./ContentEditorMdx'), { ssr: fals
  */
 export interface ContentEditorProps extends SectionHeaderProps {
     /**
+     * Categories that can be assigned to the editor. Will be ignored when absent.
+     */
+    categories?: ValueOptions[];
+
+    /**
      * Unique ID of the content that should be loaded. Will automatically be fetched from the API.
      */
     contentId: number;
@@ -65,7 +72,8 @@ export interface ContentEditorProps extends SectionHeaderProps {
  * to the bundle size, while still being available when it needs to be.
  */
 export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>) {
-    const { children, contentId, pathHidden, pathPrefix, scope, ...sectionHeaderProps } = props;
+    const { categories, children, contentId, pathHidden, pathPrefix, scope, ...sectionHeaderProps }
+        = props;
 
     const ref = useRef<MDXEditorMethods>(null);
 
@@ -90,6 +98,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                     id: contentId,
                     content: ref.current.getMarkdown(),
                     path: data.path ?? defaultValues?.path,
+                    categoryId: data.categoryId ?? undefined,
                     title: data.title,
                     updatedOn: '',  // ignored
                     updatedBy: '',  // ignored
@@ -160,7 +169,12 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                 <Section {...sectionHeaderProps}>
                     {children}
                     <Grid container spacing={2} sx={{ margin: '8px -8px -8px -8px !important' }}>
-                        <Grid xs={12}>
+                        { !!categories &&
+                            <Grid xs={12} md={4}>
+                                <SelectElement name="categoryId" label="Category" fullWidth
+                                               size="small" options={categories} required />
+                            </Grid> }
+                        <Grid xs={12} md={ !!categories ? 8 : 12 }>
                             <TextFieldElement name="title" label="Content title" fullWidth
                                               size="small" required />
                         </Grid>

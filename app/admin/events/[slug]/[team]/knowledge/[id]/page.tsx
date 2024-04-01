@@ -8,6 +8,7 @@ import { ContentEditor } from '@app/admin/content/ContentEditor';
 import { createKnowledgeBaseScope } from '@app/admin/content/ContentScope';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tContentCategories } from '@lib/database';
 
 /**
  * This page displays an individual FAQ entry, which allows the volunteer to change both the
@@ -18,11 +19,22 @@ export default async function EventFaqEntryPage(props: NextPageParams<'slug' | '
     if (!team.managesFaq)
         notFound();
 
+    // Select the categories that questions can be associated with.
+    const categories = await db.selectFrom(tContentCategories)
+        .where(tContentCategories.eventId.equals(event.id))
+            .and(tContentCategories.categoryDeleted.isNull())
+        .select({
+            id: tContentCategories.categoryId,
+            label: tContentCategories.categoryTitle,
+        })
+        .orderBy(tContentCategories.categoryOrder, 'asc')
+        .executeSelectMany();
+
     const scope = createKnowledgeBaseScope(event.id);
 
     return (
         <ContentEditor contentId={parseInt(props.params.id)} pathHidden scope={scope}
-                       title="Knowledge base" subtitle={event.shortName} />
+                       title="Knowledge base" subtitle={event.shortName} categories={categories} />
     );
 }
 
