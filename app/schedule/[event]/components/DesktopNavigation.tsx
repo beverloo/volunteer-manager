@@ -225,7 +225,7 @@ export function DesktopNavigation(props: NavigationProps) {
                                                 href={area.url}
                                                 icon={ <ArrowRightIcon /> } label={area.name} /> )}
                 </List>
-                { !!schedule.config.enableKnowledgeBase &&
+                { (!!schedule.config.enableKnowledgeBase && !!schedule.knowledge.length) &&
                     <DesktopNavigationEntry active={ schedulePathname.startsWith('/knowledge') }
                                             href={ scheduleBaseUrl + '/knowledge' }
                                             icon={ <InfoOutlinedIcon /> }
