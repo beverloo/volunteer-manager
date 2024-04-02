@@ -243,6 +243,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                     question: tContent.contentTitle,
                 }),
             })
+            .groupBy(tContentCategories.categoryId)
             .executeSelectMany();
 
         schedule.knowledge = knowledge.map(category => ({
