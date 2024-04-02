@@ -52,6 +52,11 @@ const kPublicSchedule = z.strictObject({
          * Minimum search score required for a result to be considered for presentation to the user.
          */
         searchResultMinimumScore: z.number(),
+
+        /**
+         * Timezone in which dates and times should be represented.
+         */
+        timezone: z.string(),
     }),
 
     /**
@@ -89,6 +94,30 @@ const kPublicSchedule = z.strictObject({
      * Information about the event's program.
      */
     program: z.strictObject({
+        /**
+         * Activities part of the program. Record keyed by the activity's ID as a string, followed
+         * by an object describing its metadata.
+         */
+        activities: z.record(z.string(), z.strictObject({
+            /**
+             * Unique ID of the activity.
+             */
+            id: z.string(),
+
+            /**
+             * Title, as the activity should be presented to users.
+             */
+            title: z.string(),
+
+            /**
+             * Timeslots that exist for this activity.
+             */
+            timeslots: z.array(z.string()),
+
+            // TODO: description
+            // TODO: visible
+        })),
+
         /**
          * Areas that exist within the festival's location. Record keyed by the area's ID as a
          * string, followed by an object describing its metadata.
@@ -136,17 +165,50 @@ const kPublicSchedule = z.strictObject({
             area: z.string(),
 
             /**
+             * Timeslots that will be taking place in this location.
+             */
+            timeslots: z.array(z.string()),
+
+            /**
              * Number of active events (& shifts) that are taking place in this location.
              */
             active: z.number(),
         })),
 
-        // TODO: activities
-        // TODO: shifts
-        // TODO: timeslots
+        /**
+         * Timeslots that will happen during the festival. Each timeslot is associated with an
+         * activity that's part of the program.
+         */
+        timeslots: z.record(z.string(), z.strictObject({
+            /**
+             * Unique ID of the timeslot.
+             */
+            id: z.string(),
+
+            /**
+             * Unique ID of the activity this timeslot belongs to.
+             */
+            activity: z.string(),
+
+            /**
+             * Unique ID of the location this timeslot will be hosted in.
+             */
+            location: z.string(),
+
+            /**
+             * Date and time on which the slot will start, as a UNIX timestamp since the epoch.
+             */
+            start: z.number(),
+
+            /**
+             * Date and time on which the slot will end, as a UNIX timestamp since the epoch.
+             */
+            end: z.number(),
+        })),
     }),
 
     // TODO: nardo
+    // TODO: shifts
     // TODO: volunteers
 });
 
@@ -208,11 +270,14 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
+            timezone: event.timezone,
         },
         knowledge: [ /* empty */ ],
         program: {
+            activities: { /* empty */ },
             areas: { /* empty */ },
             locations: { /* empty */ },
+            timeslots: { /* empty */ },
         },
     };
 
@@ -296,9 +361,18 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         .executeSelectMany();
 
     for (const activity of activities) {
+        const activityId = `${activity.id}`;
+
+        schedule.program.activities[activityId] = {
+            id: activityId,
+            title: activity.title,
+            timeslots: [ /* empty */ ],
+        };
+
         for (const timeslot of activity.timeslots) {
             const areaId = `${timeslot.area.id}`;
             const locationId = `${timeslot.location.id}`;
+            const timeslotId = `${timeslot.id}`;
 
             if (!Object.hasOwn(schedule.program.areas, areaId)) {
                 schedule.program.areas[areaId] = {
@@ -314,14 +388,22 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                     id: locationId,
                     name: timeslot.location.name,
                     area: areaId,
+                    timeslots: [ /* empty */ ],
                     active: 0,
                 };
             }
 
+            schedule.program.activities[activityId].timeslots.push(timeslotId);
             schedule.program.areas[areaId].locations.push(locationId);
+            schedule.program.locations[locationId].timeslots.push(timeslotId);
 
-            // TODO: Do something with the `activity`?
-            // TODO: Do something with the `timeslot`
+            schedule.program.timeslots[timeslotId] = {
+                id: timeslotId,
+                activity: activityId,
+                location: locationId,
+                start: timeslot.start.epochSeconds,
+                end: timeslot.end.epochSeconds,
+            };
 
             if (isBefore(timeslot.start, currentTime) && isAfter(timeslot.end, currentTime)) {
                 schedule.program.areas[areaId].active++;

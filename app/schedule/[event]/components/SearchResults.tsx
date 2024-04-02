@@ -7,6 +7,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { SxProps, Theme } from '@mui/system';
+import EventIcon from '@mui/icons-material/Event';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -54,7 +55,7 @@ interface SearchResult {
     /**
      * Type of search result to display.
      */
-    type: 'area' | 'knowledge' | 'location';
+    type: 'activity' | 'area' | 'knowledge' | 'location';
 
     /**
      * The avatar to display at the start of the search result, if any. When given, this should be
@@ -84,6 +85,7 @@ interface SearchResult {
  * searching for that sort of content combined with the assumed volume of possible results within.
  */
 const kSearchScoreTypeBonus: { [K in SearchResult['type']]: number } = {
+    activity: 0,
     area: 0.1,
     knowledge: 0.05,
     location: 0.1,
@@ -112,6 +114,20 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
     // ---------------------------------------------------------------------------------------------
     // Step 1: Iterate through the |schedule| to identify candidates
     // ---------------------------------------------------------------------------------------------
+
+    for (const activity of Object.values(schedule.program.activities)) {
+        const score = stringScoreEx(
+            activity.title, query, normalisedQuery, schedule.config.searchResultFuzziness);
+
+        if (score >= schedule.config.searchResultMinimumScore) {
+            results.push({
+                type: 'activity',
+                href: `${scheduleBaseUrl}/events/${activity.id}`,
+                label: activity.title,
+                score: score + kSearchScoreTypeBonus.activity,
+            });
+        }
+    }
 
     for (const area of Object.values(schedule.program.areas)) {
         const score = stringScoreEx(
@@ -262,6 +278,14 @@ export function SearchResults(props: SearchResultsProps) {
                     { results.map(result => {
                         let avatar: React.ReactNode;
                         switch (result.type) {
+                            case 'activity':
+                                avatar = (
+                                    <ListItemCenteredIcon>
+                                        <EventIcon color="primary" />
+                                    </ListItemCenteredIcon>
+                                );
+                                break;
+
                             case 'area':
                                 avatar = (
                                     <ListItemCenteredIcon>
