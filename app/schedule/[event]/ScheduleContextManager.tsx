@@ -3,11 +3,12 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
 import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
 import { ScheduleContext } from './ScheduleContext';
+import { updateTimeConfig } from './CurrentTime';
 
 /**
  * Fetcher used to retrieve the schedule from the server.
@@ -30,21 +31,15 @@ export interface ScheduleContextManagerProps {
  */
 export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleContextManagerProps>)
 {
-    // Time offset, in seconds, to apply to the schedule's current time calculations.
-    const [ offset, setOffset ] = useState<number | undefined>();
-
     // Load the schedule using SWR. The endpoint will be composed based on the props given to this
-    // component, given to the manager by the server. Time offset is owned by the client.
+    // component, given to the manager by the server.
     const endpoint = useMemo(() => {
         const endpointParams = new URLSearchParams;
         endpointParams.set('event', props.event);
 
-        if (!!offset)
-            endpointParams.set('offset', offset.toString());
-
         return `/api/event/schedule?${endpointParams.toString()}`;
 
-    }, [ offset, props.event ]);
+    }, [ props.event ]);
 
     const { data, error, isLoading } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
         // TODO: Select the appropriate options
@@ -52,6 +47,12 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
 
     // TODO: Deal with `error`?
     // TODO: Deal with `isLoading`?
+
+    // Automatically update the Volunteer Manager's time offset and timezone configuration whenever
+    // this is changed by the server. This immediately affects all instances where time is obtained.
+    useEffect(() => {
+        updateTimeConfig(data?.config.timeOffset, data?.config.timezone || 'utc');
+    }, [ data?.config.timeOffset, data?.config.timezone ]);
 
     return (
         <ScheduleContext.Provider value={data}>

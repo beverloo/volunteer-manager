@@ -175,7 +175,6 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
         }
     }
 
-    // TODO: Events
     // TODO: Volunteers
 
     // ---------------------------------------------------------------------------------------------

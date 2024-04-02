@@ -54,6 +54,12 @@ const kPublicSchedule = z.strictObject({
         searchResultMinimumScore: z.number(),
 
         /**
+         * Time offset, in seconds, to alter the local timestamp by. Used to emulate the schedule at
+         * another point in time for testing purposes.
+         */
+        timeOffset: z.number().optional(),
+
+        /**
          * Timezone in which dates and times should be represented.
          */
         timezone: z.string(),
@@ -204,6 +210,11 @@ const kPublicSchedule = z.strictObject({
              * Date and time on which the slot will end, as a UNIX timestamp since the epoch.
              */
             end: z.number(),
+
+            /**
+             * Whether the timeslot is currently active, and should be presented as such.
+             */
+            active: z.literal(true).optional(),
         })),
     }),
 
@@ -226,11 +237,6 @@ export const kPublicScheduleDefinition = z.object({
          * Unique slug of the event for which the schedule should be requested.
          */
         event: z.string(),
-
-        /**
-         * Optional number expressing, in seconds, the offset to apply to the server's time.
-         */
-        offset: z.coerce.number().optional(),
     }),
     response: kPublicSchedule,
 });
@@ -260,6 +266,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         'schedule-search-candidate-fuzziness',
         'schedule-search-candidate-minimum-score',
         'schedule-search-result-limit',
+        'schedule-time-offset-seconds',
     ]);
 
     const schedule: Response = {
@@ -270,6 +277,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
+            timeOffset: settings['schedule-time-offset-seconds'] || undefined,
             timezone: event.timezone,
         },
         knowledge: [ /* empty */ ],
@@ -283,8 +291,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     //const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
     const currentServerTime = Temporal.ZonedDateTime.from('2024-06-08T14:00:00Z[UTC]');
-    const currentTime = !!request.offset ? currentServerTime.add({ seconds: request.offset })
-                                         : currentServerTime;
+    const currentTime = !!schedule.config.timeOffset
+        ? currentServerTime.add({ seconds: schedule.config.timeOffset })
+        : currentServerTime;
 
     // ---------------------------------------------------------------------------------------------
     // Source information about the event's knowledge base.
@@ -384,6 +393,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             }
 
             if (!Object.hasOwn(schedule.program.locations, locationId)) {
+                schedule.program.areas[areaId].locations.push(locationId);
                 schedule.program.locations[locationId] = {
                     id: locationId,
                     name: timeslot.location.name,
@@ -394,7 +404,6 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             }
 
             schedule.program.activities[activityId].timeslots.push(timeslotId);
-            schedule.program.areas[areaId].locations.push(locationId);
             schedule.program.locations[locationId].timeslots.push(timeslotId);
 
             schedule.program.timeslots[timeslotId] = {
@@ -408,13 +417,16 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             if (isBefore(timeslot.start, currentTime) && isAfter(timeslot.end, currentTime)) {
                 schedule.program.areas[areaId].active++;
                 schedule.program.locations[locationId].active++;
+                schedule.program.timeslots[timeslotId].active = true;
             }
         }
     }
 
-    // Deduplicate the locations that are located within a given area.
-    for (const [ areaId, area ] of Object.entries(schedule.program.areas))
-        schedule.program.areas[areaId].locations = [ ...new Set(area.locations) ];
+    // ---------------------------------------------------------------------------------------------
+    // Source information about the event's volunteers and shifts.
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO
 
     // ---------------------------------------------------------------------------------------------
 

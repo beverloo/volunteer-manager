@@ -185,6 +185,16 @@ export default async function IntegrationsPage() {
                 label: 'Search result limit (inline)',
                 description: 'Maximum number of inline search results that will be shown',
             },
+            {
+                setting: 'schedule-time-offset-seconds',
+                type: 'number',
+                defaultValue: 0,
+
+                label: 'Time offset (seconds)',
+                description:
+                    'Number of seconds to offset time with, to emulate the schedule at another ' +
+                    'point in time',
+            },
         ],
     };
 

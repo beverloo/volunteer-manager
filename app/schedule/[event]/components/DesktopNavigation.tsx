@@ -4,7 +4,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import type { SystemStyleObject, Theme } from '@mui/system';
@@ -19,9 +19,14 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 import { darken, lighten, styled } from '@mui/material/styles';
 
+import { Alert } from './Alert';
 import { ScheduleContext } from '../ScheduleContext';
+import { Temporal, formatDate } from '@lib/Temporal';
+import { currentZonedDateTime } from '../CurrentTime';
+
 import { kDesktopMenuWidthPx } from '../Constants';
 
 /**
@@ -160,6 +165,28 @@ function DesktopNavigationEntry(props: DesktopNavigationEntryProps) {
 type NavigationProps = any;
 
 /**
+ * An alert that updates itself every second while active, displaying the current time the portal
+ * understands it to be. Only applicable when the server imposes a time difference on the portal.
+ */
+function DesktopNavigationTimeAlert() {
+    const [ currentTime, setCurrentTime ] =
+        useState<Temporal.ZonedDateTime>(currentZonedDateTime());
+
+    useEffect(() => {
+        const intervalId = setInterval(() => setCurrentTime(currentZonedDateTime()), 1000);
+        return () => clearInterval(intervalId);
+    });
+
+    return (
+        <Tooltip title="The server has modified the current time in the portal">
+            <Alert severity="info" sx={{ ml: 2, px: 2, py: 0, mb: -.25 }} variant="filled">
+                { formatDate(currentTime, 'YYYY-MM-DD HH:mm:ss') }
+            </Alert>
+        </Tooltip>
+    );
+}
+
+/**
  * This component powers the main navigation capability of the volunteer portal, with a user
  * interface optimized for display on mobile devices. A list that can be shown on the left- or
  * right-hand side of the main content, to make better use of the available screen estate, without
@@ -206,6 +233,7 @@ export function DesktopNavigation(props: NavigationProps) {
     return (
         <>
             <DesktopNavigationLogo />
+            { !!schedule.config.timeOffset && <DesktopNavigationTimeAlert /> }
             <List sx={kStyles.container}>
                 <DesktopNavigationEntry active={ schedulePathname === '' }
                                         href={scheduleBaseUrl}
