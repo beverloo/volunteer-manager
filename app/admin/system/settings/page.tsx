@@ -138,6 +138,15 @@ export default async function IntegrationsPage() {
         ],
         'Schedule settings': [
             {
+                setting: 'schedule-activity-list-limit',
+                type: 'number',
+                defaultValue: 5,
+
+                label: 'Activity list size',
+                description:
+                    'Number of active and pending activities to list for an area or location',
+            },
+            {
                 setting: 'schedule-del-a-rie-advies',
                 type: 'boolean',
                 defaultValue: true,

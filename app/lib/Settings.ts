@@ -90,6 +90,7 @@ type SettingsMap = {
     // Schedule settings:
     // ---------------------------------------------------------------------------------------------
 
+    'schedule-activity-list-limit': number;
     'schedule-del-a-rie-advies': boolean;
     'schedule-knowledge-base': boolean;
     'schedule-knowledge-base-search': boolean;

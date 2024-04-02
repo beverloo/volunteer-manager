@@ -28,6 +28,11 @@ const kPublicSchedule = z.strictObject({
      */
     config: z.strictObject({
         /**
+         * Number of active and pending activities to list for an area or location.
+         */
+        activityListLimit: z.number(),
+
+        /**
          * Whether the knowledge base should be enabled.
          */
         enableKnowledgeBase: z.boolean(),
@@ -260,6 +265,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         notFound();
 
     const settings = await readSettings([
+        'schedule-activity-list-limit',
         'schedule-del-a-rie-advies',
         'schedule-knowledge-base',
         'schedule-knowledge-base-search',
@@ -272,6 +278,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const schedule: Response = {
         slug: event.slug,
         config: {
+            activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,

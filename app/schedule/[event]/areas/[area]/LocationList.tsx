@@ -53,7 +53,7 @@ export function LocationList(props: LocationListProps) {
                     end: timeslot.end,
                     title: schedule.program.activities[timeslot.activity].title
                 }))
-                .slice(0, 5);
+                .slice(0, schedule.config.activityListLimit);
 
             return {
                 id: location.id,

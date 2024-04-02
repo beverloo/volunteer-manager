@@ -53,14 +53,14 @@ export function AreaList() {
                     else
                         pending.push(entry);
 
-                    if (pending.length > 5)
+                    if (pending.length >= schedule.config.activityListLimit)
                         break;
                 }
             }
 
             const timeslots = [
                 ...active,
-                ...pending.splice(0, 5 - active.length),
+                ...pending.splice(0, schedule.config.activityListLimit - active.length),
             ];
 
             timeslots.sort((lhs, rhs) => lhs.start - rhs.start);
