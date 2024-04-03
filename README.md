@@ -101,3 +101,35 @@ $ npm run test:e2e
 Not everything is expected to be covered by end-to-end tests, their primary purpose is to act as a
 smoke test for important user journeys that we don't manually verify frequently. An example would be
 creating an account, as it's safe to assume everyone working on this project has one.
+
+## Debugging
+
+### TypeScript performance tracing
+Our project relies heavily on TypeScript for typing, and the "linting and checking validity of
+types" step is the slowest step in our build process. Use of recursive types and branches with far
+reaching consequences have repeatedly doubled, if not tripled build times.
+
+The [TypeScript Performance](https://github.com/microsoft/TypeScript/wiki/Performance) page contains
+a wealth of information on how to debug this. We've had success in identifying issues using tracing,
+which can be created as follows:
+
+```
+$ npx tsc -p ./tsconfig.json --generateTrace trace
+```
+
+The generated `trace.json` file, in the `trace/` directory, can then be inspected using the
+[Perfetto](https://ui.perfetto.dev/#!/viewer) tool. Any file or type that takes more than 250ms
+should be considered a concern.
+
+Another way to analyse the generated trace is to use the
+[@typescript/analyze-trace](https://www.npmjs.com/package/@typescript/analyze-trace) tool, which can
+be done as follows:
+
+```
+$ npm install --no-save @typescript/analyze-trace
+$ npx analyze-trace trace
+```
+
+This tool will highlight any file that takes more than 500ms of compilation time. Note that the
+output is a little bit harder to read, as there exists a compounding effect where e.g. all of MUI
+may be attributed to an otherwise unrelated file.

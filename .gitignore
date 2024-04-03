@@ -7,3 +7,5 @@ playwright-report/
 .env.production
 screenshot.png
 .npmrc
+/trace
+tsconfig.tsbuildinfo
