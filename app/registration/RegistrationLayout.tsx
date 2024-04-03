@@ -71,7 +71,7 @@ export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLa
             [ 'title', environment.environmentName ],
         ]);
 
-        return params.toString();
+        return '/images/logo.svg?' + params.toString();
     }, [ environment.environmentName, environment.themeColours.light ]);
 
     const [ authenticationContext ] = useState(new AuthenticationContextManager);
