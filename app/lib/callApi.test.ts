@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { ContentType } from './database/Types';
 import { callApi, injectFetch } from './callApi';
 
 describe('callApi', () => {
@@ -71,6 +72,7 @@ describe('callApi', () => {
         const response = await callApi('delete', '/api/admin/content/:id', {
             id: 42,
             context: {
+                type: ContentType.Page,
                 eventId: 1,
                 teamId: 2,
             }
@@ -80,7 +82,8 @@ describe('callApi', () => {
         expect(latestRequestInput).toEqual('/api/admin/content/42');
 
         expect(latestRequestInit).not.toBeUndefined();
-        expect(latestRequestInit?.body).toEqual('{"context":{"eventId":1,"teamId":2}}');
+        expect(latestRequestInit?.body).toEqual(
+            '{"context":{"type":"Page","eventId":1,"teamId":2}}');
         expect(latestRequestInit?.headers).toEqual({
             'Content-Type': 'application/json',
         });
