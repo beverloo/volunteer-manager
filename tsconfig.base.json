@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "baseUrl": "./app",
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
+    "jsx": "preserve",
+    "paths": {
+      "@components/*": [ "components/*" ],
+      "@lib/*": [ "lib/*" ],
+      "@app/*": [ "*" ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  }
+}

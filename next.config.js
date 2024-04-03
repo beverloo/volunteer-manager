@@ -31,6 +31,9 @@ const nextConfig = {
             permanent: true,
         },
     ]),
+    typescript: {
+        tsconfigPath: './tsconfig.build.json',
+    },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
