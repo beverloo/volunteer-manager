@@ -6,7 +6,8 @@
 import Link from 'next/link'
 import { useState } from 'react';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';

@@ -4,7 +4,7 @@
 'use client';
 
 import Box from '@mui/material/Box';
-import { darken, lighten } from '@mui/system';
+import { darken, lighten } from '@mui/system/colorManipulator';
 import { styled } from '@mui/material/styles';
 
 /**

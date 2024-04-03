@@ -8,7 +8,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
 import { DataGridPro, GridToolbarQuickFilter  } from '@mui/x-data-grid-pro';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 
 /**

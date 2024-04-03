@@ -6,7 +6,8 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
@@ -16,7 +17,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import { alpha, darken, lighten } from '@mui/system';
+import { alpha, darken, lighten } from '@mui/system/colorManipulator';
 
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { TrainingsDefinition } from '@app/api/event/trainings';

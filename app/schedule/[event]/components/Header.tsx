@@ -3,8 +3,8 @@
 
 'use client';
 
-import type { SystemStyleObject, Theme } from '@mui/system';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
@@ -14,7 +14,7 @@ import type React from 'react';
 /**
  * Styles to apply to <Header> & friends.
  */
-const kStyles: Record<string, SystemStyleObject<Theme>> = {
+const kStyles: { [key: string]: SxProps<Theme> } = {
     primaryTypography: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',

@@ -4,7 +4,7 @@
 'use client';
 
 import { default as MuiAlert } from '@mui/material/Alert';
-import { darken, lighten } from '@mui/system';
+import { darken, lighten } from '@mui/system/colorManipulator';
 import { lightBlue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 

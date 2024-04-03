@@ -6,7 +6,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

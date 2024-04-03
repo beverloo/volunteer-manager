@@ -10,7 +10,8 @@ import {
     AutocompleteElement, FormContainer, SelectElement, TextFieldElement, TextareaAutosizeElement,
     useFormContext } from 'react-hook-form-mui';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';

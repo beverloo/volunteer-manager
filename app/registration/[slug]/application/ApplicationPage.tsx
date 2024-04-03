@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import { type FieldValues, CheckboxElement, FormContainer } from 'react-hook-form-mui';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';

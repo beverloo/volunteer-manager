@@ -5,7 +5,8 @@ import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/br
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 
 import type { User } from '@lib/auth/User';

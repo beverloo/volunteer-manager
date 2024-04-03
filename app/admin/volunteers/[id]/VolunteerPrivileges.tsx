@@ -6,7 +6,8 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';

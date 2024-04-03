@@ -6,7 +6,8 @@
 import { useCallback, useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import EventIcon from '@mui/icons-material/Event';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import List from '@mui/material/List';

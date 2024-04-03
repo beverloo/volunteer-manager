@@ -7,7 +7,8 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Badge, { type BadgeProps } from '@mui/material/Badge';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';

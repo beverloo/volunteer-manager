@@ -6,7 +6,8 @@
 import Link from 'next/link';
 import { MuiMarkdown, defaultOverrides } from 'mui-markdown';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box, { type BoxProps } from '@mui/material/Box';
 import { default as MuiLink, type LinkProps } from '@mui/material/Link';
 import Typography, { type TypographyProps } from '@mui/material/Typography';

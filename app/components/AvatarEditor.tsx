@@ -18,8 +18,7 @@ import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import Stack from '@mui/material/Stack';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
-import { styled } from '@mui/material/styles';
-import { useTheme } from '@mui/system';
+import { styled, useTheme } from '@mui/material/styles';
 
 /**
  * Mime type of the image that should be uploaded.

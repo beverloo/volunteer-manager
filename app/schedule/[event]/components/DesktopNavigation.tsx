@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-import type { SystemStyleObject, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Box from '@mui/material/Box';
@@ -33,7 +34,7 @@ import { kDesktopMenuWidthPx } from '../Constants';
  * Styling for the <DesktopNavigation> component, particularly to enable the logo-esque image at
  * the top of the item list based on the SVG image.
  */
-const kStyles: Record<string, SystemStyleObject<Theme>> = {
+const kStyles: { [key: string]: SxProps<Theme> } = {
     container: {
         paddingLeft: 2,
         paddingRight: 0,

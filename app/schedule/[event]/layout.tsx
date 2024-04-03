@@ -4,7 +4,8 @@
 import type React from 'react';
 import { notFound } from 'next/navigation';
 
-import type { SystemStyleObject, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
@@ -21,7 +22,7 @@ import { getEventBySlug } from '@lib/EventLoader';
 /**
  * Styling rules used for <ScheduleLayout> and friends.
  */
-const kStyles: Record<string, SystemStyleObject<Theme>> = {
+const kStyles: { [key: string]: SxProps<Theme> } = {
     container: {
         margin: 'auto',
         maxWidth: {

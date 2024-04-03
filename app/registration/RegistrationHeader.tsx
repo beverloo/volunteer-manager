@@ -3,7 +3,8 @@
 
 'use client';
 
-import type { SxProps, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
 import FaceIcon from '@mui/icons-material/Face';
 import Stack from '@mui/material/Stack';

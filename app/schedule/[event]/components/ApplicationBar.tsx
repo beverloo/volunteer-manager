@@ -6,7 +6,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { SystemStyleObject, Theme } from '@mui/system';
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from '@mui/material/AppBar';
 import IconButton from '@mui/material/IconButton';
@@ -96,7 +97,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 /**
  * Styling rules for the <ApplicationBar> component & hierarchy.
  */
-const kStyles: Record<string, SystemStyleObject<Theme>> = {
+const kStyles: { [key: string]: SxProps<Theme> } = {
     container: {
         display: 'block',
     },
