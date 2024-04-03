@@ -9,3 +9,4 @@ screenshot.png
 .npmrc
 /trace
 tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo

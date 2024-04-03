@@ -237,7 +237,7 @@ export function RemoteDataTable<
             let display = column.display;
             let headerAlign = column.headerAlign;
 
-            let renderCell: GridColDef['renderCell'] = column.renderCell;
+            let renderCell = column.renderCell;
             if (enableDelete) {
                 align = 'center';
                 display = 'flex';
@@ -261,7 +261,7 @@ export function RemoteDataTable<
                 };
             }
 
-            let renderHeader: GridColDef['renderHeader'] = column.renderHeader;
+            let renderHeader = column.renderHeader;
             if (enableCreate) {
                 headerAlign = 'center';
                 renderHeader = () => {

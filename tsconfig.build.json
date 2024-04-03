@@ -1,5 +1,12 @@
 {
   "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
   "include": [
     "dependencies.d.ts",
     "next-env.d.ts",

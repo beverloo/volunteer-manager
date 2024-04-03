@@ -118,7 +118,7 @@ $ npx tsc -p ./tsconfig.json --generateTrace trace
 ```
 
 The generated `trace.json` file, in the `trace/` directory, can then be inspected using the
-[Perfetto](https://ui.perfetto.dev/#!/viewer) tool. Any file or type that takes more than 250ms
+[Perfetto](https://ui.perfetto.dev/#!/viewer) tool. Any file or type that takes more than 100ms
 should be considered a concern.
 
 Another way to analyse the generated trace is to use the

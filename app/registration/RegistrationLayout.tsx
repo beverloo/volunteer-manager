@@ -4,10 +4,8 @@
 'use client';
 
 import Link from 'next/link'
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -29,10 +27,10 @@ export const kLogoContainerStyles: React.CSSProperties = {
 };
 
 /**
- * Generates the background styles for the given |environmentName|, which determines the resources
- * that will be used for the background images across both mobile and desktop.
+ * Generates the background styles for the given `environment`, which determines the resources that
+ * will be used for the background images across both mobile and desktop.
  */
-const generateBackgroundStylesForEnvironment = (environmentName: string): SxProps<Theme> => ({
+const generateBackgroundStylesForEnvironment = (environment: string) => ({
     position: 'fixed',
     zIndex: -1,
 
@@ -43,20 +41,15 @@ const generateBackgroundStylesForEnvironment = (environmentName: string): SxProp
     backgroundPosition: 'bottom right',
     backgroundSize: 'cover',
     backgroundImage: {
-        xs: `url(/images/${environmentName}/background-mobile.jpg?v2)`,
-        sm: `url(/images/${environmentName}/background-desktop.jpg?v2)`,
+        xs: `url(/images/${environment}/background-mobile.jpg?v2)`,
+        sm: `url(/images/${environment}/background-desktop.jpg?v2)`,
     },
-});
+}) as const;
 
 /**
  * Props accepted by the <RegistrationLayout> component. Will be called by NextJS.
  */
 interface RegistrationLayoutProps {
-    /**
-     * The children (zero or more) that should be rendered within the layout component.
-     */
-    children: React.ReactNode;
-
     /**
      * The environment for which the layout will be displayed. Decides on the layout and graphics
      * that will be used, which can be customised for the different sites.
@@ -68,31 +61,34 @@ interface RegistrationLayoutProps {
  * The <RegistrationLayout> component represents the main layout used for both the Welcome and the
  * Registration apps, which welcome volunteers and invite them to join our teams.
  */
-export function RegistrationLayout(props: RegistrationLayoutProps) {
+export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLayoutProps>) {
     const { environment } = props;
 
-    const year = (new Date()).getFullYear();
-    const params = new URLSearchParams([
-        [ 'color', darken(environment.themeColours.light, .3) ],
-        [ 'title', environment.environmentName ],
-    ]);
+    const year = useMemo(() => (new Date).getFullYear(), [ /* no dependencies */ ]);
+    const logoUrl = useMemo(() => {
+        const params = new URLSearchParams([
+            [ 'color', darken(environment.themeColours.light, .3) ],
+            [ 'title', environment.environmentName ],
+        ]);
+
+        return params.toString();
+    }, [ environment.environmentName, environment.themeColours.light ]);
 
     const [ authenticationContext ] = useState(new AuthenticationContextManager);
 
     return (
         <>
-            <Box sx={generateBackgroundStylesForEnvironment(environment.environmentName)}></Box>
-            <Container component="main" sx={{ pb: 2 }}>
-                <Container component="header" sx={{ py: 2, textAlign: 'center' }}>
+            <Box sx={generateBackgroundStylesForEnvironment(environment.environmentName)} />
+            <Container sx={{ pb: 2 }}>
+                <Container sx={{ py: 2, textAlign: 'center' }}>
                     <Link href="/" style={{ display: 'inline-block' }}>
-                        <object type="image/svg+xml" style={kLogoContainerStyles}
-                                data={'/images/logo.svg?' + params} />
+                        <object type="image/svg+xml" style={kLogoContainerStyles} data={logoUrl} />
                     </Link>
                 </Container>
                 <AuthenticationContext.Provider value={authenticationContext}>
                     {props.children}
                 </AuthenticationContext.Provider>
-                <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
+                <Typography align="center" variant="body2" sx={{ mt: 1 }}>
                     AnimeCon Volunteer Portal (<a href="https://github.com/beverloo/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
                 </Typography>
             </Container>

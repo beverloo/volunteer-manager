@@ -42,9 +42,10 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         marginY: 2,
 
         borderRadius: 1,
-        border: theme => `1px solid ${
+        border: '1px solid transparent',
+        borderColor: theme =>
             theme.palette.mode === 'light' ? lighten(alpha(theme.palette.divider, 1), 0.88)
-                                           : darken(alpha(theme.palette.divider, 1), 0.68) }`,
+                                           : darken(alpha(theme.palette.divider, 1), 0.68),
 
         '& > .MuiTable-root': {
             width: 'auto',
