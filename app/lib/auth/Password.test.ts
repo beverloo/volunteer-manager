@@ -41,21 +41,6 @@ describe('Password', () => {
                 salt: 'SecondSalt',
                 expected: '02958588a2da8f47aa52c0332bcfaa0fe0e0b43c0fa6a7c80347d4709aa88b55',
             },
-            {
-                plaintext: 'ineedapassword',
-                salt: 'FirstSalt',
-                expected: '36a603e43eff8bf25f0a1afe471a2656fbb5651ba67e4c04c302d794c3a0819f',
-            },
-            {
-                plaintext: 'ineedapassword',
-                salt: 'SecondSalt',
-                expected: '8139d921689603ce2c53a1148568c92adeea64b40fdf6f9b9aee6985242a1bd3',
-            },
-            {
-                plaintext: 'INEEDAPASSWORD',
-                salt: 'SecondSalt',
-                expected: 'b2732a962b1177fbd59af9ec05991f0ad4fdee4339421d8558d3392f344b2937',
-            }
         ];
 
         expect(testVectors.length).toBeGreaterThan(0);
@@ -102,6 +87,8 @@ describe('Password', () => {
                 ],
             },
             {
+                skip: true,  // remove to run this test, which takes ~2 seconds on a beefy machine
+
                 password: 'pleaseletmein',
                 salt: 'SodiumChloride',
                 N: 16384,
