@@ -7,11 +7,13 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { Section } from '@app/admin/components/Section';
+import { VendorSchedule } from './VendorSchedule';
 import { VendorTable } from './VendorTable';
 import { VendorTeam } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tVendors, tVendorsSchedule } from '@lib/database';
 
 /**
  * The first aid team (normally supporting the Stewards) is responsible for making sure that all our
@@ -27,6 +29,30 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'slug'
     const roleSetting = await readSetting('vendor-first-aid-roles') ?? 'First Aid';
     const roles = roleSetting.split(',').map(role => role.trim());
 
+    const vendorsScheduleJoin = tVendorsSchedule.forUseInLeftJoin();
+
+    const dbInstance = db;
+    const schedule = await dbInstance.selectFrom(tVendors)
+        .leftJoin(vendorsScheduleJoin)
+            .on(vendorsScheduleJoin.vendorId.equals(tVendors.vendorId))
+                .and(vendorsScheduleJoin.vendorsScheduleDeleted.isNull())
+        .where(tVendors.vendorTeam.equals(VendorTeam.FirstAid))
+            .and(tVendors.eventId.equals(event.id))
+            .and(tVendors.vendorVisible.equals(/* true= */ 1))
+        .select({
+            id: tVendors.vendorId,
+            name: tVendors.vendorFirstName.concat(' ').concat(tVendors.vendorLastName),
+            role: tVendors.vendorRole,
+            schedule: dbInstance.aggregateAsArray({
+                id: vendorsScheduleJoin.vendorsScheduleId,
+                start: dbInstance.dateTimeAsString(vendorsScheduleJoin.vendorsScheduleStart),
+                end: dbInstance.dateTimeAsString(vendorsScheduleJoin.vendorsScheduleEnd),
+            }),
+        })
+        .groupBy(tVendors.vendorId)
+        .orderBy('name', 'asc')
+        .executeSelectMany();
+
     return (
         <>
             <Section title="First aid" subtitle={event.shortName}>
@@ -38,7 +64,10 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'slug'
                 </SectionIntroduction>
                 <VendorTable event={event.slug} team={VendorTeam.FirstAid} roles={roles} />
             </Section>
-            { /* TODO: Timeline */ }
+            <Section title="Schedule">
+                <VendorSchedule event={event} team={VendorTeam.FirstAid} roles={roles}
+                                schedule={schedule} />
+            </Section>
         </>
     );
 }

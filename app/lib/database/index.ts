@@ -42,6 +42,7 @@ import { UsersEventsTable } from './scheme/UsersEventsTable';
 import { UsersPasskeysTable } from './scheme/UsersPasskeysTable';
 import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
+import { VendorsScheduleTable } from './scheme/VendorsScheduleTable';
 import { VendorsTable } from './scheme/VendorsTable';
 import { WhatsappMessagesTable } from './scheme/WhatsappMessagesTable';
 
@@ -90,6 +91,7 @@ export const tUsersSettings = new UsersSettingsTable;
 export const tUsers = new class extends UsersTable {
     name = this.displayName.valueWhenNull(this.firstName.concat(' ').concat(this.lastName));
 }
+export const tVendorsSchedule = new VendorsScheduleTable;
 export const tVendors = new VendorsTable;
 export const tWhatsAppMessages = new WhatsappMessagesTable;
 

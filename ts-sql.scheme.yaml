@@ -4164,6 +4164,82 @@ tables:
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`,`content_path`,`revision_visible`) USING HASH,
       KEY `event_id` (`event_id`,`team_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: vendors_schedule
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: vendors_schedule_id
+    type: int(8)
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: vendor_id
+    type: int(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: vendors_schedule_start
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: vendors_schedule_end
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: vendors_schedule_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: vendors_schedule_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: vendors_schedule_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: vendor_id
+    def: KEY vendor_id (vendor_id) USING BTREE
+    table: vendors_schedule
+    columns:
+    - vendor_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (vendors_schedule_id) USING BTREE
+    table: vendors_schedule
+    columns:
+    - vendors_schedule_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (vendors_schedule_id)
+    table: vendors_schedule
+    referencedTable: null
+    columns:
+    - vendors_schedule_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `vendors_schedule` (
+      `vendors_schedule_id` int(8) NOT NULL AUTO_INCREMENT,
+      `vendor_id` int(8) NOT NULL,
+      `vendors_schedule_start` datetime NOT NULL,
+      `vendors_schedule_end` datetime NOT NULL,
+      `vendors_schedule_created` datetime NOT NULL,
+      `vendors_schedule_updated` datetime NOT NULL,
+      `vendors_schedule_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`vendors_schedule_id`),
+      KEY `vendor_id` (`vendor_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

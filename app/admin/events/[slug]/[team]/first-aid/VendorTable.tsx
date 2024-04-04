@@ -40,7 +40,7 @@ export function VendorTable(props: VendorTableProps) {
                 field: 'shirtSize',
                 headerName: 'T-shirt size',
                 editable: true,
-                flex: 1,
+                flex: 2,
 
                 type: 'singleSelect',
                 valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtSize) ],
@@ -50,7 +50,7 @@ export function VendorTable(props: VendorTableProps) {
                 field: 'shirtFit',
                 headerName: 'T-shirt fit',
                 editable: true,
-                flex: 1,
+                flex: 2,
 
                 type: 'singleSelect',
                 valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtFit) ],
@@ -71,19 +71,19 @@ export function VendorTable(props: VendorTableProps) {
             field: 'firstName',
             headerName: 'First name',
             editable: true,
-            flex: 2,
+            flex: 3,
         },
         {
             field: 'lastName',
             headerName: 'Last name',
             editable: true,
-            flex: 2,
+            flex: 3,
         },
         {
             field: 'role',
             headerName: 'Role',
             editable: true,
-            flex: 2,
+            flex: 3,
 
             type: 'singleSelect',
             valueOptions: [ /* empty= */ ' ', ...props.roles ],
@@ -92,7 +92,7 @@ export function VendorTable(props: VendorTableProps) {
             field: 'gender',
             headerName: 'Gender',
             editable: true,
-            flex: 1,
+            flex: 2,
 
             type: 'singleSelect',
             valueOptions: Object.values(VendorGender),

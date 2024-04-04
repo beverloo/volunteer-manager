@@ -46,6 +46,7 @@ import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissio
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
+import type { UpdateVendorScheduleDefinition } from '@app/api/admin/vendors/updateVendorSchedule';
 import type { UpdateVolunteerDefinition } from '@app/api/admin/updateVolunteer';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
@@ -231,6 +232,7 @@ export type ApiEndpoints = {
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/trainings/assignments/:id': TrainingsAssignmentsEndpoints['update'],
         '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['update'],
+        '/api/admin/vendors/schedule': UpdateVendorScheduleDefinition,
         '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
         '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['update'],
