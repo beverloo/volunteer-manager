@@ -434,6 +434,9 @@ export function RemoteDataTable<
             });
 
             if (response.success) {
+                if (!!refreshOnUpdate)
+                    router.refresh();
+
                 setRows(oldRows => {
                     if (!response.replacementRow)
                         return oldRows.filter(row => row.id !== deleteCandidate);
@@ -457,7 +460,7 @@ export function RemoteDataTable<
             setDeleteCandidate(undefined);
             setDeleteLoading(false);
         }
-    }, [ context, deleteCandidate, enableDelete, props.endpoint, subject ]);
+    }, [ context, deleteCandidate, enableDelete, props.endpoint, refreshOnUpdate, router, subject ])
 
     const resetDeleteCandidate = useCallback(() => setDeleteCandidate(undefined), []);
 
