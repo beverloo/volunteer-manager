@@ -16,6 +16,16 @@ import { VendorTeam } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
 
 /**
+ * Colour assigned to each entry on the vendor schedule.
+ */
+const kScheduleColor = '#00796b';
+
+/**
+ * Title assigned to each entry on the vendor schedule.
+ */
+const kScheduleTitle = 'Work period';
+
+/**
  * Interface that describes the information that the vendor's schedule should be populated with.
  * Contains information about both timing and appearance.
  */
@@ -73,13 +83,19 @@ export interface VendorScheduleProps {
 export function VendorSchedule(props: VendorScheduleProps) {
     const { event, team, roles, schedule } = props;
 
-    // TODO: Filter `events` when `schedule` changes (no invalid `vendorId` entries)
-
     // ---------------------------------------------------------------------------------------------
     // Prepare the events
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const [ events, setEvents ] = useState<ScheduleEvent[]>(
+        schedule.map(vendor => vendor.schedule.map(schedule => ({
+            id: schedule.id,
+            start: Temporal.ZonedDateTime.from(schedule.start).toString({ timeZoneName: 'never' }),
+            end: Temporal.ZonedDateTime.from(schedule.end).toString({ timeZoneName: 'never' }),
+            title: kScheduleTitle,
+            color: kScheduleColor,
+            resource: vendor.id,
+        }))).flat());
 
     // ---------------------------------------------------------------------------------------------
     // Prepare the presentation
@@ -138,8 +154,8 @@ export function VendorSchedule(props: VendorScheduleProps) {
     // ---------------------------------------------------------------------------------------------
 
     const eventDefaults: Partial<ScheduleEvent> = {
-        color: '#00796b',
-        title: 'Work period',
+        color: kScheduleColor,
+        title: kScheduleTitle,
         dragBetweenResources: false,
     };
 
@@ -157,7 +173,7 @@ export function VendorSchedule(props: VendorScheduleProps) {
             <Box sx={{ mx: '-16px !important', mt: '0px !important', mb: '-16px !important' }}>
                 <Schedule min={min} max={max} displayTimezone={event.timezone}
                           resources={resources} eventDefaults={eventDefaults}
-                          eventOverlap={false} events={[]} markers={markers} subject="shift" />
+                          eventOverlap={false} events={events} markers={markers} subject="shift" />
             </Box>
         </>
     );
