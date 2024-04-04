@@ -134,6 +134,22 @@ export default async function IntegrationsPage() {
                 label: 'Schedule - time step',
                 description:
                     'Time step, in minutes, defining granularity of shifts in the scheduling tools.'
+            },
+            {
+                setting: 'vendor-first-aid-roles',
+                type: 'string',
+                defaultValue: 'First Aid',
+
+                label: 'Vendor - first aid roles',
+                description: 'Comma-separated list of roles that can be assigned to first aiders',
+            },
+            {
+                setting: 'vendor-security-roles',
+                type: 'string',
+                defaultValue: 'Security',
+
+                label: 'Vendor - security roles',
+                description: 'Comma-separated list of roles that can be assigned to security',
             }
         ],
         'Schedule settings': [

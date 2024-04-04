@@ -27,6 +27,7 @@ export class VendorsTable extends Table<DBConnection, 'VendorsTable'> {
     vendorTeam = this.column<VendorTeam>('vendor_team', 'enum', 'VendorTeam');
     vendorFirstName = this.column('vendor_first_name', 'string');
     vendorLastName = this.column('vendor_last_name', 'string');
+    vendorRole = this.column('vendor_role', 'string');
     vendorGender = this.column<VendorGender>('vendor_gender', 'enum', 'VendorGender');
     vendorShirtSize = this.optionalColumnWithDefaultValue<ShirtSize>('vendor_shirt_size', 'enum', 'ShirtSize');
     vendorShirtFit = this.optionalColumnWithDefaultValue<ShirtFit>('vendor_shirt_fit', 'enum', 'ShirtFit');

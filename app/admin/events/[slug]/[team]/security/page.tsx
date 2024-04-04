@@ -3,13 +3,14 @@
 
 import { notFound } from 'next/navigation';
 
-import Alert from '@mui/material/Alert';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { Section } from '@app/admin/components/Section';
+import { VendorTable } from '../first-aid/VendorTable';
+import { VendorTeam } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 /**
@@ -23,21 +24,18 @@ export default async function EventTeamSecurityPage(props: NextPageParams<'slug'
     if (!team.managesSecurity)
         notFound();
 
+    const roleSetting = await readSetting('vendor-security-roles') ?? 'Security';
+    const roles = roleSetting.split(',').map(role => role.trim());
+
     return (
         <>
-            <Paper sx={{ p: 2 }}>
-                <Typography variant="h5">
-                    Security
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({event.shortName})
-                    </Typography>
-                </Typography>
-                <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
-                    This page allows you to manage the <strong>security vendor team</strong>, who
-                    are responsible for keeping our visitors and volunteers safe and secure.
-                </Alert>
-                { /* TODO: Vendor table */ }
-            </Paper>
+            <Section title="Security" subtitle={event.shortName}>
+                <SectionIntroduction>
+                    This page allows you to manage the <strong>security vendor team</strong>. The
+                    information shared on this page is exclusively used in the scheduling app.
+                </SectionIntroduction>
+                <VendorTable event={event.slug} team={VendorTeam.Security} roles={roles} />
+            </Section>
             { /* TODO: Timeline */ }
         </>
     );

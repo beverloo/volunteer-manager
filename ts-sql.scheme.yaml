@@ -3508,6 +3508,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: vendor_role
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
   - name: vendor_gender
     type: enum('Female','Other','Male')
     nullable: false
@@ -3558,6 +3563,7 @@ tables:
       `vendor_team` enum('first-aid','security') NOT NULL,
       `vendor_first_name` varchar(64) NOT NULL,
       `vendor_last_name` varchar(64) NOT NULL,
+      `vendor_role` varchar(32) NOT NULL,
       `vendor_gender` enum('Female','Other','Male') NOT NULL,
       `vendor_shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
       `vendor_shirt_fit` enum('Regular','Girly') DEFAULT NULL,

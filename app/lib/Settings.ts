@@ -36,6 +36,10 @@ type SettingsMap = {
     'schedule-event-view-end-hours': number;
     'schedule-time-step-minutes': number;
 
+    // Vendors:
+    'vendor-first-aid-roles': string;
+    'vendor-security-roles': string;
+
     // ---------------------------------------------------------------------------------------------
     // Generative AI settings
     // ---------------------------------------------------------------------------------------------

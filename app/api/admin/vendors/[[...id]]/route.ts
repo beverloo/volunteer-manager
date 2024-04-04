@@ -11,6 +11,7 @@ import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Typ
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tVendors } from '@lib/database';
+import { readSetting } from '@lib/Settings';
 
 /**
  * Row model for vendor entry, as can be shown and modified in the administration area.
@@ -30,6 +31,11 @@ const kVendorRowModel = z.object({
      * Last name of the vendor, which must be provided.
      */
     lastName: z.string().min(1),
+
+    /**
+     * Role that has been assigned to this vendor.
+     */
+    role: z.string(),
 
     /**
      * Gender of the vendor. Used for statistical purposes.
@@ -105,6 +111,21 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
         if (!event)
             notFound();
 
+        let roleSetting: string;
+        switch (context.team) {
+            case VendorTeam.FirstAid:
+                roleSetting = await readSetting('vendor-first-aid-roles') ?? 'First Aid';
+                break;
+            case VendorTeam.Security:
+                roleSetting = await readSetting('vendor-security-roles') ?? 'Security';
+                break
+            default:
+                throw new Error(`Invalid vendor team selected: ${context.team}`);
+        }
+
+        const roles = roleSetting.split(',').map(role => role.trim());
+        const defaultRole = roles[0];
+
         const dbInstance = db;
         const insertId = await dbInstance.insertInto(tVendors)
             .set({
@@ -112,6 +133,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 vendorTeam: context.team,
                 vendorFirstName: 'First',
                 vendorLastName: 'Name',
+                vendorRole: defaultRole,
                 vendorGender: VendorGender.Other,
                 vendorShirtFit: null,
                 vendorShirtSize: null,
@@ -127,6 +149,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 id: insertId,
                 firstName: 'First',
                 lastName: 'Name',
+                role: defaultRole,
                 gender: VendorGender.Other,
             }
         };
@@ -141,6 +164,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
             .set({ vendorVisible: /* false= */ 0 })
             .where(tVendors.vendorId.equals(id))
                 .and(tVendors.eventId.equals(event.eventId))
+                .and(tVendors.vendorTeam.equals(context.team))
                 .and(tVendors.vendorVisible.equals(/* true= */ 1))
             .executeUpdate();
 
@@ -154,11 +178,13 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
 
         const vendors = await db.selectFrom(tVendors)
             .where(tVendors.eventId.equals(event.eventId))
+                .and(tVendors.vendorTeam.equals(context.team))
                 .and(tVendors.vendorVisible.equals(/* true= */ 1))
             .select({
                 id: tVendors.vendorId,
                 firstName: tVendors.vendorFirstName,
                 lastName: tVendors.vendorLastName,
+                role: tVendors.vendorRole,
                 gender: tVendors.vendorGender,
                 shirtSize: tVendors.vendorShirtSize,
                 shirtFit: tVendors.vendorShirtFit,
@@ -186,6 +212,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
             .set({
                 vendorFirstName: row.firstName,
                 vendorLastName: row.lastName,
+                vendorRole: row.role,
                 vendorGender: row.gender,
                 vendorShirtFit: shirtFit,
                 vendorShirtSize: shirtSize,
@@ -193,6 +220,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
             })
             .where(tVendors.eventId.equals(event.eventId))
                 .and(tVendors.vendorId.equals(id))
+                .and(tVendors.vendorTeam.equals(context.team))
                 .and(tVendors.vendorVisible.equals(/* true= */ 1))
             .executeUpdate();
 
@@ -201,6 +229,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
 
     async writeLog({ context, id }, mutation, props) {
         const event = await getEventBySlug(context.event);
+        return;
 
         const kReadableTeamName: { [k in VendorTeam]: string } = {
             [VendorTeam.FirstAid]: 'First Aid',

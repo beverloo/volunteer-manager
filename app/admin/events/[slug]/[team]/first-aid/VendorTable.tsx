@@ -20,12 +20,45 @@ export interface VendorTableProps {
      * Name of the vendor team for which data is being shown.
      */
     team: VendorTeam;
+
+    /**
+     * Roles that can be assigned to each of the vendors.
+     */
+    roles: string[];
 }
 
 /**
  * The <VendorTable> displays an editable table with the details of a particular vendor team.
  */
 export function VendorTable(props: VendorTableProps) {
+    const context = { event: props.event, team: props.team };
+
+    const teamSpecificColumns: RemoteDataTableColumn<VendorRowModel>[] = [];
+    switch (props.team) {
+        case VendorTeam.FirstAid:
+            teamSpecificColumns.push({
+                field: 'shirtSize',
+                headerName: 'T-shirt size',
+                editable: true,
+                flex: 1,
+
+                type: 'singleSelect',
+                valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtSize) ],
+            });
+
+            teamSpecificColumns.push({
+                field: 'shirtFit',
+                headerName: 'T-shirt fit',
+                editable: true,
+                flex: 1,
+
+                type: 'singleSelect',
+                valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtFit) ],
+            });
+
+            break;
+    }
+
     const columns: RemoteDataTableColumn<VendorRowModel>[] = [
         {
             field: 'id',
@@ -38,46 +71,38 @@ export function VendorTable(props: VendorTableProps) {
             field: 'firstName',
             headerName: 'First name',
             editable: true,
-            flex: 3,
+            flex: 2,
         },
         {
             field: 'lastName',
             headerName: 'Last name',
             editable: true,
-            flex: 3,
+            flex: 2,
+        },
+        {
+            field: 'role',
+            headerName: 'Role',
+            editable: true,
+            flex: 2,
+
+            type: 'singleSelect',
+            valueOptions: [ /* empty= */ ' ', ...props.roles ],
         },
         {
             field: 'gender',
             headerName: 'Gender',
             editable: true,
-            flex: 2,
+            flex: 1,
 
             type: 'singleSelect',
             valueOptions: Object.values(VendorGender),
         },
-        {
-            field: 'shirtSize',
-            headerName: 'T-shirt size',
-            editable: true,
-            flex: 2,
-
-            type: 'singleSelect',
-            valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtSize) ],
-        },
-        {
-            field: 'shirtFit',
-            headerName: 'T-shirt fit',
-            editable: true,
-            flex: 2,
-
-            type: 'singleSelect',
-            valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtFit) ],
-        }
+        ...teamSpecificColumns,
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/vendors" context={props}
-                         enableCreate enableDelete enableUpdate
+        <RemoteDataTable columns={columns} endpoint="/api/admin/vendors" context={context}
+                         enableCreate enableDelete enableUpdate refreshOnUpdate
                          defaultSort={{ field: 'firstName', sort: 'asc' }} disableFooter />
     );
 }
