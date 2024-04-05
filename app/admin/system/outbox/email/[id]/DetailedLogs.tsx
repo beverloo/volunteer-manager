@@ -103,6 +103,11 @@ export interface DetailedLogsProps {
      * The log entries that should be displayed in this component.
      */
     logs: DetailedLogEntry[];
+
+    /**
+     * Presentation expected for the paper. Defaults to "elevation".
+     */
+    variant?: 'elevation' | 'outlined';
 }
 
 /**
@@ -111,7 +116,7 @@ export interface DetailedLogsProps {
  */
 export function DetailedLogs(props: DetailedLogsProps) {
     return (
-        <Paper>
+        <Paper variant={ props.variant ?? 'elevation' }>
             <Accordion>
                 <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
                     <TroubleshootIcon color="info" sx={{ mr: 1.5 }} />

@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 
 import type { SendMessageRequest } from './EmailClient';
 import type { User } from '@lib/auth/User';
-import db, { tOutbox } from '@lib/database';
+import db, { tOutboxEmail } from '@lib/database';
 
 /**
  * Severity of messages that can be stored by the EmailLogger.
@@ -67,7 +67,7 @@ export class EmailLoggerImpl implements EmailLogger {
         const options = request.message.options;
 
         this.#startTime = process.hrtime.bigint();
-        this.#insertId = await db.insertInto(tOutbox)
+        this.#insertId = await db.insertInto(tOutboxEmail)
             .set({
                 outboxSender: request.sender,
                 outboxSenderUserId: this.normalizeUser(request.sourceUser),
@@ -159,7 +159,7 @@ export class EmailLoggerImpl implements EmailLogger {
         if (!this.#insertId)
             throw new Error('E-mail loggers must be initialised before being finalised.');
 
-        await db.update(tOutbox)
+        await db.update(tOutboxEmail)
             .set({
                 outboxLogs: JSON.stringify(this.#logs),
 
@@ -175,7 +175,7 @@ export class EmailLoggerImpl implements EmailLogger {
                 outboxResultPending: this.normalizeRecipients(info?.pending),
                 outboxResultResponse: info?.response,
             })
-            .where(tOutbox.outboxId.equals(this.#insertId))
+            .where(tOutboxEmail.outboxEmailId.equals(this.#insertId))
             .executeUpdate();
 
         this.#insertId = undefined;

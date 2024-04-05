@@ -3794,6 +3794,186 @@ tables:
       CONSTRAINT `shifts_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
       CONSTRAINT `shifts_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: outbox_email
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: outbox_email_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: outbox_timestamp
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: outbox_sender
+    type: varchar(128)
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_sender_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_to
+    type: varchar(128)
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_to_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_cc
+    type: varchar(128)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_bcc
+    type: varchar(128)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_headers
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_subject
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_body_html
+    type: text
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: outbox_body_text
+    type: text
+    nullable: false
+    default: "''"
+    comment: ""
+  - name: outbox_logs
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_cause
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_message_id
+    type: varchar(256)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_accepted
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_rejected
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_pending
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_response
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: outbox_date
+    def: KEY outbox_date (outbox_timestamp) USING BTREE
+    table: outbox_email
+    columns:
+    - outbox_timestamp
+    comment: ""
+  - name: outbox_sender_user_id
+    def: KEY outbox_sender_user_id (outbox_sender_user_id) USING BTREE
+    table: outbox_email
+    columns:
+    - outbox_sender_user_id
+    comment: ""
+  - name: outbox_to_user_id
+    def: KEY outbox_to_user_id (outbox_to_user_id) USING BTREE
+    table: outbox_email
+    columns:
+    - outbox_to_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (outbox_email_id) USING BTREE
+    table: outbox_email
+    columns:
+    - outbox_email_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (outbox_email_id)
+    table: outbox_email
+    referencedTable: null
+    columns:
+    - outbox_email_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `outbox_email` (
+      `outbox_email_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `outbox_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+      `outbox_sender` varchar(128) NOT NULL,
+      `outbox_sender_user_id` int(8) unsigned DEFAULT NULL,
+      `outbox_to` varchar(128) NOT NULL,
+      `outbox_to_user_id` int(8) unsigned DEFAULT NULL,
+      `outbox_cc` varchar(128) DEFAULT NULL,
+      `outbox_bcc` varchar(128) DEFAULT NULL,
+      `outbox_headers` text DEFAULT NULL,
+      `outbox_subject` text NOT NULL,
+      `outbox_body_html` text NOT NULL DEFAULT '',
+      `outbox_body_text` text NOT NULL DEFAULT '',
+      `outbox_logs` text DEFAULT NULL,
+      `outbox_error_name` varchar(32) DEFAULT NULL,
+      `outbox_error_cause` text DEFAULT NULL,
+      `outbox_error_message` text DEFAULT NULL,
+      `outbox_error_stack` text DEFAULT NULL,
+      `outbox_result_message_id` varchar(256) DEFAULT NULL,
+      `outbox_result_accepted` text DEFAULT NULL,
+      `outbox_result_rejected` text DEFAULT NULL,
+      `outbox_result_pending` text DEFAULT NULL,
+      `outbox_result_response` text DEFAULT NULL,
+      PRIMARY KEY (`outbox_email_id`),
+      KEY `outbox_date` (`outbox_timestamp`),
+      KEY `outbox_to_user_id` (`outbox_to_user_id`),
+      KEY `outbox_sender_user_id` (`outbox_sender_user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
   comment: ""
@@ -4239,7 +4419,7 @@ tables:
       `vendors_schedule_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`vendors_schedule_id`),
       KEY `vendor_id` (`vendor_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

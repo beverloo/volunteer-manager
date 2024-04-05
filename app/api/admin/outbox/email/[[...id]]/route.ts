@@ -3,15 +3,15 @@
 
 import { z } from 'zod';
 
-import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
+import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
-import db, { tOutbox } from '@lib/database';
+import db, { tOutboxEmail } from '@lib/database';
 
 /**
  * Row model for an e-mail that was sent using the Volunteer Manager.
  */
-const kOutboxRowModel = z.object({
+const kOutboxEmailRowModel = z.object({
     /**
      * Unique ID of this message.
      */
@@ -148,23 +148,18 @@ const kOutboxRowModel = z.object({
 /**
  * This API does not require any context.
  */
-const kOutboxContext = z.never();
+const kOutboxEmailContext = z.never();
 
 /**
  * Export type definitions so that the API can be used in `callApi()`.
  */
-export type OutboxEndpoints =
-    DataTableEndpoints<typeof kOutboxRowModel, typeof kOutboxContext>;
+export type OutboxEmailEndpoints =
+    DataTableEndpoints<typeof kOutboxEmailRowModel, typeof kOutboxEmailContext>;
 
 /**
  * Export type definition for the API's Row Model.
  */
-export type OutboxRowModel = z.infer<typeof kOutboxRowModel>;
-
-/**
- * Export type definition for the API's context.
- */
-export type OutboxContext = z.infer<typeof kOutboxContext>;
+export type OutboxEmailRowModel = z.infer<typeof kOutboxEmailRowModel>;
 
 /**
  * This is implemented as a regular DataTable API. The following endpoints are provided by this
@@ -173,7 +168,7 @@ export type OutboxContext = z.infer<typeof kOutboxContext>;
  *     GET /api/admin/outbox
  *     GET /api/admin/outbox/:id
  */
-export const { GET } = createDataTableApi(kOutboxRowModel, kOutboxContext, {
+export const { GET } = createDataTableApi(kOutboxEmailRowModel, kOutboxEmailContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
@@ -183,46 +178,46 @@ export const { GET } = createDataTableApi(kOutboxRowModel, kOutboxContext, {
 
     async get({ id }) {
         const dbInstance = db;
-        const row = await dbInstance.selectFrom(tOutbox)
+        const row = await dbInstance.selectFrom(tOutboxEmail)
             .select({
                 // Basic fields:
-                id: tOutbox.outboxId,
-                date: dbInstance.dateTimeAsString(tOutbox.outboxTimestamp),
-                from: tOutbox.outboxSender,
-                fromUserId: tOutbox.outboxSenderUserId,
-                to: tOutbox.outboxTo,
-                toUserId: tOutbox.outboxToUserId,
-                subject: tOutbox.outboxSubject,
+                id: tOutboxEmail.outboxEmailId,
+                date: dbInstance.dateTimeAsString(tOutboxEmail.outboxTimestamp),
+                from: tOutboxEmail.outboxSender,
+                fromUserId: tOutboxEmail.outboxSenderUserId,
+                to: tOutboxEmail.outboxTo,
+                toUserId: tOutboxEmail.outboxToUserId,
+                subject: tOutboxEmail.outboxSubject,
                 delivered:
-                    tOutbox.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
+                    tOutboxEmail.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
 
                 // Detailed fields:
-                cc: tOutbox.outboxCc,
-                bcc: tOutbox.outboxBcc,
+                cc: tOutboxEmail.outboxCc,
+                bcc: tOutboxEmail.outboxBcc,
 
-                headers: tOutbox.outboxHeaders,
+                headers: tOutboxEmail.outboxHeaders,
 
                 // Message content:
-                text: tOutbox.outboxBodyText,
-                html: tOutbox.outboxBodyHtml,
+                text: tOutboxEmail.outboxBodyText,
+                html: tOutboxEmail.outboxBodyHtml,
 
                 // Message logs:
-                logs: tOutbox.outboxLogs,
+                logs: tOutboxEmail.outboxLogs,
 
                 // Message error:
-                errorName: tOutbox.outboxErrorName,
-                errorMessage: tOutbox.outboxErrorMessage,
-                errorStack: tOutbox.outboxErrorStack,
-                errorCause: tOutbox.outboxErrorCause,
+                errorName: tOutboxEmail.outboxErrorName,
+                errorMessage: tOutboxEmail.outboxErrorMessage,
+                errorStack: tOutboxEmail.outboxErrorStack,
+                errorCause: tOutboxEmail.outboxErrorCause,
 
                 // Message result:
-                messageId: tOutbox.outboxResultMessageId,
-                accepted: tOutbox.outboxResultAccepted,
-                rejected: tOutbox.outboxResultRejected,
-                pending: tOutbox.outboxResultPending,
-                response: tOutbox.outboxResultResponse,
+                messageId: tOutboxEmail.outboxResultMessageId,
+                accepted: tOutboxEmail.outboxResultAccepted,
+                rejected: tOutboxEmail.outboxResultRejected,
+                pending: tOutboxEmail.outboxResultPending,
+                response: tOutboxEmail.outboxResultResponse,
             })
-            .where(tOutbox.outboxId.equals(id))
+            .where(tOutboxEmail.outboxEmailId.equals(id))
             .executeSelectNoneOrOne();
 
         if (!row)
@@ -233,17 +228,17 @@ export const { GET } = createDataTableApi(kOutboxRowModel, kOutboxContext, {
 
     async list({ pagination, sort }) {
         const dbInstance = db;
-        const result = await dbInstance.selectFrom(tOutbox)
+        const result = await dbInstance.selectFrom(tOutboxEmail)
             .select({
-                id: tOutbox.outboxId,
-                date: dbInstance.dateTimeAsString(tOutbox.outboxTimestamp),
-                from: tOutbox.outboxSender,
-                fromUserId: tOutbox.outboxSenderUserId,
-                to: tOutbox.outboxTo,
-                toUserId: tOutbox.outboxToUserId,
-                subject: tOutbox.outboxSubject,
+                id: tOutboxEmail.outboxEmailId,
+                date: dbInstance.dateTimeAsString(tOutboxEmail.outboxTimestamp),
+                from: tOutboxEmail.outboxSender,
+                fromUserId: tOutboxEmail.outboxSenderUserId,
+                to: tOutboxEmail.outboxTo,
+                toUserId: tOutboxEmail.outboxToUserId,
+                subject: tOutboxEmail.outboxSubject,
                 delivered:
-                    tOutbox.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
+                    tOutboxEmail.outboxResultAccepted.length().greaterThan(0).valueWhenNull(false),
             })
             .orderBy(sort?.field ?? 'date' as any, sort?.sort ?? 'desc')
             .limitIfValue(pagination?.pageSize)

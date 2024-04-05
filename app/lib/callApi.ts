@@ -66,7 +66,7 @@ import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignmen
 import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
 import type { LogsEndpoints } from '@app/api/admin/logs/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
-import type { OutboxEndpoints } from '@app/api/admin/outbox/[[...id]]/route';
+import type { OutboxEmailEndpoints } from '@app/api/admin/outbox/email/[[...id]]/route';
 import type { ProgramActivitiesEndpoints } from '@app/api/admin/program/activities/[[...id]]/route';
 import type { ProgramAreasEndpoints } from '@app/api/admin/program/areas/[[...id]]/route';
 import type { ProgramChangesEndpoints } from '@app/api/admin/program/changes/route';
@@ -109,8 +109,8 @@ export type ApiEndpoints = {
         '/api/admin/hotels': HotelsEndpoints['list'],
         '/api/admin/logs': LogsEndpoints['list'],
         '/api/admin/logs/:id': LogsEndpoints['get'],
-        '/api/admin/outbox': OutboxEndpoints['list'],
-        '/api/admin/outbox/:id': OutboxEndpoints['get'],
+        '/api/admin/outbox/email': OutboxEmailEndpoints['list'],
+        '/api/admin/outbox/email/:id': OutboxEmailEndpoints['get'],
         '/api/admin/program/activities': ProgramActivitiesEndpoints['list'],
         '/api/admin/program/areas': ProgramAreasEndpoints['list'],
         '/api/admin/program/changes': ProgramChangesEndpoints['list'],

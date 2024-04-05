@@ -14,7 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { DetailedLogs } from '../../outbox/[id]/DetailedLogs';
+import { DetailedLogs } from '../../outbox/email/[id]/DetailedLogs';
 import { GotoTaskButton } from './GotoTaskButton';
 import { Privilege } from '@lib/auth/Privileges';
 import { RerunTaskButton } from './RerunTaskButton';

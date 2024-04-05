@@ -10,18 +10,18 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
-import type { OutboxRowModel } from '@app/api/admin/outbox/[[...id]]/route';
+import type { OutboxEmailRowModel } from '@app/api/admin/outbox/email/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
- * The <OutboxDataTable> component displays all e-mail messages that have been sent by the AnimeCon
+ * The <EmailDataTable> component displays all e-mail messages that have been sent by the AnimeCon
  * Volunteer Manager. Each message can be clicked on to see further details and content. Access is
  * restricted to certain volunteers.
  */
-export function OutboxDataTable() {
+export function EmailDataTable() {
     const localTz = Temporal.Now.timeZoneId();
-    const columns: RemoteDataTableColumn<OutboxRowModel>[] = [
+    const columns: RemoteDataTableColumn<OutboxEmailRowModel>[] = [
         {
             field: 'id',
             display: 'flex',
@@ -30,7 +30,7 @@ export function OutboxDataTable() {
             width: 50,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./outbox/${params.value}`} sx={{ pt: '4px' }}>
+                <MuiLink component={Link} href={`./email/${params.value}`} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
                 </MuiLink>,
         },
@@ -85,7 +85,7 @@ export function OutboxDataTable() {
             flex: 3,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./outbox/${params.row.id}`}>
+                <MuiLink component={Link} href={`./email/${params.row.id}`}>
                     {params.value}
                 </MuiLink>,
         },
@@ -105,6 +105,6 @@ export function OutboxDataTable() {
         },
     ];
 
-    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox"
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/email"
                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }

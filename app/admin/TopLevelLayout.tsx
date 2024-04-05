@@ -7,9 +7,9 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
+import OutboxIcon from '@mui/icons-material/Outbox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
@@ -64,10 +64,10 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
 
             menu: [
                 {
-                    icon: <MailOutlineIcon />,
-                    label: 'E-mail',
+                    icon: <OutboxIcon />,
+                    label: 'Outbox',
                     privilege: Privilege.SystemOutboxAccess,
-                    url: '/admin/system/outbox',
+                    url: '/admin/system/outbox/email',
                 },
                 // TODO: Notifications
                 {

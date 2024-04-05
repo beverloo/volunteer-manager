@@ -16,15 +16,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 
-import type { OutboxRowModel } from '@app/api/admin/outbox/[[...id]]/route';
+import type { OutboxEmailRowModel } from '@app/api/admin/outbox/email/[[...id]]/route';
 import { DetailedLogs } from './DetailedLogs';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 
 /**
- * Props accepted by the <OutboxMessage> component.
+ * Props accepted by the <EmailMessage> component.
  */
-export interface OutboxMessageProps {
+export interface EmailMessageProps {
     /**
      * ID of the message that's due to be rendered.
      */
@@ -32,15 +32,15 @@ export interface OutboxMessageProps {
 }
 
 /**
- * The <OutboxMessage> component displays an individual message that was sent to one of the
+ * The <EmailMessage> component displays an individual message that was sent to one of the
  * volunteers. The message content will be retrieved through an API.
  */
-export function OutboxMessage(props: OutboxMessageProps) {
-    const [ message, setMessage ] = useState<OutboxRowModel | undefined>();
+export function EmailMessage(props: EmailMessageProps) {
+    const [ message, setMessage ] = useState<OutboxEmailRowModel | undefined>();
 
     useEffect(() => {
         setMessage(undefined);
-        callApi('get', '/api/admin/outbox/:id', { id: props.id }).then(response => {
+        callApi('get', '/api/admin/outbox/email/:id', { id: props.id }).then(response => {
             if (!!response.success)
                 setMessage(response.row);
         });
@@ -60,17 +60,15 @@ export function OutboxMessage(props: OutboxMessageProps) {
     const logs = !!message.logs ? JSON.parse(message.logs) : [];
 
     return (
-        <>
-            <Paper>
-                <Typography sx={{ p: 2 }} variant="h5">
-                    Message sent on {
-                        formatDate(
-                            Temporal.ZonedDateTime.from(message.date).withTimeZone(
-                                Temporal.Now.timeZoneId()),
-                            'MMMM D, YYYY [at] H:mm:ss') }
-                </Typography>
-            </Paper>
-            <TableContainer component={Paper}>
+        <Stack direction="column" spacing={2}>
+            <Typography variant="h5">
+                Message sent on {
+                    formatDate(
+                        Temporal.ZonedDateTime.from(message.date).withTimeZone(
+                            Temporal.Now.timeZoneId()),
+                        'MMMM D, YYYY [at] H:mm:ss') }
+            </Typography>
+            <TableContainer component={Paper} variant="outlined">
                 <Table>
                     <TableRow>
                         <TableCell width="25%" component="th" scope="row">From</TableCell>
@@ -78,7 +76,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                         { !!message.fromUserId &&
                             <TableCell>
                                 <MuiLink component={Link}
-                                         href={`/admin/volunteers/${message.fromUserId}`}>
+                                            href={`/admin/volunteers/${message.fromUserId}`}>
                                     {message.from}
                                 </MuiLink>
                             </TableCell> }
@@ -89,7 +87,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                         { !!message.toUserId &&
                             <TableCell>
                                 <MuiLink component={Link}
-                                         href={`/admin/volunteers/${message.toUserId}`}>
+                                            href={`/admin/volunteers/${message.toUserId}`}>
                                     {message.to}
                                 </MuiLink>
                             </TableCell> }
@@ -118,13 +116,13 @@ export function OutboxMessage(props: OutboxMessageProps) {
                 </Table>
             </TableContainer>
             <Stack direction="row" spacing={2}>
-                <Paper sx={{ flexBasis: '100%', p: 2 }}>
+                <Paper sx={{ flexBasis: '100%', p: 2 }} variant="outlined">
                     <Typography variant="body2"
                                 sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
                         {message.text}
                     </Typography>
                 </Paper>
-                <Paper sx={{ flexBasis: '100%', p: 2 }}>
+                <Paper sx={{ flexBasis: '100%', p: 2 }} variant="outlined">
                     <Typography variant="body2"
                                 sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
                         {message.html}
@@ -132,7 +130,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                 </Paper>
             </Stack>
             { !!message.errorName &&
-                <TableContainer component={Paper}>
+                <TableContainer component={Paper} variant="outlined">
                     <Table>
                         <TableRow>
                             <TableCell width="25%" component="th" scope="row">Error name</TableCell>
@@ -159,7 +157,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                             </TableRow> }
                     </Table>
                 </TableContainer> }
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} variant="outlined">
                 <Table>
                     { !!message.messageId &&
                         <TableRow>
@@ -190,7 +188,7 @@ export function OutboxMessage(props: OutboxMessageProps) {
                         </TableRow> }
                 </Table>
             </TableContainer>
-            { !!logs.length && <DetailedLogs logs={logs} /> }
-        </>
+            { !!logs.length && <DetailedLogs logs={logs} variant="outlined" /> }
+        </Stack>
     );
 }
