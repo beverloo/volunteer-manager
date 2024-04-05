@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { MessageRequest, MessageResponse } from './WhatsAppTypes';
-import db, { tWhatsAppMessages } from '@lib/database';
+import db, { tOutboxWhatsApp } from '@lib/database';
 
 /**
  * The `WhatsAppLogger` is able to encapsulate the lifetime of a WhatsApp message request and log
@@ -21,11 +21,11 @@ export class WhatsAppLogger {
             throw new Error('WhatsApp loggers may only be initialised once.');
 
         this.#startTime = process.hrtime.bigint();
-        this.#insertId = await db.insertInto(tWhatsAppMessages)
+        this.#insertId = await db.insertInto(tOutboxWhatsApp)
             .set({
-                whatsappMessageRecipientUserId: recipientUserId,
-                whatsappMessageRecipientPhoneNumber: request.to,
-                whatsappMessageRequest: JSON.stringify(request),
+                whatsappRecipientUserId: recipientUserId,
+                whatsappRecipientPhoneNumber: request.to,
+                whatsappRequest: JSON.stringify(request),
             })
             .returningLastInsertedId()
             .executeInsert();
@@ -53,22 +53,22 @@ export class WhatsAppLogger {
         if (!this.#insertId || !this.#startTime)
             throw new Error('WhatsApp loggers must be initialised before being finalised.');
 
-        await db.update(tWhatsAppMessages)
+        await db.update(tOutboxWhatsApp)
             .set({
-                whatsappMessageErrorName: this.#exception?.name,
-                whatsappMessageErrorMessage: this.#exception?.message,
-                whatsappMessageErrorStack: this.#exception?.stack,
-                whatsappMessageErrorCause:
+                whatsappErrorName: this.#exception?.name,
+                whatsappErrorMessage: this.#exception?.message,
+                whatsappErrorStack: this.#exception?.stack,
+                whatsappErrorCause:
                     this.#exception?.cause ? JSON.stringify(this.#exception?.cause) : undefined,
 
-                whatsappMessageResponseStatus: responseStatus,
-                whatsappMessageResponseTime:
+                whatsappResponseStatus: responseStatus,
+                whatsappResponseTime:
                     Number((process.hrtime.bigint() - this.#startTime) / 1000n / 1000n),
-                whatsappMessageResponseMessageId: messageId,
-                whatsappMessageResponseMessageStatus: messageStatus,
-                whatsappMessageResponseText: JSON.stringify(responseData),
+                whatsappResponseMessageId: messageId,
+                whatsappResponseMessageStatus: messageStatus,
+                whatsappResponseText: JSON.stringify(responseData),
             })
-            .where(tWhatsAppMessages.whatsappMessageId.equals(this.#insertId))
+            .where(tOutboxWhatsApp.whatsappMessageId.equals(this.#insertId))
             .executeUpdate();
 
         this.#insertId = undefined;

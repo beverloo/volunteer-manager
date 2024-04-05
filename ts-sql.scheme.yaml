@@ -2441,124 +2441,6 @@ tables:
       `nardo_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`nardo_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: whatsapp_messages
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: whatsapp_message_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: whatsapp_message_date
-    type: datetime
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  - name: whatsapp_message_recipient_user_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: whatsapp_message_recipient_phone_number
-    type: varchar(16)
-    nullable: false
-    default: null
-    comment: ""
-  - name: whatsapp_message_request
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: whatsapp_message_error_name
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_error_message
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_error_stack
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_error_cause
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_response_status
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_response_time
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_response_message_id
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_response_message_status
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: whatsapp_message_response_text
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: whatsapp_message_recipient_user_id
-    def: KEY whatsapp_message_recipient_user_id (whatsapp_message_recipient_user_id) USING BTREE
-    table: whatsapp_messages
-    columns:
-    - whatsapp_message_recipient_user_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (whatsapp_message_id) USING BTREE
-    table: whatsapp_messages
-    columns:
-    - whatsapp_message_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (whatsapp_message_id)
-    table: whatsapp_messages
-    referencedTable: null
-    columns:
-    - whatsapp_message_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `whatsapp_messages` (
-      `whatsapp_message_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `whatsapp_message_date` datetime NOT NULL DEFAULT current_timestamp(),
-      `whatsapp_message_recipient_user_id` int(8) unsigned NOT NULL,
-      `whatsapp_message_recipient_phone_number` varchar(16) NOT NULL,
-      `whatsapp_message_request` text NOT NULL,
-      `whatsapp_message_error_name` varchar(32) DEFAULT NULL,
-      `whatsapp_message_error_message` text DEFAULT NULL,
-      `whatsapp_message_error_stack` text DEFAULT NULL,
-      `whatsapp_message_error_cause` text DEFAULT NULL,
-      `whatsapp_message_response_status` int(8) unsigned DEFAULT NULL,
-      `whatsapp_message_response_time` int(8) unsigned DEFAULT NULL,
-      `whatsapp_message_response_message_id` text DEFAULT NULL,
-      `whatsapp_message_response_message_status` text DEFAULT NULL,
-      `whatsapp_message_response_text` text DEFAULT NULL,
-      PRIMARY KEY (`whatsapp_message_id`),
-      KEY `whatsapp_message_recipient_user_id` (`whatsapp_message_recipient_user_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities
   type: BASE TABLE
   comment: ""
@@ -3992,6 +3874,124 @@ tables:
       KEY `outbox_to_user_id` (`outbox_to_user_id`),
       KEY `outbox_sender_user_id` (`outbox_sender_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: outbox_whatsapp
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: whatsapp_message_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: whatsapp_date
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: whatsapp_recipient_user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: whatsapp_recipient_phone_number
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: whatsapp_request
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: whatsapp_error_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_error_cause
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_response_status
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_response_time
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_response_message_id
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_response_message_status
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: whatsapp_response_text
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: whatsapp_message_recipient_user_id
+    def: KEY whatsapp_message_recipient_user_id (whatsapp_recipient_user_id) USING BTREE
+    table: outbox_whatsapp
+    columns:
+    - whatsapp_recipient_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (whatsapp_message_id) USING BTREE
+    table: outbox_whatsapp
+    columns:
+    - whatsapp_message_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (whatsapp_message_id)
+    table: outbox_whatsapp
+    referencedTable: null
+    columns:
+    - whatsapp_message_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `outbox_whatsapp` (
+      `whatsapp_message_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `whatsapp_date` datetime NOT NULL DEFAULT current_timestamp(),
+      `whatsapp_recipient_user_id` int(8) unsigned NOT NULL,
+      `whatsapp_recipient_phone_number` varchar(16) NOT NULL,
+      `whatsapp_request` text NOT NULL,
+      `whatsapp_error_name` varchar(32) DEFAULT NULL,
+      `whatsapp_error_message` text DEFAULT NULL,
+      `whatsapp_error_stack` text DEFAULT NULL,
+      `whatsapp_error_cause` text DEFAULT NULL,
+      `whatsapp_response_status` int(8) unsigned DEFAULT NULL,
+      `whatsapp_response_time` int(8) unsigned DEFAULT NULL,
+      `whatsapp_response_message_id` text DEFAULT NULL,
+      `whatsapp_response_message_status` text DEFAULT NULL,
+      `whatsapp_response_text` text DEFAULT NULL,
+      PRIMARY KEY (`whatsapp_message_id`),
+      KEY `whatsapp_message_recipient_user_id` (`whatsapp_recipient_user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
   comment: ""

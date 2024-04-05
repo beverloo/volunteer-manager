@@ -22,6 +22,7 @@ import { HotelsPreferencesTable } from './scheme/HotelsPreferencesTable';
 import { LogsTable } from './scheme/LogsTable';
 import { NardoTable } from './scheme/NardoTable';
 import { OutboxEmailTable } from './scheme/OutboxEmailTable';
+import { OutboxWhatsappTable } from './scheme/OutboxWhatsappTable';
 import { RefundsTable } from './scheme/RefundsTable';
 import { RetentionTable } from './scheme/RetentionTable';
 import { RolesTable } from './scheme/RolesTable';
@@ -44,7 +45,6 @@ import { UsersSettingsTable } from './scheme/UsersSettingsTable';
 import { UsersTable } from './scheme/UsersTable';
 import { VendorsScheduleTable } from './scheme/VendorsScheduleTable';
 import { VendorsTable } from './scheme/VendorsTable';
-import { WhatsappMessagesTable } from './scheme/WhatsappMessagesTable';
 
 // Export instances of each of the above table types that are for the app to use. Naming convention
 // matches that proposed by `ts-sql-query`, i.e. `FooTable` becomes `tFoo`.
@@ -69,6 +69,7 @@ export const tHotelsPreferences = new HotelsPreferencesTable;
 export const tLogs = new LogsTable;
 export const tNardo = new NardoTable;
 export const tOutboxEmail = new OutboxEmailTable;
+export const tOutboxWhatsApp = new OutboxWhatsappTable;
 export const tRefunds = new RefundsTable;
 export const tRetention = new RetentionTable;
 export const tRoles = new RolesTable;
@@ -93,7 +94,6 @@ export const tUsers = new class extends UsersTable {
 }
 export const tVendorsSchedule = new VendorsScheduleTable;
 export const tVendors = new VendorsTable;
-export const tWhatsAppMessages = new WhatsappMessagesTable;
 
 // Export the database connection pool as the default export from this file, for convenient access
 // to the database throughout the server-side of the Volunteer Manager.
