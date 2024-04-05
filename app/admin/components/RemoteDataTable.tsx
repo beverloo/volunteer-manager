@@ -151,7 +151,7 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     subject?: string;
 
     /**
-     * Whether the data table should be shown as a tree. When this is set to true, the `id` field
+     * Whether the data table should be shown as a tree. When this is set to true, the `path` field
      * must be a string with the paths separated by a slash, e.g. `0/foo/bar`.
      */
     treeData?: boolean;
@@ -478,10 +478,10 @@ export function RemoteDataTable<
     // ---------------------------------------------------------------------------------------------
 
     const getTreeDataPath = useCallback((row: RowModel) => {
-        if (!Object.hasOwn(row, 'id') || typeof row.id !== 'string')
-            throw new Error('Each row ID must be a string when the treeData feature is enabled');
+        if (!Object.hasOwn(row, 'path') || typeof row.path !== 'string')
+            throw new Error('Each row must have a `path` when the treeData feature is enabled');
 
-        return row.id.split('/');
+        return row.path.split('/');
     }, [ /* no dependencies */ ]);
 
     // ---------------------------------------------------------------------------------------------

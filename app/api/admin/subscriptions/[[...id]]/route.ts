@@ -1,6 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
@@ -17,7 +18,12 @@ const kSubscriptionRowModel = z.object({
     /**
      * Unique ID of the subscription row, referring to its representation in the database.
      */
-    id: z.string(),
+    id: z.number(),
+
+    /**
+     * Path towards this subscription, used to power the tree view in the user interface.
+     */
+    path: z.string(),
 
     /**
      * Name of the volunteer who can have subscriptions.
@@ -132,19 +138,25 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
         const subscriptions: SubscriptionsRowModel[] = [];
         for (const volunteer of volunteers) {
             subscriptions.push({
-                id: `${volunteer.id}`,
+                id: volunteer.id,
+                path: `${volunteer.id}`,
                 name: volunteer.name,
                 subscriptionCount: volunteer.subscriptions.length,
             });
 
+            let subscriptionIndex = 0;
             for (const { type, typeId, label } of subscriptionTypes) {
                 let channelEmail: boolean = false;
                 let channelNotification: boolean = false;
                 let channelWhatsapp: boolean = false;
 
                 for (const subscription of volunteer.subscriptions) {
-                    if (subscription.type !== type || subscription.typeId !== typeId)
+                    if (subscription.type !== type)
                         continue;  // irrelevant subscription
+                    if (subscription.typeId !== typeId) {
+                        if (subscription.typeId !== undefined && typeId !== null)
+                            continue;  // irrelevant subscription
+                    }
 
                     channelEmail ||= subscription.channelEmail;
                     channelNotification ||= subscription.channelNotification;
@@ -152,7 +164,8 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                 }
 
                 subscriptions.push({
-                    id: `${volunteer.id}/${type}-${typeId}`,
+                    id: volunteer.id * 10_000 + (subscriptionIndex++),
+                    path: `${volunteer.id}/${type}-${typeId}`,
                     name: label,
                     type: type,
                     channelEmail,
@@ -169,11 +182,56 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
         };
     },
 
-    async update({ row }, props) {
-        return { success: false };
+    async update({ row }) {
+        const matches = row.path.match(/^(\d+)\/([^\-]+)\-(.+?)$/);
+        if (!matches)
+            notFound();
+
+        const dbInstance = db;
+
+        // (1) Parse the incoming data given the path included in the `row`.
+        const userId = z.coerce.number().parse(matches[1]);
+        const type = z.nativeEnum(SubscriptionType).parse(matches[2]);
+        const typeId = matches[3] === 'null' ? null
+                                             : z.coerce.number().parse(matches[3]);
+
+        // (2) Delete any existing subscription for that user, and create a new one.
+        await dbInstance.transaction(async () => {
+            await dbInstance.deleteFrom(tSubscriptions)
+                .where(tSubscriptions.subscriptionUserId.equals(userId))
+                    .and(tSubscriptions.subscriptionType.equals(type))
+                    .and(tSubscriptions.subscriptionTypeId.equalsIfValue(typeId))
+                .executeDelete();
+
+            if (!row.channelEmail && !row.channelNotification && !row.channelWhatsapp)
+                return;  // no need to create a new subscription
+
+            await dbInstance.insertInto(tSubscriptions)
+                .set({
+                    subscriptionUserId: userId,
+                    subscriptionType: type,
+                    subscriptionTypeId: typeId,
+                    subscriptionChannelEmail: row.channelEmail ? 1 : 0,
+                    subscriptionChannelNotification: row.channelNotification ? 1 : 0,
+                    subscriptionChannelWhatsapp: row.channelWhatsapp ? 1 : 0,
+                })
+                .executeInsert();
+        });
+
+        return { success: true };
     },
 
     async writeLog({ id }, mutation, props) {
-        return;
+        if (mutation !== 'Updated')
+            return;
+
+        const targetUser = Math.floor(id / 10_000);
+
+        await Log({
+            type: LogType.AdminSubscriptionUpdate,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser,
+        });
     },
 });

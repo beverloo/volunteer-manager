@@ -57,6 +57,7 @@ export enum LogType {
     AdminRefundMutation = 'admin-refund-mutation',
     AdminResetAccessCode = 'admin-reset-access-code',
     AdminResetPasswordLink = 'admin-reset-password-link',
+    AdminSubscriptionUpdate = 'admin-subscription-update',
     AdminUpdateActivation = 'admin-update-activation',
     AdminUpdateAiSetting = 'admin-update-ai-settings',
     AdminUpdateAvailabilityPreferences = 'admin-update-availability-preferences',

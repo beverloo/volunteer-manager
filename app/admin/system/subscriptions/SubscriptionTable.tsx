@@ -33,7 +33,7 @@ const kSubscriptionDescriptions: { [k in SubscriptionType]: string } = {
  * subscription that could be created for said user.
  */
 function isUserRow(params: GridCellParams<SubscriptionsRowModel, unknown>) {
-    return !params.row.id.includes('/');
+    return !params.row.path.includes('/');
 }
 
 /**
@@ -49,7 +49,7 @@ export function SubscriptionTable() {
 
         hideDescendantCount: true,
         valueFormatter: (value, row) => {
-            if (!!row.id.includes('/'))
+            if (!!row.path.includes('/'))
                 return row.name;
 
             return (
@@ -170,6 +170,6 @@ export function SubscriptionTable() {
         <RemoteDataTable columns={columns} endpoint="/api/admin/subscriptions"
                          treeData treeDataColumn={treeDataColumn}
                          defaultSort={{ field: 'name', sort: 'asc' }} pageSize={100}
-                         disableFooter enableUpdate isCellEditable={isUserRow} />
+                         disableFooter enableUpdate isCellEditable={ v => !isUserRow(v) } />
     );
 }

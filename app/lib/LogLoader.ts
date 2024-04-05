@@ -190,6 +190,9 @@ const kLogMessageFormatter: {
     [LogType.AdminResetPasswordLink]: (source, target, data) => {
         return `Created a new password reset link for ${target?.name}`;
     },
+    [LogType.AdminSubscriptionUpdate]: (source, target) => {
+        return `Updated the subscriptions for ${target?.name}`;
+    },
     [LogType.AdminUpdateActivation]: (source, target, data) => {
         return data.activated ? `Activated the account of ${target?.name}`
                               : `Deactivated their account of ${target?.name}`;

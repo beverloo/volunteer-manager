@@ -414,8 +414,8 @@ tables:
     comment: ""
   - name: subscription_type_id
     type: int(8) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: subscription_channel_email
     type: tinyint(1) unsigned
@@ -461,7 +461,7 @@ tables:
       `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `subscription_user_id` int(8) unsigned NOT NULL,
       `subscription_type` enum('Application','Registration') NOT NULL,
-      `subscription_type_id` int(8) unsigned NOT NULL,
+      `subscription_type_id` int(8) unsigned DEFAULT NULL,
       `subscription_channel_email` tinyint(1) unsigned NOT NULL,
       `subscription_channel_notification` tinyint(1) unsigned NOT NULL,
       `subscription_channel_whatsapp` tinyint(1) unsigned NOT NULL,
