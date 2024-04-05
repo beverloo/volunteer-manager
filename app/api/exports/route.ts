@@ -9,6 +9,7 @@ import { type ActionProps, executeAction, noAccess } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
+import { readSetting } from '@lib/Settings';
 
 import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
     tTrainingsExtra, tUsers, tUsersEvents, tVendors } from '@lib/database';
@@ -447,8 +448,15 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     if (metadata.type === ExportType.Volunteers) {
         volunteers = [];
 
+        // What is the e-mail address that tickets for first aiders should be send to?
+        const firstAidEmailAddress =
+            await readSetting('vendor-first-aid-email-address') ?? 'crew@animecon.nl';
+
         // What is the department that all our volunteers should be part of?
         const kDepartment = 'HR & Security';
+
+        // Full names of volunteers who have already been seen in the list.
+        const seenVolunteers = new Set<string>;
 
         const volunteerList = await db.selectFrom(tUsersEvents)
             .innerJoin(tUsers)
@@ -483,6 +491,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
                 age = difference.years;
             }
+
+            seenVolunteers.add(`${volunteer.firstName} ${volunteer.lastName}`);
 
             volunteers.push({
                 department: kDepartment,
@@ -520,10 +530,13 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         };
 
         for (const vendor of vendorList) {
+            if (seenVolunteers.has(`${vendor.firstName} ${vendor.lastName}`))
+                continue;  // they will already be receiving another ticket
+
             volunteers.push({
                 department: kDepartment,
                 role: kVendorTeamToRoleMapping[vendor.team],
-                email: 'peter@animecon.nl',
+                email: firstAidEmailAddress,
                 firstName: vendor.firstName,
                 prefix: '',
                 lastName: vendor.lastName,

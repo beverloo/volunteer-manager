@@ -136,6 +136,15 @@ export default async function IntegrationsPage() {
                     'Time step, in minutes, defining granularity of shifts in the scheduling tools.'
             },
             {
+                setting: 'vendor-first-aid-email-address',
+                type: 'string',
+                defaultValue: 'crew@animecon.nl',
+
+                label: 'Vendor - first aid e-mail address',
+                description:
+                    'E-mail address where tickets for first aid volunteers should be send to',
+            },
+            {
                 setting: 'vendor-first-aid-roles',
                 type: 'string',
                 defaultValue: 'First Aid',

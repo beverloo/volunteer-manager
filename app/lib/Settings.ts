@@ -37,6 +37,7 @@ type SettingsMap = {
     'schedule-time-step-minutes': number;
 
     // Vendors:
+    'vendor-first-aid-email-address': string;
     'vendor-first-aid-roles': string;
     'vendor-security-roles': string;
 
