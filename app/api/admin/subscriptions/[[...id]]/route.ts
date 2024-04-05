@@ -25,11 +25,6 @@ const kSubscriptionRowModel = z.object({
     name: z.string(),
 
     /**
-     * Optional description to render in the "description" column.
-     */
-    description: z.string().optional(),
-
-    /**
      * Type of subscription that this row is dealing with.
      */
     type: z.nativeEnum(SubscriptionType).optional(),
@@ -48,6 +43,11 @@ const kSubscriptionRowModel = z.object({
      * Whether notifications for this subscription will be delivered using WhatsApp.
      */
     channelWhatsapp: z.boolean().optional(),
+
+    /**
+     * Total subscription count for this volunteer.
+     */
+    subscriptionCount: z.number().optional(),
 });
 
 /**
@@ -131,14 +131,10 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
 
         const subscriptions: SubscriptionsRowModel[] = [];
         for (const volunteer of volunteers) {
-            const subscriptionCount = volunteer.subscriptions.length;
-            const subscriptionDescription =
-                `${subscriptionCount} subscription${subscriptionCount === 1 ? '' : 's'}`;
-
             subscriptions.push({
                 id: `${volunteer.id}`,
                 name: volunteer.name,
-                description: subscriptionDescription,
+                subscriptionCount: volunteer.subscriptions.length,
             });
 
             for (const { type, typeId, label } of subscriptionTypes) {
@@ -149,14 +145,14 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                 for (const subscription of volunteer.subscriptions) {
                     if (subscription.type !== type || subscription.typeId !== typeId)
                         continue;  // irrelevant subscription
-console.log('xxxx');
+
                     channelEmail ||= subscription.channelEmail;
                     channelNotification ||= subscription.channelNotification;
                     channelWhatsapp ||= subscription.channelWhatsapp;
                 }
 
                 subscriptions.push({
-                    id: `${volunteer.id}/${type}/${typeId}`,
+                    id: `${volunteer.id}/${type}-${typeId}`,
                     name: label,
                     type: type,
                     channelEmail,

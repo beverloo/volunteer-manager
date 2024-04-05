@@ -5,13 +5,14 @@
 
 import Link from 'next/link';
 
-import type { GridCellParams } from '@mui/x-data-grid-pro';
+import type { GridCellParams, GridGroupingColDefOverride, GridRenderCellParams } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import type { SubscriptionsRowModel } from '@app/api/admin/subscriptions/[[...id]]/route';
@@ -41,36 +42,49 @@ function isUserRow(params: GridCellParams<SubscriptionsRowModel, unknown>) {
  * they are subscribed to.
  */
 export function SubscriptionTable() {
+    const treeDataColumn: GridGroupingColDefOverride<SubscriptionsRowModel> = {
+        headerName: 'Volunteer',
+        sortable: false,
+        flex: 1,
+
+        hideDescendantCount: true,
+        valueFormatter: (value, row) => {
+            if (!!row.id.includes('/'))
+                return row.name;
+
+            return (
+                <MuiLink component={Link} href={`/admin/volunteers/${row.id}`}>
+                    {row.name}
+                </MuiLink>
+            );
+        },
+    };
+
     const columns: RemoteDataTableColumn<SubscriptionsRowModel>[] = [
         {
-            field: 'name',
-            headerName: 'Subscription',
-            editable: false,
-            sortable: false,
-            flex: 1,
-
-            renderCell: params => {
-                if (isUserRow(params)) {
-                    return (
-                        <MuiLink component={Link} href={`/admin/volunteers/${params.row.id}`}>
-                            {params.value}
-                        </MuiLink>
-                    );
-                } else {
-                    return params.value;
-                }
-            },
-        },
-        {
-            field: 'description',
+            display: 'flex',
+            field: 'subscriptionCount',
             headerName: 'Description',
             editable: false,
             sortable: false,
             flex: 2,
 
-            renderCell: params =>
-                params.value ||
-                    (!!params.row.type ? kSubscriptionDescriptions[params.row.type] : ''),
+            renderCell: params => {
+                if (!!params.row.type)
+                    return kSubscriptionDescriptions[params.row.type];
+
+                if (!!params.row.subscriptionCount) {
+                    return params.row.subscriptionCount === 1
+                        ? '1 active subscription'
+                        : `${params.row.subscriptionCount} active subscriptions`;
+                }
+
+                return (
+                    <Typography variant="body2" color="text.disabled">
+                        No subscriptions
+                    </Typography>
+                );
+            },
         },
         {
             field: 'channelEmail',
@@ -154,6 +168,7 @@ export function SubscriptionTable() {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/subscriptions"
+                         treeData treeDataColumn={treeDataColumn}
                          defaultSort={{ field: 'name', sort: 'asc' }} pageSize={100}
                          disableFooter enableUpdate isCellEditable={isUserRow} />
     );

@@ -7,9 +7,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type {
-    GridAlignment, GridCellParams, GridColDef, GridPaginationModel, GridRenderCellParams,
-    GridRowModesModel, GridRowOrderChangeParams, GridSortItem, GridSortModel, GridValidRowModel
-} from '@mui/x-data-grid-pro';
+    GridCellParams, GridColDef, GridGroupingColDefOverride, GridPaginationModel,
+    GridRenderCellParams, GridRowModesModel, GridRowOrderChangeParams, GridSortItem, GridSortModel,
+    GridValidRowModel } from '@mui/x-data-grid-pro';
 
 import { DataGridPro, GridRowModes } from '@mui/x-data-grid-pro';
 
@@ -149,6 +149,17 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
      * Subject describing what each row in the table is representing. Defaults to "item".
      */
     subject?: string;
+
+    /**
+     * Whether the data table should be shown as a tree. When this is set to true, the `id` field
+     * must be a string with the paths separated by a slash, e.g. `0/foo/bar`.
+     */
+    treeData?: boolean;
+
+    /**
+     * Column definition that should be used for grouping the rows in the tree view, if any.
+     */
+    treeDataColumn?: GridGroupingColDefOverride<RowModel>;
 }
 
 /**
@@ -466,6 +477,15 @@ export function RemoteDataTable<
 
     // ---------------------------------------------------------------------------------------------
 
+    const getTreeDataPath = useCallback((row: RowModel) => {
+        if (!Object.hasOwn(row, 'id') || typeof row.id !== 'string')
+            throw new Error('Each row ID must be a string when the treeData feature is enabled');
+
+        return row.id.split('/');
+    }, [ /* no dependencies */ ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     return (
         <>
             <Collapse in={!!error} unmountOnExit>
@@ -489,6 +509,9 @@ export function RemoteDataTable<
                          sortingMode="server"
                          sortModel={ enableReorder ? undefined : sortModel }
                          onSortModelChange={ enableReorder ? undefined : handleSortModelChange }
+
+                         treeData={!!props.treeData} getTreeDataPath={getTreeDataPath}
+                         groupingColDef={props.treeDataColumn}
 
                          initialState={{ density: 'compact' }}
                          autoHeight disableColumnMenu hideFooterSelectedRowCount
