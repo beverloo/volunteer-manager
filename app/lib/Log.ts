@@ -74,6 +74,7 @@ export enum LogType {
     AdminUpdateTrainingPreferences = 'admin-update-training-preferences',
     AdminUpdateVolunteer = 'admin-update-volunteer',
     AdminVendorMutation = 'admin-vendor-mutation',
+    AdminVendorScheduleUpdate = 'admin-vendor-schedule-update',
     AdminWhatsAppMutation = 'admin-whatsapp-mutation',
     ApplicationAvailabilityPreferences = 'application-availability-preferences',
     ApplicationHotelPreferences = 'application-hotel-preferences',

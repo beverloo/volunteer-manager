@@ -229,8 +229,6 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
 
     async writeLog({ context, id }, mutation, props) {
         const event = await getEventBySlug(context.event);
-        return;
-
         const kReadableTeamName: { [k in VendorTeam]: string } = {
             [VendorTeam.FirstAid]: 'First Aid',
             [VendorTeam.Security]: 'Security',

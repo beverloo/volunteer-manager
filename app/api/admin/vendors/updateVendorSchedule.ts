@@ -6,7 +6,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { VendorTeam } from '@lib/database/Types';
+import { LogSeverity, VendorTeam } from '@lib/database/Types';
+import { Log, LogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tVendors, tVendorsSchedule } from '@lib/database';
 
@@ -173,6 +174,21 @@ export async function updateVendorSchedule(request: Request, props: ActionProps)
                     .executeUpdate();
             }
         }
+    });
+
+    const kVendorTeamName: { [k in VendorTeam]: string } = {
+        [VendorTeam.FirstAid]: 'First Aid',
+        [VendorTeam.Security]: 'Security',
+    };
+
+    await Log({
+        type: LogType.AdminVendorScheduleUpdate,
+        severity: LogSeverity.Warning,
+        sourceUser: props.user,
+        data: {
+            event: event.shortName,
+            team: kVendorTeamName[request.team],
+        },
     });
 
     return { success: true };

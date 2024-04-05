@@ -228,6 +228,9 @@ const kLogMessageFormatter: {
     [LogType.AdminVendorMutation]: (source, target, { event, mutation, team }) => {
         return `${mutation} a ${team} vendor for ${event}`;
     },
+    [LogType.AdminVendorScheduleMutation]: (start, target, { event, mutation, team }) => {
+        return `${mutation} the ${team} schedule for ${event}`;
+    },
     [LogType.AdminWhatsAppMutation]: (source, target, { mutation }) => {
         return `${mutation} a WhatsApp notification recipient`;
     },
