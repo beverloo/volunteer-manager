@@ -8,6 +8,7 @@ import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { VendorTeam } from '@lib/database/Types';
 import { getEventBySlug } from '@lib/EventLoader';
+import db, { tVendors, tVendorsSchedule } from '@lib/database';
 
 import { kTemporalZonedDateTime } from '../../Types';
 
@@ -93,6 +94,86 @@ export async function updateVendorSchedule(request: Request, props: ActionProps)
     const event = await getEventBySlug(request.event);
     if (!props.user || !event)
         notFound();
+
+    const vendorsScheduleJoin = tVendorsSchedule.forUseInLeftJoin();
+
+    const dbInstance = db;
+    const knownResources = await dbInstance.selectFrom(tVendors)
+        .leftJoin(vendorsScheduleJoin)
+            .on(vendorsScheduleJoin.vendorId.equals(tVendors.vendorId))
+                .and(vendorsScheduleJoin.vendorsScheduleDeleted.isNull())
+        .where(tVendors.eventId.equals(event.id))
+            .and(tVendors.vendorTeam.equals(request.team))
+            .and(tVendors.vendorVisible.equals(/* true= */ 1))
+        .select({
+            id: tVendors.vendorId,
+            schedule: dbInstance.aggregateAsArray({
+                id: vendorsScheduleJoin.vendorsScheduleId,
+                start: vendorsScheduleJoin.vendorsScheduleStart,
+                end: vendorsScheduleJoin.vendorsScheduleEnd,
+            }),
+        })
+        .groupBy(tVendors.vendorId)
+        .executeSelectMany();
+
+    const knownResourcesMap = new Map(
+        knownResources.map(resource => [ resource.id, resource.schedule ]));
+
+    await dbInstance.transaction(async () => {
+        for (const resource of request.resources) {
+            const knownSchedule = knownResourcesMap.get(resource) || [ /* empty */ ];
+            const schedule = request.schedule.filter(period => period.vendorId === resource);
+
+            const seenPeriods = new Set<number>;
+
+            for (const period of schedule) {
+                const knownPeriod = knownSchedule.find(({ id }) => period.id === id);
+
+                // Step (1): Create new database entries for new work periods.
+                if (period.id === 0 || !knownPeriod) {
+                    await dbInstance.insertInto(tVendorsSchedule)
+                        .set({
+                            vendorId: resource,
+                            vendorsScheduleStart: period.start,
+                            vendorsScheduleEnd: period.end,
+                            vendorsScheduleCreated: dbInstance.currentZonedDateTime(),
+                            vendorsScheduleUpdated: dbInstance.currentZonedDateTime(),
+                        })
+                        .executeInsert();
+                } else {
+                    seenPeriods.add(period.id);
+
+                    // Step (2): Update database entries where times have changed.
+                    if (!knownPeriod.start.equals(period.start)
+                            || !knownPeriod.end.equals(period.end)) {
+                        await dbInstance.update(tVendorsSchedule)
+                            .set({
+                                vendorsScheduleStart: period.start,
+                                vendorsScheduleEnd: period.end,
+                                vendorsScheduleUpdated: dbInstance.currentZonedDateTime(),
+                            })
+                            .where(tVendorsSchedule.vendorsScheduleId.equals(knownPeriod.id))
+                                .and(tVendorsSchedule.vendorsScheduleDeleted.isNull())
+                            .executeUpdate();
+                    }
+                }
+            }
+
+            // Step (3): Remove database entries where they are no longer necessary.
+            for (const knownPeriod of knownSchedule) {
+                if (seenPeriods.has(knownPeriod.id))
+                    continue;
+
+                await dbInstance.update(tVendorsSchedule)
+                    .set({
+                        vendorsScheduleDeleted: dbInstance.currentZonedDateTime(),
+                    })
+                    .where(tVendorsSchedule.vendorsScheduleId.equals(knownPeriod.id))
+                        .and(tVendorsSchedule.vendorsScheduleDeleted.isNull())
+                    .executeUpdate();
+            }
+        }
+    });
 
     return { success: true };
 }
