@@ -62,10 +62,11 @@ export default async function EventTeamSecurityPage(props: NextPageParams<'slug'
                 </SectionIntroduction>
                 <VendorTable event={event.slug} team={VendorTeam.Security} roles={roles} />
             </Section>
-            <Section title="Schedule">
-                <VendorSchedule event={event} team={VendorTeam.Security} roles={roles}
-                                schedule={schedule} />
-            </Section>
+            { !!schedule.length &&
+                <Section noHeader>
+                    <VendorSchedule event={event} team={VendorTeam.Security} roles={roles}
+                                    schedule={schedule} />
+                </Section> }
         </>
     );
 }

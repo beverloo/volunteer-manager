@@ -64,10 +64,11 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'slug'
                 </SectionIntroduction>
                 <VendorTable event={event.slug} team={VendorTeam.FirstAid} roles={roles} />
             </Section>
-            <Section title="Schedule">
-                <VendorSchedule event={event} team={VendorTeam.FirstAid} roles={roles}
-                                schedule={schedule} />
-            </Section>
+            { !!schedule.length &&
+                <Section noHeader>
+                    <VendorSchedule event={event} team={VendorTeam.FirstAid} roles={roles}
+                                    schedule={schedule} />
+                </Section> }
         </>
     );
 }

@@ -57,6 +57,11 @@ export const kUpdateVendorScheduleDefinition = z.object({
         team: z.nativeEnum(VendorTeam),
 
         /**
+         * Array of vendor Ids that were considered for this update, to help reduce race conditions.
+         */
+        resources: z.array(z.number()),
+
+        /**
          * Array of schedule entries that should be stored to the database
          */
         schedule: z.array(kVendorScheduleEntry),
@@ -89,5 +94,5 @@ export async function updateVendorSchedule(request: Request, props: ActionProps)
     if (!props.user || !event)
         notFound();
 
-    return { success: false };
+    return { success: true };
 }

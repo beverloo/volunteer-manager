@@ -3,14 +3,18 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+import { FormContainer } from 'react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
+import Stack from '@mui/material/Stack';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { VendorScheduleEntry } from '@app/api/admin/vendors/updateVendorSchedule';
 import { Schedule, type ScheduleEvent, type ScheduleMarker, type ScheduleResource } from '@app/admin/components/Schedule';
+import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { Temporal } from '@lib/Temporal';
 import { VendorTeam } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
@@ -137,6 +141,7 @@ export function VendorSchedule(props: VendorScheduleProps) {
             resources.push({
                 id: `group/${role}`,
                 name: role,
+                eventCreation: false,
                 children: vendorsByRole[role],
             });
         }
@@ -149,7 +154,43 @@ export function VendorSchedule(props: VendorScheduleProps) {
     // Update when mutations are made
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    const [ error, setError ] = useState<string | undefined>();
+    const [ invalidated, setInvalidated ] = useState<boolean>(false);
+    const [ loading, setLoading ] = useState<boolean>(false);
+
+    const handleChange = useCallback((events: ScheduleEvent[]) => {
+        setInvalidated(true);
+        setEvents(events);
+    }, [ /* no dependencies */ ]);
+
+    const handleSubmit = useCallback(async () => {
+        setError(undefined);
+        setLoading(true);
+        try {
+            const response = await callApi('put', '/api/admin/vendors/schedule', {
+                event: event.slug,
+                team: team,
+                resources: resources.map(
+                    group => group.children!.map(resource => resource.id as number)).flat(),
+                schedule: events.map(event => ({
+                    id: typeof event.id === 'number' ? event.id : 0,
+                    vendorId: event.resource as number,
+                    start: event.start,
+                    end: event.end,
+                })),
+            });
+
+            if (!!response.success)
+                setInvalidated(false);
+            else
+                throw new Error(response.error);
+
+        } catch (error: any) {
+            setError(error?.message ?? 'The changes could not be stored in the database');
+        } finally {
+            setLoading(false);
+        }
+    }, [ events, event.slug, resources, team ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -168,13 +209,16 @@ export function VendorSchedule(props: VendorScheduleProps) {
             .toString({ timeZoneName: 'never' });
 
     return (
-        <>
-            <Divider sx={{ mx: '-16px !important' }} />
-            <Box sx={{ mx: '-16px !important', mt: '0px !important', mb: '-16px !important' }}>
-                <Schedule min={min} max={max} displayTimezone={event.timezone}
-                          resources={resources} eventDefaults={eventDefaults}
-                          eventOverlap={false} events={events} markers={markers} subject="shift" />
-            </Box>
-        </>
+        <FormContainer onSuccess={handleSubmit}>
+            <Stack direction="column" sx={{ m: -2 }}>
+                <Box>
+                    <Schedule min={min} max={max} displayTimezone={event.timezone}
+                              resources={resources} eventDefaults={eventDefaults}
+                              eventOverlap={false} events={events} markers={markers}
+                              onChange={handleChange} subject="shift" />
+                </Box>
+                <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ m: 2 }} />
+            </Stack>
+        </FormContainer>
     );
 }
