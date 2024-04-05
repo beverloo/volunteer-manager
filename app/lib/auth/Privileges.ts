@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 28
+ * Next setting: 1 << 29
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -40,7 +40,8 @@ export enum Privilege {
     SystemLogsAccess                    = 1 << 5,
     SystemNardoAccess                   = 1 << 19,
     SystemOutboxAccess                  = 1 << 17,
-    SystemWhatsAppAccess                = 1 << 24,
+    SystemSubscriptionEligible          = 1 << 28,
+    SystemSubscriptionManagement        = 1 << 24,
 
     // Privileges captured by VolunteerAdministrator:
     VolunteerAvatarManagement           = 1 << 6,
@@ -100,7 +101,8 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.SystemLogsAccess,
         Privilege.SystemNardoAccess,
         Privilege.SystemOutboxAccess,
-        Privilege.SystemWhatsAppAccess,
+        Privilege.SystemSubscriptionEligible,
+        Privilege.SystemSubscriptionManagement,
     ],
 
     [Privilege.VolunteerAdministrator]: [
@@ -162,7 +164,8 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.SystemLogsAccess]: 'System access',
     [Privilege.SystemNardoAccess]: 'System access',
     [Privilege.SystemOutboxAccess]: 'System access',
-    [Privilege.SystemWhatsAppAccess]: 'System access',
+    [Privilege.SystemSubscriptionEligible]: 'System access',
+    [Privilege.SystemSubscriptionManagement]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
     [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
@@ -199,7 +202,8 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.SystemLogsAccess]: 'Logs access',
     [Privilege.SystemNardoAccess]: 'Manage Del a Rie Advies',
     [Privilege.SystemOutboxAccess]: 'Outbox access',
-    [Privilege.SystemWhatsAppAccess]: 'WhatsApp access',
+    [Privilege.SystemSubscriptionEligible]: 'Subscription eligibility',
+    [Privilege.SystemSubscriptionManagement]: 'Subscription management',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
     [Privilege.VolunteerAvatarManagement]: 'Avatar management',
@@ -218,7 +222,8 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
     [Privilege.VolunteerAdministrator]: 'Grants all volunteer-related privileges',
 
-    [Privilege.SystemOutboxAccess]: 'Access to all sent e-mails and their content',
+    [Privilege.SystemOutboxAccess]: 'Access to all sent messages and their content',
+    [Privilege.SystemSubscriptionManagement]: 'Access to modify anyone\'s subscriptions',
 
     [Privilege.VolunteerDataExports]: 'Allows exporting volunteer PII',
     [Privilege.VolunteerSilentMutations]: 'Make changes without informing the volunteer',

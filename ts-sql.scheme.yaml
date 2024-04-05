@@ -407,15 +407,30 @@ tables:
     nullable: false
     default: null
     comment: ""
-  - name: subscription_channel
-    type: enum('WebPush','WhatsApp')
+  - name: subscription_type
+    type: enum('Application','Registration')
     nullable: false
     default: null
     comment: ""
-  - name: subscription_channel_applications
-    type: enum('All','Team')
-    nullable: true
-    default: "NULL"
+  - name: subscription_type_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_email
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_notification
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_whatsapp
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
     comment: ""
   indexes:
   - name: whatsapp_user_id
@@ -445,8 +460,11 @@ tables:
     CREATE TABLE `subscriptions` (
       `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `subscription_user_id` int(8) unsigned NOT NULL,
-      `subscription_channel` enum('WebPush','WhatsApp') NOT NULL,
-      `subscription_channel_applications` enum('All','Team') DEFAULT NULL,
+      `subscription_type` enum('Application','Registration') NOT NULL,
+      `subscription_type_id` int(8) unsigned NOT NULL,
+      `subscription_channel_email` tinyint(1) unsigned NOT NULL,
+      `subscription_channel_notification` tinyint(1) unsigned NOT NULL,
+      `subscription_channel_whatsapp` tinyint(1) unsigned NOT NULL,
       PRIMARY KEY (`subscription_id`),
       KEY `whatsapp_user_id` (`subscription_user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

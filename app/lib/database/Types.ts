@@ -158,21 +158,12 @@ export enum ShirtSize {
 }
 
 /**
- * The channel used for a particular (set of) subscriptions owned by a user.
+ * Types of subscriptions that can be created for eligible users.
  * @see Table `subscriptions`
  */
-export enum SubscriptionChannel {
-    WebPush = 'WebPush',
-    WhatsApp = 'WhatsApp',
-}
-
-/**
- * Application information that should be broadcast to this user.
- * @see Table `subscriptions`
- */
-export enum SubscriptionChannelApplications {
-    All = 'All',
-    Team = 'Team',
+export enum SubscriptionType {
+    Application = 'Application',
+    Registration = 'Registration',
 }
 
 /**

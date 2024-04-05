@@ -223,10 +223,7 @@ do {
                 { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'shifts', 'shift_demand_overlap' ], type: 'ShiftDemandOverlap' },
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
-                {
-                    field: [ 'subscriptions', 'subscription_channel' ],
-                    type: 'SubscriptionChannel'
-                },
+                { field: [ 'subscriptions', 'subscription_type' ], type: 'SubscriptionType' },
                 { field: [ 'tasks', 'task_invocation_result' ], type: 'TaskResult' },
                 { field: [ 'users_auth', 'auth_type' ], type: 'AuthType' },
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },
@@ -236,10 +233,6 @@ do {
                 { field: [ 'vendors', 'vendor_shirt_fit' ], type: 'ShirtFit' },
                 { field: [ 'vendors', 'vendor_shirt_size' ], type: 'ShirtSize' },
                 { field: [ 'vendors', 'vendor_team' ], type: 'VendorTeam' },
-                {
-                    field: [ 'subscriptions', 'subscription_channel_applications' ],
-                    type: 'SubscriptionChannelApplications'
-                },
             ].map(({ field, type }) => ({
                 tableName: field[0],
                 columnName: field[1],

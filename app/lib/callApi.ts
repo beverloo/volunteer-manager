@@ -76,11 +76,11 @@ import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/ro
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
 import type { RolesEndpoints } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
+import type { SubscriptionsEndpoints } from '@app/api/admin/subscriptions/[[...id]]/route';
 import type { TrainingsAssignmentsEndpoints } from '@app/api/admin/trainings/assignments/[[...id]]/route';
 import type { TrainingsEndpoints } from '@app/api/admin/trainings/[[...id]]/route';
 import type { TrainingsExtraEndpoints } from '@app/api/admin/trainings/extra/[[...id]]/route';
 import type { VendorEndpoints } from '@app/api/admin/vendors/[[...id]]/route';
-import type { WhatsAppEndpoints } from '@app/api/admin/whatsapp/recipients/[[...id]]/route';
 
 /**
  * Type helpers for deciding on the request and response types for API definitions. Because they are
@@ -120,12 +120,12 @@ export type ApiEndpoints = {
         '/api/admin/retention': RetentionEndpoints['list'],
         '/api/admin/scheduler': SchedulerEndpoints['list'],
         '/api/admin/scheduler/:id': SchedulerEndpoints['get'],
+        '/api/admin/subscriptions': SubscriptionsEndpoints['list'],
         '/api/admin/trainings': TrainingsEndpoints['list'],
         '/api/admin/trainings/assignments': TrainingsAssignmentsEndpoints['list'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
         '/api/admin/volunteers/roles': RolesEndpoints['list'],
-        '/api/admin/whatsapp/recipients': WhatsAppEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/display': DisplayDefinition,
         '/api/nardo': NardoEndpoints['list'],
@@ -147,6 +147,7 @@ export type ApiEndpoints = {
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/service-health': ServiceHealthDefinition,
+        '/api/admin/subscriptions': SubscriptionsEndpoints['create'],
         '/api/admin/trainings': TrainingsEndpoints['create'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['create'],
         '/api/admin/update-activation': UpdateActivationDefinition,
@@ -163,7 +164,6 @@ export type ApiEndpoints = {
         '/api/admin/volunteer-list': VolunteerListDefinition,
         '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
-        '/api/admin/whatsapp/recipients': WhatsAppEndpoints['create'],
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/confirm-identity': ConfirmIdentityDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
@@ -206,10 +206,10 @@ export type ApiEndpoints = {
         '/api/admin/program/activities/:id': ProgramActivitiesEndpoints['delete'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
+        '/api/admin/subscriptions/:id': SubscriptionsEndpoints['delete'],
         '/api/admin/trainings/:id': TrainingsEndpoints['delete'],
         '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['delete'],
         '/api/admin/vendors/:id': VendorEndpoints['delete'],
-        '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['delete'],
         '/api/auth/passkeys/delete': DeletePasskeyDefinition,
         '/api/nardo/:id': NardoEndpoints['delete'],
     },
@@ -229,13 +229,13 @@ export type ApiEndpoints = {
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['update'],
         '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
+        '/api/admin/subscriptions/:id': SubscriptionsEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
         '/api/admin/trainings/assignments/:id': TrainingsAssignmentsEndpoints['update'],
         '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['update'],
         '/api/admin/vendors/schedule': UpdateVendorScheduleDefinition,
         '/api/admin/vendors/:id': VendorEndpoints['update'],
         '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
-        '/api/admin/whatsapp/recipients/:id': WhatsAppEndpoints['update'],
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],

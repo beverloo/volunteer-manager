@@ -6,6 +6,7 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
+import ForumIcon from '@mui/icons-material/Forum';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
@@ -14,7 +15,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
@@ -59,7 +59,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             label: 'Communication',
             privilege: [
                 Privilege.SystemOutboxAccess,
-                Privilege.SystemWhatsAppAccess,
+                Privilege.SystemSubscriptionManagement,
             ],
 
             menu: [
@@ -69,12 +69,11 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     privilege: Privilege.SystemOutboxAccess,
                     url: '/admin/system/outbox/email',
                 },
-                // TODO: Notifications
                 {
-                    icon: <WhatsAppIcon />,
-                    label: 'WhatsApp',
-                    privilege: Privilege.SystemWhatsAppAccess,
-                    url: '/admin/system/whatsapp',
+                    icon: <ForumIcon />,
+                    label: 'Subscriptions',
+                    privilege: Privilege.SystemSubscriptionManagement,
+                    url: '/admin/system/subscriptions',
                 }
             ],
         },
