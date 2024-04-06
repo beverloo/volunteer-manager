@@ -58,6 +58,7 @@ enum DeprecatedLogType {
     AdminUpdateGoogleIntegration = 'admin-update-google-integration',
     AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
     AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
+    AdminWhatsAppMutation = 'admin-whatsapp-mutation',
 };
 
 /**
@@ -234,9 +235,6 @@ const kLogMessageFormatter: {
     [LogType.AdminVendorScheduleUpdate]: (start, target, { event, team }) => {
         return `Updated the ${team} schedule for ${event}`;
     },
-    [LogType.AdminWhatsAppMutation]: (source, target, { mutation }) => {
-        return `${mutation} a WhatsApp notification recipient`;
-    },
     [LogType.AdminUpdateTeamVolunteer]: (source, target, data) => {
         return `Updated event preferences for ${target?.name}`;
     },
@@ -284,6 +282,9 @@ const kLogMessageFormatter: {
     [DeprecatedLogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [DeprecatedLogType.AdminUpdateVertexIntegration]:
         'Updated the integration settings for Vertex AI',
+    [DeprecatedLogType.AdminWhatsAppMutation]: (source, target, { mutation }) => {
+        return `${mutation} a WhatsApp notification recipient`;
+    },
 };
 
 /**

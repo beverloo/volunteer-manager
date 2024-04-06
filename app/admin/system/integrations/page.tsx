@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import type { WhatsAppSettings } from '@lib/integrations/whatsapp/WhatsAppClient';
 import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
@@ -12,7 +11,6 @@ import { Privilege } from '@lib/auth/Privileges';
 import { Twilio } from './Twilio';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
-import { WhatsApp } from './WhatsApp';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
@@ -61,10 +59,6 @@ export default async function IntegrationsPage() {
         'integration-twilio-account-sid',
         'integration-twilio-phone-number',
         'integration-twilio-region',
-
-        // WhatsApp:
-        'whatsapp-access-token',
-        'whatsapp-phone-number-id',
     ]);
 
     const animeConSettings: AnimeConSettings = {
@@ -106,11 +100,6 @@ export default async function IntegrationsPage() {
         topP: settings['integration-vertex-top-p'] ?? 0.8,
     };
 
-    const whatsAppSettings: WhatsAppSettings = {
-        accessToken: settings['whatsapp-access-token'] ?? '',
-        phoneNumberId: settings['whatsapp-phone-number-id'] ?? '',
-    };
-
     return (
         <>
             <StatusHeader />
@@ -119,7 +108,6 @@ export default async function IntegrationsPage() {
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
             <Twilio settings={twilioSettings} />
-            <WhatsApp settings={whatsAppSettings} />
         </>
     );
 }
