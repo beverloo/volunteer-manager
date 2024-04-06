@@ -14,9 +14,13 @@ export async function createTwilioClient(settings?: TwilioSettings): Promise<Twi
             'integration-twilio-account-auth-token',
             'integration-twilio-account-sid',
             'integration-twilio-phone-number',
+            'integration-twilio-region',
         ]);
 
         for (const [ key, value ] of Object.entries(configuration)) {
+            if (key === 'integration-twilio-region')
+                continue;  // optional
+
             if (value !== undefined)
                 continue;
 
@@ -27,6 +31,7 @@ export async function createTwilioClient(settings?: TwilioSettings): Promise<Twi
             accountSid: configuration['integration-twilio-account-sid']!,
             accountAuthToken: configuration['integration-twilio-account-auth-token']!,
             phoneNumber: configuration['integration-twilio-phone-number']!,
+            region: configuration['integration-twilio-region'],
         };
     }
 

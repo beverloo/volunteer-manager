@@ -1,11 +1,13 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import client from 'twilio';
 
-import type { TwilioSmsMessage } from './TwilioTypes';
 import { TwilioLogger } from './TwilioLogger';
-import { kTwilioSmsMessage } from './TwilioTypes';
+import { TwilioOutboxType } from '@lib/database/Types';
+
+import { kTwilioMessage, TwilioRegion, type TwilioMessage } from './TwilioTypes';
 
 /**
  * Settings required by the Twilio client.
@@ -26,6 +28,11 @@ export interface TwilioSettings {
      * (including country code), or a short code existing of up to 11 alphanumerical characters.
      */
     phoneNumber: string;
+
+    /**
+     * Region in which the Twilio API endpoint should ideally be located.
+     */
+    region?: TwilioRegion;
 }
 
 /**
@@ -37,7 +44,10 @@ export class TwilioClient {
     #settings: TwilioSettings;
 
     constructor(settings: TwilioSettings) {
-        this.#client = client(settings.accountSid, settings.accountAuthToken);
+        this.#client = client(settings.accountSid, settings.accountAuthToken, {
+            region: !!settings.region ? `${settings.region}` : undefined
+        });
+
         this.#settings = settings;
     }
 
@@ -45,27 +55,27 @@ export class TwilioClient {
      * Sends an SMS message using the Twilio API to the user identified by `recipientUserId`. Will
      * validate the `message` in order to ensure that it conforms to Twilio's expectations.
      */
-    async sendSmsMessage(recipientUserId: number, message: TwilioSmsMessage) {
-        const logger = new TwilioLogger();
-        await logger.initialiseSmsMessage(recipientUserId, this.#settings.phoneNumber, message);
+    async sendSmsMessage(recipientUserId: number, message: TwilioMessage): Promise<boolean> {
+        const logger = new TwilioLogger(TwilioOutboxType.SMS);
+        await logger.initialiseMessage(recipientUserId, this.#settings.phoneNumber, message);
 
+        let messageInstance: MessageInstance | undefined;
         try {
-            kTwilioSmsMessage.parse(message);  // verify before sending over the wire
-
-            const messageInstance = await this.#client.messages.create({
+            kTwilioMessage.parse(message);  // verify before sending over the wire
+            messageInstance = await this.#client.messages.create({
                 from: this.#settings.phoneNumber,
                 to: message.to,
                 body: message.body,
                 // TODO: statusCallback
                 // TODO: messagingServiceSid
             });
-
-            // TODO: log the rest of `messageInstance`
         } catch (error: any) {
             logger.reportException(error);
             throw error;
         } finally {
-            await logger.finalise();
+            await logger.finalise(messageInstance);
         }
+
+        return !!messageInstance;
     }
 }

@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
+import { TwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -58,6 +59,7 @@ export const kUpdateIntegrationDefinition = z.object({
             accountAuthToken: z.string(),
             accountSid: z.string(),
             phoneNumber: z.string(),
+            region: z.nativeEnum(TwilioRegion),
         }).optional(),
 
         /**
@@ -156,9 +158,10 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
     if (request.twilio) {
         await writeSettings({
-            'twilio-account-auth-token': request.twilio.accountAuthToken,
-            'twilio-account-sid': request.twilio.accountSid,
-            'twilio-phone-number': request.twilio.phoneNumber,
+            'integration-twilio-account-auth-token': request.twilio.accountAuthToken,
+            'integration-twilio-account-sid': request.twilio.accountSid,
+            'integration-twilio-phone-number': request.twilio.phoneNumber,
+            'integration-twilio-region': request.twilio.region,
         });
 
         await Log({

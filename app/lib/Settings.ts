@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { TwilioRegion } from './integrations/twilio/TwilioClient';
 import type { VertexSupportedModels } from './integrations/vertexai/VertexSupportedModels';
 import db, { tSettings } from '@lib/database';
 
@@ -91,6 +92,7 @@ type SettingsMap = {
     'integration-twilio-account-auth-token': string;
     'integration-twilio-account-sid': string;
     'integration-twilio-phone-number': string;
+    'integration-twilio-region': TwilioRegion;
 
     // WhatsApp:
     'whatsapp-access-token': string;

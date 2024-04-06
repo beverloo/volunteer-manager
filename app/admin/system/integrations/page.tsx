@@ -60,6 +60,7 @@ export default async function IntegrationsPage() {
         'integration-twilio-account-auth-token',
         'integration-twilio-account-sid',
         'integration-twilio-phone-number',
+        'integration-twilio-region',
 
         // WhatsApp:
         'whatsapp-access-token',
@@ -94,6 +95,7 @@ export default async function IntegrationsPage() {
         accountSid: settings['integration-twilio-account-sid'] ?? '',
         accountAuthToken: settings['integration-twilio-account-auth-token'] ?? '',
         phoneNumber: settings['integration-twilio-phone-number'] ?? '',
+        region: settings['integration-twilio-region'],
     };
 
     const vertexSettings: VertexAISettings = {

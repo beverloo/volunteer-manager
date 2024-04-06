@@ -92,6 +92,15 @@ export enum MutationSeverity {
 }
 
 /**
+ * Type of message that is being logged by the Twilio table.
+ * @see Table `outbox_twilio`
+ */
+export enum TwilioOutboxType {
+    SMS = 'SMS',
+    WhatsApp = 'WhatsApp',
+}
+
+/**
  * Status of a volunteer's registration to an event.
  * @see Table `users_events`
  */

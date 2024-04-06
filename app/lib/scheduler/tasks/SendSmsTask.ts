@@ -66,15 +66,12 @@ export class SendSmsTask extends TaskWithParams<TaskParams> {
 
     override async execute(params: TaskParams): Promise<boolean> {
         const client = await createTwilioClient();
-        await client.sendSmsMessage(params.attribution.targetUserId, {
+        return await client.sendSmsMessage(params.attribution.targetUserId, {
             to: params.to,
             body: params.message,
             attribution: {
                 senderUserId: params.attribution.sourceUserId,
             },
         });
-
-        // TODO
-        return false;
     }
 }

@@ -4,14 +4,26 @@
 import { z } from 'zod';
 
 /**
+ * Options regarding Twilio regions that our implementation can be tuned to. Note that not all
+ * features and capabilities are available outside of US1, but nothing we currently rely on.
+ *
+ * @see https://www.twilio.com/docs/global-infrastructure#control-data-residency
+ */
+export enum TwilioRegion {
+    'US1' = 'US1',
+    'IE1' = 'IE1',
+    'AU1' = 'AU1',
+}
+
+/**
  * Zod type to validate a phone number, inclusive of country code.
  */
 const kPhoneNumber = z.string().regex(/^[+]{1}(?:[0-9]\s?){6,15}[0-9]{1}$/);
 
 /**
- * Type definition describing the exact data we expect from an SMS message.
+ * Type definition describing the exact data we expect from an message.
  */
-export const kTwilioSmsMessage = z.strictObject({
+export const kTwilioMessage = z.strictObject({
     /**
      * The phone number to which the message should be send.
      */
@@ -35,6 +47,6 @@ export const kTwilioSmsMessage = z.strictObject({
 });
 
 /**
- * Interface describing the data we expect from an SMS message to send over the Twilio API.
+ * Interface describing the data we expect from an message to send over the Twilio API.
  */
-export type TwilioSmsMessage = z.infer<typeof kTwilioSmsMessage>;
+export type TwilioMessage = z.infer<typeof kTwilioMessage>;

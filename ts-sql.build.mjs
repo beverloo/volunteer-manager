@@ -219,6 +219,7 @@ do {
                 },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
+                { field: [ 'outbox_twilio', 'outbox_type' ], type: 'TwilioOutboxType' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },
                 { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'shifts', 'shift_demand_overlap' ], type: 'ShiftDemandOverlap' },

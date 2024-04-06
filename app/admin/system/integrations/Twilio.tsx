@@ -3,16 +3,19 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
+    from 'react-hook-form-mui';
 
+import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
+import { TwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -46,6 +49,7 @@ export function Twilio(props: TwilioProps) {
                     accountAuthToken: data.accountAuthToken,
                     accountSid: data.accountSid,
                     phoneNumber: data.phoneNumber,
+                    region: data.region,
                 },
             });
             setInvalidated(false);
@@ -56,11 +60,21 @@ export function Twilio(props: TwilioProps) {
         }
     }, [ setError, setInvalidated, setLoading ]);
 
+    const regions = useMemo(() => {
+        return Object.values(TwilioRegion).map(region => ({
+            id: region,
+            label: region,
+        }));
+    }, [ /* no dependencies */ ]);
+
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
                 Twilio
             </Typography>
+            <Alert severity="info" sx={{ mb: 2 }}>
+                Twilio is used to send SMS and WhatsApp messages to select volunteers.
+            </Alert>
             <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <Grid xs={6}>
@@ -71,7 +85,11 @@ export function Twilio(props: TwilioProps) {
                         <TextFieldElement name="accountAuthToken" label="Auth token" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid xs={6}>
+                        <SelectElement name="region" label="Twilio region" fullWidth size="small"
+                                       options={regions} onChange={handleInvalidate} />
+                    </Grid>
+                    <Grid xs={6}>
                         <TextFieldElement name="phoneNumber" label="Phone number" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
