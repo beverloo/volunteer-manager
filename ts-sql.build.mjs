@@ -224,6 +224,10 @@ do {
                 { field: [ 'shifts', 'shift_demand_overlap' ], type: 'ShiftDemandOverlap' },
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },
                 { field: [ 'subscriptions', 'subscription_type' ], type: 'SubscriptionType' },
+                {
+                    field: [ 'subscriptions_publications', 'publication_subscription_type' ],
+                    type: 'SubscriptionType'
+                },
                 { field: [ 'tasks', 'task_invocation_result' ], type: 'TaskResult' },
                 { field: [ 'users_auth', 'auth_type' ], type: 'AuthType' },
                 { field: [ 'users_events', 'registration_status' ], type: 'RegistrationStatus' },

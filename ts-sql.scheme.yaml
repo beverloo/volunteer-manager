@@ -4438,6 +4438,63 @@ tables:
       PRIMARY KEY (`vendors_schedule_id`),
       KEY `vendor_id` (`vendor_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: subscriptions_publications
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: publication_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: publication_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: publication_subscription_type
+    type: enum('Application','Registration')
+    nullable: false
+    default: null
+    comment: ""
+  - name: publication_subscription_type_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: publication_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (publication_id) USING BTREE
+    table: subscriptions_publications
+    columns:
+    - publication_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (publication_id)
+    table: subscriptions_publications
+    referencedTable: null
+    columns:
+    - publication_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `subscriptions_publications` (
+      `publication_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `publication_user_id` int(8) unsigned DEFAULT NULL,
+      `publication_subscription_type` enum('Application','Registration') NOT NULL,
+      `publication_subscription_type_id` int(8) unsigned DEFAULT NULL,
+      `publication_created` datetime NOT NULL,
+      PRIMARY KEY (`publication_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:
