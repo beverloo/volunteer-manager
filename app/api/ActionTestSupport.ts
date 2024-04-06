@@ -36,6 +36,7 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
         userForTesting = {
             userId: 1000000,
             username: 'foo@bar.com',
+            name: 'Foo Bar',
             firstName: 'Foo',
             lastName: 'Bar',
             avatarUrl: undefined,

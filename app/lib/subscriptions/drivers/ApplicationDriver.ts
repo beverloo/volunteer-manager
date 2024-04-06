@@ -64,6 +64,7 @@ export class ApplicationDriver extends Driver<ApplicationMessage> {
             },
             attribution: {
                 sourceUserId: message.userId,
+                targetUserId: recipient.userId,
             },
         });
 

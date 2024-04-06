@@ -105,6 +105,7 @@ export class PlaywrightHooks {
                 user: {
                     userId: 999999,
                     username: undefined,
+                    name: 'PWUSER Example',
                     firstName: 'PWUSER',
                     lastName: 'Example',
                     avatarUrl: undefined,
