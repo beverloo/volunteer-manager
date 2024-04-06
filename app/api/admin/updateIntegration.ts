@@ -58,7 +58,8 @@ export const kUpdateIntegrationDefinition = z.object({
         twilio: z.object({
             accountAuthToken: z.string(),
             accountSid: z.string(),
-            phoneNumber: z.string(),
+            messagingSidSms: z.string(),
+            messagingSidWhatsapp: z.string(),
             region: z.nativeEnum(TwilioRegion),
         }).optional(),
 
@@ -152,7 +153,8 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         await writeSettings({
             'integration-twilio-account-auth-token': request.twilio.accountAuthToken,
             'integration-twilio-account-sid': request.twilio.accountSid,
-            'integration-twilio-phone-number': request.twilio.phoneNumber,
+            'integration-twilio-messaging-sid-sms': request.twilio.messagingSidSms,
+            'integration-twilio-messaging-sid-whatsapp': request.twilio.messagingSidWhatsapp,
             'integration-twilio-region': request.twilio.region,
         });
 

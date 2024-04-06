@@ -24,10 +24,14 @@ export interface TwilioSettings {
     accountAuthToken: string;
 
     /**
-     * Phone number using which messages will be send by default. Can either be a phone number
-     * (including country code), or a short code existing of up to 11 alphanumerical characters.
+     * SID of the messaging service used to distribute SMS messages.
      */
-    phoneNumber: string;
+    messagingSidSms: string;
+
+    /**
+     * SID of the messaging service used to distribute WhatsApp messages.
+     */
+    messagingSidWhatsapp: string;
 
     /**
      * Region in which the Twilio API endpoint should ideally be located.
@@ -57,17 +61,16 @@ export class TwilioClient {
      */
     async sendSmsMessage(recipientUserId: number, message: TwilioMessage): Promise<boolean> {
         const logger = new TwilioLogger(TwilioOutboxType.SMS);
-        await logger.initialiseMessage(recipientUserId, this.#settings.phoneNumber, message);
+        await logger.initialiseMessage(recipientUserId, message);
 
         let messageInstance: MessageInstance | undefined;
         try {
             kTwilioMessage.parse(message);  // verify before sending over the wire
             messageInstance = await this.#client.messages.create({
-                from: this.#settings.phoneNumber,
+                messagingServiceSid: this.#settings.messagingSidSms,
                 to: message.to,
                 body: message.body,
                 // TODO: statusCallback
-                // TODO: messagingServiceSid
             });
         } catch (error: any) {
             logger.reportException(error);

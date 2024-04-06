@@ -24,7 +24,7 @@ export class TwilioLogger {
     /**
      * Initialises the Twilio logger. Loggers may only be initialized once.
      */
-    async initialiseMessage(recipientUserId: number, sender: string, message: TwilioMessage) {
+    async initialiseMessage(recipientUserId: number, message: TwilioMessage) {
         if (!!this.#insertId)
             throw new Error('Twilio loggers may only be initialised once.');
 
@@ -35,7 +35,6 @@ export class TwilioLogger {
             .set({
                 outboxTimestamp: dbInstance.currentZonedDateTime(),
                 outboxType: this.#type,
-                outboxSender: sender,
                 outboxSenderUserId: message.attribution?.senderUserId,
                 outboxRecipient: message.to,
                 outboxRecipientUserId: recipientUserId,
@@ -68,6 +67,8 @@ export class TwilioLogger {
 
         await db.update(tOutboxTwilio)
             .set({
+                outboxSender: messageInstance?.from,
+
                 outboxErrorName: this.#exception?.name,
                 outboxErrorMessage: this.#exception?.message,
                 outboxErrorStack: this.#exception?.stack,

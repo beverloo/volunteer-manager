@@ -57,7 +57,8 @@ export default async function IntegrationsPage() {
         // Twilio:
         'integration-twilio-account-auth-token',
         'integration-twilio-account-sid',
-        'integration-twilio-phone-number',
+        'integration-twilio-messaging-sid-sms',
+        'integration-twilio-messaging-sid-whatsapp',
         'integration-twilio-region',
     ]);
 
@@ -88,7 +89,8 @@ export default async function IntegrationsPage() {
     const twilioSettings: TwilioSettings = {
         accountSid: settings['integration-twilio-account-sid'] ?? '',
         accountAuthToken: settings['integration-twilio-account-auth-token'] ?? '',
-        phoneNumber: settings['integration-twilio-phone-number'] ?? '',
+        messagingSidSms: settings['integration-twilio-messaging-sid-sms'] ?? '',
+        messagingSidWhatsapp: settings['integration-twilio-messaging-sid-whatsapp'] ?? '',
         region: settings['integration-twilio-region'],
     };
 

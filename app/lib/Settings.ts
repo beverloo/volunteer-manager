@@ -91,7 +91,8 @@ type SettingsMap = {
     // Twilio:
     'integration-twilio-account-auth-token': string;
     'integration-twilio-account-sid': string;
-    'integration-twilio-phone-number': string;
+    'integration-twilio-messaging-sid-sms': string;
+    'integration-twilio-messaging-sid-whatsapp': string;
     'integration-twilio-region': TwilioRegion;
 
     // ---------------------------------------------------------------------------------------------

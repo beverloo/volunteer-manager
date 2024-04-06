@@ -9,6 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 /**
@@ -25,7 +26,11 @@ export function OutboxNavigation() {
             icon: <MailOutlineIcon />,
             url: '/admin/system/outbox/email'
         },
-        // TODO: Notifications
+        {
+            label: 'SMS',
+            icon: <TextsmsOutlinedIcon />,
+            url: '/admin/system/outbox/sms',
+        },
         {
             label: 'WhatsApp',
             icon: <WhatsAppIcon />,

@@ -414,8 +414,8 @@ tables:
     comment: ""
   - name: outbox_sender
     type: text
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: outbox_sender_user_id
     type: int(8)
@@ -505,7 +505,7 @@ tables:
       `outbox_twilio_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `outbox_timestamp` datetime NOT NULL,
       `outbox_type` enum('SMS','WhatsApp') NOT NULL,
-      `outbox_sender` text NOT NULL,
+      `outbox_sender` text DEFAULT NULL,
       `outbox_sender_user_id` int(8) DEFAULT NULL,
       `outbox_recipient` text NOT NULL,
       `outbox_recipient_user_id` int(8) NOT NULL,

@@ -10,7 +10,6 @@ import { default as MuiLink } from '@mui/material/Link';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';

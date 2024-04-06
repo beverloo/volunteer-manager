@@ -48,7 +48,8 @@ export function Twilio(props: TwilioProps) {
                 twilio: {
                     accountAuthToken: data.accountAuthToken,
                     accountSid: data.accountSid,
-                    phoneNumber: data.phoneNumber,
+                    messagingSidSms: data.messagingSidSms,
+                    messagingSidWhatsapp: data.messagingSidWhatsapp,
                     region: data.region,
                 },
             });
@@ -86,12 +87,16 @@ export function Twilio(props: TwilioProps) {
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
                     <Grid xs={6}>
-                        <SelectElement name="region" label="Twilio region" fullWidth size="small"
-                                       options={regions} onChange={handleInvalidate} />
+                        <TextFieldElement name="messagingSidSms" label="SMS SID" fullWidth
+                                          size="small" onChange={handleInvalidate} />
                     </Grid>
                     <Grid xs={6}>
-                        <TextFieldElement name="phoneNumber" label="Phone number" fullWidth
+                        <TextFieldElement name="messagingSidWhatsapp" label="WhatsApp SID" fullWidth
                                           size="small" onChange={handleInvalidate} />
+                    </Grid>
+                    <Grid xs={12}>
+                        <SelectElement name="region" label="Twilio region" fullWidth size="small"
+                                       options={regions} onChange={handleInvalidate} />
                     </Grid>
                 </Grid>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />

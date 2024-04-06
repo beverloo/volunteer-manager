@@ -13,7 +13,8 @@ export async function createTwilioClient(settings?: TwilioSettings): Promise<Twi
         const configuration = await readSettings([
             'integration-twilio-account-auth-token',
             'integration-twilio-account-sid',
-            'integration-twilio-phone-number',
+            'integration-twilio-messaging-sid-sms',
+            'integration-twilio-messaging-sid-whatsapp',
             'integration-twilio-region',
         ]);
 
@@ -30,7 +31,8 @@ export async function createTwilioClient(settings?: TwilioSettings): Promise<Twi
         settings = {
             accountSid: configuration['integration-twilio-account-sid']!,
             accountAuthToken: configuration['integration-twilio-account-auth-token']!,
-            phoneNumber: configuration['integration-twilio-phone-number']!,
+            messagingSidSms: configuration['integration-twilio-messaging-sid-sms']!,
+            messagingSidWhatsapp: configuration['integration-twilio-messaging-sid-whatsapp']!,
             region: configuration['integration-twilio-region'],
         };
     }

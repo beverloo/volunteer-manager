@@ -212,8 +212,10 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                     .and(tSubscriptions.subscriptionTypeId.equalsIfValue(typeId))
                 .executeDelete();
 
-            if (!row.channelEmail && !row.channelNotification && !row.channelWhatsapp)
+            if (!row.channelEmail && !row.channelNotification && !row.channelSms &&
+                    !row.channelWhatsapp) {
                 return;  // no need to create a new subscription
+            }
 
             await dbInstance.insertInto(tSubscriptions)
                 .set({
