@@ -7,6 +7,7 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Publish, SubscriptionType } from '@lib/subscriptions';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
@@ -129,12 +130,16 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!event)
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
-        const teamTitle = await db.selectFrom(tTeams)
+        const team = await db.selectFrom(tTeams)
             .where(tTeams.teamEnvironment.equals(request.environment))
-            .selectOneColumn(tTeams.teamTitle)
+            .select({
+                id: tTeams.teamId,
+                name: tTeams.teamName,
+                title: tTeams.teamTitle,
+            })
             .executeSelectNoneOrOne();
 
-        if (!teamTitle)
+        if (!team)
             throw new Error('Sorry, something went wrong (unable to find the right team)...');
 
         let userId: number = props.user.userId;
@@ -187,25 +192,19 @@ export async function application(request: Request, props: ActionProps): Promise
         // -----------------------------------------------------------------------------------------
 
         if (!request.adminOverride) {
-            // In context of: message/application-confirmation
-            // In context of: message/application-received
-            const substitutions = {
-                environment: request.environment,
-                event: event.shortName,
-                eventSlug: event.slug,
-                hostname: props.origin,
-                name: props.user.firstName,
-                team: teamTitle,
-            };
-
             const applicationConfirmation =
-                await getStaticContent([ 'message', 'application-confirmation' ], substitutions);
-            const applicationReceived =
-                await getStaticContent([ 'message', 'application-received' ], substitutions);
+                await getStaticContent([ 'message', 'application-confirmation' ], {
+                    environment: request.environment,
+                    event: event.shortName,
+                    eventSlug: event.slug,
+                    hostname: props.origin,
+                    name: props.user.firstName,
+                    team: team.title,
+                });
 
             if (applicationConfirmation) {
                 await SendEmailTask.Schedule({
-                    sender: `AnimeCon ${teamTitle}`,
+                    sender: `AnimeCon ${team.title}`,
                     message: {
                         to: props.user.username!,
                         subject: applicationConfirmation.title,
@@ -218,19 +217,20 @@ export async function application(request: Request, props: ActionProps): Promise
                 });
             }
 
-            if (applicationReceived) {
-                await SendEmailTask.Schedule({
-                    sender: `AnimeCon ${teamTitle}`,
-                    message: {
-                        to: 'crew@animecon.nl',
-                        subject: applicationReceived.title,
-                        markdown: applicationReceived.markdown,
-                    },
-                    attribution: {
-                        sourceUserId: props.user.userId,
-                    },
-                });
-            }
+            await Publish({
+                type: SubscriptionType.Application,
+                typeId: team.id,
+                sourceUserId: props.user.userId,
+                message: {
+                    userId: props.user.userId,
+                    name: props.user.name,
+                    event: event.shortName,
+                    eventSlug: event.slug,
+                    teamEnvironment: request.environment,
+                    teamName: team.name,
+                    teamTitle: team.title,
+                },
+            });
         }
 
         return { success: true };

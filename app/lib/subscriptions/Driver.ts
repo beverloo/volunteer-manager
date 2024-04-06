@@ -3,14 +3,13 @@
 
 import type { SubscriptionType } from '@lib/database/Types';
 import { createGlobalScope } from '@app/admin/content/ContentScope';
+import { determineEnvironment, type Environment } from '../Environment';
 import db, { tContent } from '@lib/database';
 
 /**
  * Message that is minimally needed to contextualize a message.
  */
-export interface Message {
-    // TODO: Add shared context.
-}
+export interface Message {}
 
 /**
  * Recipient that will be receiving a message.
@@ -68,7 +67,12 @@ type Template = {
  */
 export abstract class Driver<MessageType extends Message> {
     /**
-     * Message templates
+     * The environment in which the driver has been created, if any.
+     */
+    private environment?: Environment;
+
+    /**
+     * Message templates as they have been loaded from the database.
      */
     private templates = new Map<Channel, Template>;
 
@@ -79,6 +83,8 @@ export abstract class Driver<MessageType extends Message> {
     async initialise(subscriptionType: SubscriptionType): Promise<void> {
         const pathPrefix = `subscription/${subscriptionType.toLowerCase()}/`;
         const scope = createGlobalScope();
+
+        this.environment = await determineEnvironment();
 
         const content = await db.selectFrom(tContent)
             .where(tContent.eventId.equals(scope.eventId))
@@ -106,6 +112,58 @@ export abstract class Driver<MessageType extends Message> {
                     break;
             }
         }
+    }
+
+    /**
+     * Returns an object with the substitutions that exist for the given `recipient` and `message`,
+     * which will be appropriately prefixed. Given the following input:
+     *
+     *   `message`    { event: '2024', fullName: 'John Doe' }
+     *   `recipient`  { fullName: 'Max Smith', shortName: 'Max' }
+     *
+     * The following list of substitutions will be composed:
+     *
+     *   `{environment}` animecon.team
+     *   `{message.event}`: 2024
+     *   `{message.fullName}`: John Doe
+     *   `{recipient.fullName}`: Max Smith
+     *   `{recipient.shortName}`: Max
+     */
+    protected getSubstitutions(recipient: Recipient, message: MessageType) {
+        const substitutions: Record<string, string | number> = {
+            environment: this.environment?.environmentName ?? 'animecon.team',
+        };
+
+        for (const [ key, value ] of Object.entries(recipient))
+            substitutions[`recipient.${key}`] = value;
+
+        for (const [ key, value ] of Object.entries(message))
+            substitutions[`message.${key}`] = value;
+
+        return substitutions;
+    }
+
+    /**
+     * Returns the template for the given `channel`, if any exists, with the substitutions that
+     * are enabled by `recipient` and `message` filled in.
+     */
+    protected getPopulatedTemplate(channel: Channel, recipient: Recipient, message: MessageType)
+        : Template | undefined
+    {
+        const substitutions = this.getSubstitutions(recipient, message);
+        const template = this.getTemplate(channel);
+
+        if (!!template) {
+            template.subject = template.subject.replace(/\\\{([a-z0-9_\.]+)\}/gi, '{$1}');
+            template.body = template.body.replace(/\\\{([a-z0-9_\.]+)\}/gi, '{$1}');
+
+            for (const [ key, value ] of Object.entries(substitutions)) {
+                template.subject = template.subject.replaceAll(`{${key}}`, `${value}`);
+                template.body = template.body.replaceAll(`{${key}}`, `${value}`);
+            }
+        }
+
+        return template;
     }
 
     /**

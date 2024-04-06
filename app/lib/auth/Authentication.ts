@@ -167,6 +167,8 @@ export async function authenticateUser(params: AuthenticateUserParams)
     const user: User = {
         userId: authenticationResult.userId,
         username: authenticationResult.username,
+        name: authenticationResult.displayName ||
+            `${authenticationResult.firstName} ${authenticationResult.lastName}`,
         firstName: authenticationResult.firstName,
         lastName: authenticationResult.lastName,
         displayName: authenticationResult.displayName,

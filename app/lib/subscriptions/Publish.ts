@@ -60,6 +60,7 @@ export async function Publish(publication: Publication): Promise<number> {
             subscription: {
                 channelEmail: tSubscriptions.subscriptionChannelEmail,
                 channelNotification: tSubscriptions.subscriptionChannelNotification,
+                channelSms: tSubscriptions.subscriptionChannelSms,
                 channelWhatsapp: tSubscriptions.subscriptionChannelWhatsapp,
             },
         })
@@ -68,18 +69,24 @@ export async function Publish(publication: Publication): Promise<number> {
     if (!subscriptions.length)
         return publicationId;
 
-    const driver = kSubscriptionFactories[publication.type]();
-    await driver.initialise(publication.type);
+    try {
+        const driver = kSubscriptionFactories[publication.type]();
+        await driver.initialise(publication.type);
 
-    const message = publication.message as any;  // |driver| is overloaded
+        const message = publication.message as any;  // |driver| is overloaded
 
-    for (const { user, subscription } of subscriptions) {
-        if (!!subscription.channelEmail)
-            await driver.publishEmail(publicationId, user, message);
-        if (!!subscription.channelNotification)
-            await driver.publishNotification(publicationId, user, message);
-        if (!!subscription.channelWhatsapp)
-            await driver.publishWhatsapp(publicationId, user, message);
+        for (const { user, subscription } of subscriptions) {
+            if (!!subscription.channelEmail)
+                await driver.publishEmail(publicationId, user, message);
+            if (!!subscription.channelNotification)
+                await driver.publishNotification(publicationId, user, message);
+            if (!!subscription.channelSms)
+                await driver.publishSms(publicationId, user, message);
+            if (!!subscription.channelWhatsapp)
+                await driver.publishWhatsapp(publicationId, user, message);
+        }
+    } catch (error: any) {
+        console.error(`Unable to fan out a publication (${publicationId}):`, error);
     }
 
     return publicationId;

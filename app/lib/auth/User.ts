@@ -19,6 +19,11 @@ export interface User {
     username?: string;
 
     /**
+     * Name of the user - either their display name, or their full name.
+     */
+    name: string;
+
+    /**
      * The first name of this user.
      */
     firstName: string;
