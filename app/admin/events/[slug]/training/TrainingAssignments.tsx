@@ -75,6 +75,7 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             },
         },
         {
+            display: 'flex',
             field: 'preferredTrainingId',
             headerName: 'Preference',
             editable: false,
@@ -102,6 +103,7 @@ export function TrainingAssignments(props: TrainingAssignmentsProps) {
             },
         },
         {
+            display: 'flex',
             field: 'assignedTrainingId',
             headerName: 'Assignment',
             editable: true,
