@@ -23,7 +23,7 @@ export interface ApplicationMessage extends Message {
  */
 export class ApplicationDriver extends Driver<ApplicationMessage> {
     override async publishEmail(
-        publicationId: number,recipient: Recipient, message: ApplicationMessage)
+        publicationId: number, recipient: Recipient, message: ApplicationMessage)
     {
         // TODO: Not yet implemented.
         return false;

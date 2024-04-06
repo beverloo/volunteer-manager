@@ -1,9 +1,12 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Context } from './Driver';
+import type { ApplicationMessage } from './drivers/ApplicationDriver';
+import type { RegistrationMessage } from './drivers/RegistrationDriver';
 import { SubscriptionType } from '@lib/database/Types';
 import db, { tSubscriptions, tSubscriptionsPublications, tUsers } from '@lib/database';
+
+import { kSubscriptionFactories } from './Drivers';
 
 /**
  * Common interface describing the information necessary to execute on a publication.
@@ -19,8 +22,8 @@ interface PublicationBase {
  * Interface describing a publication. Strongly typed based on the subscription type.
  */
 export type Publication = PublicationBase & (
-    { type: SubscriptionType.Application; typeId: number } |
-    { type: SubscriptionType.Registration; typeId?: undefined }
+    { type: SubscriptionType.Application; typeId: number; message: ApplicationMessage } |
+    { type: SubscriptionType.Registration; typeId?: undefined; message: RegistrationMessage }
 );
 
 /**
@@ -65,8 +68,18 @@ export async function Publish(publication: Publication): Promise<number> {
     if (!subscriptions.length)
         return publicationId;
 
+    const driver = kSubscriptionFactories[publication.type]();
+    await driver.initialise(publication.type);
+
+    const message = publication.message as any;  // |driver| is overloaded
+
     for (const { user, subscription } of subscriptions) {
-        const context: Context = user;
+        if (!!subscription.channelEmail)
+            await driver.publishEmail(publicationId, user, message);
+        if (!!subscription.channelNotification)
+            await driver.publishNotification(publicationId, user, message);
+        if (!!subscription.channelWhatsapp)
+            await driver.publishWhatsapp(publicationId, user, message);
     }
 
     return publicationId;

@@ -55,7 +55,7 @@ async function submitApplication(application: Application) {
 ```
 
 #### 2. Identify the individual subscriptions
-The [`Publish()`](./Publish.sh) function will identify which users are marked as eligible, and have
+The [`Publish()`](./Publish.ts) function will identify which users are marked as eligible, and have
 existing subscriptions to the passed in `type`.
 
 A [`Driver`](./Driver.ts) will then be created to handle distribution of that specific message,

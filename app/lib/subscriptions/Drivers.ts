@@ -14,4 +14,4 @@ import { SubscriptionType } from '@lib/database/Types';
 export const kSubscriptionFactories = {
     [SubscriptionType.Application]: () => new ApplicationDriver,
     [SubscriptionType.Registration]: () => new RegistrationDriver,
-} satisfies { [k in SubscriptionType]: () => Driver<any> };
+} as const satisfies { [k in SubscriptionType]: () => Driver<any> };
