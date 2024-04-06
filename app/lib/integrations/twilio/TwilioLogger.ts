@@ -4,8 +4,10 @@
 import type { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 import type { TwilioOutboxType } from '@lib/database/Types';
-import type { TwilioMessage } from './TwilioTypes';
+import type { TwilioSmsMessage, TwilioWhatsappMessage } from './TwilioTypes';
 import db, { tOutboxTwilio } from '@lib/database';
+
+type TwilioMessage = TwilioSmsMessage | TwilioWhatsappMessage;
 
 /**
  * The `TwilioLogger` is able to encapsulate the calls that we make to the Twilio API, with all the
@@ -30,6 +32,13 @@ export class TwilioLogger {
 
         const dbInstance = db;
 
+        let body: string;
+        if ('body' in message) {
+            body = message.body;
+        } else {
+            body = `${message.contentSid} (${JSON.stringify(message.contentVariables)})`;
+        }
+
         this.#startTime = process.hrtime.bigint();
         this.#insertId = await dbInstance.insertInto(tOutboxTwilio)
             .set({
@@ -38,7 +47,7 @@ export class TwilioLogger {
                 outboxSenderUserId: message.attribution?.senderUserId,
                 outboxRecipient: message.to,
                 outboxRecipientUserId: recipientUserId,
-                outboxMessage: message.body,
+                outboxMessage: body,
             })
             .returningLastInsertedId()
             .executeInsert();

@@ -4,6 +4,7 @@
 import { Driver, type Message, type Recipient } from '../Driver';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { SendSmsTask } from '@lib/scheduler/tasks/SendSmsTask';
+import { SendWhatsappTask } from '@lib/scheduler/tasks/SendWhatsAppTask';
 
 /**
  * Information that must be provided when publishing a test notification.
@@ -69,7 +70,22 @@ export class TestDriver extends Driver<TestMessage> {
     override async publishWhatsapp(
         publicationId: number, recipient: Recipient, message: TestMessage)
     {
-        // TODO: Not yet implemented.
-        return false;
+        const template = this.getPopulatedTemplate('whatsapp', recipient, message);
+        if (!template || !recipient.phoneNumber)
+            return false;  // not enough information to publish this message
+
+        await SendWhatsappTask.Schedule({
+            to: recipient.phoneNumber,
+            contentSid: template.body,
+            contentVariables: {
+                '1': message.name,
+            },
+            attribution: {
+                sourceUserId: message.userId,
+                targetUserId: recipient.userId,
+            },
+        });
+
+        return true;
     }
 }

@@ -4,10 +4,11 @@
 import type { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 import client from 'twilio';
 
+import type { TwilioSmsMessage, TwilioWhatsappMessage } from './TwilioTypes';
 import { TwilioLogger } from './TwilioLogger';
 import { TwilioOutboxType } from '@lib/database/Types';
 
-import { kTwilioMessage, TwilioRegion, type TwilioMessage } from './TwilioTypes';
+import { kTwilioSmsMessage, kTwilioWhatsappMessage, TwilioRegion } from './TwilioTypes';
 
 /**
  * Settings required by the Twilio client.
@@ -59,18 +60,46 @@ export class TwilioClient {
      * Sends an SMS message using the Twilio API to the user identified by `recipientUserId`. Will
      * validate the `message` in order to ensure that it conforms to Twilio's expectations.
      */
-    async sendSmsMessage(recipientUserId: number, message: TwilioMessage): Promise<boolean> {
+    async sendSmsMessage(recipientUserId: number, message: TwilioSmsMessage): Promise<boolean> {
         const logger = new TwilioLogger(TwilioOutboxType.SMS);
         await logger.initialiseMessage(recipientUserId, message);
 
         let messageInstance: MessageInstance | undefined;
         try {
-            kTwilioMessage.parse(message);  // verify before sending over the wire
+            kTwilioSmsMessage.parse(message);  // verify before sending over the wire
             messageInstance = await this.#client.messages.create({
                 messagingServiceSid: this.#settings.messagingSidSms,
                 to: message.to,
                 body: message.body,
-                // TODO: statusCallback
+            });
+        } catch (error: any) {
+            logger.reportException(error);
+            throw error;
+        } finally {
+            await logger.finalise(messageInstance);
+        }
+
+        return !!messageInstance;
+    }
+
+    /**
+     * Sends a WhatsApp message using the Twilio API to the user identified by `recipientUserId`.
+     * Will validate the `message` in order to ensure that it conforms to Twilio's expectations.
+     */
+    async sendWhatsappMessage(recipientUserId: number, message: TwilioWhatsappMessage)
+        : Promise<boolean>
+    {
+        const logger = new TwilioLogger(TwilioOutboxType.WhatsApp);
+        await logger.initialiseMessage(recipientUserId, message);
+
+        let messageInstance: MessageInstance | undefined;
+        try {
+            kTwilioWhatsappMessage.parse(message);  // verify before sending over the wire
+            messageInstance = await this.#client.messages.create({
+                messagingServiceSid: this.#settings.messagingSidWhatsapp,
+                to: `whatsapp:${message.to}`,
+                contentSid: message.contentSid,
+                contentVariables: JSON.stringify(message.contentVariables),
             });
         } catch (error: any) {
             logger.reportException(error);

@@ -7,6 +7,7 @@ import { NoopTask } from './tasks/NoopTask';
 import { PopulateSchedulerTask } from './tasks/PopulateSchedulerTask';
 import { SendEmailTask } from './tasks/SendEmailTask';
 import { SendSmsTask } from './tasks/SendSmsTask';
+import { SendWhatsappTask } from './tasks/SendWhatsAppTask';
 
 /**
  * Object containing all tasks known to the AnimeCon Volunteer Manager. Each task must extend either
@@ -20,6 +21,7 @@ export const kTaskRegistry = {
     PopulateSchedulerTask,
     SendEmailTask,
     SendSmsTask,
+    SendWhatsappTask,
 };
 
 /**
@@ -42,4 +44,5 @@ export const kTaskFormatFn: { [k in RegisteredTasks]: TaskFormatFn } = {
     PopulateSchedulerTask: () => 'Populate scheduler task',
     SendEmailTask: params => `Send e-mail task (to: ${params.message.to})`,
     SendSmsTask: params => `Send SMS task (to: ${params.to})`,
+    SendWhatsappTask: params => `Send WhatsApp task (to: ${params.to})`,
 };

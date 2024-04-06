@@ -21,18 +21,13 @@ export enum TwilioRegion {
 const kPhoneNumber = z.string().regex(/^[+]{1}(?:[0-9]\s?){6,15}[0-9]{1}$/);
 
 /**
- * Type definition describing the exact data we expect from an message.
+ * Common properties expected in every Twilio message.
  */
-export const kTwilioMessage = z.strictObject({
+const kTwilioCommonMessage = z.object({
     /**
      * The phone number to which the message should be send.
      */
     to: kPhoneNumber,
-
-    /**
-     * Body of the message, as it should be send to the receiver.
-     */
-    body: z.string(),
 
     /**
      * Attribution that should be given to the message, i.e. its source.
@@ -47,6 +42,36 @@ export const kTwilioMessage = z.strictObject({
 });
 
 /**
- * Interface describing the data we expect from an message to send over the Twilio API.
+ * Body of a Twilio message, when distributing a regular text message.
  */
-export type TwilioMessage = z.infer<typeof kTwilioMessage>;
+export const kTwilioSmsMessage = kTwilioCommonMessage.and(z.object({
+    /**
+     * Body of the message, as it should be send to the receiver.
+     */
+    body: z.string(),
+}));
+
+/**
+ * Interface describing the data we expect from an SMS message to send over the Twilio API.
+ */
+export type TwilioSmsMessage = z.infer<typeof kTwilioSmsMessage>;
+
+/**
+ * Body of a Twilio message, when distributing a template-based message.
+ */
+export const kTwilioWhatsappMessage = kTwilioCommonMessage.and(z.object({
+    /**
+     * SID of the content template that dictates what the message contains.
+     */
+    contentSid: z.string(),
+
+    /**
+     * Variables to include in the message template.
+     */
+    contentVariables: z.record(z.string(), z.string()),
+}));
+
+/**
+ * Interface describing the data we expect from a WhatsApp message to send over the Twilio API.
+ */
+export type TwilioWhatsappMessage = z.infer<typeof kTwilioWhatsappMessage>;
