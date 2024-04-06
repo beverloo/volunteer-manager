@@ -46,6 +46,11 @@ const kSubscriptionRowModel = z.object({
     channelNotification: z.boolean().optional(),
 
     /**
+     * Whether notifications for this subscription will be delivered as a SMS message.
+     */
+    channelSms: z.boolean().optional(),
+
+    /**
      * Whether notifications for this subscription will be delivered using WhatsApp.
      */
     channelWhatsapp: z.boolean().optional(),
@@ -125,10 +130,10 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                     id: subscriptionsJoin.subscriptionId,
                     type: subscriptionsJoin.subscriptionType,
                     typeId: subscriptionsJoin.subscriptionTypeId,
-                    channelEmail: subscriptionsJoin.subscriptionChannelEmail.equals(1),
-                    channelNotification:
-                        subscriptionsJoin.subscriptionChannelNotification.equals(1),
-                    channelWhatsapp: subscriptionsJoin.subscriptionChannelWhatsapp.equals(1),
+                    channelEmail: subscriptionsJoin.subscriptionChannelEmail,
+                    channelNotification: subscriptionsJoin.subscriptionChannelNotification,
+                    channelSms: subscriptionsJoin.subscriptionChannelSms,
+                    channelWhatsapp: subscriptionsJoin.subscriptionChannelWhatsapp,
                 }),
             })
             .groupBy(tUsers.userId)
@@ -148,6 +153,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
             for (const { type, typeId, label } of subscriptionTypes) {
                 let channelEmail: boolean = false;
                 let channelNotification: boolean = false;
+                let channelSms: boolean = false;
                 let channelWhatsapp: boolean = false;
 
                 for (const subscription of volunteer.subscriptions) {
@@ -158,9 +164,10 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                             continue;  // irrelevant subscription
                     }
 
-                    channelEmail ||= subscription.channelEmail;
-                    channelNotification ||= subscription.channelNotification;
-                    channelWhatsapp ||= subscription.channelWhatsapp;
+                    channelEmail ||= !!subscription.channelEmail;
+                    channelNotification ||= !!subscription.channelNotification;
+                    channelSms ||= !!subscription.channelSms;
+                    channelWhatsapp ||= !!subscription.channelWhatsapp;
                 }
 
                 subscriptions.push({
@@ -170,6 +177,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                     type: type,
                     channelEmail,
                     channelNotification,
+                    channelSms,
                     channelWhatsapp,
                 });
             }
@@ -213,6 +221,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
                     subscriptionTypeId: typeId,
                     subscriptionChannelEmail: row.channelEmail ? 1 : 0,
                     subscriptionChannelNotification: row.channelNotification ? 1 : 0,
+                    subscriptionChannelSms: row.channelSms ? 1 : 0,
                     subscriptionChannelWhatsapp: row.channelWhatsapp ? 1 : 0,
                 })
                 .executeInsert();

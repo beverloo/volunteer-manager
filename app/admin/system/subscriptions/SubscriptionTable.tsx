@@ -5,12 +5,13 @@
 
 import Link from 'next/link';
 
-import type { GridCellParams, GridGroupingColDefOverride, GridRenderCellParams } from '@mui/x-data-grid-pro';
+import type { GridCellParams, GridGroupingColDefOverride } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
@@ -126,6 +127,32 @@ export function SubscriptionTable() {
             renderHeader: () =>
                 <Tooltip title="Distribute using Web Push">
                     <NotificationsNoneIcon color="primary" fontSize="small" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (isUserRow(params)) {
+                    return /* empty column= */ '';
+                } else if (!!params.value) {
+                    return <CheckCircleIcon fontSize="small" color="success" />;
+                } else {
+                    return <CancelIcon fontSize="small" color="error" />;
+                }
+            },
+        },
+        {
+            field: 'channelSms',
+            headerName: /* empty= */ '',
+            headerAlign: 'center',
+            align: 'center',
+            editable: true,
+            sortable: false,
+            width: 50,
+
+            type: 'boolean',
+
+            renderHeader: () =>
+                <Tooltip title="Distribute using SMS">
+                    <TextsmsOutlinedIcon color="primary" fontSize="small" />
                 </Tooltip>,
 
             renderCell: params => {

@@ -19,6 +19,7 @@ export class SubscriptionsTable extends Table<DBConnection, 'SubscriptionsTable'
     subscriptionTypeId = this.optionalColumnWithDefaultValue('subscription_type_id', 'int');
     subscriptionChannelEmail = this.column('subscription_channel_email', 'int');
     subscriptionChannelNotification = this.column('subscription_channel_notification', 'int');
+    subscriptionChannelSms = this.column('subscription_channel_sms', 'int');
     subscriptionChannelWhatsapp = this.column('subscription_channel_whatsapp', 'int');
 
     constructor() {

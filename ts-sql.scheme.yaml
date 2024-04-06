@@ -392,82 +392,6 @@ tables:
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: subscriptions
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: subscription_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: subscription_user_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: subscription_type
-    type: enum('Application','Registration')
-    nullable: false
-    default: null
-    comment: ""
-  - name: subscription_type_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: subscription_channel_email
-    type: tinyint(1) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: subscription_channel_notification
-    type: tinyint(1) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: subscription_channel_whatsapp
-    type: tinyint(1) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: whatsapp_user_id
-    def: KEY whatsapp_user_id (subscription_user_id) USING BTREE
-    table: subscriptions
-    columns:
-    - subscription_user_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (subscription_id) USING BTREE
-    table: subscriptions
-    columns:
-    - subscription_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (subscription_id)
-    table: subscriptions
-    referencedTable: null
-    columns:
-    - subscription_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `subscriptions` (
-      `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `subscription_user_id` int(8) unsigned NOT NULL,
-      `subscription_type` enum('Application','Registration') NOT NULL,
-      `subscription_type_id` int(8) unsigned DEFAULT NULL,
-      `subscription_channel_email` tinyint(1) unsigned NOT NULL,
-      `subscription_channel_notification` tinyint(1) unsigned NOT NULL,
-      `subscription_channel_whatsapp` tinyint(1) unsigned NOT NULL,
-      PRIMARY KEY (`subscription_id`),
-      KEY `whatsapp_user_id` (`subscription_user_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
   comment: ""
@@ -3992,6 +3916,88 @@ tables:
       PRIMARY KEY (`whatsapp_message_id`),
       KEY `whatsapp_message_recipient_user_id` (`whatsapp_recipient_user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: subscriptions
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: subscription_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: subscription_user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_type
+    type: enum('Application','Registration')
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_type_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: subscription_channel_email
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_notification
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_sms
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: subscription_channel_whatsapp
+    type: tinyint(1) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: whatsapp_user_id
+    def: KEY whatsapp_user_id (subscription_user_id) USING BTREE
+    table: subscriptions
+    columns:
+    - subscription_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (subscription_id) USING BTREE
+    table: subscriptions
+    columns:
+    - subscription_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (subscription_id)
+    table: subscriptions
+    referencedTable: null
+    columns:
+    - subscription_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `subscriptions` (
+      `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `subscription_user_id` int(8) unsigned NOT NULL,
+      `subscription_type` enum('Application','Registration') NOT NULL,
+      `subscription_type_id` int(8) unsigned DEFAULT NULL,
+      `subscription_channel_email` tinyint(1) unsigned NOT NULL,
+      `subscription_channel_notification` tinyint(1) unsigned NOT NULL,
+      `subscription_channel_sms` tinyint(1) unsigned NOT NULL,
+      `subscription_channel_whatsapp` tinyint(1) unsigned NOT NULL,
+      PRIMARY KEY (`subscription_id`),
+      KEY `whatsapp_user_id` (`subscription_user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
   comment: ""
