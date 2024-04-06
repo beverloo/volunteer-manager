@@ -4,7 +4,7 @@
 import { Driver, type Message, type Recipient } from '../Driver';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { SendSmsTask } from '@lib/scheduler/tasks/SendSmsTask';
-import { SendWhatsappTask } from '@lib/scheduler/tasks/SendWhatsAppTask';
+import { SendWhatsappTask } from '@lib/scheduler/tasks/SendWhatsappTask';
 
 /**
  * Information that must be provided when publishing a test notification.

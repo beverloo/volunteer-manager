@@ -7,7 +7,7 @@ import { NoopTask } from './tasks/NoopTask';
 import { PopulateSchedulerTask } from './tasks/PopulateSchedulerTask';
 import { SendEmailTask } from './tasks/SendEmailTask';
 import { SendSmsTask } from './tasks/SendSmsTask';
-import { SendWhatsappTask } from './tasks/SendWhatsAppTask';
+import { SendWhatsappTask } from './tasks/SendWhatsappTask';
 
 /**
  * Object containing all tasks known to the AnimeCon Volunteer Manager. Each task must extend either

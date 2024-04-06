@@ -33,9 +33,6 @@ export default async function SubscriptionPage() {
                 Any person granted the <strong>subscription eligibility permission</strong> can be
                 subscribed to a variety of notifications using a variety of communication channels.
             </SectionIntroduction>
-            <SectionIntroduction important>
-                Please note that the <strong>WhatsApp</strong> channel is not yet available.
-            </SectionIntroduction>
             <SubscriptionTable />
         </Section>
     );
