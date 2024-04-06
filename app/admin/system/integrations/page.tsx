@@ -9,11 +9,13 @@ import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Privilege } from '@lib/auth/Privileges';
+import { Twilio } from './Twilio';
 import { VertexAI, type VertexAISettings } from './VertexAI';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { WhatsApp } from './WhatsApp';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
 
 /**
  * The Integrations page lists settings and information regarding the third party services that the
@@ -54,6 +56,11 @@ export default async function IntegrationsPage() {
         'integration-vertex-top-k',
         'integration-vertex-top-p',
 
+        // Twilio:
+        'integration-twilio-account-auth-token',
+        'integration-twilio-account-sid',
+        'integration-twilio-phone-number',
+
         // WhatsApp:
         'whatsapp-access-token',
         'whatsapp-phone-number-id',
@@ -83,6 +90,12 @@ export default async function IntegrationsPage() {
         projectId: settings['integration-google-project-id'] ?? '',
     };
 
+    const twilioSettings: TwilioSettings = {
+        accountSid: settings['integration-twilio-account-sid'] ?? '',
+        accountAuthToken: settings['integration-twilio-account-auth-token'] ?? '',
+        phoneNumber: settings['integration-twilio-phone-number'] ?? '',
+    };
+
     const vertexSettings: VertexAISettings = {
         model: settings['integration-vertex-model'] ?? VertexSupportedModels['text-bison'],
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
@@ -103,6 +116,7 @@ export default async function IntegrationsPage() {
             <Email settings={emailSettings} />
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
+            <Twilio settings={twilioSettings} />
             <WhatsApp settings={whatsAppSettings} />
         </>
     );

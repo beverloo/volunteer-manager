@@ -104,8 +104,7 @@ export class EmailClient {
      * @param request The e-mail send request containing the message and sender.
      * @returns Information about the sent message.
      */
-    async sendMessage(request: SendMessageRequest): Promise<SMTPTransport.SentMessageInfo>
-    {
+    async sendMessage(request: SendMessageRequest): Promise<SMTPTransport.SentMessageInfo> {
         if (!this.#transport)
             this.#transport = this.createTransport(this.#configuration);
 

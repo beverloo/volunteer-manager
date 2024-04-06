@@ -392,6 +392,75 @@ tables:
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: outbox_twilio
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: outbox_twilio_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: outbox_timestamp
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_sender
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_sender_user_id
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_recipient
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_recipient_user_id
+    type: int(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_message
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (outbox_twilio_id) USING BTREE
+    table: outbox_twilio
+    columns:
+    - outbox_twilio_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (outbox_twilio_id)
+    table: outbox_twilio
+    referencedTable: null
+    columns:
+    - outbox_twilio_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `outbox_twilio` (
+      `outbox_twilio_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `outbox_timestamp` datetime NOT NULL,
+      `outbox_sender` text NOT NULL,
+      `outbox_sender_user_id` int(8) DEFAULT NULL,
+      `outbox_recipient` text NOT NULL,
+      `outbox_recipient_user_id` int(8) NOT NULL,
+      `outbox_message` text NOT NULL,
+      PRIMARY KEY (`outbox_twilio_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
   comment: ""

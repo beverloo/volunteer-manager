@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { TaskWithParams } from '../Task';
 import { scheduleTask } from '@lib/scheduler';
+import { createTwilioClient } from '@lib/integrations/twilio';
 
 /**
  * Parameter scheme applying to the `SendSmsTask`. Observe that the sender is missing; this will be
@@ -64,6 +65,15 @@ export class SendSmsTask extends TaskWithParams<TaskParams> {
     }
 
     override async execute(params: TaskParams): Promise<boolean> {
+        const client = await createTwilioClient();
+        await client.sendSmsMessage(params.attribution.targetUserId, {
+            to: params.to,
+            body: params.message,
+            attribution: {
+                senderUserId: params.attribution.sourceUserId,
+            },
+        });
+
         // TODO
         return false;
     }

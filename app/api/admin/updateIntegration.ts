@@ -52,6 +52,15 @@ export const kUpdateIntegrationDefinition = z.object({
         }).optional(),
 
         /**
+         * Twilio API settings that should be updated.
+         */
+        twilio: z.object({
+            accountAuthToken: z.string(),
+            accountSid: z.string(),
+            phoneNumber: z.string(),
+        }).optional(),
+
+        /**
          * Vertex AI settings that should be updated.
          */
         vertexAi: kVertexAiSettings.optional(),
@@ -141,6 +150,23 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             sourceUser: props.user,
             data: {
                 integration: 'Google',
+            }
+        });
+    }
+
+    if (request.twilio) {
+        await writeSettings({
+            'twilio-account-auth-token': request.twilio.accountAuthToken,
+            'twilio-account-sid': request.twilio.accountSid,
+            'twilio-phone-number': request.twilio.phoneNumber,
+        });
+
+        await Log({
+            type: LogType.AdminUpdateIntegration,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                integration: 'Twilio',
             }
         });
     }

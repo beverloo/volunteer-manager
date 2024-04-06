@@ -87,6 +87,11 @@ type SettingsMap = {
     'integration-vertex-top-k': number;
     'integration-vertex-top-p': number;
 
+    // Twilio:
+    'integration-twilio-account-auth-token': string;
+    'integration-twilio-account-sid': string;
+    'integration-twilio-phone-number': string;
+
     // WhatsApp:
     'whatsapp-access-token': string;
     'whatsapp-phone-number-id': string;
