@@ -115,32 +115,6 @@ export function SubscriptionTable() {
             },
         },
         {
-            field: 'channelNotification',
-            headerName: /* empty= */ '',
-            headerAlign: 'center',
-            align: 'center',
-            editable: true,
-            sortable: false,
-            width: 50,
-
-            type: 'boolean',
-
-            renderHeader: () =>
-                <Tooltip title="Distribute using Web Push">
-                    <NotificationsNoneIcon color="primary" fontSize="small" />
-                </Tooltip>,
-
-            renderCell: params => {
-                if (isUserRow(params)) {
-                    return /* empty column= */ '';
-                } else if (!!params.value) {
-                    return <CheckCircleIcon fontSize="small" color="success" />;
-                } else {
-                    return <CancelIcon fontSize="small" color="error" />;
-                }
-            },
-        },
-        {
             field: 'channelSms',
             headerName: /* empty= */ '',
             headerAlign: 'center',

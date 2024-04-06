@@ -72,13 +72,6 @@ export class ApplicationDriver extends Driver<ApplicationMessage> {
         return true;
     }
 
-    override async publishNotification(
-        publicationId: number, recipient: Recipient, message: ApplicationMessage)
-    {
-        // TODO: Not yet implemented.
-        return false;
-    }
-
     override async publishSms(
         publicationId: number, recipient: Recipient, message: ApplicationMessage)
     {

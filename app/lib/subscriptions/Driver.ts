@@ -185,8 +185,12 @@ export abstract class Driver<MessageType extends Message> {
     /**
      * Publishes the given `message` to the given `recipient` as an notification.
      */
-    abstract publishNotification(publicationId: number, recipient: Recipient, message: MessageType)
-        : Promise<boolean>;
+    async publishNotification(publicationId: number, recipient: Recipient, message: MessageType)
+        : Promise<boolean>
+    {
+        // TODO: Enable a Web Push integration when there's demand for it.
+        return false;
+    }
 
     /**
      * Publishes the given `message` to the given `recipient` as an SMS message.

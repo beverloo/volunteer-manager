@@ -47,13 +47,6 @@ export class TestDriver extends Driver<TestMessage> {
         return true;
     }
 
-    override async publishNotification(
-        publicationId: number, recipient: Recipient, message: TestMessage)
-    {
-        // TODO: Not yet implemented.
-        return false;
-    }
-
     override async publishSms(
         publicationId: number, recipient: Recipient, message: TestMessage)
     {

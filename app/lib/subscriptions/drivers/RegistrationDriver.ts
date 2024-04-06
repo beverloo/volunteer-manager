@@ -57,13 +57,6 @@ export class RegistrationDriver extends Driver<RegistrationMessage> {
         return true;
     }
 
-    override async publishNotification(
-        publicationId: number, recipient: Recipient, message: RegistrationMessage)
-    {
-        // TODO: Not yet implemented.
-        return false;
-    }
-
     override async publishSms(
         publicationId: number, recipient: Recipient, message: RegistrationMessage)
     {

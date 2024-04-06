@@ -34,8 +34,7 @@ export default async function SubscriptionPage() {
                 subscribed to a variety of notifications using a variety of communication channels.
             </SectionIntroduction>
             <SectionIntroduction important>
-                Please note that the <strong>WhatsApp</strong> and <strong>Web Push </strong>
-                channels are not yet available.
+                Please note that the <strong>WhatsApp</strong> channel is not yet available.
             </SectionIntroduction>
             <SubscriptionTable />
         </Section>
