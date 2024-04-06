@@ -3,10 +3,11 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { SubscriptionTable } from './SubscriptionTable';
+import { SubscriptionTestAction } from './SubscriptionTestAction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -14,13 +15,20 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * selectively sign up certain people to automated and/or privileged messaging.
  */
 export default async function SubscriptionPage() {
-    await requireAuthenticationContext({
+    const { user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.SystemSubscriptionManagement,
     });
 
+    let action: React.ReactNode;
+    if (can(user, Privilege.Administrator)) {
+        action = (
+            <SubscriptionTestAction userId={user.userId} name={user.firstName} />
+        );
+    }
+
     return (
-        <Section title="Subscriptions">
+        <Section action={action} title="Subscriptions">
             <SectionIntroduction>
                 Any person granted the <strong>subscription eligibility permission</strong> can be
                 subscribed to a variety of notifications using a variety of communication channels.

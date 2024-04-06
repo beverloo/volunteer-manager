@@ -3932,7 +3932,7 @@ tables:
     default: null
     comment: ""
   - name: subscription_type
-    type: enum('Application','Registration')
+    type: enum('Application','Registration','Test')
     nullable: false
     default: null
     comment: ""
@@ -3989,7 +3989,7 @@ tables:
     CREATE TABLE `subscriptions` (
       `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `subscription_user_id` int(8) unsigned NOT NULL,
-      `subscription_type` enum('Application','Registration') NOT NULL,
+      `subscription_type` enum('Application','Registration','Test') NOT NULL,
       `subscription_type_id` int(8) unsigned DEFAULT NULL,
       `subscription_channel_email` tinyint(1) unsigned NOT NULL,
       `subscription_channel_notification` tinyint(1) unsigned NOT NULL,
@@ -4460,7 +4460,7 @@ tables:
     default: "NULL"
     comment: ""
   - name: publication_subscription_type
-    type: enum('Application','Registration')
+    type: enum('Application','Registration','Test')
     nullable: false
     default: null
     comment: ""
@@ -4496,11 +4496,11 @@ tables:
     CREATE TABLE `subscriptions_publications` (
       `publication_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `publication_user_id` int(8) unsigned DEFAULT NULL,
-      `publication_subscription_type` enum('Application','Registration') NOT NULL,
+      `publication_subscription_type` enum('Application','Registration','Test') NOT NULL,
       `publication_subscription_type_id` int(8) unsigned DEFAULT NULL,
       `publication_created` datetime NOT NULL,
       PRIMARY KEY (`publication_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

@@ -2,13 +2,17 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Privilege } from '@lib/auth/Privileges';
+import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 /**
  * Props accepted by the <SectionHeader> component.
  */
 export interface SectionHeaderProps {
-    // TODO: Action
+    /**
+     * Action that should be shown on the end side of the header.
+     */
+    action?: React.ReactNode;
 
     /**
      * Privilege behind which availability of this section is gated, to inform the volunteer that
@@ -41,12 +45,16 @@ export interface SectionHeaderProps {
  */
 export function SectionHeader(props: SectionHeaderProps) {
     return (
-        <Typography variant="h5" sx={{ mb: '-8px !important', ...props.sx }}>
-            { props.title }
-            { props.subtitle &&
-                <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                    ({ props.subtitle })
-                </Typography> }
-        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between"
+               sx={{ mb: '-8px !important' }}>
+            <Typography variant="h5" sx={props.sx}>
+                { props.title }
+                { props.subtitle &&
+                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
+                        ({ props.subtitle })
+                    </Typography> }
+            </Typography>
+            {props.action}
+        </Stack>
     );
 }

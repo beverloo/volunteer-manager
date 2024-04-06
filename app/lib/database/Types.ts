@@ -164,6 +164,7 @@ export enum ShirtSize {
 export enum SubscriptionType {
     Application = 'Application',
     Registration = 'Registration',
+    Test = 'Test',
 }
 
 /**

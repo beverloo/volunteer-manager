@@ -6,6 +6,7 @@ import type { Driver } from './Driver';
 import { ApplicationDriver } from './drivers/ApplicationDriver';
 import { RegistrationDriver } from './drivers/RegistrationDriver';
 import { SubscriptionType } from '@lib/database/Types';
+import { TestDriver } from './drivers/TestDriver';
 
 /**
  * The drivers that enable fanout of individual publications. Each driver must be an implementation
@@ -14,4 +15,5 @@ import { SubscriptionType } from '@lib/database/Types';
 export const kSubscriptionFactories = {
     [SubscriptionType.Application]: () => new ApplicationDriver,
     [SubscriptionType.Registration]: () => new RegistrationDriver,
+    [SubscriptionType.Test]: () => new TestDriver,
 } as const satisfies { [k in SubscriptionType]: () => Driver<any> };

@@ -46,10 +46,9 @@ const kSendEmailTaskParamScheme = z.object({
         sourceUserId: z.number(),
 
         /**
-         * User Id of the user who will receive this message. Should only be omitted when the
-         * message is being send to the Volunteering Leads.
+         * User Id of the user who will receive this message.
          */
-        targetUserId: z.number().optional(),
+        targetUserId: z.number(),
     }),
 });
 

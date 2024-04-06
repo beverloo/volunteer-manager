@@ -96,6 +96,7 @@ async function getSubscriptionTypes() {
             label: `Application (${team.name})`,
         })),
         { type: SubscriptionType.Registration, typeId: null, label: 'New user registrations' },
+        { type: SubscriptionType.Test, typeId: null, label: 'Test messages' },
     ];
 }
 
