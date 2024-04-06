@@ -3,6 +3,7 @@
 
 import { Driver, type Message, type Recipient } from '../Driver';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
+import { SendSmsTask } from '@lib/scheduler/tasks/SendSmsTask';
 
 /**
  * Information that must be provided when publishing an application notification.
@@ -81,8 +82,20 @@ export class ApplicationDriver extends Driver<ApplicationMessage> {
     override async publishSms(
         publicationId: number, recipient: Recipient, message: ApplicationMessage)
     {
-        // TODO: Not yet implemented.
-        return false;
+        const template = this.getPopulatedTemplate('sms', recipient, message);
+        if (!template || !recipient.phoneNumber)
+            return false;  // not enough information to publish this message
+
+        await SendSmsTask.Schedule({
+            to: recipient.phoneNumber,
+            message: template.body,
+            attribution: {
+                sourceUserId: message.userId,
+                targetUserId: recipient.userId,
+            },
+        });
+
+        return true;
     }
 
     override async publishWhatsapp(
