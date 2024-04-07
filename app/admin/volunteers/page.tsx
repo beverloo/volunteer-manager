@@ -10,13 +10,14 @@ import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerDataTable } from './VolunteerDataTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
+import { readUserSetting, readUserSettings } from '@lib/UserSettings';
 
 /**
  * Overview page showing all users who volunteered at at least one of the AnimeCon events, displayed
  * in a Data Table. Provides access to individual user pages.
  */
 export default async function VolunteersPage() {
-    await requireAuthenticationContext({
+    const { user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerAdministrator,
     });
@@ -58,13 +59,24 @@ export default async function VolunteersPage() {
         })
         .executeSelectMany();
 
+    const userSettings = await readUserSettings(user.userId, [
+        'user-admin-volunteers-columns-hidden',
+        'user-admin-volunteers-columns-filter',
+    ]);
+
+    const filterModel = userSettings['user-admin-volunteers-columns-filter'] || undefined;
+    const hiddenFields =
+        userSettings['user-admin-volunteers-columns-hidden']
+            || 'firstName,lastName,displayName,phoneNumber,gender,birthdate';
+
     return (
         <Section title="Volunteers">
             <SectionIntroduction>
                 This table lists all volunteers who helped us out since 2010—not all information is
                 complete. Columns and filtering can be altered through the column menu.
             </SectionIntroduction>
-            <VolunteerDataTable teamColours={teamColours} volunteers={volunteers} />
+            <VolunteerDataTable initialFilterModel={filterModel} initialHiddenFields={hiddenFields}
+                                teamColours={teamColours} volunteers={volunteers} />
         </Section>
     );
 }

@@ -5,8 +5,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
-import { DataGridPro, GridToolbarQuickFilter  } from '@mui/x-data-grid-pro';
+import type { GridColDef, GridFilterModel, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridToolbarQuickFilter, type DataGridProProps } from '@mui/x-data-grid-pro';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
@@ -121,6 +121,11 @@ interface DataTableProps<RowModel extends GridValidRowModel> {
     hiddenFields?: (keyof RowModel)[];
 
     /**
+     * Initial filters that should be applied to the column.
+     */
+    initialFilters?: GridFilterModel;
+
+    /**
      * The default number of rows that can be displayed per page. Defaults to 50.
      */
     pageSize?: 10 | 25 | 50 | 100;
@@ -129,10 +134,26 @@ interface DataTableProps<RowModel extends GridValidRowModel> {
      * The rows that should be displayed in the <DataTable>.
      */
     rows: RowModel[];
+
+    /**
+     * Called when column visibility has changed.
+     */
+    onColumnVisibilityModelChange?: DataGridProProps['onColumnVisibilityModelChange'];
+
+    /**
+     * Called when the filter model has changed.
+     */
+    onFilterModelChange?: DataGridProProps['onFilterModelChange'];
 }
 
 /**
- * The <DataTable> component is an implementation of the MUI-X DataGrid component
+ * The <DataTable> component is an implementation of the MUI-X DataGrid component that is immutable,
+ * and requires all data to be known at time of component display.
+ *
+ * In most cases using the <RemoteDataTable> is preferrable as it maintains a cleaner separation
+ * between data and presentation. However, in cases where powerful filtering capabilities are needed
+ * the <DataTable> component offers the ability to filter and search its content, out-of-the-box
+ * ordering, and additional columns that can be shown by the user.
  */
 export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel>(
     props: DataTableProps<RowModel>)
@@ -165,7 +186,13 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
 
                      slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
 
-                     initialState={{ columns: { columnVisibilityModel }, density: 'compact' }}
+                     onColumnVisibilityModelChange={props.onColumnVisibilityModelChange}
+                     onFilterModelChange={props.onFilterModelChange}
+                     initialState={{
+                         columns: { columnVisibilityModel },
+                         filter: { filterModel: props.initialFilters },
+                         density: 'compact' }}
+
                      autoHeight disableColumnMenu={!props.enableColumnMenu}
                      hideFooterSelectedRowCount hideFooter={!!props.disableFooter} />
     );

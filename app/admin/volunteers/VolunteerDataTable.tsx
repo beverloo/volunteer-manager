@@ -4,8 +4,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
+import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
 import LocalPoliceIcon from '@mui/icons-material/LocalPolice';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
@@ -15,6 +17,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
+import { callApi } from '@lib/callApi';
 
 /**
  * Row model for each volunteer that should be displayed in the overview table.
@@ -39,6 +42,16 @@ interface VolunteerRowModel {
  */
 export interface VolunteerDataTableProps {
     /**
+     * Initial set of filters, provided in case the user has modified their selection.
+     */
+    initialFilterModel?: string;
+
+    /**
+     * Initial set of hidden fields, provided in case the user has modified their selection.
+     */
+    initialHiddenFields: string;
+
+    /**
      * Information about the teams and their theme colours.
      */
     teamColours: {
@@ -59,6 +72,8 @@ export interface VolunteerDataTableProps {
  */
 export function VolunteerDataTable(props: VolunteerDataTableProps) {
     const kVolunteerBase = '/admin/volunteers/';
+
+    const router = useRouter();
 
     const teamColours = useMemo(() => {
         return new Map(props.teamColours.map(({ name, darkThemeColour, lightThemeColour }) =>
@@ -169,16 +184,58 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
-    const defaultHiddenFields: (keyof VolunteerRowModel)[] = [
-        'firstName',
-        'lastName',
-        'displayName',
-        'phoneNumber',
-        'gender',
-        'birthdate',
-    ];
+    // ---------------------------------------------------------------------------------------------
+    // Column visibility management:
+    // ---------------------------------------------------------------------------------------------
+
+    const hiddenFields = useMemo(() => {
+        return props.initialHiddenFields.split(',') as (keyof VolunteerRowModel)[];
+    }, [ props.initialHiddenFields ]);
+
+    const handleColumnChange = useCallback((model: Record<string, boolean>) => {
+        const hiddenFields: string[] = [];
+        for (const [ field, state ] of Object.entries(model)) {
+            if (!state)
+                hiddenFields.push(field);
+        }
+
+        // Opportunistically update the user setting:
+        callApi('post', '/api/auth/settings', {
+            'user-admin-volunteers-columns-hidden': hiddenFields.join(','),
+        }).then(() => router.refresh());
+
+    }, [ router ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Data filtering management:
+    // ---------------------------------------------------------------------------------------------
+
+    const initialFilters = useMemo(() => {
+        if (!props.initialFilterModel)
+            return undefined;
+
+        try {
+            return JSON.parse(props.initialFilterModel) as GridFilterModel;
+        } catch (error: any) {
+            console.error(`Invalid filter model stored: ${props.initialFilterModel}`);
+        }
+
+        return undefined;
+
+    }, [ props.initialFilterModel ]);
+
+    const handleFilterChange = useCallback((model: GridFilterModel) => {
+        // Opportunistically update the user setting:
+        callApi('post', '/api/auth/settings', {
+            'user-admin-volunteers-columns-filter': JSON.stringify(model),
+        }).then(() => router.refresh());
+
+    }, [ router ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     return <DataTable columns={columns} rows={props.volunteers} enableFilter pageSize={25}
-                      defaultSort={{ field: 'name', sort: 'asc' }}
-                      enableColumnMenu hiddenFields={defaultHiddenFields} />;
+                      defaultSort={{ field: 'name', sort: 'asc' }} enableColumnMenu
+                      hiddenFields={hiddenFields} onColumnVisibilityModelChange={handleColumnChange}
+                      initialFilters={initialFilters} onFilterModelChange={handleFilterChange} />;
 }
