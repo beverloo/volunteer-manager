@@ -3,12 +3,10 @@
 
 import type { Metadata } from 'next';
 
-import Alert from '@mui/material/Alert';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerDataTable } from './VolunteerDataTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -36,7 +34,13 @@ export default async function VolunteersPage() {
         .select({
             id: tUsers.userId,
             username: tUsers.username,
+            firstName: tUsers.firstName,
+            lastName: tUsers.lastName,
+            displayName: tUsers.displayName,
             name: tUsers.name,
+            gender: tUsers.gender,
+            phoneNumber: tUsers.phoneNumber,
+            birthdate: dbInstance.dateAsString(tUsers.birthdate),
             teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
             activated: tUsers.activated.equals(/* true= */ 1),
             admin: tUsers.privileges.modulo(2n).equals(/* true= */ 1n),
@@ -55,16 +59,13 @@ export default async function VolunteersPage() {
         .executeSelectMany();
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
-                Volunteers
-            </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
-                This table lists all volunteers who helped us out since 2010. Not all e-mail
-                addresses and phone numbers are known.
-            </Alert>
+        <Section title="Volunteers">
+            <SectionIntroduction>
+                This table lists all volunteers who helped us out since 2010—not all information is
+                complete. Columns and filtering can be altered through the column menu.
+            </SectionIntroduction>
             <VolunteerDataTable teamColours={teamColours} volunteers={volunteers} />
-        </Paper>
+        </Section>
     );
 }
 

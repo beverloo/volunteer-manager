@@ -22,7 +22,13 @@ import { TeamChip } from '@app/admin/components/TeamChip';
 interface VolunteerRowModel {
     id: number;
     username?: string;
+    firstName: string;
+    lastName: string;
+    displayName?: string;
     name: string;
+    gender: string;
+    birthdate?: string;
+    phoneNumber?: string;
     teams?: string;
     activated: boolean;
     admin: boolean;
@@ -68,6 +74,8 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
             sortable: false,
             width: 50,
 
+            disableColumnMenu: true,
+
             renderCell: params =>
                 <MuiLink component={Link} href={kVolunteerBase + params.value} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
@@ -97,8 +105,44 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
                 </>,
         },
         {
+            field: 'firstName',
+            headerName: 'First name',
+            sortable: true,
+            flex: 1,
+        },
+        {
+            field: 'lastName',
+            headerName: 'Last name',
+            sortable: true,
+            flex: 1,
+        },
+        {
+            field: 'displayName',
+            headerName: 'Display name',
+            sortable: true,
+            flex: 1,
+        },
+        {
+            field: 'gender',
+            headerName: 'Gender',
+            sortable: true,
+            flex: 1,
+        },
+        {
+            field: 'birthdate',
+            headerName: 'Birthdate',
+            sortable: true,
+            flex: 1,
+        },
+        {
             field: 'username',
             headerName: 'E-mail',
+            sortable: true,
+            flex: 1,
+        },
+        {
+            field: 'phoneNumber',
+            headerName: 'Phone number',
             sortable: true,
             flex: 1,
         },
@@ -125,6 +169,16 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
         },
     ];
 
+    const defaultHiddenFields: (keyof VolunteerRowModel)[] = [
+        'firstName',
+        'lastName',
+        'displayName',
+        'phoneNumber',
+        'gender',
+        'birthdate',
+    ];
+
     return <DataTable columns={columns} rows={props.volunteers} enableFilter pageSize={25}
-                      defaultSort={{ field: 'name', sort: 'asc' }} />;
+                      defaultSort={{ field: 'name', sort: 'asc' }}
+                      enableColumnMenu hiddenFields={defaultHiddenFields} />;
 }

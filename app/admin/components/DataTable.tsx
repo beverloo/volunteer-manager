@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { GridColDef, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
 import { DataGridPro, GridToolbarQuickFilter  } from '@mui/x-data-grid-pro';
@@ -99,15 +99,26 @@ interface DataTableProps<RowModel extends GridValidRowModel> {
     };
 
     /**
+     * Whether the footer should be removed. Optional.
+     */
+    disableFooter?: boolean;
+
+    /**
+     * Whether the column filter menu should be enabled.
+     */
+    enableColumnMenu?: boolean;
+
+    /**
      * Whether the quick search filter should be enabled. Overrides the <ctrl>+<f> keyboard search
      * shortcut as well to draw focus to the field.
      */
     enableFilter?: boolean;
 
     /**
-     * Whether the footer should be removed. Optional.
+     * Fields that should be hidden by default. Remember to enable `enableColumnMenu` so that the
+     * user is able to enable them again manually.
      */
-    disableFooter?: boolean;
+    hiddenFields?: (keyof RowModel)[];
 
     /**
      * The default number of rows that can be displayed per page. Defaults to 50.
@@ -135,6 +146,16 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
         setPaginationModel(model);
     }, [ /* no deps */ ]);
 
+    const columnVisibilityModel = useMemo(() => {
+        if (!props.hiddenFields || !props.hiddenFields.length)
+            return undefined;
+
+        // Transforms an array of strings to an object where each of those strings is a key, with
+        // the hardcoded boolean `false` as its value.
+        return Object.fromEntries(Object.values(props.hiddenFields).map(key => ([ key, false ])));
+
+    }, [ props.hiddenFields ]);
+
     return (
         <DataGridPro rows={props.rows} columns={props.columns}
 
@@ -144,8 +165,8 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
 
                      slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
 
-                     initialState={{ density: 'compact' }}
-                     autoHeight disableColumnMenu hideFooterSelectedRowCount
-                     hideFooter={!!props.disableFooter} />
+                     initialState={{ columns: { columnVisibilityModel }, density: 'compact' }}
+                     autoHeight disableColumnMenu={!props.enableColumnMenu}
+                     hideFooterSelectedRowCount hideFooter={!!props.disableFooter} />
     );
 }
