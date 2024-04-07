@@ -364,30 +364,23 @@ export default async function EventPage(props: NextPageParams<'slug'>) {
                 <Grid key={`team-${index}`} xs={3}>
                     <EventTeamCard {...team} />
                 </Grid> ) }
-
-            <Grid xs={6}>
-                <EventMetadata event={event} metadata={eventMetadata} />
+            <Grid xs={12} md={6}>
+                <Stack direction="column" spacing={2}>
+                    <EventMetadata event={event} metadata={eventMetadata} />
+                    { recentChanges.length > 0 &&
+                        <EventRecentChanges changes={recentChanges} event={event} /> }
+                </Stack>
             </Grid>
-
-            { recentVolunteers.length > 0 &&
-                <Grid xs={6}>
-                    <EventRecentVolunteers event={event} volunteers={recentVolunteers} />
-                </Grid> }
-
-            { recentChanges.length > 0 &&
-                <Grid xs={6}>
-                    <EventRecentChanges changes={recentChanges} event={event} />
-                </Grid> }
-
-            { (deadlines.length > 0 || seniorVolunteers.length > 0) &&
-                <Grid xs={6}>
-                    <Stack direction="column" spacing={2}>
-                        { deadlines.length > 0 &&
-                            <EventDeadlines event={event} deadlines={deadlines} /> }
-                        { seniorVolunteers.length > 0 &&
-                            <EventSeniors event={event} volunteers={seniorVolunteers} /> }
-                    </Stack>
-                </Grid> }
+            <Grid xs={12} md={6}>
+                <Stack direction="column" spacing={2}>
+                    { deadlines.length > 0 &&
+                        <EventDeadlines event={event} deadlines={deadlines} /> }
+                    { recentVolunteers.length > 0 &&
+                        <EventRecentVolunteers event={event} volunteers={recentVolunteers} /> }
+                    { seniorVolunteers.length > 0 &&
+                        <EventSeniors event={event} volunteers={seniorVolunteers} /> }
+                </Stack>
+            </Grid>
         </Grid>
     );
 }
