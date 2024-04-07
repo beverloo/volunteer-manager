@@ -925,6 +925,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                 .and(activitiesAreasJoin.areaType.equals(ActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
                 .and(tActivities.activityType.equals(ActivityType.Program))
+                .and(tActivities.activityDeleted.isNull())
             .select({
                 id: tActivities.activityId,
 
