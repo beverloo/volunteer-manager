@@ -1,8 +1,15 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { Suspense } from 'react';
+
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
+import SsidChartIcon from '@mui/icons-material/SsidChart';
 
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -10,8 +17,10 @@ import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
 import { EventRecentChanges } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
+import { EventSales, EventSalesLoading } from './EventSales';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, isAfter } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
@@ -346,7 +355,7 @@ async function getSeniorVolunteers(eventId: number) {
  * which concisely displays the status and progress of organising an individual event.
  */
 export default async function EventPage(props: NextPageParams<'slug'>) {
-    const { event } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const deadlines = await getEventDeadlines(event.id);
     const eventMetadata = await getEventMetadata(event.id);
@@ -354,6 +363,8 @@ export default async function EventPage(props: NextPageParams<'slug'>) {
     const recentChanges = await getRecentChanges(event.id);
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
+
+    const isEventAdmin = can(user, Privilege.EventAdministrator);
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
@@ -375,9 +386,21 @@ export default async function EventPage(props: NextPageParams<'slug'>) {
                 <Stack direction="column" spacing={2}>
                     { deadlines.length > 0 &&
                         <EventDeadlines event={event} deadlines={deadlines} /> }
-                    { recentVolunteers.length > 0 &&
+                    { !!isEventAdmin &&
+                        <Card>
+                            <CardHeader avatar={ <SsidChartIcon color="primary" /> }
+                                        title={`${event.shortName} ticket sales`}
+                                        titleTypographyProps={{ variant: 'subtitle2' }} />
+                            <Divider />
+                            <CardContent sx={{ pb: '16px !important' }}>
+                                <Suspense fallback={ <EventSalesLoading /> }>
+                                    <EventSales event={event.slug} />
+                                </Suspense>
+                            </CardContent>
+                        </Card> }
+                    { (!isEventAdmin && recentVolunteers.length > 0) &&
                         <EventRecentVolunteers event={event} volunteers={recentVolunteers} /> }
-                    { seniorVolunteers.length > 0 &&
+                    { (!isEventAdmin && seniorVolunteers.length > 0) &&
                         <EventSeniors event={event} volunteers={seniorVolunteers} /> }
                 </Stack>
             </Grid>
