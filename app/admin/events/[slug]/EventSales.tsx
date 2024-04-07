@@ -1,6 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 
@@ -21,9 +22,11 @@ export interface EventSalesProps {
 export async function EventSales(props: EventSalesProps) {
     await new Promise(resolve => setTimeout(resolve, 1500));
     return (
-        <Typography>
-            Loaded
-        </Typography>
+        <Box sx={{ p: 2 }}>
+            <Typography variant="body2" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                Graph coming soon…
+            </Typography>
+        </Box>
     );
 }
 
@@ -33,12 +36,12 @@ export async function EventSales(props: EventSalesProps) {
  */
 export function EventSalesLoading() {
     return (
-        <>
+        <Box sx={{ p: 2 }}>
             <Skeleton animation="wave" height={10} width="95%" />
             <Skeleton animation="wave" height={10} width="92%" />
             <Skeleton animation="wave" height={10} width="100%" />
             <Skeleton animation="wave" height={10} width="98%" />
-        </>
+        </Box>
     );
 }
 

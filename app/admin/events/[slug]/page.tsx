@@ -392,7 +392,7 @@ export default async function EventPage(props: NextPageParams<'slug'>) {
                                         title={`${event.shortName} ticket sales`}
                                         titleTypographyProps={{ variant: 'subtitle2' }} />
                             <Divider />
-                            <CardContent sx={{ pb: '16px !important' }}>
+                            <CardContent sx={{ p: '0 !important' }}>
                                 <Suspense fallback={ <EventSalesLoading /> }>
                                     <EventSales event={event.slug} />
                                 </Suspense>
