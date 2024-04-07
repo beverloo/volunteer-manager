@@ -26,11 +26,6 @@ export type ExpandableSectionProps = SectionHeaderProps & {
     defaultExpanded?: boolean;
 
     /**
-     * The icon that should be shown in the expandable section's header, if any.
-     */
-    icon?: React.ReactNode;
-
-    /**
      * The setting that should be updated when expandable state changes.
      */
     setting?: UserSetting;
@@ -41,7 +36,7 @@ export type ExpandableSectionProps = SectionHeaderProps & {
  * administration area that, unlike <Section>, can be hidden and shown dynamically.
  */
 export function ExpandableSection(props: React.PropsWithChildren<ExpandableSectionProps>) {
-    const { children, defaultExpanded, icon, ...sectionHeaderProps } = props;
+    const { children, defaultExpanded, ...sectionHeaderProps } = props;
 
     const handleStoreSetting = useCallback((event: unknown, expanded: boolean) => {
         if (!props.setting)
@@ -57,10 +52,7 @@ export function ExpandableSection(props: React.PropsWithChildren<ExpandableSecti
                onChange={handleStoreSetting}
                sx={{ '&::before': { backgroundColor: 'transparent' } }}>
             <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                    {icon}
-                    <SectionHeader {...sectionHeaderProps} sx={{ mb: 0 }} />
-                </Stack>
+                <SectionHeader {...sectionHeaderProps} sx={{ pb: 1 }} />
             </AccordionSummary>
             <AccordionDetails sx={{ paddingTop: 0 }}>
                 <Stack direction="column" spacing={2}>

@@ -15,6 +15,11 @@ export interface SectionHeaderProps {
     action?: React.ReactNode;
 
     /**
+     * The icon that should be shown in the section's header, if any.
+     */
+    icon?: React.ReactNode;
+
+    /**
      * Privilege behind which availability of this section is gated, to inform the volunteer that
      * not everyone has access to this information.
      */
@@ -46,14 +51,18 @@ export interface SectionHeaderProps {
 export function SectionHeader(props: SectionHeaderProps) {
     return (
         <Stack direction="row" alignItems="center" justifyContent="space-between"
-               sx={{ mb: '-8px !important' }}>
-            <Typography variant="h5" sx={props.sx}>
-                { props.title }
-                { props.subtitle &&
-                    <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                        ({ props.subtitle })
-                    </Typography> }
-            </Typography>
+               sx={{ mb: '-8px !important', ...props.sx }}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+                {props.icon}
+                <Typography variant="h5">
+                    { props.title }
+                    { props.subtitle &&
+                        <Typography component="span" variant="h5" color="action.active"
+                                    sx={{ pl: 1 }}>
+                            ({ props.subtitle })
+                        </Typography> }
+                </Typography>
+            </Stack>
             {props.action}
         </Stack>
     );
