@@ -152,9 +152,9 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
 
             case 'W':  // advancedFormat plugin
             case 'w':  // advancedFormat plugin
-                return `${zonedDateTime.weekOfYear}`;
+                return `${zonedDateTime.weekOfYear || 0}`;
             case 'Wo':  // advancedFormat plugin
-                return withOrdinal(zonedDateTime.weekOfYear);
+                return withOrdinal(zonedDateTime.weekOfYear || 0);
             case 'WW':  // advancedFormat plugin
             case 'ww':  // advancedFormat plugin
                 return `0${zonedDateTime.weekOfYear}`.substr(-2);
