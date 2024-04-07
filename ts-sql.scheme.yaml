@@ -3296,6 +3296,66 @@ tables:
       `area_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`area_id`,`area_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events_sales
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_date
+    type: date
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_type
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_count
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: event_id
+    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type) USING BTREE
+    table: events_sales
+    columns:
+    - event_id
+    - event_sale_date
+    - event_sale_type
+    comment: ""
+  constraints:
+  - name: event_id
+    type: UNIQUE
+    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type)
+    table: events_sales
+    referencedTable: null
+    columns:
+    - event_id
+    - event_sale_date
+    - event_sale_type
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events_sales` (
+      `event_id` int(8) unsigned NOT NULL,
+      `event_sale_date` date NOT NULL,
+      `event_sale_type` varchar(32) NOT NULL,
+      `event_sale_count` int(8) unsigned NOT NULL,
+      `event_sale_updated` datetime NOT NULL,
+      UNIQUE KEY `event_id` (`event_id`,`event_sale_date`,`event_sale_type`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events
   type: BASE TABLE
   comment: ""
