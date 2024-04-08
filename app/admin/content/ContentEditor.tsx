@@ -187,7 +187,7 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                                         </Typography> }
                                     <TextFieldElement name="path" label="Content path" fullWidth
                                                       size="small" required={!contentProtected}
-                                                      validation={{
+                                                      rules={{
                                                           validate:
                                                               contentProtected ? undefined
                                                                               : validateContentPath

@@ -1,9 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { DateTimePickerElement, TextFieldElement } from 'react-hook-form-mui';
+import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
+import { TextFieldElement } from 'react-hook-form-mui';
 
-import type { InputProps } from '@mui/material/Input';
 import Grid from '@mui/material/Unstable_Grid2';
 
 /**
@@ -18,7 +18,7 @@ export interface EventSettingsFormProps {
     /**
      * The change event that should be invoked every time a field is invalidated.
      */
-    onChange?: InputProps['onChange'];
+    onChange?: () => void;
 }
 
 /**

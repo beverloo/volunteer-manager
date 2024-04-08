@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, DateTimePickerElement, FormContainer } from 'react-hook-form-mui';
+import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
+import { type FieldValues, FormContainer } from 'react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';

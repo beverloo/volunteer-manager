@@ -1,7 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { DatePickerElement, SelectElement, TextFieldElement } from 'react-hook-form-mui';
+import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
+import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
+
 import Grid from '@mui/material/Unstable_Grid2';
 
 /**

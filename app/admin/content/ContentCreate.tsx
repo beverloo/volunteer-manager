@@ -93,7 +93,7 @@ export function ContentCreate(props: ContentCreateProps) {
                             </Typography> }
                         <TextFieldElement name="path" label="Content path" fullWidth size="small"
                                           required onChange={handleChange}
-                                          validation={{ validate: validateContentPath }} />
+                                          rules={{ validate: validateContentPath }} />
                     </Stack>
                 </Grid>
             </Grid>
