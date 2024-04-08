@@ -114,13 +114,13 @@ export class VertexAIClient {
 
         const model = client.preview.getGenerativeModel({
             model: this.#settings.model,
-            generation_config: {
-                max_output_tokens: this.#settings.tokenLimit,
+            generationConfig: {
+                maxOutputTokens: this.#settings.tokenLimit,
                 temperature: this.#settings.temperature,
-                top_k: this.#settings.topK,
-                top_p: this.#settings.topP,
+                topK: this.#settings.topK,
+                topP: this.#settings.topP,
             },
-            // TODO: `safety_settings`
+            // TODO: `safetySettings`
         });
 
         const result = await model.generateContent({
@@ -148,17 +148,5 @@ export class VertexAIClient {
         }
 
         return undefined;
-    }
-
-    /**
-     * Composes the service endpoint through which the Vertex AI Prediction Service can be used.
-     */
-    private composeTextPredictionEndpoint() {
-        return [
-            'projects',   this.#googleClient.projectId,
-            'locations',  this.#googleClient.location,
-            'publishers', kPublisher,
-            'models',     this.#settings.model,
-        ].join('/');
     }
 }
