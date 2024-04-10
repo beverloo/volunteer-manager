@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -12,6 +12,7 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import SecurityIcon from '@mui/icons-material/Security';
 
+import { CalendarPopover } from './CalendarPopover';
 import { ScheduleContext } from '../ScheduleContext';
 import { VendorTeam } from '@lib/database/Types';
 import { concatenateNames } from '../lib/concatenateNames';
@@ -49,6 +50,11 @@ export interface OverviewVendorCardProps {
  */
 export function OverviewVendorCard(props: OverviewVendorCardProps) {
     const schedule = useContext(ScheduleContext);
+
+    const [ calendarOpen, setCalendarOpen ] = useState<boolean>(false);
+    const handleOpenCalendar = useCallback(() => setCalendarOpen(true), [ /* no deps */ ]);
+    const handleCloseCalendar = useCallback(() => setCalendarOpen(false), [ /* no deps */ ]);
+
     if (!schedule || !schedule.vendors[props.team])
         return undefined;  // this team does not exist
 
@@ -73,7 +79,8 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
     return (
         <>
             <Card>
-                <CardActionArea sx={{ '& .MuiCardHeader-action': { alignSelf: 'center',
+                <CardActionArea onClick={handleOpenCalendar}
+                                sx={{ '& .MuiCardHeader-action': { alignSelf: 'center',
                                                                    pr: 1, pt: 0.5 } }}>
 
                     <CardHeader action={ <ReadMoreIcon color="disabled" /> }
@@ -83,7 +90,8 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
 
                 </CardActionArea>
             </Card>
-            { /* TODO: Calendar pop-out */ }
+            <CalendarPopover open={calendarOpen} onClose={handleCloseCalendar}
+                             title={title} />
         </>
     );
 }
