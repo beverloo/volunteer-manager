@@ -359,8 +359,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         vendors: { /* empty */ },
     };
 
-    //const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
-    const currentServerTime = Temporal.ZonedDateTime.from('2024-06-08T14:00:00Z[UTC]');
+    const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
     const currentTime = !!schedule.config.timeOffset
         ? currentServerTime.add({ seconds: schedule.config.timeOffset })
         : currentServerTime;
@@ -543,6 +542,11 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                         end: shift.end.epochSeconds,
                     })),
                 });
+            } else {
+                if (vendor.team === VendorTeam.FirstAid && !vendorCardFirstAid)
+                    continue;
+                if (vendor.team === VendorTeam.Security && !vendorCardSecurity)
+                    continue;
             }
 
             for (const shift of vendor.shifts) {
