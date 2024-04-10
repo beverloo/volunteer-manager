@@ -6,13 +6,56 @@ import { notFound } from 'next/navigation';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { ActivityType, ContentType } from '@lib/database/Types';
+import { ActivityType, VendorTeam } from '@lib/database/Types';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories } from '@lib/database';
+    tContentCategories,  tVendors, tVendorsSchedule} from '@lib/database';
+
+/**
+ * Represents the information shared for a particular vendor team. The actual information regarding
+ * on-site personnel will usually be shared freely, whereas the full schedule is more restricted.
+ */
+const kVendorTeam = z.object({
+    /**
+     * Names of the active personnel who are on shift.
+     */
+    active: z.array(z.string()),
+
+    /**
+     * Full schedule assigned to the vendor team. Only shared with leadership.
+     */
+    schedule: z.array(z.object({
+        /**
+         * Unique ID of the vendor.
+         */
+        id: z.number(),
+
+        /**
+         * Name of the vendor, as it should be shown in the calendar.
+         */
+        name: z.string(),
+
+        /**
+         * Shifts assigned to this vendor, if any.
+         */
+        shifts: z.array(z.object({
+            /**
+             * Date and time on which the shift will start, as a UNIX timestamp since the epoch.
+             */
+            start: z.number(),
+
+            /**
+             * Date and time on which the shift will start, as a UNIX timestamp since the epoch.
+             */
+            end: z.number(),
+        })),
+
+    })),
+});
 
 /**
  * Interface definition for the information contained within a public schedule.
@@ -225,6 +268,14 @@ const kPublicSchedule = z.strictObject({
 
     // TODO: nardo
     // TODO: shifts
+
+    /**
+     * Information about the vendors that will be helping out during the event. Regular volunteers
+     * will be presented with an informational card, where volunteering leads will be able to see
+     * their full availability in a calendar-style display.
+     */
+    vendors: z.record(z.nativeEnum(VendorTeam), kVendorTeam),
+
     // TODO: volunteers
 });
 
@@ -257,12 +308,21 @@ type Response = ApiResponse<typeof kPublicScheduleDefinition>;
  * offloaded to the server.
  */
 export async function getSchedule(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user)
+    if (!props.user || !props.authenticationContext.user)
         notFound();
 
     const event = await getEventBySlug(request.event);
     if (!event || !event.festivalId)
         notFound();
+
+    let isLeader: boolean = can(props.user, Privilege.EventAdministrator);
+    if (!isLeader) {
+        const eventAuthenticationContext = props.authenticationContext.events.get(event.slug);
+        if (!eventAuthenticationContext && !can(props.user, Privilege.EventScheduleOverride))
+            notFound();
+
+        isLeader = !!eventAuthenticationContext?.admin;
+    }
 
     const settings = await readSettings([
         'schedule-activity-list-limit',
@@ -273,6 +333,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         'schedule-search-candidate-minimum-score',
         'schedule-search-result-limit',
         'schedule-time-offset-seconds',
+        'schedule-vendor-first-aid-card',
+        'schedule-vendor-security-card',
     ]);
 
     const schedule: Response = {
@@ -294,6 +356,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             locations: { /* empty */ },
             timeslots: { /* empty */ },
         },
+        vendors: { /* empty */ },
     };
 
     //const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
@@ -434,6 +497,62 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     // ---------------------------------------------------------------------------------------------
 
     // TODO
+
+    // ---------------------------------------------------------------------------------------------
+    // Source information about the event's vendors.
+    // ---------------------------------------------------------------------------------------------
+
+    const vendorCardFirstAid = !!settings['schedule-vendor-first-aid-card'];
+    const vendorCardSecurity = !!settings['schedule-vendor-security-card'];
+
+    if (isLeader || vendorCardFirstAid || vendorCardSecurity) {
+        if (isLeader || vendorCardFirstAid)
+            schedule.vendors[VendorTeam.FirstAid] = { active: [ /* empty */ ], schedule: [] };
+        if (isLeader || vendorCardSecurity)
+            schedule.vendors[VendorTeam.Security] = { active: [ /* empty */ ], schedule: [] };
+
+        const vendorsScheduleJoin = tVendorsSchedule.forUseInLeftJoin();
+        const vendors = await dbInstance.selectFrom(tVendors)
+            .leftJoin(vendorsScheduleJoin)
+                .on(vendorsScheduleJoin.vendorId.equals(tVendors.vendorId))
+                    .and(vendorsScheduleJoin.vendorsScheduleDeleted.isNull())
+            .where(tVendors.eventId.equals(event.id))
+                .and(tVendors.vendorVisible.equals(/* true= */ 1))
+            .select({
+                id: tVendors.vendorId,
+                firstName: tVendors.vendorFirstName,
+                lastName: tVendors.vendorLastName,
+                team: tVendors.vendorTeam,
+                shifts: dbInstance.aggregateAsArray({
+                    start: vendorsScheduleJoin.vendorsScheduleStart,
+                    end: vendorsScheduleJoin.vendorsScheduleEnd,
+                }),
+            })
+            .groupBy(tVendors.vendorId)
+            .orderBy(tVendors.vendorFirstName, 'asc')
+                .orderBy(tVendors.vendorLastName, 'asc')
+            .executeSelectMany();
+
+        for (const vendor of vendors) {
+            if (isLeader) {
+                schedule.vendors[vendor.team]!.schedule.push({
+                    id: vendor.id,
+                    name: `${vendor.firstName} ${vendor.lastName}`.trim(),
+                    shifts: vendor.shifts.map(shift => ({
+                        start: shift.start.epochSeconds,
+                        end: shift.end.epochSeconds,
+                    })),
+                });
+            }
+
+            for (const shift of vendor.shifts) {
+                if (isBefore(shift.start, currentTime) && isAfter(shift.end, currentTime)) {
+                    schedule.vendors[vendor.team]!.active.push(vendor.firstName);
+                    break;
+                }
+            }
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
 

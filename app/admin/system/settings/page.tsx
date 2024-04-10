@@ -229,6 +229,22 @@ export default async function IntegrationsPage() {
                     'Number of seconds to offset time with, to emulate the schedule at another ' +
                     'point in time',
             },
+            {
+                setting: 'schedule-vendor-first-aid-card',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Vendor card (first aid)',
+                description: 'Inform all volunteers of on-site first aid vendors',
+            },
+            {
+                setting: 'schedule-vendor-security-card',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Vendor card (security)',
+                description: 'Inform all volunteers of on-site security vendors',
+            },
         ],
     };
 

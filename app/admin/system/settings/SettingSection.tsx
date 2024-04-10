@@ -104,7 +104,7 @@ export function SettingSection(props: SettingSectionProps) {
                             <Grid xs={8} alignSelf="center">
                                 { setting.type === 'boolean' &&
                                     <CheckboxElement name={setting.setting} size="small"
-                                                      onChange={handleChange} /> }
+                                                     onChange={handleChange} /> }
                                 { setting.type === 'number' &&
                                     <TextFieldElement name={setting.setting} type="number"
                                                       size="small" fullWidth
