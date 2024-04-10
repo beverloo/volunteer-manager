@@ -364,7 +364,7 @@ export default async function EventPage(props: NextPageParams<'slug'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
-    const isEventAdmin = can(user, Privilege.EventAdministrator);
+    const isEventAdmin = can(user, Privilege.Administrator);  // TODO: Decide on the permission
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
