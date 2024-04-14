@@ -12,7 +12,7 @@ import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwil
  * Webhook invoked when an inbound message has been received over one of our communication channels,
  * generally either SMS or WhatsApp. An immediate response is expected.
  */
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     const body = await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Inbound);
     // TODO: Do something with the `body`
 
