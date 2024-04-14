@@ -200,8 +200,47 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
             }
         }
 
-        // Sort the training assignments alphabetically by name of the participant.
-        trainingAssignments.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+        // Sort the training assignments based on the given `sort`. The result may be unexpected
+        // when either the preferred or assigned training ID is the preference, but things will
+        // be sufficiently grouped together for them to make some sense.
+        trainingAssignments.sort((lhs, rhs) => {
+            let change: number = 0;
+            switch (sort?.field || 'name') {
+                case 'assignedTrainingId':
+                    if (lhs.assignedTrainingId !== rhs.assignedTrainingId) {
+                        if (!lhs.assignedTrainingId)
+                            change = -1;
+                        else if (!rhs.assignedTrainingId)
+                            change = 1;
+                        else
+                            change = lhs.assignedTrainingId < rhs.assignedTrainingId ? -1 : 1;
+                    }
+                    break;
+
+                case 'confirmed':
+                    if (lhs.confirmed !== rhs.confirmed)
+                        change = rhs.confirmed ? 1 : -1;
+
+                    break;
+
+                case 'name':
+                    change = lhs.name.localeCompare(rhs.name);
+                    break;
+
+                case 'preferredTrainingId':
+                    if (lhs.preferredTrainingId !== rhs.preferredTrainingId) {
+                        if (!lhs.preferredTrainingId)
+                            change = -1;
+                        else if (!rhs.preferredTrainingId)
+                            change = 1;
+                        else
+                            change = lhs.preferredTrainingId < rhs.preferredTrainingId ? -1 : 1;
+                    }
+                    break
+            }
+
+            return change * (sort?.sort === 'desc' ? -1 : 1);
+        });
 
         return {
             success: true,
