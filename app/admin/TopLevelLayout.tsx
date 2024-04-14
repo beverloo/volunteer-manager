@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import ApiIcon from '@mui/icons-material/Api';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
@@ -74,7 +75,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     label: 'Subscriptions',
                     privilege: Privilege.SystemSubscriptionManagement,
                     url: '/admin/system/subscriptions',
-                }
+                },
+                {
+                    icon: <WebhookIcon />,
+                    label: 'Webhooks',
+                    privilege: Privilege.SystemAdministrator,
+                    url: '/admin/system/webhooks',
+                },
             ],
         },
         {
@@ -101,7 +108,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     url: '/admin/system/ai',
                 },
                 {
-                    icon: <WebhookIcon />,
+                    icon: <ApiIcon />,
                     label: 'Integrations',
                     privilege: Privilege.Administrator,
                     url: '/admin/system/integrations',
