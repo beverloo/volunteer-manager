@@ -521,6 +521,81 @@ tables:
       `outbox_result_error_message` text DEFAULT NULL,
       PRIMARY KEY (`outbox_twilio_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: twilio_webhook_calls
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: webhook_call_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: webhook_call_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: webhook_call_endpoint
+    type: enum('Inbound','Outbound')
+    nullable: false
+    default: null
+    comment: ""
+  - name: webhook_request_source
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_request_method
+    type: varchar(32)
+    nullable: false
+    default: null
+    comment: ""
+  - name: webhook_request_url
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: webhook_request_headers
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: webhook_request_body
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (webhook_call_id) USING BTREE
+    table: twilio_webhook_calls
+    columns:
+    - webhook_call_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (webhook_call_id)
+    table: twilio_webhook_calls
+    referencedTable: null
+    columns:
+    - webhook_call_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `twilio_webhook_calls` (
+      `webhook_call_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `webhook_call_date` datetime NOT NULL,
+      `webhook_call_endpoint` enum('Inbound','Outbound') NOT NULL,
+      `webhook_request_source` varchar(64) DEFAULT NULL,
+      `webhook_request_method` varchar(32) NOT NULL,
+      `webhook_request_url` text NOT NULL,
+      `webhook_request_headers` text NOT NULL,
+      `webhook_request_body` text NOT NULL,
+      PRIMARY KEY (`webhook_call_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
   comment: ""
@@ -3296,66 +3371,6 @@ tables:
       `area_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`area_id`,`area_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: events_sales
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: event_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_sale_date
-    type: date
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_sale_type
-    type: varchar(32)
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_sale_count
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    comment: ""
-  - name: event_sale_updated
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: event_id
-    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type) USING BTREE
-    table: events_sales
-    columns:
-    - event_id
-    - event_sale_date
-    - event_sale_type
-    comment: ""
-  constraints:
-  - name: event_id
-    type: UNIQUE
-    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type)
-    table: events_sales
-    referencedTable: null
-    columns:
-    - event_id
-    - event_sale_date
-    - event_sale_type
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `events_sales` (
-      `event_id` int(8) unsigned NOT NULL,
-      `event_sale_date` date NOT NULL,
-      `event_sale_type` varchar(32) NOT NULL,
-      `event_sale_count` int(8) unsigned NOT NULL,
-      `event_sale_updated` datetime NOT NULL,
-      UNIQUE KEY `event_id` (`event_id`,`event_sale_date`,`event_sale_type`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events
   type: BASE TABLE
   comment: ""
@@ -4690,6 +4705,66 @@ tables:
       `publication_created` datetime NOT NULL,
       PRIMARY KEY (`publication_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events_sales
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_date
+    type: date
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_type
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_count
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_sale_updated
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: event_id
+    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type) USING BTREE
+    table: events_sales
+    columns:
+    - event_id
+    - event_sale_date
+    - event_sale_type
+    comment: ""
+  constraints:
+  - name: event_id
+    type: UNIQUE
+    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type)
+    table: events_sales
+    referencedTable: null
+    columns:
+    - event_id
+    - event_sale_date
+    - event_sale_type
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `events_sales` (
+      `event_id` int(8) unsigned NOT NULL,
+      `event_sale_date` date NOT NULL,
+      `event_sale_type` varchar(64) NOT NULL,
+      `event_sale_count` int(8) unsigned NOT NULL,
+      `event_sale_updated` datetime NOT NULL,
+      UNIQUE KEY `event_id` (`event_id`,`event_sale_date`,`event_sale_type`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

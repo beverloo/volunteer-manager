@@ -190,6 +190,15 @@ export enum TaskResult {
 }
 
 /**
+ * Webhook endpoint that was posted to from the Twilio infrastructure.
+ * @see Table `twilio_webhook_calls`
+ */
+export enum TwilioWebhookEndpoint {
+    Inbound = 'Inbound',
+    Outbound = 'Outbound',
+}
+
+/**
  * Gender of a vendor, simplified display.
  * @see Table `vendors`
  */
