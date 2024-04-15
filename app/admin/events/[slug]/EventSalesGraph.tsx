@@ -4,10 +4,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-
 import * as d3 from 'd3';
-
-import Box from '@mui/material/Box';
 
 /**
  * Margins of the graph, in pixels. Fixed regardless of scale.
@@ -201,11 +198,11 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                 .attr('fill', 'none')
                 .attr('stroke', serie.colour)
                 .attr('stroke-width', serie.width || 1.5)
-                .attr('style', 'vector-effect: non-scaling-stroke')
                 .attr('d', d3.line<EventSalesDataEntry>()
                     .x(entry => scaleX(entry[0]))
                     .y(entry => scaleY(entry[1]))
-                    .curve(d3.curveCardinal.tension(0.25)));
+                    .curve(d3.curveCardinal.tension(0.25)))
+                .style('vector-effect', 'non-scaling-stroke');
         }
 
         // Display a horizontal line to indicate the current day:
@@ -214,26 +211,55 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                 .attr('x1', scaleX(props.today))
                 .attr('x2', scaleX(props.today))
                 .attr('y1', 0)
-                .attr('y2', graphAreaHeight)
+                .attr('y2', kGraphHeight)
                 .attr('fill', 'none')
-                .attr('stroke', '#FFA726')
+                .attr('stroke', '#2962FF')
                 .attr('stroke-width', 1)
-                .attr('style', 'vector-effect: non-scaling-stroke');
+                .style('vector-effect', 'non-scaling-stroke');
         }
+
+        // Display a horizontal line to indicate the selected day:
+        const selectionLine = clippedContainer.append('line')
+            .attr('x1', scaleX(/* default= */ 0))
+            .attr('x2', scaleX(/* default= */ 0))
+            .attr('y1', 0)
+            .attr('y2', kGraphHeight)
+            .attr('fill', 'none')
+            .attr('stroke', '#BF360C')
+            .attr('stroke-width', 2)
+            .style('opacity', 0)
+            .style('vector-effect', 'non-scaling-stroke');
 
         // -----------------------------------------------------------------------------------------
         // Interactivity
         // -----------------------------------------------------------------------------------------
 
+        let updatedScaleX: d3.ScaleLinear<number, number, number> = scaleX;
+        let updatedScaleY: d3.ScaleLinear<number, number, number> = scaleY;
+
         function adjustChartForZoom(event: d3.D3ZoomEvent<SVGRectElement, unknown>) {
-            const updatedScaleX = event.transform.rescaleX(scaleX);
-            const updatedScaleY = event.transform.rescaleY(scaleY);
+            updatedScaleX = event.transform.rescaleX(scaleX);
+            updatedScaleY = event.transform.rescaleY(scaleY);
 
             axisX.call(formattedBottomAxis(updatedScaleX));
             axisY.call(formattedLeftAxis(updatedScaleY));
 
             clippedContainer.selectAll('*')
                 .attr('transform', event.transform as any);
+        }
+
+        function mouseOver() {
+            // TODO: Enable the `selectionLine` by giving it opacity
+            //selectionLine.style('opacity', 1);
+        }
+
+        function mouseMove(event: MouseEvent) {
+            // TODO: Calculate the |x| based on the given `event`, and move the `selectionLine`
+            // https://d3-graph-gallery.com/graph/line_cursor.html
+        }
+
+        function mouseOut() {
+            selectionLine.style('opacity', 0);
         }
 
         const zoom = d3.zoom()
@@ -247,15 +273,14 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
             .attr('height', graphAreaHeight)
             .style('fill', 'none')
             .style('pointer-events', 'all')
+            .on('mouseover', mouseOver)
+            .on('mousemove', mouseMove)
+            .on('mouseout', mouseOut)
             .call(zoom as any);
 
         // TODO: Enable a hover indicator
 
     }, [ props.confidenceInterval, props.series, props.today, props.xAxis, props.yAxis ]);
 
-    return (
-        <Box>
-            <svg ref={ref} viewBox={`0 0 ${kGraphWidth} ${kGraphHeight}`} />
-        </Box>
-    );
+    return <svg ref={ref} viewBox={`0 0 ${kGraphWidth} ${kGraphHeight}`} />;
 }

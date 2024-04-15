@@ -30,13 +30,14 @@ export async function EventSales(props: EventSalesProps) {
     const kSalesGraphDays = 90;
     const kSalesGraphHistoryYears = 3;
     const kSalesGraphVariance = 0.005;
+    const kSalesGraphWaitTimeMs = 10;
     const kSalesTypes = [ 'Friday', 'Saturday', 'Sunday', 'Weekend' ];
 
     const event = await getEventBySlug(props.event);
     if (!event)
         notFound();
 
-    // TODO: Wait?
+    await new Promise(resolve => setTimeout(resolve, kSalesGraphWaitTimeMs));
 
     // ---------------------------------------------------------------------------------------------
     // Fetch sales information from the database
