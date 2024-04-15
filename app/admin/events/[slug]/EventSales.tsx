@@ -30,7 +30,7 @@ export async function EventSales(props: EventSalesProps) {
     const kSalesGraphDays = 90;
     const kSalesGraphHistoryYears = 3;
     const kSalesGraphVariance = 0.005;
-    const kSalesGraphWaitTimeMs = 10;
+    const kSalesGraphWaitTimeMs = 1750;
     const kSalesTypes = [ 'Friday', 'Saturday', 'Sunday', 'Weekend' ];
 
     const event = await getEventBySlug(props.event);

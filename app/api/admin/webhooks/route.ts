@@ -108,3 +108,5 @@ export const { GET } = createDataTableApi(kWebhookRowModel, kWebhookContext, {
         };
     },
 });
+
+export const dynamic = 'force-dynamic';
