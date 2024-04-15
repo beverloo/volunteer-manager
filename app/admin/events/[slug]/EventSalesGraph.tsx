@@ -30,17 +30,47 @@ const kGraphTicks = {
 /**
  * Width of the graph, in pixels. Will scale responsively.
  */
-const kGraphWidth = 500;
+const kGraphWidth = 550;
 
 /**
  * Height of the graph, in pixels. Will scale responsively.
  */
-const kGraphHeight = 125;
+const kGraphHeight = 150;
+
+/**
+ * Type describing a data point part of a data series.
+ */
+export type EventSalesDataEntry = [ number, number ];
+
+/**
+ * Type describing a data series to display on the graph.
+ */
+export type EventSalesDataSeries = {
+    /**
+     * Colour in which the series should be displayed.
+     */
+    colour: string;
+
+    /**
+     * Data that the series exists of.
+     */
+    data: EventSalesDataEntry[];
+
+    /**
+     * Width, in pixels, the series should be drawn in.
+     */
+    width?: number;
+};
 
 /**
  * Props accepted by the <EventSalesGraph> component.
  */
 export interface EventSalesGraphProps {
+    /**
+     * Series that should be displayed on the graph. Each serie should be an array of entries.
+     */
+    series: EventSalesDataSeries[];
+
     /**
      * Appearance of the horizontal axis of the graph.
      */
@@ -80,11 +110,26 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         element.append('g')
             .call(d3.axisLeft(yScale).ticks(kGraphTicks.vertical));
 
-        // TODO: Display the data
+        // Display each of the series:
+        for (const serie of props.series) {
+            element.append('path')
+                .datum(serie.data)
+                .attr('fill', 'none')
+                .attr('stroke', serie.colour)
+                .attr('stroke-width', serie.width || 1.5)
+                .attr('d', d3.line()
+                    .x(entry => xScale(entry[0]))
+                    .y(entry => yScale(entry[1]))
+                    .curve(d3.curveCardinal.tension(0.25)));
+        }
+
+        // TODO: Cut-off the line for the current event where sales are today
+        // TODO: Compute different colours for the lines
         // TODO: Compute a confidence interval
         // TODO: Enable zooming in on the data
+        // TODO: Enable a hover indicator
 
-    }, [ props.xAxis, props.yAxis ]);
+    }, [ props.series, props.xAxis, props.yAxis ]);
 
     return (
         <Box>

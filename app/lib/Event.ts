@@ -12,6 +12,7 @@ export interface EventDatabaseRow {
     eventShortName: string;
     eventSlug: string;
     eventFestivalId?: number;
+    eventLocation?: string;
     eventTimezone: string;
     eventStartTime: Temporal.ZonedDateTime;
     eventEndTime: Temporal.ZonedDateTime;
@@ -138,6 +139,11 @@ export class Event implements EventData {
      * Numeric unique ID of the event, as it's represented in the database.
      */
     get eventId() { return this.#event.eventId; }
+
+    /**
+     * Returns the location at which the event will be taking place. May be NULL.
+     */
+    get location() { return this.#event.eventLocation; }
 
     /**
      * Returns the `Temporal.ZonedDateTime` variant of the event's start time.
