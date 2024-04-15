@@ -41,7 +41,7 @@ export async function EventSales(props: EventSalesProps) {
     // Fetch sales information from the database
     // ---------------------------------------------------------------------------------------------
 
-    const daysBeforeCurrentEvent = event.temporalStartTime.since(
+    const daysUntilCurrentEvent = event.temporalStartTime.until(
         Temporal.Now.zonedDateTimeISO('utc'), { largestUnit: 'days' }).days;
 
     const historicCutoffDate = event.temporalStartTime.subtract({
@@ -123,8 +123,8 @@ export async function EventSales(props: EventSalesProps) {
 
                 // Stop drawing the line for the current event when it would be past today's data,
                 // and we validate that by confirming that no further data is available.
-                if (isCurrentEvent && daysBeforeCurrentEvent > 0) {
-                    if (index >= 0 - daysBeforeCurrentEvent && !sales.has(index))
+                if (isCurrentEvent && daysUntilCurrentEvent <= 0) {
+                    if (index >= daysUntilCurrentEvent && !sales.has(index))
                         break;
                 }
             }
@@ -154,7 +154,8 @@ export async function EventSales(props: EventSalesProps) {
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <EventSalesGraph series={series} xAxis={xAxis} yAxis={yAxis} />
+        <EventSalesGraph series={series} today={daysUntilCurrentEvent} xAxis={xAxis}
+                         yAxis={yAxis} />
     );
 }
 

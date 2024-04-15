@@ -72,6 +72,11 @@ export interface EventSalesGraphProps {
     series: EventSalesDataSeries[];
 
     /**
+     * Indicator for the current day to draw in the graph. Value must be on the `xAxis`.
+     */
+    today?: number;
+
+    /**
      * Appearance of the horizontal axis of the graph.
      */
     xAxis: { abs?: boolean; min: number; max: number; }
@@ -154,7 +159,6 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         // Display each of the series:
         for (const serie of props.series) {
             clippedContainer.append('path')
-                .classed('data-entry', true)
                 .datum(serie.data)
                 .attr('fill', 'none')
                 .attr('stroke', serie.colour)
@@ -164,6 +168,19 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                     .x(entry => scaleX(entry[0]))
                     .y(entry => scaleY(entry[1]))
                     .curve(d3.curveCardinal.tension(0.25)));
+        }
+
+        // Display a horizontal line to indicate the current day:
+        if (!!props.today) {
+            clippedContainer.append('line')
+                .attr('x1', scaleX(props.today))
+                .attr('x2', scaleX(props.today))
+                .attr('y1', 0)
+                .attr('y2', graphAreaHeight)
+                .attr('fill', 'none')
+                .attr('stroke', '#2962FF')
+                .attr('stroke-width', 1)
+                .attr('style', 'vector-effect: non-scaling-stroke');
         }
 
         // -----------------------------------------------------------------------------------------
@@ -177,7 +194,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
             axisX.call(formattedBottomAxis(updatedScaleX));
             axisY.call(formattedLeftAxis(updatedScaleY));
 
-            clippedContainer.selectAll('path')
+            clippedContainer.selectAll('*')
                 .attr('transform', event.transform as any);
         }
 
@@ -196,7 +213,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         // TODO: Compute a confidence interval
         // TODO: Enable a hover indicator
 
-    }, [ props.series, props.xAxis, props.yAxis ]);
+    }, [ props.series, props.today, props.xAxis, props.yAxis ]);
 
     return (
         <Box>
