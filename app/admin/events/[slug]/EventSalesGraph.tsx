@@ -238,6 +238,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
 
         const zoom = d3.zoom()
             .scaleExtent([ 1, 12 ])
+            .translateExtent([ [ 0, 0 ], [ kGraphWidth, kGraphHeight ] ])
             .extent([ [ 0, 0 ], [ kGraphWidth, kGraphHeight ] ])
             .on('zoom', adjustChartForZoom);
 
@@ -248,7 +249,6 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
             .style('pointer-events', 'all')
             .call(zoom as any);
 
-        // TODO: Figure out how to stop zoom and drag beyond graph boundaries?
         // TODO: Enable a hover indicator
 
     }, [ props.confidenceInterval, props.series, props.today, props.xAxis, props.yAxis ]);

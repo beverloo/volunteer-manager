@@ -29,6 +29,7 @@ export interface EventSalesProps {
 export async function EventSales(props: EventSalesProps) {
     const kSalesGraphDays = 90;
     const kSalesGraphHistoryYears = 3;
+    const kSalesGraphVariance = 0.005;
     const kSalesTypes = [ 'Friday', 'Saturday', 'Sunday', 'Weekend' ];
 
     const event = await getEventBySlug(props.event);
@@ -160,7 +161,7 @@ export async function EventSales(props: EventSalesProps) {
     let confidenceInterval: EventSalesConfidenceSeries | undefined;
     if (daysUntilCurrentEvent < 0 && !!latestCumulativeSales) {
         confidenceInterval = {
-            colour: '#DCEDC8',
+            colour: '#C8E6C9',
             data: [ /* empty */ ],
         };
 
@@ -175,10 +176,10 @@ export async function EventSales(props: EventSalesProps) {
             const mean = samples.reduce((p, carry) => p + carry, 0) / samples.length;
 
             const optimisticSales = latestCumulativeSales + mean * (1.25 + optimisticVariance);
-            optimisticVariance += 0.0065;
+            optimisticVariance += kSalesGraphVariance;
 
             const pessimisticSales = latestCumulativeSales + mean * (0.75 - pessimisticVariance);
-            pessimisticVariance += 0.005;
+            pessimisticVariance += kSalesGraphVariance;
 
             confidenceInterval.data.push([
                 daysRemaining,
