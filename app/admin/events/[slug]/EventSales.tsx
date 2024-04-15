@@ -3,7 +3,8 @@
 
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
-import Typography from '@mui/material/Typography';
+
+import { EventSalesGraph } from './EventSalesGraph';
 
 /**
  * Props accepted by the <EventSales> component.
@@ -21,12 +22,12 @@ export interface EventSalesProps {
  */
 export async function EventSales(props: EventSalesProps) {
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const xAxis = { min: 180, max: 0 };
+    const yAxis = { min: 0, max: 5000 };
+
     return (
-        <Box sx={{ p: 2 }}>
-            <Typography variant="body2" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
-                Graph coming soon…
-            </Typography>
-        </Box>
+        <EventSalesGraph xAxis={xAxis} yAxis={yAxis} />
     );
 }
 
