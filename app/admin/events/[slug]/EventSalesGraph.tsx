@@ -74,7 +74,7 @@ export interface EventSalesGraphProps {
     /**
      * Appearance of the horizontal axis of the graph.
      */
-    xAxis: { min: number; max: number; }
+    xAxis: { abs?: boolean; min: number; max: number; }
 
     /**
      * Appearance of the vertical axis of the graph.
@@ -100,7 +100,9 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
 
         element.append('g')
             .attr('transform', `translate(0, ${ kGraphHeight - kGraphMargins.bottom })`)
-            .call(d3.axisBottom(xScale).ticks(kGraphTicks.horizontal));
+            .call(d3.axisBottom(xScale)
+                .ticks(kGraphTicks.horizontal)
+                .tickFormat(value => `${ !!props.xAxis.abs ? Math.abs(+value) : +value }`));
 
         // Add a vertical axis:
         const yScale = d3.scaleLinear()
@@ -124,7 +126,6 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                     .curve(d3.curveCardinal.tension(0.25)));
         }
 
-        // TODO: Cut-off the line for the current event where sales are today
         // TODO: Compute a confidence interval
         // TODO: Enable zooming in on the data
         // TODO: Enable a hover indicator

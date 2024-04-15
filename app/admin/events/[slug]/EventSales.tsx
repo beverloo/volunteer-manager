@@ -7,9 +7,10 @@ import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
 import { EventSalesGraph, type EventSalesDataSeries } from './EventSalesGraph';
+import { Temporal } from '@lib/Temporal';
+import { createColourInterpolator } from '@app/admin/lib/createColourInterpolator';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tEventsSales } from '@lib/database';
-import { createColourInterpolator } from '@app/admin/lib/createColourInterpolator';
 
 /**
  * Props accepted by the <EventSales> component.
@@ -39,6 +40,9 @@ export async function EventSales(props: EventSalesProps) {
     // ---------------------------------------------------------------------------------------------
     // Fetch sales information from the database
     // ---------------------------------------------------------------------------------------------
+
+    const daysBeforeCurrentEvent = event.temporalStartTime.since(
+        Temporal.Now.zonedDateTimeISO('utc'), { largestUnit: 'days' }).days;
 
     const historicCutoffDate = event.temporalStartTime.subtract({
         years: kSalesGraphHistoryYears,
@@ -85,15 +89,18 @@ export async function EventSales(props: EventSalesProps) {
         const max = 0;
 
         for (const entry of events) {
-            const sales = new Map<number, number>;
+            const isCurrentEvent = entry.event.slug === props.event;
+            const sales = new Map<number, number>();
 
-            if (entry.event.slug === props.event) {
-                colourForEvent.set(entry.event.slug, '#FF6F00');
-            } else {
+            colourForEvent.set(entry.event.slug, '#FF6F00');
+
+            if (!isCurrentEvent) {
                 const differenceInYears = event.temporalStartTime.since(entry.event.startTime, {
                     largestUnit: 'days',
                 }).days / 365;
 
+                // Darw the line in a grey that's proportional to how far the event is in the past,
+                // i.e. the event furthest in the history will receive the lightest visual colour.
                 colourForEvent.set(entry.event.slug,
                     colourInterpolator(differenceInYears / kSalesGraphHistoryYears));
             }
@@ -113,6 +120,13 @@ export async function EventSales(props: EventSalesProps) {
 
                 if (cumulativeCarry > maximumY)
                     maximumY = cumulativeCarry;
+
+                // Stop drawing the line for the current event when it would be past today's data,
+                // and we validate that by confirming that no further data is available.
+                if (isCurrentEvent && daysBeforeCurrentEvent > 0) {
+                    if (index >= 0 - daysBeforeCurrentEvent && !sales.has(index))
+                        break;
+                }
             }
 
             cumulativeSalesPerEvent.set(entry.event.slug, cumulative);
@@ -123,7 +137,7 @@ export async function EventSales(props: EventSalesProps) {
 
     const series: EventSalesDataSeries[] = [];
 
-    const xAxis = { min: 0 - kSalesGraphDays, max: 0 };
+    const xAxis = { abs: true, min: 0 - kSalesGraphDays, max: 0 };
     const yAxis = { min: 0, max: maximumY };
 
     // Iteration (2): Populate the formatted data into the |series|
