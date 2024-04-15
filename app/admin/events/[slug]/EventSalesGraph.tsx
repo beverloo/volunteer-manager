@@ -105,7 +105,8 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         // Add a vertical axis:
         const yScale = d3.scaleLinear()
             .domain([ props.yAxis.max, props.yAxis.min ])
-            .range([ 0, kGraphHeight - kGraphMargins.bottom ]);
+            .range([ 0, kGraphHeight - kGraphMargins.bottom ])
+            .nice();
 
         element.append('g')
             .call(d3.axisLeft(yScale).ticks(kGraphTicks.vertical));
@@ -124,7 +125,6 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         }
 
         // TODO: Cut-off the line for the current event where sales are today
-        // TODO: Compute different colours for the lines
         // TODO: Compute a confidence interval
         // TODO: Enable zooming in on the data
         // TODO: Enable a hover indicator

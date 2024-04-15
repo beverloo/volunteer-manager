@@ -9,6 +9,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { EventSalesGraph, type EventSalesDataSeries } from './EventSalesGraph';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tEventsSales } from '@lib/database';
+import { createColourInterpolator } from '@app/admin/lib/createColourInterpolator';
 
 /**
  * Props accepted by the <EventSales> component.
@@ -25,7 +26,7 @@ export interface EventSalesProps {
  * years. It's only available to event administrators, which generally maps to Staff level.
  */
 export async function EventSales(props: EventSalesProps) {
-    const kSalesGraphDays = 180;
+    const kSalesGraphDays = 90;
     const kSalesGraphHistoryYears = 3;
     const kSalesTypes = [ 'Friday', 'Saturday', 'Sunday', 'Weekend' ];
 
@@ -53,6 +54,7 @@ export async function EventSales(props: EventSalesProps) {
         .select({
             event: {
                 name: tEvents.eventShortName,
+                startTime: tEvents.eventStartTime,
                 slug: tEvents.eventSlug,
             },
             data: dbInstance.aggregateAsArray({
@@ -70,7 +72,11 @@ export async function EventSales(props: EventSalesProps) {
     // Create data series out of the fetched sales information
     // ---------------------------------------------------------------------------------------------
 
+    const colourInterpolator = createColourInterpolator('#263238,#ECEFF1');
+    const colourForEvent = new Map<string, string>();
+
     const cumulativeSalesPerEvent = new Map<string, [ number, number ][]>();
+
     let maximumY = 1;
 
     // Iteration (1): Decide on the graph's boundary values, initialise data structures
@@ -78,10 +84,21 @@ export async function EventSales(props: EventSalesProps) {
         const min = 0 - kSalesGraphDays;
         const max = 0;
 
-        for (const { event, data  } of events) {
+        for (const entry of events) {
             const sales = new Map<number, number>;
 
-            for (const { days, count } of data) {
+            if (entry.event.slug === props.event) {
+                colourForEvent.set(entry.event.slug, '#FF6F00');
+            } else {
+                const differenceInYears = event.temporalStartTime.since(entry.event.startTime, {
+                    largestUnit: 'days',
+                }).days / 365;
+
+                colourForEvent.set(entry.event.slug,
+                    colourInterpolator(differenceInYears / kSalesGraphHistoryYears));
+            }
+
+            for (const { days, count } of entry.data) {
                 const index = Math.max(min, Math.min(max, days));
                 const value = sales.get(index) || 0;
                 sales.set(index, value + count);
@@ -98,7 +115,7 @@ export async function EventSales(props: EventSalesProps) {
                     maximumY = cumulativeCarry;
             }
 
-            cumulativeSalesPerEvent.set(event.slug, cumulative);
+            cumulativeSalesPerEvent.set(entry.event.slug, cumulative);
         }
     }
 
@@ -110,10 +127,13 @@ export async function EventSales(props: EventSalesProps) {
     const yAxis = { min: 0, max: maximumY };
 
     // Iteration (2): Populate the formatted data into the |series|
-    for (const [ event, data ] of cumulativeSalesPerEvent.entries()) {
+    for (const [ eventSlug, data ] of cumulativeSalesPerEvent.entries()) {
         series.push({
-            colour: 'green',
+            colour: colourForEvent.get(eventSlug)!,
             data,
+            width: eventSlug === event.slug
+                ? /* current= */ 2
+                : /* historic= */ 1.25,
         });
     }
 
