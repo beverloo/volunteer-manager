@@ -38,9 +38,29 @@ const kGraphWidth = 550;
 const kGraphHeight = 150;
 
 /**
+ * Type describing a data point part of a confidence serie.
+ */
+export type EventSalesConfidenceEntry = [ /* x= */ number, /* y1= */ number, /* y2= */ number ];
+
+/**
+ * Type describing a confidence series to display.
+ */
+export type EventSalesConfidenceSeries = {
+    /**
+     * Colour in which the series should be displayed.
+     */
+    colour: string;
+
+    /**
+     * Data that the series consists of.
+     */
+    data: EventSalesConfidenceEntry[];
+}
+
+/**
  * Type describing a data point part of a data series.
  */
-export type EventSalesDataEntry = [ number, number ];
+export type EventSalesDataEntry = [ /* x= */ number, /* y= */ number ];
 
 /**
  * Type describing a data series to display on the graph.
@@ -52,7 +72,7 @@ export type EventSalesDataSeries = {
     colour: string;
 
     /**
-     * Data that the series exists of.
+     * Data that the series consists of.
      */
     data: EventSalesDataEntry[];
 
@@ -66,6 +86,11 @@ export type EventSalesDataSeries = {
  * Props accepted by the <EventSalesGraph> component.
  */
 export interface EventSalesGraphProps {
+    /**
+     * Confidence interval to display for remaining days in the current event, if any.
+     */
+    confidenceInterval?: EventSalesConfidenceSeries;
+
     /**
      * Series that should be displayed on the graph. Each serie should be an array of entries.
      */
@@ -156,6 +181,19 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
         // Data
         // -----------------------------------------------------------------------------------------
 
+        // Display the confidence series, if any:
+        if (!!props.confidenceInterval) {
+            clippedContainer.append('path')
+                .datum(props.confidenceInterval.data)
+                .attr('fill', props.confidenceInterval.colour)
+                .attr('stroke', 'none')
+                .attr('d', d3.area<EventSalesConfidenceEntry>()
+                    .x(entry => scaleX(entry[0]))
+                    .y0(entry => scaleY(entry[1]))
+                    .y1(entry => scaleY(entry[2]))
+                    .curve(d3.curveCardinal.tension(0.25)));
+        }
+
         // Display each of the series:
         for (const serie of props.series) {
             clippedContainer.append('path')
@@ -164,7 +202,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                 .attr('stroke', serie.colour)
                 .attr('stroke-width', serie.width || 1.5)
                 .attr('style', 'vector-effect: non-scaling-stroke')
-                .attr('d', d3.line()
+                .attr('d', d3.line<EventSalesDataEntry>()
                     .x(entry => scaleX(entry[0]))
                     .y(entry => scaleY(entry[1]))
                     .curve(d3.curveCardinal.tension(0.25)));
@@ -178,7 +216,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
                 .attr('y1', 0)
                 .attr('y2', graphAreaHeight)
                 .attr('fill', 'none')
-                .attr('stroke', '#2962FF')
+                .attr('stroke', '#FFA726')
                 .attr('stroke-width', 1)
                 .attr('style', 'vector-effect: non-scaling-stroke');
         }
@@ -210,10 +248,10 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
             .style('pointer-events', 'all')
             .call(zoom as any);
 
-        // TODO: Compute a confidence interval
+        // TODO: Figure out how to stop zoom and drag beyond graph boundaries?
         // TODO: Enable a hover indicator
 
-    }, [ props.series, props.today, props.xAxis, props.yAxis ]);
+    }, [ props.confidenceInterval, props.series, props.today, props.xAxis, props.yAxis ]);
 
     return (
         <Box>

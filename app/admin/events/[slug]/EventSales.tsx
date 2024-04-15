@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 
-import { EventSalesGraph, type EventSalesDataSeries } from './EventSalesGraph';
+import { EventSalesGraph, type EventSalesConfidenceSeries, type EventSalesDataSeries } from './EventSalesGraph';
 import { Temporal } from '@lib/Temporal';
 import { createColourInterpolator } from '@app/admin/lib/createColourInterpolator';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -80,7 +80,9 @@ export async function EventSales(props: EventSalesProps) {
     const colourForEvent = new Map<string, string>();
 
     const cumulativeSalesPerEvent = new Map<string, [ number, number ][]>();
+    const cumulativeSamplesPerDay = new Map<number, number[]>();
 
+    let latestCumulativeSales: number | undefined;
     let maximumY = 1;
 
     // Iteration (1): Decide on the graph's boundary values, initialise data structures
@@ -92,7 +94,7 @@ export async function EventSales(props: EventSalesProps) {
             const isCurrentEvent = entry.event.slug === props.event;
             const sales = new Map<number, number>();
 
-            colourForEvent.set(entry.event.slug, '#FF6F00');
+            colourForEvent.set(entry.event.slug, '#388E3C');
 
             if (!isCurrentEvent) {
                 const differenceInYears = event.temporalStartTime.since(entry.event.startTime, {
@@ -114,6 +116,8 @@ export async function EventSales(props: EventSalesProps) {
             const cumulative: [ number, number ][] = [];
 
             let cumulativeCarry = 0;
+            let cumulativeSampleBaseline = 0;
+
             for (let index = min; index <= max; ++index) {
                 cumulativeCarry += sales.get(index) || 0;
                 cumulative.push([ index, cumulativeCarry ]);
@@ -121,15 +125,66 @@ export async function EventSales(props: EventSalesProps) {
                 if (cumulativeCarry > maximumY)
                     maximumY = cumulativeCarry;
 
+                if (index === daysUntilCurrentEvent)
+                    cumulativeSampleBaseline = cumulativeCarry;
+
+                // Store the number of sales that have happened since |cumulativeSampleBaseline| for
+                // this event as a sample, in case we calculate a future confidence interval.
+                if (!isCurrentEvent && daysUntilCurrentEvent <= 0) {
+                    const currentSamples = cumulativeSamplesPerDay.get(index) || [];
+                    cumulativeSamplesPerDay.set(index, [
+                        ...currentSamples,
+                        cumulativeCarry - cumulativeSampleBaseline
+                    ]);
+                }
+
                 // Stop drawing the line for the current event when it would be past today's data,
                 // and we validate that by confirming that no further data is available.
                 if (isCurrentEvent && daysUntilCurrentEvent <= 0) {
+                    latestCumulativeSales = cumulativeCarry;
                     if (index >= daysUntilCurrentEvent && !sales.has(index))
                         break;
                 }
             }
 
             cumulativeSalesPerEvent.set(entry.event.slug, cumulative);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Compute a confidence interval if the event has not started yet. This does not use any
+    // particularly accurate method for computation, but rather an impression based on historic
+    // averages, which admittedly isn't a lot of data to be confident about.
+    // ---------------------------------------------------------------------------------------------
+
+    let confidenceInterval: EventSalesConfidenceSeries | undefined;
+    if (daysUntilCurrentEvent < 0 && !!latestCumulativeSales) {
+        confidenceInterval = {
+            colour: '#DCEDC8',
+            data: [ /* empty */ ],
+        };
+
+        let optimisticVariance = 0;
+        let pessimisticVariance = 0;
+
+        for (let daysRemaining = daysUntilCurrentEvent; daysRemaining <= 0; ++daysRemaining) {
+            const samples = cumulativeSamplesPerDay.get(daysRemaining);
+            if (!samples)
+                continue;
+
+            const mean = samples.reduce((p, carry) => p + carry, 0) / samples.length;
+
+            const optimisticSales = latestCumulativeSales + mean * (1.25 + optimisticVariance);
+            optimisticVariance += 0.0065;
+
+            const pessimisticSales = latestCumulativeSales + mean * (0.75 - pessimisticVariance);
+            pessimisticVariance += 0.005;
+
+            confidenceInterval.data.push([
+                daysRemaining,
+                optimisticSales,
+                pessimisticSales,
+            ]);
         }
     }
 
@@ -146,7 +201,7 @@ export async function EventSales(props: EventSalesProps) {
             colour: colourForEvent.get(eventSlug)!,
             data,
             width: eventSlug === event.slug
-                ? /* current= */ 2
+                ? /* current= */ 3
                 : /* historic= */ 1.25,
         });
     }
@@ -154,8 +209,8 @@ export async function EventSales(props: EventSalesProps) {
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <EventSalesGraph series={series} today={daysUntilCurrentEvent} xAxis={xAxis}
-                         yAxis={yAxis} />
+        <EventSalesGraph confidenceInterval={confidenceInterval} series={series}
+                         today={daysUntilCurrentEvent} xAxis={xAxis} yAxis={yAxis} />
     );
 }
 
