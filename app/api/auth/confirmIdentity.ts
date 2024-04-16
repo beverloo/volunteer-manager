@@ -8,9 +8,8 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
+import { determineRpID, retrieveCredentials, storeUserChallenge } from './passkeys/PasskeyUtils';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
-import { retrieveCredentials } from './passkeys/PasskeyUtils';
-import { storeUserChallenge } from './passkeys/PasskeyUtils';
 
 /**
  * Interface definition for the ConfirmIdentity API, exposed through /api/auth/confirm-identity.
@@ -69,15 +68,16 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
         return { success: false };
 
     let authenticationOptions = undefined;
+    const rpID = determineRpID(props);
 
-    const credentials = await retrieveCredentials(user);
+    const credentials = await retrieveCredentials(user, rpID);
     if (credentials.length > 0) {
         authenticationOptions = await generateAuthenticationOptions({
             allowCredentials: credentials.map(credential => ({
                 id: isoBase64URL.fromBuffer(credential.credentialId),
                 // TODO: `transports`?
             })),
-            rpID: props.origin.replace(/\:.*?$/g, ''),  // must be a domain
+            rpID,
             userVerification: 'preferred',
         });
 

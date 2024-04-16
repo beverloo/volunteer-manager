@@ -8,7 +8,7 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { getEnvironmentIterator } from '@lib/Environment';
-import { retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
+import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
 
 /**
@@ -66,8 +66,9 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
     if (!expectedChallenge)
         return { success: false, error: 'You are not currently in a passkey registration flow' };
 
+    const rpID = determineRpID(props);
+
     const environments = [ ...await getEnvironmentIterator() ];
-    const environmentDomains = environments.map(environment => environment.environmentName);
     const environmentOrigins = environments.map(environment =>
         `https://${environment.environmentName}`);
 
@@ -76,13 +77,15 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
             response: request.registration,
             expectedChallenge,
             expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
-            expectedRPID: [ ...environmentDomains, kLocalDevelopmentDomain ],
+            expectedRPID: rpID,
         });
 
         if (!verification.verified || !verification.registrationInfo)
             return { success: false, error: 'The passkey registration could not be verified' };
 
-        await storePasskeyRegistration(props.user, request.name, verification.registrationInfo);
+        await storePasskeyRegistration(
+            props.user, rpID, request.name, verification.registrationInfo);
+
         await storeUserChallenge(props.user, /* reset= */ null);
 
         await Log({

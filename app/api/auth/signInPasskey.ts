@@ -12,11 +12,11 @@ import { Log, LogType, LogSeverity } from '@lib/Log';
 import { getEnvironmentIterator } from '@lib/Environment';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
-import { retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
+import { determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
     from './passkeys/PasskeyUtils';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
-import { kLocalDevelopmentDomain, kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
+import { kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
 
 /**
  * Interface definition for the SignIn API, exposed through /api/auth/sign-in-passkey.
@@ -75,15 +75,16 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     if (!user)
         return { success: false };
 
+    const rpID = determineRpID(props);
+
     const challenge = await retrieveUserChallenge(user);
-    const credentials = await retrieveCredentials(user);
+    const credentials = await retrieveCredentials(user, rpID);
     const sessionToken = await getUserSessionToken(user);
 
     if (!challenge || !credentials.length || !sessionToken)
         return { success: false, error: 'Unable to load the challenge and credential' };
 
     const environments = [ ...await getEnvironmentIterator() ];
-    const environmentDomains = environments.map(environment => environment.environmentName);
     const environmentOrigins = environments.map(environment =>
         `https://${environment.environmentName}`);
 
@@ -112,7 +113,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
             response: request.verification!,
             expectedChallenge: challenge,
             expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
-            expectedRPID: [ ...environmentDomains, kLocalDevelopmentDomain ],
+            expectedRPID: rpID,
             authenticator
         });
 

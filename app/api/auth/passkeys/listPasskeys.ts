@@ -8,7 +8,7 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { determineEnvironment } from '@lib/Environment';
 import { formatDate } from '@lib/Temporal';
-import { retrieveCredentials } from './PasskeyUtils';
+import { determineRpID, retrieveCredentials } from './PasskeyUtils';
 
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
@@ -65,7 +65,9 @@ export async function listPasskeys(request: Request, props: ActionProps): Promis
     if (!environment)
         notFound();
 
-    const credentials = await retrieveCredentials(props.user);
+    const rpID = determineRpID(props);
+
+    const credentials = await retrieveCredentials(props.user, rpID);
     const passkeys = credentials.map(credential => {
         const label = credential.name ?? `Passkey #${credential.passkeyId}`;
 

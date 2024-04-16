@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { determineEnvironment } from '@lib/Environment';
 import { noAccess, type ActionProps } from '../../Action';
-import { retrieveCredentials, storeUserChallenge } from './PasskeyUtils';
+import { determineRpID, retrieveCredentials, storeUserChallenge } from './PasskeyUtils';
 
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
@@ -52,11 +52,13 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
     if (!environment)
         notFound();
 
-    const credentials = await retrieveCredentials(props.user) ?? [];
+    const rpID = determineRpID(props);
+
+    const credentials = await retrieveCredentials(props.user, rpID) ?? [];
 
     const options = await generateRegistrationOptions({
         rpName: `AnimeCon ${environment.environmentTitle}`,
-        rpID: props.origin.replace(/\:.*?$/g, ''),  // must be a domain
+        rpID,
         userID: isoUint8Array.fromUTF8String(`${props.user.userId}`),
         userName: props.user.username,
         userDisplayName: `${props.user.firstName} ${props.user.lastName}`,

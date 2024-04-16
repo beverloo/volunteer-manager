@@ -3,6 +3,7 @@
 
 import type { VerifiedRegistrationResponse } from '@simplewebauthn/server';
 
+import type { ActionProps } from '@app/api/Action';
 import type { Temporal } from '@lib/Temporal';
 import db, { tUsersPasskeys, tUsers } from '@lib/database';
 
@@ -18,6 +19,13 @@ export async function deleteCredential(user: UserLike, passkeyId: number): Promi
         .where(tUsersPasskeys.userId.equals(user.userId))
             .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
         .executeDelete() > 0;
+}
+
+/**
+ * Determines the RpID associated with the request for which `props` was created.
+ */
+export function determineRpID(props: ActionProps): string {
+    return props.origin.replace(/\:.*?$/g, '');
 }
 
 /**
@@ -61,9 +69,10 @@ export interface Credential {
 }
 
 /**
- * Retrieves the credentials associated with the given `user`.
+ * Retrieves the credentials associated with the given `user` that are stored for the `rpID`, which
+ * is the origin the Volunteer Manager is presently running on.
  */
-export async function retrieveCredentials(user: UserLike): Promise<Credential[]> {
+export async function retrieveCredentials(user: UserLike, rpID: string): Promise<Credential[]> {
     return db.selectFrom(tUsersPasskeys)
         .select({
             passkeyId: tUsersPasskeys.userPasskeyId,
@@ -75,8 +84,9 @@ export async function retrieveCredentials(user: UserLike): Promise<Credential[]>
             lastUsed: tUsersPasskeys.credentialLastUsed,
         })
         .where(tUsersPasskeys.userId.equals(user.userId))
+            .and(tUsersPasskeys.credentialRpid.equals(rpID))
         .orderBy(tUsersPasskeys.credentialLastUsed, 'desc nulls last')
-        .orderBy(tUsersPasskeys.credentialCreated, 'asc')
+            .orderBy(tUsersPasskeys.credentialCreated, 'asc')
         .executeSelectMany();
 }
 
@@ -101,12 +111,14 @@ export async function updateCredentialCounter(
  * Stores the given `registration` in the database associated with the `user`.
  */
 export async function storePasskeyRegistration(
-    user: UserLike, name: string | undefined, registration: PasskeyRegistration): Promise<void>
+    user: UserLike, rpID: string, name: string | undefined, registration: PasskeyRegistration)
+        : Promise<void>
 {
     await db.insertInto(tUsersPasskeys)
         .set({
             userId: user.userId,
             credentialId: Buffer.from(registration.credentialID),
+            credentialRpid: rpID,
             credentialName: name,
             credentialOrigin: registration.origin,
             credentialPublicKey: Buffer.from(registration.credentialPublicKey),

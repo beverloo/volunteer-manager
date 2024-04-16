@@ -595,7 +595,7 @@ tables:
       `webhook_request_headers` text NOT NULL,
       `webhook_request_body` text NOT NULL,
       PRIMARY KEY (`webhook_call_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
   comment: ""
@@ -1914,6 +1914,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: credential_rpid
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
   - name: credential_name
     type: text
     nullable: true
@@ -1983,6 +1988,7 @@ tables:
       `user_passkey_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `user_id` int(8) unsigned NOT NULL,
       `credential_id` blob NOT NULL,
+      `credential_rpid` varchar(64) NOT NULL,
       `credential_name` text DEFAULT NULL,
       `credential_created` datetime NOT NULL DEFAULT current_timestamp(),
       `credential_origin` varchar(64) NOT NULL,
