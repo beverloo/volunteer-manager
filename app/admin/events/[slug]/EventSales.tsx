@@ -144,7 +144,7 @@ export async function EventSales(props: EventSalesProps) {
                 // and we validate that by confirming that no further data is available.
                 if (isCurrentEvent && daysUntilCurrentEvent <= 0) {
                     latestCumulativeSales = cumulativeCarry;
-                    if (index >= daysUntilCurrentEvent && !sales.has(index))
+                    if (index >= daysUntilCurrentEvent || !sales.has(index))
                         break;
                 }
             }
