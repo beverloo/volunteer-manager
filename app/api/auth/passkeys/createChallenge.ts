@@ -56,7 +56,7 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
 
     const options = await generateRegistrationOptions({
         rpName: `AnimeCon ${environment.environmentTitle}`,
-        rpID: environment.environmentName,
+        rpID: props.origin.replace(/\:.*?$/g, ''),  // must be a domain
         userID: isoUint8Array.fromUTF8String(`${props.user.userId}`),
         userName: props.user.username,
         userDisplayName: `${props.user.firstName} ${props.user.lastName}`,
@@ -66,10 +66,6 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
             // TODO: `transports`?
         })),
     });
-
-    // Don't use the "relying party identifier": it defaults to the current domain, which is the
-    // behaviour we want as we're a multi-tenant system that wants to work on localhost too.
-    options.rp.id = undefined;
 
     if (!options || !options.challenge)
         return { success: false, error: 'Unable to generate a registration response' };
