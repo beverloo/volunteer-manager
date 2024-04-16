@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { generateRegistrationOptions } from '@simplewebauthn/server';
+import { isoBase64URL, isoUint8Array } from '@simplewebauthn/server/helpers';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -56,13 +57,13 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
     const options = await generateRegistrationOptions({
         rpName: `AnimeCon ${environment.environmentTitle}`,
         rpID: environment.environmentName,
-        userID: `${props.user.userId}`,
+        userID: isoUint8Array.fromUTF8String(`${props.user.userId}`),
         userName: props.user.username,
         userDisplayName: `${props.user.firstName} ${props.user.lastName}`,
         attestationType: 'none',
         excludeCredentials: credentials.map(credential => ({
-            id: credential.credentialId,
-            type: 'public-key',
+            id: isoBase64URL.fromBuffer(credential.credentialId),
+            // TODO: `transports`?
         })),
     });
 

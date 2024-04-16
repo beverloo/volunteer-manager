@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { VerifyAuthenticationResponseOpts } from '@simplewebauthn/server';
+import { isoBase64URL } from '@simplewebauthn/server/helpers';
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
 import { z } from 'zod';
 
@@ -98,7 +99,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
 
             authenticatorPasskeyId = credential.passkeyId;
             authenticator = {
-                credentialID: credential.credentialId,
+                credentialID: isoBase64URL.fromBuffer(credential.credentialId),
                 credentialPublicKey: credential.credentialPublicKey,
                 counter: Number(credential.counter),
             };

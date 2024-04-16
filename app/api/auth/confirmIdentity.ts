@@ -2,11 +2,14 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { generateAuthenticationOptions } from '@simplewebauthn/server';
+import { isoBase64URL } from '@simplewebauthn/server/helpers';
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
+import { determineEnvironment } from '@lib/Environment';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { retrieveCredentials } from './passkeys/PasskeyUtils';
 import { storeUserChallenge } from './passkeys/PasskeyUtils';
@@ -67,15 +70,20 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
     if (!user)
         return { success: false };
 
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
+
     let authenticationOptions = undefined;
 
     const credentials = await retrieveCredentials(user);
     if (credentials.length > 0) {
         authenticationOptions = await generateAuthenticationOptions({
             allowCredentials: credentials.map(credential => ({
-                id: credential.credentialId,
-                type: 'public-key',
+                id: isoBase64URL.fromBuffer(credential.credentialId),
+                // TODO: `transports`?
             })),
+            rpID: environment.environmentName,
             userVerification: 'preferred',
         });
 
