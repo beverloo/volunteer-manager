@@ -64,7 +64,7 @@ export async function authenticateAndRecordTwilioRequest(
     try {
         body = new URLSearchParams(requestBody);
 
-        signature = body.get('x-twilio-signature') ?? undefined;
+        signature = request.headers.get('x-twilio-signature') ?? undefined;
         if (!!signature)
             authenticated = authenticateRequest(authToken, signature, requestUrl.toString(), body);
 
