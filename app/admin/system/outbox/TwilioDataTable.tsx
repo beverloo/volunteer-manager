@@ -112,10 +112,10 @@ export function TwilioDataTable(props: TwilioDataTableProps) {
         {
             field: 'delivered',
             display: 'flex',
-            headerName: 'Accepted',
+            headerName: 'Delivered',
             headerAlign: 'center',
             align: 'center',
-            description: 'Whether the message was accepted by Twilio',
+            description: 'Whether the message was successfully delivered',
             sortable: true,
             width: 100,
 
