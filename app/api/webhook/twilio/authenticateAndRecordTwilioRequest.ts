@@ -36,8 +36,8 @@ export async function authenticateAndRecordTwilioRequest(
         // TODO: Actually authenticate and validate the `requestBody`.
         body = new URLSearchParams(requestBody);
 
-        messageSid = body.get('') ?? undefined;
-        messageOriginalSid = body.get('') ?? undefined;
+        messageSid = body.get('MessageSid') ?? undefined;
+        messageOriginalSid = body.get('OriginalRepliedMessageSid') ?? undefined;
 
     } catch (error: any) {
         errorName = error.name;
