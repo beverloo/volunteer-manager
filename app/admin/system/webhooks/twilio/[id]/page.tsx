@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
@@ -18,6 +19,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TwilioOutboxType } from '@lib/database/Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { SectionHeader } from '@app/admin/components/SectionHeader';
+import { Temporal } from '@lib/Temporal';
 import { formatDate } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tOutboxTwilio, tTwilioWebhookCalls } from '@lib/database';
@@ -88,6 +90,8 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
     if (!webhook)
         notFound();
 
+    const localDate = webhook.date.withTimeZone(Temporal.Now.timeZoneId());
+
     const headers = JSON.parse(webhook.requestHeaders) as [ string, string ][];
     const body = new URLSearchParams(webhook.requestBody);
 
@@ -103,7 +107,7 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
                                 <strong>Date</strong>
                             </TableCell>
                             <TableCell>
-                                { formatDate(webhook.date, 'dddd, MMMM Do [at] HH:mm:ss') }
+                                { formatDate(localDate, 'dddd, MMMM Do [at] HH:mm:ss') }
                             </TableCell>
                         </TableRow>
                         <TableRow>
@@ -206,6 +210,13 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
                     <SectionHeader title="Parameters" sx={sx} />
                     <Table>
                         <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={2} padding="none">
+                                    <Alert severity="error">
+                                        An exception occurred when handling this webhook.
+                                    </Alert>
+                                </TableCell>
+                            </TableRow>
                             <TableRow>
                                 <TableCell width="20%" component="th" scope="row">
                                     <strong>Name</strong>

@@ -31,10 +31,20 @@ const kServiceColours = {
 const kMessageSizeUnit = [ 'bytes', 'KiB', 'MiB', 'GiB' ];
 
 /**
+ * Props accepted by the <WebhookDataTable> component.
+ */
+export interface WebhookDataTableProps {
+    /**
+     * Filter for Twilio webhooks to filter by a particular message SID.
+     */
+    twilioMessageSid?: string;
+}
+
+/**
  * The <WebhookDataTable> component displays all webhook calls received by the Volunteer Manager.
  * Each links through to a detailed page with all information regarding that particular webhook.
  */
-export function WebhookDataTable() {
+export function WebhookDataTable(props: WebhookDataTableProps) {
     const localTz = Temporal.Now.timeZoneId();
     const columns: RemoteDataTableColumn<WebhookRowModel>[] = [
         {
@@ -45,7 +55,7 @@ export function WebhookDataTable() {
             width: 50,
 
             renderCell: params => {
-                const href = `./webhooks/${params.row.service}/${params.id}`;
+                const href = `/admin/system/webhooks/${params.row.service}/${params.id}`;
                 return (
                     <MuiLink component={Link} href={href} sx={{ pt: '5px' }}>
                         <ReadMoreIcon color="info" />
@@ -160,5 +170,6 @@ export function WebhookDataTable() {
     ];
 
     return <RemoteDataTable columns={columns} endpoint="/api/admin/webhooks"
+                            context={{ foo: 'bar', ...props }}
                             defaultSort={{ field: 'id', sort: 'desc' }} pageSize={50} />;
 }

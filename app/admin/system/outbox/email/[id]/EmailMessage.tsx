@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
@@ -132,6 +133,13 @@ export function EmailMessage(props: EmailMessageProps) {
             { !!message.errorName &&
                 <TableContainer component={Paper} variant="outlined">
                     <Table>
+                        <TableRow>
+                            <TableCell colSpan={2} padding="none">
+                                <Alert severity="error">
+                                    An exception occurred when sending this message.
+                                </Alert>
+                            </TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell width="25%" component="th" scope="row">Error name</TableCell>
                             <TableCell>{message.errorName}</TableCell>

@@ -39,7 +39,7 @@ export function OutboxNavigation() {
     ]), [ /* no dependencies */ ]);
 
     const [ selectedTabIndex, setSelectedTabIndex ] =
-        useState<number | undefined>(/* Requests= */ 3);
+        useState<number | undefined>(/* E-mail= */ 0);
 
     useEffect(() => {
         for (let index = 0; index < navigationOptions.length; ++index) {

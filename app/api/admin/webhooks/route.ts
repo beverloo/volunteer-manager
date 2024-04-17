@@ -54,9 +54,22 @@ const kWebhookRowModel = z.object({
 });
 
 /**
- * This API does not require any context.
+ * This API does not require any context, but can optionally filter the results.
  */
-const kWebhookContext = z.never();
+const kWebhookContext = z.object({
+    context: z.object({
+        /**
+         * Because this API responds to GET requests, at least one option must be provided to the
+         * context so that the object can be created. This is that object.
+         */
+        foo: z.literal('bar'),
+
+        /**
+         * Filter for Twilio webhooks to filter by a particular message SID.
+         */
+        twilioMessageSid: z.string().optional(),
+    }),
+});
 
 /**
  * Export type definitions so that the API can be used in `callApi()`.
@@ -80,7 +93,7 @@ export const { GET } = createDataTableApi(kWebhookRowModel, kWebhookContext, {
         });
     },
 
-    async list({ pagination, sort }) {
+    async list({ context, pagination, sort }) {
         const dbInstance = db;
 
         // TODO: Add other webhook sources as unions.
@@ -96,6 +109,9 @@ export const { GET } = createDataTableApi(kWebhookRowModel, kWebhookContext, {
                 size: tTwilioWebhookCalls.webhookRequestBody.length(),
                 authenticated: tTwilioWebhookCalls.webhookRequestAuthenticated.equals(/* true= */ 1)
             })
+            .where(tTwilioWebhookCalls.webhookMessageSid.equalsIfValue(context.twilioMessageSid))
+                .or(tTwilioWebhookCalls.webhookMessageOriginalSid.equalsIfValue(
+                    context.twilioMessageSid))
             .orderBy(sort?.field ?? 'date' as any, sort?.sort ?? 'desc')
             .limitIfValue(pagination?.pageSize)
                 .offsetIfValue(pagination ? pagination.page * pagination.pageSize
