@@ -13,7 +13,9 @@ import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwil
  * generally either SMS or WhatsApp. An immediate response is expected.
  */
 export async function POST(request: NextRequest) {
-    const body = await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Inbound);
+    const { authenticated, body } =
+        await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Inbound);
+
     // TODO: Do something with the `body`
 
     const response = new twilio.twiml.MessagingResponse();

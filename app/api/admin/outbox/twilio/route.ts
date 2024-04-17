@@ -145,3 +145,5 @@ export const { GET } = createDataTableApi(kOutboxTwilioRowModel, kOutboxTwilioCo
         };
     },
 });
+
+export const dynamic = 'force-dynamic';

@@ -442,6 +442,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: webhook_request_authenticated
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
   - name: webhook_message_sid
     type: varchar(64)
     nullable: true
@@ -513,6 +518,7 @@ tables:
       `webhook_request_headers` text NOT NULL,
       `webhook_request_body` text NOT NULL,
       `webhook_request_signature` varchar(64) DEFAULT NULL,
+      `webhook_request_authenticated` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `webhook_message_sid` varchar(64) DEFAULT NULL,
       `webhook_message_original_sid` varchar(64) DEFAULT NULL,
       `webhook_error_name` varchar(32) DEFAULT NULL,

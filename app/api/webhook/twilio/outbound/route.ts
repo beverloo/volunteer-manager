@@ -11,7 +11,9 @@ import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwil
  * sometimes even hours after sending the message, so we need to keep our stored state in sync.
  */
 export async function POST(request: NextRequest) {
-    const body = await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Outbound);
+    const { authenticated, body } =
+        await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Outbound);
+
     // TODO: Do something with the `body`
 
     return new Response(undefined, {

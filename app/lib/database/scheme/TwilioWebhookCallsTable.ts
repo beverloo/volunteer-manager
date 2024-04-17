@@ -28,6 +28,7 @@ export class TwilioWebhookCallsTable extends Table<DBConnection, 'TwilioWebhookC
     webhookRequestHeaders = this.column('webhook_request_headers', 'string');
     webhookRequestBody = this.column('webhook_request_body', 'string');
     webhookRequestSignature = this.optionalColumnWithDefaultValue('webhook_request_signature', 'string');
+    webhookRequestAuthenticated = this.columnWithDefaultValue('webhook_request_authenticated', 'int');
     webhookMessageSid = this.optionalColumnWithDefaultValue('webhook_message_sid', 'string');
     webhookMessageOriginalSid = this.optionalColumnWithDefaultValue('webhook_message_original_sid', 'string');
     webhookErrorName = this.optionalColumnWithDefaultValue('webhook_error_name', 'string');
