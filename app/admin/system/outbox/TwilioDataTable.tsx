@@ -9,19 +9,31 @@ import { default as MuiLink } from '@mui/material/Link';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import Typography from '@mui/material/Typography';
 
-import type { OutboxEmailRowModel } from '@app/api/admin/outbox/email/[[...id]]/route';
+import type { OutboxTwilioRowModel } from '@app/api/admin/outbox/twilio/route';
+import type { TwilioOutboxType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
- * The <EmailDataTable> component displays all e-mail messages that have been sent by the AnimeCon
- * Volunteer Manager. Each message can be clicked on to see further details and content. Access is
- * restricted to certain volunteers.
+ * Props accepted by the <TwilioDataTable> component.
  */
-export function EmailDataTable() {
+export interface TwilioDataTableProps {
+    /**
+     * Type of messages that the data table should consider.
+     */
+    type: TwilioOutboxType;
+}
+
+/**
+ * The <TwilioDataTable> component displays
+ */
+export function TwilioDataTable(props: TwilioDataTableProps) {
     const localTz = Temporal.Now.timeZoneId();
-    const columns: RemoteDataTableColumn<OutboxEmailRowModel>[] = [
+    const type = props.type.toLowerCase();
+
+    const columns: RemoteDataTableColumn<OutboxTwilioRowModel>[] = [
         {
             field: 'id',
             display: 'flex',
@@ -30,7 +42,7 @@ export function EmailDataTable() {
             width: 50,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./email/${params.value}`} sx={{ pt: '4px' }}>
+                <MuiLink component={Link} href={`./${type}/${params.value}`} sx={{ pt: '4px' }}>
                     <ReadMoreIcon color="info" />
                 </MuiLink>,
         },
@@ -45,47 +57,55 @@ export function EmailDataTable() {
                     'YYYY-MM-DD HH:mm:ss'),
         },
         {
-            field: 'from',
+            field: 'sender',
             headerName: 'Sender',
             sortable: true,
             flex: 2,
 
             renderCell: params => {
-                if (!params.row.fromUserId)
-                    return params.value;
+                if (!params.value || !params.value.name) {
+                    return (
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                            Unknown…
+                        </Typography>
+                    );
+                }
+
+                const { name, userId } = params.value;
+                if (!userId)
+                    return name;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
-                        {params.value}
+                    <MuiLink component={Link} href={`/admin/volunteers/${userId}`}>
+                        {name}
                     </MuiLink>
                 );
             },
         },
         {
-            field: 'to',
+            field: 'recipient',
             headerName: 'Recipient',
             sortable: true,
             flex: 2,
 
             renderCell: params => {
-                if (!params.row.fromUserId)
-                    return params.value;
-
+                const { name, userId } = params.row.recipient;
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
-                        {params.value}
+                    <MuiLink component={Link} href={`/admin/volunteers/${userId}`}>
+                        {name}
                     </MuiLink>
                 );
             },
         },
         {
-            field: 'subject',
-            headerName: 'Subject',
+            field: 'message',
+            headerName: 'Message',
             sortable: true,
             flex: 3,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./email/${params.row.id}`}>
+                <MuiLink component={Link} href={`./${type}/${params.row.id}`}>
                     {params.value}
                 </MuiLink>,
         },
@@ -95,7 +115,7 @@ export function EmailDataTable() {
             headerName: 'Accepted',
             headerAlign: 'center',
             align: 'center',
-            description: 'Whether the e-mail was accepted by the server',
+            description: 'Whether the message was accepted by Twilio',
             sortable: true,
             width: 100,
 
@@ -105,6 +125,7 @@ export function EmailDataTable() {
         },
     ];
 
-    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/email"
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/twilio"
+                            context={{ type: props.type }}
                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }
