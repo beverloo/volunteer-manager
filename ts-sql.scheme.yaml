@@ -392,135 +392,6 @@ tables:
       `role_training_eligible` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`role_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: outbox_twilio
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: outbox_twilio_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: outbox_timestamp
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  - name: outbox_type
-    type: enum('SMS','WhatsApp')
-    nullable: false
-    default: null
-    comment: ""
-  - name: outbox_sender
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_sender_user_id
-    type: int(8)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_recipient
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: outbox_recipient_user_id
-    type: int(8)
-    nullable: false
-    default: null
-    comment: ""
-  - name: outbox_message
-    type: text
-    nullable: false
-    default: null
-    comment: ""
-  - name: outbox_error_name
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_error_cause
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_error_message
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_error_stack
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_result_status
-    type: varchar(32)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_result_sid
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_result_time
-    type: int(11)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_result_error_code
-    type: int(8)
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: outbox_result_error_message
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (outbox_twilio_id) USING BTREE
-    table: outbox_twilio
-    columns:
-    - outbox_twilio_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (outbox_twilio_id)
-    table: outbox_twilio
-    referencedTable: null
-    columns:
-    - outbox_twilio_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `outbox_twilio` (
-      `outbox_twilio_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `outbox_timestamp` datetime NOT NULL,
-      `outbox_type` enum('SMS','WhatsApp') NOT NULL,
-      `outbox_sender` text DEFAULT NULL,
-      `outbox_sender_user_id` int(8) DEFAULT NULL,
-      `outbox_recipient` text NOT NULL,
-      `outbox_recipient_user_id` int(8) NOT NULL,
-      `outbox_message` text NOT NULL,
-      `outbox_error_name` varchar(32) DEFAULT NULL,
-      `outbox_error_cause` text DEFAULT NULL,
-      `outbox_error_message` text DEFAULT NULL,
-      `outbox_error_stack` text DEFAULT NULL,
-      `outbox_result_status` varchar(32) DEFAULT NULL,
-      `outbox_result_sid` text DEFAULT NULL,
-      `outbox_result_time` int(11) DEFAULT NULL,
-      `outbox_result_error_code` int(8) DEFAULT NULL,
-      `outbox_result_error_message` text DEFAULT NULL,
-      PRIMARY KEY (`outbox_twilio_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: twilio_webhook_calls
   type: BASE TABLE
   comment: ""
@@ -566,7 +437,54 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: webhook_request_signature
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_message_sid
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_message_original_sid
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_error_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_error_cause
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: webhook_error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   indexes:
+  - name: webhook_message_original_sid
+    def: KEY webhook_message_original_sid (webhook_message_original_sid) USING BTREE
+    table: twilio_webhook_calls
+    columns:
+    - webhook_message_original_sid
+    comment: ""
+  - name: webhook_message_sid
+    def: KEY webhook_message_sid (webhook_message_sid) USING BTREE
+    table: twilio_webhook_calls
+    columns:
+    - webhook_message_sid
+    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (webhook_call_id) USING BTREE
     table: twilio_webhook_calls
@@ -594,7 +512,16 @@ tables:
       `webhook_request_url` text NOT NULL,
       `webhook_request_headers` text NOT NULL,
       `webhook_request_body` text NOT NULL,
-      PRIMARY KEY (`webhook_call_id`)
+      `webhook_request_signature` varchar(64) DEFAULT NULL,
+      `webhook_message_sid` varchar(64) DEFAULT NULL,
+      `webhook_message_original_sid` varchar(64) DEFAULT NULL,
+      `webhook_error_name` varchar(32) DEFAULT NULL,
+      `webhook_error_cause` text DEFAULT NULL,
+      `webhook_error_message` text DEFAULT NULL,
+      `webhook_error_stack` text DEFAULT NULL,
+      PRIMARY KEY (`webhook_call_id`),
+      KEY `webhook_message_sid` (`webhook_message_sid`),
+      KEY `webhook_message_original_sid` (`webhook_message_original_sid`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
@@ -3377,6 +3304,142 @@ tables:
       `area_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`area_id`,`area_festival_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: outbox_twilio
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: outbox_twilio_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: outbox_timestamp
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_type
+    type: enum('SMS','WhatsApp')
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_sender
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_sender_user_id
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_recipient
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_recipient_user_id
+    type: int(8)
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_message
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: outbox_error_name
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_cause
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_error_stack
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_status
+    type: varchar(32)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_sid
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_time
+    type: int(11)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_error_code
+    type: int(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: outbox_result_error_message
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: outbox_result_sid
+    def: KEY outbox_result_sid (outbox_result_sid) USING BTREE
+    table: outbox_twilio
+    columns:
+    - outbox_result_sid
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (outbox_twilio_id) USING BTREE
+    table: outbox_twilio
+    columns:
+    - outbox_twilio_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (outbox_twilio_id)
+    table: outbox_twilio
+    referencedTable: null
+    columns:
+    - outbox_twilio_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `outbox_twilio` (
+      `outbox_twilio_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `outbox_timestamp` datetime NOT NULL,
+      `outbox_type` enum('SMS','WhatsApp') NOT NULL,
+      `outbox_sender` text DEFAULT NULL,
+      `outbox_sender_user_id` int(8) DEFAULT NULL,
+      `outbox_recipient` text NOT NULL,
+      `outbox_recipient_user_id` int(8) NOT NULL,
+      `outbox_message` text NOT NULL,
+      `outbox_error_name` varchar(32) DEFAULT NULL,
+      `outbox_error_cause` text DEFAULT NULL,
+      `outbox_error_message` text DEFAULT NULL,
+      `outbox_error_stack` text DEFAULT NULL,
+      `outbox_result_status` varchar(32) DEFAULT NULL,
+      `outbox_result_sid` varchar(64) DEFAULT NULL,
+      `outbox_result_time` int(11) DEFAULT NULL,
+      `outbox_result_error_code` int(8) DEFAULT NULL,
+      `outbox_result_error_message` text DEFAULT NULL,
+      PRIMARY KEY (`outbox_twilio_id`),
+      KEY `outbox_result_sid` (`outbox_result_sid`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events
   type: BASE TABLE
   comment: ""

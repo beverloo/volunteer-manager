@@ -22,6 +22,31 @@ export async function authenticateAndRecordTwilioRequest(
 
     const requestBody = await request.text();
 
+    let body: URLSearchParams | undefined;
+
+    let messageSid: string | undefined;
+    let messageOriginalSid: string | undefined;
+
+    let errorName: string | undefined;
+    let errorCause: string | undefined;
+    let errorMessage: string | undefined;
+    let errorStack: string | undefined;
+
+    try {
+        // TODO: Actually authenticate and validate the `requestBody`.
+        body = new URLSearchParams(requestBody);
+
+        messageSid = body.get('') ?? undefined;
+        messageOriginalSid = body.get('') ?? undefined;
+
+    } catch (error: any) {
+        errorName = error.name;
+        errorCause = !!error.cause ? JSON.stringify(error.cause) : undefined;
+        errorMessage = error.message;
+        errorStack = error.stack;
+    }
+
+
     const dbInstance = db;
     await dbInstance.insertInto(tTwilioWebhookCalls)
         .set({
@@ -32,9 +57,17 @@ export async function authenticateAndRecordTwilioRequest(
             webhookRequestUrl: request.url,
             webhookRequestHeaders: JSON.stringify([ ...request.headers.entries() ]),
             webhookRequestBody: requestBody,
+            // TODO: `webhookRequestSignature`
+
+            webhookMessageSid: messageSid,
+            webhookMessageOriginalSid: messageOriginalSid,
+
+            webhookErrorName: errorName,
+            webhookErrorCause: errorCause,
+            webhookErrorMessage: errorMessage,
+            webhookErrorStack: errorStack,
         })
         .executeInsert();
 
-    // TODO: Actually authenticate and validate the `requestBody`.
-    return requestBody;
+    return body;
 }

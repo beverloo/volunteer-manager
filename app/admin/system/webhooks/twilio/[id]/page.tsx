@@ -38,6 +38,15 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
             requestUrl: tTwilioWebhookCalls.webhookRequestUrl,
             requestHeaders: tTwilioWebhookCalls.webhookRequestHeaders,
             requestBody: tTwilioWebhookCalls.webhookRequestBody,
+            // TODO: `webhookRequestSignature`
+
+            // TODO: `webhookMessageSid`
+            // TODO: `webhookMessageOriginalSid`
+
+            errorName: tTwilioWebhookCalls.webhookErrorName,
+            errorCause: tTwilioWebhookCalls.webhookErrorCause,
+            errorMessage: tTwilioWebhookCalls.webhookErrorMessage,
+            errorStack: tTwilioWebhookCalls.webhookErrorStack,
         })
         .executeSelectNoneOrOne();
 
@@ -118,6 +127,39 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
                     </TableBody>
                 </Table>
             </Paper>
+            { !!webhook.errorName &&
+                <Paper>
+                    <SectionHeader title="Parameters" sx={sx} />
+                    <Table>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell width="20%" component="th" scope="row">
+                                    <strong>Name</strong>
+                                </TableCell>
+                                <TableCell>{webhook.errorName}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell width="20%" component="th" scope="row">
+                                    <strong>Message</strong>
+                                </TableCell>
+                                <TableCell>{webhook.errorMessage}</TableCell>
+                            </TableRow>
+                            { !!webhook.errorCause &&
+                                <TableRow>
+                                    <TableCell width="20%" component="th" scope="row">
+                                        <strong>Cause</strong>
+                                    </TableCell>
+                                    <TableCell>{webhook.errorCause}</TableCell>
+                                </TableRow> }
+                            <TableRow>
+                                <TableCell width="20%" component="th" scope="row">
+                                    <strong>Stack</strong>
+                                </TableCell>
+                                <TableCell>{webhook.errorStack}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </Paper> }
         </>
     );
 }
