@@ -6,11 +6,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import Tooltip from '@mui/material/Tooltip';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TwilioOutboxType } from '@lib/database/Types';
@@ -71,7 +73,10 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
             requestUrl: tTwilioWebhookCalls.webhookRequestUrl,
             requestHeaders: tTwilioWebhookCalls.webhookRequestHeaders,
             requestBody: tTwilioWebhookCalls.webhookRequestBody,
-            // TODO: `webhookRequestSignature`
+
+            requestSignature: tTwilioWebhookCalls.webhookRequestSignature,
+            requestAuthenticated:
+                tTwilioWebhookCalls.webhookRequestAuthenticated.equals(/* true= */ 1),
 
             errorName: tTwilioWebhookCalls.webhookErrorName,
             errorCause: tTwilioWebhookCalls.webhookErrorCause,
@@ -99,6 +104,21 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
                             </TableCell>
                             <TableCell>
                                 { formatDate(webhook.date, 'dddd, MMMM Do [at] HH:mm:ss') }
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell width="20%" component="th" scope="row">
+                                <strong>Authentication</strong>
+                            </TableCell>
+                            <TableCell>
+                                { !!webhook.requestAuthenticated &&
+                                    <Tooltip title="The request signature has been validated">
+                                        <Chip label="authenticated" size="small" color="success" />
+                                    </Tooltip> }
+                                { !webhook.requestAuthenticated &&
+                                    <Tooltip title="The request signature could not be validated">
+                                        <Chip label="unauthenticated" size="small" color="error" />
+                                    </Tooltip> }
                             </TableCell>
                         </TableRow>
                         <TableRow>

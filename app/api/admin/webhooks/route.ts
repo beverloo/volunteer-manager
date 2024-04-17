@@ -50,7 +50,7 @@ const kWebhookRowModel = z.object({
     /**
      * Whether the message was successfully authenticated.
      */
-    authenticated: z.boolean().optional(),
+    authenticated: z.boolean(),
 });
 
 /**
@@ -94,6 +94,7 @@ export const { GET } = createDataTableApi(kWebhookRowModel, kWebhookContext, {
                 source: tTwilioWebhookCalls.webhookRequestSource,
                 destination: tTwilioWebhookCalls.webhookRequestUrl,
                 size: tTwilioWebhookCalls.webhookRequestBody.length(),
+                authenticated: tTwilioWebhookCalls.webhookRequestAuthenticated.equals(/* true= */ 1)
             })
             .orderBy(sort?.field ?? 'date' as any, sort?.sort ?? 'desc')
             .limitIfValue(pagination?.pageSize)
