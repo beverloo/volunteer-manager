@@ -102,7 +102,7 @@ export function KnowledgeList(props: KnowledgeListProps) {
                 </Tooltip>,
 
             renderCell: params => {
-                if (params.value < 1) {
+                if (params.value < 10) {
                     return (
                         <Tooltip title="An answer still needs to be written">
                             <SourceOutlinedIcon fontSize="small" color="error" />

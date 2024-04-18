@@ -89,15 +89,24 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
 
         const kDefaultTitle = 'New category';
         const kDefaultIcon = 'Unknown';
-        const kDefaultOrder = 0;
 
         const dbInstance = db;
+        const highestCategoryOrder = await dbInstance.selectFrom(tContentCategories)
+            .where(tContentCategories.eventId.equals(event.id))
+                .and(tContentCategories.categoryDeleted.isNull())
+            .selectOneColumn(tContentCategories.categoryOrder)
+            .orderBy(tContentCategories.categoryOrder, 'desc')
+            .limit(1)
+            .executeSelectNoneOrOne();
+
+        const categoryOrder = (highestCategoryOrder ?? 0) + 1;
+
         const insertId = await dbInstance.insertInto(tContentCategories)
             .set({
                 eventId: event.id,
                 categoryTitle: kDefaultTitle,
                 categoryIcon: kDefaultIcon,
-                categoryOrder: kDefaultOrder,
+                categoryOrder,
                 categoryCreated: dbInstance.currentZonedDateTime(),
                 categoryUpdated: dbInstance.currentZonedDateTime(),
             })
@@ -109,7 +118,7 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
                 id: insertId,
                 icon: kDefaultIcon,
                 title: kDefaultTitle,
-                order: kDefaultOrder,
+                order: categoryOrder,
             },
         };
     },
