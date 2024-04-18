@@ -27,6 +27,11 @@ const kContentRowModel = z.object({
     content: z.string().optional(),
 
     /**
+     * Length of the content, in bytes. Only included in the `list` request.
+     */
+    contentLength: z.number().optional(),
+
+    /**
      * Path of the content, excluding any prefixes (e.g. "privacy").
      */
     path: z.string().regex(/^[/.a-zA-Z0-9-]*$/),
@@ -250,6 +255,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             .select({
                 id: tContent.contentId,
                 path: tContent.contentPath,
+                contentLength: tContent.content.length(),
                 categoryId: contentCategoriesJoin.categoryId,
                 categoryName: contentCategoriesJoin.categoryTitle,
                 categoryOrder: contentCategoriesJoin.categoryOrder,
