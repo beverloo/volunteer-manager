@@ -4,6 +4,7 @@
 'use client';
 
 import React, { useCallback, useContext, useState } from 'react';
+import dynamic from 'next/dynamic';
 
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -12,7 +13,6 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import SecurityIcon from '@mui/icons-material/Security';
 
-import { CalendarPopover } from './CalendarPopover';
 import { ScheduleContext } from '../ScheduleContext';
 import { VendorTeam } from '@lib/database/Types';
 import { concatenateNames } from '../lib/concatenateNames';
@@ -32,6 +32,11 @@ const kVendorCardIcon: { [k in VendorTeam]: React.ReactNode } = {
     [VendorTeam.FirstAid]: <LocalHospitalIcon color="primary" />,
     [VendorTeam.Security]: <SecurityIcon color="primary" />,
 };
+
+/**
+ * Lazily import the calendar popover, as it's not something that most people require.
+ */
+const LazyCalendarPopover = dynamic(() => import('./CalendarPopover'), { ssr: false });
 
 /**
  * Props accepted by the <OverviewVendorCard> component.
@@ -90,8 +95,9 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
 
                 </CardActionArea>
             </Card>
-            <CalendarPopover open={calendarOpen} onClose={handleCloseCalendar}
-                             title={title} />
+            <LazyCalendarPopover open={calendarOpen} onClose={handleCloseCalendar}
+                                 schedule={vendor.schedule} timezone={schedule.config.timezone}
+                                 title={title} />
         </>
     );
 }

@@ -58,6 +58,11 @@ const kVendorTeam = z.object({
 });
 
 /**
+ * Type definition of the public schedule information for a particular vendor team.
+ */
+export type PublicVendorSchedule = z.infer<typeof kVendorTeam>['schedule'];
+
+/**
  * Interface definition for the information contained within a public schedule.
  */
 const kPublicSchedule = z.strictObject({
