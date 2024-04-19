@@ -7,11 +7,13 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentType } from '@lib/database/Types';
-import { Header } from '../../components/Header';
+import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
@@ -54,7 +56,12 @@ export default async function ScheduleKnowledgeCategoryPage(
 
     return (
         <>
-            <Header title={category.title} subtitle={category.description} />
+            <Card>
+                <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
+                            title={category.title}
+                            titleTypographyProps={{ variant: 'subtitle2' }}
+                            subheader={category.description} />
+            </Card>
             <Box sx={{ '& .MuiAccordionDetails-root': { paddingTop: 0 } }}>
                 { category.questions.map(({ id, question, answer }) =>
                     <Accordion key={id} id={id} defaultExpanded={ props.searchParams.q === id }>
