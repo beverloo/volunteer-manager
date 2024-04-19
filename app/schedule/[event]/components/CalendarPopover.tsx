@@ -12,12 +12,13 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import useMediaQuery from '@mui/material/useMediaQuery';
+
+import { Calendar, type CalendarEvent } from '@beverloo/volunteer-manager-timeline';
+import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
 import type { PublicVendorSchedule } from '@app/api/event/schedule/getSchedule';
 import { Temporal } from '@lib/Temporal';
-import { Calendar, type CalendarEvent } from '@beverloo/volunteer-manager-timeline';
-import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
+import { useIsMobile } from '../lib/useIsMobile';
 
 /**
  * Props accepted by the <CalendarPopover> component.
@@ -55,7 +56,7 @@ export interface CalendarPopoverProps {
 export default function CalendarPopover(props: CalendarPopoverProps) {
     const { open, onClose, schedule, timezone, title } = props;
 
-    const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('md'));
+    const isMobile = useIsMobile();
     const theme = useTheme();
 
     const { events, min, max } = useMemo(() => {

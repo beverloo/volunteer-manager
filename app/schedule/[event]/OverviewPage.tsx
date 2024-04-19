@@ -5,9 +5,11 @@
 
 import { useContext } from 'react';
 
+import { KnowledgeBaseCard } from './components/KnowledgeBaseCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
 import { ScheduleContext } from './ScheduleContext';
 import { VendorTeam } from '@lib/database/Types';
+import { useIsMobile } from './lib/useIsMobile';
 
 /**
  * Displays the portal's overview page, which contains a series of cards displaying key information
@@ -16,6 +18,8 @@ import { VendorTeam } from '@lib/database/Types';
 export function OverviewPage() {
     const schedule = useContext(ScheduleContext);
 
+    const isMobile = useIsMobile();
+
     return (
         <>
             { /* TODO: Event status */ }
@@ -23,6 +27,8 @@ export function OverviewPage() {
             { /* TODO: Upcoming shift */ }
             { /* TODO: Available back-up volunteers */ }
             { /* TODO: Available senior volunteers */ }
+            { (!!isMobile && !!schedule?.knowledge?.length) &&
+                <KnowledgeBaseCard slug={schedule.slug} /> }
             { !!schedule?.vendors[VendorTeam.FirstAid] &&
                 <OverviewVendorCard team={VendorTeam.FirstAid} /> }
             { !!schedule?.vendors[VendorTeam.Security] &&
