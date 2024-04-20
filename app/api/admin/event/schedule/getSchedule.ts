@@ -603,7 +603,10 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         .executeSelectMany();
 
     for (const scheduledShift of scheduledShifts) {
-        const shift = shiftsMap.get(scheduledShift.shiftId);
+        const shift =
+            !!scheduledShift.shiftId ? shiftsMap.get(scheduledShift.shiftId)
+                                     : { name: 'Unscheduled', colour: '#760707' };
+
         if (!shift)
             continue;  // the |scheduledShift| is not associated with a valid shift
 

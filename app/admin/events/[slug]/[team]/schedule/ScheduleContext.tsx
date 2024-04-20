@@ -155,13 +155,11 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
     // following which we will acquire the necessary information from the server.
     const endpoint = useMemo(() => {
         const endpointParams = new URLSearchParams;
-        endpointParams.set('event', props.event.slug);
-        endpointParams.set('team', props.team.slug);
-
         if (!!date)
             endpointParams.set('date', date);
 
-        return `/api/admin/event/schedule?${endpointParams.toString()}`;
+        const params = endpointParams.toString();
+        return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;
 
     }, [ date, props.event.slug, props.team.slug ]);
 

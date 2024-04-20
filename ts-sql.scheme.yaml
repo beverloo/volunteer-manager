@@ -4299,8 +4299,8 @@ tables:
     comment: ""
   - name: shift_id
     type: int(8) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: schedule_time_start
     type: datetime
@@ -4414,7 +4414,7 @@ tables:
       `schedule_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `user_id` int(8) unsigned NOT NULL,
       `event_id` int(8) unsigned NOT NULL,
-      `shift_id` int(8) unsigned NOT NULL,
+      `shift_id` int(8) unsigned DEFAULT NULL,
       `schedule_time_start` datetime NOT NULL,
       `schedule_time_end` datetime NOT NULL,
       `schedule_updated_by` int(8) unsigned NOT NULL,
@@ -5028,7 +5028,7 @@ relations:
   parentTable: shifts
   parentColumns:
   - shift_id
-  parentCardinality: Exactly one
+  parentCardinality: Zero or one
   def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
   virtual: false
 - table: schedule

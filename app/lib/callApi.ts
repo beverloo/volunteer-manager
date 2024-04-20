@@ -6,7 +6,9 @@ import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabil
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
+import type { CreateScheduleEntryDefinition } from '@app/api/admin/event/schedule/createScheduleEntry';
 import type { DeletePasskeyDefinition } from '@app/api/auth/passkeys/deletePasskey';
+import type { DeleteScheduleEntryDefinition } from '@app/api/admin/event/schedule/deleteScheduleEntry';
 import type { DisplayDefinition } from '@app/api/display/route';
 import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
@@ -44,6 +46,7 @@ import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
+import type { UpdateScheduleEntryDefinition } from '@app/api/admin/event/schedule/updateScheduleEntry';
 import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import type { UpdateVendorScheduleDefinition } from '@app/api/admin/vendors/updateVendorSchedule';
@@ -102,7 +105,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/displays': DisplaysEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
-        '/api/admin/event/schedule': GetScheduleDefinition,
+        '/api/admin/event/schedule/:event/:team': GetScheduleDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['list'],
         '/api/admin/event/shifts': EventShiftEndpoints['list'],
         '/api/admin/event/teams': EventTeamEndpoints['list'],
@@ -139,6 +142,7 @@ export type ApiEndpoints = {
         '/api/admin/content': ContentEndpoints['create'],
         '/api/admin/create-event': CreateEventDefinition,
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['create'],
+        '/api/admin/event/schedule/:event/:team': CreateScheduleEntryDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['create'],
         '/api/admin/event/shifts': EventShiftEndpoints['create'],
         '/api/admin/exports': ExportsEndpoints['create'],
@@ -201,6 +205,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['delete'],
+        '/api/admin/event/schedule/:event/:team/:id': DeleteScheduleEntryDefinition,
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['delete'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['delete'],
         '/api/admin/exports/:id': ExportsEndpoints['delete'],
@@ -220,6 +225,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/displays/:id': DisplaysEndpoints['update'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['update'],
+        '/api/admin/event/schedule/:event/:team/:id': UpdateVendorScheduleDefinition,
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['update'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['update'],
         '/api/admin/event/teams/:id': EventTeamEndpoints['update'],

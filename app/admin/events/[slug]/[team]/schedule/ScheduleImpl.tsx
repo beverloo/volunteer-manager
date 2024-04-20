@@ -91,11 +91,16 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         );
     }
 
+    const eventDefaults: Partial<ScheduleEvent> = {
+        title: 'Unscheduled',
+        color: '#760707',
+    }
+
     return (
         <Paper>
             <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
-                      events={events} eventOverlap={false} onChange={context.processMutation}
-                      markers={markers} resources={resources}
+                      events={events} eventDefaults={eventDefaults} eventOverlap={false}
+                      onChange={context.processMutation} markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
         </Paper>
     );
