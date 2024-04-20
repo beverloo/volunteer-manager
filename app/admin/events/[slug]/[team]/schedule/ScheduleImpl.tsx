@@ -24,7 +24,10 @@ const kMarkerBackgroundColor = {
  * Props accepted by the <ScheduleImpl> component.
  */
 export interface ScheduleImplProps {
-    // TODO
+    /**
+     * Whether the schedule should be displayed in read-only mode.
+     */
+    readOnly?: boolean;
 }
 
 /**
@@ -33,6 +36,8 @@ export interface ScheduleImplProps {
  * order. Furthermore, it supports all filtering options elsewhere in the user interface.
  */
 export function ScheduleImpl(props: ScheduleImplProps) {
+    const { readOnly } = props;
+
     const context = useContext(ScheduleContext);
 
     // ---------------------------------------------------------------------------------------------
@@ -68,9 +73,15 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     }, [ context.schedule ])
 
-    // TODO: Scheduled shifts
+    // ---------------------------------------------------------------------------------------------
+    // Deal with changes that the volunteering lead makes to the schedule
+    // ---------------------------------------------------------------------------------------------
+
 
     // ---------------------------------------------------------------------------------------------
+
+    // TODO: Interaction (double click)
+    // TODO: Interaction (right click)
 
     if (!context.schedule || !resources.length) {
         return (
@@ -85,7 +96,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     return (
         <Paper>
-            <Schedule min={context.schedule.min} max={context.schedule.max}
+            <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
                       events={events} eventOverlap={false}
                       markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { ScheduleContextImpl } from './ScheduleContext';
 import { ScheduleWarnings } from './ScheduleWarnings';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
@@ -28,9 +29,11 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'slug'
         inclusiveShifts: userSettings['user-admin-schedule-inclusive-shifts'] ?? false,
     };
 
+    const readOnly = !can(user, Privilege.EventScheduleManagement);
+
     return (
         <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
-            <ScheduleImpl />
+            <ScheduleImpl readOnly={readOnly} />
             <ScheduleWarnings
                 defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />
         </ScheduleContextImpl>
