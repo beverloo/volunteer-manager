@@ -4,6 +4,7 @@
 'use client';
 
 import React, { createContext, useCallback, useMemo, useState } from 'react';
+import useSWR from 'swr';
 
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -26,7 +27,6 @@ import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPag
 import { SectionHeader } from '@app/admin/components/SectionHeader';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
-import useSWR from 'swr';
 
 /**
  * Information regarding the schedule context.
@@ -178,20 +178,48 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         setProcessingChange(true);
         setProcessingError(undefined);
         try {
+            let response: { success: boolean; error?: string };
             if ('created' in change) {
-                // TODO: Process schedule additions
+                response = await callApi('post', '/api/admin/event/schedule/:event/:team', {
+                    event: props.event.slug,
+                    team: props.team.slug,
+                    shift: {
+                        userId: change.created.resource! as number,
+                        start: change.created.start,
+                        end: change.created.end,
+                    },
+                });
             } else if ('deleted' in change) {
-                // TODO: Process schedule deletions
+                response = await callApi('delete', '/api/admin/event/schedule/:event/:team/:id', {
+                    id: change.deleted.id,
+                    event: props.event.slug,
+                    team: props.team.slug,
+                });
             } else if ('updated' in change) {
-                // TODO: Process schedule updates
+                response = await callApi('put', '/api/admin/event/schedule/:event/:team/:id', {
+                    id: change.updated.id,
+                    event: props.event.slug,
+                    team: props.team.slug,
+                    shift: {
+                        userId: change.updated.resource! as number,
+                        start: change.updated.start,
+                        end: change.updated.end,
+                    },
+                });
+            } else {
+                throw new Error(`Invalid change given: ${'' + change}`);
             }
+
+            if (!response.success)
+                setProcessingError(response.error ?? 'Unable to update the schedule');
+
         } catch (error: any) {
             setProcessingError(error?.message ?? 'Unable to update the schedule');
         } finally {
             setProcessingChange(false);
             mutate();  // invalidate the `schedule`
         }
-    }, [ mutate ]);
+    }, [ mutate, props.event.slug, props.team.slug ]);
 
     // Closes the processing error that's shown, if any.
     const doCloseError = useCallback(() => setProcessingError(undefined), [ /* no dependencies */ ])

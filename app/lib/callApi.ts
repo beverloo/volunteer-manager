@@ -225,7 +225,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['update'],
         '/api/admin/displays/:id': DisplaysEndpoints['update'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['update'],
-        '/api/admin/event/schedule/:event/:team/:id': UpdateVendorScheduleDefinition,
+        '/api/admin/event/schedule/:event/:team/:id': UpdateScheduleEntryDefinition,
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['update'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['update'],
         '/api/admin/event/teams/:id': EventTeamEndpoints['update'],

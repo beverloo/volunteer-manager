@@ -8,6 +8,8 @@ import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 
+import { kTemporalZonedDateTime } from '@app/api/Types';
+
 /**
  * Type that describes the schedule entry that should be updated.
  */
@@ -26,7 +28,29 @@ export const kUpdateScheduleEntryDefinition = z.object({
         /**
          * Unique ID of the schedule entry that should be updated.
          */
-        id: z.string(),
+        id: z.array(z.number().or(z.string())),
+
+        /**
+         * Information about the shift that is being updated.
+         */
+        shift: z.object({
+            /**
+             * User ID of the user to whom the shift now belongs. This may have changed.
+             */
+            userId: z.number(),
+
+            /**
+             * Time at which the shift will start.
+             */
+            start: kTemporalZonedDateTime,
+
+            /**
+             * Time at which the shift will finish.
+             */
+            end: kTemporalZonedDateTime,
+
+            // TODO: Shift type.
+        }),
     }),
     response: z.strictObject({
         /**
@@ -54,5 +78,5 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
         notFound();
 
     // TODO: Implement this function.
-    return { success: false };
+    return { success: false, error: 'Not yet implemented (update)' };
 }

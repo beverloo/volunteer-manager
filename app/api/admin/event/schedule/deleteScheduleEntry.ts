@@ -26,7 +26,7 @@ export const kDeleteScheduleEntryDefinition = z.object({
         /**
          * Unique ID of the schedule entry that should be deleted.
          */
-        id: z.string(),
+        id: z.array(z.number().or(z.string())),
     }),
     response: z.strictObject({
         /**
@@ -53,6 +53,7 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
     if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
         notFound();
 
-    // TODO: Implement this function.
-    return { success: false };
+    // TODO: Delete the shift.
+
+    return { success: false, error: 'Not yet implemented (delete)' };
 }

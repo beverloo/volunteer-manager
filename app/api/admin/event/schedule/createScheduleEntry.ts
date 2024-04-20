@@ -8,6 +8,8 @@ import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 
+import { kTemporalZonedDateTime } from '@app/api/Types';
+
 /**
  * Type that describes the schedule entry that should be created.
  */
@@ -22,6 +24,26 @@ export const kCreateScheduleEntryDefinition = z.object({
          * URL-safe slug of the team for which the schedule is being retrieved.
          */
         team: z.string(),
+
+        /**
+         * The shift that should be created.
+         */
+        shift: z.object({
+            /**
+             * User for whom the shift is being added.
+             */
+            userId: z.number(),
+
+            /**
+             * Time at which the shift will start.
+             */
+            start: kTemporalZonedDateTime,
+
+            /**
+             * Time at which the shift will finish.
+             */
+            end: kTemporalZonedDateTime,
+        }),
     }),
     response: z.strictObject({
         /**
@@ -48,6 +70,9 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
     if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
         notFound();
 
-    // TODO: Implement this function.
-    return { success: false };
+    // TODO: Confirm that the volunteer participates in this event + team.
+    // TODO: Confirm that the shift is valid at this time.
+    // TODO: Create the shift.
+
+    return { success: false, error: 'Not yet implemented (create)' };
 }
