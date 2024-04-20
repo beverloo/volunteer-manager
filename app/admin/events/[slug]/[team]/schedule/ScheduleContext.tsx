@@ -5,12 +5,15 @@
 
 import React, { createContext, useCallback, useMemo, useState } from 'react';
 
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
 import PeopleIcon from '@mui/icons-material/People';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
@@ -48,7 +51,7 @@ export const ScheduleContext = createContext<ScheduleInfo>({
 /**
  * Fetcher used to retrieve the schedule from the server.
  */
-const scheduleFetcher = (url: string) => fetch(url).then(r => r.json()).then(r => r.schedule);
+const fetcher = (url: string) => fetch(url).then(r => r.json()).then(r => r.schedule);
 
 /**
  * Props accepted by the <ScheduleContextImpl> component.
@@ -147,7 +150,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     }, [ date, props.event.slug, props.team.slug ]);
 
-    const { data, error, isLoading } = useSWR<GetScheduleResult>(endpoint, scheduleFetcher, {
+    const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(endpoint, fetcher, {
         // TODO: Select the appropriate options
     });
 
@@ -161,7 +164,19 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 <SectionHeader title="Schedule" subtitle={props.team.name} sx={{ mb: 0 }} />
                 <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
                        spacing={2} alignItems="center">
-                    <Tooltip title="Make available other teams' shifts">
+                    { !!isLoading &&
+                        <Tooltip title="The schedule is being updated…">
+                            <CircularProgress size={16} sx={{ mr: '2px !important' }} />
+                        </Tooltip> }
+                    { (!isLoading && !error) &&
+                        <Tooltip title="The schedule is up to date">
+                            <TaskAltIcon fontSize="small" color="success" />
+                        </Tooltip> }
+                    { (!isLoading && !!error) &&
+                        <Tooltip title={ error?.message || 'The schedule could not be updated' }>
+                            <ErrorOutlineIcon fontSize="small" color="error" />
+                        </Tooltip> }
+                    <Tooltip title="Allow scheduling other teams' shifts">
                         <FormControlLabel control={ <Switch size="small"
                                                             defaultChecked={inclusiveShifts} /> }
                                           label={ <PeopleIcon fontSize="small" /> }
