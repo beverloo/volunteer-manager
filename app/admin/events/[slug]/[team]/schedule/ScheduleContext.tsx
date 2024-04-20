@@ -5,12 +5,14 @@
 
 import React, { createContext, useCallback, useMemo, useState } from 'react';
 
+import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
 import PeopleIcon from '@mui/icons-material/People';
+import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -169,13 +171,34 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ isProcessingChange, setProcessingChange ] = useState<boolean>(false);
+    const [ processingError, setProcessingError ] = useState<string | undefined>();
+
     // Called when the `change` has been made to the schedule. It will be communicated with the
     // server, after which the fetched schedule will be invalidated.
-    const processMutation = useCallback((events: ScheduleEvent[], change: ChangeEventContext) => {
-        // TODO: Do something with the `change`
-        // TODO: Call `mutate` to invalidate the schedule
+    const processMutation = useCallback(async (events: unknown, change: ChangeEventContext) => {
+        setProcessingChange(true);
+        setProcessingError(undefined);
+        try {
+            if ('created' in change) {
+                // TODO: Process schedule additions
+            } else if ('deleted' in change) {
+                // TODO: Process schedule deletions
+            } else if ('updated' in change) {
+                // TODO: Process schedule updates
+            }
+        } catch (error: any) {
+            setProcessingError(error?.message ?? 'Unable to update the schedule');
+        } finally {
+            setProcessingChange(false);
+            mutate();  // invalidate the `schedule`
+        }
+    }, [ mutate ]);
 
-    }, [ /* no dependencies */ ]);
+    // Closes the processing error that's shown, if any.
+    const doCloseError = useCallback(() => setProcessingError(undefined), [ /* no dependencies */ ])
+
+    // ---------------------------------------------------------------------------------------------
 
     // The schedule context contains our local confirmation, as well as the schedule that has been
     // fetched from the server, when the data is ready. On top of that, we provide utility functions
@@ -194,15 +217,15 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 <SectionHeader title="Schedule" subtitle={props.team.name} sx={{ mb: 0 }} />
                 <Stack direction="row" divider={ <Divider orientation="vertical" flexItem /> }
                        spacing={2} alignItems="center">
-                    { !!isLoading &&
+                    { (!!isLoading || !!isProcessingChange) &&
                         <Tooltip title="The schedule is being updated…">
                             <CircularProgress size={16} sx={{ mr: '2px !important' }} />
                         </Tooltip> }
-                    { (!isLoading && !error) &&
+                    { ((!isLoading && !isProcessingChange) && !error) &&
                         <Tooltip title="The schedule is up to date">
                             <TaskAltIcon fontSize="small" color="success" />
                         </Tooltip> }
-                    { (!isLoading && !!error) &&
+                    { ((!isLoading && !isProcessingChange) && !!error) &&
                         <Tooltip title={ error?.message || 'The schedule could not be updated' }>
                             <ErrorOutlineIcon fontSize="small" color="error" />
                         </Tooltip> }
@@ -225,6 +248,11 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 </Stack>
             </Stack>
             {props.children}
+            <Snackbar autoHideDuration={3000} onClose={doCloseError} open={!!processingError}>
+                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
+                    {processingError}
+                </Alert>
+            </Snackbar>
         </ScheduleContext.Provider>
     );
 }
