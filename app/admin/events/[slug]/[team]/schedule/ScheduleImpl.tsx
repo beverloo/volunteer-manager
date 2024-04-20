@@ -8,7 +8,9 @@ import { useContext, useMemo } from 'react';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 
-import type { ScheduleEvent, ScheduleMarker, ScheduleResource } from '@app/admin/components/Schedule';
+import type { ScheduleEvent, ScheduleMarker, ScheduleResource }
+    from '@app/admin/components/Schedule';
+
 import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 
@@ -74,11 +76,6 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     }, [ context.schedule ])
 
     // ---------------------------------------------------------------------------------------------
-    // Deal with changes that the volunteering lead makes to the schedule
-    // ---------------------------------------------------------------------------------------------
-
-
-    // ---------------------------------------------------------------------------------------------
 
     // TODO: Interaction (double click)
     // TODO: Interaction (right click)
@@ -97,7 +94,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     return (
         <Paper>
             <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
-                      events={events} eventOverlap={false}
+                      events={events} eventOverlap={false} onChange={context.processMutation}
                       markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
         </Paper>

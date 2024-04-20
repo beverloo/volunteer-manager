@@ -18,6 +18,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 
+import type { ChangeEventContext, ScheduleEvent } from '@app/admin/components/Schedule';
 import type { GetScheduleResult } from '@app/api/admin/event/schedule/getSchedule';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { SectionHeader } from '@app/admin/components/SectionHeader';
@@ -33,6 +34,12 @@ export interface ScheduleInfo {
      * Whether it should be possible to schedule shifts owned by the other teams.
      */
     inclusiveShifts: boolean;
+
+    /**
+     * Processes the mutation described in the given `context`. Will be `undefined` when the
+     * schedule context has not been initialised yet.
+     */
+    processMutation?: (events: ScheduleEvent[], change: ChangeEventContext) => void;
 
     /**
      * The schedule, as it was retrieved from the server. Updates periodically.
@@ -80,6 +87,8 @@ export interface ScheduleContextImplProps {
 export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleContextImplProps>) {
     const { defaultContext } = props;
 
+    // ---------------------------------------------------------------------------------------------
+
     // Computes the dates that are available within the schedule—based within the event's start and
     // end dates included in `props.event`. Will be represented as a Set of strings.
     const availableDays = useMemo(() => {
@@ -104,6 +113,8 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         return availableDays;
 
     }, [ props.event ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     // Initialise the state based on the `props`. The `date` will be validated on initialisation as
     // the setting may be persisted across events.
@@ -136,6 +147,8 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     }, [ /* no dependencies */ ]);
 
+    // ---------------------------------------------------------------------------------------------
+
     // Load the schedule using SWR. The endpoint will be composed based on the props and the date,
     // following which we will acquire the necessary information from the server.
     const endpoint = useMemo(() => {
@@ -154,8 +167,25 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         // TODO: Select the appropriate options
     });
 
-    const scheduleContext: ScheduleInfo =
-        useMemo(() => ({ inclusiveShifts, schedule: data }), [ data, inclusiveShifts ]);
+    // ---------------------------------------------------------------------------------------------
+
+    // Called when the `change` has been made to the schedule. It will be communicated with the
+    // server, after which the fetched schedule will be invalidated.
+    const processMutation = useCallback((events: ScheduleEvent[], change: ChangeEventContext) => {
+        // TODO: Do something with the `change`
+        // TODO: Call `mutate` to invalidate the schedule
+
+    }, [ /* no dependencies */ ]);
+
+    // The schedule context contains our local confirmation, as well as the schedule that has been
+    // fetched from the server, when the data is ready. On top of that, we provide utility functions
+    // for schedule mutations to be shared back with the server.
+    const scheduleContext: ScheduleInfo = useMemo(() => ({
+        inclusiveShifts,
+        processMutation,
+        schedule: data
+
+    }), [ data, inclusiveShifts, processMutation ]);
 
     return (
         <ScheduleContext.Provider value={scheduleContext}>

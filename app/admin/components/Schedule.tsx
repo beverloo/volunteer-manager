@@ -13,10 +13,12 @@ import { Temporal } from '@lib/Temporal';
 
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 import { Schedule as ScheduleInternal } from '@beverloo/volunteer-manager-timeline';
-import type { ScheduleProps as ScheduleInternalProps, ScheduleEvent, ScheduleEventMutation,
-    ScheduleMarker, ScheduleResource } from '@beverloo/volunteer-manager-timeline';
+import type { ChangeEventContext, ScheduleProps as ScheduleInternalProps, ScheduleEvent,
+    ScheduleEventMutation, ScheduleMarker, ScheduleResource }
+    from '@beverloo/volunteer-manager-timeline';
 
-export type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleResource };
+export type {
+    ChangeEventContext, ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleResource };
 
 /**
  * Props accepted by the <Schedule> event.
