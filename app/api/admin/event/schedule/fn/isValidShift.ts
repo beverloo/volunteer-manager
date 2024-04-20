@@ -6,6 +6,7 @@ import { Temporal } from '@lib/Temporal';
 import { getTimeslots } from './getTimeslots';
 import { readSettings } from '@lib/Settings';
 import { determineAvailability } from './determineAvailability';
+import db, { tSchedule } from '@lib/database';
 
 /**
  * Type that defines the information we need to know about a particular shift.
@@ -16,6 +17,7 @@ type ShiftInfo = { start: Temporal.ZonedDateTime; end: Temporal.ZonedDateTime; }
  * Type that defines the information we need to know about a particular volunteer.
  */
 type VolunteerInfo = {
+    id: number;
     availabilityExceptions?: string;
     availabilityTimeslots?: string;
     preferenceTimingStart?: number;
@@ -26,8 +28,9 @@ type VolunteerInfo = {
  * Determines whether the given `shift` is valid to schedule for the given `user`. This considers
  * both their existing shfits and their (un)availability, in relation to the current event.
  */
-export async function isValidShift(event: Event, volunteer: VolunteerInfo, shift: ShiftInfo)
-    : Promise<boolean>
+export async function isValidShift(
+    event: Event, volunteer: VolunteerInfo, shift: ShiftInfo, ignoreShift?: number)
+        : Promise<boolean>
 {
     const timeslots = await getTimeslots(event.festivalId);
     const settings = await readSettings([
@@ -61,5 +64,14 @@ export async function isValidShift(event: Event, volunteer: VolunteerInfo, shift
         return false;
     }
 
-    return true;
+    const conflictingShiftId = await db.selectFrom(tSchedule)
+        .where(tSchedule.userId.equals(volunteer.id))
+            .and(tSchedule.eventId.equals(event.id))
+            .and(tSchedule.scheduleTimeStart.lessThan(shift.end))
+            .and(tSchedule.scheduleTimeEnd.greaterThan(shift.start))
+            .and(tSchedule.scheduleDeleted.isNull())
+        .selectOneColumn(tSchedule.scheduleId)
+        .executeSelectNoneOrOne();
+
+    return conflictingShiftId === null || conflictingShiftId === ignoreShift;
 }
