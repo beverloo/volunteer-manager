@@ -191,13 +191,13 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 });
             } else if ('deleted' in change) {
                 response = await callApi('delete', '/api/admin/event/schedule/:event/:team/:id', {
-                    id: change.deleted.id,
+                    id: change.deleted.id as any as string[],
                     event: props.event.slug,
                     team: props.team.slug,
                 });
             } else if ('updated' in change) {
                 response = await callApi('put', '/api/admin/event/schedule/:event/:team/:id', {
-                    id: change.updated.id,
+                    id: change.updated.id as any as string[],
                     event: props.event.slug,
                     team: props.team.slug,
                     shift: {

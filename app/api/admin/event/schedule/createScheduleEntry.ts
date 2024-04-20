@@ -7,6 +7,10 @@ import { z } from 'zod';
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationStatus } from '@lib/database/Types';
+import { getEventBySlug } from '@lib/EventLoader';
+import { isValidShift } from './fn/isValidShift';
+import db, { tSchedule, tTeams, tUsersEvents } from '@lib/database';
 
 import { kTemporalZonedDateTime } from '@app/api/Types';
 
@@ -70,9 +74,52 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
     if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
         notFound();
 
-    // TODO: Confirm that the volunteer participates in this event + team.
-    // TODO: Confirm that the shift is valid at this time.
-    // TODO: Create the shift.
+    const event = await getEventBySlug(request.event);
+    if (!event)
+        notFound();
 
-    return { success: false, error: 'Not yet implemented (create)' };
+    const volunteer = await db.selectFrom(tUsersEvents)
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .where(tUsersEvents.userId.equals(request.shift.userId))
+            .and(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+        .select({
+            id: tUsersEvents.userId,
+
+            teamId: tTeams.teamId,
+            teamSlug: tTeams.teamEnvironment,
+
+            // TODO...
+
+            availabilityExceptions: tUsersEvents.availabilityExceptions,
+            availabilityTimeslots: tUsersEvents.availabilityTimeslots,
+            preferenceTimingStart: tUsersEvents.preferenceTimingStart,
+            preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!volunteer || volunteer.teamSlug !== request.team)
+        return { success: false, error: 'The selected volunteer is not part of this team' };
+
+    const valid = await isValidShift(event, volunteer, request.shift);
+    if (!valid)
+        return { success: false, error: 'Cannot schedule a shift at that time for the volunteer' };
+
+    const dbInstance = db;
+    await dbInstance.insertInto(tSchedule)
+        .set({
+            userId: volunteer.id,
+            eventId: event.id,
+            shiftId: /* to be determined= */ undefined,
+            scheduleTimeStart: request.shift.start,
+            scheduleTimeEnd: request.shift.end,
+            scheduleUpdatedBy: props.user.userId,
+            scheduleUpdated: dbInstance.currentZonedDateTime()
+        })
+        .executeInsert();
+
+    // TODO: Log.
+
+    return { success: true };
 }
