@@ -28,7 +28,7 @@ export const kUpdateScheduleEntryDefinition = z.object({
         /**
          * Unique ID of the schedule entry that should be updated.
          */
-        id: z.array(z.number().or(z.string())),
+        id: z.array(z.string()),
 
         /**
          * Information about the shift that is being updated.

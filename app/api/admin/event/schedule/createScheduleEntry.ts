@@ -87,15 +87,10 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
         .select({
             id: tUsersEvents.userId,
 
-            teamId: tTeams.teamId,
             teamSlug: tTeams.teamEnvironment,
-
-            // TODO...
 
             availabilityExceptions: tUsersEvents.availabilityExceptions,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,
-            preferenceTimingStart: tUsersEvents.preferenceTimingStart,
-            preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
         })
         .executeSelectNoneOrOne();
 

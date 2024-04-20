@@ -7,6 +7,8 @@ import { z } from 'zod';
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { getEventBySlug } from '@lib/EventLoader';
+import db, { tSchedule } from '@lib/database';
 
 /**
  * Type that describes the schedule entry that should be deleted.
@@ -26,7 +28,7 @@ export const kDeleteScheduleEntryDefinition = z.object({
         /**
          * Unique ID of the schedule entry that should be deleted.
          */
-        id: z.array(z.number().or(z.string())),
+        id: z.array(z.string()),
     }),
     response: z.strictObject({
         /**
@@ -53,7 +55,30 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
     if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
         notFound();
 
-    // TODO: Delete the shift.
+    if (request.id.length !== 1)
+        notFound();  // invalid request
 
-    return { success: false, error: 'Not yet implemented (delete)' };
+    const id = parseInt(request.id[0] as string, 10);
+
+    // TODO: Figure out if we need to handle this case, and if so, how. We might need to match the
+    // shift's timings against a newly created shift in the database.
+    if (Number.isNaN(id))
+        return { success: false, error: 'The selected shift has not been saved yet' };
+
+    const event = await getEventBySlug(request.event);
+    if (!event)
+        notFound();
+
+    const dbInstance = db;
+    const affectedRows = await dbInstance.update(tSchedule)
+        .set({
+            scheduleDeleted: db.currentZonedDateTime()
+        })
+        .where(tSchedule.scheduleId.equals(id))
+            .and(tSchedule.eventId.equals(event.id))
+        .executeUpdate();
+
+    // TODO: Log.
+
+    return { success: !!affectedRows };
 }
