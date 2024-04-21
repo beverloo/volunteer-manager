@@ -127,13 +127,21 @@ export default async function IntegrationsPage() {
                 description: 'Number of hours after closing that shifts can be scheduled',
             },
             {
+                setting: 'schedule-recent-shift-count',
+                type: 'number',
+                defaultValue: 4,
+
+                label: 'Schedule - recent shifts',
+                description: 'Number of recent shifts to display in the context menu',
+            },
+            {
                 setting: 'schedule-time-step-minutes',
                 type: 'number',
                 defaultValue: 15,
 
                 label: 'Schedule - time step',
                 description:
-                    'Time step, in minutes, defining granularity of shifts in the scheduling tools.'
+                    'Time step, in minutes, defining granularity of shifts in the scheduling tools',
             },
             {
                 setting: 'vendor-first-aid-email-address',

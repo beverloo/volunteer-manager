@@ -35,6 +35,7 @@ type SettingsMap = {
     'schedule-day-view-end-time': string;
     'schedule-event-view-start-hours': number;
     'schedule-event-view-end-hours': number;
+    'schedule-recent-shift-count': number;
     'schedule-time-step-minutes': number;
     'schedule-vendor-first-aid-card': boolean;
     'schedule-vendor-security-card': boolean;

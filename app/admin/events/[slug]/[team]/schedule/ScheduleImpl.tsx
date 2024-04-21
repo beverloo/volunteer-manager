@@ -81,10 +81,19 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     }, [ context.schedule ])
 
-    const shifts = useMemo(() => {
+    const { recentShifts, shifts } = useMemo(() => {
+        const recentShifts: { id: number; label: string; color: string }[] = [];
         const shifts: { id: number; label: string; color: string }[] = [];
 
         if (!!context.schedule) {
+            for (const shiftId of context.schedule.metadata.recent) {
+                const shift = context.schedule.metadata.shifts.find(v => v.id === shiftId);
+                if (!shift)
+                    continue;  // the |shift| no longer exists
+
+                recentShifts.push(shift);
+            }
+
             for (const shift of context.schedule.metadata.shifts) {
                 if (!context.inclusiveShifts && !shift.localTeam)
                     continue;  // ignore this shift
@@ -93,7 +102,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             }
         }
 
-        return shifts;
+        return { recentShifts, shifts };
 
     }, [ context.inclusiveShifts, context.schedule ]);
 
@@ -134,6 +143,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             dialogResolver({
                 update: {
                     ...event,
+                    shiftId: shift.id,
                     title: shift.label,
                     color: shift.color,
                 }
@@ -163,8 +173,27 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ contextMenuPosition, setContextMenuPosition ] = useState<PopoverPosition | undefined>();
     const [ contextMenuResolver, setContextMenuResolver ] = useState<ContextMenuResolver>();
 
-    // TODO: Populate a list of the most recent selected shifts
-    // TODO: Hook up selecting a particular shift to udpate the `contextMenuEvent` to
+    const handleRightClickMenuSelect = useCallback((shiftId: number) => {
+        if (!contextMenuEvent || !contextMenuResolver)
+            return;
+
+        for (const shift of shifts) {
+            if (shift.id !== shiftId)
+                continue;
+
+            contextMenuResolver({
+                update: {
+                    ...contextMenuEvent,
+                    shiftId: shift.id,
+                    title: shift.label,
+                    color: shift.color,
+                }
+            });
+        }
+
+        setContextMenuEvent(undefined);
+
+    }, [ contextMenuEvent, contextMenuResolver, shifts ]);
 
     const handleRightClickMenuClose = useCallback(() => {
         setContextMenuEvent(undefined);
@@ -217,14 +246,14 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                            onSubmit={handleDialogUpdate} defaultValues={ dialogEvent ?? {} }>
                 <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
             </SettingDialog>
-            <Menu open={!!contextMenuEvent}
+            <Menu open={!!contextMenuEvent && !!recentShifts.length}
                   onClose={handleRightClickMenuClose}
                   anchorReference="anchorPosition"
                   anchorPosition={contextMenuPosition}>
-                <MenuItem>Recent shift #1</MenuItem>
-                <MenuItem>Recent shift #2</MenuItem>
-                <MenuItem>Recent shift #3</MenuItem>
-                <MenuItem>Recent shift #4</MenuItem>
+                { recentShifts.map(shift =>
+                    <MenuItem key={shift.id} onClick={ () => handleRightClickMenuSelect(shift.id) }>
+                        {shift.label}
+                    </MenuItem> )}
             </Menu>
         </Paper>
     );

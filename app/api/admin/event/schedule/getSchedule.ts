@@ -69,6 +69,11 @@ export const kScheduleDefinition = z.object({
      */
     metadata: z.object({
         /**
+         * Recent shifts (included in `shifts`) that the signed in volunteer recently touched.
+         */
+        recent: z.array(z.number()),
+
+        /**
          * Shifts that exist for the event, across teams.
          */
         shifts: z.array(z.object({
@@ -295,7 +300,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     });
 
     const { event, team } = await validateContext(request);
-    if (!event || !team)
+    if (!event || !team || !props.user?.userId)
         notFound();
 
     const settings = await readSettings([
@@ -303,6 +308,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         'schedule-day-view-end-time',
         'schedule-event-view-start-hours',
         'schedule-event-view-end-hours',
+        'schedule-recent-shift-count',
     ]);
 
     const { min, max } = determineDateRange({ date: request.date, event, settings });
@@ -312,6 +318,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         max: max.toString({ timeZoneName: 'never' }),
         markers: [],
         metadata: {
+            recent: [ /* empty */ ],
             shifts: [ /* empty */ ],
         },
         resources: [],
@@ -450,6 +457,20 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     // ---------------------------------------------------------------------------------------------
     // Include information about the `shifts` that exist for this festival
     // ---------------------------------------------------------------------------------------------
+
+    const recentShifts = await dbInstance.selectDistinctFrom(tSchedule)
+        .where(tSchedule.eventId.equals(event.id))
+            .and(tSchedule.shiftId.isNotNull())
+            .and(tSchedule.scheduleUpdatedBy.equals(props.user.userId))
+        .selectOneColumn(tSchedule.shiftId)
+        .orderBy(tSchedule.scheduleUpdated, 'desc')
+        .limit(settings['schedule-recent-shift-count'] ?? 4)
+        .executeSelectMany();
+
+    for (const shiftId of recentShifts) {
+        if (shiftsMap.has(shiftId!))
+            schedule.metadata.recent.push(shiftId!);
+    }
 
     for (const shift of shifts) {
         schedule.metadata.shifts.push({
