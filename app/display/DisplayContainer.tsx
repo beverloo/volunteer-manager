@@ -3,7 +3,7 @@
 
 'use client';
 
-import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 
 /**
  * The <DisplayContainer> component is intended to contain the display's contents. The component is
@@ -11,8 +11,8 @@ import Box from '@mui/material/Box';
  */
 export function DisplayContainer(props: React.PropsWithChildren) {
     return (
-        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <Stack direction="column" spacing={2} flexGrow={1} sx={{ overflow: 'auto' }}>
             {props.children}
-        </Box>
+        </Stack>
     );
 }

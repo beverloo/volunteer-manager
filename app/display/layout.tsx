@@ -1,6 +1,8 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Metadata } from 'next';
+
 import Stack from '@mui/material/Stack';
 
 import { DisplayContainer } from './DisplayContainer';
@@ -24,3 +26,7 @@ export default function DisplayLayout(props: React.PropsWithChildren) {
         </DisplayController>
     );
 }
+
+export const metadata: Metadata = {
+    title: 'AnimeCon Volunteering Teams | Display app',
+};
