@@ -307,15 +307,21 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
         return { success: true };
     },
 
-    async writeLog({ context }, mutation, props) {
+    async writeLog({ context, id }, mutation, props) {
         const event = await getEventBySlug(context.event);
         if (!event)
             return;
+
+        const targetUserId = await db.selectFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.assignmentId.equals(id))
+            .selectOneColumn(tTrainingsAssignments.assignmentUserId)
+            .executeSelectNoneOrOne();
 
         await Log({
             type: LogType.AdminEventTrainingAssignment,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
+            targetUser: targetUserId ?? undefined,
             data: {
                 eventName: event!.shortName,
                 mutation,
