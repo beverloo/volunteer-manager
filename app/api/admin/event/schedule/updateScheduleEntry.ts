@@ -44,6 +44,11 @@ export const kUpdateScheduleEntryDefinition = z.object({
             userId: z.number(),
 
             /**
+             * Unique ID of the defined shift, as it exists in the database.
+             */
+            shiftId: z.number().optional(),
+
+            /**
              * Time at which the shift will start.
              */
             start: kTemporalZonedDateTime,
@@ -120,6 +125,9 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
 
     const dbInstance = db;
     const affectedRows = await dbInstance.update(tSchedule)
+        .setIfValue({
+            shiftId: request.shift.shiftId,
+        })
         .set({
             userId: request.shift.userId,
             scheduleTimeStart: request.shift.start,

@@ -5,6 +5,8 @@
 
 import { useCallback, useContext, useMemo, useState } from 'react';
 
+import { SelectElement } from 'react-hook-form-mui';
+
 import type { PopoverPosition } from '@mui/material/Popover';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -79,15 +81,30 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     }, [ context.schedule ])
 
+    const shifts = useMemo(() => {
+        const shifts: { id: number; label: string; color: string }[] = [];
+
+        if (!!context.schedule) {
+            for (const shift of context.schedule.metadata.shifts) {
+                if (!context.inclusiveShifts && !shift.localTeam)
+                    continue;  // ignore this shift
+
+                shifts.push(shift);
+            }
+        }
+
+        return shifts;
+
+    }, [ context.inclusiveShifts, context.schedule ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Interaction: double click -> shift settings dialog
     // ---------------------------------------------------------------------------------------------
 
     type DialogResolver = undefined | ((mutation?: ScheduleEventMutation) => void);
 
     const [ dialogEvent, setDialogEvent ] = useState<ScheduleEvent | undefined>();
     const [ dialogResolver, setDialogResolver ] = useState<DialogResolver>();
-
-    // TODO: Populate a list of shifts that can be selected
-    // TODO: Hook up updates in the `handleDialogUpdate` callback
 
     const handleDialogClose = useCallback(() => {
         setDialogEvent(undefined);
@@ -97,7 +114,6 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     }, [ dialogResolver ]);
 
     const handleDialogDelete = useCallback(async () => {
-        console.log(dialogEvent, dialogResolver);
         if (!dialogEvent || !dialogResolver)
             return { error: <>I forgot which shift was selected, sorry!</> };
 
@@ -107,9 +123,28 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     }, [ dialogEvent, dialogResolver ]);
 
     const handleDialogUpdate = useCallback(async (event: ScheduleEvent) => {
-        return { error: 'Not yet implemented' };
+        if (!dialogEvent || !dialogResolver)
+            return { error: <>I forgot which shift was selected, sorry!</> };
 
-    }, [ dialogEvent ]);
+        for (const shift of shifts) {
+            if (shift.id !== event.shiftId)
+                continue;
+
+            setDialogEvent(undefined);
+            dialogResolver({
+                update: {
+                    ...event,
+                    title: shift.label,
+                    color: shift.color,
+                }
+            });
+
+            return { close: true } as const;
+        }
+
+        return { error: <>You need to select a shift to assign them to!</> };
+
+    }, [ dialogEvent, dialogResolver, shifts ]);
 
     const handleDoubleClick = useCallback(async (event: ScheduleEvent) => {
         return new Promise<ScheduleEventMutation | undefined>(resolve => {
@@ -118,6 +153,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         });
     }, [ /* no dependencies */ ]);
 
+    // ---------------------------------------------------------------------------------------------
+    // Interaction: right click -> recent shift context menu
     // ---------------------------------------------------------------------------------------------
 
     type ContextMenuResolver = undefined | ((mutation?: ScheduleEventMutation) => void);
@@ -178,7 +215,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             <SettingDialog title="Select a shift" delete open={!!dialogEvent}
                            onClose={handleDialogClose} onDelete={handleDialogDelete}
                            onSubmit={handleDialogUpdate} defaultValues={ dialogEvent ?? {} }>
-                <em>Shift selection dialog will show up here</em>
+                <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
             </SettingDialog>
             <Menu open={!!contextMenuEvent}
                   onClose={handleRightClickMenuClose}

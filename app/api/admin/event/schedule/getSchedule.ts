@@ -65,6 +65,36 @@ export const kScheduleDefinition = z.object({
     })),
 
     /**
+     * Metadata specific to this event, but not per se to the schedule that's being displayed
+     */
+    metadata: z.object({
+        /**
+         * Shifts that exist for the event, across teams.
+         */
+        shifts: z.array(z.object({
+            /**
+             * Unique ID of the shift as it exists in the database.
+             */
+            id: z.number(),
+
+            /**
+             * Label of the shift, as it should be presented.
+             */
+            label: z.string(),
+
+            /**
+             * Colour in which the shift should be displayed on the schedule.
+             */
+            color: z.string(),
+
+            /**
+             * Whether the shift is part of the local team, or of one of the partnering teams.
+             */
+            localTeam: z.boolean(),
+        })),
+    }),
+
+    /**
      * The resources that should be shown on the schedule. Resources are volunteers, grouped by the
      * role that they have been assigned to, and then shown in alphabetical order.
      */
@@ -106,9 +136,14 @@ export const kScheduleDefinition = z.object({
      */
     shifts: z.array(z.object({
         /**
-         * Unique ID of the shift as it exists in the database.
+         * Unique ID of the scheduled shift as it exists in the database.
          */
         id: z.number(),
+
+        /**
+         * Unique ID of the defined shift as it exists in the database.
+         */
+        shiftId: z.number().optional(),
 
         /**
          * Date and time at which the shift starts.
@@ -276,6 +311,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         min: min.toString({ timeZoneName: 'never' }),
         max: max.toString({ timeZoneName: 'never' }),
         markers: [],
+        metadata: {
+            shifts: [ /* empty */ ],
+        },
         resources: [],
         shifts: [],
         timezone: event.timezone,
@@ -398,6 +436,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
         schedule.shifts.push({
             id: scheduledShift.id,
+            shiftId: scheduledShift.shiftId,
             start: scheduledShift.start.toString({ timeZoneName: 'never' }),
             end: scheduledShift.end.toString({ timeZoneName: 'never' }),
             title: shift.name,
@@ -407,6 +446,21 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
         // TODO: Compute warnings
     }
+
+    // ---------------------------------------------------------------------------------------------
+    // Include information about the `shifts` that exist for this festival
+    // ---------------------------------------------------------------------------------------------
+
+    for (const shift of shifts) {
+        schedule.metadata.shifts.push({
+            id: shift.id,
+            label: shift.name,
+            color: shift.colour,
+            localTeam: shift.team.id === team.id,
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     return {
         success: true,

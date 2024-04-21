@@ -202,6 +202,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                     team: props.team.slug,
                     shift: {
                         userId: change.updated.resource! as number,
+                        shiftId: change.updated.shiftId,
                         start: change.updated.start,
                         end: change.updated.end,
                     },
