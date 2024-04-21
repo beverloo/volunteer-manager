@@ -11,10 +11,20 @@ import type { DisplayDefinition } from '@app/api/display/route';
  * Context conveyed for the entire display. The context is owned and maintained by the
  * <DisplayController> component, which also provides the necessary updates.
  */
-export type DisplayContextInfo = DisplayDefinition['response'];
+export type DisplayContextInfo = {
+    /**
+     * The context received by the server.
+     */
+    context?: DisplayDefinition['response'],
+
+    /**
+     * Refreshes the display. Will resolve peacefully when the update was successful, or reject with
+     * an exception when the update could not be performed.
+     */
+    refresh?: () => Promise<void>;
+};
 
 /**
  * The <DisplayContext> carries information about the display's configuration.
  */
-export const DisplayContext = createContext<DisplayContextInfo | undefined>(
-    /* unprovisioned= */ undefined);
+export const DisplayContext = createContext<DisplayContextInfo>({ /* default state */ });

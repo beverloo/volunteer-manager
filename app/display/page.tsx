@@ -57,11 +57,12 @@ function UnprovisionedDisplayPage(props: { identifier: string }) {
  * context, which is responsible for managing our state.
  */
 export default function DisplayPage() {
-    const context = useContext(DisplayContext);
-    if (!context)
+    const display = useContext(DisplayContext);
+    if (!display.context)
         return <LoadingDisplayPage />;
-    if (!context.provisioned)
-        return <UnprovisionedDisplayPage identifier={context.identifier} />;
+
+    if (!display.context.provisioned)
+        return <UnprovisionedDisplayPage identifier={display.context.identifier} />;
 
     return (
         <Grid container>

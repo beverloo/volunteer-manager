@@ -35,7 +35,6 @@ import { Temporal, formatDate } from '@lib/Temporal';
 import {
     getBrightnessValue, setBrightnessValue, isLockedValue, hasRecentlyUpdated, getVolumeValue,
     setVolumeValue } from './Globals';
-import { refreshContext } from './DisplayController';
 
 import audio from './lib/Audio';
 import device from './lib/Device';
@@ -225,9 +224,10 @@ function DisplayHeaderMenuWarning(props: React.PropsWithChildren) {
  * Component that will display the drawer menu for the display. Some basic display configuration
  * should be available here (such as brightness), as well as environmental and device information.
  */
-function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
-    const { context } = props;
+function DisplayHeaderMenu(props: { display: DisplayContextInfo }) {
+    const { display } = props;
 
+    const context = display.context;
     const router = useRouter();
 
     const [ refreshColor, setRefreshColor ] = useState<LoadingButtonProps['color']>('secondary');
@@ -235,15 +235,20 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
 
     const handleRefresh = useCallback(async () => {
         setRefreshLoading(true);
-        {
-            const result = await refreshContext();
-            !!result ? setRefreshColor('success')
-                     : setRefreshColor('error');
-        }
-        setTimeout(() => setRefreshColor('secondary'), 3000);
-        setRefreshLoading(false);
+        try {
+            if (!!display.refresh)
+                await display.refresh();
 
-    }, [ /* no dependencies */ ]);
+            setRefreshColor('success');
+
+        } catch (error: any) {
+            setRefreshColor('error');
+
+        } finally {
+            setTimeout(() => setRefreshColor('secondary'), 3000);
+            setRefreshLoading(false);
+        }
+    }, [ display ]);
 
     const [ devEnvironmentDisabled, setDevEnvironmentDisabled ] = useState<boolean>(false);
     useEffect(() => {
@@ -323,7 +328,7 @@ function DisplayHeaderMenu(props: { context?: DisplayContextInfo }) {
  * current time and an overflow menu granting access to device configuration.
  */
 export function DisplayHeader() {
-    const context = useContext(DisplayContext);
+    const display = useContext(DisplayContext);
 
     const [ menuOpen, setMenuOpen ] = useState<boolean>(false);
 
@@ -336,7 +341,7 @@ export function DisplayHeader() {
                 <Stack direction="row" alignItems="flex-end" justifyContent="space-between">
                     <Box>
                         <Typography variant="h1" sx={{ pb: .5 }}>
-                            { context?.label ?? 'AnimeCon Display' }
+                            { display.context?.label ?? 'AnimeCon Display' }
                         </Typography>
                         <Typography variant="subtitle1">
                             AnimeCon Volunteering Teams
@@ -346,7 +351,7 @@ export function DisplayHeader() {
                         <Stack direction="row" alignItems="center" spacing={3}
                             divider={ <Divider orientation="vertical" flexItem /> }>
                             <Typography variant="h2" sx={{ pr: 1.75 }}>
-                                <CurrentTime timezone={context?.timezone} />
+                                <CurrentTime timezone={display.context?.timezone} />
                             </Typography>
                             <IconButton size="large" onClick={handleOpenMenu}>
                                 <MenuIcon color="disabled" />
@@ -357,7 +362,7 @@ export function DisplayHeader() {
             </Paper>
             <Drawer anchor="right" onClose={handleCloseMenu} open={menuOpen}
                     PaperProps={{ sx: { width: '350px', p: 4 } }}>
-                <DisplayHeaderMenu context={context} />
+                <DisplayHeaderMenu display={display} />
             </Drawer>
         </>
     );

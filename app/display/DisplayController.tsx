@@ -3,22 +3,19 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 
+import type { DisplayDefinition } from '@app/api/display/route';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
-import { callApi } from '@lib/callApi';
 import { onceInitialiseGlobals, markUpdateCompleted, isLockedValue, setLockedValue } from './Globals';
 import device from './lib/Device';
 
 /**
- * Define the `globalThis.animeCon` property. This is injected in the WebView used to display the
- * Volunteer Manager on the AnimeCon Display devices, as a message port.
+ * Fetcher used to retrieve the schedule from the server.
  */
-declare module globalThis {
-    let animeConRefreshListeners: ((result: boolean) => void)[];
-    let animeConRefresh: undefined | (() => void);
-}
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 /**
  * How frequently should the display check in with the server? Can be configured by the server.
@@ -26,92 +23,63 @@ declare module globalThis {
 const kDefaultUpdateFrequencyMs = /* 5 minutes= */ 5 * 60 * 1000;
 
 /**
- * Helper function to manually refresh the context with the server. Should be sparsely used.
- */
-export async function refreshContext(): Promise<boolean> {
-    if (!Array.isArray(globalThis.animeConRefreshListeners))
-        globalThis.animeConRefreshListeners = [];
-
-    if (!globalThis.animeConRefresh)
-        return false;  // the <DisplayController> component is not mounted
-
-    return new Promise(resolve => {
-        globalThis.animeConRefreshListeners.push(resolve);
-        globalThis.animeConRefresh?.();
-    });
-}
-
-/**
  * The <DisplayController> component controls the display; it manages the display's state with the
  * Volunteer Manager server and makes sure that it continues to be periodically updated.
  */
 export function DisplayController(props: React.PropsWithChildren) {
-    const [ context, setContext ] = useState<DisplayContextInfo | undefined>();
-
-    const [ invalidationCounter, setInvalidationCounter ] = useState<number>(0);
-    const [ updateFrequencyMs, setUpdateFrequencyMs ] =
-        useState<number>(kDefaultUpdateFrequencyMs);
-
     onceInitialiseGlobals();
 
-    // TODO: Somehow reflect the result of the `animeConRefresh` helper.
+    // ---------------------------------------------------------------------------------------------
 
-    // Effect that assigns a listener function to the `animeConRefresh` global, which powers the
-    // refresh operations elsewhere in the user interface. The helper will be unassigned when this
-    // component is unmounted as no further refreshes can be requested anymore.
+    // URL from which information about this display can be loaded.
+    const url = '/api/display';
+
+    // Periodically update the display's configuration using the `SWR` library. The interval can be
+    // configured by the server, although will default to one update per five minutes.
+    const { data, error, isLoading, mutate } = useSWR<DisplayDefinition['response']>(url, fetcher, {
+        refreshInterval: data => !!data ? data.updateFrequencyMs : kDefaultUpdateFrequencyMs,
+    });
+
+    // ---------------------------------------------------------------------------------------------
+    // Apply settings based of the `data`, to be updated whenever the state changes:
+    // ---------------------------------------------------------------------------------------------
+
     useEffect(() => {
-        globalThis.animeConRefreshListeners = [];
-        globalThis.animeConRefresh = () =>
-            setInvalidationCounter(invalidationCounter => invalidationCounter + 1);
+        if (!data)
+            return;
 
-        return () => globalThis.animeConRefresh = undefined;
+        markUpdateCompleted();
 
-    }, [ /* no dependencies */ ]);
+        // TODO: Apply the device's light bar color
 
-    // Effect that updates the display at a configured cadence. This has a default value, however,
-    // can be overridden by the server every time that a context update is requested.
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setInvalidationCounter(invalidationCounter => invalidationCounter + 1);
-        }, updateFrequencyMs);
+        // Automatically lock (or unlock) the device based on the received `context`. No
+        // feedback is given, other than the "lock" icon shown in the overflow menu.
+        if (data.locked !== isLockedValue()) {
+            data.locked ? device.enableKiosk()
+                        : device.disableKiosk();
 
-        return () => clearInterval(timer);
+            setLockedValue(data.locked);
+        }
 
-    }, [ updateFrequencyMs ]);
+    }, [ data ]);
 
-    // Effect that actually updates the context. This is done by making a network call to the
-    // Display API, which identifies the displays based on an identifier assigned by the server,
-    // that is then stored in a cookie on the client. Invalidated through various signals.
-    useEffect(() => {
-        callApi('get', '/api/display', { /* no input is required */ }).then(context => {
-            setContext(context);
-            setUpdateFrequencyMs(context.updateFrequencyMs);
+    // ---------------------------------------------------------------------------------------------
 
-            // Automatically lock (or unlock) the device based on the received `context`. No
-            // feedback is given, other than the "lock" icon shown in the overflow menu.
-            if (context.locked !== isLockedValue()) {
-                context.locked ? device.enableKiosk()
-                               : device.disableKiosk();
+    // Requests for the schedule to be refreshed. Will resolve without value when successful, or
+    // throw an exception when the update could not be processed. Wrapped to avoid leaking internals
+    const handleRefresh = useCallback(async () => {
+        await mutate();
 
-                setLockedValue(context.locked);
-            }
+    }, [ mutate ]);
 
-            // Mark the update as having completed, hiding a warning in the menu.
-            markUpdateCompleted();
+    // ---------------------------------------------------------------------------------------------
 
-            // Announce that the update has been completed to any listeners.
-            for (const listener of globalThis.animeConRefreshListeners)
-                listener(/* result= */ true);
-
-        }).catch(error => {
-            // Announce that the update could not be completed to any listeners.
-            for (const listener of globalThis.animeConRefreshListeners)
-                listener(/* result= */ false);
-
-        }).finally(() => {
-            globalThis.animeConRefreshListeners = [ /* empty list */ ];
-        });
-    }, [ invalidationCounter ]);
+    const context: DisplayContextInfo = useMemo(() => {
+        return {
+            context: data,
+            refresh: handleRefresh,
+        };
+    }, [ data, handleRefresh ]);
 
     return (
         <DisplayTheme>
