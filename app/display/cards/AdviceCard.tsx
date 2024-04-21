@@ -32,7 +32,7 @@ export function AdviceCard(props: AdviceCardProps) {
                 borderTopRightRadius: theme => theme.shape.borderRadius,
                 width: '100%',
                 aspectRatio: 2 }} />
-            <Typography variant="body1" sx={{ p: 2 }}>
+            <Typography variant="body1" sx={{ p: 2, textWrap: 'balance' }}>
                 {props.advice}
                 <Typography component="span" variant="body1" sx={{ color: 'text.disabled' }}>
                     {' '}— Del a Rie Advies
