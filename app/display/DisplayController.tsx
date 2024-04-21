@@ -9,8 +9,16 @@ import useSWR from 'swr';
 import type { DisplayDefinition } from '@app/api/display/route';
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
-import { onceInitialiseGlobals, markUpdateCompleted, isLockedValue, setLockedValue } from './Globals';
+import {
+    onceInitialiseGlobals, getColorValue, markUpdateCompleted, isLockedValue, setColorValue,
+    setLockedValue } from './Globals';
+
 import device from './lib/Device';
+
+/**
+ * How frequently should the display check in with the server? Can be configured by the server.
+ */
+const kDefaultUpdateFrequencyMs = /* 5 minutes= */ 5 * 60 * 1000;
 
 /**
  * Fetcher used to retrieve the schedule from the server.
@@ -18,9 +26,17 @@ import device from './lib/Device';
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 /**
- * How frequently should the display check in with the server? Can be configured by the server.
+ * Decomposes the given `color` into an array of [R, G, B] values in range of [0-255)
  */
-const kDefaultUpdateFrequencyMs = /* 5 minutes= */ 5 * 60 * 1000;
+function decomposeColor(color: string | undefined): [ number, number, number ] {
+    if (typeof color === 'string') {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+        if (!!result)
+            return [ parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16) ];
+    }
+
+    return [ 0, 0, 0 ];  // turn the lights off
+}
 
 /**
  * The <DisplayController> component controls the display; it manages the display's state with the
@@ -50,7 +66,14 @@ export function DisplayController(props: React.PropsWithChildren) {
 
         markUpdateCompleted();
 
-        // TODO: Apply the device's light bar color
+        // Automatically update the device's colour when the server indicated that this should
+        // change. This can be done programmatically, or be hardcoded in configuration.
+        if (data.color !== getColorValue()) {
+            const [ red, green, blue ] = decomposeColor(data.color);
+
+            device.setLightColour(red, green, blue);
+            setColorValue(data.color);
+        }
 
         // Automatically lock (or unlock) the device based on the received `context`. No
         // feedback is given, other than the "lock" icon shown in the overflow menu.

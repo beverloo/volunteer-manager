@@ -21,6 +21,7 @@ export class DisplaysTable extends Table<DBConnection, 'DisplaysTable'> {
     displayLabel = this.optionalColumnWithDefaultValue('display_label', 'string');
     displayEventId = this.optionalColumnWithDefaultValue('display_event_id', 'int');
     displayLocationId = this.optionalColumnWithDefaultValue('display_location_id', 'int');
+    displayColor = this.optionalColumnWithDefaultValue('display_color', 'string');
     displayCheckIn = this.column<ZonedDateTime>('display_check_in', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     displayCheckInIp = this.column('display_check_in_ip', 'string');
     displayLocked = this.column('display_locked', 'int');

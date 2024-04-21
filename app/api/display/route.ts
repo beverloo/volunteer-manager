@@ -27,6 +27,11 @@ const kDisplayDefinition = z.object({
         label: z.string(),
 
         /**
+         * Optional color that the device's light strip should be set to.
+         */
+        color: z.string().optional(),
+
+        /**
          * Optional link to the development environment.
          */
         devEnvironment: z.string().optional(),
@@ -151,6 +156,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         .where(tDisplays.displayId.equals(displayId))
         .select({
             identifier: tDisplays.displayIdentifier,
+            color: tDisplays.displayColor,
             label: tDisplays.displayLabel,
             locked: tDisplays.displayLocked.equals(/* true= */ 1),
             timezone: eventsJoin.eventTimezone,
@@ -180,6 +186,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     return {
         identifier: configuration.identifier,
         label: configuration.label ?? 'AnimeCon Display',
+        color: configuration.color,
         devEnvironment: settings['display-dev-environment-link'],
         locked: configuration.locked,
         nardo: nardoAdvice?.replace(/\.$/, ''),

@@ -8,6 +8,7 @@ import device from './lib/Device';
 
 declare module globalThis {
     let animeConBrightnessValue: number;
+    let animeConColorValue: string | undefined;
     let animeConInitialised: boolean;
     let animeConLockedValue: boolean;
     let animeConUpdatedInstant: Temporal.Instant;
@@ -23,6 +24,8 @@ export function onceInitialiseGlobals() {
 
     globalThis.animeConInitialised = true;
     globalThis.animeConLockedValue = false;
+
+    globalThis.animeConColorValue = undefined;
 
     device.getBrightness().then(brightness => {
         globalThis.animeConBrightnessValue = brightness ?? /* default= */ 50;
@@ -47,6 +50,20 @@ export function getBrightnessValue(): number {
  */
 export function setBrightnessValue(value: number): void {
     globalThis.animeConBrightnessValue = value;
+}
+
+/**
+ * Returns the global color value.
+ */
+export function getColorValue(): string | undefined {
+    return globalThis.animeConColorValue;
+}
+
+/**
+ * Sets the global color value to the given `value`.
+ */
+export function setColorValue(value: string | undefined): void {
+    globalThis.animeConColorValue = value;
 }
 
 /**

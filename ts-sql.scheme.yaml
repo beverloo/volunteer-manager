@@ -559,6 +559,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: display_color
+    type: varchar(8)
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: display_check_in
     type: datetime
     nullable: false
@@ -604,6 +609,7 @@ tables:
       `display_label` varchar(64) DEFAULT NULL,
       `display_event_id` int(8) DEFAULT NULL,
       `display_location_id` int(8) DEFAULT NULL,
+      `display_color` varchar(8) DEFAULT NULL,
       `display_check_in` datetime NOT NULL,
       `display_check_in_ip` varchar(64) NOT NULL,
       `display_locked` tinyint(1) NOT NULL,
