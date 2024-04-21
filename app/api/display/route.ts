@@ -8,7 +8,7 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { executeAction, noAccess, type ActionProps } from '../Action';
 import { readSettings } from '@lib/Settings';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
-import db, { tActivitiesLocations, tDisplays, tEvents } from '@lib/database';
+import db, { tActivitiesLocations, tDisplays, tEvents, tNardo } from '@lib/database';
 
 /**
  * Interface definition for the Display API, exposed through /api/display.
@@ -35,6 +35,11 @@ const kDisplayDefinition = z.object({
          * Whether the device should be locked.
          */
         locked: z.boolean(),
+
+        /**
+         * The piece of Del a Rie advice that should be shared.
+         */
+        nardo: z.string().optional(),
 
         /**
          * Whether the device has been fully provisioned and is ready for use.
@@ -90,10 +95,13 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-check-in-rate-seconds',
         'display-confirm-volume-change',
         'display-dev-environment-link',
+        'schedule-del-a-rie-advies',
     ]);
 
     const updateFrequencySeconds = settings['display-check-in-rate-seconds'] ?? 300;
     const updateFrequencyMs = Math.max(10, updateFrequencySeconds) * 1000;
+
+    const dbInstance = db;
 
     // ---------------------------------------------------------------------------------------------
     // Step 1: Ensure that the device that's checking in is represented in our system
@@ -101,7 +109,6 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
 
     let displayId: number | undefined = await getDisplayIdFromHeaders(props.requestHeaders);
     if (!!displayId) {
-        const dbInstance = db;
         const affectedRows = await dbInstance.update(tDisplays)
             .set({
                 displayCheckIn: dbInstance.currentZonedDateTime(),
@@ -116,7 +123,6 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     }
 
     if (!displayId) {
-        const dbInstance = db;
         displayId = await dbInstance.insertInto(tDisplays)
             .set({
                 displayIdentifier: generateDisplayIdentifier(/* length= */ 4),
@@ -137,7 +143,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     const activitiesLocationsJoin = tActivitiesLocations.forUseInLeftJoin();
     const eventsJoin = tEvents.forUseInLeftJoin();
 
-    const configuration = await db.selectFrom(tDisplays)
+    const configuration = await dbInstance.selectFrom(tDisplays)
         .leftJoin(activitiesLocationsJoin)
             .on(activitiesLocationsJoin.locationId.equals(tDisplays.displayLocationId))
         .leftJoin(eventsJoin)
@@ -157,11 +163,26 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         })
         .executeSelectOne();
 
+    // ---------------------------------------------------------------------------------------------
+    // Step 2: Read static information that should be shown on the display
+    // ---------------------------------------------------------------------------------------------
+
+    let nardoAdvice: string | undefined;
+    if (!!settings['schedule-del-a-rie-advies']) {
+        nardoAdvice = await db.selectFrom(tNardo)
+            .where(tNardo.nardoVisible.equals(/* true= */ 1))
+            .selectOneColumn(tNardo.nardoAdvice)
+            .orderBy(dbInstance.rawFragment`rand()`)
+            .limit(1)
+            .executeSelectNoneOrOne() ?? undefined;
+    }
+
     return {
         identifier: configuration.identifier,
         label: configuration.label ?? 'AnimeCon Display',
         devEnvironment: settings['display-dev-environment-link'],
         locked: configuration.locked,
+        nardo: nardoAdvice?.replace(/\.$/, ''),
         provisioned: !!configuration.eventId && !!configuration.locationId,
         timezone: configuration.timezone ?? 'UTC',
         confirmVolumeChanges: !!settings['display-confirm-volume-change'],

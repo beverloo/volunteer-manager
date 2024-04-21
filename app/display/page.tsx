@@ -11,6 +11,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { AdviceCard } from './cards/AdviceCard';
 import { DisplayContext } from './DisplayContext';
 
 /**
@@ -77,11 +78,9 @@ export default function DisplayPage() {
             </Grid>
             <Grid xs={4}>
                 <Stack direction="column" spacing={2}>
-                    <Paper sx={{ p: 2 }}>
-                        Right
-                    </Paper>
                     { /* TODO: Request help */ }
-                    { /* TODO: Del a Rie advies */ }
+                    { !!display.context.nardo &&
+                        <AdviceCard advice={display.context.nardo} /> }
                 </Stack>
             </Grid>
         </Grid>
