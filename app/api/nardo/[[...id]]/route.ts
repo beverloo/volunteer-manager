@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../createDataTableApi';
 import { LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tNardo, tUsers } from '@lib/database';
 
@@ -97,7 +98,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
                 advice: kDefaultAdvice,
                 authorName: `${props.user!.firstName} ${props.user!.lastName}`,
                 authorUserId: props.user!.userId,
-                date: (new Date()).toISOString(),
+                date: Temporal.Now.zonedDateTimeISO('utc').toString(),
             },
         };
     },
