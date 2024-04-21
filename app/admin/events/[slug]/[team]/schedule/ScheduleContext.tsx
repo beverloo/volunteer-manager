@@ -164,7 +164,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
     }, [ date, props.event.slug, props.team.slug ]);
 
     const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(endpoint, fetcher, {
-        // TODO: Select the appropriate options
+        refreshInterval: /* ms= */ 15 * 1000,
     });
 
     // ---------------------------------------------------------------------------------------------
