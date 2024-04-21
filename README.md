@@ -13,11 +13,15 @@ available in the current version:
     * Flexible event management for any number of in-flight events at once,
       * Automatic program sync with the AnimeCon AnPlan tool, including a changelog,
       * Automatic e-mail generation for mutations that directly impact volunteers,
+      * Define shifts and provide scheduling per volunteer, across teams and aligned with the
+        event's program,
       * Separated application and volunteer management systems, per team, per event,
       * Hotel booking management including support for non-volunteers and warnings,
       * Retention management to easily approach volunteers who helped out before,
       * Training scheduling management including support for non-volunteers and warnings,
-    * Full accountability through extensive logging, including any and all outgoing messages.
+      * Vendor management and scheduling for First Aid and Security teams,
+    * Knowledge Base to provide volunteers access to categorised Q&A during the event,
+    * Full accountability through extensive logging, including any and all outgoing messages,
     * Powerful permission management based on assigned roles and expressly granted privileges,
     * Direct integration with our friends at [Del a Rie Advies](https://delarieadvies.nl).
   * GDPR-compliant data export tool, enabling third parties to securely access the data they need
