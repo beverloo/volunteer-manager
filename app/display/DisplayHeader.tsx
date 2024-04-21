@@ -7,6 +7,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
+import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -354,7 +355,9 @@ export function DisplayHeader() {
                                 <CurrentTime timezone={display.context?.timezone} />
                             </Typography>
                             <IconButton size="large" onClick={handleOpenMenu}>
-                                <MenuIcon color="disabled" />
+                                <Badge color="warning" variant="dot" invisible={!display.isLoading}>
+                                    <MenuIcon color="disabled" />
+                                </Badge>
                             </IconButton>
                         </Stack>
                     </Box>

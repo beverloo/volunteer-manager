@@ -18,6 +18,11 @@ export type DisplayContextInfo = {
     context?: DisplayDefinition['response'],
 
     /**
+     * Whether the display is currently loading.
+     */
+    isLoading?: boolean;
+
+    /**
      * Refreshes the display. Will resolve peacefully when the update was successful, or reject with
      * an exception when the update could not be performed.
      */

@@ -77,9 +77,10 @@ export function DisplayController(props: React.PropsWithChildren) {
     const context: DisplayContextInfo = useMemo(() => {
         return {
             context: data,
+            isLoading,
             refresh: handleRefresh,
         };
-    }, [ data, handleRefresh ]);
+    }, [ data, handleRefresh, isLoading ]);
 
     return (
         <DisplayTheme>
