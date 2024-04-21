@@ -41,6 +41,11 @@ const kDisplaysRowModel = z.object({
     locationId: z.number().optional(),
 
     /**
+     * Colour (in HEX) that the display's light bar should be shown in.
+     */
+    color: z.string().regex(/^#[A-Fa-f0-9]{6}$/).or(z.literal('')).optional(),
+
+    /**
      * Last check-in performed by the device. (Temporal ZDT-compatible format.)
      */
     lastCheckIn: z.string(),
@@ -114,6 +119,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
                 label: tDisplays.displayLabel,
                 eventId: tDisplays.displayEventId,
                 locationId: tDisplays.displayLocationId,
+                color: tDisplays.displayColor,
                 lastCheckIn: dbInstance.dateTimeAsString(tDisplays.displayCheckIn),
                 lastCheckInIp: tDisplays.displayCheckInIp,
                 locked: tDisplays.displayLocked.equals(/* true= */ 1)
@@ -140,6 +146,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
                 displayLabel: row.label,
                 displayEventId: !!row.eventId ? row.eventId : null,
                 displayLocationId: !!row.locationId ? row.locationId : null,
+                displayColor: !!row.color ? row.color : null,
                 displayLocked: !!row.locked ? 1 : 0,
             })
             .where(tDisplays.displayId.equals(row.id))

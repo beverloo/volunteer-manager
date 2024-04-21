@@ -62,6 +62,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
                 </Tooltip>,
         },
         {
+            display: 'flex',
             field: 'identifier',
             headerName: 'Identifier',
             editable: false,
@@ -136,6 +137,29 @@ export function DisplaysTable(props: DisplaysTableProps) {
                         if (value === params.value && eventId === params.row.eventId)
                             return label;
                     }
+                }
+
+                return (
+                    <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
+                        …
+                    </Typography>
+                );
+            },
+        },
+        {
+            display: 'flex',
+            field: 'color',
+            headerName: 'Fixed color',
+            description: '#RRGGBB',
+            editable: true,
+            flex: 1,
+
+            renderCell: params => {
+                if (!!params.value) {
+                    return (
+                        <Chip label={params.value} size="small"
+                              sx={{ backgroundColor: params.value }} />
+                    );
                 }
 
                 return (
