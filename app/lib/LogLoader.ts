@@ -139,9 +139,9 @@ const kLogMessageFormatter: {
     [LogType.AdminEventTeamUpdate]: (source, target, { sourceTeam, targetTeam }) => {
         return `Moved ${target?.name} from the ${sourceTeam} to the ${targetTeam}`;
     },
-    [LogType.AdminEventTrainingAssignment]: (source, target, { event }) => {
-        return target ? `Updated ${target.name}'s training assignment for ${event}`
-                      : `Updated a training assignment for ${event}`;
+    [LogType.AdminEventTrainingAssignment]: (source, target, { eventName }) => {
+        return target ? `Updated ${target.name}'s training assignment for ${eventName}`
+                      : `Updated a training assignment for ${eventName}`;
     },
     [LogType.AdminEventTrainingMutation]: (source, target, { eventName, mutation }) => {
         return `${mutation} a training session for ${eventName}`;
