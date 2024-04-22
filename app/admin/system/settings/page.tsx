@@ -211,7 +211,8 @@ export default async function IntegrationsPage() {
 
                 label: 'Del a Rie Advies (advice interval)',
                 description:
-                    'Number of minutes that a piece of excellent advice should be shown for',
+                    'Number of minutes that a particular piece of excellent advice should be ' +
+                    'shown for',
             },
             {
                 setting: 'schedule-knowledge-base',

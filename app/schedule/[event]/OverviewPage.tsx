@@ -6,6 +6,7 @@
 import { useContext } from 'react';
 
 import { KnowledgeBaseCard } from './components/KnowledgeBaseCard';
+import { NardoAdviceCard } from './components/NardoAdviceCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
 import { ScheduleContext } from './ScheduleContext';
 import { VendorTeam } from '@lib/database/Types';
@@ -33,7 +34,7 @@ export function OverviewPage() {
                 <OverviewVendorCard team={VendorTeam.FirstAid} /> }
             { !!schedule?.vendors[VendorTeam.Security] &&
                 <OverviewVendorCard team={VendorTeam.Security} /> }
-            { /* TODO: Del a Rie Advies */ }
+            { !!schedule?.nardo && <NardoAdviceCard advice={schedule.nardo} /> }
         </>
     );
 }

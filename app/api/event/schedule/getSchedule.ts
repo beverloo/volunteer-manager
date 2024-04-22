@@ -13,7 +13,7 @@ import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories,  tVendors, tVendorsSchedule} from '@lib/database';
+    tContentCategories, tNardo, tVendors, tVendorsSchedule} from '@lib/database';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding
@@ -271,7 +271,11 @@ const kPublicSchedule = z.strictObject({
         })),
     }),
 
-    // TODO: nardo
+    /**
+     * The excellent piece of Del a Rie advice that should be shown on the overview page.
+     */
+    nardo: z.string().optional(),
+
     // TODO: shifts
 
     /**
@@ -332,6 +336,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const settings = await readSettings([
         'schedule-activity-list-limit',
         'schedule-del-a-rie-advies',
+        'schedule-del-a-rie-advies-time-limit',
         'schedule-knowledge-base',
         'schedule-knowledge-base-search',
         'schedule-search-candidate-fuzziness',
@@ -561,6 +566,25 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 }
             }
         }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Source information about the latest and greatest Del a Rie advice
+    // ---------------------------------------------------------------------------------------------
+
+    if (!!settings['schedule-del-a-rie-advies']) {
+        const timeLimitMinutes = settings['schedule-del-a-rie-advies-time-limit'] ?? 5;
+        const timeLimitSeconds = timeLimitMinutes * 60;
+
+        const seedBase = Temporal.Now.instant().epochSeconds;
+        const seed = Math.round(seedBase / timeLimitSeconds) * timeLimitSeconds;
+
+        schedule.nardo = await db.selectFrom(tNardo)
+            .where(tNardo.nardoVisible.equals(/* true= */ 1))
+            .selectOneColumn(tNardo.nardoAdvice)
+            .orderBy(dbInstance.rawFragment`rand(${dbInstance.const(seed, 'int')})`)
+            .limit(1)
+            .executeSelectNoneOrOne() ?? undefined;
     }
 
     // ---------------------------------------------------------------------------------------------
