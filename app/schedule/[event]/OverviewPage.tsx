@@ -24,6 +24,7 @@ export function OverviewPage() {
     return (
         <>
             { /* TODO: Event status */ }
+            { /* TODO: Help requests */ }
             { /* TODO: Current shift */ }
             { /* TODO: Upcoming shift */ }
             { /* TODO: Available back-up volunteers */ }

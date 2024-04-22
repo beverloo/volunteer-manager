@@ -7,7 +7,7 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 30
+ * Next setting: 1 << 31
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
@@ -22,6 +22,7 @@ export enum Privilege {
     // Privileges captured by EventAdministrator:
     EventApplicationManagement          = 1 << 10,
     EventContentOverride                = 1 << 2,
+    EventHelpRequests                   = 1 << 30,
     EventHotelManagement                = 1 << 12,
     EventRegistrationOverride           = 1 << 3,
     EventRequestOwnership               = 1 << 25,
@@ -83,6 +84,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.EventAdministrator]: [
         Privilege.EventApplicationManagement,
         Privilege.EventContentOverride,
+        Privilege.EventHelpRequests,
         Privilege.EventHotelManagement,
         Privilege.EventRegistrationOverride,
         Privilege.EventRequestOwnership,
@@ -148,6 +150,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventAdministrator]: 'Special access',
     [Privilege.EventApplicationManagement]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
+    [Privilege.EventHelpRequests]: 'Event access',
     [Privilege.EventHotelManagement]: 'Event access',
     [Privilege.EventRegistrationOverride]: 'Event access',
     [Privilege.EventRequestOwnership]: 'Event access',
@@ -187,6 +190,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventAdministrator]: 'Event administrator',
     [Privilege.EventApplicationManagement]: 'Manage applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
+    [Privilege.EventHelpRequests]: 'Help requests',
     [Privilege.EventHotelManagement]: 'Manage hotel rooms',
     [Privilege.EventRegistrationOverride]: 'Always allow access to event registration',
     [Privilege.EventRequestOwnership]: 'Manage program requests',
@@ -220,11 +224,14 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
  */
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Grants all privileges',
+
     [Privilege.Refunds]: 'Grants access to financial information',
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
     [Privilege.VolunteerAdministrator]: 'Grants all volunteer-related privileges',
+
+    [Privilege.EventHelpRequests]: 'Grants access to incoming help requests',
 
     [Privilege.SystemOutboxAccess]: 'Access to all sent messages and their content',
     [Privilege.SystemSubscriptionManagement]: 'Access to modify anyone\'s subscriptions',

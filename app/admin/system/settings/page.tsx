@@ -215,6 +215,14 @@ export default async function IntegrationsPage() {
                     'shown for',
             },
             {
+                setting: 'schedule-help-request-event-slug',
+                type: 'string',
+                defaultValue: '2024',
+
+                label: 'Help request - event slug',
+                description: 'Slug of the event that help requests should be redirected to',
+            },
+            {
                 setting: 'schedule-knowledge-base',
                 type: 'boolean',
                 defaultValue: true,
