@@ -117,7 +117,9 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
                                         {message.sender.name}
                                     </Typography> }
 
-                                { (!!message.sender && !!message.sender.user?.name) && ' — ' }
+                                { (!!message.sender && !!message.sender.user?.name) &&
+                                    ' — on behalf of ' }
+
                                 { (!!message.sender && !!message.sender.user?.name) &&
                                     <MuiLink component={Link}
                                              href={`/admin/volunteers/${message.sender.user.id}`}>
