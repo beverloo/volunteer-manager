@@ -4,6 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
+import { DisplayHelpRequestStatus } from '@lib/database/Types';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
@@ -44,6 +45,11 @@ const kDisplaysRowModel = z.object({
      * Colour (in HEX) that the display's light bar should be shown in.
      */
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/).or(z.literal('')).optional(),
+
+    /**
+     * The help request status this display is in, if any.
+     */
+    helpRequestStatus: z.nativeEnum(DisplayHelpRequestStatus).or(z.literal(' ')).optional(),
 
     /**
      * Last check-in performed by the device. (Temporal ZDT-compatible format.)
@@ -120,6 +126,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
                 eventId: tDisplays.displayEventId,
                 locationId: tDisplays.displayLocationId,
                 color: tDisplays.displayColor,
+                helpRequestStatus: tDisplays.displayHelpRequestStatus,
                 lastCheckIn: dbInstance.dateTimeAsString(tDisplays.displayCheckIn),
                 lastCheckInIp: tDisplays.displayCheckInIp,
                 locked: tDisplays.displayLocked.equals(/* true= */ 1)
@@ -141,12 +148,17 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
     },
 
     async update({ row }) {
+        let displayHelpRequestStatus: DisplayHelpRequestStatus | null = null;
+        if (!!row.helpRequestStatus && row.helpRequestStatus !== ' ')
+            displayHelpRequestStatus = row.helpRequestStatus;
+
         const affectedRows = await db.update(tDisplays)
             .set({
                 displayLabel: row.label,
                 displayEventId: !!row.eventId ? row.eventId : null,
                 displayLocationId: !!row.locationId ? row.locationId : null,
                 displayColor: !!row.color ? row.color : null,
+                displayHelpRequestStatus,
                 displayLocked: !!row.locked ? 1 : 0,
             })
             .where(tDisplays.displayId.equals(row.id))

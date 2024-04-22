@@ -14,6 +14,7 @@ type SettingsMap = {
     // Display settings
     // ---------------------------------------------------------------------------------------------
 
+    'display-check-in-rate-help-requested-seconds': number;
     'display-check-in-rate-seconds': number;
     'display-confirm-volume-change': boolean;
     'display-dev-environment-link': string;

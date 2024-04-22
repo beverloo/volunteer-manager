@@ -214,6 +214,10 @@ do {
                 { field: [ 'activities_timeslots', 'timeslot_type' ], type: 'ActivityType' },
                 { field: [ 'content', 'content_type' ], type: 'ContentType' },
                 {
+                    field: [ 'displays', 'display_help_request_status' ],
+                    type: 'DisplayHelpRequestStatus',
+                },
+                {
                     field: [ 'events', 'event_availability_status' ],
                     type: 'EventAvailabilityStatus'
                 },

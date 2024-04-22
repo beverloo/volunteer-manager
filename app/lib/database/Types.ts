@@ -31,6 +31,15 @@ export enum ContentType {
 }
 
 /**
+ * Status of a help request issued by one of the displays.
+ * @see Table `displays`
+ */
+export enum DisplayHelpRequestStatus {
+    Pending = 'Pending',
+    Acknowledged = 'Acknowledged',
+}
+
+/**
  * Status indicating whether volunteers can share their availability preferences.
  * @see Table `events`
  */

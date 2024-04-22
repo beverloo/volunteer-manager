@@ -12,6 +12,9 @@ import {
     TemporalTypeAdapter,
 } from "../TemporalTypeAdapter";
 import {
+    DisplayHelpRequestStatus,
+} from "../Types";
+import {
     ZonedDateTime,
 } from "../../Temporal";
 
@@ -22,6 +25,7 @@ export class DisplaysTable extends Table<DBConnection, 'DisplaysTable'> {
     displayEventId = this.optionalColumnWithDefaultValue('display_event_id', 'int');
     displayLocationId = this.optionalColumnWithDefaultValue('display_location_id', 'int');
     displayColor = this.optionalColumnWithDefaultValue('display_color', 'string');
+    displayHelpRequestStatus = this.optionalColumnWithDefaultValue<DisplayHelpRequestStatus>('display_help_request_status', 'enum', 'DisplayHelpRequestStatus');
     displayCheckIn = this.column<ZonedDateTime>('display_check_in', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     displayCheckInIp = this.column('display_check_in_ip', 'string');
     displayLocked = this.column('display_locked', 'int');

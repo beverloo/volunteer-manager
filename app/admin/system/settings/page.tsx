@@ -36,6 +36,15 @@ export default async function IntegrationsPage() {
                     'Every how many seconds should displays "phone home" for updated information?',
             },
             {
+                setting: 'display-check-in-rate-help-requested-seconds',
+                type: 'number',
+                defaultValue: 30,
+
+                label: 'Check-in interval (w/ help request)',
+                description:
+                    'EVery how many seconds should displays "phone home" when help was requested?',
+            },
+            {
                 setting: 'display-confirm-volume-change',
                 type: 'boolean',
                 defaultValue: false,

@@ -5,9 +5,10 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import { DisplayHelpRequestStatus } from '@lib/database/Types';
 import { executeAction, noAccess, type ActionProps } from '../Action';
-import { readSettings } from '@lib/Settings';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
+import { readSettings } from '@lib/Settings';
 import db, { tActivitiesLocations, tDisplays, tEvents, tNardo } from '@lib/database';
 
 /**
@@ -77,6 +78,11 @@ const kDisplayDefinition = z.object({
         }),
 
         /**
+         * Status of the help request that has been issued by this display, if any.
+         */
+        helpRequestStatus: z.nativeEnum(DisplayHelpRequestStatus).optional(),
+
+        /**
          * The piece of Del a Rie advice that should be shared.
          */
         nardo: z.string().optional(),
@@ -112,15 +118,13 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         noAccess();
 
     const settings = await readSettings([
+        'display-check-in-rate-help-requested-seconds',
         'display-check-in-rate-seconds',
         'display-confirm-volume-change',
         'display-dev-environment-link',
         'display-request-help',
         'schedule-del-a-rie-advies',
     ]);
-
-    const updateFrequencySeconds = settings['display-check-in-rate-seconds'] ?? 300;
-    const updateFrequencyMs = Math.max(10, updateFrequencySeconds) * 1000;
 
     const dbInstance = db;
 
@@ -175,6 +179,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             color: tDisplays.displayColor,
             label: tDisplays.displayLabel,
             locked: tDisplays.displayLocked.equals(/* true= */ 1),
+            helpRequestStatus: tDisplays.displayHelpRequestStatus,
             timezone: eventsJoin.eventTimezone,
 
             // Event information:
@@ -186,6 +191,25 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         .executeSelectOne();
 
     // ---------------------------------------------------------------------------------------------
+
+    const updateFrequencySeconds =
+        !!configuration.helpRequestStatus ? settings['display-check-in-rate-help-requested-seconds']
+                                          : settings['display-check-in-rate-seconds'];
+
+    const updateFrequencyMs = Math.max(10, updateFrequencySeconds ?? 300) * 1000;
+
+    // Determine the device's colour, which depends first on whether a help request is in progress,
+    // and second on whether the device has a hardcoded colour.
+    let color: string | undefined = configuration.color;
+    switch (configuration.helpRequestStatus) {
+        case DisplayHelpRequestStatus.Pending:
+            color = '#ff0000';  // red
+            break;
+
+        case DisplayHelpRequestStatus.Acknowledged:
+            color = '#ff6000';  // orange
+            break;
+    }
 
     const response: Response = {
         identifier: configuration.identifier,
@@ -199,9 +223,10 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             updateFrequencyMs,
         },
         device: {
-            color: configuration.color,
+            color,
             locked: configuration.locked,
         },
+        helpRequestStatus: configuration.helpRequestStatus,
     };
 
     // ---------------------------------------------------------------------------------------------

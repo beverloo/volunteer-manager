@@ -79,7 +79,8 @@ export default function DisplayPage() {
             </Grid>
             <Grid xs={4}>
                 <Stack direction="column" spacing={4}>
-                    { !!display.context.config.enableRequestHelp && <RequestHelpCard /> }
+                    { !!display.context.config.enableRequestHelp &&
+                        <RequestHelpCard status={display.context.helpRequestStatus} /> }
                     { !!display.context.nardo &&
                         <AdviceCard advice={display.context.nardo} /> }
                 </Stack>

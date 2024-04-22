@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import type { DisplaysRowModel } from '@app/api/admin/displays/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDuration } from '@lib/Temporal';
+import { DisplayHelpRequestStatus } from '@lib/database/Types';
 
 /**
  * Type for the available value options for events.
@@ -75,7 +76,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
             field: 'label',
             headerName: 'Label',
             editable: true,
-            flex: 1,
+            flex: 2,
 
             renderCell: params => {
                 if (!!params.value)
@@ -152,7 +153,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
             headerName: 'Fixed color',
             description: '#RRGGBB',
             editable: true,
-            flex: 1,
+            width: 100,
 
             renderCell: params => {
                 if (!!params.value) {
@@ -167,6 +168,41 @@ export function DisplaysTable(props: DisplaysTableProps) {
                         …
                     </Typography>
                 );
+            },
+        },
+        {
+            display: 'flex',
+            field: 'helpRequestStatus',
+            headerName: 'Help request',
+            editable: true,
+            flex: 1,
+
+            type: 'singleSelect',
+            valueOptions: [ /* empty= */ ' ', ...Object.values(DisplayHelpRequestStatus) ],
+
+            renderCell: params => {
+                switch (params.value) {
+                    case DisplayHelpRequestStatus.Pending:
+                        return (
+                            <Tooltip title="The request has been issued">
+                                <Chip label="Pending" color="error" size="small" />
+                            </Tooltip>
+                        );
+
+                    case DisplayHelpRequestStatus.Acknowledged:
+                        return (
+                            <Tooltip title="The request has been acknowledged">
+                                <Chip label="Acknowledged" color="warning" size="small" />
+                            </Tooltip>
+                        );
+
+                    default:
+                        return (
+                            <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                                …
+                            </Typography>
+                        );
+                }
             },
         },
         {

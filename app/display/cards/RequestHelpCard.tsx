@@ -4,11 +4,13 @@
 'use client';
 
 import Box from '@mui/material/Box';
-import Button, { type ButtonProps } from '@mui/material/Button';
+import Button from '@mui/material/Button';
 import CardActionArea from '@mui/material/CardActionArea';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+
+import { DisplayHelpRequestStatus } from '@lib/database/Types';
 
 /**
  * Props accepted by the <RequestHelpCard> component.
@@ -17,7 +19,7 @@ export interface RequestHelpCardProps {
     /**
      * The current status of the help request.
      */
-    status?: 'pending' | 'acknowledged';
+    status?: DisplayHelpRequestStatus;
 }
 
 /**
@@ -44,13 +46,13 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
                     You can request help from a Volunteering Lead in case of safety or security
                     concerns, or when scheduled volunteers did not show up.
                 </Typography>
-                { status === 'acknowledged' &&
+                { status === DisplayHelpRequestStatus.Acknowledged &&
                     <Button fullWidth color="warning" variant="contained"
                             startIcon={ <CircularProgress color="inherit" thickness={6}
                                                           size={16} sx={{ mr: 0.5 }} /> }>
                         Help is on its way
                     </Button> }
-                { status === 'pending' &&
+                { status === DisplayHelpRequestStatus.Pending &&
                     <Button fullWidth color="error" variant="contained"
                             startIcon={ <CircularProgress color="inherit" thickness={6}
                                                           size={16} sx={{ mr: 0.5 }} /> }>
