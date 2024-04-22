@@ -45,6 +45,10 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         right: 0,
         bottom: 0,
         left: 0,
+
+        // Block text selection by default. It provides a weird interaction on the devices, even
+        // if it's expected when the display content is shown on a regular machine.
+        userSelect: 'none',
     },
 };
 
