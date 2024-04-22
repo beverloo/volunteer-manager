@@ -69,7 +69,7 @@ export default function DisplayPage() {
     return (
         <Grid container>
             <Grid xs={8}>
-                <Stack direction="column" spacing={2} sx={{ mr: 2 }}>
+                <Stack direction="column" spacing={4} sx={{ mr: 4 }}>
                     <Paper sx={{ p: 2 }}>
                         Left
                     </Paper>
@@ -78,7 +78,7 @@ export default function DisplayPage() {
                 </Stack>
             </Grid>
             <Grid xs={4}>
-                <Stack direction="column" spacing={2}>
+                <Stack direction="column" spacing={4}>
                     { !!display.context.config.enableRequestHelp && <RequestHelpCard /> }
                     { !!display.context.nardo &&
                         <AdviceCard advice={display.context.nardo} /> }
