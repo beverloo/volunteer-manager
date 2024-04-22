@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 
 import { AdviceCard } from './cards/AdviceCard';
 import { DisplayContext } from './DisplayContext';
+import { RequestHelpCard } from './cards/RequestHelpCard';
 
 /**
  * Page to display when the display is still loading, and no context has been made available at all.
@@ -78,7 +79,7 @@ export default function DisplayPage() {
             </Grid>
             <Grid xs={4}>
                 <Stack direction="column" spacing={2}>
-                    { /* TODO: Request help */ }
+                    { !!display.context.config.enableRequestHelp && <RequestHelpCard /> }
                     { !!display.context.nardo &&
                         <AdviceCard advice={display.context.nardo} /> }
                 </Stack>

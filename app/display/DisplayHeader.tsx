@@ -254,26 +254,26 @@ function DisplayHeaderMenu(props: { display: DisplayContextInfo }) {
     const [ devEnvironmentDisabled, setDevEnvironmentDisabled ] = useState<boolean>(false);
     useEffect(() => {
         setDevEnvironmentDisabled(false);
-        if (!!context && !!context.devEnvironment) {
+        if (!!context && !!context.config.devEnvironment) {
             try {
                 const currentUrl = new URL(window.location.href);
-                const devUrl = new URL(context.devEnvironment);
+                const devUrl = new URL(context.config.devEnvironment);
 
                 if (currentUrl.host === devUrl.host) {
                     setDevEnvironmentDisabled(true);
                     return;
                 }
             } catch (error: any) {
-                console.error(`Invalid devEnvironment setting: ${context.devEnvironment}`);
+                console.error(`Invalid devEnvironment setting: ${context.config.devEnvironment}`);
             }
         }
     }, [ context ]);
 
     const navigateToDevEnvironment = useCallback(() => {
-        if (!!context?.devEnvironment)
-            router.push(context.devEnvironment);
+        if (!!context?.config.devEnvironment)
+            router.push(context.config.devEnvironment);
 
-    }, [ context?.devEnvironment, router ]);
+    }, [ context?.config.devEnvironment, router ]);
 
     return (
         <Stack direction="column" justifyContent="space-between" sx={{ height: '100%' }}>
@@ -303,7 +303,8 @@ function DisplayHeaderMenu(props: { display: DisplayContextInfo }) {
                     Refresh
                 </LoadingButton>
                 <DisplayHeaderMenuBrightness />
-                <DisplayHeaderMenuVolume confirmVolumeChanges={context?.confirmVolumeChanges} />
+                <DisplayHeaderMenuVolume
+                    confirmVolumeChanges={context?.config.confirmVolumeChanges} />
             </Stack>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
@@ -352,7 +353,7 @@ export function DisplayHeader() {
                         <Stack direction="row" alignItems="center" spacing={3}
                             divider={ <Divider orientation="vertical" flexItem /> }>
                             <Typography variant="h2" sx={{ pr: 1.75 }}>
-                                <CurrentTime timezone={display.context?.timezone} />
+                                <CurrentTime timezone={display.context?.config.timezone} />
                             </Typography>
                             <IconButton size="large" onClick={handleOpenMenu}>
                                 <Badge color="warning" variant="dot" invisible={!display.isLoading}>

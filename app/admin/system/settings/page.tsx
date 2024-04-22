@@ -42,7 +42,7 @@ export default async function IntegrationsPage() {
 
                 label: 'Confirm volume changes',
                 description:
-                    'When set, a sound will play to confirm volume changes on the device.',
+                    'When set, a sound will play to confirm volume changes on the device',
             },
             {
                 setting: 'display-dev-environment-link',
@@ -51,7 +51,15 @@ export default async function IntegrationsPage() {
 
                 label: 'Dev environment link',
                 description:
-                    'When set, a menu item will be included linking through to this URL.',
+                    'When set, a menu item will be included linking through to this URL',
+            },
+            {
+                setting: 'display-request-help',
+                type: 'boolean',
+                defaultValue: true,
+
+                label: 'Enable requesting help',
+                description: 'When set, help can be requested directly from the displays',
             },
             {
                 setting: 'display-max-time-since-check-in-days',

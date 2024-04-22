@@ -46,6 +46,11 @@ const kDisplayDefinition = z.object({
             devEnvironment: z.string().optional(),
 
             /**
+             * Whether the "request help" feature should be enabled on the display.
+             */
+            enableRequestHelp: z.boolean(),
+
+            /**
              * Timezone in which the display operates. Will affect the local time.
              */
             timezone: z.string(),
@@ -110,6 +115,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-check-in-rate-seconds',
         'display-confirm-volume-change',
         'display-dev-environment-link',
+        'display-request-help',
         'schedule-del-a-rie-advies',
     ]);
 
@@ -188,6 +194,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         config: {
             confirmVolumeChanges: !!settings['display-confirm-volume-change'],
             devEnvironment: settings['display-dev-environment-link'],
+            enableRequestHelp: !!settings['display-request-help'],
             timezone: configuration.timezone ?? 'UTC',
             updateFrequencyMs,
         },
