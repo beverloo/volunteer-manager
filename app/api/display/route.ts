@@ -27,44 +27,54 @@ const kDisplayDefinition = z.object({
         label: z.string(),
 
         /**
-         * Optional color that the device's light strip should be set to.
-         */
-        color: z.string().optional(),
-
-        /**
-         * Optional link to the development environment.
-         */
-        devEnvironment: z.string().optional(),
-
-        /**
-         * Whether the device should be locked.
-         */
-        locked: z.boolean(),
-
-        /**
-         * The piece of Del a Rie advice that should be shared.
-         */
-        nardo: z.string().optional(),
-
-        /**
          * Whether the device has been fully provisioned and is ready for use.
          */
         provisioned: z.boolean(),
 
         /**
-         * Timezone in which the display operates. Will affect the local time.
+         * Configuration that influence the frontend's configuration.
          */
-        timezone: z.string(),
+        config: z.object({
+            /**
+             * Whether volume changes should be audibly confirmed.
+             */
+            confirmVolumeChanges: z.boolean(),
+
+            /**
+             * Optional link to the development environment.
+             */
+            devEnvironment: z.string().optional(),
+
+            /**
+             * Timezone in which the display operates. Will affect the local time.
+             */
+            timezone: z.string(),
+
+            /**
+             * How frequently should the display check in? Indicated in milliseconds.
+             */
+            updateFrequencyMs: z.number(),
+        }),
 
         /**
-         * Whether volume changes should be audibly confirmed.
+         * Information and settings regarding the display's device.
          */
-        confirmVolumeChanges: z.boolean(),
+        device: z.object({
+            /**
+             * Optional color that the device's light strip should be set to.
+             */
+            color: z.string().optional(),
+
+            /**
+             * Whether the device should be locked.
+             */
+            locked: z.boolean(),
+        }),
 
         /**
-         * How frequently should the display check in? Indicated in milliseconds.
+         * The piece of Del a Rie advice that should be shared.
          */
-        updateFrequencyMs: z.number(),
+        nardo: z.string().optional(),
     }),
 });
 
@@ -170,12 +180,29 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         .executeSelectOne();
 
     // ---------------------------------------------------------------------------------------------
+
+    const response: Response = {
+        identifier: configuration.identifier,
+        label: configuration.label ?? 'AnimeCon Display',
+        provisioned: !!configuration.eventId && !!configuration.locationId,
+        config: {
+            confirmVolumeChanges: !!settings['display-confirm-volume-change'],
+            devEnvironment: settings['display-dev-environment-link'],
+            timezone: configuration.timezone ?? 'UTC',
+            updateFrequencyMs,
+        },
+        device: {
+            color: configuration.color,
+            locked: configuration.locked,
+        },
+    };
+
+    // ---------------------------------------------------------------------------------------------
     // Step 2: Read static information that should be shown on the display
     // ---------------------------------------------------------------------------------------------
 
-    let nardoAdvice: string | undefined;
     if (!!settings['schedule-del-a-rie-advies']) {
-        nardoAdvice = await db.selectFrom(tNardo)
+        response.nardo = await db.selectFrom(tNardo)
             .where(tNardo.nardoVisible.equals(/* true= */ 1))
             .selectOneColumn(tNardo.nardoAdvice)
             .orderBy(dbInstance.rawFragment`rand()`)
@@ -183,18 +210,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             .executeSelectNoneOrOne() ?? undefined;
     }
 
-    return {
-        identifier: configuration.identifier,
-        label: configuration.label ?? 'AnimeCon Display',
-        color: configuration.color,
-        devEnvironment: settings['display-dev-environment-link'],
-        locked: configuration.locked,
-        nardo: nardoAdvice?.replace(/\.$/, ''),
-        provisioned: !!configuration.eventId && !!configuration.locationId,
-        timezone: configuration.timezone ?? 'UTC',
-        confirmVolumeChanges: !!settings['display-confirm-volume-change'],
-        updateFrequencyMs,
-    };
+    return response;
 }
 
 // The /api/display route only provides a single API - call it straight away.

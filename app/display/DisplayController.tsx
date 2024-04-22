@@ -53,7 +53,7 @@ export function DisplayController(props: React.PropsWithChildren) {
     // Periodically update the display's configuration using the `SWR` library. The interval can be
     // configured by the server, although will default to one update per five minutes.
     const { data, error, isLoading, mutate } = useSWR<DisplayDefinition['response']>(url, fetcher, {
-        refreshInterval: data => !!data ? data.updateFrequencyMs : kDefaultUpdateFrequencyMs,
+        refreshInterval: data => !!data ? data.config.updateFrequencyMs : kDefaultUpdateFrequencyMs,
     });
 
     // ---------------------------------------------------------------------------------------------
@@ -68,20 +68,20 @@ export function DisplayController(props: React.PropsWithChildren) {
 
         // Automatically update the device's colour when the server indicated that this should
         // change. This can be done programmatically, or be hardcoded in configuration.
-        if (data.color !== getColorValue()) {
-            const [ red, green, blue ] = decomposeColor(data.color);
+        if (data.device.color !== getColorValue()) {
+            const [ red, green, blue ] = decomposeColor(data.device.color);
 
             device.setLightColour(red, green, blue);
-            setColorValue(data.color);
+            setColorValue(data.device.color);
         }
 
         // Automatically lock (or unlock) the device based on the received `context`. No
         // feedback is given, other than the "lock" icon shown in the overflow menu.
-        if (data.locked !== isLockedValue()) {
-            data.locked ? device.enableKiosk()
-                        : device.disableKiosk();
+        if (data.device.locked !== isLockedValue()) {
+            data.device.locked ? device.enableKiosk()
+                               : device.disableKiosk();
 
-            setLockedValue(data.locked);
+            setLockedValue(data.device.locked);
         }
 
     }, [ data ]);
