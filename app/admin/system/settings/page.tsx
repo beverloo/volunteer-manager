@@ -205,6 +205,15 @@ export default async function IntegrationsPage() {
                 description: 'Whether the advice service should be enabled',
             },
             {
+                setting: 'schedule-del-a-rie-advies-time-limit',
+                type: 'number',
+                defaultValue: 5,
+
+                label: 'Del a Rie Advies (advice interval)',
+                description:
+                    'Number of minutes that a piece of excellent advice should be shown for',
+            },
+            {
                 setting: 'schedule-knowledge-base',
                 type: 'boolean',
                 defaultValue: true,

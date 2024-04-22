@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { DisplayHelpRequestStatus } from '@lib/database/Types';
+import { Temporal } from '@lib/Temporal';
 import { executeAction, noAccess, type ActionProps } from '../Action';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
@@ -124,6 +125,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-dev-environment-link',
         'display-request-help',
         'schedule-del-a-rie-advies',
+        'schedule-del-a-rie-advies-time-limit',
     ]);
 
     const dbInstance = db;
@@ -234,10 +236,16 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     // ---------------------------------------------------------------------------------------------
 
     if (!!settings['schedule-del-a-rie-advies']) {
+        const timeLimitMinutes = settings['schedule-del-a-rie-advies-time-limit'] ?? 5;
+        const timeLimitSeconds = timeLimitMinutes * 60;
+
+        const seedBase = Temporal.Now.instant().epochSeconds;
+        const seed = Math.round(seedBase / timeLimitSeconds) * timeLimitSeconds;
+
         response.nardo = await db.selectFrom(tNardo)
             .where(tNardo.nardoVisible.equals(/* true= */ 1))
             .selectOneColumn(tNardo.nardoAdvice)
-            .orderBy(dbInstance.rawFragment`rand()`)
+            .orderBy(dbInstance.rawFragment`rand(${dbInstance.const(seed, 'int')})`)
             .limit(1)
             .executeSelectNoneOrOne() ?? undefined;
     }
