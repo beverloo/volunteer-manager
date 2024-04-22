@@ -34,7 +34,7 @@ export function NardoAdviceCard(props: NardoAdviceCardProps) {
                 <Typography variant="body2" sx={{ color: 'text.secondary', textWrap: 'balance' }}>
                     {props.advice}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                <Typography variant="body2" sx={{ color: 'text.disabled', pt: 0.5 }}>
                     {' '}— Del a Rie Advies
                 </Typography>
             </Box>
