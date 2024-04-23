@@ -14,6 +14,7 @@ import type { ErrorDefinition } from '@app/api/error/route';
 import type { ExportsDefinition } from '@app/api/exports/route';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetScheduleDefinition } from '@app/api/admin/event/schedule/getSchedule';
+import type { HelpRequestDefinition } from '@app/api/display/help-request/route';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
@@ -189,6 +190,7 @@ export type ApiEndpoints = {
         '/api/auth/sign-out': SignOutDefinition,
         '/api/auth/update-account': UpdateAccountDefinition,
         '/api/auth/update-avatar': UpdateAvatarDefinition,
+        '/api/display/help-request': HelpRequestDefinition,
         '/api/error': ErrorDefinition,
         '/api/event/application': ApplicationDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
