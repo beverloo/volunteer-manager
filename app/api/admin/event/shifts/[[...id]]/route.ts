@@ -205,7 +205,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         } else {
             if (!row.name || !row.name.length)
                 return { success: false, error: 'Please give the shift a name.' };
-            if (!row.locationId || !!row.locationId)
+            if (!row.locationId)
                 return { success: false, error: 'Please give the shift a location.' };
 
             insertId = await db.insertInto(tShifts)
