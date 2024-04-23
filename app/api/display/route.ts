@@ -48,6 +48,11 @@ const kDisplayDefinition = z.object({
             devEnvironment: z.string().optional(),
 
             /**
+             * Whether advice can be requested as one of the types in the "request help" feature.
+             */
+            enableRequestAdvice: z.boolean(),
+
+            /**
              * Whether the "request help" feature should be enabled on the display.
              */
             enableRequestHelp: z.boolean(),
@@ -123,6 +128,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-check-in-rate-seconds',
         'display-confirm-volume-change',
         'display-dev-environment-link',
+        'display-request-advice',
         'display-request-help',
         'schedule-del-a-rie-advies',
         'schedule-del-a-rie-advies-time-limit',
@@ -220,6 +226,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         config: {
             confirmVolumeChanges: !!settings['display-confirm-volume-change'],
             devEnvironment: settings['display-dev-environment-link'],
+            enableRequestAdvice: !!settings['display-request-advice'],
             enableRequestHelp: !!settings['display-request-help'],
             timezone: configuration.timezone ?? 'UTC',
             updateFrequencyMs,

@@ -19,6 +19,7 @@ type SettingsMap = {
     'display-confirm-volume-change': boolean;
     'display-dev-environment-link': string;
     'display-max-time-since-check-in-days': number;
+    'display-request-advice': boolean;
     'display-request-help': boolean;
 
     // ---------------------------------------------------------------------------------------------

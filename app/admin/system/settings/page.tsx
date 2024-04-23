@@ -63,6 +63,15 @@ export default async function IntegrationsPage() {
                     'When set, a menu item will be included linking through to this URL',
             },
             {
+                setting: 'display-request-advice',
+                type: 'boolean',
+                defaultValue: true,
+
+                label: 'Enable requesting advice',
+                description:
+                    'When set, Del a Rie advice can be requested directly from the displays',
+            },
+            {
                 setting: 'display-request-help',
                 type: 'boolean',
                 defaultValue: true,
