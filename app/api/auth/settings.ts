@@ -52,6 +52,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
     const kAllowedUserSettings: { [k in keyof UserSettingsMap]: SettingStringType<k> } = {
         'user-admin-knowledge-expand-categories': 'boolean',
         'user-admin-schedule-date': 'string',
+        'user-admin-schedule-expand-sections': 'string',
         'user-admin-schedule-expand-warnings': 'boolean',
         'user-admin-schedule-inclusive-shifts': 'boolean',
         'user-admin-shifts-display-other-teams': 'boolean',

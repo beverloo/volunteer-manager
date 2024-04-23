@@ -19,6 +19,7 @@ import type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleReso
 import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
+import { callApi } from '@lib/callApi';
 
 /**
  * Background color to issue to markers on the schedule, depending on what they represent.
@@ -36,6 +37,11 @@ export interface ScheduleImplProps {
      * Whether the schedule should be displayed in read-only mode.
      */
     readOnly?: boolean;
+
+    /**
+     * Default expansion state of each of the sections shown in the schedule. Persists for the user.
+     */
+    sections: Record<string, boolean>;
 }
 
 /**
@@ -44,7 +50,7 @@ export interface ScheduleImplProps {
  * order. Furthermore, it supports all filtering options elsewhere in the user interface.
  */
 export function ScheduleImpl(props: ScheduleImplProps) {
-    const { readOnly } = props;
+    const { readOnly, sections } = props;
 
     const context = useContext(ScheduleContext);
 
@@ -68,8 +74,10 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             for (const resource of context.schedule.resources) {
                 resources.push({
                     ...resource,
+                    collapsed: sections[resource.name] ?? resource.collapsed,
                     eventCreation: false,
                     name: `${resource.name} (${resource.children.length})`,
+                    originalName: resource.name,
                 });
             }
 
@@ -79,7 +87,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
         return { events, markers, resources };
 
-    }, [ context.schedule ])
+    }, [ context.schedule, sections ])
 
     const { recentShifts, shifts } = useMemo(() => {
         const recentShifts: { id: number; label: string; color: string }[] = [];
@@ -217,6 +225,19 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         }, [ /* no dependencies */ ]);
 
     // ---------------------------------------------------------------------------------------------
+    // Interaction: Collapse and/or expand resources
+    // ---------------------------------------------------------------------------------------------
+
+    const handleExpansionChange = useCallback((resource: ScheduleResource, expanded: boolean) => {
+        sections[resource.originalName] = !expanded;
+        callApi('post', '/api/auth/settings', {
+            'user-admin-schedule-expand-sections': JSON.stringify(sections),
+        }).catch(error => {
+            console.error(`Unable to store user settings: ${error}`);
+        });
+    }, [ sections ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     if (!context.schedule || !resources.length) {
         return (
@@ -239,6 +260,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
                       events={events} eventDefaults={eventDefaults} eventOverlap={false}
                       onChange={context.processMutation} onRightClick={handleRightClick}
+                      onResourceExpansionChange={handleExpansionChange}
                       onDoubleClick={handleDoubleClick} markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
             <SettingDialog title="Select a shift" delete open={!!dialogEvent}
