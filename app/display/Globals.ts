@@ -27,6 +27,8 @@ export function onceInitialiseGlobals() {
 
     globalThis.animeConColorValue = undefined;
 
+    device.setLightColour(0, 0, 0);  // turn the lights off
+
     device.getBrightness().then(brightness => {
         globalThis.animeConBrightnessValue = brightness ?? /* default= */ 50;
     });
