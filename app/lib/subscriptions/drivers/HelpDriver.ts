@@ -20,28 +20,87 @@ export const kTargetToTypeId: { [k in DisplayHelpRequestTarget]: number } = {
  * Information that must be provided when publishing a help request from one of the displays.
  */
 export interface HelpMessage extends Message {
-    // TODO
+    /**
+     * Unique ID of the request as it has been stored in the database.
+     */
+    requestId: number;
+
+    /**
+     * Name of the location that has requested help.
+     */
+    location: string;
+
+    /**
+     * Type of help that has been requested. E.g. ("a piece of advice")
+     */
+    subject: string;
 }
 
 /**
  * Driver that deals with subscriptions that have the `Help` type.
  */
-export class HelpDriver extends Driver<HelpDriver> {
+export class HelpDriver extends Driver<HelpMessage> {
     override async publishEmail(
-        publicationId: number, recipient: Recipient, message: HelpDriver)
+        publicationId: number, recipient: Recipient, message: HelpMessage)
     {
-        // TODO: Support publishing e-mails
-        return false;
+        const template = this.getPopulatedTemplate('email', recipient, message);
+        if (!template || !recipient.emailAddress)
+            return false;  // not enough information to publish this message
+
+        await SendEmailTask.Schedule({
+            sender: 'AnimeCon Volunteering Leads',
+            message: {
+                to: recipient.emailAddress,
+                subject: template.subject,
+                markdown: template.body,
+            },
+            attribution: {
+                sourceUserId: /* Volunteering Leads= */ 18,
+                targetUserId: recipient.userId,
+            },
+        });
+
+        return true;
     }
 
-    override async publishSms(publicationId: number, recipient: Recipient, message: HelpDriver) {
-        // TODO: Support publishing text messages
-        return false;
+    override async publishSms(publicationId: number, recipient: Recipient, message: HelpMessage) {
+        const template = this.getPopulatedTemplate('sms', recipient, message);
+        if (!template || !recipient.phoneNumber)
+            return false;  // not enough information to publish this message
+
+        await SendSmsTask.Schedule({
+            to: recipient.phoneNumber,
+            message: template.body,
+            attribution: {
+                sourceUserId: /* Volunteering Leads= */ 18,
+                targetUserId: recipient.userId,
+            },
+        });
+
+        return true;
     }
 
-    override async publishWhatsapp(publicationId: number, recipient: Recipient, message: HelpDriver)
+    override async publishWhatsapp(
+        publicationId: number, recipient: Recipient, message: HelpMessage)
     {
-        // TODO: Support publishing WhatsApp messages
-        return false;
+        const template = this.getPopulatedTemplate('whatsapp', recipient, message);
+        if (!template || !recipient.phoneNumber)
+            return false;  // not enough information to publish this message
+
+        await SendWhatsappTask.Schedule({
+            to: recipient.phoneNumber,
+            contentSid: template.body,
+            contentVariables: {
+                '1': message.location,
+                '2': message.subject,
+                '3': `${message.requestId}`,
+            },
+            attribution: {
+                sourceUserId: /* Volunteering Leads= */ 18,
+                targetUserId: recipient.userId,
+            },
+        });
+
+        return true;
     }
 }
