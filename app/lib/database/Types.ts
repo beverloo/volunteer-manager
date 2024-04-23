@@ -40,6 +40,16 @@ export enum DisplayHelpRequestStatus {
 }
 
 /**
+ * Target of a help request issued by one of the displays.
+ * @see Table `displays_requests`
+ */
+export enum DisplayHelpRequestTarget {
+    Crew = 'Crew',
+    Nardo = 'Nardo',
+    Stewards = 'Stewards',
+}
+
+/**
  * Status indicating whether volunteers can share their availability preferences.
  * @see Table `events`
  */
@@ -181,6 +191,7 @@ export enum ShirtSize {
  */
 export enum SubscriptionType {
     Application = 'Application',
+    Help = 'Help',
     Registration = 'Registration',
     Test = 'Test',
 }

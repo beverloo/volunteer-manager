@@ -218,6 +218,10 @@ do {
                     type: 'DisplayHelpRequestStatus',
                 },
                 {
+                    field: [ 'displays_requests', 'request_received_target' ],
+                    type: 'DisplayHelpRequestTarget',
+                },
+                {
                     field: [ 'events', 'event_availability_status' ],
                     type: 'EventAvailabilityStatus'
                 },
