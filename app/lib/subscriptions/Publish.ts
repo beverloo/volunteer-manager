@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationMessage } from './drivers/ApplicationDriver';
+import type { HelpMessage } from './drivers/HelpDriver';
 import type { RegistrationMessage } from './drivers/RegistrationDriver';
 import type { TestMessage } from './drivers/TestDriver';
 import { SubscriptionType } from '@lib/database/Types';
@@ -24,6 +25,7 @@ interface PublicationBase {
  */
 export type Publication = PublicationBase & (
     { type: SubscriptionType.Application; typeId: number; message: ApplicationMessage } |
+    { type: SubscriptionType.Help; typeId: number; message: HelpMessage } |
     { type: SubscriptionType.Registration; typeId?: undefined; message: RegistrationMessage } |
     { type: SubscriptionType.Test; typeId?: undefined; message: TestMessage }
 );

@@ -25,6 +25,7 @@ import { SubscriptionType } from '@lib/database/Types';
  */
 const kSubscriptionDescriptions: { [k in SubscriptionType]: string } = {
     [SubscriptionType.Application]: 'When a volunteer applies to help out in this team',
+    [SubscriptionType.Help]: 'When help is requested through a display',
     [SubscriptionType.Registration]: 'When a volunteer has created an account',
     [SubscriptionType.Test]: 'Internal test messages',
 };

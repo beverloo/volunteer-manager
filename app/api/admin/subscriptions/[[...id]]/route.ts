@@ -11,6 +11,8 @@ import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
 
+import { kTargetToTypeId } from '@lib/subscriptions/drivers/HelpDriver';
+
 /**
  * Row model for a subscription.
  */
@@ -94,6 +96,11 @@ async function getSubscriptionTypes() {
             type: SubscriptionType.Application,
             typeId: team.id,
             label: `Application (${team.name})`,
+        })),
+        ...Object.entries(kTargetToTypeId).map(([ type, typeId ]) => ({
+            type: SubscriptionType.Help,
+            typeId: typeId,
+            label: `Help request (${type})`,
         })),
         { type: SubscriptionType.Registration, typeId: null, label: 'New user registrations' },
         { type: SubscriptionType.Test, typeId: null, label: 'Test messages' },
