@@ -5,11 +5,26 @@
 
 import Link from 'next/link';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import type { Temporal } from '@lib/Temporal';
+
+/**
+ * CSS customizations applied to the <CardTimeslotEntry> component.
+ */
+const kStyles: { [key: string]: SxProps<Theme> } = {
+    primary: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+};
 
 /**
  * Type definition of the information we need to know about a timeslot.
@@ -40,7 +55,10 @@ export interface CardTimeslot {
      */
     title: string;
 
-    // TODO: visible
+    /**
+     * Set when the timeslot is invisible to the public.
+     */
+    invisible?: true;
 }
 
 /**
@@ -66,11 +84,26 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
 
     // TODO: Activity state
     // TODO: Time until {start, end}
-    // TODO: Visibility
 
     return (
         <ListItemButton LinkComponent={Link} href={`../events/${timeslot.activityId}`}>
-            <ListItemText primary={timeslot.title} />
+            { !timeslot.invisible &&
+                <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
+                              primary={timeslot.title} /> }
+
+            { !!timeslot.invisible &&
+                <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
+                              primary={
+                                  <>
+                                      <em>{timeslot.title}</em>
+                                      <Tooltip title="Hidden from visitors">
+                                          <VisibilityIcon fontSize="inherit" color="info"
+                                                          sx={{ marginLeft: 1,
+                                                                verticalAlign: 'middle' }} />
+                                      </Tooltip>
+                                  </>
+                              } /> }
+
             <Typography variant="body2">
                 [time]
             </Typography>

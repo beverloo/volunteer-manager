@@ -173,8 +173,12 @@ const kPublicSchedule = z.strictObject({
              */
             timeslots: z.array(z.string()),
 
+            /**
+             * Set when the timeslot is invisible to the public.
+             */
+            invisible: z.literal(true).optional(),
+
             // TODO: description
-            // TODO: visible
         })),
 
         /**
@@ -456,6 +460,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             title: activity.title,
             timeslots: [ /* empty */ ],
         };
+
+        if (!activity.visible)
+            schedule.program.activities[activityId].invisible = true;
 
         for (const timeslot of activity.timeslots) {
             const areaId = `${timeslot.area.id}`;

@@ -40,12 +40,15 @@ export function AreaList() {
                     if (timeslot.end < now.epochSeconds)
                         continue;
 
+                    const activity = schedule.program.activities[timeslot.activity];
+
                     const entry: CardTimeslot = {
                         id: timeslot.id,
                         activityId: timeslot.activity,
                         start: timeslot.start,
                         end: timeslot.end,
-                        title: schedule.program.activities[timeslot.activity].title,
+                        title: activity.title,
+                        invisible: activity.invisible,
                     };
 
                     if (timeslot.start < now.epochSeconds)
