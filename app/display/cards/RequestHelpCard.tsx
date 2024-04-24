@@ -188,7 +188,7 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
                         will come by at their earliest convenience.
                     </DialogContentText>
                     <Divider sx={{ mt: 2 }} />
-                    <Stack direction="row" justifyContent="space-evenly" spacing={2} sx={{ mt: 1 }}>
+                    <Stack direction="row" justifyContent="space-evenly" spacing={2} sx={{ mt: 2 }}>
                         <RequestHelpButton onClick={handleRequestCrew}
                                            image="/images/request-help-crew.jpg"
                                            label="Volunteers" />
