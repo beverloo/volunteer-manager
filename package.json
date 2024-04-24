@@ -8,8 +8,8 @@
     "sync-db": "node ts-sql.build.mjs",
     "build": "next build",
     "build-with-bundle-analyzer": "cross-env ANALYZE=true next build",
-    "serve": "next dev",
-    "serve-with-scheduler": "cross-env APP_USE_SCHEDULER=1 next dev",
+    "serve": "next dev --turbo",
+    "serve-with-scheduler": "cross-env APP_USE_SCHEDULER=1 next dev --turbo",
     "lint": "next lint",
     "test": "jest",
     "test:e2e": "playwright test --reporter=html"
