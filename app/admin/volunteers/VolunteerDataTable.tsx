@@ -225,6 +225,10 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
     }, [ props.initialFilterModel ]);
 
     const handleFilterChange = useCallback((model: GridFilterModel) => {
+        // Don't store the `quickFilterValues` property, as search results should be ephemeral.
+        if (Object.hasOwn(model, 'quickFilterValues'))
+            model = { ...model, quickFilterValues: undefined };
+
         // Opportunistically update the user setting:
         callApi('post', '/api/auth/settings', {
             'user-admin-volunteers-columns-filter': JSON.stringify(model),
