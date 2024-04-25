@@ -32,10 +32,10 @@ import Typography from '@mui/material/Typography';
 import WifiFindIcon from '@mui/icons-material/WifiFind';
 
 import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
-import { Temporal, formatDate } from '@lib/Temporal';
+import { formatDate } from '@lib/Temporal';
 import {
-    getBrightnessValue, setBrightnessValue, isLockedValue, hasRecentlyUpdated, getVolumeValue,
-    setVolumeValue } from './Globals';
+    getBrightnessValue, setBrightnessValue, getCurrentZonedDateTime, isLockedValue,
+    hasRecentlyUpdated, getVolumeValue, setVolumeValue } from './Globals';
 
 import audio from './lib/Audio';
 import device from './lib/Device';
@@ -45,11 +45,11 @@ import device from './lib/Device';
  * every minute automatically, although the internal state is updated more frequently.
  */
 function CurrentTime(props: { timezone?: string }) {
-    const [ date, setDate ] = useState(Temporal.Now.zonedDateTimeISO(props.timezone));
+    const [ date, setDate ] = useState(getCurrentZonedDateTime(props.timezone));
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setDate(Temporal.Now.zonedDateTimeISO(props.timezone));
+            setDate(getCurrentZonedDateTime(props.timezone));
         }, /* 3 seconds= */ 3000);
 
         return () => clearInterval(timer);

@@ -58,6 +58,12 @@ const kDisplayDefinition = z.object({
             enableRequestHelp: z.boolean(),
 
             /**
+             * Time offset, in seconds, to alter the local timestamp by. Used to emulate the
+             * schedule at another point in time for testing purposes.
+             */
+            timeOffset: z.number().optional(),
+
+            /**
              * Timezone in which the display operates. Will affect the local time.
              */
             timezone: z.string(),
@@ -132,6 +138,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-request-help',
         'schedule-del-a-rie-advies',
         'schedule-del-a-rie-advies-time-limit',
+        'schedule-time-offset-seconds',
     ]);
 
     const dbInstance = db;
@@ -228,6 +235,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             devEnvironment: settings['display-dev-environment-link'],
             enableRequestAdvice: !!settings['display-request-advice'],
             enableRequestHelp: !!settings['display-request-help'],
+            timeOffset: settings['schedule-time-offset-seconds'] || undefined,
             timezone: configuration.timezone ?? 'UTC',
             updateFrequencyMs,
         },

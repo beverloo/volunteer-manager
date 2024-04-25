@@ -11,7 +11,7 @@ import { DisplayContext, type DisplayContextInfo } from './DisplayContext';
 import { DisplayTheme } from './DisplayTheme';
 import {
     onceInitialiseGlobals, getColorValue, markUpdateCompleted, isLockedValue, setColorValue,
-    setLockedValue } from './Globals';
+    setLockedValue, setTimeOffset} from './Globals';
 
 import device from './lib/Device';
 
@@ -65,6 +65,9 @@ export function DisplayController(props: React.PropsWithChildren) {
             return;
 
         markUpdateCompleted();
+
+        // Apply any time offset that the server indicates this device should be subject to.
+        setTimeOffset(data.config.timeOffset);
 
         // Automatically update the device's colour when the server indicated that this should
         // change. This can be done programmatically, or be hardcoded in configuration.

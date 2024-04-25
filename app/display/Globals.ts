@@ -11,6 +11,7 @@ declare module globalThis {
     let animeConColorValue: string | undefined;
     let animeConInitialised: boolean;
     let animeConLockedValue: boolean;
+    let animeConTimeOffsetSeconds: number | undefined;
     let animeConUpdatedInstant: Temporal.Instant;
     let animeConVolumeValue: number;
 }
@@ -24,6 +25,7 @@ export function onceInitialiseGlobals() {
 
     globalThis.animeConInitialised = true;
     globalThis.animeConLockedValue = false;
+    globalThis.animeConTimeOffsetSeconds = undefined;
 
     globalThis.animeConColorValue = undefined;
 
@@ -69,6 +71,14 @@ export function setColorValue(value: string | undefined): void {
 }
 
 /**
+ * Returns the Temporal `ZonedDateTime` that represents the current moment in time, either in the
+ * given `timezone` when set, or otherwise in UTC.
+ */
+export function getCurrentZonedDateTime(timezone?: string): Temporal.ZonedDateTime {
+    return Temporal.Now.zonedDateTimeISO(timezone);
+}
+
+/**
  * Returns whether the device is currently locked.
  */
 export function isLockedValue(): boolean {
@@ -102,6 +112,13 @@ export function hasRecentlyUpdated(): boolean {
     });
 
     return difference.seconds <= 5 * 60;
+}
+
+/**
+ * Updates the time offset under which the display operates to the given `seconds`.
+ */
+export function setTimeOffset(seconds?: number): void {
+    globalThis.animeConTimeOffsetSeconds = seconds;
 }
 
 /**
