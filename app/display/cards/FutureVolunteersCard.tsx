@@ -6,8 +6,11 @@
 import { useMemo } from 'react';
 
 import Grid from '@mui/material/Unstable_Grid2';
+import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import Paper from '@mui/material/Paper';
+import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import Stack from '@mui/material/Stack';
+import StarRateOutlinedIcon from '@mui/icons-material/StarRateOutlined';
 import Typography from '@mui/material/Typography';
 
 import type { DisplayShiftInfo } from '../DisplayContext';
@@ -72,9 +75,6 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
 
     }, [ timezone, volunteers ]);
 
-    // TODO: Indicate what role each person has
-    // TODO: Indicate which people are in senior roles
-
     return (
         <Stack component={Paper} direction="column" spacing={2} sx={{ p: 2 }}>
             { groups.map(([ zonedDateTime, volunteers ]) =>
@@ -86,7 +86,25 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
                         { volunteers.map(volunteer =>
                             <Grid key={volunteer.id} xs={4}>
                                 <Paper variant="outlined" sx={{ p: 1, borderColor: 'transparent '}}>
-                                    {volunteer.name}
+                                    <Stack direction="row" justifyContent="space-between">
+                                        <Typography variant="body1">
+                                            {volunteer.name}
+                                        </Typography>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            { volunteer.team.includes('Host') &&
+                                                <LightbulbOutlinedIcon fontSize="small"
+                                                                       htmlColor="#455a64" /> }
+                                            { volunteer.team.includes('Steward') &&
+                                                <SecurityOutlinedIcon fontSize="small"
+                                                                      htmlColor="#455a64" /> }
+                                            { volunteer.role.includes('Senior') &&
+                                                <StarRateOutlinedIcon fontSize="small"
+                                                                      htmlColor="#ffeb3b" /> }
+                                            { volunteer.role.includes('Staff') &&
+                                                <StarRateOutlinedIcon fontSize="small"
+                                                                      htmlColor="#ff5722" /> }
+                                        </Stack>
+                                    </Stack>
                                 </Paper>
                             </Grid> ) }
                     </Grid>
