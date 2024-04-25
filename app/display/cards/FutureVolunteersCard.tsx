@@ -20,11 +20,6 @@ import { Temporal, formatDate } from '@lib/Temporal';
 import { VolunteersDialog } from './VolunteersDialog';
 
 /**
- * Number of future groups to display on the card.
- */
-const kFutureVolunteerGroupLimit = 2;
-
-/**
  * Number of entries to display on the future volunteer list.
  */
 const kFutureVolunteerEntryLimit = 9;
@@ -57,30 +52,27 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    // Compose the `volunteers` in `kFutureGroupCount` groups based on the time at which their shift
-    // will start. These will be displayed in the card, in order.
-    const groups = useMemo(() => {
-        const groups = new Map<number, DisplayShiftInfo[]>();
-
-        let includedVolunteers = 0;
+    // Identify the group of volunteers who are due to help out next. This could be a single person,
+    // it could also be a group of multiple people.
+    const upcoming = useMemo(() => {
+        const volunteers: DisplayShiftInfo[] = [ /* empty */ ];
         for (const volunteer of schedule.future) {
-            if (++includedVolunteers > kFutureVolunteerEntryLimit)
+            if (!!volunteers.length && volunteers[0].start !== volunteer.start)
+                break;  // the volunteer starts at a different moment
+
+            volunteers.push(volunteer);
+
+            if (volunteers.length >= kFutureVolunteerEntryLimit)
                 break;  // the volunteer limit would be exceeded
-
-            if (!groups.has(volunteer.start)) {
-                if (groups.size === kFutureVolunteerGroupLimit)
-                    break;  // the group limit would be exceeded
-
-                groups.set(volunteer.start, [ /* empty */ ]);
-            }
-
-            groups.get(volunteer.start)!.push(volunteer);
         }
 
-        return [ ...groups.entries() ].map(([ timestamp, volunteers ]) => ([
-            Temporal.Instant.fromEpochSeconds(timestamp).toZonedDateTimeISO(timezone),
+        if (!volunteers)
+            return undefined;
+
+        return {
+            dt: Temporal.Instant.fromEpochSeconds(volunteers[0].start).toZonedDateTimeISO(timezone),
             volunteers,
-        ]) as const);
+        };
 
     }, [ timezone, schedule ]);
 
@@ -91,44 +83,47 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
     const handleDialogClose = useCallback(() => setDialogOpen(false), [ /* no dependencies */ ]);
     const handleDialogOpen = useCallback(() => setDialogOpen(true), [ /* no dependencies */ ]);
 
+    // ---------------------------------------------------------------------------------------------
+
+    if (!upcoming)
+        return undefined;
+
     return (
         <>
             <CardActionArea onClick={handleDialogOpen}>
                 <Stack component={Paper} direction="column" spacing={2} sx={{ pt: 2 }}>
-                    { groups.map(([ zonedDateTime, volunteers ]) =>
-                        <Stack direction="row" key={zonedDateTime.epochSeconds} sx={{ px: 2 }}>
-                            <Typography variant="body1" sx={{ pt: 1, width: '100px' }}>
-                                { formatDate(zonedDateTime, 'HH:mm') }
-                            </Typography>
-                            <Grid container flexGrow={1} spacing={2}>
-                                { volunteers.map(volunteer =>
-                                    <Grid key={volunteer.id} xs={4}>
-                                        <Paper variant="outlined"
-                                            sx={{ p: 1, borderColor: 'transparent '}}>
-                                            <Stack direction="row" justifyContent="space-between">
-                                                <Typography variant="body1">
-                                                    {volunteer.name}
-                                                </Typography>
-                                                <Stack direction="row" alignItems="center"
-                                                       spacing={1}>
-                                                    { volunteer.team.includes('Host') &&
-                                                        <LightbulbOutlinedIcon htmlColor="#455a64"
-                                                                               fontSize="small" /> }
-                                                    { volunteer.team.includes('Steward') &&
-                                                        <SecurityOutlinedIcon htmlColor="#455a64"
-                                                                              fontSize="small" /> }
-                                                    { volunteer.role.includes('Senior') &&
-                                                        <StarRateOutlinedIcon htmlColor="#ffeb3b"
-                                                                              fontSize="small" /> }
-                                                    { volunteer.role.includes('Staff') &&
-                                                        <StarRateOutlinedIcon htmlColor="#ff5722"
-                                                                              fontSize="small" /> }
-                                                </Stack>
+                    <Stack direction="row" sx={{ px: 2 }}>
+                        <Typography variant="body1" sx={{ pt: 1, width: '100px' }}>
+                            { formatDate(upcoming.dt, 'HH:mm') }
+                        </Typography>
+                        <Grid container flexGrow={1} spacing={2}>
+                            { upcoming.volunteers.map(volunteer =>
+                                <Grid key={volunteer.id} xs={4}>
+                                    <Paper variant="outlined"
+                                           sx={{ p: 1, borderColor: 'transparent '}}>
+                                        <Stack direction="row" justifyContent="space-between">
+                                            <Typography variant="body1">
+                                                {volunteer.name}
+                                            </Typography>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                { volunteer.team.includes('Host') &&
+                                                    <LightbulbOutlinedIcon htmlColor="#455a64"
+                                                                           fontSize="small" /> }
+                                                { volunteer.team.includes('Steward') &&
+                                                    <SecurityOutlinedIcon htmlColor="#455a64"
+                                                                          fontSize="small" /> }
+                                                { volunteer.role.includes('Senior') &&
+                                                    <StarRateOutlinedIcon htmlColor="#ffeb3b"
+                                                                          fontSize="small" /> }
+                                                { volunteer.role.includes('Staff') &&
+                                                    <StarRateOutlinedIcon htmlColor="#ff5722"
+                                                                          fontSize="small" /> }
                                             </Stack>
-                                        </Paper>
-                                    </Grid> ) }
-                            </Grid>
-                        </Stack> ) }
+                                        </Stack>
+                                    </Paper>
+                                </Grid> ) }
+                        </Grid>
+                    </Stack>
                     <Box sx={{
                         backgroundColor: '#004e8b',
                         borderBottomLeftRadius: 4,
