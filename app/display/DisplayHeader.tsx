@@ -55,7 +55,11 @@ function CurrentTime(props: { timezone?: string }) {
         return () => clearInterval(timer);
     });
 
-    return formatDate(date, 'HH:mm');
+    return (
+        <span suppressHydrationWarning>
+            { formatDate(date, 'HH:mm') }
+        </span>
+    );
 }
 
 /**
