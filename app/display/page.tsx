@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 
 import { AdviceCard } from './cards/AdviceCard';
 import { DisplayContext } from './DisplayContext';
+import { NoVolunteersCard } from './cards/NoVolunteersCard';
 import { RequestHelpCard } from './cards/RequestHelpCard';
 
 /**
@@ -70,10 +71,9 @@ export default function DisplayPage() {
         <Grid container>
             <Grid xs={8}>
                 <Stack direction="column" spacing={4} sx={{ mr: 4 }}>
-                    <Paper sx={{ p: 2 }}>
-                        Left
-                    </Paper>
+                    <NoVolunteersCard />
                     { /* TODO: On-location volunteers */ }
+                    { /* TODO: Upcoming volunteers */ }
                     { /* TODO: Information about the location */ }
                 </Stack>
             </Grid>

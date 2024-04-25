@@ -75,7 +75,11 @@ export function setColorValue(value: string | undefined): void {
  * given `timezone` when set, or otherwise in UTC.
  */
 export function getCurrentZonedDateTime(timezone?: string): Temporal.ZonedDateTime {
-    return Temporal.Now.zonedDateTimeISO(timezone);
+    const currentZonedDateTime = Temporal.Now.zonedDateTimeISO(timezone ?? 'UTC');
+    if (!!globalThis.animeConTimeOffsetSeconds)
+        return currentZonedDateTime.add({ seconds: globalThis.animeConTimeOffsetSeconds });
+
+    return currentZonedDateTime;
 }
 
 /**
