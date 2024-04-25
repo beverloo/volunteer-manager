@@ -79,7 +79,7 @@ export default function DisplayPage() {
                                               timezone={display.context.config.timezone} /> }
 
                     { !!display.context.schedule.future.length &&
-                        <FutureVolunteersCard volunteers={display.context.schedule.future}
+                        <FutureVolunteersCard schedule={display.context.schedule}
                                               timezone={display.context.config.timezone} /> }
 
                     { /* TODO: Information about the location */ }
