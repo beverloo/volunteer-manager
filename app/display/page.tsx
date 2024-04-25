@@ -11,8 +11,10 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { ActiveVolunteersCard } from './cards/ActiveVolunteersCard';
 import { AdviceCard } from './cards/AdviceCard';
 import { DisplayContext } from './DisplayContext';
+import { FutureVolunteersCard } from './cards/FutureVolunteersCard';
 import { NoVolunteersCard } from './cards/NoVolunteersCard';
 import { RequestHelpCard } from './cards/RequestHelpCard';
 
@@ -71,9 +73,15 @@ export default function DisplayPage() {
         <Grid container>
             <Grid xs={8}>
                 <Stack direction="column" spacing={4} sx={{ mr: 4 }}>
-                    <NoVolunteersCard />
-                    { /* TODO: On-location volunteers */ }
-                    { /* TODO: Upcoming volunteers */ }
+                    { !display.context.schedule.active.length && <NoVolunteersCard /> }
+                    { !!display.context.schedule.active.length &&
+                        <ActiveVolunteersCard volunteers={display.context.schedule.active}
+                                              timezone={display.context.config.timezone} /> }
+
+                    { !!display.context.schedule.future.length &&
+                        <FutureVolunteersCard volunteers={display.context.schedule.future}
+                                              timezone={display.context.config.timezone} /> }
+
                     { /* TODO: Information about the location */ }
                 </Stack>
             </Grid>

@@ -15,13 +15,13 @@ export function NoVolunteersCard() {
     return (
         <Stack component={Paper} variant="outlined" alignItems="center" justifyContent="center"
                sx={{
-                   minHeight: '231px',  // aligned with the "request help" card
+                   minHeight: '224px',  // aligned with the "request help" card
                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
                    borderStyle: 'dashed',
                    p: 2
                }}>
             <Typography sx={{ color: 'text.disabled' }}>
-                No volunteers are currently scheduled to be present.
+                No volunteers are currently scheduled at this location.
             </Typography>
         </Stack>
     );

@@ -5,12 +5,49 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { DisplayHelpRequestStatus } from '@lib/database/Types';
-import { Temporal } from '@lib/Temporal';
+import { DisplayHelpRequestStatus, RegistrationStatus } from '@lib/database/Types';
+import { Temporal, isBefore } from '@lib/Temporal';
 import { executeAction, noAccess, type ActionProps } from '../Action';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
-import db, { tActivitiesLocations, tDisplays, tEvents, tNardo } from '@lib/database';
+
+import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tDisplays, tEvents, tNardo,
+    tRoles, tSchedule, tShifts, tTeams, tUsers, tUsersEvents } from '@lib/database';
+
+/**
+ * Interface defining an individual shift that will be shared with the display.
+ */
+const kDisplayShiftDefinition = z.object({
+    /**
+     * Unique ID of this schedule entry. Should be used for keying.
+     */
+    id: z.number(),
+
+    /**
+     * Time at which this shift will start, as a UNIX timestamp in UTC.
+     */
+    start: z.number(),
+
+    /**
+     * Time at which this shift will end, as a UNIX timestamp in UTC.
+     */
+    end: z.number(),
+
+    /**
+     * Name of the volunteer who will work on this shift.
+     */
+    name: z.string(),
+
+    /**
+     * Team that the volunteer is part of.
+     */
+    team: z.string(),
+
+    /**
+     * Role that this volunteer has within the AnimeCon organisation.
+     */
+    role: z.string(),
+});
 
 /**
  * Interface definition for the Display API, exposed through /api/display.
@@ -98,10 +135,21 @@ const kDisplayDefinition = z.object({
          * The piece of Del a Rie advice that should be shared.
          */
         nardo: z.string().optional(),
+
+        /**
+         * The schedule that will be taking place in this location. We share all shifts with the
+         * device, which will present them in a way that's meaningful for the present situation.
+         */
+        schedule: z.object({
+            past: z.array(kDisplayShiftDefinition),
+            active: z.array(kDisplayShiftDefinition),
+            future: z.array(kDisplayShiftDefinition),
+        }),
     }),
 });
 
 export type DisplayDefinition = ApiDefinition<typeof kDisplayDefinition>;
+export type DisplayShiftDefinition = z.infer<typeof kDisplayShiftDefinition>;
 
 type Request = ApiRequest<typeof kDisplayDefinition>;
 type Response = ApiResponse<typeof kDisplayDefinition>;
@@ -140,6 +188,11 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'schedule-del-a-rie-advies-time-limit',
         'schedule-time-offset-seconds',
     ]);
+
+    const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
+    const currentTime = currentServerTime.add({
+        seconds: settings['schedule-time-offset-seconds'] ?? 0
+    });
 
     const dbInstance = db;
 
@@ -244,6 +297,11 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             locked: configuration.locked,
         },
         helpRequestStatus: configuration.helpRequestStatus,
+        schedule: {
+            past: [ /* empty */ ],
+            active: [ /* empty */ ],
+            future: [ /* empty */ ],
+        },
     };
 
     // ---------------------------------------------------------------------------------------------
@@ -263,6 +321,75 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             .orderBy(dbInstance.rawFragment`rand(${dbInstance.const(seed, 'int')})`)
             .limit(1)
             .executeSelectNoneOrOne() ?? undefined;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Step 3: Read the shifts that should be presented on the display
+    // ---------------------------------------------------------------------------------------------
+
+    if (!!response.provisioned && !!configuration.eventId && !!configuration.locationId) {
+        const activitiesJoin = tActivities.forUseInLeftJoin();
+        const activitiesTimeslotsJoin = tActivitiesTimeslots.forUseInLeftJoin();
+
+        const shifts = await dbInstance.selectDistinctFrom(tShifts)
+            .leftJoin(activitiesJoin)
+                .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
+            .leftJoin(activitiesTimeslotsJoin)
+                .on(activitiesTimeslotsJoin.activityId.equals(tShifts.shiftActivityId))
+            .where(tShifts.eventId.equals(configuration.eventId))
+                .and(tShifts.shiftDeleted.isNull())
+                .and(tShifts.shiftLocationId.equals(configuration.locationId)
+                    .or(activitiesJoin.activityLocationId.equals(configuration.locationId)
+                    .or(activitiesTimeslotsJoin.timeslotLocationId.equals(
+                        configuration.locationId))))
+            .selectOneColumn(tShifts.shiftId)
+            .executeSelectMany();
+
+        if (shifts.length > 0) {
+            const schedule = await dbInstance.selectFrom(tSchedule)
+                .innerJoin(tUsersEvents)
+                    .on(tUsersEvents.userId.equals(tSchedule.userId))
+                        .and(tUsersEvents.eventId.equals(tSchedule.eventId))
+                        .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .innerJoin(tTeams)
+                    .on(tTeams.teamId.equals(tUsersEvents.teamId))
+                .innerJoin(tRoles)
+                    .on(tRoles.roleId.equals(tUsersEvents.roleId))
+                .innerJoin(tUsers)
+                    .on(tUsers.userId.equals(tSchedule.userId))
+                .where(tSchedule.shiftId.in(shifts))
+                    .and(tSchedule.eventId.equals(configuration.eventId))
+                    .and(tSchedule.scheduleDeleted.isNull())
+                .select({
+                    id: tSchedule.scheduleId,
+
+                    start: tSchedule.scheduleTimeStart,
+                    end: tSchedule.scheduleTimeEnd,
+
+                    name: tUsers.displayName.valueWhenNull(tUsers.firstName),
+                    team: tTeams.teamTitle,
+                    role: tRoles.roleName,
+                })
+                .groupBy(tSchedule.userId)
+                .orderBy(tSchedule.scheduleTimeStart, 'asc')
+                    .orderBy('name', 'asc')
+                .executeSelectMany();
+
+            for (const entry of schedule) {
+                const completedEntry = {
+                    ...entry,
+                    start: entry.start.epochSeconds,
+                    end: entry.end.epochSeconds,
+                };
+
+                if (isBefore(entry.end, currentTime))
+                    response.schedule.past.push(completedEntry);
+                else if (isBefore(entry.start, currentTime))
+                    response.schedule.active.push(completedEntry);
+                else
+                    response.schedule.future.push(completedEntry);
+            }
+        }
     }
 
     return response;

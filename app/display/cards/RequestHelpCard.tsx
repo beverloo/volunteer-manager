@@ -175,7 +175,7 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
                     </Button> }
                 { !status &&
                     <Button fullWidth color="secondary" variant="outlined">
-                        Request help
+                        Request help…
                     </Button> }
             </CardActionArea>
             <Dialog open={dialogOpen} onClose={handleClose} fullWidth>
