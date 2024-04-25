@@ -3,11 +3,62 @@
 
 'use client';
 
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { DisplayShiftInfo } from '../DisplayContext';
+import { Temporal, formatDate } from '@lib/Temporal';
+
+/**
+ * Props accepted by the <ActiveVolunteerCard> component.
+ */
+interface ActiveVolunteerCardProps {
+    /**
+     * Timezone in which any times should be displayed in the user interface.
+     */
+    timezone: string;
+
+    /**
+     * The volunteer for whom this card is being displayed.
+     */
+    volunteer: DisplayShiftInfo;
+}
+
+/**
+ * The <ActiveVolunteerCard> component displays the necessary information of a particular volunteer
+ * who is currently helping out at this location.
+ */
+function ActiveVolunteerCard(props: ActiveVolunteerCardProps) {
+    const endZonedDateTime =
+        Temporal.Instant.fromEpochSeconds(props.volunteer.end).toZonedDateTimeISO(props.timezone);
+
+    return (
+        <Paper sx={{ px: 2, py: 1.5, backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar>
+                    {props.volunteer.name[0]}
+                </Avatar>
+                <Stack direction="column" sx={{ minWidth: 0 }}>
+                    <Typography variant="body1">
+                        {props.volunteer.name}
+                    </Typography>
+                    <Typography component="p" variant="caption" sx={{
+                        color: 'text.disabled',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                    }}>
+                        {props.volunteer.role}, until {formatDate(endZonedDateTime, 'HH:mm')}
+                    </Typography>
+                </Stack>
+            </Stack>
+        </Paper>
+    );
+}
 
 /**
  * Props accepted by the <ActiveVolunteersCard> component.
@@ -29,19 +80,17 @@ export interface ActiveVolunteersCardProps {
  * shift, and are expected to be around. All information about these volunteers will be shown.
  */
 export function ActiveVolunteersCard(props: ActiveVolunteersCardProps) {
-    const { volunteers } = props;
+    const size =
+        props.volunteers.length <= 3 ? /* full width= */ 12 :
+        props.volunteers.length <= 6 ? /* half width= */ 6 :
+                                       /* third width= */ 4;
 
     return (
-        <Stack component={Paper} variant="outlined" alignItems="center" justifyContent="center"
-               sx={{
-                   minHeight: '231px',  // aligned with the "request help" card
-                   backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                   borderStyle: 'dashed',
-                   p: 2
-               }}>
-            <Typography sx={{ color: 'text.disabled' }}>
-                [ ActiveVolunteersCard ]
-            </Typography>
-        </Stack>
+        <Grid container spacing={2} sx={{ m: '-8px !important', mb: '-16px !important' }}>
+            { props.volunteers.map(volunteer =>
+                <Grid key={volunteer.id} xs={size}>
+                    <ActiveVolunteerCard timezone={props.timezone} volunteer={volunteer} />
+                </Grid> ) }
+        </Grid>
     );
 }
