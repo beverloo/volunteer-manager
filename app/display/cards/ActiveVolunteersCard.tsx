@@ -3,7 +3,6 @@
 
 'use client';
 
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
@@ -11,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { DisplayShiftInfo } from '../DisplayContext';
+import { Avatar } from '@app/components/Avatar';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
@@ -39,9 +39,7 @@ function ActiveVolunteerCard(props: ActiveVolunteerCardProps) {
     return (
         <Paper sx={{ px: 2, py: 1.5, backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
             <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar>
-                    {props.volunteer.name[0]}
-                </Avatar>
+                <Avatar src={props.volunteer.avatar}>{props.volunteer.name}</Avatar>
                 <Stack direction="column" sx={{ minWidth: 0 }}>
                     <Typography variant="body1">
                         {props.volunteer.name}

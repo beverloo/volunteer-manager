@@ -12,7 +12,7 @@ import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/Disp
 import { readSettings } from '@lib/Settings';
 
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tDisplays, tEvents, tNardo,
-    tRoles, tSchedule, tShifts, tTeams, tUsers, tUsersEvents } from '@lib/database';
+    tRoles, tSchedule, tShifts, tStorage, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
  * Interface defining an individual shift that will be shared with the display.
@@ -37,6 +37,11 @@ const kDisplayShiftDefinition = z.object({
      * Name of the volunteer who will work on this shift.
      */
     name: z.string(),
+
+    /**
+     * Optional URL to the volunteer's avatar, when available.
+     */
+    avatar: z.string().optional(),
 
     /**
      * Team that the volunteer is part of.
@@ -346,6 +351,8 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             .executeSelectMany();
 
         if (shifts.length > 0) {
+            const storageJoin = tStorage.forUseInLeftJoin();
+
             const schedule = await dbInstance.selectFrom(tSchedule)
                 .innerJoin(tUsersEvents)
                     .on(tUsersEvents.userId.equals(tSchedule.userId))
@@ -357,6 +364,8 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                     .on(tRoles.roleId.equals(tUsersEvents.roleId))
                 .innerJoin(tUsers)
                     .on(tUsers.userId.equals(tSchedule.userId))
+                .leftJoin(storageJoin)
+                    .on(storageJoin.fileId.equals(tUsers.avatarId))
                 .where(tSchedule.shiftId.in(shifts))
                     .and(tSchedule.eventId.equals(configuration.eventId))
                     .and(tSchedule.scheduleDeleted.isNull())
@@ -367,6 +376,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                     end: tSchedule.scheduleTimeEnd,
 
                     name: tUsers.displayName.valueWhenNull(tUsers.firstName),
+                    avatar: storageJoin.fileHash,
                     team: tTeams.teamTitle,
                     role: tRoles.roleName,
                 })
@@ -379,6 +389,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                     ...entry,
                     start: entry.start.epochSeconds,
                     end: entry.end.epochSeconds,
+                    avatar: entry.avatar ? `/blob/${entry.avatar}.png` : undefined,
                 };
 
                 if (isBefore(entry.end, currentTime))
