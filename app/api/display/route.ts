@@ -370,7 +370,6 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                     team: tTeams.teamTitle,
                     role: tRoles.roleName,
                 })
-                .groupBy(tSchedule.userId)
                 .orderBy(tSchedule.scheduleTimeStart, 'asc')
                     .orderBy('name', 'asc')
                 .executeSelectMany();

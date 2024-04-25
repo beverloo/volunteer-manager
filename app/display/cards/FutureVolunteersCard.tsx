@@ -5,6 +5,7 @@
 
 import { useMemo } from 'react';
 
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import Paper from '@mui/material/Paper';
@@ -15,6 +16,7 @@ import Typography from '@mui/material/Typography';
 
 import type { DisplayShiftInfo } from '../DisplayContext';
 import { Temporal, formatDate } from '@lib/Temporal';
+import { CardActionArea } from '@mui/material';
 
 /**
  * Number of future groups to display on the card.
@@ -24,7 +26,7 @@ const kFutureVolunteerGroupLimit = 2;
 /**
  * Number of entries to display on the future volunteer list.
  */
-const kFutureVolunteerEntryLimit = 12;
+const kFutureVolunteerEntryLimit = 9;
 
 /**
  * Props accepted by the <FutureVolunteersCard> component.
@@ -55,7 +57,7 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
 
         let includedVolunteers = 0;
         for (const volunteer of volunteers) {
-            if (++includedVolunteers >= kFutureVolunteerEntryLimit)
+            if (++includedVolunteers > kFutureVolunteerEntryLimit)
                 break;  // the volunteer limit would be exceeded
 
             if (!groups.has(volunteer.start)) {
@@ -76,39 +78,51 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
     }, [ timezone, volunteers ]);
 
     return (
-        <Stack component={Paper} direction="column" spacing={2} sx={{ p: 2 }}>
-            { groups.map(([ zonedDateTime, volunteers ]) =>
-                <Stack direction="row" key={zonedDateTime.epochSeconds}>
-                    <Typography variant="body1" sx={{ pt: 1, width: '100px' }}>
-                        { formatDate(zonedDateTime, 'HH:mm') }
-                    </Typography>
-                    <Grid container flexGrow={1} spacing={2}>
-                        { volunteers.map(volunteer =>
-                            <Grid key={volunteer.id} xs={4}>
-                                <Paper variant="outlined" sx={{ p: 1, borderColor: 'transparent '}}>
-                                    <Stack direction="row" justifyContent="space-between">
-                                        <Typography variant="body1">
-                                            {volunteer.name}
-                                        </Typography>
-                                        <Stack direction="row" alignItems="center" spacing={1}>
-                                            { volunteer.team.includes('Host') &&
-                                                <LightbulbOutlinedIcon fontSize="small"
-                                                                       htmlColor="#455a64" /> }
-                                            { volunteer.team.includes('Steward') &&
-                                                <SecurityOutlinedIcon fontSize="small"
-                                                                      htmlColor="#455a64" /> }
-                                            { volunteer.role.includes('Senior') &&
-                                                <StarRateOutlinedIcon fontSize="small"
-                                                                      htmlColor="#ffeb3b" /> }
-                                            { volunteer.role.includes('Staff') &&
-                                                <StarRateOutlinedIcon fontSize="small"
-                                                                      htmlColor="#ff5722" /> }
+        <CardActionArea>
+            <Stack component={Paper} direction="column" spacing={2} sx={{ pt: 2 }}>
+                { groups.map(([ zonedDateTime, volunteers ]) =>
+                    <Stack direction="row" key={zonedDateTime.epochSeconds} sx={{ px: 2 }}>
+                        <Typography variant="body1" sx={{ pt: 1, width: '100px' }}>
+                            { formatDate(zonedDateTime, 'HH:mm') }
+                        </Typography>
+                        <Grid container flexGrow={1} spacing={2}>
+                            { volunteers.map(volunteer =>
+                                <Grid key={volunteer.id} xs={4}>
+                                    <Paper variant="outlined"
+                                           sx={{ p: 1, borderColor: 'transparent '}}>
+                                        <Stack direction="row" justifyContent="space-between">
+                                            <Typography variant="body1">
+                                                {volunteer.name}
+                                            </Typography>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                { volunteer.team.includes('Host') &&
+                                                    <LightbulbOutlinedIcon fontSize="small"
+                                                                           htmlColor="#455a64" /> }
+                                                { volunteer.team.includes('Steward') &&
+                                                    <SecurityOutlinedIcon fontSize="small"
+                                                                          htmlColor="#455a64" /> }
+                                                { volunteer.role.includes('Senior') &&
+                                                    <StarRateOutlinedIcon fontSize="small"
+                                                                          htmlColor="#ffeb3b" /> }
+                                                { volunteer.role.includes('Staff') &&
+                                                    <StarRateOutlinedIcon fontSize="small"
+                                                                          htmlColor="#ff5722" /> }
+                                            </Stack>
                                         </Stack>
-                                    </Stack>
-                                </Paper>
-                            </Grid> ) }
-                    </Grid>
-                </Stack> ) }
-        </Stack>
+                                    </Paper>
+                                </Grid> ) }
+                        </Grid>
+                    </Stack> ) }
+                <Box sx={{
+                    backgroundColor: '#004e8b',
+                    borderBottomLeftRadius: 4,
+                    borderBottomRightRadius: 4,
+                    height: '12px',
+                    lineHeight: 0.6,
+                    textAlign: 'center' }}>
+                    …
+                </Box>
+            </Stack>
+        </CardActionArea>
     );
 }
