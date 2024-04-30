@@ -10,7 +10,7 @@ import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { validateContext } from '../../validateContext';
-import db, { tActivities, tShifts, tShiftsCategories } from '@lib/database';
+import db, { tActivities, tSchedule, tShifts, tShiftsCategories } from '@lib/database';
 
 import { kShiftDemand } from './demand';
 import { ShiftDemandOverlap } from '@lib/database/Types';
@@ -237,7 +237,30 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         if (!event || !team)
             notFound();
 
-        return { success: false };
+        const dbInstance = db;
+        const scheduled = await dbInstance.selectFrom(tSchedule)
+            .where(tSchedule.shiftId.equals(id))
+                .and(tSchedule.scheduleDeleted.isNull())
+            .selectCountAll()
+            .executeSelectNoneOrOne();
+
+        if (!!scheduled) {
+            return {
+                success: false,
+                error: 'Cannot delete shifts that have been scheduled already!'
+            };
+        }
+
+        const affectedRows = await dbInstance.update(tShifts)
+            .set({
+                shiftDeleted: dbInstance.currentZonedDateTime()
+            })
+            .where(tShifts.shiftId.equals(id))
+                .and(tShifts.eventId.equals(event.id))
+                .and(tShifts.shiftDeleted.isNull())
+            .executeUpdate();
+
+        return { success: !!affectedRows };
     },
 
     async list({ context, sort }) {
