@@ -28,14 +28,14 @@
   "dependencies": {
     "@beverloo/volunteer-manager-timeline": "^1.3.8",
     "@google-cloud/vertexai": "^1.1.0",
-    "@mdxeditor/editor": "^3.0.1",
+    "@mdxeditor/editor": "^3.0.2",
     "@mui/icons-material": "^5.15.15",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.15",
     "@mui/material-nextjs": "^5.15.11",
-    "@mui/x-charts": "^7.3.0",
-    "@mui/x-data-grid-pro": "^7.3.0",
-    "@mui/x-date-pickers": "^7.2.0",
+    "@mui/x-charts": "^7.3.1",
+    "@mui/x-data-grid-pro": "^7.3.1",
+    "@mui/x-date-pickers": "^7.3.1",
     "@mui/x-license": "^7.2.0",
     "@peculiar/webcrypto": "^1.4.6",
     "@simplewebauthn/browser": "^10.0.0",
@@ -46,7 +46,7 @@
     "d3-color": "^3.1.0",
     "d3-interpolate": "^3.0.1",
     "d3-scale-chromatic": "^3.1.0",
-    "dayjs": "^1.11.10",
+    "dayjs": "^1.11.11",
     "iron-webcrypto": "^1.1.1",
     "mariadb": "^3.3.0",
     "marked": "^12.0.2",
@@ -65,7 +65,7 @@
     "ts-sql-query": "^1.64.0",
     "twilio": "^5.0.4",
     "uuid": "^9.0.1",
-    "zod": "^3.23.4"
+    "zod": "^3.23.5"
   },
   "devDependencies": {
     "@datastructures-js/priority-queue": "^6.3.1",
@@ -92,8 +92,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-extended": "^4.0.2",
     "next-build-id": "^3.0.0",
-    "nodemailer-mock": "^2.0.5",
-    "ts-sql-codegen": "^3.20.1",
+    "nodemailer-mock": "^2.0.6",
+    "ts-sql-codegen": "^3.20.2",
     "typescript": "^5.4.5",
     "whatwg-fetch": "^3.6.20"
   }
