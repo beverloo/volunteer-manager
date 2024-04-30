@@ -243,11 +243,11 @@ const kDurationUnits: { [K in keyof Temporal.DurationLike]?: Temporal.DateTimeUn
  * @example 1 second ago, in 30 seconds
  * @example now
  */
-export function formatDuration(duration: Temporal.Duration): string {
+export function formatDuration(duration: Temporal.Duration, noPrefix?: boolean): string {
     if (duration.blank)
         return 'now';
 
-    const prefix = duration.sign > 0 ? 'in ' : '';
+    const prefix = !!noPrefix ? '' : (duration.sign > 0 ? 'in ' : '');
     const suffix = duration.sign < 0 ? ' ago' : '';
 
     for (const [ unit, name ] of Object.entries(kDurationUnits)) {
