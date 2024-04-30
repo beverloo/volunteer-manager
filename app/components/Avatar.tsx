@@ -72,7 +72,7 @@ export function determineInitials(name: string): string {
  * Determines the colour for the avatar based on the given `name`. This algorithm is borrowed from
  * the MUI documentation: https://mui.com/material-ui/react-avatar/
  */
-function determineColour(name: string): string {
+export function determineColour(name: string): string {
     let hash = 0;
     for (let index = 0; index < name.length; ++index)
         hash = name.charCodeAt(index) + ((hash << 5) - hash);

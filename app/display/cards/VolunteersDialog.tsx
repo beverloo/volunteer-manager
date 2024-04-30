@@ -3,14 +3,21 @@
 
 'use client';
 
+import { useMemo } from 'react';
+
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 
 import { Calendar, type CalendarEvent } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
 import type { DisplayShiftInfo } from '../DisplayContext';
 import { Temporal } from '@lib/Temporal';
+import { determineColour } from '@components/Avatar';
+
+/**
+ * Indicator on when a particula shift has taken place.
+ */
+type ScheduleTense = 'past' | 'active' | 'future';
 
 /**
  * Props accepted by the <VolunteersDialog> component.
@@ -20,6 +27,11 @@ export interface VolunteersDialogProps {
      * Callback to call when the dialog should be closed.
      */
     onClose: () => void;
+
+    /**
+     * Information about the event for which the dialog is being shown.
+     */
+    event: { start: string; end: string; };
 
     /**
      * Whether the dialog should be opened.
@@ -34,11 +46,7 @@ export interface VolunteersDialogProps {
     /**
      * Volunteers that will be helping out in this location.
      */
-    schedule: {
-        past: DisplayShiftInfo[],
-        active: DisplayShiftInfo[],
-        future: DisplayShiftInfo[],
-    },
+    schedule: { [k in ScheduleTense]: DisplayShiftInfo[] };
 }
 
 /**
@@ -46,14 +54,34 @@ export interface VolunteersDialogProps {
  * schedule of volunteers who are expected to help out at this location.
  */
 export function VolunteersDialog(props: VolunteersDialogProps) {
-    const { onClose, open, timezone, schedule } = props;
+    const { onClose, event, open, timezone, schedule } = props;
 
-    // TODO: Compute the `events`:
-    const events: CalendarEvent[] = [];
+    const events = useMemo(() => {
+        const events: CalendarEvent[] = [ /* empty */ ];
+        for (const type of [ 'past', 'active', 'future' ] as ScheduleTense[]) {
+            for (const event of schedule[type]) {
+                events.push({
+                    id: event.id,
+                    start: Temporal.Instant.fromEpochSeconds(event.start).toString(),
+                    end: Temporal.Instant.fromEpochSeconds(event.end).toString(),
+                    title: event.name,
+                    color: determineColour(event.name),
+                });
+            }
+        }
 
-    // TODO: Compute the `min` and `max`:
-    const min = '2023-06-09T00:00:00+02:00';
-    const max = '2023-06-11T23:59:59+02:00';
+        return events;
+
+    }, [ schedule ]);
+
+    const { min, max } = useMemo(() => {
+        return {
+            min: Temporal.ZonedDateTime.from(event.start).withTimeZone(timezone)
+                .with({ hour: 0, minute: 0, second: 0 }).toString({ timeZoneName: 'never' }),
+            max: Temporal.ZonedDateTime.from(event.end).withTimeZone(timezone)
+                .with({ hour: 23, minute: 59, second: 59 }).toString({ timeZoneName: 'never' }),
+        };
+    }, [ event, timezone ]);
 
     return (
         <Dialog open={!!open} onClose={onClose} fullWidth maxWidth="md"

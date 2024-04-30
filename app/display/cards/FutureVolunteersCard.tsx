@@ -29,6 +29,11 @@ const kFutureVolunteerEntryLimit = 9;
  */
 export interface FutureVolunteersCardProps {
     /**
+     * Information about the event for which the dialog is being shown.
+     */
+    event: { start: string; end: string; };
+
+    /**
      * Volunteers that will be helping out in this location.
      */
     schedule: {
@@ -135,8 +140,8 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
                     </Box>
                 </Stack>
             </CardActionArea>
-            <VolunteersDialog onClose={handleDialogClose} open={dialogOpen} schedule={schedule}
-                              timezone={timezone} />
+            <VolunteersDialog onClose={handleDialogClose} event={props.event} open={dialogOpen}
+                              schedule={schedule} timezone={timezone} />
         </>
     );
 }

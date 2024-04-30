@@ -132,6 +132,22 @@ const kDisplayDefinition = z.object({
         }),
 
         /**
+         * Information about the event for which the display has been provisioned, if any.
+         */
+        event: z.object({
+            /**
+             * Date and time at which the event will start, in Temporal ZDT-compatible format.
+             */
+            start: z.string(),
+
+            /**
+             * Date and time at which the event will end, in Temporal ZDT-compatible format.
+             */
+            end: z.string(),
+
+        }).optional(),
+
+        /**
          * Status of the help request that has been issued by this display, if any.
          */
         helpRequestStatus: z.nativeEnum(DisplayHelpRequestStatus).optional(),
@@ -265,6 +281,8 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
 
             // Event information:
             eventId: eventsJoin.eventId,
+            eventStart: dbInstance.dateTimeAsString(eventsJoin.eventStartTime),
+            eventEnd: dbInstance.dateTimeAsString(eventsJoin.eventEndTime),
 
             // Location information:
             locationId: activitiesLocationsJoin.locationId,
@@ -320,6 +338,13 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             future: [ /* empty */ ],
         },
     };
+
+    if (!!configuration.eventStart && !!configuration.eventEnd) {
+        response.event = {
+            start: configuration.eventStart,
+            end: configuration.eventEnd,
+        };
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Step 2: Read static information that should be shown on the display

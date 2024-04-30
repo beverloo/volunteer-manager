@@ -73,16 +73,17 @@ export default function DisplayPage() {
         <Grid container>
             <Grid xs={8}>
                 <Stack direction="column" spacing={4} sx={{ mr: 4 }}>
+
                     { !display.context.schedule.active.length && <NoVolunteersCard /> }
                     { !!display.context.schedule.active.length &&
                         <ActiveVolunteersCard volunteers={display.context.schedule.active}
                                               timezone={display.context.config.timezone} /> }
 
-                    { !!display.context.schedule.future.length &&
-                        <FutureVolunteersCard schedule={display.context.schedule}
+                    { (!!display.context.schedule.future.length && !!display.context.event) &&
+                        <FutureVolunteersCard event={display.context.event}
+                                              schedule={display.context.schedule}
                                               timezone={display.context.config.timezone} /> }
 
-                    { /* TODO: Information about the location */ }
                 </Stack>
             </Grid>
             <Grid xs={4}>
