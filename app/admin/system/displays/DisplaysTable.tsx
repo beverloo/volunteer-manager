@@ -223,7 +223,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
 
             renderCell: params => {
                 const checkIn = Temporal.ZonedDateTime.from(params.value);
-                const difference = checkIn.since(currentTime);
+                const difference = checkIn.since(currentTime, { largestUnit: 'days' });
 
                 return (
                     <Tooltip title={params.row.lastCheckInIp}>
