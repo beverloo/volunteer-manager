@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
+import { HelpRequestTable } from './HelpRequestTable';
 import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -46,15 +47,24 @@ export default async function DisplaysPage() {
         .executeSelectMany();
 
     return (
-        <Section title="Display configuration">
-            <SectionIntroduction>
-                We distribute <strong>physical displays</strong> during the festival to help busy
-                areas self-manage their volunteers. They automatically register with the Volunteer
-                Manager, and can be provisioned and controlled through this interface. Updates can
-                take up to five minutes to propagate.
-            </SectionIntroduction>
-            <DisplaysTable events={events} locations={locations} />
-        </Section>
+        <>
+            <Section title="Display configuration">
+                <SectionIntroduction>
+                    We distribute <strong>physical displays</strong> during the festival to help
+                    busy areas self-manage their volunteers. They automatically register with the
+                    Volunteer Manager, and can be provisioned and controlled through this interface.
+                    Updates can take a few minutes to propagate.
+                </SectionIntroduction>
+                <DisplaysTable events={events} locations={locations} />
+            </Section>
+            <Section title="Help requests">
+                <SectionIntroduction>
+                    Locations to whom displays are issued have the ability to request help through
+                    the user interface. Such requests are dealt with in the schedule tool.
+                </SectionIntroduction>
+                <HelpRequestTable />
+            </Section>
+        </>
     );
 }
 

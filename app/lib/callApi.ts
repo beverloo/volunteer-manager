@@ -60,6 +60,7 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentCategoriesEndpoints } from '@app/api/admin/content/categories/[[...id]]/route';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
+import type { DisplayRequestsEndpoints } from '@app/api/admin/displays/requests/route';
 import type { DisplaysEndpoints } from '@app/api/admin/displays/[[...id]]/route';
 import type { EventDeadlinesEndpoints } from '@app/api/admin/event/deadlines/[[...id]]/route';
 import type { EventShiftCategoriesEndpoints } from '@app/api/admin/event/shifts/categories/[[...id]]/route';
@@ -105,6 +106,7 @@ export type ApiEndpoints = {
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
         '/api/admin/displays': DisplaysEndpoints['list'],
+        '/api/admin/displays/requests': DisplayRequestsEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
         '/api/admin/event/schedule/:event/:team': GetScheduleDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['list'],
