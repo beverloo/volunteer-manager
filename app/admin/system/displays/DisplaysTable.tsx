@@ -3,7 +3,7 @@
 
 'use client';
 
-import Chip from '@mui/material/Chip';
+import Chip, { type ChipProps } from '@mui/material/Chip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import LockIcon from '@mui/icons-material/Lock';
@@ -69,8 +69,18 @@ export function DisplaysTable(props: DisplaysTableProps) {
             editable: false,
             width: 100,
 
-            renderCell: params =>
-                <Chip label={params.value} size="small" />,
+            renderCell: params => {
+                const checkIn = Temporal.ZonedDateTime.from(params.row.lastCheckIn);
+                const difference = checkIn.until(currentTime, { largestUnit: 'seconds' });
+
+                let color: ChipProps['color'];
+                if (difference.seconds < /* 5 minutes= */ 300)
+                    color = 'success';
+                else if (difference.seconds < /* 10 minutes= */ 600)
+                    color = 'warning';
+
+                return <Chip color={color} label={params.value} size="small" />;
+            },
         },
         {
             field: 'label',
