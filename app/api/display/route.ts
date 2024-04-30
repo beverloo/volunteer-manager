@@ -160,6 +160,14 @@ type Request = ApiRequest<typeof kDisplayDefinition>;
 type Response = ApiResponse<typeof kDisplayDefinition>;
 
 /**
+ * Clamps the update frequency, given in the number of `seconds`, to [5, 600), and returns the
+ * result as a number of milliseconds.
+ */
+function clampUpdateFrequencyMs(seconds?: number): number {
+    return Math.min(Math.max(5, seconds ?? 300), 600) * 1000;
+}
+
+/**
  * Generates an identifier for the display based on a limited alphabet, optimised for clear reading.
  */
 function generateDisplayIdentifier(length: number): string {
@@ -269,7 +277,11 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         !!configuration.helpRequestStatus ? settings['display-check-in-rate-help-requested-seconds']
                                           : settings['display-check-in-rate-seconds'];
 
-    const updateFrequencyMs = Math.max(10, updateFrequencySeconds ?? 300) * 1000;
+    const updateFrequencyMs = clampUpdateFrequencyMs(/* seconds= */ updateFrequencySeconds);
+
+    // The `updateFrequencyMs` will be calculated based on the shifts, when a change occurs we'll
+    // pull forward the upcoming update to give the display a visually faster response time.
+    let nextUpdate = currentTime.add({ milliseconds: updateFrequencyMs });
 
     // Determine the device's colour, which depends first on whether a help request is in progress,
     // and second on whether the device has a hardcoded colour.
@@ -392,14 +404,27 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                     avatar: entry.avatar ? `/blob/${entry.avatar}.png` : undefined,
                 };
 
-                if (isBefore(entry.end, currentTime))
+                if (isBefore(entry.end, currentTime)) {
                     response.schedule.past.push(completedEntry);
-                else if (isBefore(entry.start, currentTime))
+                } else if (isBefore(entry.start, currentTime)) {
                     response.schedule.active.push(completedEntry);
-                else
+                    if (isBefore(entry.end, nextUpdate))
+                        nextUpdate = entry.end;
+                } else {
                     response.schedule.future.push(completedEntry);
+                    if (isBefore(entry.start, nextUpdate))
+                        nextUpdate = entry.start;
+                }
             }
         }
+    }
+
+    // Decrease the update frequency in case `nextUpdate` is lower than the configured update
+    // frequency, which contributes to a visually faster response time of the displays.
+    {
+        const nextUpdateSeconds = currentTime.until(nextUpdate, { largestUnit: 'seconds' });
+        response.config.updateFrequencyMs =
+            clampUpdateFrequencyMs(/* seconds= */ nextUpdateSeconds.seconds);
     }
 
     return response;
