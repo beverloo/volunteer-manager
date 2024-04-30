@@ -128,6 +128,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
                 .and(usersEventsJoin.eventId.equals(scheduleJoin.eventId))
                 .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .where(tShifts.eventId.equals(eventId))
+            .and(tShifts.shiftDeleted.isNull())
         .select({
             id: tShifts.shiftId,
             category: {
