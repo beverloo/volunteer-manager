@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -126,6 +127,12 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                     </TableBody>
                 </Table>
             </TableContainer>
+            { !request.acknowledgedBy &&
+                <Paper>
+                    <Alert severity="warning">
+                        This request has not been acknowledged yet.
+                    </Alert>
+                </Paper> }
             { !!request.acknowledgedBy &&
                 <TableContainer component={Paper}>
                     <Table>
@@ -155,6 +162,12 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                         </TableBody>
                     </Table>
                 </TableContainer> }
+            { !request.closedBy &&
+                <Paper>
+                    <Alert severity="warning">
+                        This request has not been closed yet.
+                    </Alert>
+                </Paper> }
             { !!request.closedBy &&
                 <TableContainer component={Paper}>
                     <Table>
