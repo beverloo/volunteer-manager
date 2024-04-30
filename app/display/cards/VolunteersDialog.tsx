@@ -4,12 +4,13 @@
 'use client';
 
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { Calendar, type CalendarEvent } from '@beverloo/volunteer-manager-timeline';
+import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
+
 import type { DisplayShiftInfo } from '../DisplayContext';
+import { Temporal } from '@lib/Temporal';
 
 /**
  * Props accepted by the <VolunteersDialog> component.
@@ -47,16 +48,27 @@ export interface VolunteersDialogProps {
 export function VolunteersDialog(props: VolunteersDialogProps) {
     const { onClose, open, timezone, schedule } = props;
 
+    // TODO: Compute the `events`:
+    const events: CalendarEvent[] = [];
+
+    // TODO: Compute the `min` and `max`:
+    const min = '2023-06-09T00:00:00+02:00';
+    const max = '2023-06-11T23:59:59+02:00';
+
     return (
-        <Dialog open={!!open} onClose={onClose} fullWidth maxWidth="md">
-            <DialogTitle>
-                Schedule
-            </DialogTitle>
-            <DialogContent>
-                <DialogContentText>
-                    TODO
-                </DialogContentText>
-            </DialogContent>
+        <Dialog open={!!open} onClose={onClose} fullWidth maxWidth="md"
+                sx={{
+                    '& .mbsc-material-dark.mbsc-eventcalendar': {
+                        backgroundColor: 'transparent',
+                    },
+                    '& .MuiPaper-root': {
+                        maxHeight: '80vh !important',
+                    },
+                }}>
+
+            <Calendar displayTimezone={timezone} min={min} max={max} temporal={Temporal}
+                      events={events} view="mobile" theme="dark" />
+
         </Dialog>
     );
 }
