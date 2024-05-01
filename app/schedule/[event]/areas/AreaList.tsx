@@ -15,6 +15,7 @@ import { CardTimeslotList } from '../components/CardTimeslotList';
 import { HeaderButton } from '../components/HeaderButton';
 import { ScheduleContext } from '../ScheduleContext';
 import { currentInstant } from '../CurrentTime';
+import { setTitle } from '../ScheduleTitle';
 
 /**
  * The <AreaList> component displays an overview of the areas part of this festival's location. Each
@@ -82,6 +83,8 @@ export function AreaList() {
 
     if (!schedule)
         return undefined;
+
+    setTitle('Events');
 
     const prefix = `/schedule/${schedule.slug}`;
 

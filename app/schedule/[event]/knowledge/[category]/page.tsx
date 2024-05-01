@@ -15,6 +15,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentType } from '@lib/database/Types';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
+import { SetTitle } from '../../components/SetTitle';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
 
@@ -56,6 +57,7 @@ export default async function ScheduleKnowledgeCategoryPage(
 
     return (
         <>
+            <SetTitle title={category.title} />
             <Card>
                 <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
                             title={category.title}

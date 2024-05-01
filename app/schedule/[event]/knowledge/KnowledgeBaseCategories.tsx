@@ -15,6 +15,7 @@ import Paper from '@mui/material/Paper';
 import { Alert } from '../components/Alert';
 import { ScheduleContext } from '../ScheduleContext';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
+import { setTitle } from '../ScheduleTitle';
 
 /**
  * The <KnowledgeBaseCategories> component uses the schedule app's context to display an ordered
@@ -31,6 +32,8 @@ export function KnowledgeBaseCategories() {
             </Paper>
         );
     }
+
+    setTitle('Knowledge base');
 
     return (
         <>

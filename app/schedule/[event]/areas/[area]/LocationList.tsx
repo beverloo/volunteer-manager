@@ -14,6 +14,7 @@ import { CardTimeslotList } from '../../components/CardTimeslotList';
 import { HeaderButton } from '../../components/HeaderButton';
 import { ScheduleContext } from '../../ScheduleContext';
 import { currentInstant } from '../../CurrentTime';
+import { setTitle } from '../../ScheduleTitle';
 
 /**
  * Props accepted by the <LocationList> component.
@@ -72,6 +73,8 @@ export function LocationList(props: LocationListProps) {
 
     if (!schedule.program.areas.hasOwnProperty(props.areaId))
         return undefined;  // TODO: 404?
+
+    setTitle(schedule.program.areas[props.areaId].name);
 
     const prefix = `/schedule/${schedule.slug}`;
 

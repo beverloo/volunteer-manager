@@ -24,6 +24,8 @@ import { alpha, styled } from '@mui/material/styles';
 
 import { SearchResults } from './SearchResults';
 import { callApi } from '@lib/callApi';
+import { useTitle } from '../ScheduleTitle';
+
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from '../Constants';
 
 /**
@@ -141,9 +143,9 @@ export interface ApplicationBarProps {
  * a menu that allows access to account settings and, potentially, other settings.
  */
 export function ApplicationBar(props: ApplicationBarProps) {
-    const title = 'Schedule';
-
     const router = useRouter();
+    const title = useTitle();
+
     const searchBarRef = useRef<HTMLInputElement>();
 
     useEffect(() => {
