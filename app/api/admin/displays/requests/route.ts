@@ -126,3 +126,5 @@ export const { GET } = createDataTableApi(kDisplayRequestRowModel, kDisplayReque
         };
     },
 });
+
+export const dynamic = 'force-dynamic';
