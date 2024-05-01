@@ -3,7 +3,10 @@
 
 'use client';
 
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import List from '@mui/material/List';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { Temporal } from '@lib/Temporal';
@@ -30,11 +33,15 @@ export interface CardTimeslotListProps {
  */
 export function CardTimeslotList(props: CardTimeslotListProps) {
     if (!props.timeslots.length) {
-        // TODO: Figure out what this should look like. (I.e. finished event card.)
         return (
-            <Typography sx={{ color: 'text.disabled', pl: 2, pb: 1 }}>
-                Nothing to see here, move along...
-            </Typography>
+            <Paper variant="outlined" sx={{ p: 1, mx: 1, mb: 1, backgroundColor: 'grey.50' }}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                    <DoneAllIcon color="success" fontSize="small" />
+                    <Typography variant="body2">
+                        No further events have been scheduled…
+                    </Typography>
+                </Stack>
+            </Paper>
         );
     } else {
         return (
