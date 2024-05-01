@@ -48,14 +48,20 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
     // TODO: Deal with `error`?
     // TODO: Deal with `isLoading`?
 
-    // Automatically update the Volunteer Manager's time offset and timezone configuration whenever
-    // this is changed by the server. This immediately affects all instances where time is obtained.
+    // Store the `data` in a context so that we can guarantee ordering of state and context updates
+    // in the schedule app. This avoids race conditions where outdated information is shown.
+    const [ context, setContext ] = useState<PublicSchedule | undefined>(data);
     useEffect(() => {
+        // Update the portal's time configuration when this has been provided by the server.
         updateTimeConfig(data?.config.timeOffset, data?.config.timezone || 'utc');
-    }, [ data?.config.timeOffset, data?.config.timezone ]);
+
+        // Update the `context`, which is consumed by various parts of the schedule app.
+        setContext(data);
+
+    }, [ data ]);
 
     return (
-        <ScheduleContext.Provider value={data}>
+        <ScheduleContext.Provider value={context}>
             {props.children}
         </ScheduleContext.Provider>
     );
