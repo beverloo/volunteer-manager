@@ -12,6 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { darken, lighten } from '@mui/material/styles';
 
 import { Temporal, formatDate } from '@lib/Temporal';
 import { currentTimezone } from '../CurrentTime';
@@ -20,6 +21,13 @@ import { currentTimezone } from '../CurrentTime';
  * CSS customizations applied to the <CardTimeslotEntry> component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
+    activeEvent: {
+        backgroundColor: theme => {
+            return theme.palette.mode === 'dark' ? darken(/* green[900]= */ '#1B5E20', .25)
+                                                 : lighten(theme.palette.success.light, .9);
+        },
+    },
+
     primary: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -85,7 +93,9 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
 
     const timezone = currentTimezone();
 
+    let styles: SxProps<Theme> = null;
     let time: React.ReactNode;
+
     if (currentInstant.epochSeconds >= timeslot.end) {
         // Past events should not be shown as <CardTimeslotEntry> components. If we end up in here
         // then something is off; don't do any unnecessary work in addition to that.
@@ -96,6 +106,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
         const endZonedDateTime =
             Temporal.Instant.fromEpochSeconds(timeslot.end).toZonedDateTimeISO(timezone);
 
+        styles = kStyles.activeEvent;
         time = `until ${formatDate(endZonedDateTime, 'HH:mm')}`;
 
     } else {
@@ -110,10 +121,9 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
             `${formatDate(startZonedDateTime, 'HH:mm')}–${formatDate(endZonedDateTime, 'HH:mm')}`;
     }
 
-    // TODO: Activity state
-
     return (
-        <ListItemButton LinkComponent={Link} href={`../events/${timeslot.activityId}`}>
+        <ListItemButton LinkComponent={Link} href={`../events/${timeslot.activityId}`}
+                        sx={styles}>
 
             { !timeslot.invisible &&
                 <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
