@@ -10,6 +10,7 @@ import { Section } from '@app/admin/components/Section';
 import { SettingSection, type ConfigurableSetting } from './SettingSection';
 import { readSettings, type Setting } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { SettingUtilitiesSection } from './SettingUtilitiesSection';
 
 /**
  * The Settings page lists configurable settings part of the AnimeCon Volunteer Manager that are not
@@ -42,7 +43,7 @@ export default async function IntegrationsPage() {
 
                 label: 'Check-in interval (w/ help request)',
                 description:
-                    'EVery how many seconds should displays "phone home" when help was requested?',
+                    'Every how many seconds should displays "phone home" when help was requested?',
             },
             {
                 setting: 'display-confirm-volume-change',
@@ -326,6 +327,7 @@ export default async function IntegrationsPage() {
             </Section>
             { Object.entries(settingsConfiguration).map(([ title, settings ]) =>
                 <SettingSection key={title} title={title} settings={settings} /> )}
+            <SettingUtilitiesSection />
         </>
     );
 }
