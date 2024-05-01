@@ -20,6 +20,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import NotListedLocationOutlinedIcon from '@mui/icons-material/NotListedLocationOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import { darken, lighten, styled } from '@mui/material/styles';
 
@@ -254,6 +255,12 @@ export function DesktopNavigation(props: NavigationProps) {
                                                 href={area.url}
                                                 icon={ <ArrowRightIcon /> } label={area.name} /> )}
                 </List>
+                { !!schedule.config.enableHelpRequests &&
+                    <DesktopNavigationEntry active={ schedulePathname.startsWith('/help-requests') }
+                                            badge={ schedule.helpRequestsPending }
+                                            href={ scheduleBaseUrl + '/help-requests' }
+                                            icon={ <NotListedLocationOutlinedIcon /> }
+                                            label="Help requests" /> }
                 { (!!schedule.config.enableKnowledgeBase && !!schedule.knowledge.length) &&
                     <DesktopNavigationEntry active={ schedulePathname.startsWith('/knowledge') }
                                             href={ scheduleBaseUrl + '/knowledge' }

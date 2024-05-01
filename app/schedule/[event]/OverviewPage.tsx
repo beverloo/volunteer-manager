@@ -5,6 +5,8 @@
 
 import { useContext } from 'react';
 
+import { HelpRequestsCard } from './components/HelpRequestsCard';
+import { HelpRequestsUrgentCard } from './components/HelpRequestsUrgentCard';
 import { KnowledgeBaseCard } from './components/KnowledgeBaseCard';
 import { NardoAdviceCard } from './components/NardoAdviceCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
@@ -24,11 +26,16 @@ export function OverviewPage() {
     return (
         <>
             { /* TODO: Event status */ }
-            { /* TODO: Help requests */ }
+            { (!!schedule?.config.enableHelpRequests && !!schedule?.helpRequestsPending) &&
+                <HelpRequestsUrgentCard pending={schedule.helpRequestsPending}
+                                        slug={schedule.slug} /> }
             { /* TODO: Current shift */ }
             { /* TODO: Upcoming shift */ }
             { /* TODO: Available back-up volunteers */ }
             { /* TODO: Available senior volunteers */ }
+            { (!!isMobile && !!schedule?.config.enableHelpRequests) &&
+                <HelpRequestsCard pending={schedule?.helpRequestsPending}
+                                  slug={schedule.slug} /> }
             { (!!isMobile && !!schedule?.knowledge?.length) &&
                 <KnowledgeBaseCard slug={schedule.slug} /> }
             { !!schedule?.vendors[VendorTeam.FirstAid] &&

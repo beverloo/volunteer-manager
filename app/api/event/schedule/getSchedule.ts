@@ -13,7 +13,7 @@ import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories, tNardo, tVendors, tVendorsSchedule} from '@lib/database';
+    tContentCategories, tDisplaysRequests, tNardo, tVendors, tVendorsSchedule} from '@lib/database';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding
@@ -81,6 +81,11 @@ const kPublicSchedule = z.strictObject({
         activityListLimit: z.number(),
 
         /**
+         * Whether access to help requests should be enabled.
+         */
+        enableHelpRequests: z.boolean().optional(),
+
+        /**
          * Whether the knowledge base should be enabled.
          */
         enableKnowledgeBase: z.boolean(),
@@ -117,6 +122,11 @@ const kPublicSchedule = z.strictObject({
          */
         timezone: z.string(),
     }),
+
+    /**
+     * Number of help requests that are still pending activity from a senior volunteer.
+     */
+    helpRequestsPending: z.number().optional(),
 
     /**
      * The event's kwowledge base, however, without the answers. These will be loaded on demand.
@@ -355,6 +365,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         slug: event.slug,
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
+            enableHelpRequests: can(props.user, Privilege.EventHelpRequests),
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
@@ -379,10 +390,22 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         : currentServerTime;
 
     // ---------------------------------------------------------------------------------------------
-    // Source information about the event's knowledge base.
+    // Source information about any pending help requests.
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
+    if (schedule.config.enableHelpRequests) {
+        schedule.helpRequestsPending = await dbInstance.selectFrom(tDisplaysRequests)
+            .where(tDisplaysRequests.requestEventId.equals(event.id))
+                .and(tDisplaysRequests.requestAcknowledgedBy.isNull())
+            .selectCountAll()
+            .executeSelectNoneOrOne() ?? undefined;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Source information about the event's knowledge base.
+    // ---------------------------------------------------------------------------------------------
+
     if (schedule.config.enableKnowledgeBase) {
         const knowledge = await dbInstance.selectFrom(tContentCategories)
             .innerJoin(tContent)
