@@ -20,7 +20,7 @@ import { dayjs } from '@lib/DateTime';
  * settings easier, for example by calculating the number of seconds between two dates.
  */
 export function SettingUtilitiesSection() {
-    const [ dateTimeOffset, setDateTimeOffset ] = useState<number | undefined>(12);
+    const [ dateTimeOffset, setDateTimeOffset ] = useState<number | undefined>();
 
     const handleDateTimePicked = useCallback((value: unknown) => {
         if (!dayjs.isDayjs(value))
