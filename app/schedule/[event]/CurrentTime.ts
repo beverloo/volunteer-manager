@@ -34,6 +34,13 @@ export function currentTimestamp(): number {
 }
 
 /**
+ * Returns the current timezone in which the portal operates.
+ */
+export function currentTimezone(): string {
+    return globalThis.animeConTimezone;
+}
+
+/**
  * Return the current time in a Temporal `ZonedDateTime` representation.
  */
 export function currentZonedDateTime(): Temporal.ZonedDateTime {

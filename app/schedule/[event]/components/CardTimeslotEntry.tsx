@@ -13,7 +13,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-import type { Temporal } from '@lib/Temporal';
+import { Temporal, formatDate } from '@lib/Temporal';
+import { currentTimezone } from '../CurrentTime';
 
 /**
  * CSS customizations applied to the <CardTimeslotEntry> component.
@@ -82,11 +83,38 @@ export interface CardTimeslotEntryProps {
 export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     const { currentInstant, timeslot } = props;
 
+    const timezone = currentTimezone();
+
+    let time: React.ReactNode;
+    if (currentInstant.epochSeconds >= timeslot.end) {
+        // Past events should not be shown as <CardTimeslotEntry> components. If we end up in here
+        // then something is off; don't do any unnecessary work in addition to that.
+
+    } else if (currentInstant.epochSeconds >= timeslot.start) {
+        // Active events:
+
+        const endZonedDateTime =
+            Temporal.Instant.fromEpochSeconds(timeslot.end).toZonedDateTimeISO(timezone);
+
+        time = `until ${formatDate(endZonedDateTime, 'HH:mm')}`;
+
+    } else {
+        // Future events:
+
+        const startZonedDateTime =
+            Temporal.Instant.fromEpochSeconds(timeslot.start).toZonedDateTimeISO(timezone);
+        const endZonedDateTime =
+            Temporal.Instant.fromEpochSeconds(timeslot.end).toZonedDateTimeISO(timezone);
+
+        time =
+            `${formatDate(startZonedDateTime, 'HH:mm')}–${formatDate(endZonedDateTime, 'HH:mm')}`;
+    }
+
     // TODO: Activity state
-    // TODO: Time until {start, end}
 
     return (
         <ListItemButton LinkComponent={Link} href={`../events/${timeslot.activityId}`}>
+
             { !timeslot.invisible &&
                 <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
                               primary={timeslot.title} /> }
@@ -104,9 +132,12 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
                                   </>
                               } /> }
 
-            <Typography variant="body2">
-                [time]
-            </Typography>
+            { !!time &&
+                <Typography variant="caption"
+                            sx={{ color: 'text.secondary', whiteSpace: 'nowrap', pl: 2 }}>
+                    {time}
+                </Typography> }
+
         </ListItemButton>
     );
 }
