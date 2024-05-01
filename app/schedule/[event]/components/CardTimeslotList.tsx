@@ -22,6 +22,11 @@ export interface CardTimeslotListProps {
     currentInstant: Temporal.Instant;
 
     /**
+     * URL prefix to apply to all links shown in the list.
+     */
+    prefix: string;
+
+    /**
      * The timeslots to display on this card, in display order.
      */
     timeslots: CardTimeslot[];
@@ -48,7 +53,7 @@ export function CardTimeslotList(props: CardTimeslotListProps) {
             <List dense disablePadding>
                 { props.timeslots.map(timeslot =>
                     <CardTimeslotEntry key={timeslot.id} currentInstant={props.currentInstant}
-                                       timeslot={timeslot} /> ) }
+                                       prefix={props.prefix} timeslot={timeslot} /> ) }
             </List>
         );
     }

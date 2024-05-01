@@ -80,6 +80,11 @@ export interface CardTimeslotEntryProps {
     currentInstant: Temporal.Instant;
 
     /**
+     * URL prefix to apply to the outgoing link for this item.
+     */
+    prefix: string;
+
+    /**
      * The timeslots that this entry should display.
      */
     timeslot: CardTimeslot;
@@ -89,7 +94,7 @@ export interface CardTimeslotEntryProps {
  * The <CardTimeslotEntry> component shows a singular entry of a timeslot entry. The
  */
 export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
-    const { currentInstant, timeslot } = props;
+    const { currentInstant, prefix, timeslot } = props;
 
     const timezone = currentTimezone();
 
@@ -122,7 +127,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     }
 
     return (
-        <ListItemButton LinkComponent={Link} href={`../events/${timeslot.activityId}`}
+        <ListItemButton LinkComponent={Link} href={`${prefix}/events/${timeslot.activityId}`}
                         sx={styles}>
 
             { !timeslot.invisible &&

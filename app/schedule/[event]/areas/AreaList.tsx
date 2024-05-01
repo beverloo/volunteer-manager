@@ -83,6 +83,8 @@ export function AreaList() {
     if (!schedule)
         return undefined;
 
+    const prefix = `/schedule/${schedule.slug}`;
+
     return (
         <>
             { !areas.length &&
@@ -93,9 +95,10 @@ export function AreaList() {
 
             { Object.values(areas).map(area =>
                 <Card key={area.id}>
-                    <HeaderButton href={`./areas/${area.id}`} title={area.name}
+                    <HeaderButton href={`${prefix}/areas/${area.id}`} title={area.name}
                                   icon={ <MapsHomeWorkIcon color="primary" /> } />
-                    <CardTimeslotList currentInstant={now} timeslots={area.timeslots} />
+                    <CardTimeslotList currentInstant={now} prefix={prefix}
+                                      timeslots={area.timeslots} />
                 </Card> ) }
         </>
     );

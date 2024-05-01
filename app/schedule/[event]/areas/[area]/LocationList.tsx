@@ -73,6 +73,8 @@ export function LocationList(props: LocationListProps) {
     if (!schedule.program.areas.hasOwnProperty(props.areaId))
         return undefined;  // TODO: 404?
 
+    const prefix = `/schedule/${schedule.slug}`;
+
     return (
         <>
             { !locations.length &&
@@ -83,9 +85,10 @@ export function LocationList(props: LocationListProps) {
 
             { Object.values(locations).map(location =>
                 <Card key={location.id}>
-                    <HeaderButton href={`../locations/${location.id}`} title={location.name}
+                    <HeaderButton href={`${prefix}/locations/${location.id}`} title={location.name}
                                   icon={ <ReadMoreIcon color="primary" /> } />
-                    <CardTimeslotList currentInstant={now} timeslots={location.timeslots} />
+                    <CardTimeslotList currentInstant={now} prefix={prefix}
+                                      timeslots={location.timeslots} />
                 </Card> ) }
         </>
     );
