@@ -16,6 +16,7 @@ import { ContentType } from '@lib/database/Types';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
 import { SetTitle } from '../../components/SetTitle';
+import { generateScheduleMetadata } from '../../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
 
@@ -77,4 +78,9 @@ export default async function ScheduleKnowledgeCategoryPage(
             </Box>
         </>
     );
+}
+
+export async function generateMetadata(props: NextPageParams<'category' | 'event'>) {
+    // TODO: Plug in the `category` name
+    return generateScheduleMetadata(props, [ 'Knowledge Base' ]);
 }

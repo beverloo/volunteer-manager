@@ -6,6 +6,7 @@ import Card from '@mui/material/Card';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { KnowledgeBaseCategories } from './KnowledgeBaseCategories';
+import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -28,3 +29,5 @@ export default async function ScheduleKnowledgePage(props: NextPageParams<'event
         </>
     );
 }
+
+export const generateMetadata = generateScheduleMetadataFn([ 'Knowledge Base' ]);

@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../../components/SetTitle';
+import { generateScheduleMetadata } from '../../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -39,4 +40,9 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
             { /* TODO: Ability to close the request if that hasn't happened yet */ }
         </>
     );
+}
+
+export async function generateMetadata(props: NextPageParams<'event' | 'id'>) {
+    // TODO: Plug in the display name for `id`
+    return generateScheduleMetadata(props, [ 'Help Requests' ]);
 }

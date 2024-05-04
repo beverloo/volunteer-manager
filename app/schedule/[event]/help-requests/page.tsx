@@ -32,6 +32,7 @@ import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../components/SetTitle';
 import { Temporal, formatDate } from '@lib/Temporal';
+import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
@@ -299,3 +300,5 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
         </>
     );
 }
+
+export const generateMetadata = generateScheduleMetadataFn([ 'Help Requests' ]);

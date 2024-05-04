@@ -3,6 +3,7 @@
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AreaList } from './AreaList';
+import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 
 /**
  * The <ScheduleEventsPage> component displays an overview of the areas that are part of the
@@ -12,3 +13,5 @@ import { AreaList } from './AreaList';
 export default function ScheduleAreasPage(props: NextPageParams<'event'>) {
     return <AreaList />;
 }
+
+export const generateMetadata = generateScheduleMetadataFn([ 'Events' ]);

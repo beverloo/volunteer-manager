@@ -3,6 +3,7 @@
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { OverviewPage } from './OverviewPage';
+import { generateScheduleMetadataFn } from './lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -13,3 +14,5 @@ export default async function ScheduleMainPage(props: NextPageParams<'event'>) {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
     return <OverviewPage />;
 }
+
+export const generateMetadata = generateScheduleMetadataFn([ 'Schedule' ]);
