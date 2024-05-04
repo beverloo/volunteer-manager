@@ -153,9 +153,9 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
                 backgroundSize: 'cover',
                 borderTopLeftRadius: theme => theme.shape.borderRadius,
                 borderTopRightRadius: theme => theme.shape.borderRadius,
-                filter: 'grayscale(0.8)',
+                filter: 'grayscale(0.2)',
                 width: '100%',
-                aspectRatio: 6 }} />
+                aspectRatio: 3.5 }} />
             <CardActionArea onClick={handleOpen} sx={{ p: 2 }}>
                 <Typography variant="body1" sx={{ pb: 2 }}>
                     You can request help from a Volunteering Lead in case of safety or security
