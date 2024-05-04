@@ -444,6 +444,11 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         }
     }
 
+    // Update the display's light colour to green when there are active shifts, and no other colour
+    // has been assigned to the display already. This reflects the fact that the area is active.
+    if (!response.device.color && response.schedule.active.length > 0)
+        response.device.color = '#00ff00';  // green
+
     // Decrease the update frequency in case `nextUpdate` is lower than the configured update
     // frequency, which contributes to a visually faster response time of the displays.
     {
