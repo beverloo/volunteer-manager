@@ -4,10 +4,17 @@
 import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { Temporal } from '@lib/Temporal';
 import db, { tEvents } from '@lib/database';
+
+interface TitleCache {
+    cache: Map<string, string>;
+    expiration: Temporal.Instant;
+}
 
 declare module globalThis {
     let animeConScheduleEventNameCache: Map<string, string>;
+    let animeConScheduleTitleCache: Map<string, TitleCache>;
 }
 
 /**
@@ -15,6 +22,17 @@ declare module globalThis {
  * get renamed, but that can be rectified by restarting the Docker container.
  */
 globalThis.animeConScheduleEventNameCache = new Map;
+
+/**
+ * Maximum time that a title cache may live for. Will automatically be cleared after this time.
+ */
+const kTitleCacheExpirationTimeSeconds = /* 15 minutes= */ 900;
+
+/**
+ * Cache for arbitrary title caching done by sub-pages of the schedule app. May be stale when things
+ * get renamed; lives for a maximum of `kTitleCacheExpirationTimeSeconds` seconds.
+ */
+globalThis.animeConScheduleTitleCache = new Map;
 
 /**
  * Generates metadata for a page with the given `title`. A Next.js `Metadata` object will be
@@ -34,7 +52,7 @@ export async function generateScheduleMetadata(props: NextPageParams<'event'>, t
     }
 
     if (!!title)
-        return { title: `${title} | ${eventName}` };
+        return { title: `${title.join(' | ')} | ${eventName}` };
     else
         return { title: eventName };
 }
@@ -46,4 +64,24 @@ export async function generateScheduleMetadata(props: NextPageParams<'event'>, t
 export function generateScheduleMetadataFn(title?: string[]) {
     return (props: NextPageParams<'event'>): Promise<Metadata> =>
         generateScheduleMetadata(props, title);
+}
+
+/**
+ * Retrieves a title cache for the given `cacheIdentifier`. The cache will automatically expire
+ * after a certain period of time.
+ */
+export function getTitleCache(cacheIdentifier: string): Map<string, string> {
+    const currentTime = Temporal.Now.instant();
+
+    let titleCache = globalThis.animeConScheduleTitleCache.get(cacheIdentifier);
+    if (!titleCache || Temporal.Instant.compare(currentTime, titleCache.expiration) >= 0) {
+        globalThis.animeConScheduleTitleCache.set(cacheIdentifier, {
+            cache: new Map,
+            expiration: currentTime.add({ seconds: kTitleCacheExpirationTimeSeconds }),
+        });
+
+        titleCache = globalThis.animeConScheduleTitleCache.get(cacheIdentifier)!;
+    }
+
+    return titleCache.cache;
 }

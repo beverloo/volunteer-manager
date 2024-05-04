@@ -7,8 +7,9 @@ import Card from '@mui/material/Card';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../../components/SetTitle';
-import { generateScheduleMetadata } from '../../lib/generateScheduleMetadataFn';
+import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tDisplays, tDisplaysRequests } from '@lib/database';
 
 /**
  * The <ScheduleHelpRequestPage> component displays a page for a given help request. It's only
@@ -42,7 +43,21 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     );
 }
 
+
 export async function generateMetadata(props: NextPageParams<'event' | 'id'>) {
-    // TODO: Plug in the display name for `id`
-    return generateScheduleMetadata(props, [ 'Help Requests' ]);
+    const cache = getTitleCache('help-requests');
+
+    let displayName = cache.get(props.params.id);
+    if (!displayName) {
+        displayName = await db.selectFrom(tDisplaysRequests)
+            .innerJoin(tDisplays)
+                .on(tDisplays.displayId.equals(tDisplaysRequests.displayId))
+            .where(tDisplaysRequests.requestId.equals(parseInt(props.params.id, /* radix= */ 10)))
+            .selectOneColumn(tDisplays.displayLabel)
+            .executeSelectNoneOrOne() ?? 'Unknown display';
+
+        cache.set(props.params.id, displayName);
+    }
+
+    return generateScheduleMetadata(props, [ displayName!, 'Help Requests' ]);
 }

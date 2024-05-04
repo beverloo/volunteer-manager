@@ -3,7 +3,8 @@
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { LocationList } from './LocationList';
-import { generateScheduleMetadata } from '../../lib/generateScheduleMetadataFn';
+import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';
+import db, { tActivitiesAreas } from '@lib/database';
 
 /**
  * The <ScheduleAreaPage> component displays an overview of the locations that are part of a given
@@ -15,6 +16,19 @@ export default function ScheduleAreaPage(props: NextPageParams<'area' | 'event'>
 }
 
 export async function generateMetadata(props: NextPageParams<'area' | 'event'>) {
-    // TODO: Plug in the `area` name
-    return generateScheduleMetadata(props, [ 'Events' ]);
+    const cache = getTitleCache('areas');
+
+    let areaName = cache.get(props.params.area);
+    if (!areaName) {
+        areaName = await db.selectFrom(tActivitiesAreas)
+            .where(tActivitiesAreas.areaId.equals(parseInt(props.params.area, /* radix= */ 10)))
+                .and(tActivitiesAreas.areaDeleted.isNull())
+            .selectOneColumn(
+                tActivitiesAreas.areaDisplayName.valueWhenNull(tActivitiesAreas.areaName))
+            .executeSelectNoneOrOne() ?? 'Unknown area';
+
+        cache.set(props.params.area, areaName);
+    }
+
+    return generateScheduleMetadata(props, [ areaName! ]);
 }

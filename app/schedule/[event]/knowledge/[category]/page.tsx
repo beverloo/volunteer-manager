@@ -16,7 +16,7 @@ import { ContentType } from '@lib/database/Types';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
 import { SetTitle } from '../../components/SetTitle';
-import { generateScheduleMetadata } from '../../lib/generateScheduleMetadataFn';
+import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
 
@@ -81,6 +81,19 @@ export default async function ScheduleKnowledgeCategoryPage(
 }
 
 export async function generateMetadata(props: NextPageParams<'category' | 'event'>) {
-    // TODO: Plug in the `category` name
-    return generateScheduleMetadata(props, [ 'Knowledge Base' ]);
+    const cache = getTitleCache('knowledge-base');
+
+    let categoryName = cache.get(props.params.category);
+    if (!categoryName) {
+        categoryName = await db.selectFrom(tContentCategories)
+            .where(tContentCategories.categoryId.equals(
+                parseInt(props.params.category, /* radix= */ 10)))
+                .and(tContentCategories.categoryDeleted.isNull())
+            .selectOneColumn(tContentCategories.categoryTitle)
+            .executeSelectNoneOrOne() ?? 'Unknown category';
+
+        cache.set(props.params.category, categoryName);
+    }
+
+    return generateScheduleMetadata(props, [ categoryName!, 'Knowledge Base' ]);
 }
