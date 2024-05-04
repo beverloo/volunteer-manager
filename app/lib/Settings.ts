@@ -108,7 +108,6 @@ type SettingsMap = {
     'schedule-activity-list-limit': number;
     'schedule-del-a-rie-advies': boolean;
     'schedule-del-a-rie-advies-time-limit': number;
-    'schedule-help-request-event-slug': string;
     'schedule-knowledge-base': boolean;
     'schedule-knowledge-base-search': boolean;
     'schedule-search-candidate-fuzziness': number;
