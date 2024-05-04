@@ -13,6 +13,8 @@ import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AcknowledgeForm } from './AcknowledgeForm';
+import { CloseForm } from './CloseForm';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../../components/HelpRequestTarget';
 import { Privilege } from '@lib/auth/Privileges';
@@ -116,7 +118,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                             titleTypographyProps={{ variant: 'subtitle2' }}
                             subheader="Request received from their Volunteering Display" />
             </Card>
-            <Card sx={{ p: 2 }}>
+            <Card sx={{ px: 2, py: 1 }}>
                 <Stepper orientation="vertical" activeStep={activeStep}
                          sx={{
                              '& .MuiSvgIcon-root.Mui-active': { color: background },
@@ -129,7 +131,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                         <StepLabel>Request received</StepLabel>
                         <StepContent>
                             <Typography variant="body2">
-                                They requested help on {received}
+                                Help was requested on {received}
                             </Typography>
                         </StepContent>
                     </Step>
@@ -150,7 +152,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                     <Step expanded>
                         <StepLabel>Closed</StepLabel>
                         { !!request.closedBy &&
-                            <StepContent>
+                            <StepContent sx={{ pb: 1 }}>
                                 <Typography variant="body2">
                                     Request was closed by {request.closedBy} on {closed}{' '}(
                                     <Typography component="span" variant="body2"
@@ -163,8 +165,11 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                     </Step>
                 </Stepper>
             </Card>
-            { /* TODO: Ability to acknowledge the request if that hasn't happened yet */ }
-            { /* TODO: Ability to close the request if that hasn't happened yet */ }
+            { (!request.acknowledgedBy && !request.closedBy) &&
+                <AcknowledgeForm event={event.slug} requestId={request.id}
+                                 target={request.target} /> }
+            { (!!request.acknowledgedBy && !request.closedBy) &&
+                <CloseForm event={event.slug} requestId={request.id} /> }
         </>
     );
 }
