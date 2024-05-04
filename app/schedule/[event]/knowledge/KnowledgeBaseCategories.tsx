@@ -33,7 +33,7 @@ export function KnowledgeBaseCategories() {
         );
     }
 
-    setTitle('Knowledge base');
+    setTitle('Knowledge Base');
 
     return (
         <>

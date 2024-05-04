@@ -244,7 +244,7 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
 
     return (
         <>
-            <SetTitle title="Help requests" />
+            <SetTitle title="Help Requests" />
             <Card>
                 <Box sx={{
                     backgroundImage: 'url(/images/help-requests.jpg)',

@@ -11,6 +11,7 @@ import { KnowledgeBaseCard } from './components/KnowledgeBaseCard';
 import { NardoAdviceCard } from './components/NardoAdviceCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
 import { ScheduleContext } from './ScheduleContext';
+import { SetTitle } from './components/SetTitle';
 import { VendorTeam } from '@lib/database/Types';
 import { useIsMobile } from './lib/useIsMobile';
 
@@ -25,6 +26,7 @@ export function OverviewPage() {
 
     return (
         <>
+            <SetTitle title="Schedule" />
             { /* TODO: Event status */ }
             { (!!schedule?.config.enableHelpRequests && !!schedule?.helpRequestsPending) &&
                 <HelpRequestsUrgentCard pending={schedule.helpRequestsPending}
