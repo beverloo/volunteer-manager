@@ -44,6 +44,7 @@ import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
+import type { UpdateHelpRequestDefinition } from '@app/api/event/schedule/updateHelpRequest';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
@@ -250,6 +251,7 @@ export type ApiEndpoints = {
         '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
+        '/api/event/schedule/help-request': UpdateHelpRequestDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],
     },
 };

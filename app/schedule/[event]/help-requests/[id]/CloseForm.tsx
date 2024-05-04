@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
@@ -21,6 +21,7 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { TargetLoadingButton } from './TargetLoadingButton';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <CloseForm> component.
@@ -55,11 +56,16 @@ export function CloseForm(props: CloseFormProps) {
 
     const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
     const [ error, setError ] = useState<string | undefined>();
+    const [ reason, setReason ] = useState<string | undefined>();
 
     const closeConfirmation = useCallback(() => setConfirmationOpen(false), [ /* no deps */ ]);
-    const openConfirmation = useCallback(() => {
+    const openConfirmation = useCallback((data: FieldValues) => {
+        if (!data.reason || !data.reason.length)
+            return;  // form validation race condition?
+
         setConfirmationOpen(true);
         setError(undefined);
+        setReason(data.reason);
     }, [ /* no deps */ ]);
 
     // ---------------------------------------------------------------------------------------------
@@ -72,18 +78,29 @@ export function CloseForm(props: CloseFormProps) {
         setError(undefined);
         setLoading(true);
         try {
-            // TODO: Submit the request to the server.
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            throw new Error;
+            if (!reason || !reason.length || reason.length < 5)
+                throw new Error('The reason needs to be at least five characters long');
 
-            router.refresh();
+            const response = await callApi('put', '/api/event/schedule/help-request', {
+                event: props.event,
+                requestId: props.requestId,
+                close: {
+                    reason,
+                },
+            });
+
+            if (!!response.success) {
+                router.refresh();
+            } else {
+                setError(response.error ?? 'The request could not be acknowledged');
+            }
 
         } catch (error: any) {
             setError(error.message || 'The request could not be settled');
         } finally {
             setLoading(false);
         }
-    }, [ props.event, props.requestId, router ]);
+    }, [ props.event, props.requestId, reason, router ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -106,7 +123,7 @@ export function CloseForm(props: CloseFormProps) {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Only settle requests that you have dealt with yourself, or have discussed
+                        Only close requests that you have dealt with yourself, or have discussed
                         with the person who has. The reason will be recorded.
                     </DialogContentText>
                     <Collapse in={!!error}>

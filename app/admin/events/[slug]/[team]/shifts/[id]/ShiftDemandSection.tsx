@@ -69,7 +69,6 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
     // ---------------------------------------------------------------------------------------------
 
     const handleChange = useCallback((entries: TimelineEvent[]) => {
-        console.log('xx:', entries);
         setEntries(entries);
         setInvalidated(true);
     }, [ /* no dependencies */ ]);

@@ -52,8 +52,6 @@ export function MobileNavigation(props: NavigationProps) {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    console.log(scheduleNavigationValue);
-
     const [ activeEvents, areas ] = useMemo(() => {
         let activeEvents: number = 0;
 

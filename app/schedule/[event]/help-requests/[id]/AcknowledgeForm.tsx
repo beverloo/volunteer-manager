@@ -18,6 +18,7 @@ import DirectionsRunOutlinedIcon from '@mui/icons-material/DirectionsRunOutlined
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { TargetLoadingButton } from './TargetLoadingButton';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <AcknowledgeForm> component.
@@ -69,11 +70,17 @@ export function AcknowledgeForm(props: AcknowledgeFormProps) {
         setError(undefined);
         setLoading(true);
         try {
-            // TODO: Submit the request to the server.
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            throw new Error;
+            const response = await callApi('put', '/api/event/schedule/help-request', {
+                event: props.event,
+                requestId: props.requestId,
+                acknowledge: { /* empty object */ },
+            });
 
-            router.refresh();
+            if (!!response.success) {
+                router.refresh();
+            } else {
+                setError(response.error ?? 'xThe request could not be acknowledged');
+            }
 
         } catch (error: any) {
             setError(error.message || 'The request could not be acknowledged');

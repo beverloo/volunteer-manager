@@ -253,11 +253,17 @@ const kLogMessageFormatter: {
     [LogType.ApplicationTrainingPreferences]: (source, target, { event }) => {
         return `Updated their training preferences for ${event}`;
     },
+
     [LogType.DatabaseError]: (source, target, { query }) => {
         const normalizedQuery = query.trim().replace(/\s{2,}/g, ' ').substring(0, 32);
         return `Database error: "${normalizedQuery}"…`;
     },
+
     [LogType.EventApplication]: (source, target, { event }) => `Applied to participate in ${event}`,
+    [LogType.EventHelpRequestUpdate]: (source, target, { event, display, mutation }) => {
+        return `${mutation} a help request from ${display} for ${event}`;
+    },
+
     [LogType.ExportDataAccess]: (source, target, { event, type }) => {
         return `Accessed exported ${event} ${type} data`;
     },

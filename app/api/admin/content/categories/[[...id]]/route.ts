@@ -182,8 +182,6 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
         if (!event)
             notFound();
 
-        console.log(order);
-
         const dbInstance = db;
         await dbInstance.transaction(async () => {
             for (let index = 0; index < order.length; ++index) {
