@@ -18,14 +18,7 @@ import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
-/**
- * Colours to assign to the chips used to categorise help requests.
- */
-const kChipColours: { [k in DisplayHelpRequestTarget]: [ /* fg= */ string, /* bg= */ string ] } = {
-    [DisplayHelpRequestTarget.Crew]: [ '#ffffff', '#5d4037' ],
-    [DisplayHelpRequestTarget.Nardo]: [ '#000000', '#ffeb3b' ],
-    [DisplayHelpRequestTarget.Stewards]: [ '#ffffff', '#303f9f' ],
-};
+import { kHelpRequestColours } from './HelpRequestColours';
 
 /**
  * The <HelpRequestTable> component displays a data table that shows the help requests that have
@@ -71,7 +64,7 @@ export function HelpRequestTable() {
             width: 110,
 
             renderCell: params => {
-                const [ foreground, background ] = kChipColours[params.row.target];
+                const [ foreground, background ] = kHelpRequestColours[params.row.target];
                 return (
                     <Chip label={params.value} size="small"
                           sx={{ backgroundColor: background, color: foreground }} />
