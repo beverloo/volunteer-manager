@@ -3,8 +3,9 @@
 
 'use client';
 
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 import dynamic from 'next/dynamic';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -56,9 +57,19 @@ export interface OverviewVendorCardProps {
 export function OverviewVendorCard(props: OverviewVendorCardProps) {
     const schedule = useContext(ScheduleContext);
 
-    const [ calendarOpen, setCalendarOpen ] = useState<boolean>(false);
-    const handleOpenCalendar = useCallback(() => setCalendarOpen(true), [ /* no deps */ ]);
-    const handleCloseCalendar = useCallback(() => setCalendarOpen(false), [ /* no deps */ ]);
+    const pathName = usePathname();
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Name of the search parameter that will determine whether the schedule is opened. This is done
+    // using a search parameter rather than state to make sure that navigation works intuitively.
+    const searchParamName = `${props.team}-schedule`;
+
+    const handleCloseCalendar = useCallback(() => router.push(pathName), [ pathName, router ]);
+    const handleOpenCalendar = useCallback(() => {
+        router.push(`${pathName}?${searchParamName}=1`);
+    }, [ pathName, router, searchParamName ]);
 
     if (!schedule || !schedule.vendors[props.team])
         return undefined;  // this team does not exist
@@ -95,9 +106,9 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
 
                 </CardActionArea>
             </Card>
-            <LazyCalendarPopover open={calendarOpen} onClose={handleCloseCalendar}
-                                 schedule={vendor.schedule} timezone={schedule.config.timezone}
-                                 title={title} />
+            <LazyCalendarPopover open={searchParams.has(searchParamName)}
+                                 onClose={handleCloseCalendar} schedule={vendor.schedule}
+                                 timezone={schedule.config.timezone} title={title} />
         </>
     );
 }
