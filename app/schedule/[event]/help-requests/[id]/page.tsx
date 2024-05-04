@@ -6,6 +6,11 @@ import { notFound } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import Step from '@mui/material/Step';
+import StepContent from '@mui/material/StepContent';
+import StepLabel from '@mui/material/StepLabel';
+import Stepper from '@mui/material/Stepper';
+import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
@@ -64,7 +69,23 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     if (!request)
         notFound();
 
-    const received = formatDate(request.date.withTimeZone(event.timezone), 'HH:mm[ on ]dddd');
+    const received = formatDate(request.date.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
+
+    let activeStep: number = 0;
+
+    let acknowledged: string | undefined;
+    if (!!request.acknowledgedBy && !!request.acknowledgedDate) {
+        activeStep++;
+        acknowledged = formatDate(
+            request.acknowledgedDate.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
+    }
+
+    let closed: string | undefined;
+    if (!!request.closedBy && !!request.closedDate) {
+        activeStep += 2;
+        closed = formatDate(request.closedDate.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
+    }
+
     const target =
         request.target === DisplayHelpRequestTarget.Nardo ? 'Nardo\'s Advice'
                                                           : request.target;
@@ -84,11 +105,41 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                 <CardHeader avatar={ <HelpRequestTarget target={request.target} /> }
                             title={`${request.display} asks for ${target}`}
                             titleTypographyProps={{ variant: 'subtitle2' }}
-                            subheader={`Request received at ${received}`} />
+                            subheader="Request received from their Volunteering Display" />
             </Card>
-            { /* TODO: Show information about who acknowledged the request */ }
+            <Card sx={{ p: 2 }}>
+                <Stepper orientation="vertical" activeStep={activeStep}>
+                    <Step expanded>
+                        <StepLabel>Request received</StepLabel>
+                        <StepContent>
+                            <Typography variant="body2">
+                                They requested help on {received}.
+                            </Typography>
+                        </StepContent>
+                    </Step>
+                    <Step expanded>
+                        <StepLabel>Acknowledged</StepLabel>
+                        { !!request.acknowledgedBy &&
+                            <StepContent>
+                                <Typography variant="body2">
+                                    Request was acknowledged by {request.acknowledgedBy} on{' '}
+                                    {acknowledged}.
+                                </Typography>
+                            </StepContent> }
+                    </Step>
+                    <Step expanded>
+                        <StepLabel>Closed</StepLabel>
+                        { !!request.closedBy &&
+                            <StepContent>
+                                <Typography variant="body2">
+                                    Request was closed by {request.closedBy} on {closed}:
+                                    "<em>{request.closedReason ?? 'no reason'}</em>"
+                                </Typography>
+                            </StepContent> }
+                    </Step>
+                </Stepper>
+            </Card>
             { /* TODO: Ability to acknowledge the request if that hasn't happened yet */ }
-            { /* TODO: Show information about who closed the request, and why */ }
             { /* TODO: Ability to close the request if that hasn't happened yet */ }
         </>
     );
