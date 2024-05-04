@@ -17,11 +17,8 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Divider from '@mui/material/Divider';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoodOutlinedIcon from '@mui/icons-material/MoodOutlined';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Tooltip from '@mui/material/Tooltip';
@@ -29,6 +26,7 @@ import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { HelpRequestTarget } from '../components/HelpRequestTarget';
 import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../components/SetTitle';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -36,52 +34,6 @@ import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
-
-import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
-
-/**
- * Icon to use for each of the request targets. Will be drawn in white.
- */
-const kTargetIcon: { [k in DisplayHelpRequestTarget]: React.ReactNode } = {
-    [DisplayHelpRequestTarget.Crew]: <PeopleAltOutlinedIcon fontSize="inherit" />,
-    [DisplayHelpRequestTarget.Nardo]: <MoodOutlinedIcon fontSize="inherit" />,
-    [DisplayHelpRequestTarget.Stewards]: <SecurityOutlinedIcon fontSize="inherit" />,
-};
-
-/**
- * Props accepted by the <HelpRequestTarget> component.
- */
-interface HelpRequestTargetProps {
-    /**
-     * Target of the help request, in other words, who is expected to help out?
-     */
-    target: DisplayHelpRequestTarget;
-}
-
-/**
- * The <HelpRequestTarget> component displays a coloured box with an icon to visually indicate who
- * the target audience for this help request is. This helps volunteers skim for relevant requests.
- */
-function HelpRequestTarget(props: HelpRequestTargetProps) {
-    const [ foreground, background ] = kHelpRequestColours[props.target];
-    return (
-        <Box sx={{
-            backgroundColor: background,
-            color: foreground,
-
-            borderRadius: '4px',
-            width: '24px',
-            height: '24px',
-            fontSize: '16px',
-
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        }}>
-            { kTargetIcon[props.target] }
-        </Box>
-    );
-}
 
 /**
  * Props accepted by the <HelpRequestSummary> component.
@@ -281,7 +233,7 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
                                                     timezone={event.timezone} />
                                 <AccordionDetails sx={{ pt: 0 }}>
                                     <Typography variant="body2">
-                                        Handled by {request.closedBy}:
+                                        Closed by {request.closedBy}:
                                         "<em>{ request.closedReason ?? 'no reason' }</em>" —{' '}
                                         <MuiLink component={Link}
                                                  href={`./help-requests/${request.id}`}>
