@@ -245,7 +245,8 @@ export function ApplicationBar(props: ApplicationBarProps) {
         <>
             <AppBar position="sticky" sx={kStyles.container}>
                 <Toolbar sx={kStyles.toolbar}>
-                    <Typography variant="h6" component="div" sx={kStyles.title}>
+                    <Typography variant="h6" component="div" sx={kStyles.title}
+                                suppressHydrationWarning>
                         {title}
                     </Typography>
                     <Search>

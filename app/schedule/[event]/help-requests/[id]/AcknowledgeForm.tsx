@@ -15,11 +15,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import DirectionsRunOutlinedIcon from '@mui/icons-material/DirectionsRunOutlined';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
-
-import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
+import { TargetLoadingButton } from './TargetLoadingButton';
 
 /**
  * Props accepted by the <AcknowledgeForm> component.
@@ -46,8 +44,6 @@ export interface AcknowledgeFormProps {
  * confirmation dialog will be shown to make sure that the volunteer actually will head over.
  */
 export function AcknowledgeForm(props: AcknowledgeFormProps) {
-    const [ foreground, background ] = kHelpRequestColours[props.target];
-
     const router = useRouter();
 
     // ---------------------------------------------------------------------------------------------
@@ -90,18 +86,11 @@ export function AcknowledgeForm(props: AcknowledgeFormProps) {
 
     return (
         <>
-            <LoadingButton fullWidth variant="contained" startIcon={ <DirectionsRunOutlinedIcon /> }
-                           onClick={openConfirmation} loading={!!confirmationOpen}
-                           sx={{
-                               backgroundColor: background,
-                               color: foreground,
-
-                               '&:active': { backgroundColor: background, color: foreground },
-                               '&:focus': { backgroundColor: background, color: foreground },
-                               '&:hover': { backgroundColor: background, color: foreground },
-                           }}>
+            <TargetLoadingButton fullWidth variant="contained" target={props.target}
+                                 startIcon={ <DirectionsRunOutlinedIcon /> }
+                                 onClick={openConfirmation} loading={!!confirmationOpen}>
                 On my way!
-            </LoadingButton>
+            </TargetLoadingButton>
             <Dialog fullWidth open={confirmationOpen} onClose={closeConfirmation}>
                 <DialogTitle>
                     Will you handle this request?
@@ -118,19 +107,11 @@ export function AcknowledgeForm(props: AcknowledgeFormProps) {
                     </Collapse>
                 </DialogContent>
                 <DialogActions sx={{ pr: 2, pb: 2 }}>
-                    <Button color="inherit" onClick={closeConfirmation}>Close</Button>
-                    <LoadingButton
-                        variant="contained" onClick={handleAcknowledge} loading={!!loading}
-                        sx={{
-                            backgroundColor: background,
-                            color: foreground,
-
-                            '&:active': { backgroundColor: background, color: foreground },
-                            '&:focus': { backgroundColor: background, color: foreground },
-                            '&:hover': { backgroundColor: background, color: foreground },
-                        }}>
+                    <Button color="inherit" onClick={closeConfirmation}>Cancel</Button>
+                    <TargetLoadingButton variant="contained" onClick={handleAcknowledge}
+                                         loading={!!loading} target={props.target}>
                         On my way!
-                    </LoadingButton>
+                    </TargetLoadingButton>
                 </DialogActions>
             </Dialog>
         </>

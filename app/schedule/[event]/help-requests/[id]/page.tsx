@@ -169,7 +169,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                 <AcknowledgeForm event={event.slug} requestId={request.id}
                                  target={request.target} /> }
             { (!!request.acknowledgedBy && !request.closedBy) &&
-                <CloseForm event={event.slug} requestId={request.id} /> }
+                <CloseForm event={event.slug} requestId={request.id} target={request.target} /> }
         </>
     );
 }
