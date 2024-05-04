@@ -23,6 +23,8 @@ import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
+import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
+
 /**
  * The <ScheduleHelpRequestPage> component displays a page for a given help request. It's only
  * available for volunteers with a specific permission, as it potentially could contain sensitive
@@ -69,6 +71,8 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     if (!request)
         notFound();
 
+    const [ foreground, background ] = kHelpRequestColours[request.target];
+
     const received = formatDate(request.date.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
 
     let activeStep: number = 0;
@@ -108,7 +112,14 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                             subheader="Request received from their Volunteering Display" />
             </Card>
             <Card sx={{ p: 2 }}>
-                <Stepper orientation="vertical" activeStep={activeStep}>
+                <Stepper orientation="vertical" activeStep={activeStep}
+                         sx={{
+                             '& .MuiSvgIcon-root.Mui-active': { color: background },
+                             '& .MuiSvgIcon-root.Mui-active text': { fill: foreground },
+                             '& .MuiSvgIcon-root.Mui-completed': { color: background },
+                             '& .MuiStepContent-root': { pl: '28px' },
+                             '& .MuiStepLabel-iconContainer': { pr: 2 },
+                         }}>
                     <Step expanded>
                         <StepLabel>Request received</StepLabel>
                         <StepContent>
