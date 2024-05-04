@@ -60,6 +60,14 @@ export default async function ScheduleKnowledgeCategoryPage(
         <>
             <SetTitle title={category.title} />
             <Card>
+                <Box sx={{
+                    backgroundImage: 'url(/images/knowledge-base-category.jpg)',
+                    backgroundPosition: 'center',
+                    backgroundSize: 'cover',
+                    width: '100%',
+                    aspectRatio: 4 }} />
+            </Card>
+            <Card>
                 <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
                             title={category.title}
                             titleTypographyProps={{ variant: 'subtitle2' }}
