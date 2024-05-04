@@ -17,7 +17,7 @@ import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../../components/HelpRequestTarget';
 import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../../components/SetTitle';
-import {  formatDate } from '@lib/Temporal';
+import { formatDate, formatDuration } from '@lib/Temporal';
 import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';
 import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -78,16 +78,21 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     let activeStep: number = 0;
 
     let acknowledged: string | undefined;
+    let acknowledgedDiff: string | undefined;
     if (!!request.acknowledgedBy && !!request.acknowledgedDate) {
         activeStep++;
         acknowledged = formatDate(
             request.acknowledgedDate.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
+        acknowledgedDiff =
+            formatDuration(request.date.until(request.acknowledgedDate), /* noPrefix= */ true);
     }
 
     let closed: string | undefined;
+    let closedDiff: string | undefined;
     if (!!request.closedBy && !!request.closedDate) {
         activeStep += 2;
         closed = formatDate(request.closedDate.withTimeZone(event.timezone), 'dddd[, at ]HH:mm');
+        closedDiff = formatDuration(request.date.until(request.closedDate), /* noPrefix= */ true);
     }
 
     const target =
@@ -124,7 +129,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                         <StepLabel>Request received</StepLabel>
                         <StepContent>
                             <Typography variant="body2">
-                                They requested help on {received}.
+                                They requested help on {received}
                             </Typography>
                         </StepContent>
                     </Step>
@@ -134,7 +139,11 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                             <StepContent>
                                 <Typography variant="body2">
                                     Request was acknowledged by {request.acknowledgedBy} on{' '}
-                                    {acknowledged}.
+                                    {acknowledged} (
+                                    <Typography component="span" variant="body2"
+                                                sx={{ color: 'error.main' }}>
+                                        +{acknowledgedDiff}
+                                    </Typography>)
                                 </Typography>
                             </StepContent> }
                     </Step>
@@ -143,8 +152,12 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                         { !!request.closedBy &&
                             <StepContent>
                                 <Typography variant="body2">
-                                    Request was closed by {request.closedBy} on {closed}:
-                                    "<em>{request.closedReason ?? 'no reason'}</em>"
+                                    Request was closed by {request.closedBy} on {closed}{' '}(
+                                    <Typography component="span" variant="body2"
+                                                sx={{ color: 'error.main' }}>
+                                        +{closedDiff}
+                                    </Typography>
+                                    ): "<em>{request.closedReason ?? 'no reason'}</em>"
                                 </Typography>
                             </StepContent> }
                     </Step>
