@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import AlertTitle from '@mui/material/AlertTitle';
 import List from '@mui/material/List';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
@@ -16,6 +17,7 @@ import Tab from '@mui/material/Tab';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Alert } from '../components/Alert';
+import { Avatar } from '@app/components/Avatar';
 import { ScheduleContext } from '../ScheduleContext';
 import { SetTitle } from '../components/SetTitle';
 
@@ -51,6 +53,11 @@ function VolunteerList(props: VolunteerListProps) {
 
                 return (
                     <ListItemButton LinkComponent={Link} key={volunteer.id} href={href}>
+                        <ListItemAvatar>
+                            <Avatar src={volunteer.avatar}>
+                                {volunteer.name}
+                            </Avatar>
+                        </ListItemAvatar>
                         {volunteer.name}
                     </ListItemButton>
                 );

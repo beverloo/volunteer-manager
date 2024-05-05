@@ -3,13 +3,14 @@
 
 'use client';
 
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 
 import AlertTitle from '@mui/material/AlertTitle';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 
 import { Alert } from '../../components/Alert';
+import { Avatar } from '@app/components/Avatar';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 
@@ -29,6 +30,30 @@ export interface VolunteerPageProps {
  */
 export function VolunteerPage(props: VolunteerPageProps) {
     const { schedule } = useContext(ScheduleContext);
+
+    // ---------------------------------------------------------------------------------------------
+    // Avatar management:
+    // ---------------------------------------------------------------------------------------------
+
+    // Volunteers are able to edit their own avatar by default, and can be granted a privilege that
+    // will allow them to edit anyone's avatar. That privilege is conveyed as a config option.
+    const avatarEditable =
+        schedule?.config.enableAvatarManagement || props.userId === `${schedule?.userId}`;
+
+    // Called when a new avatar has been selected that hsould be uploaded to the server.
+    const handleAvatarChange = useCallback(async (avatar: Blob) => {
+        // TODO: Upload the avatar...
+        return false;
+
+    }, [ props.userId ]);
+
+    // ---------------------------------------------------------------------------------------------
+    // Notes management:
+    // ---------------------------------------------------------------------------------------------
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
+
     if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId)) {
         return (
             <Alert elevation={1} severity="error">
@@ -44,12 +69,16 @@ export function VolunteerPage(props: VolunteerPageProps) {
         <>
             <SetTitle title={volunteer.name} />
             <Card>
-                <CardHeader avatar={ undefined }
-                            title={volunteer.name}
+                <CardHeader title={volunteer.name}
                             titleTypographyProps={{ variant: 'subtitle2' }}
-                            subheader={volunteer.role} />
+                            subheader={volunteer.role}
+                            avatar={
+                                <Avatar editable={avatarEditable} src={volunteer.avatar}
+                                        onChange={handleAvatarChange}>
+                                    {volunteer.name}
+                                </Avatar>
+                            } />
             </Card>
-            { /* TODO: Avatar (w/ edit functionality) */ }
             { /* TODO: Contact information */ }
             { /* TODO: Notes */ }
             { /* TODO: Schedule */ }

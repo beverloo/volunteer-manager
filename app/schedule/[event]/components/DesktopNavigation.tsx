@@ -164,9 +164,6 @@ function DesktopNavigationEntry(props: DesktopNavigationEntryProps) {
     );
 }
 
-// TODO:
-type NavigationProps = any;
-
 /**
  * An alert that updates itself every second while active, displaying the current time the portal
  * understands it to be. Only applicable when the server imposes a time difference on the portal.
@@ -195,11 +192,7 @@ function DesktopNavigationTimeAlert() {
  * right-hand side of the main content, to make better use of the available screen estate, without
  * polluting it with a full side-drawer.
  */
-export function DesktopNavigation(props: NavigationProps) {
-    props = {
-        badgeActiveVolunteers: 1,
-    };
-
+export function DesktopNavigation() {
     const pathname = usePathname();
 
     const { schedule } = useContext(ScheduleContext);

@@ -71,6 +71,11 @@ export const kPublicSchedule = z.strictObject({
         activityListLimit: z.number(),
 
         /**
+         * Whether avatar management (for any volunteer) should be enabled.
+         */
+        enableAvatarManagement: z.boolean().optional(),
+
+        /**
          * Whether access to help requests should be enabled.
          */
         enableHelpRequests: z.boolean().optional(),
@@ -328,6 +333,11 @@ export const kPublicSchedule = z.strictObject({
          * Unique ID of the user.
          */
         id: z.string(),
+
+        /**
+         * URL of the user's avatar, if any. Users are able to upload a new image themselves.
+         */
+        avatar: z.string().optional(),
 
         /**
          * Name of the user, as it should be presented to other volunteers.

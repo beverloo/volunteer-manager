@@ -13,10 +13,11 @@ import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories, tDisplaysRequests, tNardo, tRoles, tTeams, tUsers, tUsersEvents, tVendors,
-    tVendorsSchedule } from '@lib/database';
+    tContentCategories, tDisplaysRequests, tNardo, tRoles, tStorage, tTeams, tUsers, tUsersEvents,
+    tVendors, tVendorsSchedule } from '@lib/database';
 
 import { kPublicSchedule } from './PublicSchedule';
+import { getBlobUrl } from '@lib/database/BlobStore';
 
 /**
  * Interface definition for the public Schedule API, exposed through /api/event/schedule.
@@ -301,6 +302,8 @@ async function populateVolunteers(
     // TODO: Insert new activities where applicable
     // TODO: Insert new shifts
 
+    const storageJoin = tStorage.forUseInLeftJoin();
+
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
@@ -308,6 +311,8 @@ async function populateVolunteers(
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
         .where(tUsersEvents.eventId.equals(eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .and(tTeams.teamEnvironment.equalsIfValue(team).ignoreWhen(isLeader))
@@ -315,7 +320,7 @@ async function populateVolunteers(
             id: tUsers.userId,
             user: {
                 name: tUsers.name,
-                // TODO: avatar
+                avatar: storageJoin.fileHash,
                 // TODO: phoneNumber
                 role: {
                     name: tRoles.roleName,
@@ -346,6 +351,7 @@ async function populateVolunteers(
 
         schedule.volunteers[volunteerId] = {
             id: volunteerId,
+            avatar: getBlobUrl(volunteer.user.avatar),
             name: volunteer.user.name,
             role: volunteer.user.role.name,
             roleBadge: volunteer.user.role.badge,
@@ -404,6 +410,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         slug: event.slug,
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
+            enableAvatarManagement: can(props.user, Privilege.VolunteerAvatarManagement),
             enableHelpRequests: can(props.user, Privilege.EventHelpRequests),
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
