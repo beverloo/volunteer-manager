@@ -360,6 +360,11 @@ export const kPublicSchedule = z.strictObject({
         team: z.string(),
 
         /**
+         * Phone number of the volunteer. Only available in certain cases.
+         */
+        phoneNumber: z.string().optional(),
+
+        /**
          * Unique ID of the shift that the volunteer is currently participating in, if any.
          */
         activeShift: z.number().optional(),

@@ -3,12 +3,18 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AlertTitle from '@mui/material/AlertTitle';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
+import PhoneIcon from '@mui/icons-material/Phone';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Alert } from '../../components/Alert';
 import { Avatar } from '@app/components/Avatar';
@@ -93,6 +99,14 @@ export function VolunteerPage(props: VolunteerPageProps) {
 
     const volunteer = schedule.volunteers[props.userId];
 
+    let phoneNumber: string | undefined;
+    let whatsAppNumber: string | undefined;
+
+    if (!!volunteer.phoneNumber) {
+        phoneNumber = `tel:${volunteer.phoneNumber}`;
+        whatsAppNumber = `https://wa.me/${volunteer.phoneNumber.replace(/^\+/, '')}`;
+    }
+
     return (
         <>
             <SetTitle title={volunteer.name} />
@@ -100,6 +114,24 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 <CardHeader title={volunteer.name}
                             titleTypographyProps={{ variant: 'subtitle2' }}
                             subheader={volunteer.role}
+                            sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
+                            action={
+                                <Stack direction="row" spacing={1} sx={{ pr: 1 }}>
+                                    { !!phoneNumber &&
+                                        <Tooltip title="Give them a call">
+                                            <IconButton LinkComponent={Link} href={phoneNumber}>
+                                                <PhoneIcon />
+                                            </IconButton>
+                                        </Tooltip> }
+                                    { !!whatsAppNumber &&
+                                        <Tooltip title="Send them a WhatsApp message">
+                                            <IconButton LinkComponent={Link} href={whatsAppNumber}
+                                                        target="_blank">
+                                                <WhatsAppIcon />
+                                            </IconButton>
+                                        </Tooltip> }
+                                </Stack>
+                            }
                             avatar={
                                 <Avatar editable={avatarEditable} src={volunteer.avatar}
                                         onChange={handleAvatarChange}>
@@ -107,7 +139,6 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 </Avatar>
                             } />
             </Card>
-            { /* TODO: Contact information */ }
             { /* TODO: Notes */ }
             { /* TODO: Schedule */ }
         </>

@@ -321,10 +321,11 @@ async function populateVolunteers(
             user: {
                 name: tUsers.name,
                 avatar: storageJoin.fileHash,
-                // TODO: phoneNumber
+                phoneNumber: tUsers.phoneNumber,
                 role: {
                     name: tRoles.roleName,
                     badge: tRoles.roleBadge,
+                    isLeader: tRoles.roleAdminAccess.equals(/* true= */ 1),
                 },
                 team: {
                     id: tTeams.teamId,
@@ -349,6 +350,11 @@ async function populateVolunteers(
             };
         }
 
+        // Phone numbers are included and available in the app when the signed in user is a leader,
+        // or when the displayed volunteer is a leader. Their phone number will be shared with the
+        // other volunteers via the WhatsApp group anyway.
+        const includePhoneNumber = isLeader || volunteer.user.role.isLeader;
+
         schedule.volunteers[volunteerId] = {
             id: volunteerId,
             avatar: getBlobUrl(volunteer.user.avatar),
@@ -356,6 +362,7 @@ async function populateVolunteers(
             role: volunteer.user.role.name,
             roleBadge: volunteer.user.role.badge,
             team: `${volunteer.user.team.id}`,
+            phoneNumber: includePhoneNumber ? volunteer.user.phoneNumber : undefined,
             // TODO: activeShift
         };
 
