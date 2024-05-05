@@ -30,8 +30,7 @@ export function AreaList() {
             return [ now, [ /* no areas */ ] ];
 
         const areas = Object.values(schedule.program.areas).map(area => {
-            const active: CardTimeslot[] = [];
-            const pending: CardTimeslot[] = [];
+            const timeslots: CardTimeslot[] = [];
 
             for (const locationId of area.locations) {
                 for (const timeslotId of schedule.program.locations[locationId].timeslots) {
@@ -51,19 +50,11 @@ export function AreaList() {
                     };
 
                     if (timeslot.start <= now.epochSeconds)
-                        active.push(entry);
+                        timeslots.push(entry);
                     else
-                        pending.push(entry);
-
-                    if (pending.length >= schedule.config.activityListLimit)
                         break;
                 }
             }
-
-            const timeslots = [
-                ...active,
-                ...pending.splice(0, schedule.config.activityListLimit - active.length),
-            ];
 
             timeslots.sort((lhs, rhs) => lhs.start - rhs.start);
 
@@ -84,6 +75,7 @@ export function AreaList() {
 
     setTitle('Events');
 
+    const noEventsText = 'There are no active events in this area…';
     const prefix = `/schedule/${schedule.slug}`;
 
     return (
@@ -99,7 +91,7 @@ export function AreaList() {
                     <HeaderButton href={`${prefix}/areas/${area.id}`} title={area.name}
                                   icon={ <MapsHomeWorkIcon color="primary" /> } />
                     <CardTimeslotList currentTime={now} prefix={prefix}
-                                      timeslots={area.timeslots} />
+                                      timeslots={area.timeslots} noEventsText={noEventsText} />
                 </Card> ) }
         </>
     );

@@ -22,6 +22,12 @@ export interface CardTimeslotListProps {
     currentTime: Temporal.ZonedDateTime;
 
     /**
+     * Text to display when no events could be found. Defaults to "No further events have been
+     * scheduled…".
+     */
+    noEventsText?: string;
+
+    /**
      * URL prefix to apply to all links shown in the list.
      */
     prefix: string;
@@ -43,7 +49,7 @@ export function CardTimeslotList(props: CardTimeslotListProps) {
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <DoneAllIcon color="success" fontSize="small" />
                     <Typography variant="body2">
-                        No further events have been scheduled…
+                        { props.noEventsText ?? 'No further events have been scheduled…' }
                     </Typography>
                 </Stack>
             </Paper>
