@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { VendorTeam } from '@lib/database/Types';
+import { RoleBadge, VendorTeam } from '@lib/database/Types';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding
@@ -283,13 +283,62 @@ export const kPublicSchedule = z.strictObject({
     // TODO: shifts
 
     /**
+     * Information about the teams for whom volunteers and/or shifts are included with the schedule.
+     */
+    teams: z.record(z.string(), z.strictObject({
+        /**
+         * Unique ID of the team.
+         */
+        id: z.string(),
+
+        /**
+         * Name of the team, as it should be presented to volunteers.
+         */
+        name: z.string(),
+
+        /**
+         * Colour associated with the team, used to emphasise their identity.
+         */
+        colour: z.string(),
+    })),
+
+    /**
      * Information about the vendors that will be helping out during the event. Regular volunteers
      * will be presented with an informational card, where volunteering leads will be able to see
      * their full availability in a calendar-style display.
      */
     vendors: z.record(z.nativeEnum(VendorTeam), kVendorTeam),
 
-    // TODO: volunteers
+    /**
+     * The volunteers who are scheduled to help out during this event, each keyed by their unique
+     * User ID and with their associated information as a value.
+     */
+    volunteers: z.record(z.string(), z.strictObject({
+        /**
+         * Unique ID of the user.
+         */
+        id: z.string(),
+
+        /**
+         * Name of the user, as it should be presented to other volunteers.
+         */
+        name: z.string(),
+
+        /**
+         * Role that the volunteer has been assigned to during the event.
+         */
+        role: z.string(),
+
+        /**
+         * Badge that should be issued to the volunteer, if any.
+         */
+        roleBadge: z.nativeEnum(RoleBadge).optional(),
+
+        /**
+         * Unique ID of the team that this volunteer is part of.
+         */
+        team: z.string(),
+    })),
 });
 
 /**

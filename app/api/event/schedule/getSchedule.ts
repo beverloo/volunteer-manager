@@ -7,13 +7,13 @@ import { notFound } from 'next/navigation';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
-import { ActivityType, VendorTeam } from '@lib/database/Types';
+import { ActivityType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories, tDisplaysRequests, tNardo, tVendors,
+    tContentCategories, tDisplaysRequests, tNardo, tRoles, tTeams, tUsers, tUsersEvents, tVendors,
     tVendorsSchedule } from '@lib/database';
 
 import { kPublicSchedule } from './PublicSchedule';
@@ -287,6 +287,73 @@ async function populateVendors(
     }
 }
 
+/**
+ * Populates the volunteers who participate in this event in the given `schedule`. All information
+ * relevant for the given `eventId` will be fetched. When `isLeader` is set, all teams will be
+ * returned, otherwise `team` will be used to limit the scope of the returned information.
+ */
+async function populateVolunteers(
+    dbInstance: DBConnection, schedule: Response, currentTime: Temporal.ZonedDateTime,
+    eventId: number, festivalId: number, isLeader: boolean, team?: string)
+{
+    // TODO: Insert new areas where applicable
+    // TODO: Insert new locations where applicable
+    // TODO: Insert new activities where applicable
+    // TODO: Insert new shifts
+
+    const volunteers = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .innerJoin(tUsers)
+            .on(tUsers.userId.equals(tUsersEvents.userId))
+        .where(tUsersEvents.eventId.equals(eventId))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tTeams.teamEnvironment.equalsIfValue(team).ignoreWhen(isLeader))
+        .select({
+            id: tUsers.userId,
+            user: {
+                name: tUsers.name,
+                // TODO: avatar
+                // TODO: phoneNumber
+                role: {
+                    name: tRoles.roleName,
+                    badge: tRoles.roleBadge,
+                },
+                team: {
+                    id: tTeams.teamId,
+                    name: tTeams.teamName,
+                    colour: tTeams.teamColourLightTheme,
+                },
+            },
+        })
+        .groupBy(tUsersEvents.userId)
+        .orderBy('user.name', 'asc')
+        .executeSelectMany();
+
+    for (const volunteer of volunteers) {
+        const volunteerId = `${volunteer.id}`;
+        const teamId = `${volunteer.user.team.id}`;
+
+        if (!Object.hasOwn(schedule.teams, teamId)) {
+            schedule.teams[teamId] = {
+                id: teamId,
+                name: volunteer.user.team.name,
+                colour: volunteer.user.team.colour,
+            };
+        }
+
+        schedule.volunteers[volunteerId] = {
+            id: volunteerId,
+            name: volunteer.user.name,
+            role: volunteer.user.role.name,
+            roleBadge: volunteer.user.role.badge,
+            team: `${volunteer.user.team.id}`,
+        };
+    }
+}
+
 // -------------------------------------------------------------------------------------------------
 
 /**
@@ -303,12 +370,15 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         notFound();
 
     let isLeader: boolean = can(props.user, Privilege.EventAdministrator);
+    let team: string | undefined;
+
     if (!isLeader) {
         const eventAuthenticationContext = props.authenticationContext.events.get(event.slug);
         if (!eventAuthenticationContext && !can(props.user, Privilege.EventScheduleOverride))
             notFound();
 
         isLeader = !!eventAuthenticationContext?.admin;
+        team = eventAuthenticationContext?.team;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -347,7 +417,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             locations: { /* empty */ },
             timeslots: { /* empty */ },
         },
+        teams: { /* empty */ },
         vendors: { /* empty */ },
+        volunteers: { /* empty */ },
     };
 
     const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
@@ -379,6 +451,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             dbInstance, schedule, currentTime, event.id, includeFirstAidVendors,
             includeSecurityVendors, isLeader);
     }
+
+    await populateVolunteers(
+        dbInstance, schedule, currentTime, event.id, event.festivalId, isLeader, team);
 
     // ---------------------------------------------------------------------------------------------
 
