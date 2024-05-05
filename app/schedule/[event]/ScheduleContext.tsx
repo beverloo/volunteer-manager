@@ -12,6 +12,12 @@ import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
  */
 export interface ScheduleContextInfo {
     /**
+     * Callback through which the schedule can be refreshed. A promise will be returned, but the
+     * information conveyed therein is not exposed as part of this API.
+     */
+    refresh?: () => Promise<unknown>;
+
+    /**
      * The schedule as sourced from the server. Contains both configuration as information.
      */
     schedule?: PublicSchedule;

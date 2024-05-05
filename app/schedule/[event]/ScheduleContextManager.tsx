@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
 import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
@@ -41,7 +41,7 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
 
     }, [ props.event ]);
 
-    const { data, error, isLoading } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
+    const { data, error, isLoading, mutate } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
         // TODO: Select the appropriate options
     });
 
@@ -49,6 +49,10 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
     // TODO: Deal with `isLoading`?
 
     // ---------------------------------------------------------------------------------------------
+
+    // Callback through which components can manually request a refresh of the schedule. This is
+    // appropriate to do whenever a data mutation is submitted in the portal.
+    const refresh = useCallback(() => mutate(), [ mutate ]);
 
     // Store the `data` in a context so that we can guarantee ordering of state and context updates
     // in the schedule app. This avoids race conditions where outdated information is shown.
@@ -58,9 +62,12 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
         updateTimeConfig(data?.config.timeOffset, data?.config.timezone || 'utc');
 
         // Update the `context`, which is consumed by various parts of the schedule app.
-        setContext({ schedule: data });
+        setContext({
+            refresh,
+            schedule: data
+        });
 
-    }, [ data ]);
+    }, [ data, refresh ]);
 
     return (
         <ScheduleContext.Provider value={context}>

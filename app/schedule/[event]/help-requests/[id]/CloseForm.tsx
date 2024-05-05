@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
@@ -20,6 +20,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { ScheduleContext } from '../../ScheduleContext';
 import { TargetLoadingButton } from './TargetLoadingButton';
 import { callApi } from '@lib/callApi';
 
@@ -48,6 +49,7 @@ export interface CloseFormProps {
  * given, to make sure that the reason for the help request is properly recorded.
  */
 export function CloseForm(props: CloseFormProps) {
+    const { refresh } = useContext(ScheduleContext);
     const router = useRouter();
 
     // ---------------------------------------------------------------------------------------------
@@ -90,6 +92,7 @@ export function CloseForm(props: CloseFormProps) {
             });
 
             if (!!response.success) {
+                refresh?.();
                 router.refresh();
             } else {
                 setError(response.error ?? 'The request could not be acknowledged');
@@ -100,7 +103,7 @@ export function CloseForm(props: CloseFormProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.event, props.requestId, reason, router ]);
+    }, [ props.event, props.requestId, reason, refresh, router ]);
 
     // ---------------------------------------------------------------------------------------------
 

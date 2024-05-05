@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
@@ -17,6 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DirectionsRunOutlinedIcon from '@mui/icons-material/DirectionsRunOutlined';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { ScheduleContext } from '../../ScheduleContext';
 import { TargetLoadingButton } from './TargetLoadingButton';
 import { callApi } from '@lib/callApi';
 
@@ -45,6 +46,7 @@ export interface AcknowledgeFormProps {
  * confirmation dialog will be shown to make sure that the volunteer actually will head over.
  */
 export function AcknowledgeForm(props: AcknowledgeFormProps) {
+    const { refresh } = useContext(ScheduleContext);
     const router = useRouter();
 
     // ---------------------------------------------------------------------------------------------
@@ -77,6 +79,7 @@ export function AcknowledgeForm(props: AcknowledgeFormProps) {
             });
 
             if (!!response.success) {
+                refresh?.();
                 router.refresh();
             } else {
                 setError(response.error ?? 'xThe request could not be acknowledged');
@@ -87,7 +90,7 @@ export function AcknowledgeForm(props: AcknowledgeFormProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.event, props.requestId, router ]);
+    }, [ props.event, props.requestId, refresh, router ]);
 
     // ---------------------------------------------------------------------------------------------
 
