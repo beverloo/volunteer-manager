@@ -109,13 +109,17 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                     return (
                         <Stack key={index} direction="row" justifyContent="space-between"
                                alignItems="center" sx={{ mx: 2, my: 1 }}>
-                            <Typography variant="body2">
+                            <Typography variant="body2" sx={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}>
                                 <MuiLink component={Link} href={href}>
                                     {change.name}
                                 </MuiLink>
                                 {' '}{ writeDescription(change.updates, change.teamName) }
                             </Typography>
-                            <Typography variant="body2">
+                            <Typography variant="body2" sx={{ pl: 1, whiteSpace: 'nowrap' }}>
                                 { formatDuration(
                                     Temporal.ZonedDateTime.from(change.date).since(
                                         currentTime, { largestUnit: 'years' })) }
