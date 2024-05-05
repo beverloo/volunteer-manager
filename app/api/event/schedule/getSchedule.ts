@@ -418,6 +418,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             timeslots: { /* empty */ },
         },
         teams: { /* empty */ },
+        userId: props.user.userId,
         vendors: { /* empty */ },
         volunteers: { /* empty */ },
     };

@@ -303,6 +303,11 @@ export const kPublicSchedule = z.strictObject({
     })),
 
     /**
+     * Unique ID of the user to whom this schedule has been issued.
+     */
+    userId: z.number(),
+
+    /**
      * Information about the vendors that will be helping out during the event. Regular volunteers
      * will be presented with an informational card, where volunteering leads will be able to see
      * their full availability in a calendar-style display.

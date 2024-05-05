@@ -97,10 +97,14 @@ export function VolunteerListPage() {
 
     // ---------------------------------------------------------------------------------------------
 
-    const searchParams = useSearchParams();
+    let defaultTeam: string | undefined;
+    if (!!schedule?.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
+        defaultTeam = schedule.volunteers[schedule.userId].team;
+    else if (!!teams?.length)
+        defaultTeam = teams[0].id;
 
-    // TODO: Select a default team based on the volunteer's participation.
-    const selectedTeam = searchParams.get('team') || '2';
+    const searchParams = useSearchParams();
+    const selectedTeam = searchParams.get('team') || defaultTeam;
 
     const handleTeamChange = useCallback((event: unknown, team: any) => {
         router.push(`./volunteers?team=${team}`);
