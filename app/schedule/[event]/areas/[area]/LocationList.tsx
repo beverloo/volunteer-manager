@@ -103,8 +103,14 @@ export function LocationList(props: LocationListProps) {
     if (!schedule)
         return undefined;
 
-    if (!schedule.program.areas.hasOwnProperty(props.areaId))
-        return undefined;  // TODO: 404?
+    if (!schedule.program.areas.hasOwnProperty(props.areaId)) {
+        return (
+            <Alert elevation={1} severity="error">
+                <AlertTitle>This area does not exist!</AlertTitle>
+                The area you've tried to access does not exist.
+            </Alert>
+        );
+    }
 
     setTitle(schedule.program.areas[props.areaId].name);
 
