@@ -79,7 +79,7 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
         return undefined;  // this team has no representation
 
     const title = kVendorCardHeader[props.team];
-    const subheader = !!vendor.active.length ? `${concatenateNames(vendor.active)} are on location`
+    const subheader = !!vendor.active.length ? `${concatenateNames(vendor.active)} on location`
                                              : 'No personnel is currently on location';
 
     if (!vendor.schedule.length) {

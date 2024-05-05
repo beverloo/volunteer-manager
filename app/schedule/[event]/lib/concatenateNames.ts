@@ -3,19 +3,19 @@
 
 /**
  * Utility function to concatenate a list of names. E.g.:
- *   [ "Joe" ]                      -> "Joe"
- *   [ "Joe", "Sarah" ]             -> "Joe and Sarah"
- *   [ "Joe", "Sarah", "Viola" ]    -> "Joe, Sarah and Viola"
+ *   [ "Joe" ]                      -> "Joe is"
+ *   [ "Joe", "Sarah" ]             -> "Joe and Sarah are"
+ *   [ "Joe", "Sarah", "Viola" ]    -> "Joe, Sarah and Viola are"
  */
 export function concatenateNames(names: string[]): string {
     if (!names.length)
         return '';
 
     if (names.length === 1)
-        return names[0];
+        return `${names[0]} is`;
 
     const sortedNames = [ ...names ].sort();
 
     const lastName = sortedNames.pop();
-    return `${sortedNames.join(', ')} and ${lastName}`;
+    return `${sortedNames.join(', ')} and ${lastName} are`;
 }
