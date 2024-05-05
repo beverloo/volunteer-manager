@@ -560,7 +560,6 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             .select({
                 id: tVendors.vendorId,
                 firstName: tVendors.vendorFirstName,
-                lastName: tVendors.vendorLastName,
                 team: tVendors.vendorTeam,
                 shifts: dbInstance.aggregateAsArray({
                     start: vendorsScheduleJoin.vendorsScheduleStart,
@@ -576,7 +575,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             if (isLeader) {
                 schedule.vendors[vendor.team]!.schedule.push({
                     id: vendor.id,
-                    name: `${vendor.firstName} ${vendor.lastName}`.trim(),
+                    name: vendor.firstName,
                     shifts: vendor.shifts.map(shift => ({
                         start: shift.start.epochSeconds,
                         end: shift.end.epochSeconds,
