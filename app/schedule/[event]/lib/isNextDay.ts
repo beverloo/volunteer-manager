@@ -11,7 +11,7 @@ import type { Temporal } from '@lib/Temporal';
  * assumption that the even breaks for the night.
  */
 export function isNextDay(currentDateTime: Temporal.ZonedDateTime, ref: Temporal.ZonedDateTime) {
-    if (currentDateTime.dayOfYear < ref.daysInYear)
+    if (currentDateTime.dayOfYear < ref.dayOfYear)
         return true;  // case: `currentDateTime` is on an earlier day than `ref`
 
     if (currentDateTime.hour <= 3 && ref.hour >= 6)
