@@ -227,7 +227,7 @@ export interface SearchResultsProps {
 export function SearchResults(props: SearchResultsProps) {
     const { anchorEl, commit, onClose, query } = props;
 
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     const router = useRouter();
 
     const results = useMemo(() => {

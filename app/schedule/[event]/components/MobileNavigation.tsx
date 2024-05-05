@@ -45,7 +45,7 @@ export function MobileNavigation(props: NavigationProps) {
     const pathname = usePathname();
     const router = useRouter();
 
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
     const scheduleNavigationValue = useMemo(() => {
         return pathname.substring(scheduleBaseUrl.length + 1).replace(/\/.*$/, '');

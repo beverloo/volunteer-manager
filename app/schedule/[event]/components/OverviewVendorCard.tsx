@@ -55,7 +55,7 @@ export interface OverviewVendorCardProps {
  * view displaying the team's full schedule.
  */
 export function OverviewVendorCard(props: OverviewVendorCardProps) {
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
 
     const pathName = usePathname();
 

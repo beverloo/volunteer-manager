@@ -203,7 +203,7 @@ export function DesktopNavigation(props: NavigationProps) {
 
     const pathname = usePathname();
 
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     const scheduleBaseUrl = useMemo(() => `/schedule/${schedule?.slug}`, [ schedule?.slug ]);
     const schedulePathname = useMemo(() => {
         return pathname.substring(scheduleBaseUrl.length);

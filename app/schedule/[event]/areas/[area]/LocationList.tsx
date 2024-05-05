@@ -33,7 +33,7 @@ export interface LocationListProps {
 export function LocationList(props: LocationListProps) {
     const now = currentInstant();
 
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     const locations = useMemo(() => {
         if (!schedule || !schedule.program.areas.hasOwnProperty(props.areaId))
             return [ /* no locations */ ];

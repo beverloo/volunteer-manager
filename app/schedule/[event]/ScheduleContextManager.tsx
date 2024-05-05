@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
 import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
-import { ScheduleContext } from './ScheduleContext';
+import { ScheduleContext, type ScheduleContextInfo } from './ScheduleContext';
 import { updateTimeConfig } from './CurrentTime';
 
 /**
@@ -48,15 +48,17 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
     // TODO: Deal with `error`?
     // TODO: Deal with `isLoading`?
 
+    // ---------------------------------------------------------------------------------------------
+
     // Store the `data` in a context so that we can guarantee ordering of state and context updates
     // in the schedule app. This avoids race conditions where outdated information is shown.
-    const [ context, setContext ] = useState<PublicSchedule | undefined>(data);
+    const [ context, setContext ] = useState<ScheduleContextInfo>({ schedule: data });
     useEffect(() => {
         // Update the portal's time configuration when this has been provided by the server.
         updateTimeConfig(data?.config.timeOffset, data?.config.timezone || 'utc');
 
         // Update the `context`, which is consumed by various parts of the schedule app.
-        setContext(data);
+        setContext({ schedule: data });
 
     }, [ data ]);
 

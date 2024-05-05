@@ -8,8 +8,19 @@ import { createContext } from 'react';
 import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
 
 /**
+ * Wrapper object to contain the schedule, as well as utility methods to interact with it.
+ */
+export interface ScheduleContextInfo {
+    /**
+     * The schedule as sourced from the server. Contains both configuration as information.
+     */
+    schedule?: PublicSchedule;
+}
+
+/**
  * The <ScheduleContext> carries information about the schedule to display. It's sourced directly
  * from the server by the `ScheduleContextManager`, which also intends to keep it up-to-date.
  */
-export const ScheduleContext = createContext<PublicSchedule | undefined>(
-    /* unprovisioned= */ undefined);
+export const ScheduleContext = createContext<ScheduleContextInfo>({
+    // no defaults
+});

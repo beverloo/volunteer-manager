@@ -22,7 +22,7 @@ import { setTitle } from '../ScheduleTitle';
  * list of the knowledge base categories known to this particular event.
  */
 export function KnowledgeBaseCategories() {
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     if (!schedule || !schedule.knowledge.length) {
         return (
             <Paper>

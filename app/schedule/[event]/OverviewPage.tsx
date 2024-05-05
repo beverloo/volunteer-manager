@@ -20,7 +20,7 @@ import { useIsMobile } from './lib/useIsMobile';
  * necessary for the volunteer to perform their duties. All information is sourced from the context.
  */
 export function OverviewPage() {
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
 
     const isMobile = useIsMobile();
 

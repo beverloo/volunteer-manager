@@ -24,7 +24,7 @@ import { setTitle } from '../ScheduleTitle';
 export function AreaList() {
     const now = currentInstant();
 
-    const schedule = useContext(ScheduleContext);
+    const { schedule } = useContext(ScheduleContext);
     const areas = useMemo(() => {
         if (!schedule)
             return [ /* no areas */ ];
