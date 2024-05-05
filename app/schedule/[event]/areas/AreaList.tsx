@@ -52,7 +52,7 @@ export function AreaList() {
                         invisible: activity.invisible,
                     };
 
-                    if (timeslot.start < now.epochSeconds)
+                    if (timeslot.start <= now.epochSeconds)
                         active.push(entry);
                     else
                         pending.push(entry);
