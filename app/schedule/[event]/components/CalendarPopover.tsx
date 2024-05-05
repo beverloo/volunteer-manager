@@ -18,6 +18,7 @@ import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css
 
 import type { PublicVendorSchedule } from '@app/api/event/schedule/getSchedule';
 import { Temporal } from '@lib/Temporal';
+import { currentTimezone } from '../CurrentTime';
 import { useIsMobile } from '../lib/useIsMobile';
 
 /**
@@ -35,11 +36,6 @@ export interface CalendarPopoverProps {
     schedule: PublicVendorSchedule;
 
     /**
-     * Timezone in which the calendar should be displayed.
-     */
-    timezone: string;
-
-    /**
      * Title that should be shown on the popover.
      */
     title: string;
@@ -54,10 +50,11 @@ export interface CalendarPopoverProps {
  * The <CalendarPopover> component displays a popover element containing a calendar.
  */
 export default function CalendarPopover(props: CalendarPopoverProps) {
-    const { open, onClose, schedule, timezone, title } = props;
+    const { open, onClose, schedule, title } = props;
 
     const isMobile = useIsMobile();
     const theme = useTheme();
+    const timezone = currentTimezone();
 
     const { events, min, max } = useMemo(() => {
         const availableColours = [

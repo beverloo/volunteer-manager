@@ -14,8 +14,8 @@ import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { darken, lighten } from '@mui/material/styles';
 
-import { Temporal, formatDate } from '@lib/Temporal';
-import { currentTimezone } from '../CurrentTime';
+import { formatDate, type Temporal } from '@lib/Temporal';
+import { toZonedDateTime } from '../CurrentTime';
 
 /**
  * CSS customizations applied to the <CardTimeslotEntry> component.
@@ -96,8 +96,6 @@ export interface CardTimeslotEntryProps {
 export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     const { currentInstant, prefix, timeslot } = props;
 
-    const timezone = currentTimezone();
-
     let styles: SxProps<Theme> = null;
     let time: React.ReactNode;
 
@@ -108,8 +106,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     } else if (currentInstant.epochSeconds >= timeslot.start) {
         // Active events:
 
-        const endZonedDateTime =
-            Temporal.Instant.fromEpochSeconds(timeslot.end).toZonedDateTimeISO(timezone);
+        const endZonedDateTime = toZonedDateTime(timeslot.end);
 
         styles = kStyles.activeEvent;
         time = `until ${formatDate(endZonedDateTime, 'HH:mm')}`;
@@ -117,10 +114,8 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     } else {
         // Future events:
 
-        const startZonedDateTime =
-            Temporal.Instant.fromEpochSeconds(timeslot.start).toZonedDateTimeISO(timezone);
-        const endZonedDateTime =
-            Temporal.Instant.fromEpochSeconds(timeslot.end).toZonedDateTimeISO(timezone);
+        const startZonedDateTime = toZonedDateTime(timeslot.start);
+        const endZonedDateTime = toZonedDateTime(timeslot.end);
 
         time =
             `${formatDate(startZonedDateTime, 'HH:mm')}–${formatDate(endZonedDateTime, 'HH:mm')}`;

@@ -106,9 +106,8 @@ export function OverviewVendorCard(props: OverviewVendorCardProps) {
 
                 </CardActionArea>
             </Card>
-            <LazyCalendarPopover open={searchParams.has(searchParamName)}
-                                 onClose={handleCloseCalendar} schedule={vendor.schedule}
-                                 timezone={schedule.config.timezone} title={title} />
+            <LazyCalendarPopover open={searchParams.has(searchParamName)} title={title}
+                                 onClose={handleCloseCalendar} schedule={vendor.schedule} />
         </>
     );
 }
