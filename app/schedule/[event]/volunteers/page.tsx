@@ -1,23 +1,17 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Typography from '@mui/material/Typography';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Section } from '../components/Section';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { VolunteerListPage } from './VolunteerListPage';
+import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 
 /**
  * The <ScheduleVolunteersPage> component display a page containing the volunteers that participate
- * in the current event, _and_ are accessible to the signed in volunteer.
+ * in the current event, _and_ are accessible to the signed in volunteer. Information is exclusively
+ * sourced from the context, thus no additional authentication is performed here.
  */
 export default async function ScheduleVolunteersPage(props: NextPageParams<'event'>) {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
-    return (
-        <Section>
-            <Typography variant="body1">
-                This page is not available yet (/volunteers)
-            </Typography>
-        </Section>
-    );
+    return <VolunteerListPage />;
 }
+
+export const generateMetadata = generateScheduleMetadataFn([ 'Volunteers' ]);

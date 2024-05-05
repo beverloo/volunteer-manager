@@ -17,7 +17,7 @@ export default async function ScheduleVolunteerPage(props: NextPageParams<'event
     return (
         <Section>
             <Typography variant="body1">
-                This page is not available yet (/volunteers/:location)
+                This page is not available yet (/volunteers/:volunteer)
             </Typography>
         </Section>
     );
