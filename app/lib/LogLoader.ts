@@ -263,6 +263,9 @@ const kLogMessageFormatter: {
     [LogType.EventHelpRequestUpdate]: (source, target, { event, display, mutation }) => {
         return `${mutation} a help request from ${display} for ${event}`;
     },
+    [LogType.EventVolunteerNotes]: (source, target, { event }) => {
+        return `Updated notes for ${target?.name} during ${event}`;
+    },
 
     [LogType.ExportDataAccess]: (source, target, { event, type }) => {
         return `Accessed exported ${event} ${type} data`;

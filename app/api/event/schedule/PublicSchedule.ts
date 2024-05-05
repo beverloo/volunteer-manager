@@ -360,6 +360,11 @@ export const kPublicSchedule = z.strictObject({
         team: z.string(),
 
         /**
+         * Notes associated with this user, if any. Only shared with leaders.
+         */
+        notes: z.string().optional(),
+
+        /**
          * Phone number of the volunteer. Only available in certain cases.
          */
         phoneNumber: z.string().optional(),

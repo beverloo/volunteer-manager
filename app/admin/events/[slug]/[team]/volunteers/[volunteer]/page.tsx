@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -23,13 +24,14 @@ import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences
 import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
+import { VolunteerNotes } from './VolunteerNotes';
 import { VolunteerSchedule } from './VolunteerSchedule';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
-import { readUserSetting } from '@lib/UserSettings';
+import { readUserSettings } from '@lib/UserSettings';
 
 type RouterParams = NextPageParams<'slug' | 'team' | 'volunteer'>;
 
@@ -69,6 +71,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             roleName: tRoles.roleName,
             registrationDate: dbInstance.dateTimeAsString(tUsersEvents.registrationDate),
             registrationStatus: tUsersEvents.registrationStatus,
+            registrationNotes: tUsersEvents.registrationNotes,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityExceptions: tUsersEvents.availabilityExceptions,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,
@@ -230,8 +233,13 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     const availabilityStep = await readSetting('availability-time-step-minutes');
-    const defaultExpanded =
-        await readUserSetting(user.userId, 'user-admin-volunteers-expand-shifts');
+    const settings = await readUserSettings(user.userId, [
+        'user-admin-volunteers-expand-notes',
+        'user-admin-volunteers-expand-shifts',
+    ]);
+
+    const notesExpanded = !!settings['user-admin-volunteers-expand-notes'];
+    const scheduleExpanded = !!settings['user-admin-volunteers-expand-shifts'];
 
     const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
@@ -240,9 +248,14 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerHeader event={event} team={team} volunteer={volunteer} user={user} />
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
+            <ExpandableSection icon={ <EditNoteIcon color="info" /> } title="Notes"
+                               defaultExpanded={notesExpanded}
+                               setting="user-admin-volunteers-expand-notes">
+                <VolunteerNotes event={event.slug} team={team.slug} volunteer={volunteer} />
+            </ExpandableSection>
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
-                                   subtitle={scheduleSubTitle} defaultExpanded={defaultExpanded}
+                                   subtitle={scheduleSubTitle} defaultExpanded={scheduleExpanded}
                                    setting="user-admin-volunteers-expand-shifts">
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }

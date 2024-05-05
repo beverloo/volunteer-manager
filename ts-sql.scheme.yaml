@@ -1242,6 +1242,11 @@ tables:
     nullable: false
     default: "'Registered'"
     comment: ""
+  - name: registration_notes
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: shirt_fit
     type: enum('Regular','Girly')
     nullable: false
@@ -1405,6 +1410,7 @@ tables:
       `role_id` int(4) unsigned NOT NULL,
       `registration_date` datetime DEFAULT NULL,
       `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
+      `registration_notes` text DEFAULT NULL,
       `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
       `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
       `hotel_eligible` tinyint(1) unsigned DEFAULT NULL,
@@ -3559,6 +3565,63 @@ tables:
       PRIMARY KEY (`outbox_twilio_id`),
       KEY `outbox_result_sid` (`outbox_result_sid`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: subscriptions_publications
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: publication_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: publication_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: publication_subscription_type
+    type: enum('Application','Help','Registration','Test')
+    nullable: false
+    default: null
+    comment: ""
+  - name: publication_subscription_type_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: publication_created
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (publication_id) USING BTREE
+    table: subscriptions_publications
+    columns:
+    - publication_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (publication_id)
+    table: subscriptions_publications
+    referencedTable: null
+    columns:
+    - publication_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `subscriptions_publications` (
+      `publication_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `publication_user_id` int(8) unsigned DEFAULT NULL,
+      `publication_subscription_type` enum('Application','Help','Registration','Test') NOT NULL,
+      `publication_subscription_type_id` int(8) unsigned DEFAULT NULL,
+      `publication_created` datetime NOT NULL,
+      PRIMARY KEY (`publication_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: subscriptions
   type: BASE TABLE
   comment: ""
@@ -4835,63 +4898,6 @@ tables:
       `vendors_schedule_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`vendors_schedule_id`),
       KEY `vendor_id` (`vendor_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: subscriptions_publications
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: publication_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: publication_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: publication_subscription_type
-    type: enum('Application','Registration','Test')
-    nullable: false
-    default: null
-    comment: ""
-  - name: publication_subscription_type_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: publication_created
-    type: datetime
-    nullable: false
-    default: null
-    comment: ""
-  indexes:
-  - name: PRIMARY
-    def: PRIMARY KEY (publication_id) USING BTREE
-    table: subscriptions_publications
-    columns:
-    - publication_id
-    comment: ""
-  constraints:
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (publication_id)
-    table: subscriptions_publications
-    referencedTable: null
-    columns:
-    - publication_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `subscriptions_publications` (
-      `publication_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `publication_user_id` int(8) unsigned DEFAULT NULL,
-      `publication_subscription_type` enum('Application','Registration','Test') NOT NULL,
-      `publication_subscription_type_id` int(8) unsigned DEFAULT NULL,
-      `publication_created` datetime NOT NULL,
-      PRIMARY KEY (`publication_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_sales
   type: BASE TABLE

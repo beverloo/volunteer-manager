@@ -59,6 +59,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
         'user-admin-shifts-expand-shifts': 'boolean',
         'user-admin-volunteers-columns-filter': 'string',
         'user-admin-volunteers-columns-hidden': 'string',
+        'user-admin-volunteers-expand-notes': 'boolean',
         'user-admin-volunteers-expand-shifts': 'boolean',
     };
 

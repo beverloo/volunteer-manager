@@ -320,8 +320,11 @@ async function populateVolunteers(
             id: tUsers.userId,
             user: {
                 name: tUsers.name,
+
                 avatar: storageJoin.fileHash,
+                notes: tUsersEvents.registrationNotes,
                 phoneNumber: tUsers.phoneNumber,
+
                 role: {
                     name: tRoles.roleName,
                     badge: tRoles.roleBadge,
@@ -362,6 +365,7 @@ async function populateVolunteers(
             role: volunteer.user.role.name,
             roleBadge: volunteer.user.role.badge,
             team: `${volunteer.user.team.id}`,
+            notes: isLeader ? volunteer.user.notes : undefined,
             phoneNumber: includePhoneNumber ? volunteer.user.phoneNumber : undefined,
             // TODO: activeShift
         };

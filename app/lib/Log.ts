@@ -83,6 +83,7 @@ export enum LogType {
     DatabaseError = 'database-error',
     EventApplication = 'event-application',
     EventHelpRequestUpdate = 'event-help-request-update',
+    EventVolunteerNotes = 'event-volunteer-notes',
     ExportDataAccess = 'export-data-access',
 }
 

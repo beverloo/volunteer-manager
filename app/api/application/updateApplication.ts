@@ -70,7 +70,13 @@ export const kUpdateApplicationDefinition = z.object({
         }).optional(),
 
         //------------------------------------------------------------------------------------------
-        // Update type (3): Application status
+        // Update type (3): Notes
+        //------------------------------------------------------------------------------------------
+
+        notes: z.string().optional(),
+
+        //------------------------------------------------------------------------------------------
+        // Update type (4): Application status
         //------------------------------------------------------------------------------------------
 
         status: z.object({
@@ -135,6 +141,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
     const { eventId, teamId, username } = requestContext;
 
     let affectedRows: number = 0;
+    let skipLog: boolean = false;
 
     //----------------------------------------------------------------------------------------------
     // Update type (1): Application data
@@ -184,7 +191,39 @@ export async function updateApplication(request: Request, props: ActionProps): P
     }
 
     //----------------------------------------------------------------------------------------------
-    // Update type (3): Application status
+    // Update type (3): Application notes
+    //----------------------------------------------------------------------------------------------
+
+    if (typeof request.notes === 'string') {
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: request.event,
+        });
+
+        affectedRows = await db.update(tUsersEvents)
+            .set({
+                registrationNotes: !!request.notes.length ? request.notes : undefined,
+            })
+            .where(tUsersEvents.userId.equals(request.userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        skipLog = true;
+
+        await Log({
+            type: LogType.EventVolunteerNotes,
+            severity: LogSeverity.Info,
+            sourceUser: props.user,
+            targetUser: request.userId,
+            data: {
+                event: requestContext.event,
+            },
+        });
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // Update type (4): Application status
     //----------------------------------------------------------------------------------------------
 
     if (request.status) {
@@ -260,7 +299,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
     // ---------------------------------------------------------------------------------------------
 
-    if (!!affectedRows) {
+    if (!!affectedRows && !skipLog) {
         await Log({
             type: LogType.AdminUpdateTeamVolunteer,
             severity: LogSeverity.Info,

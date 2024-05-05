@@ -8,16 +8,19 @@ import { useCallback, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
+import NotesIcon from '@mui/icons-material/Notes';
 import PhoneIcon from '@mui/icons-material/Phone';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Alert } from '../../components/Alert';
-import { Avatar } from '@app/components/Avatar';
+import { Avatar } from '@components/Avatar';
+import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { callApi } from '@lib/callApi';
@@ -120,14 +123,14 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                     { !!phoneNumber &&
                                         <Tooltip title="Give them a call">
                                             <IconButton LinkComponent={Link} href={phoneNumber}>
-                                                <PhoneIcon />
+                                                <PhoneIcon color="primary" />
                                             </IconButton>
                                         </Tooltip> }
                                     { !!whatsAppNumber &&
                                         <Tooltip title="Send them a WhatsApp message">
                                             <IconButton LinkComponent={Link} href={whatsAppNumber}
                                                         target="_blank">
-                                                <WhatsAppIcon />
+                                                <WhatsAppIcon color="primary" />
                                             </IconButton>
                                         </Tooltip> }
                                 </Stack>
@@ -139,8 +142,17 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 </Avatar>
                             } />
             </Card>
-            { /* TODO: Notes */ }
+            { !!volunteer.notes &&
+                <Card sx={{ p: 2 }}>
+                    <Stack direction="row" spacing={2}>
+                        <Box sx={{ height: '1em', minWidth: '40px', textAlign: 'center' }}>
+                            <NotesIcon color="primary" />
+                        </Box>
+                        <Markdown>{volunteer.notes}</Markdown>
+                    </Stack>
+                </Card> }
             { /* TODO: Schedule */ }
+            { /* TODO: Notes editor */ }
         </>
     );
 }
