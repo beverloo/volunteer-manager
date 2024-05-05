@@ -52,7 +52,8 @@ export function LocationList(props: LocationListProps) {
                     activityId: timeslot.activity,
                     start: timeslot.start,
                     end: timeslot.end,
-                    title: schedule.program.activities[timeslot.activity].title
+                    title: schedule.program.activities[timeslot.activity].title,
+                    invisible: schedule.program.activities[timeslot.activity].invisible,
                 }))
                 .slice(0, schedule.config.activityListLimit);
 
