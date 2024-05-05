@@ -15,7 +15,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { darken, lighten } from '@mui/material/styles';
 
 import { formatDate, type Temporal } from '@lib/Temporal';
-import { isNextDay } from '../lib/isNextDay';
+import { isDifferentDay } from '../lib/isDifferentDay';
 import { toZonedDateTime } from '../CurrentTime';
 
 /**
@@ -118,7 +118,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
         const startZonedDateTime = toZonedDateTime(timeslot.start);
         const endZonedDateTime = toZonedDateTime(timeslot.end);
 
-        const format = isNextDay(currentTime, startZonedDateTime) ? 'ddd, HH:mm' : 'HH:mm';
+        const format = isDifferentDay(currentTime, startZonedDateTime) ? 'ddd, HH:mm' : 'HH:mm';
         time = `${formatDate(startZonedDateTime, format)}–${formatDate(endZonedDateTime, 'HH:mm')}`;
     }
 
