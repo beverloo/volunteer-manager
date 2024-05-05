@@ -343,6 +343,11 @@ export const kPublicSchedule = z.strictObject({
          * Unique ID of the team that this volunteer is part of.
          */
         team: z.string(),
+
+        /**
+         * Unique ID of the shift that the volunteer is currently participating in, if any.
+         */
+        activeShift: z.number().optional(),
     })),
 });
 

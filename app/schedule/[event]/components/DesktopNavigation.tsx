@@ -24,6 +24,7 @@ import NotListedLocationOutlinedIcon from '@mui/icons-material/NotListedLocation
 import Tooltip from '@mui/material/Tooltip';
 import { darken, lighten, styled } from '@mui/material/styles';
 
+import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Alert } from './Alert';
 import { ScheduleContext } from '../ScheduleContext';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -196,9 +197,7 @@ function DesktopNavigationTimeAlert() {
  */
 export function DesktopNavigation(props: NavigationProps) {
     props = {
-        badgeActiveShifts: 1,
         badgeActiveVolunteers: 1,
-        volunteer: undefined,
     };
 
     const pathname = usePathname();
@@ -210,8 +209,9 @@ export function DesktopNavigation(props: NavigationProps) {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    const [ activeEvents, areas ] = useMemo(() => {
+    const [ activeEvents, areas, userVolunteer ] = useMemo(() => {
         let activeEvents: number = 0;
+        let userVolunteer: PublicSchedule['volunteers'][number] | undefined;
 
         const areas: { name: string; url: string }[] = [];
         if (!!schedule) {
@@ -224,8 +224,11 @@ export function DesktopNavigation(props: NavigationProps) {
             }
 
             areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+
+            if (!!schedule.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
+                userVolunteer = schedule.volunteers[schedule.userId];
         }
-        return [ activeEvents, areas ];
+        return [ activeEvents, areas, userVolunteer ];
 
     }, [ schedule, scheduleBaseUrl ]);
 
@@ -240,10 +243,10 @@ export function DesktopNavigation(props: NavigationProps) {
                 <DesktopNavigationEntry active={ schedulePathname === '' }
                                         href={scheduleBaseUrl}
                                         icon={ <HomeIcon /> } label="Overview" />
-                { props.volunteer &&
-                    <DesktopNavigationEntry active={ false }
-                                            badge={ props.badgeActiveShifts }
-                                            href={ scheduleBaseUrl + '/shifts/' }
+                { !!userVolunteer &&
+                    <DesktopNavigationEntry active={ schedulePathname === '/shifts' }
+                                            badge={ !!userVolunteer.activeShift }
+                                            href={ scheduleBaseUrl + '/shifts' }
                                             icon={ <AccessTimeIcon /> } label="Your shifts" /> }
                 <DesktopNavigationEntry active={ schedulePathname === '/areas' }
                                         badge={activeEvents}

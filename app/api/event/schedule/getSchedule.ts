@@ -350,6 +350,7 @@ async function populateVolunteers(
             role: volunteer.user.role.name,
             roleBadge: volunteer.user.role.badge,
             team: `${volunteer.user.team.id}`,
+            // TODO: activeShift
         };
     }
 }

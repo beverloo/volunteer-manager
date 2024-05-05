@@ -18,6 +18,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 
+import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { ScheduleContext } from '../ScheduleContext';
 
 // TODO:
@@ -52,8 +53,9 @@ export function MobileNavigation(props: NavigationProps) {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    const [ activeEvents, areas ] = useMemo(() => {
+    const [ activeEvents, areas, userVolunteer ] = useMemo(() => {
         let activeEvents: number = 0;
+        let userVolunteer: PublicSchedule['volunteers'][number] | undefined;
 
         const areas: { id: string; name: string; }[] = [];
         if (!!schedule) {
@@ -66,8 +68,11 @@ export function MobileNavigation(props: NavigationProps) {
             }
 
             areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+
+            if (!!schedule.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
+                userVolunteer = schedule.volunteers[schedule.userId];
         }
-        return [ activeEvents, areas ];
+        return [ activeEvents, areas, userVolunteer ];
 
     }, [ schedule ]);
 
@@ -78,8 +83,9 @@ export function MobileNavigation(props: NavigationProps) {
                        : <EventNoteIcon />;
 
     const shiftsIcon =
-        props.badgeActiveShifts ? <Badge color="error" variant="dot"><AccessTimeIcon /></Badge>
-                                : <AccessTimeIcon />;
+        (!!userVolunteer && !!userVolunteer.activeShift)
+            ? <Badge color="error" variant="dot"><AccessTimeIcon /></Badge>
+            : <AccessTimeIcon />;
 
     const volunteersIcon =
         props.badgeActiveVolunteers ? <Badge color="error" variant="dot"><GroupIcon /></Badge>
@@ -108,7 +114,9 @@ export function MobileNavigation(props: NavigationProps) {
             case 'areas':
                 setAnchorElement(event.currentTarget);
                 break;
-            // TODO: shifts
+            case 'shifts':
+                router.push(`${scheduleBaseUrl}/shifts`);
+                break;
             case 'volunteers':
                 router.push(`${scheduleBaseUrl}/volunteers`);
                 break;
@@ -122,7 +130,7 @@ export function MobileNavigation(props: NavigationProps) {
         <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2 }} elevation={3}>
             <BottomNavigation onChange={handleNavigation} value={scheduleNavigationValue}>
                 <BottomNavigationAction icon={ <HomeIcon /> } label="Overview" value="" />
-                { props.volunteer &&
+                { !!userVolunteer &&
                     <BottomNavigationAction icon={shiftsIcon} label="Shifts" value="shifts" /> }
                 <BottomNavigationAction icon={eventsIcon} label="Events" value="areas" />
                 <BottomNavigationAction icon={volunteersIcon} label="Volunteers"
