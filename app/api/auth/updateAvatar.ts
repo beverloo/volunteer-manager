@@ -50,7 +50,7 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
         return noAccess();
 
     let subjectUserId: number = props.user.userId;
-    if (request.overrideUserId) {
+    if (request.overrideUserId && request.overrideUserId !== props.user.userId) {
         executeAccessCheck(props.authenticationContext, {
             privilege: or(Privilege.VolunteerAvatarManagement, Privilege.EventAdministrator),
         });
