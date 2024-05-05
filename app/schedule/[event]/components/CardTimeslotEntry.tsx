@@ -15,6 +15,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { darken, lighten } from '@mui/material/styles';
 
 import { formatDate, type Temporal } from '@lib/Temporal';
+import { isNextDay } from '../lib/isNextDay';
 import { toZonedDateTime } from '../CurrentTime';
 
 /**
@@ -75,9 +76,9 @@ export interface CardTimeslot {
  */
 export interface CardTimeslotEntryProps {
     /**
-     * Current Temporal Instant based on which timing calculations will be done.
+     * Current Temporal ZonedDateTime based on which timing calculations will be done.
      */
-    currentInstant: Temporal.Instant;
+    currentTime: Temporal.ZonedDateTime;
 
     /**
      * URL prefix to apply to the outgoing link for this item.
@@ -94,16 +95,16 @@ export interface CardTimeslotEntryProps {
  * The <CardTimeslotEntry> component shows a singular entry of a timeslot entry. The
  */
 export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
-    const { currentInstant, prefix, timeslot } = props;
+    const { currentTime, prefix, timeslot } = props;
 
     let styles: SxProps<Theme> = null;
     let time: React.ReactNode;
 
-    if (currentInstant.epochSeconds >= timeslot.end) {
+    if (currentTime.epochSeconds >= timeslot.end) {
         // Past events should not be shown as <CardTimeslotEntry> components. If we end up in here
         // then something is off; don't do any unnecessary work in addition to that.
 
-    } else if (currentInstant.epochSeconds >= timeslot.start) {
+    } else if (currentTime.epochSeconds >= timeslot.start) {
         // Active events:
 
         const endZonedDateTime = toZonedDateTime(timeslot.end);
@@ -117,8 +118,8 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
         const startZonedDateTime = toZonedDateTime(timeslot.start);
         const endZonedDateTime = toZonedDateTime(timeslot.end);
 
-        time =
-            `${formatDate(startZonedDateTime, 'HH:mm')}–${formatDate(endZonedDateTime, 'HH:mm')}`;
+        const format = isNextDay(currentTime, startZonedDateTime) ? 'ddd, HH:mm' : 'HH:mm';
+        time = `${formatDate(startZonedDateTime, format)}–${formatDate(endZonedDateTime, 'HH:mm')}`;
     }
 
     return (

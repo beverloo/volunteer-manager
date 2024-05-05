@@ -13,7 +13,7 @@ import { Alert } from '../../components/Alert';
 import { CardTimeslotList } from '../../components/CardTimeslotList';
 import { HeaderButton } from '../../components/HeaderButton';
 import { ScheduleContext } from '../../ScheduleContext';
-import { currentInstant } from '../../CurrentTime';
+import { currentZonedDateTime } from '../../CurrentTime';
 import { setTitle } from '../../ScheduleTitle';
 
 /**
@@ -31,14 +31,12 @@ export interface LocationListProps {
  * data is sourced from the schedule context, and will be dynamically updated with schedule changes.
  */
 export function LocationList(props: LocationListProps) {
-    const now = currentInstant();
-
     const { schedule } = useContext(ScheduleContext);
-    const locations = useMemo(() => {
-        if (!schedule || !schedule.program.areas.hasOwnProperty(props.areaId))
-            return [ /* no locations */ ];
 
-        const now = currentInstant();  // deliberate shadow
+    const [ now, locations ] = useMemo(() => {
+        const now = currentZonedDateTime();
+        if (!schedule || !schedule.program.areas.hasOwnProperty(props.areaId))
+            return [ now, [ /* no locations */ ] ];
 
         const area = schedule.program.areas[props.areaId];
         const locations = area.locations.map(locationId => {
@@ -65,7 +63,7 @@ export function LocationList(props: LocationListProps) {
         });
 
         locations.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
-        return locations;
+        return [ now, locations ];
 
     }, [ props.areaId, schedule ]);
 
@@ -91,7 +89,7 @@ export function LocationList(props: LocationListProps) {
                 <Card key={location.id}>
                     <HeaderButton href={`${prefix}/locations/${location.id}`} title={location.name}
                                   icon={ <ReadMoreIcon color="primary" /> } />
-                    <CardTimeslotList currentInstant={now} prefix={prefix}
+                    <CardTimeslotList currentTime={now} prefix={prefix}
                                       timeslots={location.timeslots} />
                 </Card> ) }
         </>

@@ -14,7 +14,7 @@ import { Alert } from '../components/Alert';
 import { CardTimeslotList } from '../components/CardTimeslotList';
 import { HeaderButton } from '../components/HeaderButton';
 import { ScheduleContext } from '../ScheduleContext';
-import { currentInstant } from '../CurrentTime';
+import { currentZonedDateTime } from '../CurrentTime';
 import { setTitle } from '../ScheduleTitle';
 
 /**
@@ -22,14 +22,12 @@ import { setTitle } from '../ScheduleTitle';
  * area links through to an overview of locations within that area.
  */
 export function AreaList() {
-    const now = currentInstant();
-
     const { schedule } = useContext(ScheduleContext);
-    const areas = useMemo(() => {
-        if (!schedule)
-            return [ /* no areas */ ];
 
-        const now = currentInstant();  // deliberate shadow
+    const [ now, areas ] = useMemo(() => {
+        const now = currentZonedDateTime();
+        if (!schedule)
+            return [ now, [ /* no areas */ ] ];
 
         const areas = Object.values(schedule.program.areas).map(area => {
             const active: CardTimeslot[] = [];
@@ -77,7 +75,7 @@ export function AreaList() {
         });
 
         areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
-        return areas;
+        return [ now, areas ];
 
     }, [ schedule ]);
 
@@ -100,7 +98,7 @@ export function AreaList() {
                 <Card key={area.id}>
                     <HeaderButton href={`${prefix}/areas/${area.id}`} title={area.name}
                                   icon={ <MapsHomeWorkIcon color="primary" /> } />
-                    <CardTimeslotList currentInstant={now} prefix={prefix}
+                    <CardTimeslotList currentTime={now} prefix={prefix}
                                       timeslots={area.timeslots} />
                 </Card> ) }
         </>

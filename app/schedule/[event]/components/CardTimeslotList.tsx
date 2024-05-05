@@ -17,9 +17,9 @@ import { CardTimeslotEntry, type CardTimeslot } from './CardTimeslotEntry';
  */
 export interface CardTimeslotListProps {
     /**
-     * Current Temporal Instant based on which timing calculations will be done.
+     * Current Temporal ZonedDateTime based on which timing calculations will be done.
      */
-    currentInstant: Temporal.Instant;
+    currentTime: Temporal.ZonedDateTime;
 
     /**
      * URL prefix to apply to all links shown in the list.
@@ -52,7 +52,7 @@ export function CardTimeslotList(props: CardTimeslotListProps) {
         return (
             <List dense disablePadding>
                 { props.timeslots.map(timeslot =>
-                    <CardTimeslotEntry key={timeslot.id} currentInstant={props.currentInstant}
+                    <CardTimeslotEntry key={timeslot.id} currentTime={props.currentTime}
                                        prefix={props.prefix} timeslot={timeslot} /> ) }
             </List>
         );
