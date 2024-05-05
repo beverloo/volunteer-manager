@@ -29,34 +29,30 @@ export function AreaList() {
         if (!schedule)
             return [ now, [ /* no areas */ ] ];
 
+        const nowEpochSeconds = now.epochSeconds;
+
         const areas = Object.values(schedule.program.areas).map(area => {
             const timeslots: CardTimeslot[] = [];
 
             for (const locationId of area.locations) {
                 for (const timeslotId of schedule.program.locations[locationId].timeslots) {
                     const timeslot = schedule.program.timeslots[timeslotId];
-                    if (timeslot.end < now.epochSeconds)
+                    if (timeslot.end <= nowEpochSeconds || timeslot.start > nowEpochSeconds)
                         continue;
 
                     const activity = schedule.program.activities[timeslot.activity];
-
-                    const entry: CardTimeslot = {
+                    timeslots.push({
                         id: timeslot.id,
                         activityId: timeslot.activity,
                         start: timeslot.start,
                         end: timeslot.end,
                         title: activity.title,
                         invisible: activity.invisible,
-                    };
-
-                    if (timeslot.start <= now.epochSeconds)
-                        timeslots.push(entry);
-                    else
-                        break;
+                    });
                 }
             }
 
-            timeslots.sort((lhs, rhs) => lhs.start - rhs.start);
+            timeslots.sort((lhs, rhs) => lhs.end - rhs.end);
 
             return {
                 id: area.id,
