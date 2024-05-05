@@ -34,7 +34,7 @@ export function KnowledgeBaseCard(props: KnowledgeBaseCardProps) {
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4 }} />
+                    aspectRatio: 4.5 }} />
                 <CardContent>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                         Check out the brand new <strong>Knowledge Base</strong>, where you can find

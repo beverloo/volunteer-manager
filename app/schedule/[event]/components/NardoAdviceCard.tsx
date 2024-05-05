@@ -3,11 +3,9 @@
 
 'use client';
 
-import Image from 'next/image';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
+import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
 /**
@@ -26,17 +24,33 @@ export interface NardoAdviceCardProps {
  */
 export function NardoAdviceCard(props: NardoAdviceCardProps) {
     return (
-        <Stack component={Card} direction="row" justifyContent="space-between" alignItems="center"
-               spacing={4} sx={{ p: 2, backgroundColor: '#F9FBE7' }}>
-            <Box sx={{ alignSelf: 'center' }}>
+        <Card>
+            <Box sx={{
+                backgroundImage: 'url(/images/del-a-rie-advies-2.jpg)',
+                backgroundPosition: 'center 70%',
+                backgroundSize: 'cover',
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                aspectRatio: 4.5 }}>
+                <Typography variant="button" sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: 1,
+                    alignSelf: 'flex-end',
+                    m: 1,
+                    px: 1,
+                }}>
+                    Ad
+                </Typography>
+            </Box>
+            <CardContent sx={{ pb: '16px !important' }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     {props.advice}
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.disabled', pt: 0.5 }}>
                     {' '}— Del a Rie Advies
                 </Typography>
-            </Box>
-            <Image src="/images/advice.png" width={89} height={65} alt="Yo" />
-        </Stack>
+            </CardContent>
+        </Card>
     );
 }
