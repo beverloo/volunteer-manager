@@ -352,6 +352,8 @@ async function populateVolunteers(
             team: `${volunteer.user.team.id}`,
             // TODO: activeShift
         };
+
+        // TODO: Increment `schedule.volunteersActive` if applicable
     }
 }
 
@@ -421,6 +423,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         teams: { /* empty */ },
         userId: props.user.userId,
         vendors: { /* empty */ },
+        volunteersActive: 0,
         volunteers: { /* empty */ },
     };
 

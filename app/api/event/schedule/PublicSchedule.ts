@@ -315,6 +315,11 @@ export const kPublicSchedule = z.strictObject({
     vendors: z.record(z.nativeEnum(VendorTeam), kVendorTeam),
 
     /**
+     * Number of volunteers who are currently on a shift.
+     */
+    volunteersActive: z.number(),
+
+    /**
      * The volunteers who are scheduled to help out during this event, each keyed by their unique
      * User ID and with their associated information as a value.
      */

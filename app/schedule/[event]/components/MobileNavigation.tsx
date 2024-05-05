@@ -3,7 +3,6 @@
 
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -21,12 +20,6 @@ import Paper from '@mui/material/Paper';
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { ScheduleContext } from '../ScheduleContext';
 
-// TODO:
-function navigateToOption(...args: any[]) {}
-
-// TODO:
-type NavigationProps = any;
-
 /**
  * This component powers the main navigation capability of the volunteer portal, with a user
  * interface optimized for display on mobile devices. A bottom bar navigation will be displayed, in
@@ -34,15 +27,7 @@ type NavigationProps = any;
  *
  * https://mui.com/components/bottom-navigation/
  */
-export function MobileNavigation(props: NavigationProps) {
-    props = {
-        badgeActiveShifts: 1,
-        badgeActiveVolunteers: 1,
-        volunteer: undefined,
-    };
-
-    // ---------------------------------------------------------------------------------------------
-
+export function MobileNavigation() {
     const pathname = usePathname();
     const router = useRouter();
 
@@ -88,8 +73,8 @@ export function MobileNavigation(props: NavigationProps) {
             : <AccessTimeIcon />;
 
     const volunteersIcon =
-        props.badgeActiveVolunteers ? <Badge color="error" variant="dot"><GroupIcon /></Badge>
-                                    : <GroupIcon />;
+        !!schedule?.volunteersActive ? <Badge color="error" variant="dot"><GroupIcon /></Badge>
+                                     : <GroupIcon />;
 
     // Anchor elements are used to display the menu through which individual areas in the location
     // can be selected, rather than having a full page for click-through.

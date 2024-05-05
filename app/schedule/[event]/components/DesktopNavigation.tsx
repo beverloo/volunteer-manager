@@ -270,7 +270,7 @@ export function DesktopNavigation(props: NavigationProps) {
                                             icon={ <InfoOutlinedIcon /> }
                                             label="Knowledge base" /> }
                 <DesktopNavigationEntry active={ schedulePathname.startsWith('/volunteers') }
-                                        badge={ props.badgeActiveVolunteers }
+                                        badge={ schedule.volunteersActive }
                                         href={ scheduleBaseUrl + '/volunteers' }
                                         icon={ <GroupIcon /> } label="Volunteers" />
             </List>
