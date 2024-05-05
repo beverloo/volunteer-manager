@@ -5,7 +5,7 @@
 
 import { createContext } from 'react';
 
-import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
+import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 
 /**
  * Wrapper object to contain the schedule, as well as utility methods to interact with it.

@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
-import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
+import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { ScheduleContext, type ScheduleContextInfo } from './ScheduleContext';
 import { updateTimeConfig } from './CurrentTime';
 

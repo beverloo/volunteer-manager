@@ -19,7 +19,7 @@ import Popover from '@mui/material/Popover';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import { styled } from '@mui/material/styles';
 
-import type { PublicSchedule } from '@app/api/event/schedule/getSchedule';
+import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Alert } from './Alert';
 import { ScheduleContext } from '../ScheduleContext';
 import { normalizeString, stringScoreEx } from '@lib/StringScore';

@@ -16,7 +16,7 @@ import Stack from '@mui/material/Stack';
 import { Calendar, type CalendarEvent } from '@beverloo/volunteer-manager-timeline';
 import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css';
 
-import type { PublicVendorSchedule } from '@app/api/event/schedule/getSchedule';
+import type { PublicVendorSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Temporal } from '@lib/Temporal';
 import { currentTimezone } from '../CurrentTime';
 import { useIsMobile } from '../lib/useIsMobile';
