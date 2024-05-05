@@ -9,6 +9,7 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Card from '@mui/material/Card';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
+import type { CardTimeslot } from '../../components/CardTimeslotEntry';
 import { Alert } from '../../components/Alert';
 import { CardTimeslotList } from '../../components/CardTimeslotList';
 import { HeaderButton } from '../../components/HeaderButton';
@@ -38,27 +39,51 @@ export function LocationList(props: LocationListProps) {
         if (!schedule || !schedule.program.areas.hasOwnProperty(props.areaId))
             return [ now, [ /* no locations */ ] ];
 
+        const nowEpochSeconds = now.epochSeconds;
+
         const area = schedule.program.areas[props.areaId];
+
         const locations = area.locations.map(locationId => {
             const location = schedule.program.locations[locationId];
-            const timeslots = location.timeslots
-                .map(timeslotId => schedule.program.timeslots[timeslotId])
-                .filter(timeslot => timeslot.end > now.epochSeconds)
-                .sort((lhs, rhs) => lhs.start - rhs.start)  // todo: on the server
-                .map(timeslot => ({
+
+            const active: CardTimeslot[] = [];
+            const future: CardTimeslot[] = [];
+
+            for (const timeslotId of location.timeslots) {
+                const timeslot = schedule.program.timeslots[timeslotId];
+                if (timeslot.end <= nowEpochSeconds)
+                    continue;
+
+                const activity = schedule.program.activities[timeslot.activity];
+                const cardTimeslot: CardTimeslot = {
                     id: timeslot.id,
                     activityId: timeslot.activity,
                     start: timeslot.start,
                     end: timeslot.end,
-                    title: schedule.program.activities[timeslot.activity].title,
-                    invisible: schedule.program.activities[timeslot.activity].invisible,
-                }))
-                .slice(0, schedule.config.activityListLimit);
+                    title: activity.title,
+                    invisible: activity.invisible,
+                };
+
+                if (timeslot.start <= nowEpochSeconds)
+                    active.push(cardTimeslot);
+                else
+                    future.push(cardTimeslot);
+            }
+
+            // Sort the `active` events based on when they end:
+            active.sort((lhs, rhs) => lhs.end - rhs.end);
+
+            // Sort the `future` events based on when they start:
+            future.sort((lhs, rhs) => lhs.start - rhs.start);
 
             return {
                 id: location.id,
                 name: location.name,
-                timeslots,
+                timeslots: [
+                    ...active,
+                    ...future.slice(
+                        0, Math.max(0, schedule.config.activityListLimit - active.length)),
+                ],
             };
         });
 
