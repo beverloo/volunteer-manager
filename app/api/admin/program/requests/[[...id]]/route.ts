@@ -141,6 +141,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
                 .on(shiftsJoin.shiftActivityId.equals(tActivities.activityId))
                     .and(shiftsJoin.eventId.equals(event.eventId))
                     .and(shiftsJoin.teamId.in(teams))
+                    .and(shiftsJoin.shiftDeleted.isNull())
             .where(tActivities.activityFestivalId.equals(event.festivalId))
                 .and(tActivities.activityHelpNeeded.equals(/* true= */ 1))
                 .and(tActivities.activityDeleted.isNull())
