@@ -91,6 +91,11 @@ export const kPublicSchedule = z.strictObject({
         enableKnowledgeBaseSearch: z.boolean(),
 
         /**
+         * Whether the volunteer is able to edit notes of other volunteers.
+         */
+        enableNotesEditor: z.boolean(),
+
+        /**
          * Amount of fuzziness to apply to the search results. While this allows minor compensation
          * for typos, a high value could lead to less relevant results being presented to the user.
          */

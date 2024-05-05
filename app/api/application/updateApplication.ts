@@ -218,6 +218,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             targetUser: request.userId,
             data: {
                 event: requestContext.event,
+                notes: request.notes,
             },
         });
     }

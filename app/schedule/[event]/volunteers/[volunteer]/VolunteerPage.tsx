@@ -4,13 +4,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useContext } from 'react';
+import dynamic from 'next/dynamic';
+import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import IconButton from '@mui/material/IconButton';
 import NotesIcon from '@mui/icons-material/Notes';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -24,6 +26,10 @@ import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { callApi } from '@lib/callApi';
+
+const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
+    ssr: false,
+});
 
 /**
  * Props accepted by the <VolunteerPageProps> component.
@@ -87,7 +93,30 @@ export function VolunteerPage(props: VolunteerPageProps) {
     // ---------------------------------------------------------------------------------------------
     // Notes management:
     // ---------------------------------------------------------------------------------------------
-    // TODO
+
+    const [ noteEditorOpen, setNoteEditorOpen ] = useState<boolean>(false);
+
+    const handleCloseNotes = useCallback(() => setNoteEditorOpen(false), [ /* no deps */ ]);
+    const handleOpenNotes = useCallback(() => setNoteEditorOpen(true), [ /* no deps */ ]);
+
+    const handleSubmitNotes = useCallback(async (notes: string) => {
+        if (!schedule)
+            return false;  // unable to update notes when the event is not known
+
+        const response = await callApi('put', '/api/event/schedule/notes', {
+            event: schedule.slug,
+            userId: parseInt(props.userId, /* radix= */ 10),
+            notes,
+        });
+
+        if (!!response.success) {
+            refresh?.();
+            router.refresh();
+        }
+
+        return response.success;
+
+    }, [ props.userId, refresh, router, schedule ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -120,6 +149,12 @@ export function VolunteerPage(props: VolunteerPageProps) {
                             sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
                             action={
                                 <Stack direction="row" spacing={1} sx={{ pr: 1 }}>
+                                    { !!schedule.config.enableNotesEditor &&
+                                        <Tooltip title="Edit their notes">
+                                            <IconButton onClick={handleOpenNotes}>
+                                                <EditNoteIcon color="primary" />
+                                            </IconButton>
+                                        </Tooltip> }
                                     { !!phoneNumber &&
                                         <Tooltip title="Give them a call">
                                             <IconButton LinkComponent={Link} href={phoneNumber}>
@@ -152,7 +187,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
                     </Stack>
                 </Card> }
             { /* TODO: Schedule */ }
-            { /* TODO: Notes editor */ }
+            { !!schedule.config.enableNotesEditor &&
+                <NotesEditorDialog onClose={handleCloseNotes} onSubmit={handleSubmitNotes}
+                                   notes={volunteer.notes} open={noteEditorOpen} /> }
         </>
     );
 }

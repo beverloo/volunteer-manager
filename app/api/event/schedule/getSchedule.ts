@@ -389,6 +389,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (!event || !event.festivalId)
         notFound();
 
+    // TODO: Should `isLeader` also contain senior volunteers w/o the event administrator bit?
     let isLeader: boolean = can(props.user, Privilege.EventAdministrator);
     let team: string | undefined;
 
@@ -425,6 +426,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             enableHelpRequests: can(props.user, Privilege.EventHelpRequests),
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
+            enableNotesEditor: isLeader,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,

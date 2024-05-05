@@ -46,6 +46,7 @@ import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
 import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdateHelpRequestDefinition } from '@app/api/event/schedule/updateHelpRequest';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
+import type { UpdateNotesDefinition } from '@app/api/event/schedule/updateNotes';
 import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdatePublicationDefinition } from '@app/api/admin/updatePublication';
 import type { UpdateScheduleEntryDefinition } from '@app/api/admin/event/schedule/updateScheduleEntry';
@@ -252,6 +253,7 @@ export type ApiEndpoints = {
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/event/schedule/help-request': UpdateHelpRequestDefinition,
+        '/api/event/schedule/notes': UpdateNotesDefinition,
         '/api/nardo/:id': NardoEndpoints['update'],
     },
 };
