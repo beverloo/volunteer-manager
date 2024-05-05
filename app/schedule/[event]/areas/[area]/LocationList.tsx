@@ -87,7 +87,15 @@ export function LocationList(props: LocationListProps) {
             };
         });
 
-        locations.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+        // Sort the `locations` first by whether there are any remaining timeslots, then by their
+        // name. This moves locations where events have finished for the festival to the bottom.
+        locations.sort((lhs, rhs) => {
+            if (!!lhs.timeslots.length !== !!rhs.timeslots.length)
+                return !!lhs.timeslots.length ? -1 : 1;
+
+            return lhs.name.localeCompare(rhs.name);
+        });
+
         return [ now, locations ];
 
     }, [ props.areaId, schedule ]);

@@ -49,7 +49,7 @@ export function CardTimeslotList(props: CardTimeslotListProps) {
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <DoneAllIcon color="success" fontSize="small" />
                     <Typography variant="body2">
-                        { props.noEventsText ?? 'No further events have been scheduled…' }
+                        { props.noEventsText ?? 'No further events have been scheduled' }
                     </Typography>
                 </Stack>
             </Paper>

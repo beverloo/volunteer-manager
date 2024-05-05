@@ -71,7 +71,7 @@ export function AreaList() {
 
     setTitle('Events');
 
-    const noEventsText = 'There are no active events in this area…';
+    const noEventsText = 'There are no active events in this area';
     const prefix = `/schedule/${schedule.slug}`;
 
     return (
