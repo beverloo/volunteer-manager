@@ -360,6 +360,11 @@ export const kPublicSchedule = z.strictObject({
         roleBadge: z.nativeEnum(RoleBadge).optional(),
 
         /**
+         * Whether the role that they're assigned to implies a senior position.
+         */
+        roleLeader: z.boolean().optional(),
+
+        /**
          * Unique ID of the team that this volunteer is part of.
          */
         team: z.string(),
@@ -378,6 +383,13 @@ export const kPublicSchedule = z.strictObject({
          * Unique ID of the shift that the volunteer is currently participating in, if any.
          */
         activeShift: z.number().optional(),
+
+        /**
+         * UNIX timestamp indicating when the volunteer will be avaialble again, if they're
+         * currently not available and/or expected to be present on festival grounds. The value
+         * "-1" represents that the volunteer is not expected to return from their absence.
+         */
+        unavailableUntil: z.number().optional(),
     })),
 });
 

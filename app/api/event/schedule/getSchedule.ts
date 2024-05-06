@@ -364,10 +364,12 @@ async function populateVolunteers(
             name: volunteer.user.name,
             role: volunteer.user.role.name,
             roleBadge: volunteer.user.role.badge,
+            roleLeader: !!volunteer.user.role.isLeader ? true : undefined,
             team: `${volunteer.user.team.id}`,
             notes: isLeader ? volunteer.user.notes : undefined,
             phoneNumber: includePhoneNumber ? volunteer.user.phoneNumber : undefined,
             // TODO: activeShift
+            // TODO: unavailableUntil (/ -1)
         };
 
         // TODO: Increment `schedule.volunteersActive` if applicable

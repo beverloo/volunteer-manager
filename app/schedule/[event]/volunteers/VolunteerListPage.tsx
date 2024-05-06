@@ -4,13 +4,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import AlertTitle from '@mui/material/AlertTitle';
 import List from '@mui/material/List';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -20,6 +21,8 @@ import { Alert } from '../components/Alert';
 import { Avatar } from '@app/components/Avatar';
 import { ScheduleContext } from '../ScheduleContext';
 import { SetTitle } from '../components/SetTitle';
+import { formatDate } from '@lib/Temporal';
+import { toZonedDateTime } from '../CurrentTime';
 
 /**
  * Information that should be known about an individual volunteer.
@@ -47,9 +50,30 @@ function VolunteerList(props: VolunteerListProps) {
             {volunteers.map(volunteer => {
                 const href = `./volunteers/${volunteer.id}`;
 
-                // TODO: Display their avatar (w/ optional badge)
-                // TODO: Display their role
+                let state: 'available' | 'unavailable' | 'active' = 'available';
+
+                // TODO: Display their badge as part of their avatar
                 // TODO: Display their current occupation, if any
+                // TODO: Visualise their `state`
+
+                let secondary: React.ReactNode = volunteer.role;
+                if (!!volunteer.roleLeader)
+                    secondary = <strong>{volunteer.role}</strong>;
+
+                if (!!volunteer.unavailableUntil) {
+                    state = 'unavailable';
+
+                    if (volunteer.unavailableUntil === /* never= */ -1) {
+                        secondary = <>{secondary} — unavailable</>;
+                    } else {
+                        secondary = (
+                            <>
+                                {secondary} — unavailable until{' '}
+                                { formatDate(toZonedDateTime(volunteer.unavailableUntil), 'HH:mm') }
+                            </>
+                        );
+                    }
+                }
 
                 return (
                     <ListItemButton LinkComponent={Link} key={volunteer.id} href={href}>
@@ -58,7 +82,9 @@ function VolunteerList(props: VolunteerListProps) {
                                 {volunteer.name}
                             </Avatar>
                         </ListItemAvatar>
-                        {volunteer.name}
+                        <ListItemText primary={volunteer.name}
+                                      primaryTypographyProps={{ variant: 'subtitle2' }}
+                                      secondary={secondary} />
                     </ListItemButton>
                 );
             } )}
@@ -87,7 +113,14 @@ export function VolunteerListPage() {
             });
         }
 
-        // TODO: Sort each of the `teams` by availability, then name.
+        for (const volunteers of teams.values()) {
+            volunteers.sort((lhs, rhs) => {
+                if (!!lhs.unavailableUntil !== !!rhs.unavailableUntil)
+                    return !!lhs.unavailableUntil ? 1 : -1;  // unavailable volunteers come last
+
+                return lhs.name.localeCompare(rhs.name);
+            });
+        }
 
         // Amend the `teams` with information about the team it's representing.
         const unsortedTeams = [ ...teams.entries() ].map(([ teamId, volunteers ]) => ({
