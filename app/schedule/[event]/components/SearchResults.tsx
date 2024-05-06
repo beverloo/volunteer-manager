@@ -21,6 +21,7 @@ import { styled } from '@mui/material/styles';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Alert } from './Alert';
+import { Avatar } from '@components/Avatar';
 import { ScheduleContext } from '../ScheduleContext';
 import { normalizeString, stringScoreEx } from '@lib/StringScore';
 
@@ -56,7 +57,7 @@ interface SearchResult {
     /**
      * Type of search result to display.
      */
-    type: 'activity' | 'area' | 'knowledge' | 'location';
+    type: 'activity' | 'area' | 'knowledge' | 'location' | 'volunteer';
 
     /**
      * The avatar to display at the start of the search result, if any. When given, this should be
@@ -90,6 +91,7 @@ const kSearchScoreTypeBonus: { [K in SearchResult['type']]: number } = {
     area: 0.1,
     knowledge: 0.05,
     location: 0.1,
+    volunteer: 0.075,
 };
 
 /**
@@ -176,7 +178,20 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
         }
     }
 
-    // TODO: Volunteers
+    for (const volunteer of Object.values(schedule.volunteers)) {
+        const score = stringScoreEx(
+            volunteer.name, query, normalisedQuery, schedule.config.searchResultFuzziness);
+
+        if (score >= schedule.config.searchResultMinimumScore) {
+            results.push({
+                type: 'volunteer',
+                href: `${scheduleBaseUrl}/volunteers/${volunteer.id}`,
+                label: volunteer.name,
+                score: score + kSearchScoreTypeBonus.volunteer,
+                avatar: volunteer.avatar,
+            });
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Step 2: Sort the |results| in descending order based on the score they have been assigned by
@@ -306,6 +321,16 @@ export function SearchResults(props: SearchResultsProps) {
                                 avatar = (
                                     <ListItemCenteredIcon>
                                         <ReadMoreIcon color="primary" />
+                                    </ListItemCenteredIcon>
+                                );
+                                break;
+
+                            case 'volunteer':
+                                avatar = (
+                                    <ListItemCenteredIcon>
+                                        <Avatar size="small" src={result.avatar}>
+                                            {result.label}
+                                        </Avatar>
                                     </ListItemCenteredIcon>
                                 );
                                 break;

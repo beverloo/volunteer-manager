@@ -160,7 +160,13 @@ export function Avatar(props: AvatarProps) {
     let avatar = (
         <MuiAvatar alt={`Avatar associated with ${name}`}
                    src={props.src}
-                   sx={{ backgroundColor, color, width: avatarSize, height: avatarSize }}
+                   sx={{
+                       backgroundColor,
+                       color,
+                       width: avatarSize,
+                       height: avatarSize,
+                       fontSize: badgeSize,
+                   }}
                    variant={props.variant}>
             {initials}
         </MuiAvatar>
