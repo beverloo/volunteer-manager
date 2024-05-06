@@ -4,8 +4,8 @@
 'use client';
 
 import Link from 'next/link';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Box from '@mui/material/Box';
@@ -13,10 +13,14 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import NotesIcon from '@mui/icons-material/Notes';
 import PhoneIcon from '@mui/icons-material/Phone';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Avatar } from '@components/Avatar';
@@ -25,10 +29,53 @@ import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { callApi } from '@lib/callApi';
+import { formatDate } from '@lib/Temporal';
+import { toZonedDateTime } from '../../CurrentTime';
 
 const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
     ssr: false,
 });
+
+/**
+ * Sorted and associated information regarding the shifts assigned to a volunteer, grouped together
+ * in any number of sections, generally days.
+ */
+interface ScheduledShiftsSection {
+    /**
+     * Label to assign to the section of scheduled shifts.
+     */
+    label: string;
+
+    /**
+     * The shifts that are part of this section.
+     */
+    shifts: {
+        /**
+         * Unique ID of this section.
+         */
+        id: string;
+
+        /**
+         * Unique ID of the activity this shift is associated with. Will be used to linkify.
+         */
+        activity: string;
+
+        /**
+         * Name of the shift that the volunteer will be working on.
+         */
+        name: string;
+
+        /**
+         * Time at which the shift will start.
+         */
+        start: string;
+
+        /**
+         * Time at which the shift will end.
+         */
+        end: string;
+    }[];
+}
 
 /**
  * Props accepted by the <VolunteerPageProps> component.
@@ -48,6 +95,43 @@ export function VolunteerPage(props: VolunteerPageProps) {
     const { refresh, schedule } = useContext(ScheduleContext);
 
     const router = useRouter();
+
+    // ---------------------------------------------------------------------------------------------
+    // Scheduled shifts:
+    // ---------------------------------------------------------------------------------------------
+
+    const scheduledShifts = useMemo(() => {
+        const scheduledShifts: ScheduledShiftsSection[] = [ /* empty */ ];
+        if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
+            return scheduledShifts;  // incomplete |schedule|
+
+        const scheduledShiftSections = new Map<string, ScheduledShiftsSection['shifts'][number][]>;
+        for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
+            const scheduledShift = schedule.schedule[scheduledShiftId];
+            const shift = schedule.shifts[scheduledShift.shift];
+
+            const start = toZonedDateTime(scheduledShift.start);
+            const end = toZonedDateTime(scheduledShift.end);
+
+            const section = formatDate(start, 'dddd');
+            if (!scheduledShiftSections.has(section))
+                scheduledShiftSections.set(section, [ /* empty */ ]);
+
+            scheduledShiftSections.get(section)!.push({
+                id: scheduledShiftId,
+                activity: shift.activity,
+                name: shift.name,
+                start: formatDate(start, 'HH:mm'),
+                end: formatDate(end, 'HH:mm'),
+            });
+        }
+
+        for (const [ label, shifts ] of scheduledShiftSections.entries())
+            scheduledShifts.push({ label, shifts });
+
+        return scheduledShifts;
+
+    }, [ props.userId, schedule ]);
 
     // ---------------------------------------------------------------------------------------------
     // Avatar management:
@@ -184,10 +268,37 @@ export function VolunteerPage(props: VolunteerPageProps) {
                         <Markdown>{volunteer.notes}</Markdown>
                     </Stack>
                 </Card> }
-            { !volunteer.schedule.length &&
+            { !scheduledShifts.length &&
                 <ErrorCard title="No scheduled shifts">
                     This volunteer has not been assigned to any shifts.
                 </ErrorCard> }
+            { scheduledShifts.map(section =>
+                <React.Fragment key={section.label}>
+                    <Typography variant="button" sx={{ color: 'text.secondary' }}>
+                        {section.label}
+                    </Typography>
+                    <Card sx={{ mt: '8px !important' }}>
+                        <List dense disablePadding>
+                            {section.shifts.map(shift => {
+                                const href = `/schedule/${schedule.slug}/events/${shift.activity}`;
+                                return (
+                                    <ListItemButton LinkComponent={Link} href={href} key={shift.id}>
+                                        <ListItemText primary={shift.name} />
+                                        <Typography variant="caption"
+                                                    sx={{
+                                                        color: 'text.secondary',
+                                                        whiteSpace: 'nowrap',
+                                                        pl: 2
+                                                    }}>
+                                            {shift.start}–{shift.end}
+                                        </Typography>
+                                    </ListItemButton>
+                                );
+                            } )}
+                        </List>
+                    </Card>
+                </React.Fragment> )}
+
             { /* TODO: Schedule */ }
             { !!schedule.config.enableNotesEditor &&
                 <NotesEditorDialog onClose={handleCloseNotes} onSubmit={handleSubmitNotes}
