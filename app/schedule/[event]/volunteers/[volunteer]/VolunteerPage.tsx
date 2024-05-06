@@ -74,6 +74,12 @@ interface ScheduledShiftsSection {
          * Time at which the shift will end.
          */
         end: string;
+
+        /**
+         * Time at which the shift will start, as a UNIX timestamp. Only included for sorting
+         * purposes, should not be used to present to the user.
+         */
+        startTime: number;
     }[];
 }
 
@@ -105,6 +111,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
         if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
             return scheduledShifts;  // incomplete |schedule|
 
+        // TODO: Consider shifts between [00:00-03:00] part of the previous day.
+
         const scheduledShiftSections = new Map<string, ScheduledShiftsSection['shifts'][number][]>;
         for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
             const scheduledShift = schedule.schedule[scheduledShiftId];
@@ -122,12 +130,25 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 activity: shift.activity,
                 name: shift.name,
                 start: formatDate(start, 'HH:mm'),
+                startTime: scheduledShift.start,
                 end: formatDate(end, 'HH:mm'),
             });
         }
 
-        for (const [ label, shifts ] of scheduledShiftSections.entries())
-            scheduledShifts.push({ label, shifts });
+        for (const [ label, shifts ] of scheduledShiftSections.entries()) {
+            scheduledShifts.push({
+                label,
+                shifts: shifts.sort((lhs, rhs) => {
+                    // TODO: Sort shifts that have passed to the bottom of the list.
+                    return lhs.startTime - rhs.startTime;
+                }),
+            });
+        }
+
+        scheduledShifts.sort((lhs, rhs) => {
+            // TODO: Sort shift sections that have passed to the bottom of the list.
+            return lhs.shifts[0].startTime - rhs.shifts[0].startTime;
+        });
 
         return scheduledShifts;
 
