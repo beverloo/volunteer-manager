@@ -188,7 +188,10 @@ export const kPublicSchedule = z.strictObject({
              */
             invisible: z.literal(true).optional(),
 
-            // TODO: description
+            /**
+             * Scheduled shifts that will be taking place as part of this activity.
+             */
+            schedule: z.array(z.string()),
         })),
 
         /**
@@ -290,7 +293,65 @@ export const kPublicSchedule = z.strictObject({
      */
     nardo: z.string().optional(),
 
-    // TODO: shifts
+    /**
+     * Scheduled shifts that volunteers will perform during the event.
+     */
+    schedule: z.record(z.string(), z.strictObject({
+        /**
+         * Unique ID of the scheduled shift.
+         */
+        id: z.string(),
+
+        /**
+         * Unique ID of the volunteer who will be performing this shift.
+         */
+        volunteer: z.string(),
+
+        /**
+         * Unique ID of the shift that they will be participating.
+         */
+        shift: z.string(),
+
+        /**
+         * Date and time on which the shift will start, as a UNIX timestamp since the epoch.
+         */
+        start: z.number(),
+
+        /**
+         * Date and time on which the shift will start, as a UNIX timestamp since the epoch.
+         */
+        end: z.number(),
+    })),
+
+    /**
+     * Shifts that have been scheduled for volunteers during this event.
+     */
+    shifts: z.record(z.string(), z.strictObject({
+        /**
+         * Unique ID of the shift.
+         */
+        id: z.string(),
+
+        /**
+         * Unique ID of the activity this shift is part of.
+         */
+        activity: z.string(),
+
+        /**
+         * Unique ID of the team to whom the shift belongs.
+         */
+        team: z.string(),
+
+        /**
+         * Name associated with the shift.
+         */
+        name: z.string(),
+
+        /**
+         * Description of the shift, if any.
+         */
+        description: z.string().optional(),
+    })),
 
     /**
      * Information about the teams for whom volunteers and/or shifts are included with the schedule.
@@ -380,9 +441,14 @@ export const kPublicSchedule = z.strictObject({
         phoneNumber: z.string().optional(),
 
         /**
+         * Scheduled shifts that the volunteer will be participating in.
+         */
+        schedule: z.array(z.string()),
+
+        /**
          * Unique ID of the shift that the volunteer is currently participating in, if any.
          */
-        activeShift: z.number().optional(),
+        activeShift: z.string().optional(),
 
         /**
          * UNIX timestamp indicating when the volunteer will be avaialble again, if they're

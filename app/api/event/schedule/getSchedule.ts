@@ -13,8 +13,8 @@ import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories, tDisplaysRequests, tNardo, tRoles, tStorage, tTeams, tUsers, tUsersEvents,
-    tVendors, tVendorsSchedule } from '@lib/database';
+    tContentCategories, tDisplaysRequests, tNardo, tRoles, tSchedule, tShifts, tStorage, tTeams,
+    tUsers, tUsersEvents, tVendors, tVendorsSchedule } from '@lib/database';
 
 import { kPublicSchedule } from './PublicSchedule';
 import { getBlobUrl } from '@lib/database/BlobStore';
@@ -174,6 +174,7 @@ async function populateProgram(
         schedule.program.activities[activityId] = {
             id: activityId,
             title: activity.title,
+            schedule: [ /* empty */ ],
             timeslots: [ /* empty */ ],
         };
 
@@ -297,11 +298,6 @@ async function populateVolunteers(
     dbInstance: DBConnection, schedule: Response, currentTime: Temporal.ZonedDateTime,
     eventId: number, festivalId: number, isLeader: boolean, team?: string)
 {
-    // TODO: Insert new areas where applicable
-    // TODO: Insert new locations where applicable
-    // TODO: Insert new activities where applicable
-    // TODO: Insert new shifts
-
     const storageJoin = tStorage.forUseInLeftJoin();
 
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
@@ -368,11 +364,93 @@ async function populateVolunteers(
             team: `${volunteer.user.team.id}`,
             notes: isLeader ? volunteer.user.notes : undefined,
             phoneNumber: includePhoneNumber ? volunteer.user.phoneNumber : undefined,
-            // TODO: activeShift
+            schedule: [ /* empty */ ],
             // TODO: unavailableUntil (/ -1)
         };
+    }
 
-        // TODO: Increment `schedule.volunteersActive` if applicable
+    const activitiesJoin = tActivities.forUseInLeftJoin();
+    const scheduleJoin = tSchedule.forUseInLeftJoin();
+
+    const shifts = await dbInstance.selectFrom(tShifts)
+        .leftJoin(activitiesJoin)
+            .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
+        .leftJoin(scheduleJoin)
+            .on(scheduleJoin.shiftId.equals(tShifts.shiftId))
+                .and(scheduleJoin.eventId.equals(eventId))
+                .and(scheduleJoin.scheduleDeleted.isNull())
+        .where(tShifts.eventId.equals(eventId))
+            .and(tShifts.shiftDeleted.isNull())
+        .select({
+            id: tShifts.shiftId,
+            team: tShifts.teamId,
+            name: tShifts.shiftName,
+            description: tShifts.shiftDescription,
+            activity: {
+                id: tShifts.shiftActivityId,
+                locationId: activitiesJoin.activityLocationId.valueWhenNull(tShifts.shiftLocationId)
+            },
+            schedule: dbInstance.aggregateAsArray({
+                id: scheduleJoin.scheduleId,
+                userId: scheduleJoin.userId,
+                start: scheduleJoin.scheduleTimeStart,
+                end: scheduleJoin.scheduleTimeEnd,
+            }),
+        })
+        .groupBy(tShifts.shiftId)
+        .executeSelectMany();
+
+    for (const shift of shifts) {
+        const shiftId = `${shift.id}`;
+
+        if (!shift.activity || !shift.activity.id)
+            continue;  // FIXME: Create activities for shifts
+        if (!Object.hasOwn(schedule.program.activities, `${shift.activity.id}`))
+            continue;  // FIXME: Create activities for shifts
+
+        const activityId = `${shift.activity.id}`;
+
+        let scheduledAny: boolean = false;
+        for (const scheduledShift of shift.schedule) {
+            const volunteerId = `${scheduledShift.userId}`;
+
+            if (!Object.hasOwn(schedule.volunteers, volunteerId))
+                continue;  // the |shift| will be performed by someone unknown to the volunteer
+
+            scheduledAny = true;
+
+            const scheduledId = `${scheduledShift.id}`;
+            schedule.schedule[scheduledId] = {
+                id: scheduledId,
+                volunteer: volunteerId,
+                shift: shiftId,
+                start: scheduledShift.start.epochSeconds,
+                end: scheduledShift.end.epochSeconds,
+            };
+
+            // TODO: Determine if this shift is presently active, then populate
+            // `volunteer.activeShift` and increment `schedule.volunteersActive`.
+
+            schedule.program.activities[activityId].schedule.push(scheduledId);
+            schedule.volunteers[volunteerId].schedule.push(scheduledId);
+        }
+
+        if (!scheduledAny)
+            continue;  // no instances of this shift have been scheduled
+
+        // TODO: Associate the description with the activity when applicable
+
+        // TODO: Insert new activities where applicable
+        // TODO: Insert new locations where applicable
+        // TODO: Insert new areas where applicable
+
+        schedule.shifts[shiftId] = {
+            id: shiftId,
+            activity: activityId,
+            team: `${shift.team}`,
+            name: shift.name,
+            description: shift.description,
+        };
     }
 }
 
@@ -442,6 +520,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             locations: { /* empty */ },
             timeslots: { /* empty */ },
         },
+        schedule: { /* empty */ },
+        shifts: { /* empty */ },
         teams: { /* empty */ },
         userId: props.user.userId,
         vendors: { /* empty */ },
