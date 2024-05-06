@@ -32,6 +32,8 @@ import { callApi } from '@lib/callApi';
 import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 
+import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
+
 const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
     ssr: false,
 });
@@ -111,8 +113,6 @@ export function VolunteerPage(props: VolunteerPageProps) {
         if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
             return scheduledShifts;  // incomplete |schedule|
 
-        // TODO: Consider shifts between [00:00-03:00] part of the previous day.
-
         const scheduledShiftSections = new Map<string, ScheduledShiftsSection['shifts'][number][]>;
         for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
             const scheduledShift = schedule.schedule[scheduledShiftId];
@@ -121,7 +121,13 @@ export function VolunteerPage(props: VolunteerPageProps) {
             const start = toZonedDateTime(scheduledShift.start);
             const end = toZonedDateTime(scheduledShift.end);
 
-            const section = formatDate(start, 'dddd');
+            // We consider shifts that end before the `kLogicalDayChangeHour` to be part of the
+            // previous day, to avoid volunteer confusion about when shifts are meant to take place.
+            const startForSection =
+                end.hour <= kLogicalDayChangeHour ? start.subtract({ hours: kLogicalDayChangeHour })
+                                                  : start;
+
+            const section = formatDate(startForSection, 'dddd');
             if (!scheduledShiftSections.has(section))
                 scheduledShiftSections.set(section, [ /* empty */ ]);
 

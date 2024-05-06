@@ -8,7 +8,7 @@ import type { Temporal } from '@lib/Temporal';
 /**
  * At which hour does the logical festival day change?
  */
-const kLogicalDayChangeHour = 4;
+export const kLogicalDayChangeHour = 4;
 
 /**
  * Returns whether the given `referenceDateTime` and `currentDateTime` are on different days. This
