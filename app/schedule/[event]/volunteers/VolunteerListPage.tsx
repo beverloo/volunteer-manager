@@ -7,7 +7,6 @@ import Link from 'next/link';
 import React, { useCallback, useContext, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import AlertTitle from '@mui/material/AlertTitle';
 import List from '@mui/material/List';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -17,8 +16,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
-import { Alert } from '../components/Alert';
 import { Avatar } from '@app/components/Avatar';
+import { ErrorCard } from '../components/ErrorCard';
 import { ScheduleContext } from '../ScheduleContext';
 import { SetTitle } from '../components/SetTitle';
 import { formatDate } from '@lib/Temporal';
@@ -156,10 +155,9 @@ export function VolunteerListPage() {
         return (
             <>
                 <SetTitle title="Volunteers" />
-                <Alert elevation={1} severity="error">
-                    <AlertTitle>No volunteers could be found!</AlertTitle>
+                <ErrorCard title="No volunteers could be found!">
                     No volunteers have been assigned to this event yet.
-                </Alert>
+                </ErrorCard>
             </>
         );
     } else if (teams.length === 1) {

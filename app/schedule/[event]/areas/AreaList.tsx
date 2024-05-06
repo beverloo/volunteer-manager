@@ -5,13 +5,12 @@
 
 import { useMemo, useContext } from 'react';
 
-import AlertTitle from '@mui/material/AlertTitle';
 import Card from '@mui/material/Card';
 import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 
 import type { CardTimeslot } from '../components/CardTimeslotEntry';
-import { Alert } from '../components/Alert';
 import { CardTimeslotList } from '../components/CardTimeslotList';
+import { ErrorCard } from '../components/ErrorCard';
 import { HeaderButton } from '../components/HeaderButton';
 import { ScheduleContext } from '../ScheduleContext';
 import { currentZonedDateTime } from '../CurrentTime';
@@ -77,10 +76,9 @@ export function AreaList() {
     return (
         <>
             { !areas.length &&
-                <Alert elevation={1} severity="error">
-                    <AlertTitle>No areas could be found!</AlertTitle>
+                <ErrorCard title="No areas could be found!">
                     The festival's areas have not been announced yet.
-                </Alert> }
+                </ErrorCard> }
 
             { Object.values(areas).map(area =>
                 <Card key={area.id}>

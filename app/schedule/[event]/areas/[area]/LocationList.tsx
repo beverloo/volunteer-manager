@@ -5,13 +5,12 @@
 
 import { useContext, useMemo } from 'react';
 
-import AlertTitle from '@mui/material/AlertTitle';
 import Card from '@mui/material/Card';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 
 import type { CardTimeslot } from '../../components/CardTimeslotEntry';
-import { Alert } from '../../components/Alert';
 import { CardTimeslotList } from '../../components/CardTimeslotList';
+import { ErrorCard } from '../../components/ErrorCard';
 import { HeaderButton } from '../../components/HeaderButton';
 import { ScheduleContext } from '../../ScheduleContext';
 import { currentZonedDateTime } from '../../CurrentTime';
@@ -105,10 +104,9 @@ export function LocationList(props: LocationListProps) {
 
     if (!schedule.program.areas.hasOwnProperty(props.areaId)) {
         return (
-            <Alert elevation={1} severity="error">
-                <AlertTitle>This area does not exist!</AlertTitle>
+            <ErrorCard title="This area does not exist!">
                 The area you've tried to access does not exist.
-            </Alert>
+            </ErrorCard>
         );
     }
 
@@ -119,10 +117,9 @@ export function LocationList(props: LocationListProps) {
     return (
         <>
             { !locations.length &&
-                <Alert elevation={1} severity="error">
-                    <AlertTitle>No locations could be found!</AlertTitle>
+                <ErrorCard title="No locations could be found!">
                     The locations in this area have not been announced yet.
-                </Alert> }
+                </ErrorCard> }
 
             { Object.values(locations).map(location =>
                 <Card key={location.id}>

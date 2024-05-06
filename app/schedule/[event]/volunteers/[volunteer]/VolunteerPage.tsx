@@ -8,7 +8,6 @@ import dynamic from 'next/dynamic';
 import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -20,8 +19,8 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
-import { Alert } from '../../components/Alert';
 import { Avatar } from '@components/Avatar';
+import { ErrorCard } from '../../components/ErrorCard';
 import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
@@ -122,10 +121,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
 
     if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId)) {
         return (
-            <Alert elevation={1} severity="error">
-                <AlertTitle>This volunteer cannot be found!</AlertTitle>
-                The area you've tried to access does not exist.
-            </Alert>
+            <ErrorCard title="This volunteer cannot be found!">
+                The volunteer you tried to access does not participate in this event.
+            </ErrorCard>
         );
     }
 
@@ -186,6 +184,10 @@ export function VolunteerPage(props: VolunteerPageProps) {
                         <Markdown>{volunteer.notes}</Markdown>
                     </Stack>
                 </Card> }
+            { !volunteer.schedule.length &&
+                <ErrorCard title="No scheduled shifts">
+                    This volunteer has not been assigned to any shifts.
+                </ErrorCard> }
             { /* TODO: Schedule */ }
             { !!schedule.config.enableNotesEditor &&
                 <NotesEditorDialog onClose={handleCloseNotes} onSubmit={handleSubmitNotes}
