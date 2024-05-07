@@ -10,10 +10,10 @@ import type { Theme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { darken, lighten } from '@mui/material/styles';
 
+import { ListItemDetails } from './ListItemDetails';
 import { formatDate, type Temporal } from '@lib/Temporal';
 import { isDifferentDay } from '../lib/isDifferentDay';
 import { toZonedDateTime } from '../CurrentTime';
@@ -143,11 +143,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
                                   </>
                               } /> }
 
-            { !!time &&
-                <Typography variant="caption"
-                            sx={{ color: 'text.secondary', whiteSpace: 'nowrap', pl: 2 }}>
-                    {time}
-                </Typography> }
+            { !!time && <ListItemDetails>{time}</ListItemDetails> }
 
         </ListItemButton>
     );

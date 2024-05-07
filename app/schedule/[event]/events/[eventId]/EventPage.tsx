@@ -3,14 +3,22 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useContext } from 'react';
 
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 
 import { ErrorCard } from '../../components/ErrorCard';
+import { ListItemDetails } from '../../components/ListItemDetails';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
+import { SubHeader } from '../../components/SubHeader';
+import { formatDate } from '@lib/Temporal';
+import { toZonedDateTime } from '../../CurrentTime';
 
 /**
  * Props accepted by the <EventPage>.
@@ -51,7 +59,35 @@ export function EventPage(props: EventPageProps) {
                             subheader={activity.id} />
             </Card>
             { /* TODO: Shift descriptions */ }
-            { /* TODO: Timeslots */ }
+            { !!activity.timeslots.length &&
+                <>
+                    <SubHeader>Timeslots</SubHeader>
+                    <Card sx={{ mt: '8px !important' }}>
+                        <List dense disablePadding>
+                            { activity.timeslots.map(timeslotId => {
+                                const timeslot = schedule.program.timeslots[timeslotId];
+                                const location = schedule.program.locations[timeslot.location];
+
+                                const start = toZonedDateTime(timeslot.start);
+                                const end = toZonedDateTime(timeslot.end);
+
+                                const href =
+                                    `/schedule/${schedule.slug}/locations/${timeslot.location}`;
+
+                                return (
+                                    <ListItemButton LinkComponent={Link} href={href}
+                                                    key={timeslotId}>
+                                        <ListItemText primary={location.name} />
+                                        <ListItemDetails>
+                                            { formatDate(start, 'ddd, HH:mm') }–
+                                            { formatDate(end, 'HH:mm') }
+                                        </ListItemDetails>
+                                    </ListItemButton>
+                                );
+                            } )}
+                        </List>
+                    </Card>
+                </> }
             { /* TODO: Volunteers */ }
         </>
     );
