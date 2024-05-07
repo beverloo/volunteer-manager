@@ -91,6 +91,12 @@ export const kPublicSchedule = z.strictObject({
         enableKnowledgeBaseSearch: z.boolean(),
 
         /**
+         * Whether convention days should be "logical" days rather than calendar days, i.e. shifts
+         * that finish before 4AM will be counted as part of the previous day.
+         */
+        enableLogicalDays: z.boolean(),
+
+        /**
          * Whether the volunteer is able to edit notes of other volunteers.
          */
         enableNotesEditor: z.boolean(),

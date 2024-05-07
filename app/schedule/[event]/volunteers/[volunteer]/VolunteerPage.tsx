@@ -20,14 +20,15 @@ import NotesIcon from '@mui/icons-material/Notes';
 import PhoneIcon from '@mui/icons-material/Phone';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Avatar } from '@components/Avatar';
 import { ErrorCard } from '../../components/ErrorCard';
+import { ListItemDetails } from '../../components/ListItemDetails';
 import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
+import { SubHeader } from '../../components/SubHeader';
 import { callApi } from '@lib/callApi';
 import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
@@ -123,9 +124,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
 
             // We consider shifts that end before the `kLogicalDayChangeHour` to be part of the
             // previous day, to avoid volunteer confusion about when shifts are meant to take place.
-            const startForSection =
-                end.hour <= kLogicalDayChangeHour ? start.subtract({ hours: kLogicalDayChangeHour })
-                                                  : start;
+            let startForSection = start;
+            if (!!schedule.config.enableLogicalDays && end.hour <= kLogicalDayChangeHour)
+                startForSection = start.subtract({ hours: kLogicalDayChangeHour });
 
             const section = formatDate(startForSection, 'dddd');
             if (!scheduledShiftSections.has(section))
@@ -301,9 +302,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 </ErrorCard> }
             { scheduledShifts.map(section =>
                 <React.Fragment key={section.label}>
-                    <Typography variant="button" sx={{ color: 'text.secondary' }}>
-                        {section.label}
-                    </Typography>
+                    <SubHeader>{section.label}</SubHeader>
                     <Card sx={{ mt: '8px !important' }}>
                         <List dense disablePadding>
                             {section.shifts.map(shift => {
@@ -311,14 +310,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 return (
                                     <ListItemButton LinkComponent={Link} href={href} key={shift.id}>
                                         <ListItemText primary={shift.name} />
-                                        <Typography variant="caption"
-                                                    sx={{
-                                                        color: 'text.secondary',
-                                                        whiteSpace: 'nowrap',
-                                                        pl: 2
-                                                    }}>
+                                        <ListItemDetails>
                                             {shift.start}–{shift.end}
-                                        </Typography>
+                                        </ListItemDetails>
                                     </ListItemButton>
                                 );
                             } )}

@@ -241,6 +241,16 @@ export default async function IntegrationsPage() {
                 description: 'Whether the search function should consider questions',
             },
             {
+                setting: 'schedule-logical-days',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Use logical days',
+                description:
+                    'Whether shifts that finish before 4am should be counted as part of the ' +
+                    'previous day',
+            },
+            {
                 setting: 'schedule-search-candidate-fuzziness',
                 type: 'number',
                 defaultValue: 0.04,
