@@ -100,7 +100,8 @@ export function EventPage(props: EventPageProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ timeslots, volunteers ] = useMemo(() => {
+    const [ eventLocation, timeslots, volunteers ] = useMemo(() => {
+        let eventLocation: string | undefined;
         const timeslots: TimeslotInfo[] = [ /* empty */ ];
         const volunteers: VolunteerInfo[] = [ /* empty */ ];
 
@@ -110,6 +111,11 @@ export function EventPage(props: EventPageProps) {
             for (const timeslotId of activity.timeslots) {
                 const timeslot = schedule.program.timeslots[timeslotId];
                 const location = schedule.program.locations[timeslot.location];
+
+                if (!!eventLocation && eventLocation !== location.name)
+                    eventLocation = 'Multiple locations…';
+                else
+                    eventLocation = location.name;
 
                 const start = toZonedDateTime(timeslot.start);
                 const end = toZonedDateTime(timeslot.end);
@@ -153,7 +159,7 @@ export function EventPage(props: EventPageProps) {
             });
         }
 
-        return [ timeslots, volunteers ];
+        return [ eventLocation ?? 'AnimeCon', timeslots, volunteers ];
 
     }, [ props.activityId, schedule ]);
 
@@ -175,7 +181,7 @@ export function EventPage(props: EventPageProps) {
             <Card>
                 <CardHeader title={activity.title}
                             titleTypographyProps={{ variant: 'subtitle2' }}
-                            subheader={activity.id} />
+                            subheader={eventLocation} />
             </Card>
             { /* TODO: Shift descriptions */ }
             { !!timeslots &&
