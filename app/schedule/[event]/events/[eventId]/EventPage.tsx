@@ -88,7 +88,37 @@ export function EventPage(props: EventPageProps) {
                         </List>
                     </Card>
                 </> }
-            { /* TODO: Volunteers */ }
+            { !!activity.schedule.length &&
+                <>
+                    <SubHeader>Volunteers</SubHeader>
+                    <Card sx={{ mt: '8px !important' }}>
+                        <List dense disablePadding>
+                            { activity.schedule.map(scheduledShiftId => {
+                                const scheduledShift = schedule.schedule[scheduledShiftId];
+
+                                const shift = schedule.shifts[scheduledShift.shift];  // TODO?
+                                const volunteer = schedule.volunteers[scheduledShift.volunteer];
+
+                                const start = toZonedDateTime(scheduledShift.start);
+                                const end = toZonedDateTime(scheduledShift.end);
+
+                                const href =
+                                    `/schedule/${schedule.slug}/volunteers/${volunteer.id}`;
+
+                                return (
+                                    <ListItemButton LinkComponent={Link} href={href}
+                                                    key={scheduledShiftId}>
+                                        <ListItemText primary={volunteer.name} />
+                                        <ListItemDetails>
+                                            { formatDate(start, 'ddd, HH:mm') }–
+                                            { formatDate(end, 'HH:mm') }
+                                        </ListItemDetails>
+                                    </ListItemButton>
+                                );
+                            } )}
+                        </List>
+                    </Card>
+                </> }
         </>
     );
 }
