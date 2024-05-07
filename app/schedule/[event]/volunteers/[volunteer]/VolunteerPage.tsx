@@ -8,7 +8,6 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -25,7 +24,6 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Avatar } from '@components/Avatar';
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
-import { Markdown } from '@components/Markdown';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
@@ -34,6 +32,7 @@ import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
+import { NotesCard } from '../../components/NotesCard';
 
 const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
     ssr: false,
@@ -288,14 +287,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
                             } />
             </Card>
             { !!volunteer.notes &&
-                <Card sx={{ p: 2 }}>
-                    <Stack direction="row" spacing={2}>
-                        <Box sx={{ height: '1em', minWidth: '40px', textAlign: 'center' }}>
-                            <NotesIcon color="primary" />
-                        </Box>
-                        <Markdown>{volunteer.notes}</Markdown>
-                    </Stack>
-                </Card> }
+                <NotesCard icon={ <NotesIcon color="primary" /> }
+                           title="Notes"
+                           notes={volunteer.notes} /> }
             { !scheduledShifts.length &&
                 <ErrorCard title="No scheduled shifts">
                     This volunteer has not been assigned to any shifts.

@@ -11,6 +11,7 @@ import CardHeader from '@mui/material/CardHeader';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import NotesIcon from '@mui/icons-material/Notes';
 
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
@@ -19,6 +20,32 @@ import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
 import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
+import { NotesCard } from '../../components/NotesCard';
+
+/**
+ * Information cached for a shift description box on the event page.
+ */
+interface DescriptionInfo {
+    /**
+     * Unique ID of the description box.
+     */
+    id: string;
+
+    /**
+     * Name of the team for whom the description is in scope.
+     */
+    team: string;
+
+    /**
+     * HTML colour that represents the identity of the aforementioned team.
+     */
+    teamColour: string;
+
+    /**
+     * Description associated with the shift. May contain Markdown.
+     */
+    description: string;
+}
 
 /**
  * Information cached for a timeslot entry on the event page.
@@ -100,10 +127,12 @@ export function EventPage(props: EventPageProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ eventLocation, timeslots, volunteers ] = useMemo(() => {
-        let eventLocation: string | undefined;
+    const [ descriptions, eventLocation, timeslots, volunteers ] = useMemo(() => {
+        const descriptions: DescriptionInfo[] = [ /* empty */ ];
         const timeslots: TimeslotInfo[] = [ /* empty */ ];
         const volunteers: VolunteerInfo[] = [ /* empty */ ];
+
+        let eventLocation: string | undefined;
 
         if (!!schedule && schedule.program.activities.hasOwnProperty(props.activityId)) {
             const activity = schedule.program.activities[props.activityId];
@@ -132,9 +161,25 @@ export function EventPage(props: EventPageProps) {
             // Sort the timeslots by their date/time, in ascending order.
             timeslots.sort((lhs, rhs) => lhs.startTime - rhs.startTime);
 
+            const descriptionSet = new Set<string>;
+
             for (const scheduledShiftId of activity.schedule) {
                 const scheduledShift = schedule.schedule[scheduledShiftId];
+
+                const shift = schedule.shifts[scheduledShift.shift];
                 const volunteer = schedule.volunteers[scheduledShift.volunteer];
+
+                if (!!shift.description && !descriptionSet.has(shift.team)) {
+                    const team = schedule.teams[shift.team];
+                    descriptions.push({
+                        id: shift.id,
+                        team: team.name,
+                        teamColour: team.colour,
+                        description: shift.description,
+                    });
+
+                    descriptionSet.add(shift.team);
+                }
 
                 const start = toZonedDateTime(scheduledShift.start);
                 const end = toZonedDateTime(scheduledShift.end);
@@ -148,6 +193,9 @@ export function EventPage(props: EventPageProps) {
                 });
             }
 
+            // Sort the descriptions by the associated team's name, in ascending order.
+            descriptions.sort((lhs, rhs) => lhs.team.localeCompare(rhs.team));
+
             // Sort the volunteers first by the date/time of their shift, in ascending order, then
             // by their name secondary.
             volunteers.sort((lhs, rhs) => {
@@ -159,7 +207,7 @@ export function EventPage(props: EventPageProps) {
             });
         }
 
-        return [ eventLocation ?? 'AnimeCon', timeslots, volunteers ];
+        return [ descriptions, eventLocation ?? 'AnimeCon', timeslots, volunteers ];
 
     }, [ props.activityId, schedule ]);
 
@@ -183,7 +231,11 @@ export function EventPage(props: EventPageProps) {
                             titleTypographyProps={{ variant: 'subtitle2' }}
                             subheader={eventLocation} />
             </Card>
-            { /* TODO: Shift descriptions */ }
+            { descriptions.map(description =>
+                <NotesCard key={description.id}
+                           icon={ <NotesIcon htmlColor={description.teamColour} /> }
+                           title={description.team}
+                           notes={description.description} />  )}
             { !!timeslots &&
                 <>
                     <SubHeader>Timeslots</SubHeader>
