@@ -131,18 +131,11 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 type MUIInputElement = HTMLTextAreaElement | HTMLInputElement;
 
 /**
- * Props accepted by the <ApplicationBar> component.
- */
-export interface ApplicationBarProps {
-    // TODO
-}
-
-/**
  * The <ApplicationBar> component is the title bar of our application. It provides the user with a
  * visual cue on where they are, allows them to search through all available information, and has
  * a menu that allows access to account settings and, potentially, other settings.
  */
-export function ApplicationBar(props: ApplicationBarProps) {
+export function ApplicationBar() {
     const router = useRouter();
     const title = useTitle();
 

@@ -28,6 +28,7 @@ import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
+import { redirect } from 'next/navigation';
 
 /**
  * Information associated with a particular section of timeslots, generally days.
@@ -94,15 +95,19 @@ export function LocationPage(props: LocationPageProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const sections = useMemo(() => {
+    const [ sections, soleActivityId ] = useMemo(() => {
         const sections: TimeslotSectionInfo[] = [ /* empty */ ];
         if (!schedule || !schedule.program.locations.hasOwnProperty(props.locationId))
-            return sections;
+            return [ sections, null ];
 
+        const activities = new Set<string>;
         const timeslotsSections = new Map<string, TimeslotSectionInfo['timeslots'][number][]>;
+
         for (const timeslotId of schedule.program.locations[props.locationId].timeslots) {
             const timeslot = schedule.program.timeslots[timeslotId];
             const activity = schedule.program.activities[timeslot.activity];
+
+            activities.add(timeslot.activity);
 
             const start = toZonedDateTime(timeslot.start);
             const end = toZonedDateTime(timeslot.end);
@@ -142,7 +147,10 @@ export function LocationPage(props: LocationPageProps) {
             return lhs.timeslots[0].startTime - rhs.timeslots[0].startTime;
         });
 
-        return sections;
+        return [
+            sections,
+            activities.size === 1 ? [ ...activities ][0] : null,
+        ];
 
     }, [ props.locationId, schedule ]);
 
@@ -155,6 +163,11 @@ export function LocationPage(props: LocationPageProps) {
             </ErrorCard>
         );
     }
+
+    // If this location only hosts a single activity, forward the user through to the activity page
+    // as it will contain the useful information, making this page redundant.
+    if (!!soleActivityId)
+        redirect(`/schedule/${schedule.slug}/events/${soleActivityId}`);
 
     const location = schedule.program.locations[props.locationId];
     const area = schedule.program.areas[location.area];
@@ -193,9 +206,6 @@ export function LocationPage(props: LocationPageProps) {
                         </List>
                     </Card>
                 </React.Fragment> )}
-
-            { /* TODO: List of activities */ }
-            { /* TODO: Redirect when there's only one unique activity */ }
         </>
     );
 }

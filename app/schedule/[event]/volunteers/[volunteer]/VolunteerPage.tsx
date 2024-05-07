@@ -24,6 +24,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Avatar } from '@components/Avatar';
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
+import { NotesCard } from '../../components/NotesCard';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
@@ -32,7 +33,6 @@ import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
-import { NotesCard } from '../../components/NotesCard';
 
 const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
     ssr: false,
@@ -313,8 +313,6 @@ export function VolunteerPage(props: VolunteerPageProps) {
                         </List>
                     </Card>
                 </React.Fragment> )}
-
-            { /* TODO: Schedule */ }
             { !!schedule.config.enableNotesEditor &&
                 <NotesEditorDialog onClose={handleCloseNotes} onSubmit={handleSubmitNotes}
                                    notes={volunteer.notes} open={noteEditorOpen} /> }
