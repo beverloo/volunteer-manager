@@ -12,7 +12,7 @@ import { kTemporalZonedDateTime } from '@app/api/Types';
  * Type describing an availability exception, as stored in the database.
  * @todo Use this definition in all other places.
  */
-const kAvailabilityException = z.object({
+export const kAvailabilityException = z.object({
     /**
      * Date and time on which the exception will start, in ISO 8601 format in UTC.
      */
