@@ -8,12 +8,10 @@ import Link from 'next/link';
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Tooltip from '@mui/material/Tooltip';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { darken, lighten } from '@mui/material/styles';
 
 import { ListItemDetails } from './ListItemDetails';
+import { ListItemEventText } from './ListItemEventText';
 import { formatDate, type Temporal } from '@lib/Temporal';
 import { isDifferentDay } from '../lib/isDifferentDay';
 import { toZonedDateTime } from '../CurrentTime';
@@ -27,12 +25,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
             return theme.palette.mode === 'dark' ? darken(/* green[900]= */ '#1B5E20', .25)
                                                  : lighten(theme.palette.success.light, .9);
         },
-    },
-
-    primary: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
     },
 };
 
@@ -126,22 +118,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
         <ListItemButton LinkComponent={Link} href={`${prefix}/events/${timeslot.activityId}`}
                         sx={styles}>
 
-            { !timeslot.invisible &&
-                <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
-                              primary={timeslot.title} /> }
-
-            { !!timeslot.invisible &&
-                <ListItemText primaryTypographyProps={{ sx: kStyles.primary }}
-                              primary={
-                                  <>
-                                      <em>{timeslot.title}</em>
-                                      <Tooltip title="Hidden from visitors">
-                                          <VisibilityIcon fontSize="inherit" color="info"
-                                                          sx={{ marginLeft: 1,
-                                                                verticalAlign: 'middle' }} />
-                                      </Tooltip>
-                                  </>
-                              } /> }
+            <ListItemEventText invisible={!!timeslot.invisible} title={timeslot.title} />
 
             { !!time && <ListItemDetails>{time}</ListItemDetails> }
 

@@ -5,22 +5,16 @@
 
 import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
+import { redirect } from 'next/navigation';
 
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import NotesIcon from '@mui/icons-material/Notes';
-import PhoneIcon from '@mui/icons-material/Phone';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
+import { ListItemEventText } from '../../components/ListItemEventText';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
@@ -28,7 +22,6 @@ import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
-import { redirect } from 'next/navigation';
 
 /**
  * Information associated with a particular section of timeslots, generally days.
@@ -67,6 +60,11 @@ interface TimeslotSectionInfo {
          * Time at which the timeslot will finish.
          */
         end: string;
+
+        /**
+         * Whether the timeslot is not visible to regular visitors.
+         */
+        invisible?: boolean;
 
         /**
          * UNIX timestamp of the time when this timeslots is due to start. Only included to enable
@@ -129,6 +127,7 @@ export function LocationPage(props: LocationPageProps) {
                 start: formatDate(start, 'HH:mm'),
                 startTime: timeslot.start,
                 end: formatDate(end, 'HH:mm'),
+                invisible: activity.invisible,
             });
         }
 
@@ -196,7 +195,8 @@ export function LocationPage(props: LocationPageProps) {
                                 return (
                                     <ListItemButton LinkComponent={Link} href={href}
                                                     key={timeslot.id}>
-                                        <ListItemText primary={timeslot.activity} />
+                                        <ListItemEventText invisible={timeslot.invisible}
+                                                           title={timeslot.activity} />
                                         <ListItemDetails>
                                             {timeslot.start}–{timeslot.end}
                                         </ListItemDetails>
