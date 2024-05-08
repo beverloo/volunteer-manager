@@ -582,8 +582,8 @@ async function populateVolunteers(
                         end: timeslot.end.epochSeconds,
                     };
 
-                    if (isBefore(timeslot.start, currentTime) &&
-                            isAfter(timeslot.end, currentTime))
+                    if (isBefore(timeslot.start, currentTime)
+                            && isAfter(timeslot.end, currentTime))
                     {
                         const areaId = schedule.program.locations[locationId].area;
 
@@ -598,14 +598,11 @@ async function populateVolunteers(
             }
         }
 
-        let scheduledAny: boolean = false;
         for (const scheduledShift of shift.schedule) {
             const volunteerId = `${scheduledShift.userId}`;
 
             if (!Object.hasOwn(schedule.volunteers, volunteerId))
                 continue;  // the |shift| will be performed by someone unknown to the volunteer
-
-            scheduledAny = true;
 
             const scheduledId = `${scheduledShift.id}`;
             schedule.schedule[scheduledId] = {
@@ -616,15 +613,18 @@ async function populateVolunteers(
                 end: scheduledShift.end.epochSeconds,
             };
 
-            // TODO: Determine if this shift is presently active, then populate
-            // `volunteer.activeShift` and increment `schedule.volunteersActive`.
+            if (isBefore(scheduledShift.start, currentTime)
+                    && isAfter(scheduledShift.end, currentTime))
+            {
+                if (!schedule.volunteers[volunteerId].activeShift)
+                    schedule.volunteersActive++;
+
+                schedule.volunteers[volunteerId].activeShift = scheduledId;
+            }
 
             schedule.program.activities[activityId].schedule.push(scheduledId);
             schedule.volunteers[volunteerId].schedule.push(scheduledId);
         }
-
-        if (!scheduledAny)
-            continue;  // no instances of this shift have been scheduled
 
         // TODO: Associate the description with the activity when applicable
 
