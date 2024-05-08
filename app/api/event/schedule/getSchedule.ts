@@ -626,8 +626,6 @@ async function populateVolunteers(
             schedule.volunteers[volunteerId].schedule.push(scheduledId);
         }
 
-        // TODO: Associate the description with the activity when applicable
-
         schedule.shifts[shiftId] = {
             id: shiftId,
             activity: activityId,
