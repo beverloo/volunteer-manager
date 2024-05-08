@@ -26,7 +26,12 @@ import { toZonedDateTime } from '../CurrentTime';
 /**
  * Information that should be known about an individual volunteer.
  */
-type VolunteerInfo = PublicSchedule['volunteers'][number];
+type VolunteerInfo = PublicSchedule['volunteers'][number] & {
+    /**
+     * Name of the active shift they are engaged in, if any.
+     */
+    activeShiftName?: string;
+}
 
 /**
  * Props accepted by the <VolunteerList> component.
@@ -72,6 +77,9 @@ function VolunteerList(props: VolunteerListProps) {
                             </>
                         );
                     }
+                } else if (!!volunteer.activeShiftName) {
+                    secondary = <>{secondary} — {volunteer.activeShiftName}</>;
+                    state = 'active';
                 }
 
                 return (
@@ -107,8 +115,13 @@ export function VolunteerListPage() {
             Object.values(schedule.teams).map(team => ([ team.id, [ /* volunteers */ ] ])));
 
         for (const volunteer of Object.values(schedule.volunteers)) {
+            let activeShiftName: string | undefined;
+            if (!!volunteer.activeShift)
+                activeShiftName = schedule.shifts[volunteer.activeShift].name;
+
             teams.get(volunteer.team)?.push({
                 ...volunteer,
+                activeShiftName,
             });
         }
 
@@ -132,7 +145,7 @@ export function VolunteerListPage() {
         // predictable list of teams shown.
         return unsortedTeams.sort((lhs, rhs) => lhs.label.localeCompare(rhs.label));
 
-    }, [ schedule?.teams, schedule?.volunteers ]);
+    }, [ schedule ]);
 
     // ---------------------------------------------------------------------------------------------
 

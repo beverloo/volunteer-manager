@@ -719,7 +719,7 @@ async function populateVolunteers(
                 if (!schedule.volunteers[volunteerId].activeShift)
                     schedule.volunteersActive++;
 
-                schedule.volunteers[volunteerId].activeShift = scheduledId;
+                schedule.volunteers[volunteerId].activeShift = shiftId;
             }
 
             schedule.program.activities[activityId].schedule.push(scheduledId);
