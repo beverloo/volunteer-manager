@@ -518,7 +518,7 @@ async function populateVolunteers(
                         id: areaId,
                         name: shift.activity.location.area.name,
                         locations: [ /* empty */ ],
-                        active: /* TODO: */ 0,
+                        active: 0,
                     };
                 }
 
@@ -528,7 +528,7 @@ async function populateVolunteers(
                     name: shift.activity.location.name,
                     area: areaId,
                     timeslots: [ /* empty */ ],
-                    active: /* TODO: */ 0,
+                    active: 0,
                 };
             }
 
@@ -580,8 +580,17 @@ async function populateVolunteers(
                         location: locationId,
                         start: timeslot.start.epochSeconds,
                         end: timeslot.end.epochSeconds,
-                        // TODO: active
                     };
+
+                    if (isBefore(timeslot.start, currentTime) &&
+                            isAfter(timeslot.end, currentTime))
+                    {
+                        const areaId = schedule.program.locations[locationId].area;
+
+                        schedule.program.areas[areaId].active++;
+                        schedule.program.locations[locationId].active++;
+                        schedule.program.timeslots[timeslotIdString].active = true;
+                    }
 
                     timeslot = sortedSchedule.shift();
 
