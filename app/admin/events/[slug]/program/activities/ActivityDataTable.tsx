@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import type { GridCellParams, ValueOptions } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import ErrorIcon from '@mui/icons-material/Error';
 import IconButton from '@mui/material/IconButton';
 import LaunchIcon from '@mui/icons-material/Launch';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -130,6 +131,14 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                         </>
                     );
                 } else if (params.row.location === 'No locations…') {
+                    if (params.row.type === ActivityType.Internal) {
+                        return (
+                            <Tooltip title="Internal activities must have a location">
+                                <ErrorIcon color="error" fontSize="small" />
+                            </Tooltip>
+                        );
+                    }
+
                     return (
                         <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                             {params.row.location}
