@@ -3,6 +3,9 @@
 
 import { z } from 'zod';
 
+import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
+
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { ScheduleContextImpl } from './ScheduleContext';
@@ -53,11 +56,18 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'slug'
     }
 
     return (
-        <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
-            <ScheduleImpl readOnly={readOnly} sections={sections} />
-            <ScheduleWarnings
-                defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />
-        </ScheduleContextImpl>
+        <>
+            { !!readOnly &&
+                <Paper component={Alert} severity="warning">
+                    Please ask your Staff member to add you to the scheduling team if you would like
+                    to be able to make any changes.
+                </Paper> }
+            <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
+                <ScheduleImpl readOnly={readOnly} sections={sections} />
+                <ScheduleWarnings
+                    defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />
+            </ScheduleContextImpl>
+        </>
     );
 }
 

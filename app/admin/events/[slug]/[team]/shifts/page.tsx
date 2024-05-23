@@ -1,6 +1,9 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
+
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { Privilege, can } from '@lib/auth/Privileges';
@@ -29,6 +32,11 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'slug' |
 
     return (
         <>
+            { !!readOnly &&
+                <Paper component={Alert} severity="warning">
+                    Please ask your Staff member to add you to the scheduling team if you would like
+                    to be able to make any changes.
+                </Paper> }
             <Section title="Shifts" subtitle={team.name}>
                 <ShiftTable event={event.slug} team={team.slug} readOnly={readOnly} />
             </Section>
