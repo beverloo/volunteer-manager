@@ -214,6 +214,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
                     teamId: team.id,
                     shiftCategoryId: row.categoryId,
                     shiftName: row.name,
+                    shiftLocationId: row.locationId,
                     shiftExcitement: defaultExcitement,
                 })
                 .returningLastInsertedId()
