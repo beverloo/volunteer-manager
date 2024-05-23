@@ -85,7 +85,11 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
         !!shift ? (!!shift.activityId ? 'program' : 'initiative')
                 : undefined);
 
-    const handleChangeType = useCallback((value: 'program' | 'initiative') => setType(value), []);
+    const handleChangeType = useCallback((value: 'program' | 'initiative') => {
+        setInvalidated(true);
+        setType(value);
+    }, []);
+
     const handleChange = useCallback(() => setInvalidated(true), [ /* no deps */ ]);
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setError(undefined);
