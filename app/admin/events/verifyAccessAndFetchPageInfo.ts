@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import type { EventAvailabilityStatus } from '@lib/database/Types';
+import { RegistrationStatus, type EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -204,6 +204,7 @@ export async function verifyAccessAndFetchPageInfo(
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.userId.equals(user.userId))
+            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .where(tEvents.eventSlug.equals(params.slug))
