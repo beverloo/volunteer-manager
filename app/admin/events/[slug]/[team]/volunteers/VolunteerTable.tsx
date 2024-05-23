@@ -290,7 +290,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                     </Tooltip> }
             </Stack>
             <DataTable columns={columns} rows={props.volunteers} disableFooter enableFilter
-                       defaultSort={{ field: 'name', sort: 'asc' }}/>
+                       defaultSort={{ field: 'name', sort: 'asc' }} pageSize={100} />
         </Paper>
     )
 }
