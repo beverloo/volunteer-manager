@@ -314,11 +314,13 @@ export function RemoteDataTable<
         setPaginationModel(model);
     }, [ /* no deps */ ]);
 
+    const [ sortModelDefault, setSortModelDefault ] = useState<boolean>(true);
     const [ sortModel, setSortModel ] =
         useState<GridSortModel>([ props.defaultSort as GridSortItem ]);
 
     const handleSortModelChange = useCallback((model: GridSortModel) => {
         if (!!model.length) {
+            setSortModelDefault(false);
             setSortModel([
                 {
                     field: model[0].field,
@@ -326,9 +328,13 @@ export function RemoteDataTable<
                 }
             ]);
         } else {
+            if (!!sortModelDefault)
+                return;  // don't double invalidate
+
+            setSortModelDefault(true);
             setSortModel([ props.defaultSort as GridSortItem ]);
         }
-    }, [ props.defaultSort ]);
+    }, [ props.defaultSort, sortModelDefault ]);
 
     useEffect(() => {
         setError(undefined);
