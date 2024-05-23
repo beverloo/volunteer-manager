@@ -73,13 +73,16 @@ export function ExportCreatePanel(props: ExportCreatePanelProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
+            const hours = parseInt(data.hours, /* radix= */ 10);
+            if (hours < 1 || hours > 350)
+                throw new Error(`The given expiration date not valid (${hours} hours)`);
+
             const response = await callApi('post', '/api/admin/exports', {
                 row: {
                     event: data.event,
                     type: data.type,
                     justification: data.justification,
-                    expirationDate:
-                        Temporal.Now.zonedDateTimeISO('UTC').add({ hours: 1 }).toString(),
+                    expirationDate: Temporal.Now.zonedDateTimeISO('UTC').add({ hours }).toString(),
                     expirationViews: data.views,
                 },
             });
