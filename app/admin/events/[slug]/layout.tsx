@@ -299,14 +299,12 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 {
                     icon: <ScheduleIcon />,
                     label: 'Schedule',
-                    privilege: Privilege.Administrator,  // todo: publish the page
                     url: `/admin/events/${slug}/${team.slug}/schedule`,
                 },
                 ...securityEntry,
                 {
                     icon: <PendingActionsIcon />,
                     label: 'Shifts',
-                    privilege: Privilege.Administrator,  // todo: publish the page
                     url: `/admin/events/${slug}/${team.slug}/shifts`,
                 },
                 {
