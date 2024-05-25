@@ -22,7 +22,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import NotListedLocationOutlinedIcon from '@mui/icons-material/NotListedLocationOutlined';
 import Tooltip from '@mui/material/Tooltip';
-import { darken, lighten, styled } from '@mui/material/styles';
+import { darken, styled } from '@mui/material/styles';
 import { useTheme } from '@mui/material/styles';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';

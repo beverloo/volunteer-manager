@@ -12,7 +12,6 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Grid from '@mui/material/Unstable_Grid2';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Stack from '@mui/material/Stack';
@@ -154,11 +153,6 @@ export function WelcomePage(props: WelcomePageProps) {
 
     const landingStyle = { backgroundImage: `url('/images/${environment}/landing.jpg')` };
 
-    const hiddenIcon =
-        <Tooltip title="Access is limited to certain volunteers">
-            <VisibilityOffIcon fontSize="small" color="disabled" />
-        </Tooltip>;
-
     return (
         <>
             <RegistrationContentContainer title={`AnimeCon ${props.title}`}
@@ -226,60 +220,6 @@ export function WelcomePage(props: WelcomePageProps) {
 
             { /* Section: Further content */ }
             <Grid container spacing={2} sx={{ mt: 2 }}>
-                <Grid xs={12} md={0} sx={{ display: { xs: 'block', md: 'none' } }}>
-                    <Card elevation={2} sx={deepmerge(kStyles.photoCard, landingStyle)} />
-                </Grid>
-
-                { !!adminAccess.size &&
-                    <Grid xs={12} md={4}>
-                        <Card elevation={2}>
-                            <CardContent sx={{ pb: 0 }}>
-                                <Stack direction="row" alignItems="center" spacing={1}>
-                                    <Typography variant="h5" component="p">
-                                        Administration
-                                    </Typography>
-                                    {hiddenIcon}
-                                </Stack>
-                                <Typography variant="body2">
-                                    Access to the administration area where we manage the events,
-                                    volunteers and scheduling.
-                                </Typography>
-                            </CardContent>
-                            <CardActions sx={kStyles.hiddenCardActions}>
-                                <Link href="/admin" passHref>
-                                    <Button size="small" startIcon={ <ExitToAppIcon />}>
-                                        Launch
-                                    </Button>
-                                </Link>
-                            </CardActions>
-                        </Card>
-                    </Grid> }
-
-                { can(user, Privilege.Statistics) &&
-                    <Grid xs={12} md={4}>
-                        <Card elevation={2}>
-                            <CardContent sx={{ pb: 0 }}>
-                                <Stack direction="row" alignItems="center" spacing={1}>
-                                    <Typography variant="h5" component="p">
-                                        Statistics
-                                    </Typography>
-                                    {hiddenIcon}
-                                </Stack>
-                                <Typography variant="body2">
-                                    Multi-year statistics about the demographics, scope and
-                                    performance of the {props.title}.
-                                </Typography>
-                            </CardContent>
-                            <CardActions sx={kStyles.hiddenCardActions}>
-                                <Link href="/statistics" passHref>
-                                    <Button size="small" startIcon={ <ExitToAppIcon />}>
-                                        Launch
-                                    </Button>
-                                </Link>
-                            </CardActions>
-                        </Card>
-                    </Grid> }
-
                 { additionalEvents.map(event =>
                     <Grid key={event.slug} xs={12} md={4}>
                         <Card elevation={2}>
