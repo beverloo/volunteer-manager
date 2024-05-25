@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
+import HourglassBottomOutlinedIcon from '@mui/icons-material/HourglassBottomOutlined';
 import List from '@mui/material/List';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -16,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Tooltip from '@mui/material/Tooltip';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Avatar } from '@app/components/Avatar';
@@ -56,11 +58,9 @@ function VolunteerList(props: VolunteerListProps) {
             {volunteers.map(volunteer => {
                 const href = `./volunteers/${volunteer.id}`;
 
-                let state: 'available' | 'unavailable' | 'active' = 'available';
-
                 // TODO: Display their badge as part of their avatar
-                // TODO: Display their current occupation, if any
-                // TODO: Visualise their `state`
+
+                let isBackup: boolean = false;
 
                 let secondary: React.ReactNode = volunteer.role;
                 if (!!volunteer.roleLeader)
@@ -68,7 +68,6 @@ function VolunteerList(props: VolunteerListProps) {
 
                 let sx: SxProps<Theme> | undefined;
                 if (!!volunteer.unavailableUntil) {
-                    state = 'unavailable';
                     sx = {
                         backgroundColor: 'animecon.pastBackground',
                         '&:hover': {
@@ -87,8 +86,8 @@ function VolunteerList(props: VolunteerListProps) {
                         );
                     }
                 } else if (!!volunteer.activeShiftName) {
+                    isBackup = volunteer.activeShiftName.startsWith('Backup');
                     secondary = <>{secondary} — {volunteer.activeShiftName}</>;
-                    state = 'active';
                     sx = {
                         backgroundColor: 'animecon.activeBackground',
                         '&:hover': {
@@ -107,6 +106,10 @@ function VolunteerList(props: VolunteerListProps) {
                         <ListItemText primary={volunteer.name}
                                       primaryTypographyProps={{ variant: 'subtitle2' }}
                                       secondary={secondary} />
+                        { isBackup &&
+                            <Tooltip title="This volunteer may be available to help">
+                                <HourglassBottomOutlinedIcon fontSize="small" color="primary" />
+                            </Tooltip> }
                     </ListItemButton>
                 );
             } )}
