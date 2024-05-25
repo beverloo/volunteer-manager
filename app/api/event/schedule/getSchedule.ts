@@ -781,6 +781,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     ]);
 
     const schedule: Response = {
+        event: event.shortName,
         slug: event.slug,
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,

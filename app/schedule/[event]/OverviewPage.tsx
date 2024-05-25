@@ -26,7 +26,7 @@ export function OverviewPage() {
 
     return (
         <>
-            <SetTitle title="Schedule" />
+            <SetTitle title={schedule?.event || 'AnimeCon'} />
             { /* TODO: Event status */ }
             { (!!schedule?.config.enableHelpRequests && !!schedule?.helpRequestsPending) &&
                 <HelpRequestsUrgentCard pending={schedule.helpRequestsPending}

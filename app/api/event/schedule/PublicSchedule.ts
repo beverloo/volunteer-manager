@@ -57,6 +57,11 @@ export type PublicVendorSchedule = z.infer<typeof kVendorTeam>['schedule'];
  */
 export const kPublicSchedule = z.strictObject({
     /**
+     * Short name of the event for which the schedule is being shown.
+     */
+    event: z.string(),
+
+    /**
      * Unique slug of the event for which the schedule is being shown.
      */
     slug: z.string(),
