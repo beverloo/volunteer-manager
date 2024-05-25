@@ -7,6 +7,7 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import ForumIcon from '@mui/icons-material/Forum';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
@@ -64,6 +65,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             ],
 
             menu: [
+                {
+                    icon: <FeedbackOutlinedIcon />,
+                    label: 'Feedback',
+                    privilege: Privilege.SystemAdministrator,
+                    url: '/admin/system/feedback',
+                },
                 {
                     icon: <OutboxIcon />,
                     label: 'Outbox',

@@ -1793,7 +1793,7 @@ tables:
       PRIMARY KEY (`request_id`),
       KEY `display_id` (`display_id`),
       KEY `request_event_id` (`request_event_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_timeslots
   type: BASE TABLE
   comment: ""
@@ -2627,6 +2627,57 @@ tables:
       `nardo_visible` tinyint(1) NOT NULL DEFAULT 1,
       PRIMARY KEY (`nardo_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: feedback
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: feedback_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: user_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: feedback_date
+    type: datetime
+    nullable: false
+    default: null
+    comment: ""
+  - name: feedback_text
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (feedback_id) USING BTREE
+    table: feedback
+    columns:
+    - feedback_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (feedback_id)
+    table: feedback
+    referencedTable: null
+    columns:
+    - feedback_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `feedback` (
+      `feedback_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `user_id` int(8) unsigned NOT NULL,
+      `feedback_date` datetime NOT NULL,
+      `feedback_text` text NOT NULL,
+      PRIMARY KEY (`feedback_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities
   type: BASE TABLE
   comment: ""
