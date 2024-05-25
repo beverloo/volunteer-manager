@@ -123,6 +123,16 @@ export const kPublicSchedule = z.strictObject({
         searchResultMinimumScore: z.number(),
 
         /**
+         * Whether historic days should be sorted to the bottom of the list.
+         */
+        sortPastDaysLast: z.boolean(),
+
+        /**
+         * Whether historic events should be sorted to the bottom of the list.
+         */
+        sortPastEventsLast: z.boolean(),
+
+        /**
          * Time offset, in seconds, to alter the local timestamp by. Used to emulate the schedule at
          * another point in time for testing purposes.
          */

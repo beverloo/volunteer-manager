@@ -275,6 +275,22 @@ export default async function IntegrationsPage() {
                 description: 'Maximum number of inline search results that will be shown',
             },
             {
+                setting: 'schedule-sort-past-days-last',
+                type: 'boolean',
+                defaultValue: true,
+
+                label: 'Sort historic days last',
+                description: 'Whether past days should be sorted to the bottom of the list',
+            },
+            {
+                setting: 'schedule-sort-past-events-last',
+                type: 'boolean',
+                defaultValue: true,
+
+                label: 'Sort historic events last',
+                description: 'Whether past events should be sorted to the bottom of the list',
+            },
+            {
                 setting: 'schedule-time-offset-seconds',
                 type: 'number',
                 defaultValue: 0,
