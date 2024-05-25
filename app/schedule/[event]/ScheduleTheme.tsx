@@ -10,6 +10,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
+import { darken, decomposeColor, emphasize, lighten } from '@mui/system/colorManipulator';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Box from '@mui/material/Box';
@@ -103,24 +104,59 @@ function storePaletteModeToCache(mode: SchedulePaletteMode) {
 }
 
 /**
- * Creates the theme for the schedule environment.
+ * Creates the theme for the schedule environment for the given colour scheme (`mode`) and base
+ * colour (`base`). The rest of the scheme will be computed based on that.
  */
-function createScheduleTheme(darkMode?: boolean) {
+function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: string }) {
+    const main = palette[mode];
+
+    // MUI's `decomposeColor` is idempotent, and caching the decomposed colour avoids a series of
+    // repeated string parsing that would have to happen on every page load.
+    const baseColour = decomposeColor(main) as unknown as string;
+
     return createTheme({
         palette: {
-            mode: darkMode ? 'dark' : 'light',
+            mode,
             background: {
-                default: darkMode ? '#212121' : '#F5F5F5',
+                default: mode === 'dark' ? '#181818' : lighten(baseColour, 0.94),
+                paper: mode === 'dark' ? '#212121' : '#ffffff',
+            },
+            primary: {
+                main,
+            },
+        },
+        components: {
+            MuiAppBar: {
+                styleOverrides: {
+                    root: {
+                        backgroundColor: mode === 'dark' ? palette.light : palette.light,
+                        backgroundImage: 'unset',
+                    },
+                },
             },
         },
     });
 }
 
 /**
+ * Props accepted by the <ScheduleTheme> component.
+ */
+export interface ScheduleThemeProps {
+    /**
+     * Base colours, as an RGB hex colour, based on which the theme should be computed. Colours for
+     * light and dark mode must be specified separately.
+     */
+    palette: {
+        dark: string;
+        light: string;
+    },
+}
+
+/**
  * The <ScheduleTheme> component modifies the global theme with colours specific to the schedule,
  * which has a slightly different configuration from the registration app.
  */
-export function ScheduleTheme(props: React.PropsWithChildren) {
+export function ScheduleTheme(props: React.PropsWithChildren<ScheduleThemeProps>) {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
     const [ mode, setMode ] = useState<SchedulePaletteMode>(() => readPaletteModeFromCache());
@@ -138,12 +174,12 @@ export function ScheduleTheme(props: React.PropsWithChildren) {
         switch (mode) {
             case 'light':
             case 'dark':
-                return createScheduleTheme(mode === 'dark');
+                return createScheduleTheme(mode, props.palette);
 
             default:
-                return createScheduleTheme(!!prefersDarkMode);
+                return createScheduleTheme(!!prefersDarkMode ? 'dark' : 'light', props.palette);
         }
-    }, [ mode, prefersDarkMode ]);
+    }, [ mode, prefersDarkMode, props.palette ]);
 
     return (
         <ScheduleThemeContext.Provider value={context}>
