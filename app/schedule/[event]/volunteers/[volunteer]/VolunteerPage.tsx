@@ -8,6 +8,8 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -97,6 +99,11 @@ interface ScheduledShiftsSection {
          * Whether the shift has finished already. Only included to enable sorting the results.
          */
         finished: boolean;
+
+        /**
+         * Optional styling that should be applied to this shift entry.
+         */
+        sx?: SxProps<Theme>;
     }[];
 }
 
@@ -148,6 +155,27 @@ export function VolunteerPage(props: VolunteerPageProps) {
             if (!scheduledShiftSections.has(section))
                 scheduledShiftSections.set(section, [ /* empty */ ]);
 
+            let sx: SxProps<Theme> | undefined;
+            if (scheduledShift.end <= currentTime) {
+                sx = {
+                    backgroundColor: 'animecon.pastBackground',
+                    textDecoration: 'line-through',
+                    textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                    '&:hover': {
+                        backgroundColor: 'animecon.pastBackgroundHover',
+                        textDecoration: 'line-through',
+                        textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                    },
+                };
+            } else if (scheduledShift.start <= currentTime) {
+                sx = {
+                    backgroundColor: 'animecon.activeBackground',
+                    '&:hover': {
+                        backgroundColor: 'animecon.activeBackgroundHover',
+                    },
+                };
+            }
+
             scheduledShiftSections.get(section)!.push({
                 id: scheduledShiftId,
                 activity: shift.activity,
@@ -156,6 +184,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 startTime: scheduledShift.start,
                 finished: scheduledShift.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
+                sx,
             });
         }
 
@@ -345,7 +374,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
                             {section.shifts.map(shift => {
                                 const href = `/schedule/${schedule.slug}/events/${shift.activity}`;
                                 return (
-                                    <ListItemButton LinkComponent={Link} href={href} key={shift.id}>
+                                    <ListItemButton LinkComponent={Link} href={href} key={shift.id}
+                                                    sx={shift.sx}>
                                         <ListItemText primary={shift.name} />
                                         <ListItemDetails>
                                             {shift.start}–{shift.end}
