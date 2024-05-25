@@ -3,7 +3,7 @@
 
 'use client';
 
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { PaletteMode } from '@mui/material';
 import type { SxProps } from '@mui/system';
@@ -190,6 +190,16 @@ export function ScheduleTheme(props: React.PropsWithChildren<ScheduleThemeProps>
                 return createScheduleTheme(!!prefersDarkMode ? 'dark' : 'light', props.palette);
         }
     }, [ mode, prefersDarkMode, props.palette ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const [ isClient, setIsClient ] = useState<boolean>(false);
+    useEffect(() => setIsClient(true), [ /* no deps */ ]);
+
+    // Don't prerender or preset the theme on the server; Next.js does an honest attempt, but the
+    // server has no way of knowing the client's dark mode preferences.
+    if (!isClient)
+        return undefined;
 
     return (
         <ScheduleThemeContext.Provider value={context}>
