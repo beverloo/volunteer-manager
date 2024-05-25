@@ -147,7 +147,7 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
                 activeBackgroundHover: mode === 'dark' ? '#15581a' : '#dbeddb',
                 pastBackground: mode === 'dark' ? '#212121' : '#e0e0e0',
                 pastBackgroundHover: mode === 'dark' ? '#292929' : '#d8d8d8',
-                pastForeground: mode === 'dark' ? 'rgba(255, 255, 255, .6)' : 'rgba(0, 0, 0, .25)',
+                pastForeground: mode === 'dark' ? 'rgba(255, 255, 255, .7)' : 'rgba(0, 0, 0, .25)',
             },
             background: {
                 default: mode === 'dark' ? '#181818' : lighten(baseColour, 0.94),
