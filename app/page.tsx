@@ -1,10 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Unstable_Grid2';
 import { deepmerge } from '@mui/utils';
@@ -18,7 +21,7 @@ import { RegistrationContentContainer } from '@app/registration/RegistrationCont
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { StatisticsCard } from './welcome/StatisticsCard';
 import { Temporal, isBefore } from '@lib/Temporal';
-import { WelcomePage } from './welcome/WelcomePage';
+import { WelcomeCard } from './welcome/WelcomeCard';
 import { determineEnvironment } from '@lib/Environment';
 import { generatePortalMetadataFn } from './registration/generatePortalMetadataFn';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -50,9 +53,6 @@ export default async function RootPage() {
     const { user } = authenticationContext;
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
-    const events = await getEventsForUser(environment.environmentName, user);
-
-    // TODO: What to do when |events.length| === 0?
 
     // ---------------------------------------------------------------------------------------------
 
@@ -60,6 +60,22 @@ export default async function RootPage() {
     // events that haven't formally published them yet. Incorporate this in the decisions.
     const registrationOverride = can(user, Privilege.EventContentOverride);
     const scheduleOverride = can(user, Privilege.EventScheduleOverride);
+
+    // Load all events accessible to the |user|, and filter them for events that should be shown on
+    // the overview page. Either registration or schedule access is required.
+    const unfilteredEvents = await getEventsForUser(environment.environmentName, user);
+    const events = unfilteredEvents.filter(event => {
+        const data = event.getEnvironmentData(environment.environmentName);
+        if (data?.enableContent || registrationOverride)
+            return true;  // access to the registration section
+
+        if (data?.enableSchedule || scheduleOverride)
+            return true;  // access to the volunteering schedule
+
+        return false;
+    });
+
+    // ---------------------------------------------------------------------------------------------
 
     // Determine whether the user has access to the administration area. This is the case when they
     // either are an event adminstrator, or have senior-level access to any active event.
@@ -78,46 +94,67 @@ export default async function RootPage() {
     }
 
     const primaryEvent = events.shift();
+    const primaryEventRegistration = primaryEvent && user && await getRegistration(
+        environment.environmentName, primaryEvent, user.userId);
+
     const secondaryEvent = events.shift();
+    const secondaryEventRegistration = secondaryEvent && user && await getRegistration(
+        environment.environmentName, secondaryEvent, user.userId);
 
     // Determine the event for which the signed in user has registered, if any. This will consider
     // both the primary and secondary event, but only when they have not finished yet.
     let registrationEvent: Event | undefined;
     let registration: Registration | undefined;
 
-    if (!!authenticationContext.user) {
-        const potentialEvents: Event[] = [];
-
-        if (!!primaryEvent && isBefore(currentTime, primaryEvent.temporalEndTime))
-            potentialEvents.push(primaryEvent);
-        if (!!secondaryEvent && isBefore(currentTime, secondaryEvent.temporalEndTime))
-            potentialEvents.push(secondaryEvent);
-
-        for (const potentialEvent of potentialEvents) {
-            registration = await getRegistration(
-                environment.environmentName, potentialEvent, authenticationContext.user.userId);
-
-            if (!registration)
-                continue;  // the volunteer hasn't applied to help out in this event
-
-            registrationEvent = potentialEvent;
-            break;
-        }
+    if (!!primaryEventRegistration) {
+        registrationEvent = primaryEvent;
+        registration = primaryEventRegistration;
+    } else if (!!secondaryEventRegistration) {
+        registrationEvent = secondaryEvent;
+        registration = secondaryEventRegistration;
     }
 
     // ---------------------------------------------------------------------------------------------
-    // TODO: Refactor
 
-    const adminAccess: string[] = [];
+    const buttons: React.ReactNode[] = [];
 
-    if (user) {
-        for (const { admin, event } of authenticationContext.events.values()) {
-            if (!!admin)
-                adminAccess.push(event);
+    for (const event of [ primaryEvent, secondaryEvent ]) {
+        if (!event)
+            continue;
+
+        const eventData = event.toEventData(environment.environmentName);
+
+        const displayRegistrationButton = eventData.enableContent || registrationOverride;
+        const displayScheduleButton =
+            (eventData.enableSchedule && primaryEventRegistration) || scheduleOverride;
+
+        const highlightRegistration =
+            eventData.enableContent && isBefore(currentTime, event.temporalStartTime);
+        const highlightSchedule =
+            eventData.enableSchedule && isBefore(currentTime, event.temporalEndTime);
+
+        if (displayRegistrationButton) {
+            buttons.push(
+                <Button key="primary-registration" component={Link}
+                        href={`/registration/${event.slug}`}
+                        color={ eventData.enableContent ? 'primary' : 'hidden' }
+                        variant={ highlightRegistration ? 'contained' : 'outlined' }>
+                    Join the {event.shortName} {environment.environmentTitle}!
+                </Button>
+            );
+        }
+
+        if (displayScheduleButton) {
+            buttons.push(
+                <Button key="primary-schedule" component={Link}
+                        href={`/schedule/${event.slug}`}
+                        color={ eventData.enableSchedule ? 'primary' : 'hidden' }
+                        variant={ highlightSchedule ? 'contained' : 'outlined' }>
+                    {event.shortName} Volunteer Portal
+                </Button>
+            );
         }
     }
-
-    const eventDatas = events.map(event => event.toEventData(environment.environmentName));
 
     // ---------------------------------------------------------------------------------------------
 
@@ -134,13 +171,16 @@ export default async function RootPage() {
                                           event={registrationEventData}
                                           registration={registrationData}
                                           user={user}>
+                <WelcomeCard description={environment.teamDescription}
+                             landingStyle={landingStyle}>
 
-                <WelcomePage adminAccess={adminAccess}
-                             environment={environment.environmentName}
-                             events={eventDatas}
-                             user={user}
-                             title={environment.environmentTitle}
-                             description={environment.teamDescription} />
+                    { buttons }
+                    { buttons.length === 0 &&
+                        <Alert severity="error">
+                            We are not searching for volunteers for any upcoming AnimeCon events.
+                        </Alert> }
+
+                </WelcomeCard>
 
             </RegistrationContentContainer>
 
