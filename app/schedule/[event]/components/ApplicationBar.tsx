@@ -22,6 +22,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { alpha, styled } from '@mui/material/styles';
 
+import { DarkModeMenuItem } from './DarkModeMenuItem';
 import { SearchResults } from './SearchResults';
 import { callApi } from '@lib/callApi';
 import { useTitle } from '../ScheduleTitle';
@@ -268,7 +269,7 @@ export function ApplicationBar() {
                   onClose={closeUserMenu}
                   open={userMenuOpen}>
 
-                { /* TODO: Dark mode toggle */ }
+                <DarkModeMenuItem />
 
                 <MenuItem dense onClick={handleSignOut}>
                     <ListItemIcon>
