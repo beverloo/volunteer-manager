@@ -176,7 +176,7 @@ export function Avatar(props: AvatarProps) {
     // be wrapped with a <StyledBadge> component.
     if (props.editable || props.badge) {
         const badge =
-            props.editable ? <CloudUploadIcon onClick={ () => setEditorOpen(true) }
+            props.editable ? <CloudUploadIcon onClick={ () => setEditorOpen(true) } color="primary"
                                               sx={{ cursor: 'pointer' }} />
                            : props.badge;
 
