@@ -74,29 +74,8 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     if (!event)
         notFound();
 
-    // ---------------------------------------------------------------------------------------------
-    // TODO: Remove when colour customisations are more or less complete:
-
-    const active: 'crew' | 'hosts' | 'stewards' = 'hosts' as typeof active;
-    let colour: { light: string; dark: string } | undefined;
-    switch (active) {
-        case 'crew':
-            colour = { light: '#5d4037', dark: '#a1887f' };
-            break;
-
-        case 'hosts':
-            colour = { light: '#880e4f', dark: '#f8bbd0' };
-            break;
-
-        case 'stewards':
-            colour = { light: '#303f9f', dark: '#90caf9' };
-            break;
-    }
-
-    // ---------------------------------------------------------------------------------------------
-
     return (
-        <ScheduleTheme palette={colour || environment.themeColours}>
+        <ScheduleTheme palette={environment.themeColours}>
             <ScheduleContextManager event={event.slug}>
                 <ApplicationBar />
                 <Stack direction="row" sx={kStyles.container}>
