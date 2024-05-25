@@ -10,6 +10,8 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from '@mui/material/AppBar';
+import Divider from '@mui/material/Divider';
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -28,6 +30,7 @@ import { callApi } from '@lib/callApi';
 import { useTitle } from '../ScheduleTitle';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from '../Constants';
+import FeedbackDialog from './FeedbackDialog';
 
 /**
  * Containing element for the search field. Provides relative positioning, and a hover effect on
@@ -224,6 +227,14 @@ export function ApplicationBar() {
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ feedbackOpen, setFeedbackOpen ] = useState<boolean>(false);
+
+    const handleFeedbackClose = useCallback(() => setFeedbackOpen(false), [ /* no deps */ ]);
+    const handleFeedback = useCallback(() => {
+        setFeedbackOpen(true);
+        setUserMenuOpen(false);
+    }, [ /* no deps */ ]);
+
     // Signs the user out of their account, and forwards them back to the home page since the
     // schedule app is only available to signed in and participating volunteers.
     const handleSignOut = useCallback(async () => {
@@ -271,7 +282,18 @@ export function ApplicationBar() {
 
                 <DarkModeMenuItem />
 
-                <MenuItem dense onClick={handleSignOut}>
+                <MenuItem onClick={handleFeedback}>
+                    <ListItemIcon>
+                        <FeedbackOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                        Feedback
+                    </ListItemText>
+                </MenuItem>
+
+                <Divider />
+
+                <MenuItem onClick={handleSignOut}>
                     <ListItemIcon>
                         <LogoutIcon fontSize="small" />
                     </ListItemIcon>
@@ -281,6 +303,8 @@ export function ApplicationBar() {
                 </MenuItem>
 
             </Menu>
+
+            <FeedbackDialog open={feedbackOpen} onClose={handleFeedbackClose} />
         </>
     );
 }
