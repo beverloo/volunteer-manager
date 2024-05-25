@@ -7,6 +7,8 @@ import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
 import { redirect } from 'next/navigation';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import List from '@mui/material/List';
@@ -18,8 +20,8 @@ import { ListItemEventText } from '../../components/ListItemEventText';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
+import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { formatDate } from '@lib/Temporal';
-import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
 
@@ -31,6 +33,11 @@ interface TimeslotSectionInfo {
      * Label to assign to the section of timeslots.
      */
     label: string;
+
+    /**
+     * Whether the day has finished already. Only included to enable sorting the results.
+     */
+    finished: boolean;
 
     /**
      * The timeslots that are part of this section.
@@ -71,6 +78,16 @@ interface TimeslotSectionInfo {
          * sorting the results.
          */
         startTime: number;
+
+        /**
+         * Whether the event has finished already. Only included to enable sorting the results.
+         */
+        finished: boolean;
+
+        /**
+         * Optional styling that should be applied to this timeslot entry.
+         */
+        sx?: SxProps<Theme>,
     }[];
 }
 
@@ -101,6 +118,8 @@ export function LocationPage(props: LocationPageProps) {
         const activities = new Set<string>;
         const timeslotsSections = new Map<string, TimeslotSectionInfo['timeslots'][number][]>;
 
+        const currentTime = currentTimestamp();
+
         for (const timeslotId of schedule.program.locations[props.locationId].timeslots) {
             const timeslot = schedule.program.timeslots[timeslotId];
             const activity = schedule.program.activities[timeslot.activity];
@@ -120,29 +139,68 @@ export function LocationPage(props: LocationPageProps) {
             if (!timeslotsSections.has(section))
                 timeslotsSections.set(section, [ /* empty */ ]);
 
+            let sx: SxProps<Theme> | undefined;
+            if (timeslot.end <= currentTime) {
+                sx = {
+                    backgroundColor: 'animecon.pastBackground',
+                    textDecoration: 'line-through',
+                    textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                    '&:hover': {
+                        backgroundColor: 'animecon.pastBackgroundHover',
+                        textDecoration: 'line-through',
+                        textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                    },
+                };
+            } else if (timeslot.start <= currentTime) {
+                sx = {
+                    backgroundColor: 'animecon.activeBackground',
+                    '&:hover': {
+                        backgroundColor: 'animecon.activeBackgroundHover',
+                    },
+                };
+            }
+
             timeslotsSections.get(section)!.push({
                 id: timeslotId,
                 activityId: timeslot.activity,
                 activity: activity.title,
                 start: formatDate(start, 'HH:mm'),
                 startTime: timeslot.start,
+                finished: timeslot.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
                 invisible: activity.invisible,
+                sx,
             });
         }
 
         for (const [ label, timeslots ] of timeslotsSections.entries()) {
+            timeslots.sort((lhs, rhs) => {
+                if (schedule.config.sortPastEventsLast && lhs.finished !== rhs.finished)
+                    return lhs.finished ? 1 : -1;
+
+                return lhs.startTime - rhs.startTime;
+            });
+
+            let finished: boolean = false;
+            if (timeslots.length > 0) {
+                finished = toZonedDateTime(timeslots[0].startTime).with({
+                    hour: 23,
+                    minute: 59,
+                    second: 59,
+                }).epochSeconds < currentTime;
+            }
+
             sections.push({
                 label,
-                timeslots: timeslots.sort((lhs, rhs) => {
-                    // TODO: Sort timeslots that have passed to the bottom of the list.
-                    return lhs.startTime - rhs.startTime;
-                }),
+                finished,
+                timeslots,
             });
         }
 
         sections.sort((lhs, rhs) => {
-            // TODO: Sort timeslot sections that have passed to the bottom of the list.
+            if (schedule.config.sortPastDaysLast && lhs.finished !== rhs.finished)
+                return lhs.finished ? 1 : -1;
+
             return lhs.timeslots[0].startTime - rhs.timeslots[0].startTime;
         });
 
@@ -194,7 +252,7 @@ export function LocationPage(props: LocationPageProps) {
 
                                 return (
                                     <ListItemButton LinkComponent={Link} href={href}
-                                                    key={timeslot.id}>
+                                                    key={timeslot.id} sx={timeslot.sx}>
                                         <ListItemEventText invisible={timeslot.invisible}
                                                            title={timeslot.activity} />
                                         <ListItemDetails>

@@ -8,25 +8,12 @@ import Link from 'next/link';
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
-import { darken, lighten } from '@mui/material/styles';
 
 import { ListItemDetails } from './ListItemDetails';
 import { ListItemEventText } from './ListItemEventText';
 import { formatDate, type Temporal } from '@lib/Temporal';
 import { isDifferentDay } from '../lib/isDifferentDay';
 import { toZonedDateTime } from '../CurrentTime';
-
-/**
- * CSS customizations applied to the <CardTimeslotEntry> component.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    activeEvent: {
-        backgroundColor: theme => {
-            return theme.palette.mode === 'dark' ? darken(/* green[900]= */ '#1B5E20', .25)
-                                                 : lighten(theme.palette.success.light, .9);
-        },
-    },
-};
 
 /**
  * Type definition of the information we need to know about a timeslot.
@@ -101,8 +88,13 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
 
         const endZonedDateTime = toZonedDateTime(timeslot.end);
 
-        styles = kStyles.activeEvent;
         time = `until ${formatDate(endZonedDateTime, 'HH:mm')}`;
+        styles = {
+            backgroundColor: 'animecon.activeBackground',
+            '&:hover': {
+                backgroundColor: 'animecon.activeBackgroundHover',
+            }
+        };
 
     } else {
         // Future events:

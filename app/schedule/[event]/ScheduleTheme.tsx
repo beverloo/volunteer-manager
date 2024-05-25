@@ -20,6 +20,24 @@ declare module '@mui/material/styles' {
         acThemeDarkColor: string;
         acThemeLightColor: string;
     }
+    interface Palette {
+        animecon: {
+            activeBackground: string;
+            activeBackgroundHover: string;
+            pastBackground: string;
+            pastBackgroundHover: string;
+            pastForeground: string;
+        };
+    }
+    interface PaletteOptions {
+        animecon: {
+            activeBackground: string;
+            activeBackgroundHover: string;
+            pastBackground: string;
+            pastBackgroundHover: string;
+            pastForeground: string;
+        };
+    }
 }
 
 /**
@@ -124,6 +142,13 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
     return createTheme({
         palette: {
             mode,
+            animecon: {
+                activeBackground: mode === 'dark' ? '#144618' : '#edf7ed',
+                activeBackgroundHover: mode === 'dark' ? '#15581a' : '#dbeddb',
+                pastBackground: mode === 'dark' ? '#212121' : '#e0e0e0',
+                pastBackgroundHover: mode === 'dark' ? '#292929' : '#d8d8d8',
+                pastForeground: mode === 'dark' ? 'rgba(255, 255, 255, .6)' : 'rgba(0, 0, 0, .25)',
+            },
             background: {
                 default: mode === 'dark' ? '#181818' : lighten(baseColour, 0.94),
                 paper: mode === 'dark' ? '#212121' : '#ffffff',
