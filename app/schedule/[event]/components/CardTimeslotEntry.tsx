@@ -76,7 +76,7 @@ export interface CardTimeslotEntryProps {
 export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     const { currentTime, prefix, timeslot } = props;
 
-    let styles: SxProps<Theme> = null;
+    let sx: SxProps<Theme> = null;
     let time: React.ReactNode;
 
     if (currentTime.epochSeconds >= timeslot.end) {
@@ -89,7 +89,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
         const endZonedDateTime = toZonedDateTime(timeslot.end);
 
         time = `until ${formatDate(endZonedDateTime, 'HH:mm')}`;
-        styles = {
+        sx = {
             backgroundColor: 'animecon.activeBackground',
             '&:hover': {
                 backgroundColor: 'animecon.activeBackgroundHover',
@@ -108,7 +108,7 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
 
     return (
         <ListItemButton LinkComponent={Link} href={`${prefix}/events/${timeslot.activityId}`}
-                        sx={styles}>
+                        sx={sx}>
 
             <ListItemEventText invisible={!!timeslot.invisible} title={timeslot.title} />
 

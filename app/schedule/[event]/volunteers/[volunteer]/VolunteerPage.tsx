@@ -29,8 +29,8 @@ import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
 import { callApi } from '@lib/callApi';
+import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { formatDate } from '@lib/Temporal';
-import { toZonedDateTime } from '../../CurrentTime';
 
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
 
@@ -47,6 +47,16 @@ interface ScheduledShiftsSection {
      * Label to assign to the section of scheduled shifts.
      */
     label: string;
+
+    /**
+     * Whether a divider should be shown ahead of this section.
+     */
+    divider: boolean;
+
+    /**
+     * Whether the day has finished already. Only included to enable sorting the results.
+     */
+    finished: boolean;
 
     /**
      * The shifts that are part of this section.
@@ -82,6 +92,11 @@ interface ScheduledShiftsSection {
          * purposes, should not be used to present to the user.
          */
         startTime: number;
+
+        /**
+         * Whether the shift has finished already. Only included to enable sorting the results.
+         */
+        finished: boolean;
     }[];
 }
 
@@ -113,6 +128,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
         if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
             return scheduledShifts;  // incomplete |schedule|
 
+        const currentTime = currentTimestamp();
+
         const scheduledShiftSections = new Map<string, ScheduledShiftsSection['shifts'][number][]>;
         for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
             const scheduledShift = schedule.schedule[scheduledShiftId];
@@ -137,24 +154,50 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 name: shift.name,
                 start: formatDate(start, 'HH:mm'),
                 startTime: scheduledShift.start,
+                finished: scheduledShift.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
             });
         }
 
         for (const [ label, shifts ] of scheduledShiftSections.entries()) {
+            shifts.sort((lhs, rhs) => {
+                if (schedule.config.sortPastEventsLast && lhs.finished !== rhs.finished)
+                    return lhs.finished ? 1 : -1;
+
+                return lhs.startTime - rhs.startTime;
+            });
+
+            let finished: boolean = false;
+            if (shifts.length > 0) {
+                finished = toZonedDateTime(shifts[0].startTime).with({
+                    hour: 23,
+                    minute: 59,
+                    second: 59,
+                }).epochSeconds < currentTime;
+            }
+
             scheduledShifts.push({
                 label,
-                shifts: shifts.sort((lhs, rhs) => {
-                    // TODO: Sort shifts that have passed to the bottom of the list.
-                    return lhs.startTime - rhs.startTime;
-                }),
+                divider: false,
+                finished,
+                shifts,
             });
         }
 
         scheduledShifts.sort((lhs, rhs) => {
-            // TODO: Sort shift sections that have passed to the bottom of the list.
+            if (schedule.config.sortPastDaysLast && lhs.finished !== rhs.finished)
+                return lhs.finished ? 1 : -1;
+
             return lhs.shifts[0].startTime - rhs.shifts[0].startTime;
         });
+
+        for (let index = 1; index < scheduledShifts.length; ++index) {
+            if (scheduledShifts[index].finished === scheduledShifts[0].finished)
+                continue;
+
+            scheduledShifts[index].divider = true;
+            break;
+        }
 
         return scheduledShifts;
 
