@@ -7,6 +7,10 @@ import type { PaletteMode } from '@mui/material';
 
 import db, { tTeams } from '@lib/database';
 
+declare module globalThis {
+    let animeConEnvironmentCache: Map<string, Environment> | undefined;
+}
+
 /**
  * Describes the environment in which the Volunteer Manager has been loaded. Only applicable for the
  * front-end, as the other sub applications are shared among the environments.
@@ -44,11 +48,6 @@ export interface Environment {
 }
 
 /**
- * Cache for loaded environments, keyed by the `environmentName` properties.
- */
-let globalEnvironmentCache: Map<string, Environment> | undefined;
-
-/**
  * Loads the environment configuration from the database, which will then be stored in the cache
  * (`kEnvironmentCache`) so that it can be quickly accessed thereafter.
  *
@@ -73,9 +72,9 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
         })
         .executeSelectMany();
 
-    globalEnvironmentCache = new Map();
+    globalThis.animeConEnvironmentCache = new Map();
     for (const environment of environments) {
-        globalEnvironmentCache.set(environment.teamEnvironment, {
+        globalThis.animeConEnvironmentCache.set(environment.teamEnvironment, {
             id: environment.id,
             environmentName: environment.teamEnvironment,
             environmentTitle: environment.teamTitle,
@@ -94,20 +93,20 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
  * environment could be found. May result in a database query, although results are cached.
  */
 export async function getEnvironment(environmentName: string): Promise<Environment | undefined> {
-    if (!globalEnvironmentCache)
+    if (!globalThis.animeConEnvironmentCache)
         await loadEnvironmentsFromDatabase();
 
-    return globalEnvironmentCache!.get(environmentName);
+    return globalThis.animeConEnvironmentCache!.get(environmentName);
 }
 
 /**
  * Returns an iterator containing all environments that are known to the Volunteer Manager.
  */
 export async function getEnvironmentIterator(): Promise<Iterable<Environment>> {
-    if (!globalEnvironmentCache)
+    if (!globalThis.animeConEnvironmentCache)
         await loadEnvironmentsFromDatabase();
 
-    return globalEnvironmentCache!.values();
+    return globalThis.animeConEnvironmentCache!.values();
 }
 
 /**
@@ -115,14 +114,14 @@ export async function getEnvironmentIterator(): Promise<Iterable<Environment>> {
  * Will return "undefined" in case no appropriate environment can be found.
  */
 export async function determineEnvironment(): Promise<Environment | undefined> {
-    if (!globalEnvironmentCache)
+    if (!globalThis.animeConEnvironmentCache)
         await loadEnvironmentsFromDatabase();
 
     const requestOrigin =
         /* dev environment= */   process.env.APP_ENVIRONMENT_OVERRIDE ??
         /* production server= */ headers().get('Host');
 
-    for (const [ environmentName, environment ] of globalEnvironmentCache!.entries()) {
+    for (const [ environmentName, environment ] of globalThis.animeConEnvironmentCache!.entries()) {
         if (requestOrigin?.endsWith(environmentName))
             return environment;
     }
@@ -135,5 +134,5 @@ export async function determineEnvironment(): Promise<Environment | undefined> {
  * the cached configuration will no longer be valid after that has happened.
  */
 export function clearEnvironmentCache() {
-    globalEnvironmentCache = undefined;
+    globalThis.animeConEnvironmentCache = undefined;
 }
