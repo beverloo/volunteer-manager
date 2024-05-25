@@ -11,6 +11,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 
@@ -33,6 +34,11 @@ interface TimeslotSectionInfo {
      * Label to assign to the section of timeslots.
      */
     label: string;
+
+    /**
+     * Whether a divider should be shown ahead of this section.
+     */
+    divider: boolean;
 
     /**
      * Whether the day has finished already. Only included to enable sorting the results.
@@ -192,6 +198,7 @@ export function LocationPage(props: LocationPageProps) {
 
             sections.push({
                 label,
+                divider: false,
                 finished,
                 timeslots,
             });
@@ -203,6 +210,14 @@ export function LocationPage(props: LocationPageProps) {
 
             return lhs.timeslots[0].startTime - rhs.timeslots[0].startTime;
         });
+
+        for (let index = 1; index < sections.length; ++index) {
+            if (sections[index].finished === sections[0].finished)
+                continue;
+
+            sections[index].divider = true;
+            break;
+        }
 
         return [
             sections,
@@ -243,6 +258,7 @@ export function LocationPage(props: LocationPageProps) {
                 </ErrorCard> }
             { sections.map(section =>
                 <React.Fragment key={section.label}>
+                    { section.divider && <Divider sx={{ pt: 1 }} /> }
                     <SubHeader>{section.label}</SubHeader>
                     <Card sx={{ mt: '8px !important' }}>
                         <List dense disablePadding>
