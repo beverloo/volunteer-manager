@@ -93,7 +93,7 @@ interface TimeslotSectionInfo {
         /**
          * Optional styling that should be applied to this timeslot entry.
          */
-        sx?: SxProps<Theme>,
+        sx?: SxProps<Theme>;
     }[];
 }
 
