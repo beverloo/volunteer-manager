@@ -7,6 +7,8 @@ import Link from 'next/link';
 import React, { useCallback, useContext, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import List from '@mui/material/List';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -50,7 +52,7 @@ function VolunteerList(props: VolunteerListProps) {
     const { volunteers } = props;
 
     return (
-        <List>
+        <List disablePadding>
             {volunteers.map(volunteer => {
                 const href = `./volunteers/${volunteer.id}`;
 
@@ -64,8 +66,15 @@ function VolunteerList(props: VolunteerListProps) {
                 if (!!volunteer.roleLeader)
                     secondary = <strong>{volunteer.role}</strong>;
 
+                let sx: SxProps<Theme> | undefined;
                 if (!!volunteer.unavailableUntil) {
                     state = 'unavailable';
+                    sx = {
+                        backgroundColor: 'animecon.pastBackground',
+                        '&:hover': {
+                            backgroundColor: 'animecon.pastBackgroundHover',
+                        }
+                    };
 
                     if (volunteer.unavailableUntil === /* never= */ -1) {
                         secondary = <>{secondary} — unavailable</>;
@@ -80,10 +89,16 @@ function VolunteerList(props: VolunteerListProps) {
                 } else if (!!volunteer.activeShiftName) {
                     secondary = <>{secondary} — {volunteer.activeShiftName}</>;
                     state = 'active';
+                    sx = {
+                        backgroundColor: 'animecon.activeBackground',
+                        '&:hover': {
+                            backgroundColor: 'animecon.activeBackgroundHover',
+                        }
+                    };
                 }
 
                 return (
-                    <ListItemButton LinkComponent={Link} key={volunteer.id} href={href}>
+                    <ListItemButton LinkComponent={Link} key={volunteer.id} href={href} sx={sx}>
                         <ListItemAvatar>
                             <Avatar src={volunteer.avatar}>
                                 {volunteer.name}
