@@ -13,6 +13,11 @@ import { MockQueryRunner, type QueryType as MockQueryType }
 import type { PlainDate, ZonedDateTime } from '@lib/Temporal';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 
+declare module globalThis {
+    let animeConConnectionPool: Pool | undefined;
+    let animeConMockConnection: DBConnection | undefined;
+}
+
 /**
  * The MariaDB connection pool configuration that should be used for the Volunteer Manager.
  */
@@ -95,16 +100,12 @@ class ErrorReportingQueryRunner extends InterceptorQueryRunner<undefined> {
 }
 
 /**
- * The query runner that powers connection coming from the Volunteer Manager. Lazily initialized the
- * first time a connection is requested.
+ * Returns the connection pool that (may) have been created for the AnimeCon Volunteer Manager. The
+ * pool is shared among the entire environment.
  */
-export let globalConnectionPool: Pool | undefined;
-
-/**
- * Global mock connection that can be created (& destroyed) using the `useMockConnection` function
- * in tests. The `db` global will seamlessly be overridden when this machinery is in place.
- */
-let globalMockConnection: DBConnection | undefined;
+export function getConnectionPool() {
+    return globalThis.animeConConnectionPool;
+}
 
 /**
  * The global connection that should be used by the Volunteer Manager. The connection pool is lazily
@@ -112,16 +113,16 @@ let globalMockConnection: DBConnection | undefined;
  * that is being executed. This allows us to run multiple queries in parallel, pool limits allowing.
  */
 export const globalConnection = new Proxy<DBConnection>({ /* unused */ } as any, new class {
-    #instance?: DBConnection = undefined;
     get(target: DBConnection, property: string | symbol, receiver: any) {
-        if (globalMockConnection)
-            return Reflect.get(globalMockConnection, property);
+        if (globalThis.animeConMockConnection)
+            return Reflect.get(globalThis.animeConMockConnection, property);
 
-        if (!globalConnectionPool)
-            globalConnectionPool = createPool(kConnectionPoolConfig);
+        if (!globalThis.animeConConnectionPool)
+            globalThis.animeConConnectionPool = createPool(kConnectionPoolConfig);
 
         const queryRunner =
-            new ErrorReportingQueryRunner(new MariaDBPoolQueryRunner(globalConnectionPool));
+            new ErrorReportingQueryRunner(new MariaDBPoolQueryRunner(
+                globalThis.animeConConnectionPool));
 
         return Reflect.get(new DBConnection(queryRunner), property);
     }
@@ -158,7 +159,7 @@ export function useMockConnection() {
          * Returns the DBConnection instance that is available during the test. Each individual test
          * will return a difference instance, so do not expect stability.
          */
-        get connection() { return globalMockConnection!; }
+        get connection() { return globalThis.animeConMockConnection!; }
 
         /**
          * Expects a query of the given `type` to be executing next in order. When this is the case,
@@ -172,7 +173,7 @@ export function useMockConnection() {
 
     beforeEach(() => {
         mockConnectionQueue.splice(0, mockConnectionQueue.length);
-        globalMockConnection = new DBConnection(new MockQueryRunner(
+        globalThis.animeConMockConnection = new DBConnection(new MockQueryRunner(
             (queryType: MockQueryType, query: string, params: any[], index: number) => {
                 expect(mockConnectionQueue.length).toBeGreaterThan(0);
 
@@ -185,7 +186,7 @@ export function useMockConnection() {
     });
 
     afterEach(() => {
-        globalMockConnection = undefined;
+        globalThis.animeConMockConnection = undefined;
         expect(mockConnectionQueue).toHaveLength(0);
     });
 

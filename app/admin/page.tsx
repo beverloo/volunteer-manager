@@ -15,7 +15,7 @@ import { Temporal } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
-import { globalConnectionPool } from '@lib/database/Connection';
+import { getConnectionPool } from '@lib/database/Connection';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
 
 /**
@@ -87,15 +87,17 @@ export default async function AdminPage() {
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);
 
+    const connectionPool = getConnectionPool();
     let databaseStatus: DatabaseStatus | undefined;
-    if (can(user, Privilege.SystemAdministrator) && globalConnectionPool) {
+
+    if (can(user, Privilege.SystemAdministrator) && connectionPool) {
         databaseStatus = {
             connections: {
-                active: globalConnectionPool.activeConnections(),
-                idle: globalConnectionPool.idleConnections(),
-                total: globalConnectionPool.totalConnections(),
+                active: connectionPool.activeConnections(),
+                idle: connectionPool.idleConnections(),
+                total: connectionPool.totalConnections(),
             },
-            taskQueueSize: globalConnectionPool.taskQueueSize(),
+            taskQueueSize: connectionPool.taskQueueSize(),
         };
     }
 
