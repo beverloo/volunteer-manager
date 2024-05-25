@@ -14,8 +14,10 @@ import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { StatisticsCard } from './welcome/StatisticsCard';
+import { Temporal, isBefore } from '@lib/Temporal';
 import { WelcomePage } from './welcome/WelcomePage';
 import { determineEnvironment } from '@lib/Environment';
 import { generatePortalMetadataFn } from './registration/generatePortalMetadataFn';
@@ -47,6 +49,7 @@ export default async function RootPage() {
     const authenticationContext = await getAuthenticationContext();
     const { user } = authenticationContext;
 
+    const currentTime = Temporal.Now.zonedDateTimeISO('utc');
     const events = await getEventsForUser(environment.environmentName, user);
 
     // TODO: What to do when |events.length| === 0?
@@ -77,28 +80,37 @@ export default async function RootPage() {
     const primaryEvent = events.shift();
     const secondaryEvent = events.shift();
 
+    // Determine the event for which the signed in user has registered, if any. This will consider
+    // both the primary and secondary event, but only when they have not finished yet.
+    let registrationEvent: Event | undefined;
+    let registration: Registration | undefined;
+
+    if (!!authenticationContext.user) {
+        const potentialEvents: Event[] = [];
+
+        if (!!primaryEvent && isBefore(currentTime, primaryEvent.temporalEndTime))
+            potentialEvents.push(primaryEvent);
+        if (!!secondaryEvent && isBefore(currentTime, secondaryEvent.temporalEndTime))
+            potentialEvents.push(secondaryEvent);
+
+        for (const potentialEvent of potentialEvents) {
+            registration = await getRegistration(
+                environment.environmentName, potentialEvent, authenticationContext.user.userId);
+
+            if (!registration)
+                continue;  // the volunteer hasn't applied to help out in this event
+
+            registrationEvent = potentialEvent;
+            break;
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
     // TODO: Refactor
 
-    // Identify the most recent team for which applications are being accepted, then fetch whether
-    // the `user`, if they are signed in, has applied to that event.
-    let registrationEvent: Event | undefined;
-    let registration: Registration | undefined;
-
     const adminAccess: string[] = [];
 
     if (user) {
-        for (const event of events) {
-            const eventEnvironmentData = event.getEnvironmentData(environment.environmentName);
-            if (!eventEnvironmentData || !eventEnvironmentData.enableRegistration)
-                continue;
-
-            registrationEvent = event;
-            registration = await getRegistration(environment.environmentName, event, user.userId);
-            break;
-        }
-
         for (const { admin, event } of authenticationContext.events.values()) {
             if (!!admin)
                 adminAccess.push(event);
@@ -106,10 +118,11 @@ export default async function RootPage() {
     }
 
     const eventDatas = events.map(event => event.toEventData(environment.environmentName));
-    const registrationEventData = registrationEvent?.toEventData(environment.environmentName);
-    const registrationData = registration?.toRegistrationData();
 
     // ---------------------------------------------------------------------------------------------
+
+    const registrationEventData = registrationEvent?.toEventData(environment.environmentName);
+    const registrationData = registration?.toRegistrationData();
 
     const landingStyle: SxProps<Theme> = {
         backgroundImage: `url('/images/${environment.environmentName}/landing.jpg')`
@@ -117,14 +130,19 @@ export default async function RootPage() {
 
     return (
         <RegistrationLayout environment={environment}>
-            <WelcomePage adminAccess={adminAccess}
-                         environment={environment.environmentName}
-                         events={eventDatas}
-                         user={user}
-                         registrationEvent={registrationEventData}
-                         registration={registrationData}
-                         title={environment.environmentTitle}
-                         description={environment.teamDescription} />
+            <RegistrationContentContainer title={`AnimeCon ${environment.environmentTitle}`}
+                                          event={registrationEventData}
+                                          registration={registrationData}
+                                          user={user}>
+
+                <WelcomePage adminAccess={adminAccess}
+                             environment={environment.environmentName}
+                             events={eventDatas}
+                             user={user}
+                             title={environment.environmentTitle}
+                             description={environment.teamDescription} />
+
+            </RegistrationContentContainer>
 
             <Grid container spacing={2} sx={{ mt: 2 }}>
                 <Grid xs={12} md={0} sx={{ display: { xs: 'block', md: 'none' } }}>

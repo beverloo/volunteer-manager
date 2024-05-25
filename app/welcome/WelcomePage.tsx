@@ -8,44 +8,20 @@ import Link from 'next/link';
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import EventNoteIcon from '@mui/icons-material/EventNote';
 import Grid from '@mui/material/Unstable_Grid2';
-import HowToRegIcon from '@mui/icons-material/HowToReg';
 import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { deepmerge } from '@mui/utils';
 
 import type { EventDataWithEnvironment } from '@lib/Event';
-import type { RegistrationData } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
-import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
-import { Temporal, isAfter, isBefore } from '@lib/Temporal';
+import { Temporal, isAfter } from '@lib/Temporal';
 
 /**
  * Manual styles that apply to the <WelcomePage> client component.
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
-    eventCardActions: {
-        alignItems: 'start',
-        flexDirection: 'column',
-        pt: { md: 2 },
-
-        '&>a>:first-of-type': { px: 1 },
-        '&>:not(:first-of-type)': {
-            px: 0,
-            m: 0,
-        },
-    },
-    hiddenCardActions: {
-        '&>a>:first-of-type': { px: 1 },
-    },
     landingPage: {
         minHeight: { md: 340 },
         mt: 0,
@@ -99,16 +75,6 @@ export interface WelcomePageProps {
     user?: User;
 
     /**
-     * The event for which the signed in volunteer may have registered.
-     */
-    registrationEvent?: EventDataWithEnvironment;
-
-    /**
-     * The registration the signed in volunteer may have created for the current event.
-     */
-    registration?: RegistrationData;
-
-    /**
      * Title of the page that should be displayed at the top. Dependent on the environment.
      */
     title: string;
@@ -155,11 +121,7 @@ export function WelcomePage(props: WelcomePageProps) {
 
     return (
         <>
-            <RegistrationContentContainer title={`AnimeCon ${props.title}`}
-                                          event={props.registrationEvent}
-                                          registration={props.registration}
-                                          user={user}>
-
+            <>
                 { /* Section: Landing page */ }
                 <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
                     <Grid xs={12} md={5}>
@@ -215,43 +177,7 @@ export function WelcomePage(props: WelcomePageProps) {
                         { /* TODO: Multiple photos per environment */ }
                     </Grid>
                 </Grid>
-
-            </RegistrationContentContainer>
-
-            { /* Section: Further content */ }
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-                { additionalEvents.map(event =>
-                    <Grid key={event.slug} xs={12} md={4}>
-                        <Card elevation={2}>
-                            <CardContent sx={{ pb: 0 }}>
-                                <Stack direction="row" alignItems="center" spacing={1}>
-                                    <Typography variant="h5" component="p" noWrap>
-                                        {event.name}
-                                    </Typography>
-                                    <Tooltip title="Access is limited to selected volunteers">
-                                        <VisibilityOffIcon fontSize="small" color="disabled" />
-                                    </Tooltip>
-                                </Stack>
-                            </CardContent>
-                            <CardActions sx={kStyles.eventCardActions}>
-                                { (event.enableContent || adminAccess.has(event.slug) ||
-                                       eventContentOverride) &&
-                                    <Link href={`/registration/${event.slug}/`} passHref>
-                                        <Button size="small" startIcon={ <HowToRegIcon />}>
-                                            Registration
-                                        </Button>
-                                    </Link> }
-                                { (event.enableSchedule || adminAccess.has(event.slug) ||
-                                       eventScheduleOverride) &&
-                                    <Link href={`/schedule/${event.slug}/`} passHref>
-                                        <Button size="small" startIcon={ <EventNoteIcon />}>
-                                            Volunteer Portal
-                                        </Button>
-                                    </Link> }
-                            </CardActions>
-                        </Card>
-                    </Grid> )}
-            </Grid>
+            </>
         </>
     );
 }
