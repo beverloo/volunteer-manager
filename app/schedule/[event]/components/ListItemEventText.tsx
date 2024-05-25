@@ -3,20 +3,11 @@
 
 'use client';
 
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
 import Tooltip from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-/**
- * CSS customizations applied to the <ListItemEventText> component.
- */
-const kListItemEventTextStyles: SxProps<Theme> = {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-};
+import { kEnforceSingleLine } from '../Constants';
 
 /**
  * Props accepted by the <ListItemEventText> component.
@@ -40,7 +31,7 @@ export interface ListItemEventTextProps {
 export function ListItemEventText(props: ListItemEventTextProps) {
     if (!!props.invisible) {
         return (
-            <ListItemText primaryTypographyProps={{ sx: kListItemEventTextStyles }}
+            <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
                           primary={
                               <>
                                   <em>{props.title}</em>
@@ -55,7 +46,7 @@ export function ListItemEventText(props: ListItemEventTextProps) {
     }
 
     return (
-        <ListItemText primaryTypographyProps={{ sx: kListItemEventTextStyles }}
+        <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
                       primary={props.title} />
     );
 }

@@ -27,6 +27,8 @@ import { SetTitle } from '../components/SetTitle';
 import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../CurrentTime';
 
+import { kEnforceSingleLine } from '../Constants';
+
 /**
  * Information that should be known about an individual volunteer.
  */
@@ -105,7 +107,8 @@ function VolunteerList(props: VolunteerListProps) {
                         </ListItemAvatar>
                         <ListItemText primary={volunteer.name}
                                       primaryTypographyProps={{ variant: 'subtitle2' }}
-                                      secondary={secondary} />
+                                      secondary={secondary}
+                                      secondaryTypographyProps={{ sx: kEnforceSingleLine }} />
                         { isBackup &&
                             <Tooltip title="This volunteer may be available to help">
                                 <HourglassBottomOutlinedIcon fontSize="small" color="primary" />

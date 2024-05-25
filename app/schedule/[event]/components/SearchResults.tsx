@@ -25,6 +25,8 @@ import { Avatar } from '@components/Avatar';
 import { ScheduleContext } from '../ScheduleContext';
 import { normalizeString, stringScoreEx } from '@lib/StringScore';
 
+import { kEnforceSingleLine } from '../Constants';
+
 /**
  * CSS customizations applied to the <EventListItem> component.
  */
@@ -35,11 +37,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
             width: '50vw',
         }
     }),
-    label: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    },
 };
 
 /**
@@ -343,7 +340,7 @@ export function SearchResults(props: SearchResultsProps) {
                             <ListItemButton key={result.href}
                                             onClick={ () => handleCommit(result.href) }>
                                 {avatar}
-                                <ListItemText primaryTypographyProps={{ sx: kStyles.label }}
+                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
                                               primary={result.label} />
                             </ListItemButton>
                         );

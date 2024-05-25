@@ -29,7 +29,7 @@ import { SearchResults } from './SearchResults';
 import { callApi } from '@lib/callApi';
 import { useTitle } from '../ScheduleTitle';
 
-import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from '../Constants';
+import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx, kEnforceSingleLine } from '../Constants';
 import FeedbackDialog from './FeedbackDialog';
 
 /**
@@ -109,11 +109,8 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
     },
 
     title: {
+        ...kEnforceSingleLine,
         flexGrow: 1,
-
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
     },
 
     toolbar: {

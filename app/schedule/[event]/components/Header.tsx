@@ -9,18 +9,8 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
 import Paper from '@mui/material/Paper';
-import type React from 'react';
 
-/**
- * Styles to apply to <Header> & friends.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    primaryTypography: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-    },
-};
+import { kEnforceSingleLine } from '../Constants';
 
 /**
  * Props accepted by the <Header> component.
@@ -53,7 +43,7 @@ export function Header(props: HeaderProps) {
             <List>
                 <ListItem>
                     <ListItemText primary={title}
-                                  primaryTypographyProps={{ sx: kStyles.primaryTypography }}
+                                  primaryTypographyProps={{ sx: kEnforceSingleLine }}
                                   secondary={subtitle} />
                 </ListItem>
             </List>
