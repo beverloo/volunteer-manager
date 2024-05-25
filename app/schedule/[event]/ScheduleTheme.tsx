@@ -15,6 +15,13 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Box from '@mui/material/Box';
 
+declare module '@mui/material/styles' {
+    interface Components {
+        acThemeDarkColor: string;
+        acThemeLightColor: string;
+    }
+}
+
 /**
  * Palette mode that the schedule app can be in. Extends the regular MUI palette.
  */
@@ -126,6 +133,9 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
             },
         },
         components: {
+            acThemeDarkColor: palette.dark,
+            acThemeLightColor: palette.light,
+
             MuiAppBar: {
                 styleOverrides: {
                     root: {

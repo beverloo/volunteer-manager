@@ -23,6 +23,7 @@ import ListItemText from '@mui/material/ListItemText';
 import NotListedLocationOutlinedIcon from '@mui/icons-material/NotListedLocationOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import { darken, lighten, styled } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 
 import type { PublicSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Alert } from './Alert';
@@ -92,17 +93,17 @@ const SolidBadge = styled(Box)(({ theme }) => ({
  * environment's theme colour. This allows different environment to have different logos.
  */
 function DesktopNavigationLogo() {
-    const environment = { themeColor: '#ff4040' };
+    const theme = useTheme();
 
     const params = useMemo(() => {
         return new URLSearchParams([
-            [ 'color', darken(environment.themeColor, .3) ],
+            [ 'color', darken(theme.components?.acThemeLightColor || '#303f9f', 0.3) ],
             [ 'title', /* the empty string= */ '' ],
         ]);
-    }, [ environment.themeColor ]);
+    }, [ theme ]);
 
     return (
-        <Box sx={{ ...kStyles.header, backgroundColor: lighten(environment.themeColor, .7) }}>
+        <Box sx={{ ...kStyles.header, backgroundColor: theme.palette.background.paper }}>
             <object type="image/svg+xml" style={{ marginTop: '-35px' }}
                     data={'/images/logo.svg?' + params} />
         </Box>
