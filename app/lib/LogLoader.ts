@@ -260,6 +260,7 @@ const kLogMessageFormatter: {
     },
 
     [LogType.EventApplication]: (source, target, { event }) => `Applied to participate in ${event}`,
+    [LogType.EventFeedbackSubmitted]: 'Submitted feedback through the Volunteer Portal',
     [LogType.EventHelpRequestUpdate]: (source, target, { event, display, mutation }) => {
         return `${mutation} a help request from ${display} for ${event}`;
     },

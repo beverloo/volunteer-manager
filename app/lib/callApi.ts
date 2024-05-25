@@ -36,6 +36,7 @@ import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
+import type { SubmitFeedbackDefinition } from '@app/api/event/schedule/submitFeedback';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { TrainingsDefinition } from '@app/api/event/trainings';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
@@ -203,6 +204,7 @@ export type ApiEndpoints = {
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/hotels': HotelsDefinition,  // FIXME: move to GET?
         '/api/event/refund-request': RefundRequestDefinition,
+        '/api/event/schedule/feedback': SubmitFeedbackDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
         '/api/event/trainings': TrainingsDefinition,  // FIXME: move to GET?
         '/api/exports': ExportsDefinition,
