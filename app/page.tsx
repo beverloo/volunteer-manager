@@ -118,6 +118,11 @@ export default async function RootPage() {
 
     const buttons: React.ReactNode[] = [];
 
+    // Modification: Hide the schedule button for the |primaryEvent| when the |secondaryEvent| has
+    // not yet finished. This would be rather confusing for volunteers with elevated visibility.
+    const hidePrimarySchedule =
+        primaryEvent && secondaryEvent && isBefore(currentTime, secondaryEvent.temporalEndTime);
+
     for (const event of [ primaryEvent, secondaryEvent ]) {
         if (!event)
             continue;
@@ -133,24 +138,24 @@ export default async function RootPage() {
         const highlightSchedule =
             eventData.enableSchedule && isBefore(currentTime, event.temporalEndTime);
 
-        if (displayRegistrationButton) {
+        if (displayScheduleButton && (!hidePrimarySchedule || event !== primaryEvent)) {
             buttons.push(
-                <Button key="primary-registration" component={Link}
-                        href={`/registration/${event.slug}`}
-                        color={ eventData.enableContent ? 'primary' : 'hidden' }
-                        variant={ highlightRegistration ? 'contained' : 'outlined' }>
-                    Join the {event.shortName} {environment.environmentTitle}!
-                </Button>
-            );
-        }
-
-        if (displayScheduleButton) {
-            buttons.push(
-                <Button key="primary-schedule" component={Link}
+                <Button key={`${event.slug}-schedule`} component={Link}
                         href={`/schedule/${event.slug}`}
                         color={ eventData.enableSchedule ? 'primary' : 'hidden' }
                         variant={ highlightSchedule ? 'contained' : 'outlined' }>
                     {event.shortName} Volunteer Portal
+                </Button>
+            );
+        }
+
+        if (displayRegistrationButton) {
+            buttons.push(
+                <Button key={`${event.slug}-registration`} component={Link}
+                        href={`/registration/${event.slug}`}
+                        color={ eventData.enableContent ? 'primary' : 'hidden' }
+                        variant={ highlightRegistration ? 'contained' : 'outlined' }>
+                    Join the {event.shortName} {environment.environmentTitle}!
                 </Button>
             );
         }
