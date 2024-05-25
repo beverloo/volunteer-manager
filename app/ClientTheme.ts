@@ -57,7 +57,7 @@ const kThemeCache = new Map<string, Theme>();
 const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
     dark: {
         palette: {
-            animecon: undefined as any,  // not applicable for the welcome layout
+            animecon: { /* empty */ } as any,  // not applicable for the welcome layout
             background: {
                 default: '#000000',
                 paper: lighten(grey[900], .01),

@@ -16,7 +16,7 @@ import grey from '@mui/material/colors/grey';
 const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
     dark: {
         palette: {
-            animecon: undefined as any,  // not applicable for the admin area
+            animecon: { /* empty */ } as any,  // not applicable for the admin area
             background: {
                 default: '#111111',
                 paper: grey[900],
@@ -25,7 +25,7 @@ const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
     },
     light: {
         palette: {
-            animecon: undefined as any,  // not applicable for the admin area
+            animecon: { /* empty */ } as any,  // not applicable for the admin area
             background: {
                 default: '#f8faf0',
             },

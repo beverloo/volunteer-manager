@@ -59,7 +59,7 @@ function createDisplayTheme() {
     return createTheme({
         palette: {
             mode: 'dark',
-            animecon: undefined as any,  // not applicable for the display layout
+            animecon: { /* empty */ } as any,  // not applicable for the display layout
             background: {
                 default: '#0b0b0b',
                 paper: '#2c3339',
