@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
@@ -13,12 +13,14 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { deepmerge } from '@mui/utils';
 
 import type { Event } from '@lib/Event';
+import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
+import { RegistrationStatus } from '@lib/database/Types';
 import { StatisticsCard } from './welcome/StatisticsCard';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { WelcomeCard } from './welcome/WelcomeCard';
@@ -44,7 +46,7 @@ const kPhotoCardStyles: SxProps<Theme> = {
  * The main page of the entire Volunteer Manager. Will appeal to visitors to sign up to join one of
  * our volunteering teams, or send existing volunteers to one of various destinations.
  */
-export default async function RootPage() {
+export default async function RootPage(props: NextPageParams<'ignored'>) {
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
@@ -115,6 +117,19 @@ export default async function RootPage() {
     }
 
     // ---------------------------------------------------------------------------------------------
+    // Behaviour: For people who have installed the Volunteer Manager as a standalone app, the page
+    // that will be loaded is "/?app". When this is the case, `registration` is set, and the event
+    // with which the registration is associated has an accessible portal, redirect the user.
+
+    if (Object.hasOwn(props.searchParams, 'app') && !!registration && !!registrationEvent) {
+        const registrationEventData = registrationEvent.toEventData(environment.environmentName);
+        const scheduleAccess = registrationEventData.enableSchedule || scheduleOverride;
+
+        if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
+            redirect(`/schedule/${registrationEvent.slug}`);
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     const buttons: React.ReactNode[] = [];
 
@@ -128,10 +143,12 @@ export default async function RootPage() {
             continue;
 
         const eventData = event.toEventData(environment.environmentName);
+        const eventRegistration = event === primaryEvent ? primaryEventRegistration
+                                                         : secondaryEventRegistration;
 
         const displayRegistrationButton = eventData.enableContent || registrationOverride;
         const displayScheduleButton =
-            (eventData.enableSchedule && primaryEventRegistration) || scheduleOverride;
+            (eventData.enableSchedule && eventRegistration) || scheduleOverride;
 
         const highlightRegistration =
             eventData.enableContent && isBefore(currentTime, event.temporalStartTime);
