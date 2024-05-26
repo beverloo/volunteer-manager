@@ -142,6 +142,11 @@ export const kPublicSchedule = z.strictObject({
          * Timezone in which dates and times should be represented.
          */
         timezone: z.string(),
+
+        /**
+         * Update frequency, per which clients will check back in with the server.
+         */
+        updateFrequencyMs: z.number(),
     }),
 
     /**

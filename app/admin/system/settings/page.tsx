@@ -207,6 +207,15 @@ export default async function IntegrationsPage() {
                     'Number of active and pending activities to list for an area or location',
             },
             {
+                setting: 'schedule-check-in-rate-seconds',
+                type: 'number',
+                defaultValue: 5 * 60,
+
+                label: 'Client check-in rate (seconds)',
+                description:
+                    'Cadence at which clients should check in for an update on the schedule',
+            },
+            {
                 setting: 'schedule-del-a-rie-advies',
                 type: 'boolean',
                 defaultValue: true,

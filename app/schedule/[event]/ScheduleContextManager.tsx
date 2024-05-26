@@ -11,6 +11,12 @@ import { ScheduleContext, type ScheduleContextInfo } from './ScheduleContext';
 import { updateTimeConfig } from './CurrentTime';
 
 /**
+ * Default update frequency for the schedule app, in milliseconds. This will, in most cases, be
+ * overridden by the server based on configuration.
+ */
+const kDefaultUpdateFrequencyMs = /* five minutes= */ 5 * 60 * 1000;
+
+/**
  * Fetcher used to retrieve the schedule from the server.
  */
 const scheduleFetcher = (url: string) => fetch(url).then(r => r.json());
@@ -42,7 +48,7 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
     }, [ props.event ]);
 
     const { data, error, isLoading, mutate } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
-        // TODO: Select the appropriate options
+        refreshInterval: data => !!data ? data.config.updateFrequencyMs : kDefaultUpdateFrequencyMs,
     });
 
     // TODO: Deal with `error`?

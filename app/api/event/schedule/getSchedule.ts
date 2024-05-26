@@ -768,6 +768,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     const settings = await readSettings([
         'schedule-activity-list-limit',
+        'schedule-check-in-rate-seconds',
         'schedule-del-a-rie-advies',
         'schedule-del-a-rie-advies-time-limit',
         'schedule-knowledge-base',
@@ -801,6 +802,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             sortPastEventsLast: settings['schedule-sort-past-events-last'] ?? true,
             timeOffset: settings['schedule-time-offset-seconds'] || undefined,
             timezone: event.timezone,
+            updateFrequencyMs: (settings['schedule-check-in-rate-seconds'] ?? (5 * 60)) * 1000,
         },
         knowledge: [ /* empty */ ],
         program: {
