@@ -9,6 +9,8 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 /**
@@ -36,10 +38,13 @@ export function KnowledgeBaseCard(props: KnowledgeBaseCardProps) {
                     width: '100%',
                     aspectRatio: 4.5 }} />
                 <CardContent>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Check out the brand new <strong>Knowledge Base</strong>, where you can find
-                        answers to the most frequently asked questions by visitors!
-                    </Typography>
+                    <Stack direction="row" alignItems="center">
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            Check out the brand new <strong>Knowledge Base</strong>, where you can
+                            find answers to the most frequently asked questions by visitors!
+                        </Typography>
+                        <ReadMoreIcon color="disabled" sx={{ ml: 2 }} />
+                    </Stack>
                 </CardContent>
             </CardActionArea>
         </Card>
