@@ -47,7 +47,6 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
 
             break;
         }
-
     }
 
     return {
@@ -75,7 +74,23 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
                 type: 'image/png',
             },
         ],
-        // TODO: screenshots
+        screenshots: [
+            {
+                src: '/images/screenshot-1.png',
+                sizes: '586x1041',
+                type: 'image/png',
+            },
+            {
+                src: '/images/screenshot-2.png',
+                sizes: '586x1041',
+                type: 'image/png',
+            },
+            {
+                src: '/images/screenshot-3.png',
+                sizes: '586x1041',
+                type: 'image/png',
+            },
+        ],
         shortcuts: [
             ...administrationShortcut,
             {
