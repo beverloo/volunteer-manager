@@ -12,6 +12,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import Divider from '@mui/material/Divider';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
@@ -368,6 +369,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 </ErrorCard> }
             { scheduledShifts.map(section =>
                 <React.Fragment key={section.label}>
+                    { section.divider && <Divider sx={{ pt: 1 }} /> }
                     <SubHeader>{section.label}</SubHeader>
                     <Card sx={{ mt: '8px !important' }}>
                         <List dense disablePadding>
