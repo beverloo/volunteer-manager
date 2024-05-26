@@ -45,7 +45,8 @@ export interface CardTimeslotListProps {
 export function CardTimeslotList(props: CardTimeslotListProps) {
     if (!props.timeslots.length) {
         return (
-            <Paper variant="outlined" sx={{ p: 1, mx: 1, mb: 1, backgroundColor: 'grey.50' }}>
+            <Paper variant="outlined" sx={{ p: 1, mx: 1, mb: 1,
+                                            backgroundColor: 'background.paper' }}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <DoneAllIcon color="success" fontSize="small" />
                     <Typography variant="body2">
