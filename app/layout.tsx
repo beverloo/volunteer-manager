@@ -20,6 +20,7 @@ export const metadata: Metadata = {
         }
     ],
     robots: 'noindex, nofollow',
+    manifest: '/manifest.webmanifest',
     title: 'AnimeCon Volunteering Teams',
 };
 
