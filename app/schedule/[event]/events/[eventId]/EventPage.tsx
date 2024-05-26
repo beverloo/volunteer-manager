@@ -22,6 +22,8 @@ import { formatDate } from '@lib/Temporal';
 import { toZonedDateTime } from '../../CurrentTime';
 import { NotesCard } from '../../components/NotesCard';
 
+import { kEnforceSingleLine } from '../../Constants';
+
 /**
  * Information cached for a shift description box on the event page.
  */
@@ -229,6 +231,7 @@ export function EventPage(props: EventPageProps) {
             <Card>
                 <CardHeader title={activity.title}
                             titleTypographyProps={{ variant: 'subtitle2' }}
+                            subheaderTypographyProps={{ sx: kEnforceSingleLine }}
                             subheader={eventLocation} />
             </Card>
             { descriptions.map(description =>
@@ -244,7 +247,8 @@ export function EventPage(props: EventPageProps) {
                             { timeslots.map(timeslot =>
                                 <ListItemButton LinkComponent={Link} href={timeslot.href}
                                                 key={timeslot.id}>
-                                    <ListItemText primary={timeslot.location} />
+                                    <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                                  primary={timeslot.location} />
                                     <ListItemDetails>
                                         {timeslot.timings}
                                     </ListItemDetails>
@@ -260,7 +264,8 @@ export function EventPage(props: EventPageProps) {
                             { volunteers.map(volunteer =>
                                 <ListItemButton LinkComponent={Link} href={volunteer.href}
                                                 key={volunteer.id}>
-                                    <ListItemText primary={volunteer.name} />
+                                    <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                                  primary={volunteer.name} />
                                     <ListItemDetails>
                                         {volunteer.timings}
                                     </ListItemDetails>

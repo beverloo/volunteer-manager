@@ -35,6 +35,7 @@ import { callApi } from '@lib/callApi';
 import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { formatDate } from '@lib/Temporal';
 
+import { kEnforceSingleLine } from '../../Constants';
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
 
 const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDialog'), {
@@ -328,7 +329,9 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 <CardHeader title={volunteer.name}
                             titleTypographyProps={{ variant: 'subtitle2' }}
                             subheader={volunteer.role}
-                            sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
+                            sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' },
+                                  '& .MuiCardHeader-content': kEnforceSingleLine,
+                                  '& .MuiCardHeader-content>:first-child': { display: 'inline' } }}
                             action={
                                 <Stack direction="row" spacing={1} sx={{ pr: 1 }}>
                                     { !!schedule.config.enableNotesEditor &&
@@ -378,7 +381,10 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 return (
                                     <ListItemButton LinkComponent={Link} href={href} key={shift.id}
                                                     sx={shift.sx}>
-                                        <ListItemText primary={shift.name} />
+                                        <ListItemText primary={shift.name}
+                                                      primaryTypographyProps={{
+                                                          sx: kEnforceSingleLine
+                                                      }} />
                                         <ListItemDetails>
                                             {shift.start}–{shift.end}
                                         </ListItemDetails>
