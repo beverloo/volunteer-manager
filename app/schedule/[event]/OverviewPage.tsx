@@ -6,6 +6,7 @@
 import { useContext, useMemo } from 'react';
 
 import type { VolunteerShiftInfo } from './Types';
+import { ActiveShiftCard } from './components/ActiveShiftCard';
 import { HelpRequestsCard } from './components/HelpRequestsCard';
 import { HelpRequestsUrgentCard } from './components/HelpRequestsUrgentCard';
 import { JobCompletedCard } from './components/JobCompletedCard';
@@ -59,6 +60,7 @@ export function OverviewPage() {
                 activeShift = {
                     title: shift.name,
                     location,
+                    description: shift.description,
                     startTime: scheduledShift.start,
                     endTime: scheduledShift.end,
                 };
@@ -85,8 +87,9 @@ export function OverviewPage() {
             { (!!schedule?.config.enableHelpRequests && !!schedule?.helpRequestsPending) &&
                 <HelpRequestsUrgentCard pending={schedule.helpRequestsPending}
                                         slug={schedule.slug} /> }
-            { (!upcomingShift && shiftCount > 0) && <JobCompletedCard /> }
-            { /* TODO: Current shift */ }
+            { (!activeShift && !upcomingShift && shiftCount > 0) && <JobCompletedCard /> }
+            { (!!activeShift && !!schedule) &&
+                <ActiveShiftCard shift={activeShift} slug={schedule.slug} /> }
             { (!!upcomingShift && !!schedule) &&
                 <UpcomingShiftCard shift={upcomingShift} slug={schedule.slug} /> }
             { /* TODO: Available back-up volunteers */ }

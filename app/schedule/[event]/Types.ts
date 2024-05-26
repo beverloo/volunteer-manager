@@ -7,6 +7,21 @@
  */
 export interface VolunteerShiftInfo {
     /**
+     * Title of the shift, i.e. what will they be doing?
+     */
+    title: string;
+
+    /**
+     * Location, i.e. where will the shift be taking place?
+     */
+    location: string;
+
+    /**
+     * Optional description of the shift, i.e. what should be volunteer be doing?
+     */
+    description?: string;
+
+    /**
      * UNIX timestamp, in seconds in UTC, at which the the shift will start.
      */
     startTime: number;
