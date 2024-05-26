@@ -81,6 +81,11 @@ interface TimeslotInfo {
     startTime: number;
 
     /**
+     * Whether the timeslot has finished already. Only included for sorting purposes.
+     */
+    finished: boolean;
+
+    /**
      * Optional styling that should be applied to the timeslot entry.
      */
     sx?: SxProps<Theme>;
@@ -114,6 +119,11 @@ interface VolunteerInfo {
      * UNIX timestamp of the time at which this shift starts. Only included for sorting purposes.
      */
     startTime: number;
+
+    /**
+     * Whether the volunteer shift has finished already. Only included for sorting purposes.
+     */
+    finished: boolean;
 
     /**
      * Optional styling that should be applied to the volunteer entry.
@@ -162,7 +172,7 @@ export function EventPage(props: EventPageProps) {
                     eventLocation = location.name;
 
                 let sx: SxProps<Theme> | undefined;
-    	        if (timeslot.end <= currentTime) {
+                if (timeslot.end <= currentTime) {
                     sx = {
                         backgroundColor: 'animecon.pastBackground',
                         textDecoration: 'line-through',
@@ -191,12 +201,18 @@ export function EventPage(props: EventPageProps) {
                     location: location.name,
                     timings: `${formatDate(start, 'ddd, HH:mm')}–${formatDate(end, 'HH:mm')}`,
                     startTime: timeslot.start,
+                    finished: timeslot.end < currentTime,
                     sx,
                 });
             }
 
             // Sort the timeslots by their date/time, in ascending order.
-            timeslots.sort((lhs, rhs) => lhs.startTime - rhs.startTime);
+            timeslots.sort((lhs, rhs) => {
+                if (schedule.config.sortPastEventsLast && lhs.finished !== rhs.finished)
+                    return lhs.finished ? 1 : -1;
+
+                return lhs.startTime - rhs.startTime;
+            });
 
             const descriptionSet = new Set<string>;
 
@@ -248,6 +264,7 @@ export function EventPage(props: EventPageProps) {
                     name: volunteer.name,
                     timings: `${formatDate(start, 'ddd, HH:mm')}–${formatDate(end, 'HH:mm')}`,
                     startTime: scheduledShift.start,
+                    finished: scheduledShift.end < currentTime,
                     sx,
                 });
             }
@@ -258,10 +275,12 @@ export function EventPage(props: EventPageProps) {
             // Sort the volunteers first by the date/time of their shift, in ascending order, then
             // by their name secondary.
             volunteers.sort((lhs, rhs) => {
+                if (schedule.config.sortPastEventsLast && lhs.finished !== rhs.finished)
+                    return lhs.finished ? 1 : -1;
+
                 if (lhs.startTime === rhs.startTime)
                     return lhs.name.localeCompare(rhs.name);
 
-                // TODO: Sort past shifts to the bottom of this list
                 return lhs.startTime - rhs.startTime;
             });
         }
