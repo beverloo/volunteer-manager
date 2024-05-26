@@ -3,10 +3,12 @@
 
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
+import type { VolunteerShiftInfo } from './Types';
 import { HelpRequestsCard } from './components/HelpRequestsCard';
 import { HelpRequestsUrgentCard } from './components/HelpRequestsUrgentCard';
+import { JobCompletedCard } from './components/JobCompletedCard';
 import { KnowledgeBaseCard } from './components/KnowledgeBaseCard';
 import { NardoAdviceCard } from './components/NardoAdviceCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
@@ -24,22 +26,37 @@ export function OverviewPage() {
 
     const isMobile = useIsMobile();
 
+    const [ activeShift, upcomingShift, shiftCount ] = useMemo(() => {
+        let activeShift: VolunteerShiftInfo | undefined;
+        let upcomingShift: VolunteerShiftInfo | undefined;
+
+        if (!schedule || !schedule.volunteers.hasOwnProperty(`${schedule.userId}`))
+            return [ activeShift, upcomingShift, /* shiftCount= */ 0 ];
+
+        const volunteer = schedule.volunteers[`${schedule.userId}`];
+        // TODO: Populate `activeShift`
+        // TODO: Populate `upcomingShift`
+
+        return [ activeShift, upcomingShift, volunteer.schedule.length ];
+
+    }, [ schedule ]);
+
     return (
         <>
             <SetTitle title={schedule?.event || 'AnimeCon'} />
-            { /* TODO: Event status */ }
             { (!!schedule?.config.enableHelpRequests && !!schedule?.helpRequestsPending) &&
                 <HelpRequestsUrgentCard pending={schedule.helpRequestsPending}
                                         slug={schedule.slug} /> }
+            { (!upcomingShift && shiftCount > 0) && <JobCompletedCard /> }
             { /* TODO: Current shift */ }
             { /* TODO: Upcoming shift */ }
             { /* TODO: Available back-up volunteers */ }
             { /* TODO: Available senior volunteers */ }
+            { (!!isMobile && !!schedule?.knowledge?.length) &&
+                <KnowledgeBaseCard slug={schedule.slug} /> }
             { (!!isMobile && !!schedule?.config.enableHelpRequests) &&
                 <HelpRequestsCard pending={schedule?.helpRequestsPending}
                                   slug={schedule.slug} /> }
-            { (!!isMobile && !!schedule?.knowledge?.length) &&
-                <KnowledgeBaseCard slug={schedule.slug} /> }
             { !!schedule?.vendors[VendorTeam.FirstAid] &&
                 <OverviewVendorCard team={VendorTeam.FirstAid} /> }
             { !!schedule?.vendors[VendorTeam.Security] &&
