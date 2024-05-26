@@ -6,6 +6,8 @@
 import Link from 'next/link';
 import { useContext, useMemo } from 'react';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import List from '@mui/material/List';
@@ -19,7 +21,7 @@ import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
 import { formatDate } from '@lib/Temporal';
-import { toZonedDateTime } from '../../CurrentTime';
+import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { NotesCard } from '../../components/NotesCard';
 
 import { kEnforceSingleLine } from '../../Constants';
@@ -77,6 +79,11 @@ interface TimeslotInfo {
      * UNIX timestamp of the time at which this timeslot starts. Only included for sorting purposes.
      */
     startTime: number;
+
+    /**
+     * Optional styling that should be applied to the timeslot entry.
+     */
+    sx?: SxProps<Theme>;
 }
 
 /**
@@ -107,6 +114,11 @@ interface VolunteerInfo {
      * UNIX timestamp of the time at which this shift starts. Only included for sorting purposes.
      */
     startTime: number;
+
+    /**
+     * Optional styling that should be applied to the volunteer entry.
+     */
+    sx?: SxProps<Theme>;
 }
 
 /**
@@ -134,6 +146,7 @@ export function EventPage(props: EventPageProps) {
         const timeslots: TimeslotInfo[] = [ /* empty */ ];
         const volunteers: VolunteerInfo[] = [ /* empty */ ];
 
+        const currentTime = currentTimestamp();
         let eventLocation: string | undefined;
 
         if (!!schedule && schedule.program.activities.hasOwnProperty(props.activityId)) {
@@ -148,6 +161,27 @@ export function EventPage(props: EventPageProps) {
                 else
                     eventLocation = location.name;
 
+                let sx: SxProps<Theme> | undefined;
+    	        if (timeslot.end <= currentTime) {
+                    sx = {
+                        backgroundColor: 'animecon.pastBackground',
+                        textDecoration: 'line-through',
+                        textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                        '&:hover': {
+                            backgroundColor: 'animecon.pastBackgroundHover',
+                            textDecoration: 'line-through',
+                            textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                        },
+                    };
+                } else if (timeslot.start <= currentTime) {
+                    sx = {
+                        backgroundColor: 'animecon.activeBackground',
+                        '&:hover': {
+                            backgroundColor: 'animecon.activeBackgroundHover',
+                        },
+                    };
+                }
+
                 const start = toZonedDateTime(timeslot.start);
                 const end = toZonedDateTime(timeslot.end);
 
@@ -157,6 +191,7 @@ export function EventPage(props: EventPageProps) {
                     location: location.name,
                     timings: `${formatDate(start, 'ddd, HH:mm')}–${formatDate(end, 'HH:mm')}`,
                     startTime: timeslot.start,
+                    sx,
                 });
             }
 
@@ -183,6 +218,27 @@ export function EventPage(props: EventPageProps) {
                     descriptionSet.add(shift.team);
                 }
 
+                let sx: SxProps<Theme> | undefined;
+                if (scheduledShift.end <= currentTime) {
+                    sx = {
+                        backgroundColor: 'animecon.pastBackground',
+                        textDecoration: 'line-through',
+                        textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                        '&:hover': {
+                            backgroundColor: 'animecon.pastBackgroundHover',
+                            textDecoration: 'line-through',
+                            textDecorationColor: theme => theme.palette.animecon.pastForeground,
+                        },
+                    };
+                } else if (scheduledShift.start <= currentTime) {
+                    sx = {
+                        backgroundColor: 'animecon.activeBackground',
+                        '&:hover': {
+                            backgroundColor: 'animecon.activeBackgroundHover',
+                        },
+                    };
+                }
+
                 const start = toZonedDateTime(scheduledShift.start);
                 const end = toZonedDateTime(scheduledShift.end);
 
@@ -192,6 +248,7 @@ export function EventPage(props: EventPageProps) {
                     name: volunteer.name,
                     timings: `${formatDate(start, 'ddd, HH:mm')}–${formatDate(end, 'HH:mm')}`,
                     startTime: scheduledShift.start,
+                    sx,
                 });
             }
 
@@ -246,7 +303,7 @@ export function EventPage(props: EventPageProps) {
                         <List dense disablePadding>
                             { timeslots.map(timeslot =>
                                 <ListItemButton LinkComponent={Link} href={timeslot.href}
-                                                key={timeslot.id}>
+                                                key={timeslot.id} sx={timeslot.sx}>
                                     <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
                                                   primary={timeslot.location} />
                                     <ListItemDetails>
@@ -263,7 +320,7 @@ export function EventPage(props: EventPageProps) {
                         <List dense disablePadding>
                             { volunteers.map(volunteer =>
                                 <ListItemButton LinkComponent={Link} href={volunteer.href}
-                                                key={volunteer.id}>
+                                                key={volunteer.id} sx={volunteer.sx}>
                                     <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
                                                   primary={volunteer.name} />
                                     <ListItemDetails>
