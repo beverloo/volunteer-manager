@@ -127,6 +127,11 @@ export const kScheduleDefinition = z.object({
              * Name of the volunteer, as they should be referred to.
              */
             name: z.string(),
+
+            /**
+             * Whether this is the first time that the resource helps us out.
+             */
+            new: z.boolean(),
         })),
 
         /**
@@ -333,7 +338,22 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const users: number[] = [];
     const timeslots = await getTimeslots(event.festivalId);
 
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoinAs('oej');
+
     const dbInstance = db;
+    const firstTimeVolunteers = new Set(await dbInstance.selectFrom(tUsersEvents)
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(tUsersEvents.userId))
+                .and(usersEventsJoin.eventId.notEquals(tUsersEvents.eventId))
+                .and(usersEventsJoin.teamId.equals(tUsersEvents.teamId))
+                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .where(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
+            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.eventId.isNull())
+        .selectOneColumn(tUsersEvents.userId)
+        .executeSelectMany());
+
     const resources = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
@@ -396,6 +416,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             children.push({
                 id: humanResource.id,
                 name: humanResource.name,
+                ['new']: firstTimeVolunteers.has(humanResource.id),
             });
 
             users.push(humanResource.id);
