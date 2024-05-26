@@ -9,7 +9,6 @@ import { default as MuiLink } from '@mui/material/Link';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -25,6 +24,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { Alert } from '../components/Alert';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../components/HelpRequestTarget';
 import { Privilege } from '@lib/auth/Privileges';

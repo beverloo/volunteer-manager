@@ -5,9 +5,10 @@
 
 import Link from 'next/link';
 
-import Alert from '@mui/material/Alert';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
+
+import { Alert } from '../components/Alert';
 
 /**
  * Props accepted by the <HelpRequestsUrgentCard> component.

@@ -3,8 +3,9 @@
 
 'use client';
 
-import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+
+import { Alert } from '../components/Alert';
 
 /**
  * Props accepted by the <ErrorCard> component.

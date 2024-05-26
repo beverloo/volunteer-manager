@@ -6,7 +6,6 @@
 import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Dialog from '@mui/material/Dialog';
@@ -17,6 +16,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DirectionsRunOutlinedIcon from '@mui/icons-material/DirectionsRunOutlined';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { Alert } from '../../components/Alert';
 import { ScheduleContext } from '../../ScheduleContext';
 import { TargetLoadingButton } from './TargetLoadingButton';
 import { callApi } from '@lib/callApi';

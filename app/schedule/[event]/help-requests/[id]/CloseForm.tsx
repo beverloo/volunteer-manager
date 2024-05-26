@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Collapse from '@mui/material/Collapse';
@@ -20,6 +19,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { Alert } from '../../components/Alert';
 import { ScheduleContext } from '../../ScheduleContext';
 import { TargetLoadingButton } from './TargetLoadingButton';
 import { callApi } from '@lib/callApi';

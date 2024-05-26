@@ -5,7 +5,6 @@
 
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Dialog from '@mui/material/Dialog';
@@ -14,6 +13,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
+
+import { Alert } from '../components/Alert';
 
 /**
  * Props accepted by the <NotesEditorDialog> component.
