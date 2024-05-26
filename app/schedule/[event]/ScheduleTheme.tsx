@@ -140,6 +140,15 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
     const baseColour = decomposeColor(main) as unknown as string;
 
     return createTheme({
+        breakpoints: {
+            values: {
+                xs: 0,
+                sm: 600,
+                md: 840,
+                lg: 1200,
+                xl: 1536,
+            },
+        },
         palette: {
             mode,
             animecon: {
