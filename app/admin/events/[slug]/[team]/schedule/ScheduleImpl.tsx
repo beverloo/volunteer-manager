@@ -20,6 +20,7 @@ import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { callApi } from '@lib/callApi';
+import { useWindowHeight } from '@app/admin/lib/useWindowHeight';
 
 /**
  * Background color to issue to markers on the schedule, depending on what they represent.
@@ -239,6 +240,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const windowHeight = useWindowHeight();
+
     if (!context.schedule || !resources.length) {
         return (
             <Paper sx={{ p: 2 }}>
@@ -253,6 +256,29 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const eventDefaults: Partial<ScheduleEvent> = {
         title: 'Unscheduled',
         color: '#760707',
+    };
+
+    let height: number | undefined = undefined;
+
+    // Determine the maximum height of the schedule component, to allow both the horizontal and
+    // (when necessary) the vertical scrollbars to be visible at once. However, only enforce a
+    // height when this is actually required, based on the number of resources in the schedule.
+    if (windowHeight > 450) {
+        let estimatedScheduleHeight = /* header= */ 50;
+        for (const resource of resources) {
+            estimatedScheduleHeight += /* section header= */ 32;
+            if (!!resource.children) {
+                for (const child of resource.children)
+                    estimatedScheduleHeight += /* resource =*/ 32;
+            }
+        }
+
+        // Substract 100 from the `windowHeight` to ensure that the essential UI around the tool
+        // is still visible. This isn't an exact number, and the user will have to scroll anyway.
+        const maximumScheduleHeight = windowHeight - 100;
+
+        if (estimatedScheduleHeight >= maximumScheduleHeight)
+            height = maximumScheduleHeight;
     }
 
     return (
@@ -260,7 +286,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
                       events={events} eventDefaults={eventDefaults} eventOverlap={false}
                       onChange={context.processMutation} onRightClick={handleRightClick}
-                      onResourceExpansionChange={handleExpansionChange}
+                      onResourceExpansionChange={handleExpansionChange} height={height}
                       onDoubleClick={handleDoubleClick} markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
             <SettingDialog title="Select a shift" delete open={!!dialogEvent}
