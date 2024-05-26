@@ -3,11 +3,12 @@
 
 'use client';
 
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { SelectElement } from 'react-hook-form-mui';
 
 import type { PopoverPosition } from '@mui/material/Popover';
+import Grid from '@mui/material/Unstable_Grid2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
@@ -19,7 +20,9 @@ import type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleReso
 import { ScheduleContext } from './ScheduleContext';
 import { Schedule } from '@app/admin/components/Schedule';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
+import { TimePickerElement } from 'react-hook-form-mui/date-pickers';
 import { callApi } from '@lib/callApi';
+import { dayjs } from '@lib/DateTime';
 import { useWindowHeight } from '@app/admin/lib/useWindowHeight';
 
 /**
@@ -148,6 +151,14 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             if (shift.id !== event.shiftId)
                 continue;
 
+            let start = event.start;
+            if (dayjs.isDayjs(event.startTime))
+                start = event.startTime.toISOString();
+
+            let end = event.end;
+            if (dayjs.isDayjs(event.endTime))
+                end = event.endTime.toISOString();
+
             setDialogEvent(undefined);
             dialogResolver({
                 update: {
@@ -155,6 +166,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                     shiftId: shift.id,
                     title: shift.label,
                     color: shift.color,
+                    start, end,
                 }
             });
 
@@ -171,6 +183,18 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             setDialogResolver(() => resolve);
         });
     }, [ /* no dependencies */ ]);
+
+    const [ dialogDefaultValues, setDialogDefaultValues ] = useState<Record<string, any>>({ });
+    useEffect(() => {
+        if (!!dialogEvent) {
+            setDialogDefaultValues({
+                ...dialogEvent,
+                shiftId: dialogEvent.shiftId,
+                startTime: dayjs(dialogEvent.start),
+                endTime: dayjs(dialogEvent.end),
+            });
+        }
+    }, [ dialogEvent ]);
 
     // ---------------------------------------------------------------------------------------------
     // Interaction: right click -> recent shift context menu
@@ -291,8 +315,20 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                       displayTimezone={context.schedule.timezone} subject="shift" />
             <SettingDialog title="Select a shift" delete open={!!dialogEvent}
                            onClose={handleDialogClose} onDelete={handleDialogDelete}
-                           onSubmit={handleDialogUpdate} defaultValues={ dialogEvent ?? {} }>
-                <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
+                           onSubmit={handleDialogUpdate} defaultValues={dialogDefaultValues}>
+                <Grid container>
+                    <Grid xs={12}>
+                        <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
+                    </Grid>
+                    <Grid xs={6} sx={{ pt: 1, pr: 0.5 }}>
+                        <TimePickerElement name="startTime"
+                                           inputProps={{ size: 'small', fullWidth: true }} />
+                    </Grid>
+                    <Grid xs={6} sx={{ pt: 1, pl: 0.5 }}>
+                        <TimePickerElement name="endTime"
+                                           inputProps={{ size: 'small', fullWidth: true }} />
+                    </Grid>
+                </Grid>
             </SettingDialog>
             <Menu open={!!contextMenuEvent && !!recentShifts.length}
                   onClose={handleRightClickMenuClose}
