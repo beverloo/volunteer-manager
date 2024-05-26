@@ -151,16 +151,19 @@ export function EventPage(props: EventPageProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ descriptions, eventLocation, timeslots, volunteers ] = useMemo(() => {
+    const [ descriptions, eventLocation, timeslots, timeslotsHidden, volunteers ] = useMemo(() => {
         const descriptions: DescriptionInfo[] = [ /* empty */ ];
         const timeslots: TimeslotInfo[] = [ /* empty */ ];
         const volunteers: VolunteerInfo[] = [ /* empty */ ];
 
         const currentTime = currentTimestamp();
+
         let eventLocation: string | undefined;
+        let timeslotsHidden: boolean = false;
 
         if (!!schedule && schedule.program.activities.hasOwnProperty(props.activityId)) {
             const activity = schedule.program.activities[props.activityId];
+            timeslotsHidden = !!activity.timeslotsHidden;
 
             for (const timeslotId of activity.timeslots) {
                 const timeslot = schedule.program.timeslots[timeslotId];
@@ -285,7 +288,13 @@ export function EventPage(props: EventPageProps) {
             });
         }
 
-        return [ descriptions, eventLocation ?? 'AnimeCon', timeslots, volunteers ];
+        return [
+            descriptions,
+            eventLocation ?? 'AnimeCon',
+            timeslots,
+            timeslotsHidden,
+            volunteers
+        ];
 
     }, [ props.activityId, schedule ]);
 
@@ -315,7 +324,7 @@ export function EventPage(props: EventPageProps) {
                            icon={ <NotesIcon htmlColor={description.teamColour} /> }
                            title={description.team}
                            notes={description.description} />  )}
-            { !!timeslots &&
+            { (timeslots.length > 0 && !timeslotsHidden) &&
                 <>
                     <SubHeader>Timeslots</SubHeader>
                     <Card sx={{ mt: '8px !important' }}>

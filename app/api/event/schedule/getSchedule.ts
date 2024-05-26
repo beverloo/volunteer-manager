@@ -638,6 +638,7 @@ async function populateVolunteers(
                 id: activityId,
                 title: shift.name,
                 timeslots: [ /* empty */ ],
+                timeslotsHidden: true,
                 invisible: true,
                 schedule: [ /* empty */ ],
             };

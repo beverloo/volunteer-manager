@@ -205,6 +205,12 @@ export const kPublicSchedule = z.strictObject({
             timeslots: z.array(z.string()),
 
             /**
+             * Whether timeslots for this activity should be hidden from the portal. Should only be
+             * used for dynamically generated activities.
+             */
+            timeslotsHidden: z.literal(true).optional(),
+
+            /**
              * Set when the timeslot is invisible to the public.
              */
             invisible: z.literal(true).optional(),
