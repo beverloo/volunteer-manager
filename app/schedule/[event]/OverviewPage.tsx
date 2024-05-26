@@ -15,7 +15,9 @@ import { OverviewVendorCard } from './components/OverviewVendorCard';
 import { ScheduleContext } from './ScheduleContext';
 import { SetTitle } from './components/SetTitle';
 import { VendorTeam } from '@lib/database/Types';
+import { currentTimestamp } from './CurrentTime';
 import { useIsMobile } from './lib/useIsMobile';
+import { UpcomingShiftCard } from './components/UpcomingShiftCard';
 
 /**
  * Displays the portal's overview page, which contains a series of cards displaying key information
@@ -33,9 +35,45 @@ export function OverviewPage() {
         if (!schedule || !schedule.volunteers.hasOwnProperty(`${schedule.userId}`))
             return [ activeShift, upcomingShift, /* shiftCount= */ 0 ];
 
+        const currentTime = currentTimestamp();
+
         const volunteer = schedule.volunteers[`${schedule.userId}`];
-        // TODO: Populate `activeShift`
-        // TODO: Populate `upcomingShift`
+
+        for (const scheduledShiftId of volunteer.schedule) {
+            const scheduledShift = schedule.schedule[scheduledShiftId];
+            if (scheduledShift.end < currentTime)
+                continue;  // this shift has already ended
+
+            const shift = schedule.shifts[scheduledShift.shift];
+            const activity = schedule.program.activities[shift.activity];
+
+            let location: string = /* default= */ 'Volunteer Lounge';
+            for (const timeslotId of activity.timeslots) {
+                const timeslot = schedule.program.timeslots[timeslotId];
+                const timeslotLocation = schedule.program.locations[timeslot.location];
+
+                location = timeslotLocation.name;
+            }
+
+            if (scheduledShift.start <= currentTime) {
+                activeShift = {
+                    title: shift.name,
+                    location,
+                    startTime: scheduledShift.start,
+                    endTime: scheduledShift.end,
+                };
+            } else {
+                if (!!upcomingShift && upcomingShift.startTime < scheduledShift.start)
+                    continue;  // a more recent upcoming shift has already been found
+
+                upcomingShift = {
+                    title: shift.name,
+                    location,
+                    startTime: scheduledShift.start,
+                    endTime: scheduledShift.end,
+                };
+            }
+        }
 
         return [ activeShift, upcomingShift, volunteer.schedule.length ];
 
@@ -49,7 +87,8 @@ export function OverviewPage() {
                                         slug={schedule.slug} /> }
             { (!upcomingShift && shiftCount > 0) && <JobCompletedCard /> }
             { /* TODO: Current shift */ }
-            { /* TODO: Upcoming shift */ }
+            { (!!upcomingShift && !!schedule) &&
+                <UpcomingShiftCard shift={upcomingShift} slug={schedule.slug} /> }
             { /* TODO: Available back-up volunteers */ }
             { /* TODO: Available senior volunteers */ }
             { (!!isMobile && !!schedule?.knowledge?.length) &&

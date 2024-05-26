@@ -6,5 +6,13 @@
  * page of the Volunteer Portal. Composed from the schedule.
  */
 export interface VolunteerShiftInfo {
-    // TODO
+    /**
+     * UNIX timestamp, in seconds in UTC, at which the the shift will start.
+     */
+    startTime: number;
+
+    /**
+     * UNIX timestamp, in seconds in UTC, at which the the shift will end.
+     */
+    endTime: number;
 }
