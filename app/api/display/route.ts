@@ -213,14 +213,14 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         'display-dev-environment-link',
         'display-request-advice',
         'display-request-help',
+        'display-time-offset-seconds',
         'schedule-del-a-rie-advies',
         'schedule-del-a-rie-advies-time-limit',
-        'schedule-time-offset-seconds',
     ]);
 
     const currentServerTime = Temporal.Now.zonedDateTimeISO('UTC');
     const currentTime = currentServerTime.add({
-        seconds: settings['schedule-time-offset-seconds'] ?? 0
+        seconds: settings['display-time-offset-seconds'] ?? 0
     });
 
     const dbInstance = db;
@@ -323,7 +323,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             devEnvironment: settings['display-dev-environment-link'],
             enableRequestAdvice: !!settings['display-request-advice'],
             enableRequestHelp: !!settings['display-request-help'],
-            timeOffset: settings['schedule-time-offset-seconds'] || undefined,
+            timeOffset: settings['display-time-offset-seconds'] || undefined,
             timezone: configuration.timezone ?? 'UTC',
             updateFrequencyMs,
         },

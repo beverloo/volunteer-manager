@@ -57,6 +57,17 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
     for (const { setting, value } of request.settings)
         settings[setting] = value;
 
+    const roundToZeroSettings = [ 'display-time-offset-seconds', 'schedule-time-offset-seconds' ];
+    for (const setting of roundToZeroSettings) {
+        if (!Object.hasOwn(settings, setting) || typeof settings[setting] !== 'number')
+            continue;  // the setting is not being updated
+
+        if (Math.abs(settings[setting] as number) > 60)
+            continue;  // the setting has a real value
+
+        settings[setting] = 0;
+    }
+
     await writeSettings(settings as any);
     await Log({
         type: LogType.AdminUpdateSettings,

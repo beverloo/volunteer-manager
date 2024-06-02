@@ -88,6 +88,16 @@ export default async function IntegrationsPage() {
                 label: 'Maximum time since check-in',
                 description:
                     'After how many days of inactivity should we stop considering a display?',
+            },
+            {
+                setting: 'display-time-offset-seconds',
+                type: 'number',
+                defaultValue: 0,
+
+                label: 'Time offset (seconds)',
+                description:
+                    'Number of seconds to offset time with, to emulate the display at another ' +
+                    'point in time',
             }
         ],
         'Event settings': [

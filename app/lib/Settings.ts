@@ -21,6 +21,7 @@ type SettingsMap = {
     'display-max-time-since-check-in-days': number;
     'display-request-advice': boolean;
     'display-request-help': boolean;
+    'display-time-offset-seconds': number;
 
     // ---------------------------------------------------------------------------------------------
     // Event settings
