@@ -59,18 +59,23 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         theme_color: environment?.themeColours.light || '#303f9f',
         icons: [
             {
-                src: `/images/${environment?.environmentName}/logo-512.png`,
+                src: `/images/${environment?.environmentName}/launchericon-512.png`,
                 sizes: '512x512',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/logo-256.png`,
-                sizes: '256x256',
+                src: `/images/${environment?.environmentName}/launchericon-192.png`,
+                sizes: '192x192',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/logo-192.png`,
-                sizes: '192x192',
+                src: `/images/${environment?.environmentName}/launchericon-144.png`,
+                sizes: '144x144',
+                type: 'image/png',
+            },
+            {
+                src: `/images/${environment?.environmentName}/launchericon-96.png`,
+                sizes: '96x96',
                 type: 'image/png',
             },
         ],
