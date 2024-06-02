@@ -64,6 +64,11 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
                 type: 'image/png',
             },
             {
+                src: `/images/${environment?.environmentName}/launchericon-256.png`,
+                sizes: '256x256',
+                type: 'image/png',
+            },
+            {
                 src: `/images/${environment?.environmentName}/launchericon-192.png`,
                 sizes: '192x192',
                 type: 'image/png',
