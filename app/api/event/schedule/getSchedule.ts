@@ -645,7 +645,7 @@ async function populateVolunteers(
 
             // (4) Compose timeslots for the created activity based on the scheduled shifts.
             {
-                const sortedSchedule = [ ...shift.schedule ];
+                const sortedSchedule = shift.schedule.map(entry => ({ ...entry }));
                 sortedSchedule.sort((lhs, rhs) => {
                     const startCompare = Temporal.ZonedDateTime.compare(lhs.start, rhs.start);
                     return !!startCompare ? startCompare
