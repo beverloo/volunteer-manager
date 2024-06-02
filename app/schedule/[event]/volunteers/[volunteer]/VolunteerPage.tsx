@@ -304,7 +304,10 @@ export function VolunteerPage(props: VolunteerPageProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId)) {
+    if (!schedule)
+        return undefined;  // the page is still loading
+
+    if (!schedule.volunteers.hasOwnProperty(props.userId)) {
         return (
             <ErrorCard title="This volunteer cannot be found!">
                 The volunteer you tried to access does not participate in this event.
