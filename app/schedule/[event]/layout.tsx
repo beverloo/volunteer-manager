@@ -9,15 +9,17 @@ import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
+import { ApplicationBar } from './components/ApplicationBar';
+import { DesktopNavigation } from './components/DesktopNavigation';
+import { Privilege, can } from '@lib/auth/Privileges';
+import { MobileNavigation } from './components/MobileNavigation';
 import { ScheduleContextManager } from './ScheduleContextManager';
 import { ScheduleTheme } from './ScheduleTheme';
 import { determineEnvironment } from '@lib/Environment';
-import { ApplicationBar } from './components/ApplicationBar';
+import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { getEventBySlug } from '@lib/EventLoader';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
-import { DesktopNavigation } from './components/DesktopNavigation';
-import { MobileNavigation } from './components/MobileNavigation';
-import { getEventBySlug } from '@lib/EventLoader';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
@@ -64,15 +66,30 @@ export interface ScheduleLayoutProps {
  * and dark mode, and is accessible on both desktop and mobile devices.
  */
 export default async function ScheduleLayout(props: React.PropsWithChildren<ScheduleLayoutProps>) {
-    const { params } = props;
+    const authenticationContext = await getAuthenticationContext();
+    if (!authenticationContext.user)
+        notFound();  // only signed in users can access the schedule
 
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
 
-    const event = await getEventBySlug(params.event);
+    const event = await getEventBySlug(props.params.event);
     if (!event)
-        notFound();
+        notFound();  // the requested |event| does not exist
+
+    const eventData = event.getEnvironmentData(environment.environmentName);
+    if (!eventData) {
+        notFound();  // the |environment| does not participate in the |event|
+    } else {
+        const participation = authenticationContext.events.get(event.slug);
+        if (!can(authenticationContext.user, Privilege.EventScheduleOverride)) {
+            if (!participation)
+                notFound();  // the |user| is not participating in the |event|
+            if (!eventData.enableSchedule)
+                notFound();  // the |event| has not been published for the |environment| yes
+        }
+    }
 
     return (
         <ScheduleTheme palette={environment.themeColours}>
