@@ -2639,8 +2639,13 @@ tables:
     comment: ""
   - name: user_id
     type: int(8) unsigned
-    nullable: false
-    default: null
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: feedback_name
+    type: text
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: feedback_date
     type: datetime
@@ -2673,7 +2678,8 @@ tables:
   def: |-
     CREATE TABLE `feedback` (
       `feedback_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `user_id` int(8) unsigned NOT NULL,
+      `user_id` int(8) unsigned DEFAULT NULL,
+      `feedback_name` text DEFAULT NULL,
       `feedback_date` datetime NOT NULL,
       `feedback_text` text NOT NULL,
       PRIMARY KEY (`feedback_id`)

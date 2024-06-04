@@ -25,7 +25,7 @@ const kFeedbackRowModel = z.object({
     /**
      * Unique ID of the user who submitted this feedback.
      */
-    userId: z.number(),
+    userId: z.number().optional(),
 
     /**
      * Name of the user who submitted this feedback.
@@ -69,15 +69,18 @@ export const { GET } = createDataTableApi(kFeedbackRowModel, kFeedbackContext, {
     },
 
     async list({ pagination, sort }) {
+        const usersJoin = tUsers.forUseInLeftJoin();
+
         const dbInstance = db;
         const data = await dbInstance.selectFrom(tFeedback)
-            .innerJoin(tUsers)
-                .on(tUsers.userId.equals(tFeedback.userId))
+            .leftJoin(usersJoin)
+                .on(usersJoin.userId.equals(tFeedback.userId))
             .select({
                 id: tFeedback.feedbackId,
                 date: dbInstance.dateTimeAsString(tFeedback.feedbackDate),
-                userId: tUsers.userId,
-                userName: tUsers.name,
+                userId: tFeedback.userId,
+                userName:
+                    usersJoin.name.valueWhenNull(tFeedback.feedbackName).valueWhenNull('Unknown'),
                 feedback: tFeedback.feedbackText,
             })
             .orderBy(sort?.field ?? 'date', sort?.sort ?? 'desc')

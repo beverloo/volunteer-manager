@@ -34,10 +34,16 @@ export function FeedbackDataTable() {
             headerName: 'Volunteer',
             flex: 1,
 
-            renderCell: params =>
-                <MuiLink component={Link} href={`/admin/volunteers/${params.row.userId}`}>
-                    {params.value}
-                </MuiLink>,
+            renderCell: params => {
+                if (!params.row.userId)
+                    return params.value;
+
+                return (
+                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.userId}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'feedback',

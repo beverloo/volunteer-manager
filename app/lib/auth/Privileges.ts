@@ -7,10 +7,11 @@ import type { User } from './User';
  * Enumeration of the privileges that can be assigned to individual users. Do not renumber or change
  * the order of these entries, instead, mark them as deprecated and add new ones to the bottom.
  *
- * Next setting: 1 << 31
+ * Next setting: 1 << 32
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
+    Feedback                            = 1 << 31,
     Refunds                             = 1 << 23,
     Statistics                          = 1 << 1,
 
@@ -77,6 +78,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventAdministrator,
         Privilege.SystemAdministrator,
         Privilege.VolunteerAdministrator,
+        Privilege.Feedback,
         Privilege.Refunds,
         Privilege.Statistics,
     ],
@@ -144,6 +146,7 @@ export function expand(privileges: Privileges): Privileges {
  */
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
+    [Privilege.Feedback]: 'Special access',
     [Privilege.Refunds]: 'Special access',
     [Privilege.Statistics]: 'Special access',
 
@@ -184,6 +187,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
+    [Privilege.Feedback]: 'Feedback tool',
     [Privilege.Refunds]: 'Refund requests',
     [Privilege.Statistics]: 'Statistics',
 
