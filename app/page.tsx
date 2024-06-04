@@ -121,12 +121,15 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
     // that will be loaded is "/?app". When this is the case, `registration` is set, and the event
     // with which the registration is associated has an accessible portal, redirect the user.
 
-    if (Object.hasOwn(props.searchParams, 'app') && !!registration && !!registrationEvent) {
-        const registrationEventData = registrationEvent.toEventData(environment.environmentName);
-        const scheduleAccess = registrationEventData.enableSchedule || scheduleOverride;
+    if (Object.hasOwn(props.searchParams, 'app')) {
+        if (!!registration && !!registrationEvent) {
+            const registrationEventData =
+                registrationEvent.toEventData(environment.environmentName);
+            const scheduleAccess = registrationEventData.enableSchedule || scheduleOverride;
 
-        if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
-            redirect(`/schedule/${registrationEvent.slug}`);
+            if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
+                redirect(`/schedule/${registrationEvent.slug}`);
+        }
         else if (can(user, Privilege.Feedback) && !can(user, Privilege.EventAdministrator))
             redirect('/feedback');
     }
