@@ -127,6 +127,8 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
         if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
             redirect(`/schedule/${registrationEvent.slug}`);
+        else if (can(user, Privilege.Feedback) && !can(user, Privilege.EventAdministrator))
+            redirect('/feedback');
     }
 
     // ---------------------------------------------------------------------------------------------
