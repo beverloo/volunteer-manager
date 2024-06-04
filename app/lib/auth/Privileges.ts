@@ -11,7 +11,7 @@ import type { User } from './User';
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
-    Feedback                            = 1 << 31,
+    Feedback                            = 1 << 1,  // TODO: Assign to its own privilege
     Refunds                             = 1 << 23,
     Statistics                          = 1 << 1,
 
@@ -148,7 +148,7 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
     [Privilege.Feedback]: 'Special access',
     [Privilege.Refunds]: 'Special access',
-    [Privilege.Statistics]: 'Special access',
+    //[Privilege.Statistics]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
     [Privilege.EventApplicationManagement]: 'Event access',
@@ -189,7 +189,7 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
     [Privilege.Feedback]: 'Feedback tool',
     [Privilege.Refunds]: 'Refund requests',
-    [Privilege.Statistics]: 'Statistics',
+    //[Privilege.Statistics]: 'Statistics',
 
     [Privilege.EventAdministrator]: 'Event administrator',
     [Privilege.EventApplicationManagement]: 'Manage applications',
