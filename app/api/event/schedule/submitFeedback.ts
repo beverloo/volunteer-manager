@@ -8,6 +8,7 @@ import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Log, LogType } from '@lib/Log';
 import { LogSeverity } from '@lib/database/Types';
+import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tFeedback } from '@lib/database';
 
 /**
@@ -19,6 +20,23 @@ export const kSubmitFeedbackDefinition = z.object({
          * Feedback that should be considered for next year's team.
          */
         feedback: z.string().min(5),
+
+        /**
+         * Optional overrides regarding the source of the feedback. Only exposed for individuals
+         * with the Feedback permission, intended to be used by the Feedback Tool.
+         */
+        overrides: z.object({
+            /**
+             * User ID of the volunteer who submitted the feedback.
+             */
+            userId: z.number().nullable().optional(),
+
+            /**
+             * Name of the person who submitted the feedback.
+             */
+            name: z.string().nullable().optional(),
+
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -45,10 +63,21 @@ export async function submitFeedback(request: Request, props: ActionProps): Prom
     if (!props.user || !props.authenticationContext.user)
         notFound();
 
+    let userId: number | undefined = props.user.userId;
+    let feedbackName: string | undefined;
+
+    if (can(props.user, Privilege.Feedback) && !!request.overrides) {
+        if (!!request.overrides.userId || !!request.overrides.name) {
+            userId = request.overrides.userId ?? undefined;
+            feedbackName = request.overrides.name ?? undefined;
+        }
+    }
+
     const dbInstance = db;
     await dbInstance.insertInto(tFeedback)
         .set({
-            userId: props.user.userId,
+            userId: userId,
+            feedbackName: feedbackName,
             feedbackDate: dbInstance.currentZonedDateTime(),
             feedbackText: request.feedback,
         })

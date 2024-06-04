@@ -33,5 +33,5 @@ export default async function FeedbackPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Del a Rie Advies | AnimeCon Volunteer Manager',
+    title: 'Feedback | AnimeCon Volunteer Manager',
 };

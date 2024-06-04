@@ -11,6 +11,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
 import { RegistrationStatus } from '@lib/database/Types';
+import { getStaticContent } from '@lib/Content';
 
 /**
  * The <FeedbackPage> component displays the feedback tool that can be used during the event for
@@ -37,6 +38,8 @@ export default async function FeedbackPage() {
     if (!event)
         notFound();
 
+    const content = await getStaticContent([ 'feedback', 'intro' ]);
+
     const volunteers = await dbInstance.selectFrom(tUsersEvents)
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
@@ -59,7 +62,7 @@ export default async function FeedbackPage() {
 
     return (
         <ExportLayout eventName={event.name}>
-            <FeedbackForm volunteers={volunteers} />
+            <FeedbackForm content={content?.markdown} volunteers={volunteers} />
         </ExportLayout>
     );
 }
