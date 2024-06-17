@@ -1,6 +1,6 @@
 {
   "name": "volunteer-manager-animecon",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Volunteer Management environment for AnimeCon",
   "scripts": {
     "build-prod": "node Docker.build.js",
