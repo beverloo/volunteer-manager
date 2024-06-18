@@ -8,8 +8,14 @@ import { serverAction } from './serverAction';
 describe('serverAction', () => {
     function toFormData(data: Record<string, any>) {
         const formData = new FormData;
-        for (const [ key, value ] of Object.entries(data))
-            formData.set(key, value);
+        for (const [ key, value ] of Object.entries(data)) {
+            if (Array.isArray(value)) {
+                for (const v of value)
+                    formData.append(key, v);
+            } else {
+                formData.set(key, value);
+            }
+        }
 
         return formData;
     }
@@ -52,8 +58,8 @@ describe('serverAction', () => {
         let invocations = 0;
 
         const scheme = z.object({
-            a: z.number(),
-            b: z.number(),
+            a: z.coerce.number(),
+            b: z.coerce.number(),
         });
 
         const action = serverAction(scheme, async () => { ++invocations; });
@@ -63,14 +69,14 @@ describe('serverAction', () => {
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            !result.success && expect(result.error).toBe('Field b: Required');
+            !result.success && expect(result.error).toBe('Field b: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ b: 101 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            !result.success && expect(result.error).toBe('Field a: Required');
+            !result.success && expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: 42, b: 101 }));
@@ -83,7 +89,7 @@ describe('serverAction', () => {
         let invocations = 0;
 
         const scheme = z.object({
-            a: z.number(),
+            a: z.coerce.number(),
             b: z.boolean(),
         });
 
@@ -109,6 +115,68 @@ describe('serverAction', () => {
             const result = await action(toFormData({ a: 42, b: true }));
             expect(result.success).toBeTrue();
             expect(invocations).toBe(1);
+        }
+    });
+
+    it('should be able to coerce arrays from FormData input', async () => {
+        let a: number[] | undefined;
+        let invocations = 0;
+
+        const scheme = z.object({
+            a: z.array(z.coerce.number()),
+        });
+
+        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
+
+        {
+            const result = await action(toFormData({ a: 'banana' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a.0: Expected number, received nan');
+        }
+        {
+            const result = await action(toFormData({ a: false }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a.0: Expected number, received nan');
+        }
+        {
+            const result = await action(toFormData({ a: [ 'banana' ] }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a.0: Expected number, received nan');
+        }
+        {
+            const result = await action(toFormData({ a: [ 42, 'banana' ] }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a.1: Expected number, received nan');
+        }
+        {
+            const result = await action(toFormData({ a: 42 }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
+            expect(a).toEqual([ 42 ]);
+        }
+        {
+            const result = await action(toFormData({ a: [ 42 ] }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(2);
+            expect(a).toEqual([ 42 ]);
+        }
+        {
+            const result = await action(toFormData({ a: [ 42, 101 ] }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(3);
+            expect(a).toEqual([ 42, 101 ]);
         }
     });
 
@@ -199,107 +267,11 @@ describe('serverAction', () => {
         }
     });
 
-    it('should be able to coerce numbers from FormData input', async () => {
-        let a: number | undefined;
-        let invocations = 0;
-
-        const scheme = z.object({
-            a: z.number(),
-        });
-
-        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
-
-        {
-            const result = await action(toFormData({ a: 'value' }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: { /* object */ } }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: Number.NaN }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: 'NaN' }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: undefined }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: null }));
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success &&
-                expect(result.error).toBe('Field a: Expected number, received nan');
-        }
-        {
-            const result = await action(toFormData({ a: 42 }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(1);
-            expect(a).toBe(42);
-        }
-        {
-            const result = await action(toFormData({ a: -42.25 }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(2);
-            expect(a).toBe(-42.25);
-        }
-        {
-            const result = await action(toFormData({ a: Number.MAX_SAFE_INTEGER }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(3);
-            expect(a).toBe(Number.MAX_SAFE_INTEGER);
-        }
-        {
-            const result = await action(toFormData({ a: Number.MIN_SAFE_INTEGER }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(4);
-            expect(a).toBe(Number.MIN_SAFE_INTEGER);
-        }
-        {
-            const result = await action(toFormData({ a: Number.POSITIVE_INFINITY }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(5);
-            expect(a).toBe(Number.POSITIVE_INFINITY);
-        }
-        {
-            const result = await action(toFormData({ a: Number.NEGATIVE_INFINITY }));
-            expect(result.success).toBeTrue();
-            expect(invocations).toBe(6);
-            expect(a).toBe(Number.NEGATIVE_INFINITY);
-        }
-    });
-
     it('should be able to use Zod custom error messages', async () => {
         let invocations = 0;
 
         const scheme = z.object({
-            a: z.number({
+            a: z.coerce.number({
                 required_error: 'Value must be provided',
                 invalid_type_error: 'Value must be a number',
             })
@@ -315,7 +287,7 @@ describe('serverAction', () => {
             expect(invocations).toBe(0);
 
             !result.success &&
-                expect(result.error).toBe('Field a: Value must be provided');
+                expect(result.error).toBe('Field a: Value must be a number');
         }
         {
             const result = await action(toFormData({ a: 'bananas' }));
@@ -349,7 +321,19 @@ describe('serverAction', () => {
     });
 
     it('should be able to transform the input/output using Zod', async () => {
-        // TODO: Implement this test
+        let a: number | undefined;
+        let invocations = 0;
+
+        const scheme = z.object({
+            a: z.coerce.number().transform(v => v * 2),
+        });
+
+        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
+
+        const result = await action(toFormData({ a: '15' }));
+        expect(result.success).toBeTrue();
+        expect(invocations).toBe(1);
+        expect(a).toBe(30);
     });
 
     it('should fail invocations where an exception is thrown', async () => {

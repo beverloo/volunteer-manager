@@ -52,7 +52,8 @@ type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
 /**
  * Types that the `coerceZodType` function can coerce string values to.
  */
-type ServerActionCoercedTypes = boolean | number | string | undefined;
+type ServerActionCoercedTypes =
+    boolean | boolean[] | number | number[] | string | string[] | undefined | undefined[];
 
 /**
  * Coerces the given `value` to either a boolean, a string when it has an invalid value, or the
@@ -81,13 +82,12 @@ function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoer
     // TODO: Deal with File entries in `values`
 
     switch (def.typeName) {
+        case ZodFirstPartyTypeKind.ZodArray:
+            return values.map(value => coerceZodType(def.type._def, [ value ])) as any[];
         case ZodFirstPartyTypeKind.ZodBoolean:
             return coerceZodBoolean(values[0]);
-        case ZodFirstPartyTypeKind.ZodNumber:
-            return Number(values[0]);
     }
 
-    // TODO: Coerce arrays
     // TODO: Coerce bigints
     // TODO: Coerce files
     // TODO: Coerce ...
