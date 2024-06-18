@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { ZodObject, ZodRawShape, ZodTypeDef, z } from 'zod';
+import type { ZodObject, ZodRawShape, z } from 'zod';
 import { ZodError, ZodFirstPartyTypeKind } from 'zod';
 
 /**
@@ -78,6 +78,8 @@ function coerceZodBoolean(value: FormDataEntryValue): boolean | string | undefin
  * definition. The `typeName` field is not included in the base definition, but always exists.
  */
 function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoercedTypes {
+    // TODO: Deal with File entries in `values`
+
     switch (def.typeName) {
         case ZodFirstPartyTypeKind.ZodBoolean:
             return coerceZodBoolean(values[0]);
@@ -122,8 +124,11 @@ function coerceFormData<T extends ZodObject<ZodRawShape, any, any>>(scheme: T, f
  * more user readable than the `error`'s own message.
  */
 export function formatZodError(error: ZodError): string {
-    // TODO: Implement this method.
-    return error.message;
+    const errors: string[] = [];
+    for (const issue of error.issues)
+        errors.push(`Field ${issue.path.join('.')}: ${issue.message}`);
+
+    return errors.join('; ');
 }
 
 /**

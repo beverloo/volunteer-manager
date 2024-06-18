@@ -18,7 +18,7 @@ describe('serverAction', () => {
         let invocations = 0;
 
         const scheme = z.object({ /* empty */ });
-        const action = serverAction(scheme, async (data, props) => { ++invocations; });
+        const action = serverAction(scheme, async () => { ++invocations; });
 
         {
             const result = await action(/* formData= */ undefined as any);
@@ -56,21 +56,21 @@ describe('serverAction', () => {
             b: z.number(),
         });
 
-        const action = serverAction(scheme, async (data, props) => { ++invocations; });
+        const action = serverAction(scheme, async () => { ++invocations; });
 
         {
             const result = await action(toFormData({ a: 42 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success && expect(result.error).toBe('Field b: Required');
         }
         {
             const result = await action(toFormData({ b: 101 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success && expect(result.error).toBe('Field a: Required');
         }
         {
             const result = await action(toFormData({ a: 42, b: 101 }));
@@ -87,21 +87,23 @@ describe('serverAction', () => {
             b: z.boolean(),
         });
 
-        const action = serverAction(scheme, async (data, props) => { ++invocations; });
+        const action = serverAction(scheme, async () => { ++invocations; });
 
         {
             const result = await action(toFormData({ a: 42, b: 121 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field b: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ a: '42', b: 121 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field b: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ a: 42, b: true }));
@@ -118,42 +120,46 @@ describe('serverAction', () => {
             a: z.boolean(),
         });
 
-        const action = serverAction(scheme, async (data, props) => { a = data.a; ++invocations; });
+        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
 
         {
             const result = await action(toFormData({ a: 42 }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ /* missing property */ }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success && expect(result.error).toBe('Field a: Required');
         }
         {
             const result = await action(toFormData({ a: { /* object */ } }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ a: undefined }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ a: null }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected boolean, received string');
         }
         {
             const result = await action(toFormData({ a: 'on' }));
@@ -201,49 +207,55 @@ describe('serverAction', () => {
             a: z.number(),
         });
 
-        const action = serverAction(scheme, async (data, props) => { a = data.a; ++invocations; });
+        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
 
         {
             const result = await action(toFormData({ a: 'value' }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: { /* object */ } }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: Number.NaN }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: 'NaN' }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: undefined }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: null }));
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            // TODO: Validate the error message
+            !result.success &&
+                expect(result.error).toBe('Field a: Expected number, received nan');
         }
         {
             const result = await action(toFormData({ a: 42 }));
@@ -280,6 +292,59 @@ describe('serverAction', () => {
             expect(result.success).toBeTrue();
             expect(invocations).toBe(6);
             expect(a).toBe(Number.NEGATIVE_INFINITY);
+        }
+    });
+
+    it('should be able to use Zod custom error messages', async () => {
+        let invocations = 0;
+
+        const scheme = z.object({
+            a: z.number({
+                required_error: 'Value must be provided',
+                invalid_type_error: 'Value must be a number',
+            })
+            .min(10, { message: 'Value must be ten or more' })
+            .max(20, { message: 'Value must be twenty or less' })
+        });
+
+        const action = serverAction(scheme, async (data) => { ++invocations; });
+
+        {
+            const result = await action(toFormData({ /* missing property */ }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a: Value must be provided');
+        }
+        {
+            const result = await action(toFormData({ a: 'bananas' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a: Value must be a number');
+        }
+        {
+            const result = await action(toFormData({ a: '5' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a: Value must be ten or more');
+        }
+        {
+            const result = await action(toFormData({ a: '25' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+
+            !result.success &&
+                expect(result.error).toBe('Field a: Value must be twenty or less');
+        }
+        {
+            const result = await action(toFormData({ a: '15' }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
         }
     });
 
