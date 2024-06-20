@@ -643,7 +643,7 @@ describe('serverAction', () => {
             };
         });
 
-        const result = await action(toFormData({ /* no properties */ }));
+        const result = await action(toFormData({ /* no properties */ })) as any;
         expect(result.success).toBeTrue();
         expect(result.value).toBe(42);
     });
