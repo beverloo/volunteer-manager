@@ -11,9 +11,9 @@ describe('serverAction', () => {
         for (const [ key, value ] of Object.entries(data)) {
             if (Array.isArray(value)) {
                 for (const v of value)
-                    formData.append(key, v);
+                    formData.append(key, String(v));
             } else {
-                formData.set(key, value);
+                formData.set(key, String(value));
             }
         }
 
@@ -265,6 +265,224 @@ describe('serverAction', () => {
             expect(invocations).toBe(6);
             expect(a).toBeFalse();
         }
+    });
+
+    it('should be able to deal with nullable and optional values', async () => {
+        let invocations = 0;
+        let value: any = undefined;
+
+        const nullableScheme = z.object({ a: z.boolean().nullable() });
+        const nullableAction = serverAction(nullableScheme, async (data) => {
+            value = data.a;
+            ++invocations;
+        });
+
+        {
+            const result = await nullableAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullableAction(toFormData({ a: undefined }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullableAction(toFormData({ a: 'bananas' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullableAction(toFormData({ a: null }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
+            expect(value).toBeNull();
+        }
+        {
+            const result = await nullableAction(toFormData({ a: false }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(2);
+            expect(value).toBeFalse();
+        }
+
+        const nullishScheme = z.object({ a: z.boolean().nullish() });
+        const nullishAction = serverAction(nullishScheme, async (data) => {
+            value = data.a;
+            ++invocations;
+        });
+
+        value = undefined;
+
+        {
+            const result = await nullishAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(3);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullishAction(toFormData({ a: undefined }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(4);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullishAction(toFormData({ a: 'bananas' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(4);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullishAction(toFormData({ a: null }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(5);
+            expect(value).toBeNull();
+        }
+        {
+            const result = await nullishAction(toFormData({ a: false }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(6);
+            expect(value).toBeFalse();
+        }
+
+        const optionalScheme = z.object({ a: z.boolean().optional() });
+        const optionalAction = serverAction(optionalScheme, async (data) => {
+            value = data.a;
+            ++invocations;
+        });
+
+        value = undefined;
+
+        {
+            const result = await optionalAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(7);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: undefined }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(8);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: 'bananas' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(8);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: null }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(8);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: false }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(9);
+            expect(value).toBeFalse();
+        }
+
+        const arrayScheme = z.object({ a: z.array(z.coerce.number()).nullish() });
+        const arrayAction = serverAction(arrayScheme, async (data) => {
+            value = data.a;
+            ++invocations;
+        });
+
+        value = undefined;
+
+        {
+            const result = await arrayAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(10);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await arrayAction(toFormData({ a: undefined }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(11);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await arrayAction(toFormData({ a: '15' }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(12);
+            expect(value).toEqual([ 15 ]);
+        }
+        {
+            const result = await arrayAction(toFormData({ a: null }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(13);
+            expect(value).toBeNull();
+        }
+        {
+            const result = await arrayAction(toFormData({ a: [ '15', '42' ] }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(14);
+            expect(value).toEqual([ 15, 42 ]);
+        }
+        {
+            const result = await arrayAction(toFormData({ a: [ '15', null, '42' ] }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(14);
+        }
+
+        const nullArrayScheme = z.object({ a: z.array(z.coerce.number().nullish()) });
+        const nullArrayAction = serverAction(nullArrayScheme, async (data) => {
+            value = data.a;
+            ++invocations;
+        });
+
+        value = undefined;
+
+        {
+            const result = await nullArrayAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(14);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: undefined }));
+            expect(result.success).toBeTrue();  // single values are automatically array-ified
+            expect(invocations).toBe(15);
+            expect(value).toEqual([ undefined ]);
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: '15' }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(16);
+            expect(value).toEqual([ 15 ]);
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: 'banana' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(16);
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: null }));
+            expect(result.success).toBeTrue();  // single values are automatically array-ified
+            expect(invocations).toBe(17);
+            expect(value).toEqual([ null ]);
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: [ '15', '42' ] }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(18);
+            expect(value).toEqual([ 15, 42 ]);
+        }
+        {
+            const result = await nullArrayAction(toFormData({ a: [ '15', null, '42' ] }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(19);
+            expect(value).toEqual([ 15, null, 42 ]);
+        }
+    });
+
+    it('should be able to work with file uploads', async () => {
+        // TODO: Implement this test.
     });
 
     it('should be able to use Zod custom error messages', async () => {

@@ -53,7 +53,7 @@ type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
  * Types that the `coerceZodType` function can coerce string values to.
  */
 type ServerActionCoercedTypes =
-    boolean | boolean[] | number | number[] | string | string[] | undefined | undefined[];
+    boolean | boolean[] | null | number | number[] | string | string[] | undefined | undefined[];
 
 /**
  * Coerces the given `value` to either a boolean, a string when it has an invalid value, or the
@@ -79,7 +79,25 @@ function coerceZodBoolean(value: FormDataEntryValue): boolean | string | undefin
  * definition. The `typeName` field is not included in the base definition, but always exists.
  */
 function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoercedTypes {
-    // TODO: Deal with File entries in `values`
+    const xdef = def;
+    do {
+        if (def.typeName === ZodFirstPartyTypeKind.ZodNullable) {
+            if (!!values.length && (values[0] === null || values[0] === 'null'))
+                return null;
+
+            def = def.innerType._def;
+        }
+
+        if (def.typeName === ZodFirstPartyTypeKind.ZodOptional) {
+            if (!values.length || (values[0] === undefined || values[0] === 'undefined'))
+                return undefined;
+
+            def = def.innerType._def;
+        }
+
+    } while (
+        def.typeName === ZodFirstPartyTypeKind.ZodOptional ||
+        def.typeName === ZodFirstPartyTypeKind.ZodNullable);
 
     switch (def.typeName) {
         case ZodFirstPartyTypeKind.ZodArray:
