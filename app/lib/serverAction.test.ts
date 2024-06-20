@@ -31,21 +31,21 @@ describe('serverAction', () => {
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            !result.success && expect(result.error).toBe('Invalid form data received from Next.js');
+            !result.success && expect(result.error).toBe('Invalid data received from Next.js');
         }
         {
             const result = await action(/* formData= */ null as any);
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            !result.success && expect(result.error).toBe('Invalid form data received from Next.js');
+            !result.success && expect(result.error).toBe('Invalid data received from Next.js');
         }
         {
             const result = await action(/* formData= */ {} as any);
             expect(result.success).toBeFalse();
             expect(invocations).toBe(0);
 
-            !result.success && expect(result.error).toBe('Invalid form data received from Next.js');
+            !result.success && expect(result.error).toBe('Invalid data received from Next.js');
         }
         {
             const result = await action(/* formData= */ new FormData);
@@ -589,7 +589,63 @@ describe('serverAction', () => {
     });
 
     it('should fail invocations where an exception is thrown', async () => {
-        // TODO: Implement this test
+        const schema = z.object({ a: z.coerce.number() });
+        const action = serverAction(schema, async (data) => {
+            if (data.a === 42)
+                throw new Error('This is an Error exception');
+            if (data.a === 101)
+                throw 'This is a string exception';
+        });
+
+        {
+            const result = await action(toFormData({ a: 32 }));
+            expect(result.success).toBeTrue();
+        }
+        {
+            const result = await action(toFormData({ a: /* Error exception= */ 42 }));
+            expect(result.success).toBeFalse();
+            !result.success && expect(result.error).toBe('This is an Error exception');
+        }
+        {
+            const result = await action(toFormData({ a: /* string exception= */ 101 }));
+            expect(result.success).toBeFalse();
+            !result.success && expect(result.error).toBe('This is a string exception');
+        }
+    });
+
+    it('should fail when the action manually invokes failure', async () => {
+        const schema = z.object({ /* no properties */ });
+        const action = serverAction(schema, async (data) => {
+            return { success: false, error: 'Not yet implemented' };
+        });
+
+        const result = await action(toFormData({ /* no properties */ }));
+        expect(result.success).toBeFalse();
+        !result.success && expect(result.error).toBe('Not yet implemented');
+    });
+
+    it('should succeed when the action manually invokes success', async () => {
+        const schema = z.object({ /* no properties */ });
+        const action = serverAction(schema, async (data) => {
+            return { success: true };
+        });
+
+        const result = await action(toFormData({ /* no properties */ }));
+        expect(result.success).toBeTrue();
+    });
+
+    it('should succeed when the action manually returns additional data', async () => {
+        const schema = z.object({ /* no properties */ });
+        const action = serverAction(schema, async (data) => {
+            return {
+                success: true,
+                value: 42,
+            };
+        });
+
+        const result = await action(toFormData({ /* no properties */ }));
+        expect(result.success).toBeTrue();
+        expect(result.value).toBe(42);
     });
 
     it('should represent uploaded files as File instances', async () => {

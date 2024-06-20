@@ -40,14 +40,15 @@ type ServerActionResult = {
 /**
  * Type definition that represents a plain React server action.
  */
-type ServerAction = (formData: FormData) => Promise<ServerActionResult>;
+type ServerAction<T> = (formData: FormData) => Promise<T>;
 
 /**
  * Type definition that represents a React server action. When the action does not return any value
  * success will be assumed, whereas exceptions will be represented as a failure.
  */
-type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
-    (data: z.output<T>, props: ServerActionProps) => Promise<ServerActionResult | undefined | void>;
+type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>,
+                                ResultType extends ServerActionResult> =
+    (data: z.output<T>, props: ServerActionProps) => Promise<ResultType | undefined | void>;
 
 /**
  * Basic types that the `coerceZodType` function can coerce string values to.
@@ -160,12 +161,13 @@ export function formatZodError(error: ZodError): string {
  * takes care of version skew and common attack types, which we build upon by automatically
  * authenticating the user.
  */
-export function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
-    scheme: T, action: ServerActionImplementation<T>): ServerAction
+export function serverAction<T extends ZodObject<ZodRawShape, any, any>,
+                             ReturnType extends ServerActionResult = ServerActionResult>(
+    scheme: T, action: ServerActionImplementation<T, ReturnType>): ServerAction<ReturnType>
 {
     return async (formData: FormData) => {
         if (!(formData instanceof FormData))
-            return { success: false, error: 'Invalid form data received from Next.js' };
+            return { success: false, error: 'Invalid data received from Next.js' } as ReturnType;
 
         try {
             const data = scheme.parse(coerceFormData(scheme, formData));
@@ -177,14 +179,16 @@ export function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
             if (typeof result === 'object')
                 return result;
 
-            return { success: true };
+            return { success: true } as ReturnType;
 
         } catch (error: any) {
             if (error instanceof ZodError)
-                return { success: false, error: formatZodError(error) };
+                return { success: false, error: formatZodError(error) } as ReturnType;
 
-            // TODO: Implement support for other exception types
-            return { success: false, error: error.message };
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+            } as ReturnType;
         }
     };
 }
