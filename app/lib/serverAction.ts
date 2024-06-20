@@ -50,28 +50,31 @@ type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
     (data: z.output<T>, props: ServerActionProps) => Promise<ServerActionResult | undefined | void>;
 
 /**
+ * Basic types that the `coerceZodType` function can coerce string values to.
+ */
+type ServerActionCoercedBasicTypes = File | boolean | null | number | string | undefined;
+
+/**
  * Types that the `coerceZodType` function can coerce string values to.
  */
-type ServerActionCoercedTypes =
-    boolean | boolean[] | null | number | number[] | string | string[] | undefined | undefined[];
+type ServerActionCoercedTypes = ServerActionCoercedBasicTypes | ServerActionCoercedBasicTypes[];
 
 /**
  * Coerces the given `value` to either a boolean, a string when it has an invalid value, or the
  * `undefined` value when it is something unparseable such as a file.
  */
-function coerceZodBoolean(value: FormDataEntryValue): boolean | string | undefined {
+function coerceZodBoolean(value: FormDataEntryValue): FormDataEntryValue | boolean {
     switch (value) {
         case 'on':  // checkboxes
         case 'true':
             return true;
 
-        case 'off':  // for consistency
+        case 'off':  // for consistency with checkboxes
         case 'false':
             return false;
-
-        default:
-            return typeof value === 'string' ? value : undefined;
     }
+
+    return value;
 }
 
 /**
@@ -109,11 +112,7 @@ function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoer
             return coerceZodBoolean(values[0]);
     }
 
-    // TODO: Coerce bigints
-    // TODO: Coerce files
-    // TODO: Coerce ...
-
-    return typeof values[0] === 'string' ? values[0] : '_skip_';
+    return values[0];
 }
 
 /**

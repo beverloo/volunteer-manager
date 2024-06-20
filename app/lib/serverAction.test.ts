@@ -11,9 +11,9 @@ describe('serverAction', () => {
         for (const [ key, value ] of Object.entries(data)) {
             if (Array.isArray(value)) {
                 for (const v of value)
-                    formData.append(key, String(v));
+                    formData.append(key, v);
             } else {
-                formData.set(key, String(value));
+                formData.set(key, value);
             }
         }
 
@@ -481,10 +481,6 @@ describe('serverAction', () => {
         }
     });
 
-    it('should be able to work with file uploads', async () => {
-        // TODO: Implement this test.
-    });
-
     it('should be able to use Zod custom error messages', async () => {
         let invocations = 0;
 
@@ -596,7 +592,156 @@ describe('serverAction', () => {
         // TODO: Implement this test
     });
 
-    it('should represent uploaded files as Uint8Array values', async () => {
-        // TODO: Implement this test
+    it('should represent uploaded files as File instances', async () => {
+        let value: any;
+        let invocations = 0;
+
+        const data = new ArrayBuffer(/* byteLength= */ 8);
+        const dataUint32 = new Uint32Array(data);
+        dataUint32[0] = 1048576;
+        dataUint32[1] = 2097152;
+
+        const scheme = z.object({ a: z.instanceof(Blob) });
+        const action = serverAction(scheme, async (data) => { value = data.a; ++invocations; });
+
+        {
+            const result = await action(toFormData({ /* missing property */ }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+        }
+        {
+            const result = await action(toFormData({ a: undefined }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+        }
+        {
+            const result = await action(toFormData({ a: null }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+        }
+        {
+            const result = await action(toFormData({ a: 'filez' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(0);
+        }
+        {
+            const result = await action(toFormData({
+                a: new Blob([ data ], { type: 'image/png' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/png');
+        }
+        {
+            const result = await action(toFormData({
+                a: new File([ data ], 'myfile.jpg', { type: 'image/jpg' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(2);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/jpg');
+        }
+
+        const nullableScheme = z.object({ a: z.instanceof(Blob).nullable() });
+        const nullableAction =
+            serverAction(nullableScheme, async (data) => { value = data.a; ++invocations; });
+
+        {
+            const result = await nullableAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(2);
+        }
+        {
+            const result = await nullableAction(toFormData({ a: undefined }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(2);
+        }
+        {
+            const result = await nullableAction(toFormData({ a: null }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(3);
+            expect(value).toBeNull();
+        }
+        {
+            const result = await nullableAction(toFormData({ a: 'filez' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(3);
+        }
+        {
+            const result = await nullableAction(toFormData({
+                a: new Blob([ data ], { type: 'image/png' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(4);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/png');
+        }
+        {
+            const result = await nullableAction(toFormData({
+                a: new File([ data ], 'myfile.jpg', { type: 'image/jpg' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(5);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/jpg');
+        }
+
+        const optionalScheme = z.object({ a: z.instanceof(Blob).optional() });
+        const optionalAction =
+            serverAction(optionalScheme, async (data) => { value = data.a; ++invocations; });
+
+        {
+            const result = await optionalAction(toFormData({ /* missing property */ }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(6);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: undefined }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(7);
+            expect(value).toBeUndefined();
+        }
+        {
+            const result = await optionalAction(toFormData({ a: null }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(7);
+        }
+        {
+            const result = await optionalAction(toFormData({ a: 'filez' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(7);
+        }
+        {
+            const result = await optionalAction(toFormData({
+                a: new Blob([ data ], { type: 'image/png' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(8);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/png');
+        }
+        {
+            const result = await optionalAction(toFormData({
+                a: new File([ data ], 'myfile.jpg', { type: 'image/jpg' })
+            }));
+
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(9);
+            expect(value).toBeInstanceOf(Blob);
+            expect(value.size).toBe(8);
+            expect(value.type).toBe('image/jpg');
+        }
     });
 });
