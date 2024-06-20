@@ -79,8 +79,10 @@ function coerceZodBoolean(value: FormDataEntryValue): boolean | string | undefin
  * definition. The `typeName` field is not included in the base definition, but always exists.
  */
 function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoercedTypes {
-    const xdef = def;
     do {
+        if (def.typeName === ZodFirstPartyTypeKind.ZodEffects)
+            def = def.schema._def;
+
         if (def.typeName === ZodFirstPartyTypeKind.ZodNullable) {
             if (!!values.length && (values[0] === null || values[0] === 'null'))
                 return null;
@@ -96,6 +98,7 @@ function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoer
         }
 
     } while (
+        def.typeName === ZodFirstPartyTypeKind.ZodEffects ||
         def.typeName === ZodFirstPartyTypeKind.ZodOptional ||
         def.typeName === ZodFirstPartyTypeKind.ZodNullable);
 

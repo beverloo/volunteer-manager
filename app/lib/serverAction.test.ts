@@ -539,19 +539,57 @@ describe('serverAction', () => {
     });
 
     it('should be able to transform the input/output using Zod', async () => {
-        let a: number | undefined;
+        let value: any;
         let invocations = 0;
 
-        const scheme = z.object({
+        const sameTypeScheme = z.object({
             a: z.coerce.number().transform(v => v * 2),
         });
 
-        const action = serverAction(scheme, async (data) => { a = data.a; ++invocations; });
+        const sameTypeAction =
+            serverAction(sameTypeScheme, async (data) => { value = data.a; ++invocations; });
 
-        const result = await action(toFormData({ a: '15' }));
-        expect(result.success).toBeTrue();
-        expect(invocations).toBe(1);
-        expect(a).toBe(30);
+        {
+            const result = await sameTypeAction(toFormData({ a: '15' }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
+            expect(value).toBe(30);
+        }
+        {
+            const result = await sameTypeAction(toFormData({ a: 'banana' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(1);
+        }
+
+        const differentTypeScheme = z.object({
+            a: z.boolean().transform(v => !!v ? 'yay' : 'nay'),
+        });
+
+        const differentTypeAction =
+            serverAction(differentTypeScheme, async (data) => { value = data.a; ++invocations; });
+
+        {
+            const result = await differentTypeAction(toFormData({ a: undefined }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(1);
+        }
+        {
+            const result = await differentTypeAction(toFormData({ a: true }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(2);
+            expect(value).toBe('yay');
+        }
+        {
+            const result = await differentTypeAction(toFormData({ a: false }));
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(3);
+            expect(value).toBe('nay');
+        }
+        {
+            const result = await differentTypeAction(toFormData({ a: 'banana' }));
+            expect(result.success).toBeFalse();
+            expect(invocations).toBe(3);
+        }
     });
 
     it('should fail invocations where an exception is thrown', async () => {
