@@ -3,13 +3,19 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useFormState } from 'react-dom';
 
 import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import type { ServerAction } from '@lib/serverAction';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
@@ -35,7 +41,7 @@ interface FormGridSectionOwnProps {
  * @todo Rename <SectionHeader action> to something else now that React has a canonical `action`.
  */
 export type FormGridSectionProps =
-    FormGridSectionOwnProps & (Omit<SectionHeaderProps, 'action'> | { noHeader: true });
+    FormGridSectionOwnProps & (Omit<SectionHeaderProps, 'action' | 'sx'> | { noHeader: true });
 
 /**
  * The <FormGridSection> component represents a visually separated section of a page in the admin
@@ -58,7 +64,7 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
 
     // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
 
-    // TODO: Automatically watch for invalidations happening within the form.
+    const methods = useForm();
 
     const [ state, submitForm, isPending ] =
         useFormState(async (previousState: unknown, formData: FormData) => {
@@ -66,25 +72,34 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
         },
         /* initialState= */ null);
 
-    const methods = useForm();
-
     return (
         <FormProvider {...methods}>
             <form noValidate action={submitForm}>
                 <Paper sx={{ p: 2 }}>
                     { !('noHeader' in sectionHeaderProps) &&
-                        <SectionHeader {...sectionHeaderProps} /> }
-                    <Grid container>
+                        <SectionHeader {...sectionHeaderProps} sx={{ pb: 1 }} /> }
+                    <Grid container spacing={2}>
                         {children}
-                        <Grid xs={12}>
-                            <Button type="submit" disabled={isPending}>Submit</Button>
-                        </Grid>
-                        <Grid xs={6}>
-                            State?: {JSON.stringify(state)}
-                        </Grid>
-                        <Grid xs={6}>
-                            Pending?: {isPending ? 'y' : 'n'}
-                        </Grid>
+
+                        <Collapse in={!!methods.formState.isDirty} sx={{ width: '100%' }}>
+                            <Grid xs={12}>
+                                <Stack direction="row" spacing={1} alignItems="center"
+                                       sx={{
+                                           backgroundColor: '#fff4e5',
+                                           borderRadius: 2,
+                                           padding: 1,
+                                       }}>
+                                    <LoadingButton variant="contained" type="submit"
+                                                   loading={!!isPending}>
+                                        Save changes
+                                    </LoadingButton>
+                                    { (!!state && !state.success) &&
+                                        <Alert severity="warning" sx={{flexGrow: 1, px: 1, py: 0}}>
+                                            { state.error || 'The changes could not be saved' }
+                                        </Alert> }
+                                </Stack>
+                            </Grid>
+                        </Collapse>
                     </Grid>
                 </Paper>
             </form>
