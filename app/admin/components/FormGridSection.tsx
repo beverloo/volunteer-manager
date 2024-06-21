@@ -6,6 +6,7 @@
 import {  useState, useTransition } from 'react';
 
 import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
+import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
@@ -60,15 +61,20 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
     // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
 
     const form = useForm();
+    const router = useRouter();
 
     const handleSubmit = form.handleSubmit(async (data: unknown) => {
         await startTransition(async () => {
             const result = await action(data);
-            if (!!result.success)
+            if (!!result.success) {
                 form.reset({ /* fields */ }, { keepValues: true });
 
-            // TODO: Support `redirect` to automatically redirect the user to another page.
-            // TODO: Support `refresh` to automatically refresh using the Next.js router.
+                if (!!result.redirect)
+                    router.push(result.redirect);
+
+                if (!!router.refresh)
+                    router.refresh();
+            }
 
             setState(result);
         });

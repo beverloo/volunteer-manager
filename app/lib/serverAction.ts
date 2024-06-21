@@ -44,9 +44,21 @@ export type ServerActionResult = {
      */
     success: true,
 
-    // TODO: Support `redirect` to automatically redirect the user to another page.
-    // TODO: Support `refresh` to automatically refresh using the Next.js router.
-    // TODO: Support arbitrary data payloads.
+    /**
+     * URL that the user should be redirected to now that this action has succeeded.
+     */
+    redirect?: string;
+
+    /**
+     * Whether the page, and its entire state, should be refreshed.
+     */
+    refresh?: boolean;
+
+    /**
+     * Arbitrary data that should be carried as part of the server action. Will not be consumed by
+     * the `<FormGridSection>` component & friends, but may be consumed by manual usage.
+     */
+    [key: string]: any;
 
 } | {
     /**
