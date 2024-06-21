@@ -3,7 +3,7 @@
 
 'use client';
 
-import { SelectElement, TextFieldElement, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { SelectElement, TextFieldElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import Grid, { type Grid2Props } from '@mui/material/Unstable_Grid2';
 

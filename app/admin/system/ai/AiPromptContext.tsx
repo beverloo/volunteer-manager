@@ -6,7 +6,7 @@
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Grid from '@mui/material/Unstable_Grid2';

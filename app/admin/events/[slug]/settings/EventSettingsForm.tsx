@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
-import { TextFieldElement } from 'react-hook-form-mui';
+import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 

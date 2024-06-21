@@ -5,12 +5,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-import type { FieldValues } from 'react-hook-form-mui';
+import type { FieldValues } from '@proxy/react-hook-form-mui';
 import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { MuiColorInput } from 'mui-color-input';
-import { SelectElement, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import type { EventShiftContext, EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
 import { ShiftSettingsForm } from '../ShiftSettingsForm';

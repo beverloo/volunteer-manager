@@ -5,7 +5,7 @@
 
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { SelectElement } from 'react-hook-form-mui';
+import { SelectElement } from '@proxy/react-hook-form-mui';
 
 import type { PopoverPosition } from '@mui/material/Popover';
 import Grid from '@mui/material/Unstable_Grid2';

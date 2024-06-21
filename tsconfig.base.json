@@ -25,6 +25,7 @@
     "paths": {
       "@components/*": [ "components/*" ],
       "@lib/*": [ "lib/*" ],
+      "@proxy/*": [ "components/proxy/*" ],
       "@app/*": [ "*" ]
     },
     "plugins": [

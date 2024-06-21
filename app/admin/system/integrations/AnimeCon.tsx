@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';

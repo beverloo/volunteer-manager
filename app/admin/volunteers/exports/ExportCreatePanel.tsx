@@ -6,8 +6,8 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import type { FieldValues } from 'react-hook-form-mui';
-import { FormContainer, SelectElement, TextFieldElement } from 'react-hook-form-mui';
+import type { FieldValues } from '@proxy/react-hook-form-mui';
+import { FormContainer, SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';

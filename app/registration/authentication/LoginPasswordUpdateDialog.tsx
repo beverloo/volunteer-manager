@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';

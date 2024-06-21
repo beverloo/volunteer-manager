@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 

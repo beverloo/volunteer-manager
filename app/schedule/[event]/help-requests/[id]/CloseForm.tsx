@@ -6,7 +6,7 @@
 import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';

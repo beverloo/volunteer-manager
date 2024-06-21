@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { type FieldValues, type FormContainerProps, FormContainer, useForm }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';

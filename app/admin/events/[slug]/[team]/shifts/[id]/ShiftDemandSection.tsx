@@ -3,7 +3,7 @@
 
 'use client';
 
-import { FormContainer } from 'react-hook-form-mui';
+import { FormContainer } from '@proxy/react-hook-form-mui';
 import { useCallback, useState } from 'react';
 
 import Box from '@mui/material/Box';

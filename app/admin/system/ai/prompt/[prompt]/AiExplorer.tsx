@@ -6,7 +6,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Collapse from '@mui/material/Collapse';

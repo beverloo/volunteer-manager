@@ -5,7 +5,7 @@
 
 import { useFormState } from 'react-dom';
 
-import { FormProvider, useForm } from 'react-hook-form-mui';
+import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';

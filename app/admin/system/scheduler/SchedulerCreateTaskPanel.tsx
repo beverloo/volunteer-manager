@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement, useForm }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';

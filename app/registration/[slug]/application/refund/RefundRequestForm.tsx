@@ -3,7 +3,7 @@
 
 'use client';
 
-import { TextFieldElement } from 'react-hook-form-mui';
+import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 

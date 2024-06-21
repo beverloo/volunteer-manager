@@ -6,7 +6,7 @@
 import { useCallback, useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, CheckboxElement, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, CheckboxElement, FormContainer } from '@proxy/react-hook-form-mui';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';

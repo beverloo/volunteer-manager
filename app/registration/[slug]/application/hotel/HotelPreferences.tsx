@@ -6,7 +6,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, useForm } from '@proxy/react-hook-form-mui';
 import { dayjs } from '@lib/DateTime';
 
 import Box from '@mui/material/Box';

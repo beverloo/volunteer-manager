@@ -3,7 +3,7 @@
 
 'use client';
 
-import { type TextFieldElementProps, TextFieldElement } from 'react-hook-form-mui';
+import { type TextFieldElementProps, TextFieldElement } from '@proxy/react-hook-form-mui';
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';

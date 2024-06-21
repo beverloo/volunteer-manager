@@ -3,7 +3,7 @@
 
 'use client';
 
-import { FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 import { useMemo } from 'react';
 
 import Alert from '@mui/material/Alert';

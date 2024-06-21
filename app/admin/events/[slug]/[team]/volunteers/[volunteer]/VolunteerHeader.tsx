@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, SelectElement } from 'react-hook-form-mui';
+import { type FieldValues, SelectElement } from '@proxy/react-hook-form-mui';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Alert from '@mui/material/Alert';

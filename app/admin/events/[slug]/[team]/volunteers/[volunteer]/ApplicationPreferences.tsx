@@ -5,7 +5,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, SelectElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';

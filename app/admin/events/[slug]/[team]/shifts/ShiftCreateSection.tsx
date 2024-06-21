@@ -3,7 +3,7 @@
 
 'use client';
 
-import type { FieldValues } from 'react-hook-form-mui';
+import type { FieldValues } from '@proxy/react-hook-form-mui';
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 

@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
-import { type FieldValues, FormContainer, SelectElement, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';

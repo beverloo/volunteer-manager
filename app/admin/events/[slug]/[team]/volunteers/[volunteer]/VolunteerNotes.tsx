@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { FormContainer, TextareaAutosizeElement, type FieldValues } from 'react-hook-form-mui';
+import { FormContainer, TextareaAutosizeElement, type FieldValues } from '@proxy/react-hook-form-mui';
 
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';

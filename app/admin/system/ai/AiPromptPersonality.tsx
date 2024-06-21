@@ -5,7 +5,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextareaAutosizeElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';

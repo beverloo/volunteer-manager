@@ -5,7 +5,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 
-import { FormContainer } from 'react-hook-form-mui';
+import { FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';

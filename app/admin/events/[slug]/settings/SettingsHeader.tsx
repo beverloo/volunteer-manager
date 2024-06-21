@@ -6,7 +6,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { TextFieldElement } from 'react-hook-form-mui';
+import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';

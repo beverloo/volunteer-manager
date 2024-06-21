@@ -3,7 +3,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';

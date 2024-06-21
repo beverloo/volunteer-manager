@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { type FieldValues, CheckboxElement, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, CheckboxElement, FormContainer } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Button from '@mui/material/Button';

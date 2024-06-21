@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement, SelectElement,
-    SliderElement } from 'react-hook-form-mui';
+    SliderElement } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';

@@ -5,9 +5,9 @@
 
 import { useEffect, useState } from 'react';
 
-import type { UseFormReturn } from 'react-hook-form-mui';
+import type { UseFormReturn } from '@proxy/react-hook-form-mui';
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
-import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
+import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';

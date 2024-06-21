@@ -3,7 +3,7 @@
 
 'use client';
 
-import { SelectElement } from 'react-hook-form-mui';
+import { SelectElement } from '@proxy/react-hook-form-mui';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';

@@ -5,10 +5,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { FieldValues, TextFieldElementProps } from 'react-hook-form-mui';
+import type { FieldValues, TextFieldElementProps } from '@proxy/react-hook-form-mui';
 import {
     AutocompleteElement, FormContainer, SelectElement, TextFieldElement, TextareaAutosizeElement,
-    useFormContext } from 'react-hook-form-mui';
+    useFormContext } from '@proxy/react-hook-form-mui';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';

@@ -6,7 +6,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';

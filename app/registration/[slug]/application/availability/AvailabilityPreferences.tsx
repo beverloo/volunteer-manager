@@ -6,7 +6,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, AutocompleteElement, FormContainer } from 'react-hook-form-mui';
+import { type FieldValues, AutocompleteElement, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';

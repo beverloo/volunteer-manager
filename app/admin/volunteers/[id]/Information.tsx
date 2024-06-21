@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';

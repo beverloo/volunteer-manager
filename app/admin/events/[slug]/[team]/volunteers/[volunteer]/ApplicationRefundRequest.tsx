@@ -6,7 +6,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { type FieldValues, FormContainer, useForm } from 'react-hook-form-mui';
+import { type FieldValues, FormContainer, useForm } from '@proxy/react-hook-form-mui';
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';

@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
-    from 'react-hook-form-mui';
+    from '@proxy/react-hook-form-mui';
 
 import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Alert from '@mui/material/Alert';
