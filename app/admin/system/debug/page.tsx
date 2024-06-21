@@ -6,6 +6,8 @@ import { z } from 'zod';
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 
+import Grid from '@mui/material/Unstable_Grid2';
+import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
@@ -53,26 +55,34 @@ export default async function DebugPage() {
     debugValues['Cookies'] = [ ...cookies() ];
     debugValues['Headers'] = [ ...headers() ];
 
+    // TODO: react-hook-form-mui should probably add `use client` directives...? Using the
+    // <TextFieldElement> wrapper, for example, now ends up trying to create a context in a RSC.
+
     return (
         <>
             <DebugOptions />
             <FormGridSection action={debugAction} title="Form section demo">
-                <input type="hidden" name="value" value="test" />
-                <p>
-                    Hello, world
-                </p>
+                <Grid xs={12} md={6}>
+                    { /* TODO: Field A */ }
+                </Grid>
+                <Grid xs={12} md={6}>
+                    { /* TODO: Field B */ }
+                </Grid>
             </FormGridSection>
             <Section title="Debugging information">
                 <Table size="small">
-                    { Object.entries(debugValues).map(([ key, value ], index) =>
-                        <TableRow key={index}>
-                            <TableCell width="15%">
-                                <strong>{key}</strong>
-                            </TableCell>
-                            <TableCell sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                                { JSON.stringify(value, undefined, /* space= */ 4) }
-                            </TableCell>
-                        </TableRow> )}
+                    <TableBody>
+                        { Object.entries(debugValues).map(([ key, value ], index) =>
+                            <TableRow key={index}>
+                                <TableCell width="15%">
+                                    <strong>{key}</strong>
+                                </TableCell>
+                                <TableCell sx={{ whiteSpace: 'pre-wrap',
+                                                 overflowWrap: 'anywhere' }}>
+                                    { JSON.stringify(value, undefined, /* space= */ 4) }
+                                </TableCell>
+                            </TableRow> )}
+                    </TableBody>
                 </Table>
             </Section>
         </>

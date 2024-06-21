@@ -58,8 +58,10 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
 
     // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
 
+    // TODO: Automatically watch for invalidations happening within the form.
+
     const [ state, submitForm, isPending ] =
-        useFormState(async (state: unknown, formData: FormData) => {
+        useFormState(async (previousState: unknown, formData: FormData) => {
             return await action(formData);
         },
         /* initialState= */ null);
