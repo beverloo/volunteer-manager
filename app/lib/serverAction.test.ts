@@ -1,9 +1,9 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { z } from 'zod';
+import { z, type ZodObject, type ZodRawShape } from 'zod';
 
-import { serverAction } from './serverAction';
+import { executeServerAction, type ServerActionImplementation } from './serverAction';
 
 describe('serverAction', () => {
     function toFormData(data: Record<string, any>) {
@@ -18,6 +18,14 @@ describe('serverAction', () => {
         }
 
         return formData;
+    }
+
+    // Wrapper function around `executeServerAction` that encapsulates the necessary information in
+    // an asynchronous closure, that can be invoked multiple times for testing purposes.
+    function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
+        scheme: T, action: ServerActionImplementation<T>)
+    {
+        return async (formData: FormData) => executeServerAction(formData, scheme, action);
     }
 
     it('should reject invalid form data types', async () => {

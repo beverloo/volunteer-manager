@@ -153,43 +153,40 @@ export function formatZodError(error: ZodError): string {
 }
 
 /**
- * Function that wraps an asynchronous `action` to provide consistent input and output, as well as
- * Zod-based validation based on the given `scheme`.
+ * Executes the server action implemented in the given `action`, ensuring consistent input (from the
+ * given `formData`) and output across our system. The input will be strongly validated, and the
+ * user will be authenticated.
  *
- * This function returns a plain React server action that takes a `FormData  as input. The received
- * data will be validated against the scheme, and be made available in a fully typed manner. React
- * takes care of version skew and common attack types, which we build upon by automatically
- * authenticating the user.
+ * This function must only be called in asynchronous functions that have a 'use server' declaration
+ * as the first statement in their body, per the rules of React's Server Actions. Furthermore, React
+ * takes care of version skew and common attack types, which we build upon with further validation.
  */
-export function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
-    scheme: T, action: ServerActionImplementation<T>): ServerAction
+export async function executeServerAction<T extends ZodObject<ZodRawShape, any, any>>(
+    formData: FormData, scheme: T, action: ServerActionImplementation<T>)
+        : Promise<ServerActionResult>
 {
-    return async (formData: FormData) => {
-        'use server';
+    if (!(formData instanceof FormData))
+        return { success: false, error: 'Invalid data received from Next.js' };
 
-        if (!(formData instanceof FormData))
-            return { success: false, error: 'Invalid data received from Next.js' };
+    try {
+        const data = scheme.parse(coerceFormData(scheme, formData));
+        const props: ServerActionProps = {
+            // TODO: Populate the props
+        };
 
-        try {
-            const data = scheme.parse(coerceFormData(scheme, formData));
-            const props: ServerActionProps = {
-                // TODO: Populate the props
-            };
+        const result = await action(data, props);
+        if (typeof result === 'object')
+            return result;
 
-            const result = await action(data, props);
-            if (typeof result === 'object')
-                return result;
+        return { success: true };
 
-            return { success: true };
+    } catch (error: any) {
+        if (error instanceof ZodError)
+            return { success: false, error: formatZodError(error) };
 
-        } catch (error: any) {
-            if (error instanceof ZodError)
-                return { success: false, error: formatZodError(error) };
-
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : String(error),
-            };
-        }
-    };
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
 }
