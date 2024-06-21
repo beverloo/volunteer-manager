@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 
 /**
- * Props accepted by the <Section> component, that are directly owned by the <Section< component.
+ * Props accepted by the <Section> component, that are directly owned by the <Section> component.
  * Other props, e.g. that of the header, will be included.
  */
 interface SectionOwnProps {

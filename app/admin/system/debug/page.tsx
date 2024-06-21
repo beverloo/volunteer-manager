@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { z } from 'zod';
+
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 
@@ -9,9 +11,33 @@ import TableRow from '@mui/material/TableRow';
 import Table from '@mui/material/Table';
 
 import { DebugOptions } from './DebugOptions';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { executeServerAction } from '@lib/serverAction';
+
+/**
+ * Zod scheme that the debug action will be validated against.
+ */
+const kDebugActionScheme = z.object({
+    /**
+     * The value that will be submitted using the form.
+     */
+    value: z.string(),
+});
+
+/**
+ * Server action that will be invoked when the form section demo has been submitted. Reflects the
+ * submitted data back to the client after a slight delay.
+ */
+async function debugAction(formData: FormData) {
+    'use server';
+    return executeServerAction(formData, kDebugActionScheme, async (data, props) => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return { success: true, value: data.value };
+    });
+}
 
 /**
  * The debug page displays debugging information regarding NextJS and AnimeCon Volunteer Manager
@@ -30,6 +56,12 @@ export default async function DebugPage() {
     return (
         <>
             <DebugOptions />
+            <FormGridSection action={debugAction} title="Form section demo">
+                <input type="hidden" name="value" value="test" />
+                <p>
+                    Hello, world
+                </p>
+            </FormGridSection>
             <Section title="Debugging information">
                 <Table size="small">
                     { Object.entries(debugValues).map(([ key, value ], index) =>
