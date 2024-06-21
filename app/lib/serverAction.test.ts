@@ -25,7 +25,7 @@ describe('serverAction', () => {
     function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
         scheme: T, action: ServerActionImplementation<T>)
     {
-        return async (formData: FormData) => executeServerAction(formData, scheme, action);
+        return async (formData: unknown) => executeServerAction(formData, scheme, action);
     }
 
     it('should reject invalid form data types', async () => {
@@ -50,15 +50,13 @@ describe('serverAction', () => {
         }
         {
             const result = await action(/* formData= */ {} as any);
-            expect(result.success).toBeFalse();
-            expect(invocations).toBe(0);
-
-            !result.success && expect(result.error).toBe('Invalid data received from Next.js');
+            expect(result.success).toBeTrue();
+            expect(invocations).toBe(1);
         }
         {
             const result = await action(/* formData= */ new FormData);
             expect(result.success).toBeTrue();
-            expect(invocations).toBe(1);
+            expect(invocations).toBe(2);
         }
     });
 

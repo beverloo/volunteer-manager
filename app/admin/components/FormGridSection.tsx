@@ -3,8 +3,7 @@
 
 'use client';
 
-import { useCallback } from 'react';
-import { useFormState } from 'react-dom';
+import {  useState, useTransition } from 'react';
 
 import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 
@@ -15,7 +14,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
-import type { ServerAction } from '@lib/serverAction';
+import type { ServerAction, ServerActionResult } from '@lib/serverAction';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 
 /**
@@ -29,7 +28,6 @@ interface FormGridSectionOwnProps {
     action: ServerAction;
 
     // TODO: defaultValues
-    // TODO: scheme
 }
 
 /**
@@ -51,8 +49,8 @@ export type FormGridSectionProps =
 export function FormGridSection(props: React.PropsWithChildren<FormGridSectionProps>) {
     const { action, children, ...sectionHeaderProps } = props;
 
-    // TODO: s/useFormState/useActionState/ when React 19 rolls into Next.js, currently this fails
-    // with an error ("... is not a function or its return value is not iterable").
+    const [ isPending, startTransition ] = useTransition();
+    const [ state, setState ] = useState<ServerActionResult | undefined>();
 
     // TODO: Provide `defaultValues` to the form.
 
@@ -63,27 +61,22 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
 
     const form = useForm();
 
-    const [ state, submitForm, isPending ] =
-        useFormState(async (previousState: unknown, formData: FormData) => {
-            const result = await action(formData);
+    const handleSubmit = form.handleSubmit(async (data: unknown) => {
+        await startTransition(async () => {
+            const result = await action(data);
             if (!!result.success)
                 form.reset({ /* fields */ }, { keepValues: true });
 
-            return result;
-        },
-        /* initialState= */ null);
+            // TODO: Support `redirect` to automatically redirect the user to another page.
+            // TODO: Support `refresh` to automatically refresh using the Next.js router.
 
-    const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
-        if (!await form.trigger()) {
-            event.preventDefault();
-        } else {
-            event.currentTarget?.requestSubmit();
-        }
-    }, [ form ]);
+            setState(result);
+        });
+    });
 
     return (
         <FormProvider {...form}>
-            <form noValidate action={submitForm} onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
                 <Paper sx={{ p: 2 }}>
                     { !('noHeader' in sectionHeaderProps) &&
                         <SectionHeader {...sectionHeaderProps} sx={{ pb: 1 }} /> }

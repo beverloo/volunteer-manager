@@ -40,9 +40,10 @@ const kDebugActionScheme = z.object({
  * Server action that will be invoked when the form section demo has been submitted. Reflects the
  * submitted data back to the client after a slight delay.
  */
-async function debugAction(formData: FormData) {
+async function debugAction(formData: unknown) {
     'use server';
     return executeServerAction(formData, kDebugActionScheme, async (data, props) => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
         return { success: false, error: `Not yet implemented (${data.username})` };
     });
 }

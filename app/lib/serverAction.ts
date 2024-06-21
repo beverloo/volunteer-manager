@@ -16,7 +16,7 @@ type ServerActionProps = {
 /**
  * Type definition that represents the result of a React server action function.
  */
-type ServerActionResult = {
+export type ServerActionResult = {
     /**
      * Boolean indicating whether the server action was processed successfully.
      */
@@ -41,13 +41,13 @@ type ServerActionResult = {
 /**
  * Type definition that represents a plain React server action.
  */
-export type ServerAction = (formData: FormData) => Promise<ServerActionResult>;
+export type ServerAction = (formData: unknown) => Promise<ServerActionResult>;
 
 /**
  * Type definition that represents a React server action. When the action does not return any value
  * success will be assumed, whereas exceptions will be represented as a failure.
  */
-type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
+export type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
     (data: z.output<T>, props: ServerActionProps) => Promise<ServerActionResult | undefined | void>;
 
 /**
@@ -153,23 +153,28 @@ export function formatZodError(error: ZodError): string {
 }
 
 /**
- * Executes the server action implemented in the given `action`, ensuring consistent input (from the
- * given `formData`) and output across our system. The input will be strongly validated, and the
- * user will be authenticated.
+ * Executes the server action implemented in the given `action`, ensuring consistent input (the
+ * given `formData`, either a `FormData` instance or a POD object) and output across our system. The
+ * input will be strongly validated, and the user will be authenticated.
  *
  * This function must only be called in asynchronous functions that have a 'use server' declaration
  * as the first statement in their body, per the rules of React's Server Actions. Furthermore, React
  * takes care of version skew and common attack types, which we build upon with further validation.
  */
 export async function executeServerAction<T extends ZodObject<ZodRawShape, any, any>>(
-    formData: FormData, scheme: T, action: ServerActionImplementation<T>)
+    formData: unknown, scheme: T, action: ServerActionImplementation<T>)
         : Promise<ServerActionResult>
 {
-    if (!(formData instanceof FormData))
-        return { success: false, error: 'Invalid data received from Next.js' };
-
     try {
-        const data = scheme.parse(coerceFormData(scheme, formData));
+        let unverifiedData: unknown;
+        if (formData instanceof FormData)
+            unverifiedData = coerceFormData(scheme, formData);
+        else if (!!formData && typeof formData === 'object')
+            unverifiedData = formData;
+        else
+            return { success: false, error: 'Invalid data received from Next.js' };
+
+        const data = scheme.parse(unverifiedData);
         const props: ServerActionProps = {
             // TODO: Populate the props
         };
