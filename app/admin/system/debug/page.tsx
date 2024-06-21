@@ -26,9 +26,14 @@ import { executeServerAction } from '@lib/serverAction';
  */
 const kDebugActionScheme = z.object({
     /**
-     * The value that will be submitted using the form.
+     * The username submitted through the example form, required.
      */
-    value: z.string(),
+    username: z.string().min(1, 'must have a value'),
+
+    /**
+     * Notes submitted through the example form, optional.
+     */
+    notes: z.string().optional(),
 });
 
 /**
@@ -38,8 +43,7 @@ const kDebugActionScheme = z.object({
 async function debugAction(formData: FormData) {
     'use server';
     return executeServerAction(formData, kDebugActionScheme, async (data, props) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { success: true, value: data.value };
+        return { success: false, error: `Not yet implemented (${data.username})` };
     });
 }
 
@@ -62,7 +66,8 @@ export default async function DebugPage() {
             <DebugOptions />
             <FormGridSection action={debugAction} title="Form section demo">
                 <Grid xs={12} md={6}>
-                    <TextFieldElement name="username" label="Username" size="small" fullWidth />
+                    <TextFieldElement name="username" label="Username" size="small" fullWidth
+                                      required />
                 </Grid>
                 <Grid xs={12} md={6}>
                     <TextFieldElement name="notes" label="Notes" size="small" fullWidth />

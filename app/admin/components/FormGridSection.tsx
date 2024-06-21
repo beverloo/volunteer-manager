@@ -3,23 +3,20 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useFormState } from 'react-dom';
 
 import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 
 import type { ServerAction } from '@lib/serverAction';
 import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
-
 
 /**
  * Props accepted by the <FormGridSection> component that are directly owned by <FormGridSection>
@@ -64,24 +61,35 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
 
     // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
 
-    const methods = useForm();
+    const form = useForm();
 
     const [ state, submitForm, isPending ] =
         useFormState(async (previousState: unknown, formData: FormData) => {
-            return await action(formData);
+            const result = await action(formData);
+            if (!!result.success)
+                form.reset({ /* fields */ }, { keepValues: true });
+
+            return result;
         },
         /* initialState= */ null);
 
+    const handleSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+        if (!await form.trigger()) {
+            event.preventDefault();
+        } else {
+            event.currentTarget?.requestSubmit();
+        }
+    }, [ form ]);
+
     return (
-        <FormProvider {...methods}>
-            <form noValidate action={submitForm}>
+        <FormProvider {...form}>
+            <form noValidate action={submitForm} onSubmit={handleSubmit}>
                 <Paper sx={{ p: 2 }}>
                     { !('noHeader' in sectionHeaderProps) &&
                         <SectionHeader {...sectionHeaderProps} sx={{ pb: 1 }} /> }
                     <Grid container spacing={2}>
                         {children}
-
-                        <Collapse in={!!methods.formState.isDirty} sx={{ width: '100%' }}>
+                        <Collapse in={!!form.formState.isDirty} sx={{ width: '100%' }}>
                             <Grid xs={12}>
                                 <Stack direction="row" spacing={1} alignItems="center"
                                        sx={{
