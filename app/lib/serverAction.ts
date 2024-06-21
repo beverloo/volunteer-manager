@@ -1,16 +1,38 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { headers } from 'next/headers';
+
 import type { ZodObject, ZodRawShape, z } from 'zod';
 import { ZodError, ZodFirstPartyTypeKind } from 'zod';
+
+import type { User } from './auth/User';
+import { getAuthenticationContextFromHeaders, type AuthenticationContext }
+    from './auth/AuthenticationContext';
 
 /**
  * Type definition for the props that will be made available to a server action implementation.
  */
 type ServerActionProps = {
-    // TODO: authenticationContext
-    // TODO: ip
-    // TODO: user
+    /**
+     * Authentication context describing the privileges of the visitor.
+     */
+    authenticationContext: AuthenticationContext;
+
+    /**
+     * Host that the request is targetted towards.
+     */
+    host?: string;
+
+    /**
+     * IP address of the source of the request.
+     */
+    ip?: string;
+
+    /**
+     * User descriptor when the visitor is signed in to an account.
+     */
+    user?: User;
 };
 
 /**
@@ -166,6 +188,10 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
         : Promise<ServerActionResult>
 {
     try {
+        // -----------------------------------------------------------------------------------------
+        // (1) Validate the input data for the incoming action
+        // -----------------------------------------------------------------------------------------
+
         let unverifiedData: unknown;
         if (formData instanceof FormData)
             unverifiedData = coerceFormData(scheme, formData);
@@ -175,9 +201,25 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
             return { success: false, error: 'Invalid data received from Next.js' };
 
         const data = scheme.parse(unverifiedData);
+
+        // -----------------------------------------------------------------------------------------
+        // (2) Compose the request properties part of this action
+        // -----------------------------------------------------------------------------------------
+
+        const requestHeaders = headers();
+
+        const authenticationContext = await getAuthenticationContextFromHeaders(requestHeaders);
+
         const props: ServerActionProps = {
-            // TODO: Populate the props
+            authenticationContext,
+            host: requestHeaders.get('host') ?? 'animecon.team',
+            ip: requestHeaders.get('x-forwarded-for') ?? undefined,
+            user: authenticationContext.user,
         };
+
+        // -----------------------------------------------------------------------------------------
+        // (3) Execute the actual server action with all validated and gathered data
+        // -----------------------------------------------------------------------------------------
 
         const result = await action(data, props);
         if (typeof result === 'object')
