@@ -3,7 +3,7 @@
 
 'use client';
 
-import {  useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,11 @@ interface FormGridSectionOwnProps {
      */
     action: ServerAction;
 
-    // TODO: defaultValues
+    /**
+     * Default values that should be provided to the form. Can be updated while the form is visible,
+     * in which case all non-dirty fields will have their values updated.
+     */
+    defaultValues?: Record<string, any>;
 }
 
 /**
@@ -48,26 +52,30 @@ export type FormGridSectionProps =
  * https://github.com/dohomi/react-hook-form-mui/blob/master/packages/rhf-mui/src/FormContainer.tsx
  */
 export function FormGridSection(props: React.PropsWithChildren<FormGridSectionProps>) {
-    const { action, children, ...sectionHeaderProps } = props;
+    const { action, children, defaultValues, ...sectionHeaderProps } = props;
 
     const [ isPending, startTransition ] = useTransition();
     const [ state, setState ] = useState<ServerActionResult | undefined>();
 
-    // TODO: Provide `defaultValues` to the form.
-
-    // TODO: Update the form with new `defaultValues` when they have changed, e.g. because the
-    // router has been refreshed by another update.
-
     // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
 
-    const form = useForm();
+    const form = useForm({ defaultValues });
     const router = useRouter();
+
+    useEffect(() => {
+        form.reset(defaultValues, {
+            keepDirtyValues: true,
+        });
+    }, [ defaultValues, form ]);
 
     const handleSubmit = form.handleSubmit(async (data: unknown) => {
         await startTransition(async () => {
             const result = await action(data);
             if (!!result.success) {
-                form.reset({ /* fields */ }, { keepValues: true });
+                form.reset({ /* fields */ }, {
+                    keepDirtyValues: true,
+                    keepValues: true,
+                });
 
                 if (!!result.redirect)
                     router.push(result.redirect);

@@ -3,6 +3,8 @@
 
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 
@@ -13,6 +15,8 @@ import { Section } from '@app/admin/components/Section';
  * JavaScript code and event handlers.
  */
 export function DebugOptions() {
+    const router = useRouter();
+
     const triggerJavaScriptError = () => {
         /// @ts-ignore
         callFunctionThatDoesNotExist();
@@ -20,6 +24,10 @@ export function DebugOptions() {
 
     const triggerJavaScriptException = () => {
         throw new Error('Name of the exception');
+    };
+
+    const refresh = () => {
+        router.refresh();
     };
 
     return (
@@ -30,6 +38,9 @@ export function DebugOptions() {
                 </Button>
                 <Button onClick={triggerJavaScriptException} variant="contained">
                     JavaScript exception
+                </Button>
+                <Button onClick={refresh} variant="contained">
+                    Refresh
                 </Button>
             </Stack>
         </Section>

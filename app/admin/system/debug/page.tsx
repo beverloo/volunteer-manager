@@ -37,6 +37,11 @@ const kDebugActionScheme = z.object({
 });
 
 /**
+ * Refresh counter showing how often the <DebugPage> component has ran.
+ */
+let globalRefreshCounter = 0;
+
+/**
  * Server action that will be invoked when the form section demo has been submitted. Reflects the
  * submitted data back to the client after a slight delay.
  */
@@ -44,7 +49,7 @@ async function debugAction(formData: unknown) {
     'use server';
     return executeServerAction(formData, kDebugActionScheme, async (data, props) => {
         await new Promise(resolve => setTimeout(resolve, 1500));
-        return { success: false, error: `Not yet implemented (${props.user?.name})` };
+        return { success: true, refresh: true };
     });
 }
 
@@ -62,10 +67,14 @@ export default async function DebugPage() {
     debugValues['Cookies'] = [ ...cookies() ];
     debugValues['Headers'] = [ ...headers() ];
 
+    const values = {
+        notes: `Example notes (count: ${++globalRefreshCounter})`,
+    };
+
     return (
         <>
             <DebugOptions />
-            <FormGridSection action={debugAction} title="Form section demo">
+            <FormGridSection action={debugAction} defaultValues={values} title="Form section demo">
                 <Grid xs={12} md={6}>
                     <TextFieldElement name="username" label="Username" size="small" fullWidth
                                       required />
