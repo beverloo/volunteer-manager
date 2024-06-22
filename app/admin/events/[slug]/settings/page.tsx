@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { EventDates } from './EventDates';
 import { EventDeadlinesTable } from './EventDeadlinesTable';
 import { EventSales } from './EventSales';
 import { EventSettings } from './EventSettings';
@@ -37,6 +38,7 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
             <Section title="Configuration">
                 <EventSettings event={event} />
             </Section>
+            <EventDates />
             <Section title="Deadlines">
                 <EventDeadlinesTable event={event} leaders={leaders} />
             </Section>
