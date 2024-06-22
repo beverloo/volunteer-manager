@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 
-import { TextFieldElement } from '@proxy/react-hook-form-mui';
+import { DateTimePickerElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import TableBody from '@mui/material/TableBody';
@@ -21,6 +21,8 @@ import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { executeServerAction } from '@lib/serverAction';
 
+import { kTemporalZonedDateTime } from '@app/api/Types';
+
 /**
  * Zod scheme that the debug action will be validated against.
  */
@@ -34,6 +36,11 @@ const kDebugActionScheme = z.object({
      * Notes submitted through the example form, optional.
      */
     notes: z.string().optional(),
+
+    /**
+     * Date and time included in the example form.
+     */
+    date: kTemporalZonedDateTime,
 });
 
 /**
@@ -69,18 +76,24 @@ export default async function DebugPage() {
 
     const values = {
         notes: `Example notes (count: ${++globalRefreshCounter})`,
+        date: '2024-06-22T10:55:32Z[UTC]',
     };
 
     return (
         <>
             <DebugOptions />
-            <FormGridSection action={debugAction} defaultValues={values} title="Form section demo">
+            <FormGridSection action={debugAction} defaultValues={values} title="Form section demo"
+                             timezone="Europe/Amsterdam">
                 <Grid xs={12} md={6}>
                     <TextFieldElement name="username" label="Username" size="small" fullWidth
                                       required />
                 </Grid>
                 <Grid xs={12} md={6}>
                     <TextFieldElement name="notes" label="Notes" size="small" fullWidth />
+                </Grid>
+                <Grid xs={12} md={6}>
+                    <DateTimePickerElement name="date" label="Date and time" required
+                                           inputProps={{ size: 'small', fullWidth: true }} />
                 </Grid>
             </FormGridSection>
             <Section title="Debugging information">
