@@ -3,6 +3,7 @@
 
 import { z, type ZodObject, type ZodRawShape } from 'zod';
 
+import type { User } from './auth/User';
 import { executeServerAction, type ServerActionImplementation } from './serverAction';
 
 describe('serverAction', () => {
@@ -25,7 +26,15 @@ describe('serverAction', () => {
     function serverAction<T extends ZodObject<ZodRawShape, any, any>>(
         scheme: T, action: ServerActionImplementation<T>)
     {
-        return async (formData: unknown) => executeServerAction(formData, scheme, action);
+        const user: User = {
+            userId: 101,
+            firstName: 'John',
+            lastName: 'Doe',
+            name: 'John Doe',
+            privileges: 0n,
+        };
+
+        return async (formData: unknown) => executeServerAction(formData, scheme, action, user);
     }
 
     it('should reject invalid form data types', async () => {

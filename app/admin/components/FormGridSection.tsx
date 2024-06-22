@@ -48,6 +48,16 @@ export type FormGridSectionProps =
  * area. The component is specialised for sections that contain form fields, and all its children
  * are expected to be <Grid> components, or fragments containing <Grid> components therein.
  *
+ * This component creates a React Hook Form context for all contained form fields, and automatically
+ * includes a submission section that will be shown when any of the contained form fields has been
+ * invalidated. On submission, it will post a React Server Action to the given `action`. When the
+ * request was successful, the form will be revalidated, and any instructions given by the Server
+ * Action -- such as router mutations -- will be imposed.
+ *
+ * Furthermore, the component manages the default values for the form. These can be mutated when the
+ * page refreshes, for example due to data changes elsewhere. In those cases the form fields that
+ * have not been touched will be updated with their new values automatically.
+ *
  * This component supersedes the <FormContainer> component offered by react-hook-form-mui:
  * https://github.com/dohomi/react-hook-form-mui/blob/master/packages/rhf-mui/src/FormContainer.tsx
  */

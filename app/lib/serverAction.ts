@@ -7,6 +7,7 @@ import type { ZodObject, ZodRawShape, z } from 'zod';
 import { ZodError, ZodFirstPartyTypeKind } from 'zod';
 
 import type { User } from './auth/User';
+import { AuthType } from './database/Types';
 import { getAuthenticationContextFromHeaders, type AuthenticationContext }
     from './auth/AuthenticationContext';
 
@@ -196,7 +197,7 @@ export function formatZodError(error: ZodError): string {
  * takes care of version skew and common attack types, which we build upon with further validation.
  */
 export async function executeServerAction<T extends ZodObject<ZodRawShape, any, any>>(
-    formData: unknown, scheme: T, action: ServerActionImplementation<T>)
+    formData: unknown, scheme: T, action: ServerActionImplementation<T>, userForTesting?: User)
         : Promise<ServerActionResult>
 {
     try {
@@ -215,12 +216,16 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
         const data = scheme.parse(unverifiedData);
 
         // -----------------------------------------------------------------------------------------
-        // (2) Compose the request properties part of this action
+        // (2) Compose the request properties part of this action. The behaviour of this section
+        // depends on whether a test is being executed, in which case we don't want to cause either
+        // Next.js state access or database access directly.
         // -----------------------------------------------------------------------------------------
 
-        const requestHeaders = headers();
+        const requestHeaders = userForTesting ? new Headers : headers();
 
-        const authenticationContext = await getAuthenticationContextFromHeaders(requestHeaders);
+        const authenticationContext =
+            userForTesting ? { authType: AuthType.password, events: new Map, user: userForTesting }
+                           : await getAuthenticationContextFromHeaders(requestHeaders);
 
         const props: ServerActionProps = {
             authenticationContext,
