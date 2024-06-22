@@ -67,23 +67,29 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
     const [ isPending, startTransition ] = useTransition();
     const [ state, setState ] = useState<ServerActionResult | undefined>();
 
-    // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the server.
-
     const form = useForm({ defaultValues });
     const router = useRouter();
 
+    // For the values we pass to `reset()`, see the following react-hook-form documentation:
+    // https://react-hook-form.com/docs/useform/reset
+
     useEffect(() => {
         form.reset(defaultValues, {
+            // DirtyFields and isDirty will remained, and only none dirty fields will be updated to
+            // the latest rest value.
             keepDirtyValues: true,
         });
     }, [ defaultValues, form ]);
 
     const handleSubmit = form.handleSubmit(async (data: unknown) => {
         await startTransition(async () => {
+            // TODO: Convert DayJS values to something that can be read as a ZonedDateTime on the
+            // server. Do we need to do this in reverse as well? (I.e. mutate `defaultValues`?)
+
             const result = await action(data);
             if (!!result.success) {
                 form.reset({ /* fields */ }, {
-                    keepDirtyValues: true,
+                    // Form input values will be unchanged.
                     keepValues: true,
                 });
 
