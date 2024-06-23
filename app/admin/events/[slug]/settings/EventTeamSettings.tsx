@@ -32,7 +32,15 @@ const kTeamSettingsData = z.object({
      */
     enableApplicationsEnd: kTemporalZonedDateTime.nullish(),
 
-    // TODO: Availability window for registration availability.
+    /**
+     * Moment in time, if any, at which the registration portal will be published.
+     */
+    enableRegistrationStart: kTemporalZonedDateTime.nullish(),
+
+    /**
+     * Moment in time, if any, at which the registration portal will cease to be available.
+     */
+    enableRegistrationEnd: kTemporalZonedDateTime.nullish(),
 
     /**
      * Moment in time, if any, at which the schedule portal will be available.
@@ -64,6 +72,8 @@ async function updateTeamSettings(eventId: number, teamId: number, formData: unk
             .set({
                 enableApplicationsStart: data.enableApplicationsStart,
                 enableApplicationsEnd: data.enableApplicationsEnd,
+                enableRegistrationStart: data.enableRegistrationStart,
+                enableRegistrationEnd: data.enableRegistrationEnd,
                 enableScheduleStart: data.enableScheduleStart,
                 enableScheduleEnd: data.enableScheduleEnd,
             })
@@ -161,9 +171,10 @@ export function EventTeamSettings(props: EventTeamSettingsProps) {
         <FormGridSection action={action} defaultValues={props.settings}
                          timezone={props.timezone} title={props.team.name} subtitle="settings"
                          icon={ <PeopleIcon htmlColor={props.team.colour} /> }>
-            { /* TODO: Availability window for registration availability. */ }
             <AvailabilityWindow label="Accept applications"
                                 start="enableApplicationsStart" end="enableApplicationsEnd" />
+            <AvailabilityWindow label="Publish information"
+                                start="enableRegistrationStart" end="enableRegistrationEnd" />
             <AvailabilityWindow label="Publish schedules"
                                 start="enableScheduleStart" end="enableScheduleEnd" />
             { /* TODO: Availability window for sharing participation preferences. */ }

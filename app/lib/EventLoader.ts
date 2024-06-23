@@ -42,15 +42,16 @@ export async function getEventBySlug(slug: string)
                     start: eventsTeamsJoin.enableApplicationsStart,
                     end: eventsTeamsJoin.enableApplicationsEnd,
                 },
+                enableRegistration: {
+                    start: eventsTeamsJoin.enableRegistrationStart,
+                    end: eventsTeamsJoin.enableRegistrationEnd,
+                },
                 enableSchedule: {
                     start: eventsTeamsJoin.enableScheduleStart,
                     end: eventsTeamsJoin.enableScheduleEnd,
                 },
 
                 maximumVolunteers: eventsTeamsJoin.teamMaximumSize,
-
-                // TODO: Remove these values once they've been migrated to availability windows:
-                enableContent: eventsTeamsJoin.enableContent,
             }),
         })
         .groupBy(tEvents.eventId)
@@ -110,15 +111,16 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
                     start: eventsTeamsJoin.enableApplicationsStart,
                     end: eventsTeamsJoin.enableApplicationsEnd,
                 },
+                enableRegistration: {
+                    start: eventsTeamsJoin.enableRegistrationStart,
+                    end: eventsTeamsJoin.enableRegistrationEnd,
+                },
                 enableSchedule: {
                     start: eventsTeamsJoin.enableScheduleStart,
                     end: eventsTeamsJoin.enableScheduleEnd,
                 },
 
                 maximumVolunteers: eventsTeamsJoin.teamMaximumSize,
-
-                // TODO: Remove these values once they've been migrated to availability windows:
-                enableContent: eventsTeamsJoin.enableContent,
             }),
 
             // Internal use:
@@ -147,8 +149,8 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
 
             environmentFound = true;
             environmentAccessible =
+                isAvailabilityWindowOpen(eventEnvironmentInfo.enableRegistration) ||
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableApplications) ||
-                eventEnvironmentInfo.enableContent === 1 ||
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableSchedule);
         }
 

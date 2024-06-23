@@ -68,7 +68,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
     const unfilteredEvents = await getEventsForUser(environment.environmentName, user);
     const events = unfilteredEvents.filter(event => {
         const data = event.getEnvironmentData(environment.environmentName);
-        if (data?.enableContent || registrationOverride)
+        if (data?.enableRegistration || registrationOverride)
             return true;  // access to the registration section
 
         if (data?.enableSchedule || scheduleOverride)
@@ -151,12 +151,12 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         const eventRegistration = event === primaryEvent ? primaryEventRegistration
                                                          : secondaryEventRegistration;
 
-        const displayRegistrationButton = eventData.enableContent || registrationOverride;
+        const displayRegistrationButton = eventData.enableRegistration || registrationOverride;
         const displayScheduleButton =
             (eventData.enableSchedule && eventRegistration) || scheduleOverride;
 
         const highlightRegistration =
-            eventData.enableContent && isBefore(currentTime, event.temporalStartTime);
+            eventData.enableRegistration && isBefore(currentTime, event.temporalStartTime);
         const highlightSchedule =
             eventData.enableSchedule && isBefore(currentTime, event.temporalEndTime);
 
@@ -175,7 +175,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             buttons.push(
                 <Button key={`${event.slug}-registration`} component={Link}
                         href={`/registration/${event.slug}`}
-                        color={ eventData.enableContent ? 'primary' : 'hidden' }
+                        color={ eventData.enableRegistration ? 'primary' : 'hidden' }
                         variant={ highlightRegistration ? 'contained' : 'outlined' }>
                     Join the {event.shortName} {environment.environmentTitle}!
                 </Button>
@@ -230,7 +230,9 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                     const admin = administratorAccess.has(event.slug);
                     const data = event.getEnvironmentData(environment.environmentName);
 
-                    const enableRegistration = data?.enableContent || admin || registrationOverride;
+                    const enableRegistration =
+                        data?.enableRegistration || admin || registrationOverride;
+
                     const enableSchedule = data?.enableSchedule || admin || scheduleOverride;
 
                     return (

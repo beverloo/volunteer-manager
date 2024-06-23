@@ -27,7 +27,6 @@ export class EventsTeamsTable extends Table<DBConnection, 'EventsTeamsTable'> {
     enableRegistrationEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_registration_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableScheduleStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_schedule_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableScheduleEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_schedule_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
-    enableContent = this.columnWithDefaultValue('enable_content', 'int');
     whatsappLink = this.optionalColumnWithDefaultValue('whatsapp_link', 'string');
 
     constructor() {

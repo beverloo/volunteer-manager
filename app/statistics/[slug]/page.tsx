@@ -49,7 +49,7 @@ export default async function StatisticsEventPage(props: NextPageParams<'slug'>)
     const eventAccess = authenticationContext.events.get(eventSlug);
     if (!eventAccess || !eventAccess.admin) {
         const eventAdministrator = can(authenticationContext.user, Privilege.EventAdministrator);
-        if (!eventAdministrator && !eventEnvironmentData.enableContent)
+        if (!eventAdministrator && !eventEnvironmentData.enableRegistration)
             notFound();
     }
 

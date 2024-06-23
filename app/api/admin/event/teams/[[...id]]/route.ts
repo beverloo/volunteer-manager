@@ -42,11 +42,6 @@ const kEventTeamRowModel = z.object({
     enableTeam: z.boolean().optional(),
 
     /**
-     * Whether this team's volunteer portal highlights this event.
-     */
-    enableContent: z.boolean().optional(),
-
-    /**
      * Link that can be shared with accepted volunteers in this team to join the WhatsApp group.
      */
     whatsappLink: z.string().optional(),
@@ -114,7 +109,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                 targetSize: eventsTeamsJoin.teamTargetSize,
                 maximumSize: eventsTeamsJoin.teamMaximumSize,
                 enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
-                enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
                 whatsappLink: eventsTeamsJoin.whatsappLink,
             })
             .orderBy(tTeams.teamName, 'asc')
@@ -144,14 +138,12 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     teamTargetSize: row.targetSize ?? 25,
                     teamMaximumSize: row.maximumSize ?? 0,
                     enableTeam: row.enableTeam ? 1 : 0,
-                    enableContent: row.enableContent ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
                 .onConflictDoUpdateSet({
                     teamTargetSize: row.targetSize || undefined,
                     teamMaximumSize: row.maximumSize || undefined,
                     enableTeam: row.enableTeam ? 1 : 0,
-                    enableContent: row.enableContent ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
                 .executeInsert();

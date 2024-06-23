@@ -23,7 +23,7 @@ export default async function RegistrationPage() {
         const potentialEventEnvironmentData =
             potentialEvent.getEnvironmentData(environment.environmentName);
 
-        if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableContent)
+        if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableRegistration)
             redirect(`/registration/${potentialEvent.slug}/`);
     }
 

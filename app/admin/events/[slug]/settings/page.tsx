@@ -46,6 +46,10 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
                     dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsStart),
                 enableApplicationsEnd:
                     dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsEnd),
+                enableRegistrationStart:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableRegistrationStart),
+                enableRegistrationEnd:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableRegistrationEnd),
                 enableScheduleStart:
                     dbInstance.dateTimeAsString(tEventsTeams.enableScheduleStart),
                 enableScheduleEnd:

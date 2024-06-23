@@ -87,7 +87,7 @@ export interface EventTeamCardProps {
      * Settings regarding availability of actions based on the team's configuration.
      */
     enableApplications: boolean;
-    enableContent: boolean;
+    enableRegistration: boolean;
     enableSchedule: boolean;
 }
 
@@ -134,11 +134,11 @@ export function EventTeamCard(props: EventTeamCardProps) {
                         </Typography>
                     </Stack>
                     <Stack direction="row" spacing={1} justifyContent="center">
-                        { props.enableContent &&
+                        { props.enableRegistration &&
                             <Tooltip title="Information has been published">
                                 <InfoOutlinedIcon color="success" />
                             </Tooltip> }
-                        { !props.enableContent &&
+                        { !props.enableRegistration &&
                             <Tooltip title="Information has not been published">
                                 <InfoOutlinedIcon color="error" />
                             </Tooltip> }

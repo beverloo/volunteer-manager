@@ -61,7 +61,7 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             editable: true,
             sortable: false,
             type: 'number',
-            flex: 2,
+            flex: 1,
         },
         {
             field: 'maximumSize',
@@ -72,23 +72,7 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             editable: true,
             sortable: false,
             type: 'number',
-            flex: 2,
-        },
-        // TODO: maximum number of volunteers
-        // TODO: remove the following fields:
-        {
-            field: 'enableContent',
-            headerName: 'Publish content',
-            description: 'Share information with prospective volunteers?',
-            editable: true,
-            sortable: false,
-            type: 'boolean',
-            flex: 2,
-
-            renderCell: params => {
-                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
-                                      : <CancelIcon fontSize="small" color="error" />;
-            },
+            flex: 1,
         },
         {
             field: 'whatsappLink',
@@ -97,7 +81,7 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             editable: true,
             sortable: false,
             type: 'string',
-            flex: 3,
+            flex: 2,
         },
     ];
 
