@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation'
 
-import { RegistrationContent } from '../registration/RegistrationContent';
+import { Markdown } from '@components/Markdown';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
@@ -30,7 +30,7 @@ export default async function PrivacyPage() {
     return (
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer title="GDPR & Data Sharing Policies" user={user}>
-                <RegistrationContent content={content}/>
+                <Markdown sx={{ p: 2 }}>{content.markdown}</Markdown>
             </RegistrationContentContainer>
         </RegistrationLayout>
     );
