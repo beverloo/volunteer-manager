@@ -33,7 +33,17 @@ const kTeamSettingsData = z.object({
     enableApplicationsEnd: kTemporalZonedDateTime.nullish(),
 
     // TODO: Availability window for registration availability.
-    // TODO: Availability window for schedule availability.
+
+    /**
+     * Moment in time, if any, at which the schedule portal will be available.
+     */
+    enableScheduleStart: kTemporalZonedDateTime.nullish(),
+
+    /**
+     * Moment in time, if any, at which the schedule portal will be closed again.
+     */
+    enableScheduleEnd: kTemporalZonedDateTime.nullish(),
+
     // TODO: Availability window for sharing participation preferences.
     // TODO: Availability window for sharing availability preferences.
 
@@ -54,6 +64,8 @@ async function updateTeamSettings(eventId: number, teamId: number, formData: unk
             .set({
                 enableApplicationsStart: data.enableApplicationsStart,
                 enableApplicationsEnd: data.enableApplicationsEnd,
+                enableScheduleStart: data.enableScheduleStart,
+                enableScheduleEnd: data.enableScheduleEnd,
             })
             .where(tEventsTeams.eventId.equals(eventId))
                 .and(tEventsTeams.teamId.equals(teamId))
@@ -151,8 +163,9 @@ export function EventTeamSettings(props: EventTeamSettingsProps) {
                          icon={ <PeopleIcon htmlColor={props.team.colour} /> }>
             { /* TODO: Availability window for registration availability. */ }
             <AvailabilityWindow label="Accept applications"
-                                end="enableApplicationsEnd" start="enableApplicationsStart" />
-            { /* TODO: Availability window for schedule availability. */ }
+                                start="enableApplicationsStart" end="enableApplicationsEnd" />
+            <AvailabilityWindow label="Publish schedules"
+                                start="enableScheduleStart" end="enableScheduleEnd" />
             { /* TODO: Availability window for sharing participation preferences. */ }
             { /* TODO: Availability window for sharing availability preferences. */ }
         </FormGridSection>

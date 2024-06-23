@@ -46,6 +46,10 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
                     dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsStart),
                 enableApplicationsEnd:
                     dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsEnd),
+                enableScheduleStart:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableScheduleStart),
+                enableScheduleEnd:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableScheduleEnd),
             },
         })
         .orderBy('team.name', 'asc')

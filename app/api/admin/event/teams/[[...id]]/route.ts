@@ -47,11 +47,6 @@ const kEventTeamRowModel = z.object({
     enableContent: z.boolean().optional(),
 
     /**
-     * Whether volunteers in this team can access the volunteer portal.
-     */
-    enableSchedule: z.boolean().optional(),
-
-    /**
      * Link that can be shared with accepted volunteers in this team to join the WhatsApp group.
      */
     whatsappLink: z.string().optional(),
@@ -120,7 +115,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                 maximumSize: eventsTeamsJoin.teamMaximumSize,
                 enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
                 enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
-                enableSchedule: eventsTeamsJoin.enableSchedule.equals(/* true= */ 1),
                 whatsappLink: eventsTeamsJoin.whatsappLink,
             })
             .orderBy(tTeams.teamName, 'asc')
@@ -151,7 +145,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     teamMaximumSize: row.maximumSize ?? 0,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
-                    enableSchedule: row.enableSchedule ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
                 .onConflictDoUpdateSet({
@@ -159,7 +152,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     teamMaximumSize: row.maximumSize || undefined,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
-                    enableSchedule: row.enableSchedule ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
                 .executeInsert();

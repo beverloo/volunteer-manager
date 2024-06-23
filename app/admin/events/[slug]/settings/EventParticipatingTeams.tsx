@@ -91,20 +91,6 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             },
         },
         {
-            field: 'enableSchedule',
-            headerName: 'Publish schedules',
-            description: 'Can volunteers access their schedules?',
-            editable: true,
-            sortable: false,
-            type: 'boolean',
-            flex: 2,
-
-            renderCell: params => {
-                return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
-                                      : <CancelIcon fontSize="small" color="error" />;
-            },
-        },
-        {
             field: 'whatsappLink',
             headerName: 'WhatsApp invite',
             description: 'WhatsApp group invite to share with the team',

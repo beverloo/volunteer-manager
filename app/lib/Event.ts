@@ -19,17 +19,14 @@ export interface EventDatabaseRow {
     eventEndTime: Temporal.ZonedDateTime;
     eventEnableRefunds?: number;
     environments: {
-        environment?: string,
-        enableApplications?: {
-            start?: Temporal.ZonedDateTime;
-            end?: Temporal.ZonedDateTime;
-        },
+        environment?: string;
+        enableApplications?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+        enableSchedule?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
 
         maximumVolunteers?: number;
 
         // TODO: Remove these values once they've been migrated to availability windows:
         enableContent?: number;
-        enableSchedule?: number;
     }[];
 }
 
@@ -140,12 +137,12 @@ export class Event implements EventData {
 
             this.#environments.set(environmentInfo.environment, {
                 enableApplications: isAvailabilityWindowOpen(environmentInfo.enableApplications),
+                enableSchedule: isAvailabilityWindowOpen(environmentInfo.enableSchedule),
                 environmentName: environmentInfo.environment,
                 maximumVolunteers: environmentInfo.maximumVolunteers || undefined,
 
                 // TODO: Remove these values once they've been migrated to availability windows:
                 enableContent: !!environmentInfo.enableContent,
-                enableSchedule: !!environmentInfo.enableSchedule,
             });
         }
     }
@@ -236,12 +233,12 @@ export class Event implements EventData {
             ...eventData,
 
             enableApplications: environmentData.enableApplications,
+            enableSchedule: environmentData.enableSchedule,
             environmentName: environmentData.environmentName,
             maximumVolunteers: environmentData.maximumVolunteers,
 
             // TODO: Remove these values once they've been migrated to availability windows:
             enableContent: environmentData.enableContent,
-            enableSchedule: environmentData.enableSchedule,
         };
     }
 }

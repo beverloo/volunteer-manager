@@ -87,10 +87,9 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
                 </RegistrationAlert> }
             { (!registration && !enableApplications) &&
                 <RegistrationAlert severity="error">
-                    Unfortunately we are not accepting applications for {event.shortName} at this
-                    time. E-mail us at{' '}
-                    <MuiLink href="mailto:crew@animecon.nl">crew@animecon.nl</MuiLink> in case you
-                    have questions.
+                    We are currently not accepting applications for {event.shortName}. If you have
+                    any questions, please feel free to e-mail us at{' '}
+                    <MuiLink href="mailto:crew@animecon.nl">crew@animecon.nl</MuiLink>.
                 </RegistrationAlert> }
             <Markdown>{content.markdown}</Markdown>
             { (!registration && !!enableApplications) &&

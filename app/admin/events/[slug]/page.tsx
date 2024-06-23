@@ -143,10 +143,13 @@ async function getParticipatingTeams(eventId: number) {
                 start: tEventsTeams.enableApplicationsStart,
                 end: tEventsTeams.enableApplicationsEnd,
             },
+            enableSchedule: {
+                start: tEventsTeams.enableScheduleStart,
+                end: tEventsTeams.enableScheduleEnd,
+            },
 
             // TODO: Remove when they've been migrated to availability windows.
             enableContent: tEventsTeams.enableContent.equals(/* true= */ 1),
-            enableSchedule: tEventsTeams.enableSchedule.equals(/* true= */ 1),
         })
         .groupBy(tEventsTeams.teamId)
         .orderBy(tTeams.teamName, 'asc')
@@ -155,6 +158,7 @@ async function getParticipatingTeams(eventId: number) {
     return teams.map(team => ({
         ...team,
         enableApplications: isAvailabilityWindowOpen(team.enableApplications),
+        enableSchedule: isAvailabilityWindowOpen(team.enableSchedule),
     }));
 }
 
