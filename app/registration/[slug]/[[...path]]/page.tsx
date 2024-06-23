@@ -9,12 +9,20 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationAlert } from '@components/RegistrationAlert';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import { getContent } from '@lib/Content';
-import { Markdown } from '@components/Markdown';
+import db, { tTeams, tUsersEvents } from '@lib/database';
+import { RegistrationStatus } from '@lib/database/Types';
+
+/**
+ * When the number of participating volunteers exceeds this proportion of a team's capacity, a
+ * warning will be shown to unregistered visitors of this page that they should make up their mind.
+ */
+const kTeamCapacityWarningRatio = 0.8;
 
 /**
  * The <EventContentPage> component displays arbitrary content for a particular event. Senior+
@@ -27,7 +35,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
     if (!context)
         notFound();
 
-    const { event, environment, registration } = context;
+    const { event, environment, registration, user } = context;
 
     const content = await getContent(environment.environmentName, event, path ?? []);
     const environmentData = event.getEnvironmentData(environment.environmentName);
@@ -46,11 +54,37 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
         );
     }
 
+    let capacity: 'lots' | 'few' | 'none' = 'lots';
+    if (!!environmentData.maximumVolunteers) {
+        const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
+
+        const currentVolunteers = await db.selectFrom(tTeams)
+            .leftJoin(usersEventsJoin)
+                .on(usersEventsJoin.teamId.equals(tTeams.teamId))
+                    .and(usersEventsJoin.eventId.equals(event.id))
+                    .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .where(tTeams.teamEnvironment.equals(environment.environmentName))
+            .selectCountAll()
+            .groupBy(tTeams.teamId)
+            .executeSelectNoneOrOne() || 0;
+
+        if (currentVolunteers >= environmentData.maximumVolunteers)
+            capacity = 'none';
+        else if (currentVolunteers >= environmentData.maximumVolunteers * kTeamCapacityWarningRatio)
+            capacity = 'few';
+    }
+
     const enableApplications =
-        environmentData.enableApplications || can(context.user, Privilege.EventApplicationOverride);
+        (environmentData.enableApplications || can(user, Privilege.EventApplicationOverride)) &&
+        capacity !== 'none';
 
     return (
         <Stack spacing={2} sx={{ p: 2 }}>
+            { (!registration && !!enableApplications && capacity === 'few') &&
+                <RegistrationAlert severity="warning">
+                    Our team is nearly complete, but there's still room for a few more members. If
+                    you're interested in joining, please decide soon to secure your spot!
+                </RegistrationAlert> }
             { (!registration && !enableApplications) &&
                 <RegistrationAlert severity="error">
                     Unfortunately we are not accepting applications for {event.shortName} at this

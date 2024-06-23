@@ -21,9 +21,13 @@ export interface EventDatabaseRow {
     environments: {
         environment?: string,
         enableApplications?: {
-            start?: Temporal.ZonedDateTime,
-            end?: Temporal.ZonedDateTime,
+            start?: Temporal.ZonedDateTime;
+            end?: Temporal.ZonedDateTime;
         },
+
+        maximumVolunteers?: number;
+
+        // TODO: Remove these values once they've been migrated to availability windows:
         enableContent?: number;
         enableSchedule?: number;
     }[];
@@ -92,6 +96,18 @@ export interface EventEnvironmentData {
     enableApplications: boolean;
 
     /**
+     * Name of the environment that is currently being considered.
+     */
+    environmentName: string;
+
+    /**
+     * Maximum number of volunteers that are able to participate in this team.
+     */
+    maximumVolunteers?: number;
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
      * Whether access to the event's content portal is unrestricted.
      */
     enableContent: boolean;
@@ -100,11 +116,6 @@ export interface EventEnvironmentData {
      * Whether visitors have access to the event's volunteer portal.
      */
     enableSchedule: boolean;
-
-    /**
-     * Name of the environment that is currently being considered.
-     */
-    environmentName: string;
 }
 
 /**
@@ -129,9 +140,12 @@ export class Event implements EventData {
 
             this.#environments.set(environmentInfo.environment, {
                 enableApplications: isAvailabilityWindowOpen(environmentInfo.enableApplications),
+                environmentName: environmentInfo.environment,
+                maximumVolunteers: environmentInfo.maximumVolunteers || undefined,
+
+                // TODO: Remove these values once they've been migrated to availability windows:
                 enableContent: !!environmentInfo.enableContent,
                 enableSchedule: !!environmentInfo.enableSchedule,
-                environmentName: environmentInfo.environment,
             });
         }
     }
@@ -222,9 +236,12 @@ export class Event implements EventData {
             ...eventData,
 
             enableApplications: environmentData.enableApplications,
+            environmentName: environmentData.environmentName,
+            maximumVolunteers: environmentData.maximumVolunteers,
+
+            // TODO: Remove these values once they've been migrated to availability windows:
             enableContent: environmentData.enableContent,
             enableSchedule: environmentData.enableSchedule,
-            environmentName: environmentData.environmentName,
         };
     }
 }

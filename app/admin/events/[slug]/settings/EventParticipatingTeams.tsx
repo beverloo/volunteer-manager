@@ -63,6 +63,17 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             type: 'number',
             flex: 2,
         },
+        {
+            field: 'maximumSize',
+            headerName: 'Maximum # volunteers',
+            headerAlign: 'center',
+            description: 'After how many volunteers will applications lock?',
+            align: 'center',
+            editable: true,
+            sortable: false,
+            type: 'number',
+            flex: 2,
+        },
         // TODO: maximum number of volunteers
         // TODO: remove the following fields:
         {

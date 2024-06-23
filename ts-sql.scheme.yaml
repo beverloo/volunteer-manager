@@ -20,6 +20,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_maximum_size
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: enable_team
     type: tinyint(1)
     nullable: false
@@ -132,6 +137,7 @@ tables:
       `event_id` int(4) unsigned NOT NULL,
       `team_id` int(4) unsigned NOT NULL,
       `team_target_size` int(4) unsigned NOT NULL,
+      `team_maximum_size` int(8) unsigned DEFAULT NULL,
       `enable_team` tinyint(1) NOT NULL DEFAULT 0,
       `enable_applications_start` datetime DEFAULT NULL,
       `enable_applications_end` datetime DEFAULT NULL,

@@ -32,6 +32,11 @@ const kEventTeamRowModel = z.object({
     targetSize: z.number().optional(),
 
     /**
+     * Maximum number of volunteers that can be recruited.
+     */
+    maximumSize: z.number().optional(),
+
+    /**
      * Whether this team participates in this event at all.
      */
     enableTeam: z.boolean().optional(),
@@ -112,6 +117,7 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                 id: tTeams.teamId,
                 name: tTeams.teamName,
                 targetSize: eventsTeamsJoin.teamTargetSize,
+                maximumSize: eventsTeamsJoin.teamMaximumSize,
                 enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
                 enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
                 enableSchedule: eventsTeamsJoin.enableSchedule.equals(/* true= */ 1),
@@ -142,13 +148,15 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     eventId: event.eventId,
                     teamId: row.id,
                     teamTargetSize: row.targetSize ?? 25,
+                    teamMaximumSize: row.maximumSize ?? 0,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
                     enableSchedule: row.enableSchedule ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
                 .onConflictDoUpdateSet({
-                    teamTargetSize: row.targetSize,
+                    teamTargetSize: row.targetSize || undefined,
+                    teamMaximumSize: row.maximumSize || undefined,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
                     enableSchedule: row.enableSchedule ? 1 : 0,

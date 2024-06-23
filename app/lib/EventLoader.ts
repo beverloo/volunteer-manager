@@ -43,6 +43,9 @@ export async function getEventBySlug(slug: string)
                     end: eventsTeamsJoin.enableApplicationsEnd,
                 },
 
+                maximumVolunteers: eventsTeamsJoin.teamMaximumSize,
+
+                // TODO: Remove these values once they've been migrated to availability windows:
                 enableContent: eventsTeamsJoin.enableContent,
                 enableSchedule: eventsTeamsJoin.enableSchedule,
             }),
@@ -105,6 +108,9 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
                     end: eventsTeamsJoin.enableApplicationsEnd,
                 },
 
+                maximumVolunteers: eventsTeamsJoin.teamMaximumSize,
+
+                // TODO: Remove these values once they've been migrated to availability windows:
                 enableContent: eventsTeamsJoin.enableContent,
                 enableSchedule: eventsTeamsJoin.enableSchedule,
             }),

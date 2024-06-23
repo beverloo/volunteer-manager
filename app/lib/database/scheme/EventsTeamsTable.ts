@@ -19,6 +19,7 @@ export class EventsTeamsTable extends Table<DBConnection, 'EventsTeamsTable'> {
     eventId = this.column('event_id', 'int');
     teamId = this.column('team_id', 'int');
     teamTargetSize = this.column('team_target_size', 'int');
+    teamMaximumSize = this.optionalColumnWithDefaultValue('team_maximum_size', 'int');
     enableTeam = this.columnWithDefaultValue('enable_team', 'int');
     enableApplicationsStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_applications_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableApplicationsEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_applications_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
