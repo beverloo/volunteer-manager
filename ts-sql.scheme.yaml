@@ -25,6 +25,36 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: enable_applications_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_applications_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_registration_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_registration_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_schedule_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_schedule_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: enable_content
     type: tinyint(1)
     nullable: false
@@ -103,6 +133,12 @@ tables:
       `team_id` int(4) unsigned NOT NULL,
       `team_target_size` int(4) unsigned NOT NULL,
       `enable_team` tinyint(1) NOT NULL DEFAULT 0,
+      `enable_applications_start` datetime DEFAULT NULL,
+      `enable_applications_end` datetime DEFAULT NULL,
+      `enable_registration_start` datetime DEFAULT NULL,
+      `enable_registration_end` datetime DEFAULT NULL,
+      `enable_schedule_start` datetime DEFAULT NULL,
+      `enable_schedule_end` datetime DEFAULT NULL,
       `enable_content` tinyint(1) NOT NULL DEFAULT 0,
       `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
       `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
@@ -2683,7 +2719,7 @@ tables:
       `feedback_date` datetime NOT NULL,
       `feedback_text` text NOT NULL,
       PRIMARY KEY (`feedback_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities
   type: BASE TABLE
   comment: ""

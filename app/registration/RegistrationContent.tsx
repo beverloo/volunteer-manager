@@ -40,6 +40,9 @@ export interface RegistrationContentProps {
 
     /**
      * Whether the registration button should be enabled. (Avoid letting people apply twice.)
+     *
+     * @todo Distinguish between not accepting applications, accepting applications and a volunteer
+     * who has already applied to join this team.
      */
     enableRegistrationButton?: boolean;
 }

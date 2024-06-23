@@ -106,7 +106,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
         if (!eventEnvironmentData)
             continue;  // the current team does not participate in this event
 
-        if (!eventEnvironmentData.enableRegistration)
+        if (!eventEnvironmentData.enableApplications)
             continue;  // this event does not currently accept applications
 
         applicationUrl = `/registration/${availableEvent.slug}/application`;

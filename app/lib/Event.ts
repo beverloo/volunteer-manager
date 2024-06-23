@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { Temporal } from '@lib/Temporal';
+import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
 
 /**
  * Interface that maps to the database representation of an event.
@@ -19,8 +20,11 @@ export interface EventDatabaseRow {
     eventEnableRefunds?: number;
     environments: {
         environment?: string,
+        enableApplications?: {
+            start?: Temporal.ZonedDateTime,
+            end?: Temporal.ZonedDateTime,
+        },
         enableContent?: number;
-        enableRegistration?: number;
         enableSchedule?: number;
     }[];
 }
@@ -82,14 +86,15 @@ export interface EventData {
  */
 export interface EventEnvironmentData {
     /**
+     * Whether applications are currently being accepted for this team. Does not take user-specific
+     * overrides into account.
+     */
+    enableApplications: boolean;
+
+    /**
      * Whether access to the event's content portal is unrestricted.
      */
     enableContent: boolean;
-
-    /**
-     * Whether visitors have the ability to apply to participate in this event.
-     */
-    enableRegistration: boolean;
 
     /**
      * Whether visitors have access to the event's volunteer portal.
@@ -123,8 +128,8 @@ export class Event implements EventData {
                 continue;  // partial information, this should never happen
 
             this.#environments.set(environmentInfo.environment, {
+                enableApplications: isAvailabilityWindowOpen(environmentInfo.enableApplications),
                 enableContent: !!environmentInfo.enableContent,
-                enableRegistration: !!environmentInfo.enableRegistration,
                 enableSchedule: !!environmentInfo.enableSchedule,
                 environmentName: environmentInfo.environment,
             });
@@ -216,8 +221,8 @@ export class Event implements EventData {
         return {
             ...eventData,
 
+            enableApplications: environmentData.enableApplications,
             enableContent: environmentData.enableContent,
-            enableRegistration: environmentData.enableRegistration,
             enableSchedule: environmentData.enableSchedule,
             environmentName: environmentData.environmentName,
         };

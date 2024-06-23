@@ -32,7 +32,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
         state = 'status';
     } else {
         const environmentData = event.getEnvironmentData(environment.environmentName);
-        if (environmentData?.enableRegistration || can(user, Privilege.EventRegistrationOverride)) {
+        if (environmentData?.enableApplications || can(user, Privilege.EventApplicationOverride)) {
             content = await getContent(environment.environmentName, event, [ 'application' ]);
             state = 'application';
         } else {

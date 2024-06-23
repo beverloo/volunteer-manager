@@ -29,7 +29,8 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventAdministrator);
 
-    const teamSettings = await db.selectFrom(tEventsTeams)
+    const dbInstance = db;
+    const teamSettings = await dbInstance.selectFrom(tEventsTeams)
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
         .where(tEventsTeams.eventId.equals(event.id))
@@ -41,7 +42,10 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
                 colour: tTeams.teamColourLightTheme,
             },
             settings: {
-
+                enableApplicationsStart:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsStart),
+                enableApplicationsEnd:
+                    dbInstance.dateTimeAsString(tEventsTeams.enableApplicationsEnd),
             },
         })
         .orderBy('team.name', 'asc')
@@ -65,7 +69,8 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
                 <EventParticipatingTeams event={event} />
             </Section>
             { teamSettings.map(({ settings, team }) =>
-                <EventTeamSettings key={team.id} settings={settings!} team={team} /> )}
+                <EventTeamSettings key={team.id} event={event.id} settings={settings!} team={team}
+                                   timezone={event.timezone} /> )}
             { !!isAdministrator &&
                 <Section title="Sales import">
                     <SectionIntroduction>

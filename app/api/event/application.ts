@@ -157,8 +157,8 @@ export async function application(request: Request, props: ActionProps): Promise
             if (!environmentData)
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 
-            if (!environmentData.enableRegistration &&
-                    !can(props.user, Privilege.EventRegistrationOverride)) {
+            if (!environmentData.enableApplications &&
+                    !can(props.user, Privilege.EventApplicationOverride)) {
                 throw new Error('Sorry, this event is not accepting applications right now.');
             }
         }

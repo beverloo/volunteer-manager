@@ -42,11 +42,6 @@ const kEventTeamRowModel = z.object({
     enableContent: z.boolean().optional(),
 
     /**
-     * Whether this team is currently accepting applications for new volunteers.
-     */
-    enableRegistration: z.boolean().optional(),
-
-    /**
      * Whether volunteers in this team can access the volunteer portal.
      */
     enableSchedule: z.boolean().optional(),
@@ -119,7 +114,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                 targetSize: eventsTeamsJoin.teamTargetSize,
                 enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
                 enableContent: eventsTeamsJoin.enableContent.equals(/* true= */ 1),
-                enableRegistration: eventsTeamsJoin.enableRegistration.equals(/* true= */ 1),
                 enableSchedule: eventsTeamsJoin.enableSchedule.equals(/* true= */ 1),
                 whatsappLink: eventsTeamsJoin.whatsappLink,
             })
@@ -150,7 +144,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     teamTargetSize: row.targetSize ?? 25,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
-                    enableRegistration: row.enableRegistration ? 1 : 0,
                     enableSchedule: row.enableSchedule ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })
@@ -158,7 +151,6 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     teamTargetSize: row.targetSize,
                     enableTeam: row.enableTeam ? 1 : 0,
                     enableContent: row.enableContent ? 1 : 0,
-                    enableRegistration: row.enableRegistration ? 1 : 0,
                     enableSchedule: row.enableSchedule ? 1 : 0,
                     whatsappLink: row.whatsappLink,
                 })

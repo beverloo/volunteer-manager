@@ -13,6 +13,7 @@ import SsidChartIcon from '@mui/icons-material/SsidChart';
 
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { EventDeadlines } from './EventDeadlines';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
 import { EventRecentChanges } from './EventRecentChanges';
@@ -24,11 +25,11 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, isAfter } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
+import { isAvailabilityWindowOpen } from '@lib/isAvailabilityWindowOpen';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
     tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
-import { EventDeadlines } from './EventDeadlines';
 
 /**
  * Updates within how many minutes of each other should be merged together?
@@ -120,7 +121,7 @@ async function getParticipatingTeams(eventId: number) {
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const dbInstance = db;
-    return await dbInstance.selectFrom(tEvents)
+    const teams = await dbInstance.selectFrom(tEvents)
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tEvents.eventId))
             .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
@@ -138,13 +139,23 @@ async function getParticipatingTeams(eventId: number) {
             teamTargetSize: tEventsTeams.teamTargetSize,
             teamSize: dbInstance.count(usersEventsJoin.userId),
 
+            enableApplications: {
+                start: tEventsTeams.enableApplicationsStart,
+                end: tEventsTeams.enableApplicationsEnd,
+            },
+
+            // TODO: Remove when they've been migrated to availability windows.
             enableContent: tEventsTeams.enableContent.equals(/* true= */ 1),
-            enableRegistration: tEventsTeams.enableRegistration.equals(/* true= */ 1),
             enableSchedule: tEventsTeams.enableSchedule.equals(/* true= */ 1),
         })
         .groupBy(tEventsTeams.teamId)
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
+
+    return teams.map(team => ({
+        ...team,
+        enableApplications: isAvailabilityWindowOpen(team.enableApplications),
+    }));
 }
 
 /**

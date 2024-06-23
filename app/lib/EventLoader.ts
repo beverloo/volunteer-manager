@@ -7,6 +7,7 @@ import { Privilege, can } from './auth/Privileges';
 
 import { RegistrationStatus } from './database/Types';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
+import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -37,8 +38,12 @@ export async function getEventBySlug(slug: string)
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
 
+                enableApplications: {
+                    start: eventsTeamsJoin.enableApplicationsStart,
+                    end: eventsTeamsJoin.enableApplicationsEnd,
+                },
+
                 enableContent: eventsTeamsJoin.enableContent,
-                enableRegistration: eventsTeamsJoin.enableRegistration,
                 enableSchedule: eventsTeamsJoin.enableSchedule,
             }),
         })
@@ -95,8 +100,12 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
 
+                enableApplications: {
+                    start: eventsTeamsJoin.enableApplicationsStart,
+                    end: eventsTeamsJoin.enableApplicationsEnd,
+                },
+
                 enableContent: eventsTeamsJoin.enableContent,
-                enableRegistration: eventsTeamsJoin.enableRegistration,
                 enableSchedule: eventsTeamsJoin.enableSchedule,
             }),
 
@@ -112,7 +121,7 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
 
     const eventAvailabilityOverride =
         can(user, Privilege.EventContentOverride) ||
-        can(user, Privilege.EventRegistrationOverride) ||
+        can(user, Privilege.EventApplicationOverride) ||
         can(user, Privilege.EventScheduleOverride);
 
     const events: Event[] = [];
@@ -126,8 +135,8 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
 
             environmentFound = true;
             environmentAccessible =
+                isAvailabilityWindowOpen(eventEnvironmentInfo.enableApplications) ||
                 eventEnvironmentInfo.enableContent === 1 ||
-                eventEnvironmentInfo.enableRegistration === 1 ||
                 eventEnvironmentInfo.enableSchedule === 1;
         }
 
