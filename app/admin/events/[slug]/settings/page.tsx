@@ -6,18 +6,20 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { EventDates } from './EventDates';
 import { EventDeadlinesTable } from './EventDeadlinesTable';
+import { EventParticipatingTeams } from './EventParticipatingTeams';
 import { EventSales } from './EventSales';
 import { EventSettings } from './EventSettings';
-import { EventTeamsTable } from './EventTeamsTable';
+import { EventTeamSettings } from './EventTeamSettings';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { SettingsHeader } from './SettingsHeader';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
-import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { getLeadersForEvent } from '@app/admin/lib/getLeadersForEvent';
+import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+
+import db, { tEventsTeams, tTeams } from '@lib/database';
 
 /**
  * The <EventSettingsPage> page allows event administrators to make changes to an event, such as its
@@ -26,6 +28,24 @@ import { getLeadersForEvent } from '@app/admin/lib/getLeadersForEvent';
 export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventAdministrator);
+
+    const teamSettings = await db.selectFrom(tEventsTeams)
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tEventsTeams.teamId))
+        .where(tEventsTeams.eventId.equals(event.id))
+            .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
+        .select({
+            team: {
+                id: tTeams.teamId,
+                name: tTeams.teamName,
+                colour: tTeams.teamColourLightTheme,
+            },
+            settings: {
+
+            },
+        })
+        .orderBy('team.name', 'asc')
+        .executeSelectMany();
 
     const isAdministrator = can(user, Privilege.Administrator);
     const leaders = await getLeadersForEvent(event.id);
@@ -38,13 +58,14 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
             <Section title="Configuration">
                 <EventSettings event={event} />
             </Section>
-            <EventDates />
             <Section title="Deadlines">
                 <EventDeadlinesTable event={event} leaders={leaders} />
             </Section>
-            <Section title="Team settings">
-                <EventTeamsTable event={event} />
+            <Section title="Participating teams">
+                <EventParticipatingTeams event={event} />
             </Section>
+            { teamSettings.map(({ settings, team }) =>
+                <EventTeamSettings key={team.id} settings={settings!} team={team} /> )}
             { !!isAdministrator &&
                 <Section title="Sales import">
                     <SectionIntroduction>

@@ -11,9 +11,9 @@ import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 
 /**
- * Props accepted by the <EventTeamsTable> component.
+ * Props accepted by the <EventParticipatingTeams> component.
  */
-export interface EventTeamsTableProps {
+export interface EventParticipatingTeamsProps {
     /**
      * Information about the event whose settings are being changed.
      */
@@ -21,11 +21,11 @@ export interface EventTeamsTableProps {
 }
 
 /**
- * The <EventTeamsTable> component allows administrators to change settings regarding the individual
- * teams that take part in an event. Team settings include availability of content, the schedule, as
- * well as targets regarding the number of volunteers that should participate.
+ * The <EventParticipatingTeams> component allows event administrators to change settings regarding
+ * the individual teams that take part in this particular event. Enabling participation of a team
+ * will enable a more detailed section with settings specific to that team.
  */
-export function EventTeamsTable(props: EventTeamsTableProps) {
+export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
     const { event } = props;
 
     const context = { event: props.event.slug };
@@ -63,6 +63,8 @@ export function EventTeamsTable(props: EventTeamsTableProps) {
             type: 'number',
             flex: 2,
         },
+        // TODO: maximum number of volunteers
+        // TODO: remove the following fields:
         {
             field: 'enableContent',
             headerName: 'Publish content',
