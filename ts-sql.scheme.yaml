@@ -1154,6 +1154,16 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: permissions_grants
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: permissions_teams
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: challenge
     type: text
     nullable: true
@@ -1199,6 +1209,8 @@ tables:
       `phone_number` varchar(32) DEFAULT NULL,
       `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
+      `permissions_grants` text DEFAULT NULL,
+      `permissions_teams` text DEFAULT NULL,
       `challenge` text DEFAULT NULL,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
       `session_token` int(4) unsigned NOT NULL DEFAULT 1,
@@ -3843,6 +3855,36 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: enable_hotel_preferences_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_hotel_preferences_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_training_preferences_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_training_preferences_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_refund_requests_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: enable_refund_requests_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: event_refunds_start_time
     type: datetime
     nullable: true
@@ -3925,6 +3967,12 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `enable_hotel_preferences_start` datetime DEFAULT NULL,
+      `enable_hotel_preferences_end` datetime DEFAULT NULL,
+      `enable_training_preferences_start` datetime DEFAULT NULL,
+      `enable_training_preferences_end` datetime DEFAULT NULL,
+      `enable_refund_requests_start` datetime DEFAULT NULL,
+      `enable_refund_requests_end` datetime DEFAULT NULL,
       `event_refunds_start_time` datetime DEFAULT NULL,
       `event_refunds_end_time` datetime DEFAULT NULL,
       `event_availability_status` enum('Unavailable','Available','Locked') NOT NULL,
