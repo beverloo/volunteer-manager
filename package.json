@@ -28,7 +28,7 @@
   "dependencies": {
     "@beverloo/volunteer-manager-timeline": "^1.6.0",
     "@google-cloud/vertexai": "^1.2.0",
-    "@mdxeditor/editor": "^3.6.0",
+    "@mdxeditor/editor": "^3.6.1",
     "@mui/icons-material": "^5.15.20",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.20",
@@ -49,7 +49,7 @@
     "dayjs": "^1.11.11",
     "iron-webcrypto": "^1.2.1",
     "mariadb": "^3.3.1",
-    "marked": "^13.0.0",
+    "marked": "^13.0.1",
     "mui-color-input": "^2.0.3",
     "mui-markdown": "^1.1.13",
     "next": "^14.2.4",
@@ -70,7 +70,7 @@
   "devDependencies": {
     "@datastructures-js/priority-queue": "^6.3.1",
     "@next/bundle-analyzer": "^14.2.4",
-    "@playwright/test": "^1.44.1",
+    "@playwright/test": "^1.45.0",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/cookie": "^0.6.0",
     "@types/d3": "^7.4.3",
