@@ -35,8 +35,8 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     const refundAvailability = await db.selectFrom(tEvents)
         .where(tEvents.eventId.equals(event.eventId))
         .select({
-            refundRequestsStart: tEvents.enableRefundRequestsStart,
-            refundRequestsEnd: tEvents.enableRefundRequestsEnd,
+            refundRequestsStart: tEvents.refundRequestsStart,
+            refundRequestsEnd: tEvents.refundRequestsEnd,
         })
         .executeSelectOne();
 

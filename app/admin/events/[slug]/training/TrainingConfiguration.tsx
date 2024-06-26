@@ -25,17 +25,17 @@ const kTrainingConfigurationData = z.object({
     /**
      * Whether training sessions should be published on the registration portal.
      */
-    publishTrainingInformation: z.coerce.number(),
+    trainingInformationPublished: z.coerce.number(),
 
     /**
      * Moment in time, if any, at which we'll start to accept training preferences.
      */
-    enableTrainingPreferencesStart: kTemporalZonedDateTime.nullish(),
+    trainingPreferencesStart: kTemporalZonedDateTime.nullish(),
 
     /**
      * Moment in time, if any, at which applications will no longer accept training preferences.
      */
-    enableTrainingPreferencesEnd: kTemporalZonedDateTime.nullish(),
+    trainingPreferencesEnd: kTemporalZonedDateTime.nullish(),
 });
 
 /**
@@ -47,9 +47,9 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
     return executeServerAction(formData, kTrainingConfigurationData, async (data, props) => {
         await db.update(tEvents)
             .set({
-                publishTrainingInformation: data.publishTrainingInformation,
-                enableTrainingPreferencesStart: data.enableTrainingPreferencesStart,
-                enableTrainingPreferencesEnd: data.enableTrainingPreferencesEnd,
+                trainingInformationPublished: data.trainingInformationPublished,
+                trainingPreferencesStart: data.trainingPreferencesStart,
+                trainingPreferencesEnd: data.trainingPreferencesEnd,
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
@@ -60,7 +60,7 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
             sourceUser: props.user,
             data: {
                 event: await getEventNameForId(eventId),
-                published: !!data.publishTrainingInformation,
+                published: !!data.trainingInformationPublished,
                 type: 'training',
             },
         });
@@ -92,11 +92,9 @@ export async function TrainingConfiguration(props: TrainingConfigurationProps) {
     const configuration = await dbInstance.selectFrom(tEvents)
         .where(tEvents.eventId.equals(props.event.id))
         .select({
-            publishTrainingInformation: tEvents.publishTrainingInformation,
-            enableTrainingPreferencesStart:
-                dbInstance.dateTimeAsString(tEvents.enableTrainingPreferencesStart),
-            enableTrainingPreferencesEnd:
-                dbInstance.dateTimeAsString(tEvents.enableTrainingPreferencesEnd),
+            trainingInformationPublished: tEvents.trainingInformationPublished,
+            trainingPreferencesStart: dbInstance.dateTimeAsString(tEvents.trainingPreferencesStart),
+            trainingPreferencesEnd: dbInstance.dateTimeAsString(tEvents.trainingPreferencesEnd),
         })
         .projectingOptionalValuesAsNullable()
         .executeSelectNoneOrOne() ?? undefined;
@@ -111,10 +109,9 @@ export async function TrainingConfiguration(props: TrainingConfigurationProps) {
                     can set the time frame during which volunteers can share their preferences.
                 </SectionIntroduction>
             </Grid>
-            <AvailabilityToggle label="Publish information" name="publishTrainingInformation" />
-            <AvailabilityWindow label="Accept preferences" start="enableTrainingPreferencesStart"
-                                end="enableTrainingPreferencesEnd"
-                                timezone={props.event.timezone} />
+            <AvailabilityToggle label="Publish information" name="trainingInformationPublished" />
+            <AvailabilityWindow label="Accept preferences" start="trainingPreferencesStart"
+                                end="trainingPreferencesEnd" timezone={props.event.timezone} />
             <Grid xs={12}>
                 <Divider />
             </Grid>

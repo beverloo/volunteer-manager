@@ -30,17 +30,17 @@ const kRefundConfigurationData = z.object({
     /**
      * Whether refund information should be published on the registration portal.
      */
-    publishRefundInformation: z.coerce.number(),
+    refundInformationPublished: z.coerce.number(),
 
     /**
      * Moment in time, if any, at which we'll start to accept refund requests.
      */
-    enableRefundRequestsStart: kTemporalZonedDateTime.nullish(),
+    refundRequestsStart: kTemporalZonedDateTime.nullish(),
 
     /**
      * Moment in time, if any, at which we'll no longer accept refund requests.
      */
-    enableRefundRequestsEnd: kTemporalZonedDateTime.nullish(),
+    refundRequestsEnd: kTemporalZonedDateTime.nullish(),
 });
 
 /**
@@ -52,9 +52,9 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
     return executeServerAction(formData, kRefundConfigurationData, async (data, props) => {
         await db.update(tEvents)
             .set({
-                publishRefundInformation: data.publishRefundInformation,
-                enableRefundRequestsStart: data.enableRefundRequestsStart,
-                enableRefundRequestsEnd: data.enableRefundRequestsEnd,
+                refundInformationPublished: data.refundInformationPublished,
+                refundRequestsStart: data.refundRequestsStart,
+                refundRequestsEnd: data.refundRequestsEnd,
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
@@ -65,7 +65,7 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
             sourceUser: props.user,
             data: {
                 event: await getEventNameForId(eventId),
-                published: !!data.publishRefundInformation,
+                published: !!data.refundInformationPublished,
                 type: 'refund',
             },
         });
@@ -92,11 +92,9 @@ export default async function EventRefundsPage(props: NextPageParams<'slug'>) {
     const defaultValues = await dbInstance.selectFrom(tEvents)
         .where(tEvents.eventId.equals(event.id))
         .select({
-            publishRefundInformation: tEvents.publishRefundInformation,
-            enableRefundRequestsStart:
-                dbInstance.dateTimeAsString(tEvents.enableRefundRequestsStart),
-            enableRefundRequestsEnd:
-                dbInstance.dateTimeAsString(tEvents.enableRefundRequestsEnd),
+            refundInformationPublished: tEvents.refundInformationPublished,
+            refundRequestsStart: dbInstance.dateTimeAsString(tEvents.refundRequestsStart),
+            refundRequestsEnd: dbInstance.dateTimeAsString(tEvents.refundRequestsEnd),
         })
         .projectingOptionalValuesAsNullable()
         .executeSelectNoneOrOne() ?? undefined;
@@ -113,9 +111,9 @@ export default async function EventRefundsPage(props: NextPageParams<'slug'>) {
                         and to decide if this information should be publicly available.
                     </SectionIntroduction>
                 </Grid>
-                <AvailabilityToggle label="Publish information" name="publishRefundInformation" />
-                <AvailabilityWindow label="Accept requests" start="enableRefundRequestsStart"
-                                    end="enableRefundRequestsEnd" timezone={event.timezone} />
+                <AvailabilityToggle label="Publish information" name="refundInformationPublished" />
+                <AvailabilityWindow label="Accept requests" start="refundRequestsStart"
+                                    end="refundRequestsEnd" timezone={event.timezone} />
             </FormGridSection>
             <RefundsTable event={event.slug} />
         </>

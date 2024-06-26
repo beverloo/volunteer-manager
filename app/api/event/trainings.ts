@@ -42,7 +42,7 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
             .and(tEvents.eventSlug.equals(request.event))
         .where(tTrainings.trainingVisible.equals(/* true= */ 1))
         .select({
-            published: tEvents.publishTrainingInformation,
+            published: tEvents.trainingInformationPublished,
             timezone: tEvents.eventTimezone,
 
             start: tTrainings.trainingStart,

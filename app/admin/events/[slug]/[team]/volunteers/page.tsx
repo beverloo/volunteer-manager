@@ -132,7 +132,7 @@ export default async function VolunteersPage(props: NextPageParams<'slug' | 'tea
                 volunteer.hotelStatus = 'submitted';
             else
                 volunteer.hotelStatus = 'skipped';
-        } else if (volunteer.hotelEligible && event.publishHotelInformation) {
+        } else if (volunteer.hotelEligible && event.hotelInformationPublished) {
             volunteer.hotelStatus = 'available';
         }
     }
@@ -169,7 +169,7 @@ export default async function VolunteersPage(props: NextPageParams<'slug' | 'tea
                 volunteer.trainingStatus = 'skipped';
         } else if (!!volunteerTrainingInfo.trainingPreferencesUpdated) {
             volunteer.trainingStatus = 'submitted';
-        } else if (volunteer.trainingEligible && event.publishTrainingInformation) {
+        } else if (volunteer.trainingEligible && event.trainingInformationPublished) {
             volunteer.trainingStatus = 'available';
         }
     }

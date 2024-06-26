@@ -32,17 +32,17 @@ export interface PageInfo {
         /**
          * Whether information about the trainings has been published to volunteers.
          */
-        publishHotelInformation: boolean;
+        hotelInformationPublished: boolean;
 
         /**
          * Whether information about refunds should be published to volunteers.
          */
-        publishRefundInformation: boolean;
+        refundInformationPublished: boolean;
 
         /**
          * Whether information about the trainings has been published to volunteers.
          */
-        publishTrainingInformation: boolean;
+        trainingInformationPublished: boolean;
 
         /**
          * Short name of the event, as it should be presented in user interface.
@@ -218,15 +218,16 @@ export async function verifyAccessAndFetchPageInfo(
             timezone: tEvents.eventTimezone,
             startTime: dbInstance.dateTimeAsString(tEvents.eventStartTime),
             endTime: dbInstance.dateTimeAsString(tEvents.eventEndTime),
-            refundRequestsStart: dbInstance.dateTimeAsString(tEvents.enableRefundRequestsStart),
-            refundRequestsEnd: dbInstance.dateTimeAsString(tEvents.enableRefundRequestsEnd),
+            refundRequestsStart: dbInstance.dateTimeAsString(tEvents.refundRequestsStart),
+            refundRequestsEnd: dbInstance.dateTimeAsString(tEvents.refundRequestsEnd),
             availabilityStatus: tEvents.eventAvailabilityStatus,
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,
             hotelRoomForm: tEvents.eventHotelRoomForm,
-            publishHotelInformation: tEvents.publishHotelInformation.equals(/* true= */ 1),
-            publishRefundInformation: tEvents.publishRefundInformation.equals(/* true= */ 1),
-            publishTrainingInformation: tEvents.publishTrainingInformation.equals(/* true= */ 1),
+            hotelInformationPublished: tEvents.hotelInformationPublished.equals(/* true= */ 1),
+            refundInformationPublished: tEvents.refundInformationPublished.equals(/* true= */ 1),
+            trainingInformationPublished:
+                tEvents.trainingInformationPublished.equals(/* true= */ 1),
 
             // For internal use:
             userTeamId: usersEventsJoin.teamId,

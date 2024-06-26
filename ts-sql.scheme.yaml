@@ -3837,47 +3837,62 @@ tables:
     nullable: false
     default: null
     comment: ""
-  - name: publish_hotel_information
+  - name: hotel_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
     comment: ""
-  - name: enable_hotel_preferences_start
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: enable_hotel_preferences_end
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: publish_training_information
+  - name: hotel_information_published
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
     comment: ""
-  - name: enable_training_preferences_start
+  - name: hotel_preferences_start
     type: datetime
     nullable: true
     default: "NULL"
     comment: ""
-  - name: enable_training_preferences_end
+  - name: hotel_preferences_end
     type: datetime
     nullable: true
     default: "NULL"
     comment: ""
-  - name: publish_refund_information
+  - name: refund_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
     comment: ""
-  - name: enable_refund_requests_start
+  - name: refund_information_published
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: refund_requests_start
     type: datetime
     nullable: true
     default: "NULL"
     comment: ""
-  - name: enable_refund_requests_end
+  - name: refund_requests_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: training_enabled
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: training_information_published
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
+  - name: training_preferences_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: training_preferences_end
     type: datetime
     nullable: true
     default: "NULL"
@@ -3939,15 +3954,18 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
-      `publish_hotel_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
-      `enable_hotel_preferences_start` datetime DEFAULT NULL,
-      `enable_hotel_preferences_end` datetime DEFAULT NULL,
-      `publish_training_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
-      `enable_training_preferences_start` datetime DEFAULT NULL,
-      `enable_training_preferences_end` datetime DEFAULT NULL,
-      `publish_refund_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
-      `enable_refund_requests_start` datetime DEFAULT NULL,
-      `enable_refund_requests_end` datetime DEFAULT NULL,
+      `hotel_enabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `hotel_information_published` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `hotel_preferences_start` datetime DEFAULT NULL,
+      `hotel_preferences_end` datetime DEFAULT NULL,
+      `refund_enabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `refund_information_published` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `refund_requests_start` datetime DEFAULT NULL,
+      `refund_requests_end` datetime DEFAULT NULL,
+      `training_enabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `training_information_published` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `training_preferences_start` datetime DEFAULT NULL,
+      `training_preferences_end` datetime DEFAULT NULL,
       `event_availability_status` enum('Unavailable','Available','Locked') NOT NULL,
       `event_location` text DEFAULT NULL,
       `event_timezone` varchar(32) NOT NULL,

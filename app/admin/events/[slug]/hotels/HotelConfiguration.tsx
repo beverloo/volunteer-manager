@@ -25,17 +25,17 @@ const kHotelConfigurationData = z.object({
     /**
      * Whether hotel information should be published on the registration portal.
      */
-    publishHotelInformation: z.coerce.number(),
+    hotelInformationPublished: z.coerce.number(),
 
     /**
      * Moment in time, if any, at which we'll start to accept hotel room preferences.
      */
-    enableHotelPreferencesStart: kTemporalZonedDateTime.nullish(),
+    hotelPreferencesStart: kTemporalZonedDateTime.nullish(),
 
     /**
      * Moment in time, if any, at which applications will no longer accept hotel room preferences.
      */
-    enableHotelPreferencesEnd: kTemporalZonedDateTime.nullish(),
+    hotelPreferencesEnd: kTemporalZonedDateTime.nullish(),
 });
 
 /**
@@ -47,9 +47,9 @@ async function updateHotelConfiguration(eventId: number, formData: unknown) {
     return executeServerAction(formData, kHotelConfigurationData, async (data, props) => {
         await db.update(tEvents)
             .set({
-                publishHotelInformation: data.publishHotelInformation,
-                enableHotelPreferencesStart: data.enableHotelPreferencesStart,
-                enableHotelPreferencesEnd: data.enableHotelPreferencesEnd,
+                hotelInformationPublished: data.hotelInformationPublished,
+                hotelPreferencesStart: data.hotelPreferencesStart,
+                hotelPreferencesEnd: data.hotelPreferencesEnd,
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
@@ -60,7 +60,7 @@ async function updateHotelConfiguration(eventId: number, formData: unknown) {
             sourceUser: props.user,
             data: {
                 event: await getEventNameForId(eventId),
-                published: !!data.publishHotelInformation,
+                published: !!data.hotelInformationPublished,
                 type: 'hotel',
             },
         });
@@ -92,11 +92,9 @@ export async function HotelConfiguration(props: HotelConfigurationProps) {
     const configuration = await dbInstance.selectFrom(tEvents)
         .where(tEvents.eventId.equals(props.event.id))
         .select({
-            publishHotelInformation: tEvents.publishHotelInformation,
-            enableHotelPreferencesStart:
-                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesStart),
-            enableHotelPreferencesEnd:
-                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesEnd),
+            hotelInformationPublished: tEvents.hotelInformationPublished,
+            hotelPreferencesStart: dbInstance.dateTimeAsString(tEvents.hotelPreferencesStart),
+            hotelPreferencesEnd: dbInstance.dateTimeAsString(tEvents.hotelPreferencesEnd),
         })
         .projectingOptionalValuesAsNullable()
         .executeSelectNoneOrOne() ?? undefined;
@@ -111,9 +109,9 @@ export async function HotelConfiguration(props: HotelConfigurationProps) {
                     can set the time frame during which volunteers can share their room preferences.
                 </SectionIntroduction>
             </Grid>
-            <AvailabilityToggle label="Publish information" name="publishHotelInformation" />
-            <AvailabilityWindow label="Accept preferences" start="enableHotelPreferencesStart"
-                                end="enableHotelPreferencesEnd" timezone={props.event.timezone} />
+            <AvailabilityToggle label="Publish information" name="hotelInformationPublished" />
+            <AvailabilityWindow label="Accept preferences" start="hotelPreferencesStart"
+                                end="hotelPreferencesEnd" timezone={props.event.timezone} />
             <Grid xs={12}>
                 <Divider />
             </Grid>

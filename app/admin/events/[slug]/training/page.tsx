@@ -200,7 +200,7 @@ export default async function EventTrainingPage(props: NextPageParams<'slug'>) {
             <Collapse in={trainingConfirmationCount > 0} sx={{ mt: '-16px !important' }}>
                 <TrainingOverview confirmations={confirmations} enableExport={enableExport} />
             </Collapse>
-            <Collapse in={event.publishTrainingInformation && trainingAssignments.length > 0}
+            <Collapse in={event.trainingInformationPublished && trainingAssignments.length > 0}
                       sx={{ mt: '0px !important' }}>
                 <TrainingAssignments event={event.slug} trainings={trainingOptions}
                                      warnings={warnings}/>
