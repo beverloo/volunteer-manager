@@ -40,12 +40,14 @@ export function AvailabilityWindow(props: AvailabilityWindowProps) {
                     {props.label}:
                 </Typography>
                 <DateTimePickerElement name={props.start}
-                                       inputProps={{ fullWidth: true, size: 'small' }} />
+                                       inputProps={{ fullWidth: true, size: 'small' }}
+                                       slotProps={{ field: { clearable: true } }} />
                 <Typography variant="body2">
                     until
                 </Typography>
                 <DateTimePickerElement name={props.end}
-                                       inputProps={{ fullWidth: true, size: 'small' }} />
+                                       inputProps={{ fullWidth: true, size: 'small' }}
+                                       slotProps={{ field: { clearable: true } }} />
                 <AvailabilityWindowIndicator fields={props} />
             </Stack>
         </Grid>
