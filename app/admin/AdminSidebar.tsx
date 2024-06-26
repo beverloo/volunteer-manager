@@ -50,6 +50,11 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  */
 interface AdminSidebarMenuCommon {
     /**
+     * Optional condition that, when given, must be `true` in order for the menu option to show.
+     */
+    condition?: boolean;
+
+    /**
      * The privilege this entry is gated behind. Visibility control, not an access control. When
      * multiple privileges are provided then this entry will be visible when either of them if set.
      */
@@ -195,6 +200,9 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
     return (
         <List disablePadding>
             { menu.map((entry, index) => {
+                if (typeof entry.condition === 'boolean' && !entry.condition)
+                    return undefined;  // unmet condition
+
                 if (entry.privilege) {
                     const privileges =
                         Array.isArray(entry.privilege) ? entry.privilege : [ entry.privilege ];

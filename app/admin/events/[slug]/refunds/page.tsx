@@ -84,6 +84,10 @@ export default async function EventRefundsPage(props: NextPageParams<'slug'>) {
     if (!can(user, Privilege.EventAdministrator) || !can(user, Privilege.Refunds))
         notFound();
 
+    // If refund management has not been enabled for this event, the page is not accessible.
+    if (!event.refundEnabled)
+        notFound();
+
     const enableExport = can(user, Privilege.VolunteerDataExports);
 
     // ---------------------------------------------------------------------------------------------

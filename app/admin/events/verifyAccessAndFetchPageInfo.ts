@@ -108,6 +108,21 @@ export interface PageInfo {
          * Link to the hotel room form where bookings should be made.
          */
         hotelRoomForm?: string;
+
+        /**
+         * Whether hotel room management is enabled for this event.
+         */
+        hotelEnabled: boolean;
+
+        /**
+         * Whether refund management is enabled for this event.
+         */
+        refundEnabled: boolean;
+
+        /**
+         * Whether training management is enabled for this event.
+         */
+        trainingEnabled: boolean;
     };
 
     /**
@@ -228,6 +243,11 @@ export async function verifyAccessAndFetchPageInfo(
             refundInformationPublished: tEvents.refundInformationPublished.equals(/* true= */ 1),
             trainingInformationPublished:
                 tEvents.trainingInformationPublished.equals(/* true= */ 1),
+
+            // Management system availability:
+            hotelEnabled: tEvents.hotelEnabled.equals(/* true= */ 1),
+            refundEnabled: tEvents.refundEnabled.equals(/* true= */ 1),
+            trainingEnabled: tEvents.trainingEnabled.equals(/* true= */ 1),
 
             // For internal use:
             userTeamId: usersEventsJoin.teamId,

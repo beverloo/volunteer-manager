@@ -75,6 +75,10 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 name: tEvents.eventShortName,
                 slug: tEvents.eventSlug,
                 festivalId: tEvents.eventFestivalId,
+
+                hotelEnabled: tEvents.hotelEnabled.equals(/* true= */ 1),
+                refundEnabled: tEvents.refundEnabled.equals(/* true= */ 1),
+                trainingEnabled: tEvents.trainingEnabled.equals(/* true= */ 1),
             },
             teams: dbInstance.aggregateAsArray({
                 id: teamsJoin.teamId,
@@ -209,6 +213,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <HotelIcon />,
             label: 'Hotels',
+            condition: info.event.hotelEnabled,
             privilege: Privilege.EventHotelManagement,
             url: `/admin/events/${slug}/hotels`,
             badge: hotelBadge,
@@ -217,6 +222,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <MonetizationOnIcon />,
             label: 'Refunds',
+            condition: info.event.refundEnabled,
             privilege: Privilege.Refunds,
             url: `/admin/events/${slug}/refunds`,
             badge: refundsBadge,
@@ -225,6 +231,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <HistoryEduIcon />,
             label: 'Trainings',
+            condition: info.event.trainingEnabled,
             privilege: Privilege.EventTrainingManagement,
             url: `/admin/events/${slug}/training`,
             badge: trainingsBadge,

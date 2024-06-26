@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -22,6 +24,9 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
 export default async function EventTrainingPage(props: NextPageParams<'slug'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventTrainingManagement);
+
+    if (!event.trainingEnabled)
+        notFound();
 
     const processor = new TrainingProcessor(event.id);
     await processor.initialise();

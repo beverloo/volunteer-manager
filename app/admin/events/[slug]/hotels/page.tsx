@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -19,6 +21,9 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 export default async function EventHotelsPage(props: NextPageParams<'slug'>) {
     const { event } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventHotelManagement);
+
+    if (!event.hotelEnabled)
+        notFound();
 
     const processor = new HotelProcessor(event.id);
     await processor.initialise();
