@@ -6,7 +6,8 @@ import { z } from 'zod';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { AvailabilityToggle, AvailabilityWindow } from '../settings/EventTeamSettings';
+import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
+import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { HotelConfigurationTable } from './HotelConfigurationTable';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';

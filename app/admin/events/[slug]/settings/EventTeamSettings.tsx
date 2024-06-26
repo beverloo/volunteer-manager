@@ -3,14 +3,9 @@
 
 import { z } from 'zod';
 
-import Grid from '@mui/material/Unstable_Grid2';
 import PeopleIcon from '@mui/icons-material/People';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 
-import { DateTimePickerElement, SelectElement } from '@proxy/react-hook-form-mui';
-
-import { EventTeamSettingsIndicator } from './EventTeamSettingsIndicator';
+import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEventsTeams } from '@lib/database';
@@ -82,92 +77,6 @@ async function updateTeamSettings(eventId: number, teamId: number, formData: unk
 
         return { success: true };
     });
-}
-
-/**
- * Props accepted by the <AvailabilityWindow> component.
- */
-interface AvailabilityWindowProps {
-    /**
-     * Name of the field that represents the ending time of this window.
-     */
-    end: string;
-
-    /**
-     * Label to display in front of this availability window.
-     */
-    label: string;
-
-    /**
-     * Name of the field that represents the starting time of this window.
-     */
-    start: string;
-}
-
-/**
- * The <AvailabilityWindow> component displays two full-width date time picker components, followed
- * by an icon indicating how that would play out given the current date and time.
- */
-export function AvailabilityWindow(props: AvailabilityWindowProps) {
-    return (
-        <Grid xs={12}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <Typography variant="body2" sx={{ flexShrink: 0, width: '150px' }}>
-                    {props.label}:
-                </Typography>
-                <DateTimePickerElement name={props.start}
-                                       inputProps={{ fullWidth: true, size: 'small' }} />
-                <Typography variant="body2">
-                    until
-                </Typography>
-                <DateTimePickerElement name={props.end}
-                                       inputProps={{ fullWidth: true, size: 'small' }} />
-                <EventTeamSettingsIndicator fields={props} />
-            </Stack>
-        </Grid>
-    );
-}
-
-/**
- * Options available to the `<AvailabilityToggle>` component.
- */
-const kAvailabilityToggleOptions = [
-    { id: 0, label: 'Publish to Senior and Staff volunteers' },
-    { id: 1, label: 'Publish to everyone' },
-];
-
-/**
- * Props accepted by the <AvailabilityToggle> component.
- */
-interface AvailabilityToggleProps {
-    /**
-     * Label to display in front of this availability toggle.
-     */
-    label: string;
-
-    /**
-     * Name of the input field that will be added to the form.
-     */
-    name: string;
-}
-
-/**
- * The <AvailabilityToggle> component displays an input field that can be used to either turn on or
- * off publication of a particular field. A clear indicator will be shown at the end of the field.
- */
-export function AvailabilityToggle(props: AvailabilityToggleProps) {
-    return (
-        <Grid xs={12}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <Typography variant="body2" sx={{ flexShrink: 0, width: '150px' }}>
-                    {props.label}:
-                </Typography>
-                <SelectElement name={props.name} options={kAvailabilityToggleOptions}
-                               fullWidth size="small" />
-                { /* TODO: Add an indicator */ }
-            </Stack>
-        </Grid>
-    );
 }
 
 /**
