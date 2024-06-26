@@ -17,6 +17,7 @@ import { RefundsTable } from './RefundsTable';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { executeServerAction } from '@lib/serverAction';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
+import { getEventNameForId } from '@lib/EventLoader';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents } from '@lib/database';
 
@@ -63,7 +64,7 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
-                event: 'AnimeCon',  // TODO: Source this from somewhere?
+                event: await getEventNameForId(eventId),
                 published: !!data.publishRefundInformation,
                 type: 'refund',
             },

@@ -13,6 +13,7 @@ import { HotelConfigurationTable } from './HotelConfigurationTable';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { executeServerAction } from '@lib/serverAction';
+import { getEventNameForId } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
 
 import { kTemporalZonedDateTime } from '@app/api/Types';
@@ -58,7 +59,7 @@ async function updateHotelConfiguration(eventId: number, formData: unknown) {
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
-                event: 'AnimeCon',  // TODO: Source this from somewhere?
+                event: await getEventNameForId(eventId),
                 published: !!data.publishHotelInformation,
                 type: 'hotel',
             },

@@ -11,7 +11,6 @@ import { HotelProcessor } from './HotelProcessor';
 import { Privilege } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents } from '@lib/database';
 
 /**
  * The <EventHotelsPage> page allows event administrators to see and make changes to the hotel room

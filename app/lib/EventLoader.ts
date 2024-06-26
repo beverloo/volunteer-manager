@@ -63,6 +63,16 @@ export async function getEventBySlug(slug: string)
 }
 
 /**
+ * Returns the event name for the event uniquely identified by the given `eventId`, if any.
+ */
+export async function getEventNameForId(eventId: number): Promise<string | undefined> {
+    return await db.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(eventId))
+        .selectOneColumn(tEvents.eventShortName)
+        .executeSelectNoneOrOne() ?? undefined;
+}
+
+/**
  * Returns the event slug for the event uniquely identified by the given `eventId`, if any.
  */
 export async function getEventSlugForId(eventId: number): Promise<string | undefined> {

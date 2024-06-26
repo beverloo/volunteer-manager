@@ -12,6 +12,7 @@ import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { TrainingConfigurationTable } from './TrainingConfigurationTable';
 import { executeServerAction } from '@lib/serverAction';
+import { getEventNameForId } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
 
 import { kTemporalZonedDateTime } from '@app/api/Types';
@@ -58,7 +59,7 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
-                event: 'AnimeCon',  // TODO: Source this from somewhere?
+                event: await getEventNameForId(eventId),
                 published: !!data.publishTrainingInformation,
                 type: 'training',
             },
