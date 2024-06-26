@@ -76,7 +76,7 @@ export async function getRegistration(environmentName: string, event: Event, use
                 serviceTimingEnd: tUsersEvents.preferenceTimingEnd,
             },
 
-            hotelAvailable: tEvents.publishHotels.equals(/* true= */ 1),
+            hotelAvailable: tEvents.publishHotelInformation.equals(/* true= */ 1),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(
                 tRoles.roleHotelEligible).equals(/* true= */ 1),
             hotelPreferences: {
@@ -98,7 +98,7 @@ export async function getRegistration(environmentName: string, event: Event, use
                 confirmed: dbInstance.dateTimeAsString(refundsJoin.refundConfirmed),
             },
 
-            trainingAvailable: tEvents.publishTrainings.equals(/* true= */ 1),
+            trainingAvailable: tEvents.publishTrainingInformation.equals(/* true= */ 1),
             trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
                 tRoles.roleTrainingEligible).equals(/* true= */ 1),
             training: {

@@ -77,7 +77,7 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
         .where(tEvents.eventSlug.equals(request.event))
             .and(tHotels.hotelRoomVisible.equals(/* visible= */ 1))
         .select({
-            published: tEvents.publishHotels.equals(/* true= */ 1),
+            published: tEvents.publishHotelInformation.equals(/* true= */ 1),
             hotelId: tHotels.hotelId,
             hotelName: tHotels.hotelName,
             hotelDescription: tHotels.hotelDescription,

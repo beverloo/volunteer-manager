@@ -153,15 +153,15 @@ export interface EventMetadataProps {
 export function EventMetadata(props: EventMetadataProps) {
     const { event, metadata } = props;
 
-    const hotelColor = event.publishHotels ? 'success' : 'error';
+    const hotelColor = event.publishHotelInformation ? 'success' : 'error';
     const hotelText =
-        event.publishHotels ? 'Hotel data has been published'
-                            : 'Hotel data has not been published';
+        event.publishHotelInformation ? 'Hotel data has been published'
+                                      : 'Hotel data has not been published';
 
-    const trainingColor = event.publishTrainings ? 'success' : 'error';
+    const trainingColor = event.publishTrainingInformation ? 'success' : 'error';
     const trainingText =
-        event.publishTrainings ? 'Training data has been published'
-                               : 'Training data has not been published';
+        event.publishTrainingInformation ? 'Training data has been published'
+                                         : 'Training data has not been published';
 
     // ---------------------------------------------------------------------------------------------
     // Compose text for hotel information

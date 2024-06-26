@@ -32,17 +32,17 @@ export interface PageInfo {
         /**
          * Whether information about the trainings has been published to volunteers.
          */
-        publishHotels: boolean;
+        publishHotelInformation: boolean;
 
         /**
          * Whether information about refunds should be published to volunteers.
          */
-        publishRefunds: boolean;
+        publishRefundInformation: boolean;
 
         /**
          * Whether information about the trainings has been published to volunteers.
          */
-        publishTrainings: boolean;
+        publishTrainingInformation: boolean;
 
         /**
          * Short name of the event, as it should be presented in user interface.
@@ -224,9 +224,9 @@ export async function verifyAccessAndFetchPageInfo(
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,
             hotelRoomForm: tEvents.eventHotelRoomForm,
-            publishHotels: tEvents.publishHotels.equals(/* true= */ 1),
-            publishRefunds: tEvents.publishRefunds.equals(/* true= */ 1),
-            publishTrainings: tEvents.publishTrainings.equals(/* true= */ 1),
+            publishHotelInformation: tEvents.publishHotelInformation.equals(/* true= */ 1),
+            publishRefundInformation: tEvents.publishRefundInformation.equals(/* true= */ 1),
+            publishTrainingInformation: tEvents.publishTrainingInformation.equals(/* true= */ 1),
 
             // For internal use:
             userTeamId: usersEventsJoin.teamId,

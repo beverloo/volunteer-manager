@@ -34,7 +34,7 @@ export async function getEventBySlug(slug: string)
             eventTimezone: tEvents.eventTimezone,
             eventStartTime: tEvents.eventStartTime,
             eventEndTime: tEvents.eventEndTime,
-            eventEnableRefunds: tEvents.publishRefunds,
+            eventEnableRefunds: tEvents.publishRefundInformation,
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
 
