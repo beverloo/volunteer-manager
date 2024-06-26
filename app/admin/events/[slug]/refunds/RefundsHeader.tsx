@@ -15,7 +15,7 @@ import { PaperHeader } from '@app/admin/components/PaperHeader';
 /**
  * Props accepted by the <RefundsHeader> component.
  */
-export interface RefundsHeaderProps {
+interface RefundsHeaderProps {
     /**
      * Whether the signed in volunteer has the ability to export this information.
      */

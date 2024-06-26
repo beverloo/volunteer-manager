@@ -22,7 +22,7 @@ const kTargetIcon: { [k in DisplayHelpRequestTarget]: React.ReactNode } = {
 /**
  * Props accepted by the <HelpRequestTarget> component.
  */
-export interface HelpRequestTargetProps {
+interface HelpRequestTargetProps {
     /**
      * Target of the help request, in other words, who is expected to help out?
      */

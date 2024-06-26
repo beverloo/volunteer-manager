@@ -13,7 +13,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <ShiftCreateSection> component.
  */
-export interface ShiftCreateSectionProps extends Omit<ShiftSettingsFormProps, 'onSubmit'> {
+interface ShiftCreateSectionProps extends Omit<ShiftSettingsFormProps, 'onSubmit'> {
     /**
      * Unique slug of the event for which a shift is being created.
      */

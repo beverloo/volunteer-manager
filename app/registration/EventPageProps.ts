@@ -10,7 +10,7 @@ import type { User } from '@lib/auth/User';
 /**
  * Canonical props accepted by the event-related server components.
  */
-export interface EventPageProps<UserRequired extends boolean = false> {
+interface EventPageProps<UserRequired extends boolean = false> {
     /**
      * The content that should be shown on the page, if any.
      */

@@ -21,7 +21,7 @@ import { useSelectElementText } from './useSelectElementText';
 /**
  * Props accepted by the <ExportRefunds> component.
  */
-export interface ExportRefundsProps {
+interface ExportRefundsProps {
     /**
      * The refund requests that should be rendered by this component.
      */

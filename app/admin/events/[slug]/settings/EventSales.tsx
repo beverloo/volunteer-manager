@@ -39,7 +39,7 @@ const VisuallyHiddenInput = styled('input')({
 /**
  * Props accepted by the <EventSales> component.
  */
-export interface EventSalesProps {
+interface EventSalesProps {
     /**
      * Information about the event whose sales might be imported.
      */

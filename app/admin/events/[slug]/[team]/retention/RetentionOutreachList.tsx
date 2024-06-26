@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 /**
  * Props accepted by the <RetentionOutreachList> component.
  */
-export interface RetentionOutreachListProps {
+interface RetentionOutreachListProps {
     /**
      * Array of the assigned volunteers that are still on this person's to-do list to conclude.
      */

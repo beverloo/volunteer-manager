@@ -19,7 +19,7 @@ import { RegistrationProgress } from './RegistrationProgress';
 /**
  * Props accepted by the <RegistrationContentContainer> component.
  */
-export interface RegistrationContentContainerProps {
+interface RegistrationContentContainerProps {
     /**
      * Children that should be rendered within the registration content container.
      */

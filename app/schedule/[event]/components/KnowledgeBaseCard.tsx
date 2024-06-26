@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography';
 /**
  * Props accepted by the <KnowledgeBaseCard> component.
  */
-export interface KnowledgeBaseCardProps {
+interface KnowledgeBaseCardProps {
     /**
      * Slug of the event for which the card is being shown.
      */

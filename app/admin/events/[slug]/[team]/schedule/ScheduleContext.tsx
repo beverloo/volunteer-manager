@@ -65,7 +65,7 @@ const fetcher = (url: string) => fetch(url).then(r => r.json()).then(r => r.sche
 /**
  * Props accepted by the <ScheduleContextImpl> component.
  */
-export interface ScheduleContextImplProps {
+interface ScheduleContextImplProps {
     /**
      * Information about the event for which the schedule is being shown.
      */

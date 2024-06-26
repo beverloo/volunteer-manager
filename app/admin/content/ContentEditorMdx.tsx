@@ -21,7 +21,7 @@ import { unrecognisedNodePlugin } from './mdxEditorPlugins';
 /**
  * Props accepted by the <ContentEditorMdx> component.
  */
-export interface ContentEditorMdxProps {
+interface ContentEditorMdxProps {
     /**
      * The Markdown that should be displayed within the component.
      */

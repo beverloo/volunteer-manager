@@ -82,7 +82,7 @@ export type EventSalesDataSeries = {
 /**
  * Props accepted by the <EventSalesGraph> component.
  */
-export interface EventSalesGraphProps {
+interface EventSalesGraphProps {
     /**
      * Confidence interval to display for remaining days in the current event, if any.
      */

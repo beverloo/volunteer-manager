@@ -6,7 +6,7 @@ import Alert from '@mui/material/Alert';
 /**
  * Props accepted by the <RegistrationAlert> component.
  */
-export interface RegistrationAlertProps {
+interface RegistrationAlertProps {
     /**
      * Severity of the alert. Defaults to "info".
      */

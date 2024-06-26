@@ -112,7 +112,7 @@ interface ScheduledShiftsSection {
 /**
  * Props accepted by the <VolunteerPageProps> component.
  */
-export interface VolunteerPageProps {
+interface VolunteerPageProps {
     /**
      * Unique ID of the volunteer for whom the page should be shown.
      */

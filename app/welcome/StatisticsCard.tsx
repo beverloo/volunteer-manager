@@ -18,7 +18,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 /**
  * Props accepted by the <StatisticsCard> component.
  */
-export interface StatisticsCardProps {
+interface StatisticsCardProps {
     /**
      * Title of the environment for which the card is being shown.
      */

@@ -26,7 +26,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 /**
  * Props accepted by the <ActivityDataTable> component.
  */
-export interface ActivityDataTableProps {
+interface ActivityDataTableProps {
     /**
      * Unique slug of the event for which activities should be shown.
      */

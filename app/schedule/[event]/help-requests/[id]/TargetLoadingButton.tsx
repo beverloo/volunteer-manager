@@ -11,7 +11,7 @@ import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColou
 /**
  * Props accepted by the <TargetLoadingButton> component.
  */
-export interface TargetLoadingButtonProps extends Omit<LoadingButtonProps, 'sx'> {
+interface TargetLoadingButtonProps extends Omit<LoadingButtonProps, 'sx'> {
     /**
      * Target of the help request. Used to determine the button's colour.
      */

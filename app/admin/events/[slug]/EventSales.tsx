@@ -15,7 +15,7 @@ import db, { tEvents, tEventsSales } from '@lib/database';
 /**
  * Props accepted by the <EventSales> component.
  */
-export interface EventSalesProps {
+interface EventSalesProps {
     /**
      * Unique slug of the event for which sales information should be shown.
      */

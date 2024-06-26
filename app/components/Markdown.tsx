@@ -86,7 +86,7 @@ function LinkComponent(props: LinkProps & { children?: React.ReactNode }) {
 /**
  * Properties accepted by the <Markdown> client-side component.
  */
-export interface MarkdownProps extends BoxProps {
+interface MarkdownProps extends BoxProps {
     /**
      * The content that should be displayed as the content of this component.
      */

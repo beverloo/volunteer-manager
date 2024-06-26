@@ -34,7 +34,7 @@ const kStyles: SxProps<Theme> = {
 /**
  * Props accepted by the <AdditionalEventCard> component.
  */
-export interface AdditionalEventCardProps {
+interface AdditionalEventCardProps {
     /**
      * Whether a link to the registration portal should be made available.
      */

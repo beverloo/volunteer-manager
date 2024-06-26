@@ -16,7 +16,7 @@ import { TransitionAlert, type TransitionAlertProps } from './TransitionAlert';
 /**
  * Props accepted by the <PublishAlert> component.
  */
-export interface PublishAlertProps
+interface PublishAlertProps
     extends Omit<TransitionAlertProps, 'elevation' | 'onClick' | 'severity'>
 {
     /**

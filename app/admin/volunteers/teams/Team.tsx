@@ -51,7 +51,7 @@ function ColorFieldElement(props: TextFieldElementProps) {
 /**
  * Props accepted by the <Team> component.
  */
-export interface TeamProps {
+interface TeamProps {
     /**
      * The roles that are availble on the Volunteer Manager. Teams are composed of people in various
      * different roles, which can be selected in this component.

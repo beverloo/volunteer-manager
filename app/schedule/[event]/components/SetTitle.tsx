@@ -8,7 +8,7 @@ import { setTitle } from '../ScheduleTitle';
 /**
  * Props accepted by the <SetTitle> component.
  */
-export interface SetTitleProps {
+interface SetTitleProps {
     /**
      * The title the schedule app should be updated to.
      */

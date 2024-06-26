@@ -76,7 +76,7 @@ async function updateTeamSettings(eventId: number, teamId: number, formData: unk
 /**
  * Props accepted by the <EventTeamSettings> component.
  */
-export interface EventTeamSettingsProps {
+interface EventTeamSettingsProps {
     /**
      * Unique ID of the event for which the settings are being displayed.
      */

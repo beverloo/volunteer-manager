@@ -14,7 +14,7 @@ import { SchedulerCard, type SchedulerStatus } from './SchedulerCard';
 /**
  * Props accepted by the <Dashboard> component.
  */
-export interface DashboardProps {
+interface DashboardProps {
     /**
      * Entry for each of the accessible events that should be displayed, if any.
      */

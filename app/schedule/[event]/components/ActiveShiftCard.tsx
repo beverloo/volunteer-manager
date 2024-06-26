@@ -20,7 +20,7 @@ import { toZonedDateTime } from '../CurrentTime';
 /**
  * Props accepted by the <ActiveShiftCard> component.
  */
-export interface ActiveShiftCardProps {
+interface ActiveShiftCardProps {
     /**
      * The shift that the volunteer is currently engaged in.
      */

@@ -24,7 +24,7 @@ const scheduleFetcher = (url: string) => fetch(url).then(r => r.json());
 /**
  * Props accepted by the <ScheduleContextManager> component.
  */
-export interface ScheduleContextManagerProps {
+interface ScheduleContextManagerProps {
     /**
      * Unique slug of the event for which the context should be managed.
      */

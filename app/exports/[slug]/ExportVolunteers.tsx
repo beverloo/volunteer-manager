@@ -46,7 +46,7 @@ function formatShirtFit(shirtFit?: string): string {
 /**
  * Props accepted by the <ExportVolunteers> component.
  */
-export interface ExportVolunteersProps {
+interface ExportVolunteersProps {
     /**
      * The volunteer data export that should be rendered by this component.
      */

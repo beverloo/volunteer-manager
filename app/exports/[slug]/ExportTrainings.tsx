@@ -76,7 +76,7 @@ function ExportTrainingTable(props: ExportTrainingTableProps) {
 /**
  * Props accepted by the <ExportTrainings> component.
  */
-export interface ExportTrainingsProps {
+interface ExportTrainingsProps {
     /**
      * The training data export that should be rendered by this component.
      */

@@ -30,7 +30,7 @@ const kOverlapOptions: ValueOptions[] = [
 /**
  * Props accepted by the <ShiftSettingsSection> component.
  */
-export interface ShiftSettingsSectionProps extends EventShiftContext {
+interface ShiftSettingsSectionProps extends EventShiftContext {
     /**
      * The activities that can be selected when creating this shift.
      */

@@ -64,7 +64,7 @@ export interface TrainingConfirmation {
 /**
  * Props accepted by the <TrainingOverview> component.
  */
-export interface TrainingOverviewProps {
+interface TrainingOverviewProps {
     /**
      * Confirmed participation in trainings that can be shown in a tabular view.
      */

@@ -12,7 +12,7 @@ import type { User } from '@lib/auth/User';
 /**
  * Props accepted by the <Header> component.
  */
-export interface HeaderProps {
+interface HeaderProps {
     /**
      * Information about the event for which applications are being shown.
      */

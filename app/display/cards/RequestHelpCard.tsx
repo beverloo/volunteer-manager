@@ -71,7 +71,7 @@ function RequestHelpButton(props: RequestHelpButtonProps) {
 /**
  * Props accepted by the <RequestHelpCard> component.
  */
-export interface RequestHelpCardProps {
+interface RequestHelpCardProps {
     /**
      * Whether advice can be requested through the card.
      */

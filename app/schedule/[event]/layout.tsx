@@ -48,7 +48,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <ScheduleLayout> component.
  */
-export interface ScheduleLayoutProps {
+interface ScheduleLayoutProps {
     /**
      * Parameters passed to the component by the NextJS router.
      */

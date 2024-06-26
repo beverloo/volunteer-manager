@@ -64,7 +64,7 @@ const TeamIdentityFooter = styled(TeamIdentityHeader)(({ theme }) => ({
 /**
  * Props accepted by the <EventTeamCard> component.
  */
-export interface EventTeamCardProps {
+interface EventTeamCardProps {
     /**
      * Name of the team for which this card is being displayed.
      */

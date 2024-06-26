@@ -27,7 +27,7 @@ const kFutureVolunteerEntryLimit = 9;
 /**
  * Props accepted by the <FutureVolunteersCard> component.
  */
-export interface FutureVolunteersCardProps {
+interface FutureVolunteersCardProps {
     /**
      * Information about the event for which the dialog is being shown.
      */

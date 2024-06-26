@@ -159,7 +159,7 @@ async function updateEventSettings(eventId: number, formData: unknown) {
 /**
  * Props accepted by the <EventSettings> component.
  */
-export interface EventSettingsProps {
+interface EventSettingsProps {
     /**
      * Unique ID of the event for which the settings are being displayed.
      */

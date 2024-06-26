@@ -10,7 +10,7 @@ import { Alert } from '../components/Alert';
 /**
  * Props accepted by the <ErrorCard> component.
  */
-export interface ErrorCardProps {
+interface ErrorCardProps {
     /**
      * Title of the error.
      */

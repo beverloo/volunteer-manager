@@ -15,7 +15,7 @@ import { CardTimeslotEntry, type CardTimeslot } from './CardTimeslotEntry';
 /**
  * Props accepted by the <CardTimeslotList> component.
  */
-export interface CardTimeslotListProps {
+interface CardTimeslotListProps {
     /**
      * Current Temporal ZonedDateTime based on which timing calculations will be done.
      */

@@ -71,7 +71,7 @@ export interface ParticipationInfo {
 /**
  * Props accepted by the <Participation> component.
  */
-export interface ParticipationProps {
+interface ParticipationProps {
     /**
      * Information about the participation as it should be rendered.
      */

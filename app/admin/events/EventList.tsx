@@ -92,7 +92,7 @@ export interface EventListEntry {
 /**
  * Props accepted by the <EventList> component.
  */
-export interface EventListProps {
+interface EventListProps {
     /**
      * The events that should be displayed on this page. There should be at least one.
      */

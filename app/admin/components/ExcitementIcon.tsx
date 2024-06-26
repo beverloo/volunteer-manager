@@ -24,7 +24,7 @@ export const kExcitementOptions: ValueOptions[] = [
 /**
  * Props accepted by the <ExcitementIcon> component.
  */
-export interface ExcitementIconProps {
+interface ExcitementIconProps {
     /**
      * The excitement level, must be between 0 and 1.
      */

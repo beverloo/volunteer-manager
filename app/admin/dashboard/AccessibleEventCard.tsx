@@ -49,7 +49,7 @@ export interface AccessibleEvent {
 /**
  * Props accepted by the <AccessibleEventCard> component.
  */
-export interface AccessibleEventCardProps {
+interface AccessibleEventCardProps {
     /**
      * The event that should be displayed on this page.
      */

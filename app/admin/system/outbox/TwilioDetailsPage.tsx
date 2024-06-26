@@ -23,7 +23,7 @@ import { WebhookDataTable } from '../webhooks/WebhookDataTable';
 /**
  * Props accepted by the <TwilioDetailsPage> component.
  */
-export interface TwilioDetailsPageProps {
+interface TwilioDetailsPageProps {
     /**
      * Type of message details should be shown for.
      */

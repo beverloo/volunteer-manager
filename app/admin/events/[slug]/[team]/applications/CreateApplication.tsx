@@ -128,7 +128,7 @@ const kDefaultApplicationValues = {
 /**
  * Props accepted by the <CreateApplication> component.
  */
-export interface CreateApplicationProps {
+interface CreateApplicationProps {
     /**
      * Information about the event for which applications are being shown.
      */

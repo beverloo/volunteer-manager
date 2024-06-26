@@ -21,7 +21,7 @@ export const VisibilityContext = createContext<boolean>(false);
 /**
  * Props accepted by the <ShiftTeamVisibilityContext> component.
  */
-export interface ShiftTeamVisibilityContextProps {
+interface ShiftTeamVisibilityContextProps {
     /**
      * Whether displayed context should be restricted to the current team.
      */

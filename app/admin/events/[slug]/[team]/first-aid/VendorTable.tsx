@@ -10,7 +10,7 @@ import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Typ
 /**
  * Props accepted by the <VendorTable> component.
  */
-export interface VendorTableProps {
+interface VendorTableProps {
     /**
      * Unique slug of the event for which the table is being displayed.
      */

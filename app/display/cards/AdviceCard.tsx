@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 /**
  * Props accepted by the <AdviceCard> component.
  */
-export interface AdviceCardProps {
+interface AdviceCardProps {
     /**
      * The advice that should be shown on the card.
      */

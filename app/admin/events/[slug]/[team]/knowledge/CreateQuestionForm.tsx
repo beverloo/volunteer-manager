@@ -20,7 +20,7 @@ import { nanoid } from '@lib/nanoid';
 /**
  * Props accepted by the <CreateQuestionForm> component.
  */
-export interface CreateQuestionFormProps {
+interface CreateQuestionFormProps {
     /**
      * Categories to which a question can be added.
      */

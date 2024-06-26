@@ -28,7 +28,7 @@ const kPreferencesLockedMarkdown =
 /**
  * Props accepted by the <TrainingPreferences> component.
  */
-export interface TrainingPreferencesProps {
+interface TrainingPreferencesProps {
     /**
      * Environment for which the preferences are being shown.
      */

@@ -46,7 +46,7 @@ export const kKnowledgeBaseIconTable: { [k: string]: typeof SvgIcon } = {
 /**
  * Props accepted by the <KnowledgeBaseIcon> component.
  */
-export interface KnowledgeBaseIconProps extends SvgIconProps {
+interface KnowledgeBaseIconProps extends SvgIconProps {
     /**
      * Variant of the icon to display.
      */

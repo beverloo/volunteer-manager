@@ -22,7 +22,7 @@ type ScheduleTense = 'past' | 'active' | 'future';
 /**
  * Props accepted by the <VolunteersDialog> component.
  */
-export interface VolunteersDialogProps {
+interface VolunteersDialogProps {
     /**
      * Callback to call when the dialog should be closed.
      */

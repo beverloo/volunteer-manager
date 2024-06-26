@@ -19,7 +19,7 @@ import { setTitle } from '../../ScheduleTitle';
 /**
  * Props accepted by the <LocationList> component.
  */
-export interface LocationListProps {
+interface LocationListProps {
     /**
      * Unique ID of the area, as should be known in the schedule's program.
      */

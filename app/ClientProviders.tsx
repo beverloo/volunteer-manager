@@ -16,7 +16,7 @@ import { dayjs } from '@lib/DateTime';
 /**
  * Props accepted by the <ClientProviders> component.
  */
-export interface ClientProvidersProps {
+interface ClientProvidersProps {
     /**
      * Whether dark mode should be enabled on the page. Defaults to `auto`.
      */

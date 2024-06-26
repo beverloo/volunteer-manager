@@ -32,7 +32,7 @@ type DialogResponse = { success: Content } | { error: Content } | { close: true 
  * Props accepted by the <SettingDialog> component. May optionally be typed by TFieldValues, which
  * will propagate to the form container and settings contained herein.
  */
-export interface SettingDialogProps<TFieldValues extends FieldValues = FieldValues> {
+interface SettingDialogProps<TFieldValues extends FieldValues = FieldValues> {
     /**
      * Label to display on the close button. Defaults to "Close".
      */

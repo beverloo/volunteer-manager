@@ -17,7 +17,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <RefundsTable> component.
  */
-export interface RefundsTableProps {
+interface RefundsTableProps {
     /**
      * Unique slug of the event refund request should be considered for.
      */

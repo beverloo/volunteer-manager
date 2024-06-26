@@ -15,7 +15,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <ExportAccess> component.
  */
-export interface ExportAccessProps {
+interface ExportAccessProps {
     /**
      * Views that were logged for this resource in the database.
      */

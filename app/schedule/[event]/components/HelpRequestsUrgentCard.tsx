@@ -13,7 +13,7 @@ import { Alert } from '../components/Alert';
 /**
  * Props accepted by the <HelpRequestsUrgentCard> component.
  */
-export interface HelpRequestsUrgentCardProps {
+interface HelpRequestsUrgentCardProps {
     /**
      * Number of pending help requests that are still to be answered.
      */

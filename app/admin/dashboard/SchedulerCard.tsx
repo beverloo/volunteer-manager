@@ -44,7 +44,7 @@ export interface SchedulerStatus {
 /**
  * Props accepted by the <SchedulerCard> component.
  */
-export interface SchedulerCardProps {
+interface SchedulerCardProps {
     /**
      * Status of the scheduler at time of the current request.
      */

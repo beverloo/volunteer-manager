@@ -29,7 +29,7 @@ export type AnimeConSettings = AnimeConClientSettings;
 /**
  * Props accepted by the <AnimeCon> component.
  */
-export interface GoogleProps {
+interface GoogleProps {
     /**
      * The settings for which this integration should be displayed.
      */

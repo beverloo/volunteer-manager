@@ -42,7 +42,7 @@ const LazyCalendarPopover = dynamic(() => import('./CalendarPopover'), { ssr: fa
 /**
  * Props accepted by the <OverviewVendorCard> component.
  */
-export interface OverviewVendorCardProps {
+interface OverviewVendorCardProps {
     /**
      * The vendor team for whom this card should be displayed.
      */

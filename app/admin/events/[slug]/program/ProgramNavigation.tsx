@@ -16,7 +16,7 @@ import Tab from '@mui/material/Tab';
 /**
  * Props accepted by the <ProgramNavigation> component.
  */
-export interface ProgramNavigationProps {
+interface ProgramNavigationProps {
     /**
      * Slug of the event for which the navigation is being shown.
      */

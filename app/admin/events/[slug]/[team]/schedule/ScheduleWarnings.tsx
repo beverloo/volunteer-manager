@@ -12,7 +12,7 @@ import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 /**
  * Props accepted by the <ScheduleWarnings> component.
  */
-export interface ScheduleWarningsProps {
+interface ScheduleWarningsProps {
     /**
      * Whether the warnings should be expanded by default.
      */

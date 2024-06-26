@@ -56,7 +56,7 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
 /**
  * Props accepted by the <ApplicationAvailabilityForm> component.
  */
-export interface ApplicationAvailabilityFormProps {
+interface ApplicationAvailabilityFormProps {
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
@@ -100,7 +100,7 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
 /**
  * Props accepted by the <ApplicationParticipationForm> component.
  */
-export interface ApplicationParticipationFormProps {
+interface ApplicationParticipationFormProps {
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */

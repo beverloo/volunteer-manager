@@ -98,7 +98,7 @@ function LogTime(props: { time: number }) {
 /**
  * Props accepted by the <DetailedLogs> component.
  */
-export interface DetailedLogsProps {
+interface DetailedLogsProps {
     /**
      * The log entries that should be displayed in this component.
      */

@@ -11,7 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 /**
  * Props accepted by the <EventSettingsForm> component.
  */
-export interface EventSettingsFormProps {
+interface EventSettingsFormProps {
     /**
      * Whether the event slug should be mutable.
      */

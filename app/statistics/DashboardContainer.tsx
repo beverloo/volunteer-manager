@@ -14,7 +14,7 @@ import { kStyles } from '../registration/RegistrationHeader';
 /**
  * Props accepted by the <DashboardContainer> component.
  */
-export interface DashboardContainerProps {
+interface DashboardContainerProps {
     /**
      * Title that should be displayed at the top of the container, if any.
      */

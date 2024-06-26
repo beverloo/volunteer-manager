@@ -48,7 +48,7 @@ interface ContactInfo {
 /**
  * Props accepted by the <VolunteerIdentity> component.
  */
-export interface VolunteerIdentityProps {
+interface VolunteerIdentityProps {
     /**
      * Slug of the event for which this box is being displayed.
      */

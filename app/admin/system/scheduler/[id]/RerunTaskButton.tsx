@@ -18,7 +18,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <RerunTaskButton> component.
  */
-export interface RerunTaskButtonProps {
+interface RerunTaskButtonProps {
     /**
      * Unique ID of the task that should be re-run when queried.
      */

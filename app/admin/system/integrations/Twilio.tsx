@@ -21,7 +21,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <Twilio> component.
  */
-export interface TwilioProps {
+interface TwilioProps {
     /**
      * The settings for which this integration should be displayed.
      */

@@ -72,7 +72,7 @@ function PaperHeaderClearButton(props: PaperHeaderClearButtonProps) {
 /**
  * Props accepted by the <PaperHeader> component.
  */
-export interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, 'children'> {
+interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, 'children'> {
     /**
      * Title to display in the header.
      */

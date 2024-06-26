@@ -33,7 +33,7 @@ const kMessageSizeUnit = [ 'bytes', 'KiB', 'MiB', 'GiB' ];
 /**
  * Props accepted by the <WebhookDataTable> component.
  */
-export interface WebhookDataTableProps {
+interface WebhookDataTableProps {
     /**
      * Filter for Twilio webhooks to filter by a particular message SID.
      */

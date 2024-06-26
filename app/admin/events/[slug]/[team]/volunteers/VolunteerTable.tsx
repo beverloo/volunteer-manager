@@ -67,7 +67,7 @@ export interface VolunteerInfo {
 /**
  * Props accepted by the <VolunteerTable> component.
  */
-export interface VolunteerTableProps extends NextPageParams<'slug' | 'team'> {
+interface VolunteerTableProps extends NextPageParams<'slug' | 'team'> {
     /**
      * Whether a link to the data export tool should be displayed on the page.
      */

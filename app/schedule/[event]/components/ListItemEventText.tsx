@@ -12,7 +12,7 @@ import { kEnforceSingleLine } from '../Constants';
 /**
  * Props accepted by the <ListItemEventText> component.
  */
-export interface ListItemEventTextProps {
+interface ListItemEventTextProps {
     /**
      * Whether the event is hidden from visitors.
      */

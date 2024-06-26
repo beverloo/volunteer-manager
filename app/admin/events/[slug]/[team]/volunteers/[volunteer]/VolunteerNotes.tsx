@@ -14,7 +14,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <VolunteerNotes> component.
  */
-export interface VolunteerNotesProps {
+interface VolunteerNotesProps {
     /**
      * Slug of the event for which a volunteer is being displayed.
      */

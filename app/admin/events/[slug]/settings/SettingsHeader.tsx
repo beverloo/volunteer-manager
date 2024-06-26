@@ -49,7 +49,7 @@ const kSlugDescription =
 /**
  * Props accepted by the <SettingsHeader> component.
  */
-export interface SettingsHeaderProps {
+interface SettingsHeaderProps {
     /**
      * Information about the event whose settings are being changed.
      */

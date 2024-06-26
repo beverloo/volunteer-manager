@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 /**
  * Props accepted by the <EventIdentityCard> component.
  */
-export interface EventIdentityCardProps {
+interface EventIdentityCardProps {
     event: {
         /**
          * Hash of the file at which the event's identity image has been stored.

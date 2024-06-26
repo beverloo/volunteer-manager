@@ -55,7 +55,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <ApplicationAvailability> component.
  */
-export interface ApplicationAvailabilityProps {
+interface ApplicationAvailabilityProps {
     /**
      * Information about the event this volunteer will participate in.
      */

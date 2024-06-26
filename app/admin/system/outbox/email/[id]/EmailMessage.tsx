@@ -25,7 +25,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <EmailMessage> component.
  */
-export interface EmailMessageProps {
+interface EmailMessageProps {
     /**
      * ID of the message that's due to be rendered.
      */

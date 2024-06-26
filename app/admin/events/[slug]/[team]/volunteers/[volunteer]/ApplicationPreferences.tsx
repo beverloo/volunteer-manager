@@ -26,7 +26,7 @@ const kSelectOptions = [
 /**
  * Props accepted by the <ApplicationPreferences> component.
  */
-export interface ApplicationPreferencesProps {
+interface ApplicationPreferencesProps {
     /**
      * Slug of the event for which application metadata is being shown.
      */

@@ -16,7 +16,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 /**
  * Props accepted by the <KnowledgeCategories> component.
  */
-export interface KnowledgeCategoriesProps {
+interface KnowledgeCategoriesProps {
     /**
      * Whether the section should be expanded by default.
      */

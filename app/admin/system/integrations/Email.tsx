@@ -21,7 +21,7 @@ export type EmailSettings = EmailClientSettings;
 /**
  * Props accepted by the <EmailProps> component.
  */
-export interface EmailProps {
+interface EmailProps {
     /**
      * The settings for which this integration should be displayed.
      */

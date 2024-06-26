@@ -103,7 +103,7 @@ function toDateString(input: Date): string {
 /**
  * Props accepted by the <HotelAssignment> component.
  */
-export interface HotelAssignmentProps {
+interface HotelAssignmentProps {
     /**
      * Information about the event for which hotel rooms are being shown.
      */

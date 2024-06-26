@@ -21,7 +21,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <FeedbackDialog> component.
  */
-export interface FeedbackDialogProps {
+interface FeedbackDialogProps {
     /**
      * To be called when the notes dialog has been closed.
      */

@@ -24,7 +24,7 @@ import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 /**
  * Props accepted by the <Information> component.
  */
-export interface InformationProps {
+interface InformationProps {
     /**
      * The account of the volunteer for whom this page container.
      */

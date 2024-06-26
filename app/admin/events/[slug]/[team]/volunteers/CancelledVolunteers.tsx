@@ -16,7 +16,7 @@ import { ContrastBox } from '@app/admin/components/ContrastBox';
 /**
  * Props accepted by the <CancelledVolunteers> component.
  */
-export interface CancelledVolunteersProps {
+interface CancelledVolunteersProps {
     /**
      * The volunteers that have cancelled.
      */

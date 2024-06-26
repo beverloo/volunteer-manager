@@ -33,7 +33,7 @@ export type ConfigurableSetting = {
 /**
  * Props accepted by the <SettingSection> component.
  */
-export interface SettingSectionProps {
+interface SettingSectionProps {
     /**
      * Settings that should be displayed in this section.
      */

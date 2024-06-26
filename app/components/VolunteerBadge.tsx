@@ -18,7 +18,7 @@ export { VolunteerBadgeVariant };
 /**
  * Props accepted by the <VolunteerBadge> component.
  */
-export interface VolunteerBadgeProps extends SvgIconProps {
+interface VolunteerBadgeProps extends SvgIconProps {
     /**
      * Variant of volunteer badge that should be displayed.
      */

@@ -36,7 +36,7 @@ const kMarkerBackgroundColor = {
 /**
  * Props accepted by the <ScheduleImpl> component.
  */
-export interface ScheduleImplProps {
+interface ScheduleImplProps {
     /**
      * Whether the schedule should be displayed in read-only mode.
      */

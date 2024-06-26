@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 /**
  * Props accepted by the <Square> component.
  */
-export interface SquareProps {
+interface SquareProps {
     /**
      * Colour, in an HTML-renderable format, to render the square in.
      */

@@ -24,7 +24,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <AcknowledgeForm> component.
  */
-export interface AcknowledgeFormProps {
+interface AcknowledgeFormProps {
     /**
      * Unique slug of the event for which the request is in scope.
      */

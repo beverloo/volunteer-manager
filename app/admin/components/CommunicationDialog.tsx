@@ -31,7 +31,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <CommunicationDialog> component.
  */
-export interface CommunicationDialogProps {
+interface CommunicationDialogProps {
     /**
      * Whether sending out a communication can be skipped altogether. Should be guarded behind a
      * permission, and should ideally be used rarely.

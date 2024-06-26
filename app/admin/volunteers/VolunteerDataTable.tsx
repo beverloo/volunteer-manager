@@ -40,7 +40,7 @@ interface VolunteerRowModel {
 /**
  * Props accepted by the <VolunteerDataTable> component.
  */
-export interface VolunteerDataTableProps {
+interface VolunteerDataTableProps {
     /**
      * Initial set of filters, provided in case the user has modified their selection.
      */

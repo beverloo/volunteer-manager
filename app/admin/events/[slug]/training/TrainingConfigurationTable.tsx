@@ -10,7 +10,7 @@ import { Temporal, formatDate, fromLocalDate, toLocalDate } from '@lib/Temporal'
 /**
  * Props accepted by the <TrainingConfigurationTable> component.
  */
-export interface TrainingConfigurationTableProps {
+interface TrainingConfigurationTableProps {
     /**
      * The event for which this table is being displayed.
      */

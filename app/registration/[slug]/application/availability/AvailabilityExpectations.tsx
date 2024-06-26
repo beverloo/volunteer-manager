@@ -147,7 +147,7 @@ function AvailabilityExpectationDay(props: { info: AvailabilityDayInfo }) {
 /**
  * Props accepted by the <AvailabilityExpectations> component.
  */
-export interface AvailabilityExpectationsProps {
+interface AvailabilityExpectationsProps {
     /**
      * Ordered list of the days and the volunteer's availability across the festival.
      */

@@ -16,7 +16,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <KnowledgeList> component.
  */
-export interface KnowledgeListProps {
+interface KnowledgeListProps {
     /**
      * Whether links to the author's volunteer page should be enabled.
      */

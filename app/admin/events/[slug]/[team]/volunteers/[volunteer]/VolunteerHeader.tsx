@@ -325,7 +325,7 @@ function ChangeTeamDialog(props: ChangeTeamDialogProps) {
 /**
  * Props accepted by the <VolunteerHeader> component.
  */
-export interface VolunteerHeaderProps {
+interface VolunteerHeaderProps {
     /**
      * Information about the event this volunteer will participate in.
      */

@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper';
 /**
  * Props accepted by the <Section> component.
  */
-export interface SectionProps {
+interface SectionProps {
     // TODO
 }
 

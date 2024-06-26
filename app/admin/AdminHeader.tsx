@@ -62,7 +62,7 @@ export interface AdminHeaderEventEntry {
 /**
  * Props accepted by the <AdminHeader> component.
  */
-export interface AdminHeaderProps {
+interface AdminHeaderProps {
     /**
      * The events to display in the header, if any.
      */

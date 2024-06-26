@@ -42,7 +42,7 @@ export interface DatabaseStatus {
 /**
  * Props accepted by the <DatabaseCard> component.
  */
-export interface DatabaseCardProps {
+interface DatabaseCardProps {
     /**
      * Status of the database connection during the current request.
      */

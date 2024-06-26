@@ -50,7 +50,7 @@ export interface HotelPendingRequestRowModel {
 /**
  * Props accepted by the <HotelPendingAssignment> component.
  */
-export interface HotelPendingAssignmentProps {
+interface HotelPendingAssignmentProps {
     /**
      * The requests that have not been assigned to any rooms yet.
      */

@@ -60,7 +60,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <RemoteContent> component.
  */
-export interface RemoteContentProps {
+interface RemoteContentProps {
     /**
      * Event for which the remote content is being rendered.
      */

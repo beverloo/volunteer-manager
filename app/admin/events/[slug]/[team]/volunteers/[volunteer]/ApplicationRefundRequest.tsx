@@ -18,7 +18,7 @@ import { Privilege } from '@lib/auth/Privileges';
 /**
  * Props accepted by the <ApplicationRefundRequest> component.
  */
-export interface ApplicationRefundRequestProps {
+interface ApplicationRefundRequestProps {
     /**
      * Slug of the event for which the refund request is shown.
      */

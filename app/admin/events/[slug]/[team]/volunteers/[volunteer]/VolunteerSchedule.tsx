@@ -12,7 +12,7 @@ import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 /**
  * Props accepted by the <VolunteerSchedule> component.
  */
-export interface VolunteerScheduleProps {
+interface VolunteerScheduleProps {
     /**
      * Information about the event this volunteer will participate in.
      */

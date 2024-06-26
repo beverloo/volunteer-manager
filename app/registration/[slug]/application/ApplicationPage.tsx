@@ -101,7 +101,7 @@ export interface PartneringTeamApplication {
 /**
  * Props accepted by the <ApplicationPage> component.
  */
-export interface ApplicationPageProps {
+interface ApplicationPageProps {
     /**
      * The content that should be displayed on the registration page.
      */

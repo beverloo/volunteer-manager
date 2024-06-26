@@ -56,7 +56,7 @@ export interface GoogleSettings {
 /**
  * Props accepted by the <Google> component.
  */
-export interface GoogleProps {
+interface GoogleProps {
     /**
      * The settings for which this integration should be displayed.
      */

@@ -19,7 +19,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 /**
  * Props accepted by the <LocationDataTable> component.
  */
-export interface LocationDataTableProps {
+interface LocationDataTableProps {
     /**
      * Areas that exist during this festival, which locations can be located in.
      */

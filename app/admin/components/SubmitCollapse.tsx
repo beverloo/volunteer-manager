@@ -13,7 +13,7 @@ import { styled } from '@mui/material/styles';
 /**
  * Props accepted by the <SubmitCollapse> component.
  */
-export interface SubmitCollapseProps extends BoxProps {
+interface SubmitCollapseProps extends BoxProps {
     /**
      * Error message that should be displayed in case anything went wrong.
      */

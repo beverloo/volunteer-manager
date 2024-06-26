@@ -31,7 +31,7 @@ export function validateContentPath(value: FieldValue<FieldValues>): true | stri
 /**
  * Props accepted by the <ContentCreate> component.
  */
-export interface ContentCreateProps {
+interface ContentCreateProps {
     /**
      * Prefix to display at the beginning of the content's path.
      */

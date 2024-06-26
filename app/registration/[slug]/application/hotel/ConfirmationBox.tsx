@@ -30,7 +30,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <ConfirmationBox> component.
  */
-export interface ConfirmationBoxProps {
+interface ConfirmationBoxProps {
     /**
      * Title to display in the box.
      */

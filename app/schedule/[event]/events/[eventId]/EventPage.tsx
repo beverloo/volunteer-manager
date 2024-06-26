@@ -134,7 +134,7 @@ interface VolunteerInfo {
 /**
  * Props accepted by the <EventPage>.
  */
-export interface EventPageProps {
+interface EventPageProps {
     /**
      * Unique ID of the activity this page will be shown for.
      */

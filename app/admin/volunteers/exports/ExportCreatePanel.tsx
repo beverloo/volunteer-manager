@@ -51,7 +51,7 @@ const kViewsOptions = [
 /**
  * Props accepted by the <ExportCreatePanel> component.
  */
-export interface ExportCreatePanelProps {
+interface ExportCreatePanelProps {
     /**
      * Events for which data exports can currently be created.
      */

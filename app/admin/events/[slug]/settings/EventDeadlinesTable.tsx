@@ -29,7 +29,7 @@ function toDateString(input?: Date): string {
 /**
  * Props accepted by the <EventDeadlinesTable> component.
  */
-export interface EventDeadlinesTableProps {
+interface EventDeadlinesTableProps {
     /**
      * Information about the event whose settings are being changed.
      */

@@ -17,7 +17,7 @@ import { Temporal } from '@lib/Temporal';
 /**
  * Props accepted by the <TrainingExternal> component.
  */
-export interface TrainingExternalProps {
+interface TrainingExternalProps {
     /**
      * Information about the event for which extra training participants are being shown.
      */

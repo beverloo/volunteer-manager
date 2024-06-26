@@ -26,7 +26,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <ExportAvailable> component.
  */
-export interface ExportAvailableProps {
+interface ExportAvailableProps {
     /**
      * Metadata about the export that's being presented on this page.
      */

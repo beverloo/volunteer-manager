@@ -61,7 +61,7 @@ function ActiveVolunteerCard(props: ActiveVolunteerCardProps) {
 /**
  * Props accepted by the <ActiveVolunteersCard> component.
  */
-export interface ActiveVolunteersCardProps {
+interface ActiveVolunteersCardProps {
     /**
      * Timezone in which any times should be displayed in the user interface.
      */

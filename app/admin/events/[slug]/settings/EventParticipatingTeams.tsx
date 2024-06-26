@@ -13,7 +13,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 /**
  * Props accepted by the <EventParticipatingTeams> component.
  */
-export interface EventParticipatingTeamsProps {
+interface EventParticipatingTeamsProps {
     /**
      * Information about the event whose settings are being changed.
      */

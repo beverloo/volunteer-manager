@@ -52,7 +52,7 @@ const kExceptionTypeOptions = [
 /**
  * Props accepted by the <AvailabilityTimelineImpl> component.
  */
-export interface AvailabilityTimelineImplProps {
+interface AvailabilityTimelineImplProps {
     /**
      * Called when any mutation has been made to the availability timeline, which includes created
      * events, updated events and deleted events.

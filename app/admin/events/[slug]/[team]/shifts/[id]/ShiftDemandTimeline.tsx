@@ -40,7 +40,7 @@ export interface ShiftDemandTeamInfo {
 /**
  * Props accepted by the <ShiftDemandTimeline> component.
  */
-export interface ShiftDemandTimelineProps {
+interface ShiftDemandTimelineProps {
     /**
      * Called when any mutation has been made to the demand.
      */

@@ -12,7 +12,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 /**
  * Props accepted by the <TrainingPreferencesForm> component.
  */
-export interface TrainingPreferencesFormProps {
+interface TrainingPreferencesFormProps {
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */

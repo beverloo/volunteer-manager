@@ -13,7 +13,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <HotelConfirmation> component.
  */
-export interface HotelConfirmationProps {
+interface HotelConfirmationProps {
     /**
      * The hotel room bookings for which confirmation is being shown.
      */

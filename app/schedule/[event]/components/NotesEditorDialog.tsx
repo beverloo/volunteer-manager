@@ -19,7 +19,7 @@ import { Alert } from '../components/Alert';
 /**
  * Props accepted by the <NotesEditorDialog> component.
  */
-export interface NotesEditorDialogProps {
+interface NotesEditorDialogProps {
     /**
      * To be called when the notes dialog has been closed.
      */

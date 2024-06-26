@@ -36,7 +36,7 @@ const kPreferencesLockedMarkdown =
 /**
  * Props accepted by the <AvailabilityPreferences> component.
  */
-export interface AvailabilityPreferencesProps {
+interface AvailabilityPreferencesProps {
     /**
      * Name of the environment describing the team the volunteer is part of.
      */

@@ -27,7 +27,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <CloseForm> component.
  */
-export interface CloseFormProps {
+interface CloseFormProps {
     /**
      * Unique slug of the event for which the request is in scope.
      */

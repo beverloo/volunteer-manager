@@ -70,7 +70,7 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
 /**
  * Props accepted by the <TrainingConfiguration> component.
  */
-export interface TrainingConfigurationProps {
+interface TrainingConfigurationProps {
     /**
      * Information about the event for which training sessions are being shown.
      */

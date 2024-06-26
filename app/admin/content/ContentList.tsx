@@ -15,7 +15,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <ContentList> component.
  */
-export interface ContentListProps {
+interface ContentListProps {
     /**
      * Enables whether the author should be a link through to their account page. Those pages are
      * not available to everyone, hence why this must be explicitly enabled.

@@ -12,7 +12,7 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 /**
  * Props accepted by the <GotoTaskButton> component.
  */
-export interface GotoTaskButtonProps {
+interface GotoTaskButtonProps {
     /**
      * Unique ID of the task that should be navigated to when activated.
      */

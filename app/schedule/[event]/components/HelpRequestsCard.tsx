@@ -14,7 +14,7 @@ import ReadMoreIcon from '@mui/icons-material/ReadMore';
 /**
  * Props accepted by the <HelpRequestsCard> component.
  */
-export interface HelpRequestsCardProps {
+interface HelpRequestsCardProps {
     /**
      * Number of pending help requests that are still to be answered.
      */

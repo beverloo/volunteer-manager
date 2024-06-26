@@ -24,7 +24,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <RejectedApplications> component.
  */
-export interface RejectedApplicationsProps {
+interface RejectedApplicationsProps {
     /**
      * The applications that were rejected.
      */

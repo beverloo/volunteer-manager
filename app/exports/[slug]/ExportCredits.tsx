@@ -19,7 +19,7 @@ import type { CreditsDataExport } from '@app/api/exports/route';
 /**
  * Props accepted by the <ExportCredits> component.
  */
-export interface ExportCreditsProps {
+interface ExportCreditsProps {
     /**
      * The credit data export that should be rendered by this component.
      */

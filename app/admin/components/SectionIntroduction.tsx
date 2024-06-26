@@ -6,7 +6,7 @@ import Alert from '@mui/material/Alert';
 /**
  * Props accepted by the <SectionIntroduction> component.
  */
-export interface SectionIntroductionProps {
+interface SectionIntroductionProps {
     /**
      * Whether the introduction is important and should receive additional emphasis.
      */

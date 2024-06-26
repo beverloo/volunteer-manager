@@ -53,7 +53,7 @@ export interface CardTimeslot {
 /**
  * Props accepted by the <CardTimeslotEntry> component.
  */
-export interface CardTimeslotEntryProps {
+interface CardTimeslotEntryProps {
     /**
      * Current Temporal ZonedDateTime based on which timing calculations will be done.
      */

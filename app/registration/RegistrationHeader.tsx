@@ -49,7 +49,7 @@ export const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <RegistrationHeader> client component.
  */
-export interface RegistrationHeaderProps {
+interface RegistrationHeaderProps {
     /**
      * To be called when the user chip has been clicked on, indicating that the authentication flow
      * should be opened. This works the same for guests and signed in users.

@@ -34,7 +34,7 @@ export interface Birthday {
 /**
  * Props accepted by the <BirthdayCard> component.
  */
-export interface BirthdayCardProps {
+interface BirthdayCardProps {
     /**
      * Birthdays that should be rendered in the component.
      */

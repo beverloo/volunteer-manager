@@ -14,7 +14,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <AiPromptPersonality> component.
  */
-export interface AiPromptPersonalityProps {
+interface AiPromptPersonalityProps {
     /**
      * Base personality shared across the different prompts.
      */

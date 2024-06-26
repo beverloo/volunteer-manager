@@ -45,7 +45,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <VolunteerPrivileges> component.
  */
-export interface VolunteerPrivilegesProps {
+interface VolunteerPrivilegesProps {
     /**
      * ID of the user for whom privileges are being displayed.
      */

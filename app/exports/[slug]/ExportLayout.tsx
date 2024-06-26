@@ -15,7 +15,7 @@ import { kLogoContainerStyles } from '@app/registration/RegistrationLayout';
 /**
  * Props accepted by the <ExportLayout> component.
  */
-export interface ExportLayoutProps {
+interface ExportLayoutProps {
     /**
      * Name of the event for which the page is being displayed.
      */

@@ -18,7 +18,7 @@ import { formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <UpcomingShiftCard> component.
  */
-export interface UpcomingShiftCardProps {
+interface UpcomingShiftCardProps {
     /**
      * The shift that will soon start for the volunteer.
      */

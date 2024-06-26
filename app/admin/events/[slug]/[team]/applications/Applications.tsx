@@ -274,7 +274,7 @@ function Application(props: ApplicationProps) {
 /**
  * Props accepted by the <Applications> component.
  */
-export interface ApplicationsProps {
+interface ApplicationsProps {
     /**
      * Whether sending out a communication can be skipped altogether. Should be guarded behind a
      * permission, and should ideally be used rarely.

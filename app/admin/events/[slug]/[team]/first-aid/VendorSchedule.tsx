@@ -58,7 +58,7 @@ export interface VendorScheduleDisplayEntry {
 /**
  * Props accepted by the <VendorSchedule> component.
  */
-export interface VendorScheduleProps {
+interface VendorScheduleProps {
     /**
      * The event for which the schedule is being displayed.
      */

@@ -21,7 +21,7 @@ import { Privilege } from '@lib/auth/Privileges';
 /**
  * Props accepted by the <ApplicationHotelPreferences> component.
  */
-export interface ApplicationHotelPreferencesProps {
+interface ApplicationHotelPreferencesProps {
     /**
      * The event for which the hotel preferences are being shown.
      */

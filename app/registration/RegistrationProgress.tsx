@@ -100,7 +100,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <RegistrationProgress> component.
  */
-export interface RegistrationProgressProps {
+interface RegistrationProgressProps {
     /**
      * The event for which the given `registration` applies.
      */

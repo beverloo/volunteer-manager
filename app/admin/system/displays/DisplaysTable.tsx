@@ -29,7 +29,7 @@ export type DisplayTableLocationOption = { value: number; label: string; eventId
 /**
  * Props accepted by the <DisplaysTable> component.
  */
-export interface DisplaysTableProps {
+interface DisplaysTableProps {
     /**
      * The events with which a display can be associated.
      */

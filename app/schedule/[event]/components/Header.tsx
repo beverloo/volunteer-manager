@@ -15,7 +15,7 @@ import { kEnforceSingleLine } from '../Constants';
 /**
  * Props accepted by the <Header> component.
  */
-export interface HeaderProps {
+interface HeaderProps {
     /**
      * Primary title to display on the header.
      */

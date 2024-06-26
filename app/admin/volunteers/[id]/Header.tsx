@@ -214,7 +214,7 @@ function ImpersonationDialog(props: DialogProps) {
 /**
  * Props accepted by the <Header> component.
  */
-export interface HeaderProps {
+interface HeaderProps {
     /**
      * Information about the account of the volunteer for whom the header is shown.
      */

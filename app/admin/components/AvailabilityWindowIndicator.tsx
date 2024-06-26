@@ -14,7 +14,7 @@ import { dayjs } from '@lib/DateTime';
 /**
  * Props accepted by the <AvailabilityWindowIndicator> component.
  */
-export interface AvailabilityWindowIndicatorProps {
+interface AvailabilityWindowIndicatorProps {
     /**
      * Names of the fields, both the start and end of the window, that should be observed in order
      * to determine whether the window is currently active or not.

@@ -20,7 +20,7 @@ import { VisibilityContext } from './ShiftTeamVisibilityContext';
 /**
  * Props accepted by the <ScheduledShiftsSection> component.
  */
-export interface ScheduledShiftsSectionProps {
+interface ScheduledShiftsSectionProps {
     /**
      * Whether this section should be expanded by default.
      */

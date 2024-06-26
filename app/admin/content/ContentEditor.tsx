@@ -38,7 +38,7 @@ const ContentEditorMdx = dynamic(() => import('./ContentEditorMdx'), { ssr: fals
 /**
  * Props accepted by the <ContentEditor> component.
  */
-export interface ContentEditorProps extends SectionHeaderProps {
+interface ContentEditorProps extends SectionHeaderProps {
     /**
      * Categories that can be assigned to the editor. Will be ignored when absent.
      */

@@ -246,7 +246,7 @@ function InteractiveResponseIdlePanel() {
 /**
  * Props for the <VertexAI> component.
  */
-export interface VertexAIProps {
+interface VertexAIProps {
     /**
      * The Vertex AI settings that apply while the page is being loaded. May be modified during this
      * component's lifetime, however changes can be tried out first.

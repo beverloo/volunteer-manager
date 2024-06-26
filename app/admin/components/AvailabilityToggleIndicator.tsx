@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 /**
  * Props accepted by the <AvailabilityToggleIndicator> component.
  */
-export interface AvailabilityToggleIndicatorProps {
+interface AvailabilityToggleIndicatorProps {
     /**
      * Names of the fields that should be observed in order to determine whether the setting is
      * currently marked as available.

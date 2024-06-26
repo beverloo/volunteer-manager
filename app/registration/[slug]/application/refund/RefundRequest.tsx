@@ -29,7 +29,7 @@ const kPreferencesLockedMarkdown =
 /**
  * Props accepted by the <RefundRequest> component.
  */
-export interface RefundRequestProps {
+interface RefundRequestProps {
     /**
      * Slug of the event for which the refund request is being shown.
      */

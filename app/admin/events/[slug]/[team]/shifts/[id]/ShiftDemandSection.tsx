@@ -17,7 +17,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <ShiftDemandSection> component.
  */
-export interface ShiftDemandSectionProps {
+interface ShiftDemandSectionProps {
     /**
      * Information about the event for which the demand section is being shown.
      */

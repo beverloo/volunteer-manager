@@ -19,7 +19,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <TwilioDataTable> component.
  */
-export interface TwilioDataTableProps {
+interface TwilioDataTableProps {
     /**
      * Type of messages that the data table should consider.
      */

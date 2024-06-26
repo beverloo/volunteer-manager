@@ -12,7 +12,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <RefundConfirmation> component.
  */
-export interface RefundConfirmationProps {
+interface RefundConfirmationProps {
     /**
      * The refund request that we're displaying a confirmation for, if any.
      */

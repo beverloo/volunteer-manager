@@ -87,7 +87,7 @@ export function determineColour(name: string): string {
 /**
  * Props accepted by the <Avatar> component.
  */
-export interface AvatarProps {
+interface AvatarProps {
     /**
      * The badge that should be displayed on the avatar, if any. It will be displayed in the bottom-
      * right corner considering the `variant`.

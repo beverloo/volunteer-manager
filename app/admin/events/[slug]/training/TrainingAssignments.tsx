@@ -23,7 +23,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 /**
  * Props accepted by the <TrainingAssignments> component.
  */
-export interface TrainingAssignmentsProps {
+interface TrainingAssignmentsProps {
     /**
      * Slug of the event for which assignments are being shown.
      */

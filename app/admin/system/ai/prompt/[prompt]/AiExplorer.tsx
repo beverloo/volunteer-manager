@@ -38,7 +38,7 @@ const kLanguageOptions = [
 /**
  * Props accepted by the <AiExplorer> component.
  */
-export interface AiExplorerProps {
+interface AiExplorerProps {
     /**
      * The personality common across all prompts.
      */

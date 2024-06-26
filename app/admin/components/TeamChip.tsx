@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 /**
  * Props accepted by the <TeamChip> component.
  */
-export interface TeamChipProps {
+interface TeamChipProps {
     /**
      * Colours in which the team chip should be rendered.
      */

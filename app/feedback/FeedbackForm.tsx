@@ -22,7 +22,7 @@ import { callApi } from '@lib/callApi';
 /**
  * Props accepted by the <FeedbackForm> component.
  */
-export interface FeedbackFormProps {
+interface FeedbackFormProps {
     /**
      * When available, introduction that should be shown at the top of the form.
      */

@@ -208,7 +208,7 @@ function Search(schedule: PublicSchedule, query: string, limit: number) {
 /**
  * Props accepted by the <SearchResults> component.
  */
-export interface SearchResultsProps {
+interface SearchResultsProps {
     /**
      * The element to which the search results should be anchored. Can be undefined when the search
      * bar element hasn't been mounted to the DOM yet.

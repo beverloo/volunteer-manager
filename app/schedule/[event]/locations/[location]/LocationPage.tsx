@@ -100,7 +100,7 @@ interface TimeslotSectionInfo {
 /**
  * Props accepted by the <LocationPage>.
  */
-export interface LocationPageProps {
+interface LocationPageProps {
     /**
      * Unique ID of the location to display on this page.
      */

@@ -109,7 +109,7 @@ function EventDateTicker(props: EventDateTickerProps) {
 /**
  * Props accepted by the <EventMetadata> component.
  */
-export interface EventMetadataProps {
+interface EventMetadataProps {
     /**
      * Information about the event that's being shown.
      */

@@ -287,7 +287,7 @@ function RenderSidebarMenu(props: RenderSidebarMenuProps) {
 /**
  * Props accepted by the <AdminSidebar> component.
  */
-export interface AdminSidebarProps extends RenderSidebarMenuProps {
+interface AdminSidebarProps extends RenderSidebarMenuProps {
     /**
      * Title to display at the top of the sidebar.
      */

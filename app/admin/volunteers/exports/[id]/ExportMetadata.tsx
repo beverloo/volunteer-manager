@@ -19,7 +19,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <ExportMetadata> component.
  */
-export interface ExportMetadataProps {
+interface ExportMetadataProps {
     /**
      * Metadata of the export that is expected to be available by this component.
      */

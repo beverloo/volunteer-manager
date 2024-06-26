@@ -13,7 +13,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props accepted by the <TrainingConfirmation> component.
  */
-export interface TrainingConfirmationProps {
+interface TrainingConfirmationProps {
     /**
      * Timezone in which the event will be taking place.
      */

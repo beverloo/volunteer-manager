@@ -13,7 +13,7 @@ import { Markdown } from '@components/Markdown';
 /**
  * Props accepted by the <NotesCard> component.
  */
-export interface NotesCardProps {
+interface NotesCardProps {
     /**
      * Icon of the note.
      */

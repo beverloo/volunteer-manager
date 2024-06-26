@@ -23,7 +23,7 @@ type Content = string | React.ReactNode | React.ReactNode[];
 /**
  * Props accepted by the <ConfirmationDialog> component.
  */
-export interface ConfirmationDialogProps {
+interface ConfirmationDialogProps {
     /**
      * Label to display on the close button. Defaults to "Close".
      */

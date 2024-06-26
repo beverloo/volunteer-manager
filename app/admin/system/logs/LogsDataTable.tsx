@@ -18,7 +18,7 @@ import { Temporal, formatDate } from '@lib/Temporal';
 /**
  * Props made available to the <LogsDataTable> component.
  */
-export interface LogsDataTableProps {
+interface LogsDataTableProps {
     /**
      * Filters to apply to the logs selection. Filters are optional, and will be communicated with
      * the server where the actual filtering will take place.

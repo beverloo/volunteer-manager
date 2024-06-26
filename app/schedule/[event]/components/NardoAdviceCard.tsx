@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 /**
  * Props accepted by the <NardoAdviceCard> component.
  */
-export interface NardoAdviceCardProps {
+interface NardoAdviceCardProps {
     /**
      * The piece of advice that should be displayed.
      */

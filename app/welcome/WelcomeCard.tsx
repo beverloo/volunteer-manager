@@ -36,7 +36,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <WelcomeCard> component.
  */
-export interface WelcomeCardProps {
+interface WelcomeCardProps {
     /**
      * Description of the team that should be prominently displayed. May contain Markdown.
      */

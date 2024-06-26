@@ -185,7 +185,7 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
 /**
  * Props accepted by the <ScheduleTheme> component.
  */
-export interface ScheduleThemeProps {
+interface ScheduleThemeProps {
     /**
      * Base colours, as an RGB hex colour, based on which the theme should be computed. Colours for
      * light and dark mode must be specified separately.

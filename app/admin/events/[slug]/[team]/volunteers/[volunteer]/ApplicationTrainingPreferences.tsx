@@ -18,7 +18,7 @@ import { Privilege } from '@lib/auth/Privileges';
 /**
  * Props accepted by the <ApplicationTrainingPreferences> component.
  */
-export interface ApplicationTrainingPreferencesProps {
+interface ApplicationTrainingPreferencesProps {
     /**
      * Slug of the event for which these preferences exist.
      */

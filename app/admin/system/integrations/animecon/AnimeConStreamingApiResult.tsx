@@ -29,7 +29,7 @@ const kFilterForTestResults = true;
 /**
  * Props accepted by the <AnimeConStreamingApiResult> component.
  */
-export interface AnimeConStreamingApiResultProps {
+interface AnimeConStreamingApiResultProps {
     /**
      * Endpoint of the API call to issue to the AnimeCon API.
      */

@@ -24,7 +24,7 @@ import { useIsMobile } from '../lib/useIsMobile';
 /**
  * Props accepted by the <CalendarPopover> component.
  */
-export interface CalendarPopoverProps {
+interface CalendarPopoverProps {
     /**
      * Whether the calendar should be opened.
      */
