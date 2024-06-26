@@ -60,21 +60,6 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
-  - name: enable_content
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: enable_registration
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: enable_schedule
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
   - name: whatsapp_link
     type: text
     nullable: true
@@ -145,9 +130,6 @@ tables:
       `enable_registration_end` datetime DEFAULT NULL,
       `enable_schedule_start` datetime DEFAULT NULL,
       `enable_schedule_end` datetime DEFAULT NULL,
-      `enable_content` tinyint(1) NOT NULL DEFAULT 0,
-      `enable_registration` tinyint(1) NOT NULL DEFAULT 0,
-      `enable_schedule` tinyint(1) NOT NULL DEFAULT 0,
       `whatsapp_link` text DEFAULT NULL,
       UNIQUE KEY `event_id_2` (`event_id`,`team_id`),
       KEY `event_id` (`event_id`),
@@ -3940,21 +3922,6 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
-  - name: publish_hotels
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: publish_refunds
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
-  - name: publish_trainings
-    type: tinyint(1)
-    nullable: false
-    default: "0"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (event_id) USING BTREE
@@ -3999,9 +3966,6 @@ tables:
       `event_hotel_room_form` text DEFAULT NULL,
       `event_festival_id` int(8) unsigned DEFAULT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
-      `publish_hotels` tinyint(1) NOT NULL DEFAULT 0,
-      `publish_refunds` tinyint(1) NOT NULL DEFAULT 0,
-      `publish_trainings` tinyint(1) NOT NULL DEFAULT 0,
       PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: vendors
