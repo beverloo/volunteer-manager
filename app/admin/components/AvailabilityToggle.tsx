@@ -5,6 +5,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { AvailabilityToggleIndicator } from './AvailabilityToggleIndicator';
 import { SelectElement } from '@proxy/react-hook-form-mui';
 
 /**
@@ -43,7 +44,7 @@ export function AvailabilityToggle(props: AvailabilityToggleProps) {
                 </Typography>
                 <SelectElement name={props.name} options={kAvailabilityToggleOptions}
                                fullWidth size="small" />
-                { /* TODO: Add an indicator */ }
+                <AvailabilityToggleIndicator field={props.name} />
             </Stack>
         </Grid>
     );
