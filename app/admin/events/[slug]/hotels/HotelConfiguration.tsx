@@ -90,8 +90,9 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
                          timezone={props.event.timezone} title="Hotel room configuration">
             <Grid xs={12}>
                 <SectionIntroduction>
-                    Configure the window during which we'll accept hotel room preferences, as well
-                    as the actual hotel rooms that can be selected by volunteers.
+                    This section allows you to specify which hotel rooms are available and to decide
+                    whether this information should be publicly accessible. Additionally, you can
+                    set the time frame during which volunteers can share their room preferences.
                 </SectionIntroduction>
             </Grid>
             <AvailabilityToggle label="Publish information" name="publishHotelInformation" />
