@@ -9,6 +9,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { TrainingConfigurationTable } from './TrainingConfigurationTable';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents } from '@lib/database';
@@ -51,6 +52,17 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
+
+        await Log({
+            type: LogType.AdminEventPublishInfo,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                event: 'AnimeCon',  // TODO: Source this from somewhere?
+                published: !!data.publishTrainingInformation,
+                type: 'training',
+            },
+        });
     });
 }
 

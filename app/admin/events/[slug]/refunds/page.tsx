@@ -10,6 +10,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RefundsHeader } from './RefundsHeader';
 import { RefundsTable } from './RefundsTable';
@@ -56,6 +57,17 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
+
+        await Log({
+            type: LogType.AdminEventPublishInfo,
+            severity: LogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                event: 'AnimeCon',  // TODO: Source this from somewhere?
+                published: !!data.publishRefundInformation,
+                type: 'refund',
+            },
+        });
     });
 }
 
