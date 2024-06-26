@@ -24,7 +24,7 @@ import { getTrainingOptions } from './getTrainingOptions';
  */
 export default async function EventApplicationTrainingPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
-    if (!context || !context.registration || !context.user)
+    if (!context || !context.registration || !context.user || !context.event.trainingEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
     const { environment, event, registration, user } = context;

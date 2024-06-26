@@ -478,7 +478,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
 
     // Display and enablement of the ticket refund option.
     const displayRefundWithOverride =
-        registration.refund || event.enableRefunds || can(user, Privilege.Refunds);
+        registration.refund || event.refundPublished || can(user, Privilege.Refunds);
 
     // Display and enablement of training preferences.
     const displayTraining = registration.trainingEligible || !!registration.training;
@@ -515,13 +515,13 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                         <AvailabilityButton status={registration.availabilityStatus}
                                             override={can(user, Privilege.EventAdministrator)} />
 
-                        { displayHotel &&
+                        { (event.hotelEnabled && displayHotel) &&
                             <HotelStatusButton bookings={registration.hotelBookings}
                                                enabled={registration.hotelAvailable}
                                                override={can(user, Privilege.EventHotelManagement)}
                                                preferences={registration.hotelPreferences} /> }
 
-                        { displayTraining &&
+                        { (event.trainingEnabled && displayTraining) &&
                             <TrainingStatusButton enabled={registration.trainingAvailable}
                                                   override={
                                                       can(user, Privilege.EventTrainingManagement)
@@ -529,8 +529,8 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                                   timezone={event.timezone}
                                                   training={registration.training} /> }
 
-                        { displayRefundWithOverride &&
-                            <RefundStatusButton enabled={event.enableRefunds}
+                        { (event.refundEnabled && displayRefundWithOverride) &&
+                            <RefundStatusButton enabled={event.refundPublished}
                                                 override={can(user, Privilege.Refunds)}
                                                 refund={registration.refund}
                                                 timezone={event.timezone} /> }

@@ -24,7 +24,7 @@ import { getStaticContent } from '@lib/Content';
  */
 export default async function EventApplicationHotelsPage(props: NextPageParams<'slug'>) {
     const context = await contextForRegistrationPage(props.params.slug);
-    if (!context || !context.registration || !context.user)
+    if (!context || !context.registration || !context.user || !context.event.hotelEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
     const { environment, event, registration, user } = context;

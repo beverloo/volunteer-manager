@@ -17,7 +17,10 @@ export interface EventDatabaseRow {
     eventTimezone: string;
     eventStartTime: Temporal.ZonedDateTime;
     eventEndTime: Temporal.ZonedDateTime;
-    eventEnableRefunds?: number;
+    hotelEnabled: number;
+    refundEnabled: number;
+    refundPublished: number;
+    trainingEnabled: number;
     environments: {
         environment?: string;
         enableApplications?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
@@ -73,9 +76,24 @@ export interface EventData {
     endTime: string;
 
     /**
-     * Whether the ability for volunteers to request a refund is advertised.
+     * Whether hotel room management is enabled for this event.
      */
-    enableRefunds: boolean;
+    hotelEnabled: boolean;
+
+    /**
+     * Whether refund management is enabled for this event.
+     */
+    refundEnabled: boolean;
+
+    /**
+     * Whether the availability of refunds has been published for this event.
+     */
+    refundPublished: boolean;
+
+    /**
+     * Whether training management is enabled for this event.
+     */
+    trainingEnabled: boolean;
 }
 
 /**
@@ -191,7 +209,10 @@ export class Event implements EventData {
     get timezone() { return this.#event.eventTimezone; }
     get startTime() { return this.#event.eventStartTime.toString(); }
     get endTime() { return this.#event.eventEndTime.toString(); }
-    get enableRefunds() { return !!this.#event.eventEnableRefunds; }
+    get hotelEnabled() { return !!this.#event.hotelEnabled; }
+    get refundEnabled() { return !!this.#event.refundEnabled; }
+    get refundPublished() { return !!this.#event.refundPublished; }
+    get trainingEnabled() { return !!this.#event.trainingEnabled; }
 
     // ---------------------------------------------------------------------------------------------
     // Functionality to obtain a plain EventData object:
@@ -212,7 +233,10 @@ export class Event implements EventData {
             timezone: this.timezone,
             startTime: this.startTime,
             endTime: this.endTime,
-            enableRefunds: this.enableRefunds,
+            hotelEnabled: this.hotelEnabled,
+            refundEnabled: this.refundEnabled,
+            refundPublished: this.refundPublished,
+            trainingEnabled: this.trainingEnabled,
         };
 
         if (!environmentName)

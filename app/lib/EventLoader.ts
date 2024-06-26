@@ -34,7 +34,12 @@ export async function getEventBySlug(slug: string)
             eventTimezone: tEvents.eventTimezone,
             eventStartTime: tEvents.eventStartTime,
             eventEndTime: tEvents.eventEndTime,
-            eventEnableRefunds: tEvents.refundInformationPublished,
+
+            hotelEnabled: tEvents.hotelEnabled,
+            refundEnabled: tEvents.refundEnabled,
+            refundPublished: tEvents.refundInformationPublished,
+            trainingEnabled: tEvents.trainingEnabled,
+
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
 
@@ -114,6 +119,12 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
             eventTimezone: tEvents.eventTimezone,
             eventStartTime: tEvents.eventStartTime,
             eventEndTime: tEvents.eventEndTime,
+
+            hotelEnabled: tEvents.hotelEnabled,
+            refundEnabled: tEvents.refundEnabled,
+            refundPublished: tEvents.refundInformationPublished,
+            trainingEnabled: tEvents.trainingEnabled,
+
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
 

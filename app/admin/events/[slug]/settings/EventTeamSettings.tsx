@@ -70,8 +70,6 @@ async function updateTeamSettings(eventId: number, teamId: number, formData: unk
                 .and(tEventsTeams.teamId.equals(teamId))
                 .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
             .executeUpdate();
-
-        return { success: true };
     });
 }
 
