@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
+import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -66,7 +67,9 @@ export function EventCreate() {
                 published by an administrator.
             </Alert>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-                <EventSettingsForm mutableSlug onChange={handleChange} />
+                <Grid container spacing={2}>
+                    <EventSettingsForm mutableSlug onChange={handleChange} />
+                </Grid>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
             </FormContainer>
         </Paper>

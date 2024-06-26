@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+'use client';
+
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
 import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
@@ -28,7 +30,7 @@ export function EventSettingsForm(props: EventSettingsFormProps) {
     const { mutableSlug, onChange } = props;
 
     return (
-        <Grid container spacing={2}>
+        <>
             <Grid xs={12}>
                 <TextFieldElement name="name" label="Full event name" required fullWidth
                                   size="small" onChange={onChange} />
@@ -54,6 +56,6 @@ export function EventSettingsForm(props: EventSettingsFormProps) {
                                        inputProps={{ fullWidth: true, size: 'small' }}
                                        onChange={onChange} textReadOnly />
             </Grid>
-        </Grid>
+        </>
     );
 }

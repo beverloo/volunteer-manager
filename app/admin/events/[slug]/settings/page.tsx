@@ -68,9 +68,7 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
     return (
         <>
             <SettingsHeader event={event} />
-            <Section title="Configuration">
-                <EventSettings event={event} />
-            </Section>
+            <EventSettings event={event.id} timezone={event.timezone} />
             <Section title="Deadlines">
                 <EventDeadlinesTable event={event} leaders={leaders} />
             </Section>

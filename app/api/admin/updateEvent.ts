@@ -37,21 +37,6 @@ export const kUpdateEventDefinition = z.object({
         eventIdentity: z.string().optional(),
 
         /**
-         * Event settings that should be updated, if any.
-         */
-        eventSettings: z.object({
-            name: z.string(),
-            shortName: z.string(),
-            timezone: z.string(),
-            startTime: kTemporalZonedDateTime,
-            endTime: kTemporalZonedDateTime,
-            availabilityStatus: z.nativeEnum(EventAvailabilityStatus),
-            location: z.string().optional(),
-            festivalId: z.number().optional(),
-            hotelRoomForm: z.string().optional(),
-        }).optional(),
-
-        /**
          * The updated event slug that this event should be changed to.
          */
         eventSlug: z.string().optional(),
@@ -141,37 +126,6 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         }
 
         return { success: false };
-    }
-
-    if (request.eventSettings !== undefined) {
-        const affectedRows = await db.update(tEvents)
-            .set({
-                eventName: request.eventSettings.name,
-                eventShortName: request.eventSettings.shortName,
-                eventTimezone: request.eventSettings.timezone,
-                eventStartTime: request.eventSettings.startTime,
-                eventEndTime: request.eventSettings.endTime,
-                eventAvailabilityStatus: request.eventSettings.availabilityStatus,
-                eventLocation: request.eventSettings.location,
-                eventFestivalId: request.eventSettings.festivalId,
-                eventHotelRoomForm: request.eventSettings.hotelRoomForm,
-            })
-            .where(tEvents.eventId.equals(event.eventId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
-
-        if (affectedRows > 0) {
-            await Log({
-                type: LogType.AdminUpdateEvent,
-                severity: LogSeverity.Warning,
-                sourceUser: props.user,
-                data: {
-                    action: 'event settings',
-                    event: event.shortName,
-                }
-            });
-        }
-
-        return { success: !!affectedRows };
     }
 
     if (request.eventSlug !== undefined) {
