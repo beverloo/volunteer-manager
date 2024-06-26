@@ -59,11 +59,6 @@ async function updateHotelConfiguration(eventId: number, formData: unknown) {
  */
 interface HotelConfigurationProps {
     /**
-     * The configuration that has already been stored for hotel room settings.
-     */
-    configuration?: z.input<typeof kHotelConfigurationData>;
-
-    /**
      * Information about the event for which hotel rooms are being shown.
      */
     event: {
@@ -77,17 +72,30 @@ interface HotelConfigurationProps {
  * The <HotelConfiguration> component allows event administrators to add or remove hotel and hotel
  * rooms to settings. Changes will be reflected on the volunteer portal immediately.
  */
-export function HotelConfiguration(props: HotelConfigurationProps) {
+export async function HotelConfiguration(props: HotelConfigurationProps) {
     const action = updateHotelConfiguration.bind(null, props.event.id);
 
+    const dbInstance = db;
+    const configuration = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(props.event.id))
+        .select({
+            publishHotelInformation: tEvents.publishHotelInformation,
+            enableHotelPreferencesStart:
+                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesStart),
+            enableHotelPreferencesEnd:
+                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesEnd),
+        })
+        .projectingOptionalValuesAsNullable()
+        .executeSelectNoneOrOne() ?? undefined;
+
     return (
-        <FormGridSection action={action} defaultValues={props.configuration}
+        <FormGridSection action={action} defaultValues={configuration}
                          timezone={props.event.timezone} title="Hotel room configuration">
             <Grid xs={12}>
                 <SectionIntroduction>
-                    This section allows you to specify which hotel rooms are available and to decide
-                    whether this information should be publicly accessible. Additionally, you can
-                    set the time frame during which volunteers can share their room preferences.
+                    This section allows you to specify which hotel rooms are available, and to
+                    decide whether this information should be publicly accessible. Additionally, you
+                    can set the time frame during which volunteers can share their room preferences.
                 </SectionIntroduction>
             </Grid>
             <AvailabilityToggle label="Publish information" name="publishHotelInformation" />

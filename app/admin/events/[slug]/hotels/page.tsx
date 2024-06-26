@@ -36,28 +36,13 @@ export default async function EventHotelsPage(props: NextPageParams<'slug'>) {
     // A prioritised list of the warnings in the current hotel room planning.
     const warnings = processor.compileWarnings();
 
-    // ---------------------------------------------------------------------------------------------
-
-    const dbInstance = db;
-    const configuration = await dbInstance.selectFrom(tEvents)
-        .where(tEvents.eventId.equals(event.id))
-        .select({
-            publishHotelInformation: tEvents.publishHotelInformation,
-            enableHotelPreferencesStart:
-                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesStart),
-            enableHotelPreferencesEnd:
-                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesEnd),
-        })
-        .projectingOptionalValuesAsNullable()
-        .executeSelectNoneOrOne() ?? undefined;
-
     return (
         <>
             <HotelAssignment event={event} requests={requests} rooms={rooms} warnings={warnings} />
             <Collapse in={!!unassignedRequests.length} sx={{ mt: '0px !important' }}>
                 <HotelPendingAssignment requests={unassignedRequests} />
             </Collapse>
-            <HotelConfiguration configuration={configuration} event={event} />
+            <HotelConfiguration event={event} />
         </>
     );
 }

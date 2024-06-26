@@ -1,18 +1,58 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
+import { z } from 'zod';
 
-import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Unstable_Grid2';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
-import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import { PublishAlert } from '@app/admin/components/PublishAlert';
+import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
+import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { TrainingConfigurationTable } from './TrainingConfigurationTable';
-import { callApi } from '@lib/callApi';
+import { executeServerAction } from '@lib/serverAction';
+import db, { tEvents } from '@lib/database';
+
+import { kTemporalZonedDateTime } from '@app/api/Types';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+
+/**
+ * The data associated with a training session configuration update.
+ */
+const kTrainingConfigurationData = z.object({
+    /**
+     * Whether training sessions should be published on the registration portal.
+     */
+    publishTrainingInformation: z.coerce.number(),
+
+    /**
+     * Moment in time, if any, at which we'll start to accept training preferences.
+     */
+    enableTrainingPreferencesStart: kTemporalZonedDateTime.nullish(),
+
+    /**
+     * Moment in time, if any, at which applications will no longer accept training preferences.
+     */
+    enableTrainingPreferencesEnd: kTemporalZonedDateTime.nullish(),
+});
+
+/**
+ * Server Action that will be invoked when the training configuration is being updated by a senior
+ * volunteer. Synchronises the state update request with the database.
+ */
+async function updateTrainingConfiguration(eventId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kTrainingConfigurationData, async (data, props) => {
+        await db.update(tEvents)
+            .set({
+                publishTrainingInformation: data.publishTrainingInformation,
+                enableTrainingPreferencesStart: data.enableTrainingPreferencesStart,
+                enableTrainingPreferencesEnd: data.enableTrainingPreferencesEnd,
+            })
+            .where(tEvents.eventId.equals(eventId))
+            .executeUpdate();
+    });
+}
 
 /**
  * Props accepted by the <TrainingConfiguration> component.
@@ -21,40 +61,54 @@ export interface TrainingConfigurationProps {
     /**
      * Information about the event for which training sessions are being shown.
      */
-    event: PageInfo['event'];
+    event: {
+        id: number;
+        slug: string;
+        timezone: string;
+    };
 }
 
 /**
  * The <TrainingConfiguration> component displays the options that are available for our volunteers
  * to get trained ahead of the convention. This is a fairly straightforward set of dates.
  */
-export function TrainingConfiguration(props: TrainingConfigurationProps) {
-    const { event } = props;
+export async function TrainingConfiguration(props: TrainingConfigurationProps) {
+    const action = updateTrainingConfiguration.bind(null, props.event.id);
 
-    const router = useRouter();
-
-    const onPublish = useCallback(async (domEvent: unknown, publish: boolean) => {
-        const response = await callApi('post', '/api/admin/update-publication', {
-            event: event.slug,
-            publishTrainings: !!publish,
-        });
-
-        if (response.success)
-            router.refresh();
-
-    }, [ event, router ]);
+    const dbInstance = db;
+    const configuration = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(props.event.id))
+        .select({
+            publishTrainingInformation: tEvents.publishTrainingInformation,
+            enableTrainingPreferencesStart:
+                dbInstance.dateTimeAsString(tEvents.enableTrainingPreferencesStart),
+            enableTrainingPreferencesEnd:
+                dbInstance.dateTimeAsString(tEvents.enableTrainingPreferencesEnd),
+        })
+        .projectingOptionalValuesAsNullable()
+        .executeSelectNoneOrOne() ?? undefined;
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ pb: 1 }}>
-                Training sessions
-            </Typography>
-            <PublishAlert published={event.publishTrainings} sx={{ mb: 2 }} onClick={onPublish}>
-                { event.publishTrainings
-                    ? 'Training information has been published to volunteers.'
-                    : 'Training information has not yet been published to volunteers.' }
-            </PublishAlert>
-            <TrainingConfigurationTable event={props.event.slug} timezone={props.event.timezone} />
-        </Paper>
+        <FormGridSection action={action} defaultValues={configuration}
+                         timezone={props.event.timezone} title="Training sessions">
+            <Grid xs={12}>
+                <SectionIntroduction>
+                    This section allows you to specify which training sessions are available, and to
+                    decide whether this information should be publicly accessible. Additionally, you
+                    can set the time frame during which volunteers can share their preferences.
+                </SectionIntroduction>
+            </Grid>
+            <AvailabilityToggle label="Publish information" name="publishTrainingInformation" />
+            <AvailabilityWindow label="Accept preferences" start="enableTrainingPreferencesStart"
+                                end="enableTrainingPreferencesEnd"
+                                timezone={props.event.timezone} />
+            <Grid xs={12}>
+                <Divider />
+            </Grid>
+            <Grid xs={12}>
+                <TrainingConfigurationTable event={props.event.slug}
+                                            timezone={props.event.timezone} />
+            </Grid>
+        </FormGridSection>
     );
 }

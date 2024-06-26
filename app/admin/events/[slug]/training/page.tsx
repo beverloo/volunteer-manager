@@ -1,15 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
-
 import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
-import { Temporal, formatDate } from '@lib/Temporal';
+import { Temporal } from '@lib/Temporal';
 import { TrainingAssignments } from './TrainingAssignments';
 import { TrainingConfiguration } from './TrainingConfiguration';
 import { TrainingExternal } from './TrainingExternal';
