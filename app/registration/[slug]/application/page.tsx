@@ -6,13 +6,13 @@ import { notFound } from 'next/navigation';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getContent, getStaticContent } from '@lib/Content';
 import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
-import { ApplicationStatusPage } from './ApplicationStatusPage';
+import { ApplicationStatusPage, type ApplicationStatusPageProps } from './ApplicationStatusPage';
 import { Markdown } from '@components/Markdown';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
-import db, { tTeams, tUsersEvents } from '@lib/database';
+import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
 
 /**
  * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
@@ -59,6 +59,29 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             .executeSelectMany();
     }
 
+    let availabilityWindows: ApplicationStatusPageProps['availabilityWindows'] = { /* default */ };
+    if (state === 'status' && user) {
+        const dbInstance = db;
+
+        availabilityWindows = await dbInstance.selectFrom(tEvents)
+            .where(tEvents.eventId.equals(event.id))
+            .select({
+                hotelPreferences: {
+                    start: dbInstance.dateTimeAsString(tEvents.hotelPreferencesStart),
+                    end: dbInstance.dateTimeAsString(tEvents.hotelPreferencesEnd),
+                },
+                refundRequests: {
+                    start: dbInstance.dateTimeAsString(tEvents.refundRequestsStart),
+                    end: dbInstance.dateTimeAsString(tEvents.refundRequestsEnd),
+                },
+                trainingPreferences: {
+                    start: dbInstance.dateTimeAsString(tEvents.trainingPreferencesStart),
+                    end: dbInstance.dateTimeAsString(tEvents.trainingPreferencesEnd),
+                },
+            })
+            .executeSelectNoneOrOne() ?? { /* no availability windows */ };
+    }
+
     return (
         <>
             { state === 'application' &&
@@ -66,9 +89,9 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
                                  partnerApplications={partnerApplications}
                                  event={event.toEventData(environment.environmentName)} /> }
             { (state === 'status' && (registration && user)) &&
-                <ApplicationStatusPage event={event.toEventData(environment.environmentName)}
-                                       registration={registration.toRegistrationData()}
-                                       user={user} /> }
+                <ApplicationStatusPage availabilityWindows={availabilityWindows} user={user}
+                                       event={event.toEventData(environment.environmentName)}
+                                       registration={registration.toRegistrationData()} /> }
             { state === 'unavailable' &&
                 <Markdown sx={{ p: 2 }}>{content?.markdown}</Markdown> }
         </>

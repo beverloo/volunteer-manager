@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -25,6 +26,55 @@ import type { User } from '@lib/auth/User';
 import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
+
+type WindowStatus =
+    undefined | { enabled: boolean; status: 'pending' | 'missed'; secondary: string };
+
+/**
+ * Determines the status of the given `availabilityWindow` in relation to the current time (`now`).
+ * When the item is not available due to the availability window being closed, a message with as
+ * many details as we can share will be shown instead.
+ */
+function determineAvailabilityWindowStatus(
+    now: Temporal.Instant, availabilityWindow?: { start?: string; end?: string }): WindowStatus
+{
+    // Case (1): No availability window has been defined at all.
+    if (!availabilityWindow || (!availabilityWindow.start && !availabilityWindow.end)) {
+        return {
+            enabled: false,
+            status: 'pending',
+            secondary: 'We\'re not ready to note down your preferences yet…',
+        };
+    }
+
+    // Case (2a): The availability window's start date may be in the future.
+    if (!!availabilityWindow.start) {
+        const start = Temporal.ZonedDateTime.from(availabilityWindow.start);
+
+        if (Temporal.Instant.compare(start.toInstant(), now) > 0) {
+            return {
+                enabled: false,
+                status: 'pending',
+                secondary: `Share your preferences from ${formatDate(start, 'MMMM Do')}…`,
+            };
+        }
+    }
+
+    // Case (2b): The availability window's end date may be in the past.
+    if (!!availabilityWindow.end) {
+        const end = Temporal.ZonedDateTime.from(availabilityWindow.end);
+
+        if (Temporal.Instant.compare(end.toInstant(), now) <= 0) {
+            return {
+                enabled: true,
+                status: 'missed',
+                secondary: `Planning completed on ${formatDate(end, 'MMMM Do')}—please contact us…`,
+            };
+        }
+    }
+
+    return undefined;
+}
 
 /**
  * Props accepted by the <AvailabilityButton> component.
@@ -106,6 +156,11 @@ function AvailabilityButton(props: AvailabilityButtonProps) {
  */
 interface HotelStatusButtonProps {
     /**
+     * Availability window during which volunteers can indicate their hotel preferences.
+     */
+    availabilityWindow?: { start?: string; end?: string; };
+
+    /**
      * Bookings that were created on behalf of the volunteer.
      */
     bookings: RegistrationData['hotelBookings'];
@@ -124,6 +179,11 @@ interface HotelStatusButtonProps {
      * Preferences the volunteer indicated regarding their hotel room bookings.
      */
     preferences: RegistrationData['hotelPreferences'];
+
+    /**
+     * The current time against which the `availabilityWindow` should be compared.
+     */
+    now: Temporal.Instant;
 }
 
 /**
@@ -135,15 +195,18 @@ interface HotelStatusButtonProps {
  *   (2) The volunteer indicated their preferences, wants a room and is awaiting confirmation.
  *   (3) The volunteer indicated their preferences and does not want a room.
  *   (4) The volunteer is able to indicate their preferences, but has not done so yet.
- *   (5) The volunteer is not able to indicate their preferences yet.
+ *   (5) The information regarding hotel room availability has not been published yet.
+ *   (6) The availability window for hotel room preferences has not opened yet.
  *
  * It's possible for a volunteer to have more than one hotel room booking, significant because there
  * might be a different booking for e.g. Thursday to Friday compared to Friday to Sunday.
  */
 function HotelStatusButton(props: HotelStatusButtonProps) {
-    const { bookings, enabled, override, preferences } = props;
+    const { availabilityWindow, bookings, now, override, preferences } = props;
 
-    let status: 'pending' | 'submitted' | 'confirmed' = 'pending';
+    let enabled = props.enabled;
+
+    let status: 'pending' | 'submitted' | 'confirmed' | 'missed' = 'pending';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
@@ -189,12 +252,21 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
             primary = 'You don\'t need a hotel room booking';
         }
     } else {
+        const availabilityWindowStatus = determineAvailabilityWindowStatus(now, availabilityWindow);
+
         // (4) The volunteer is able to indicate their preferences, but has not done so yet.
         primary = 'Do you want to reserve a hotel room?';
 
         // (5) The volunteer is not able to indicate their preferences yet.
-        if (!enabled)
+        if (!enabled) {
             secondary = 'Hotel information has not been published yet…';
+
+        // (6) The availability window for hotel room preferences has not opened yet.
+        } else if (!!availabilityWindowStatus) {
+            enabled = availabilityWindowStatus.enabled;
+            secondary = availabilityWindowStatus.secondary;
+            status = availabilityWindowStatus.status;
+        }
     }
 
     return (
@@ -206,6 +278,7 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
                 { status === 'confirmed' && <TaskAltIcon color="success" /> }
                 { status === 'submitted' && <RadioButtonUncheckedIcon color="success" /> }
                 { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
+                { status === 'missed' && <RadioButtonUncheckedIcon color="error" /> }
             </ListItemIcon>
 
             <ListItemText primary={primary} secondary={secondary} />
@@ -224,9 +297,19 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
  */
 interface RefundStatusButtonProps {
     /**
+     * Availability window during which volunteers can request their ticket refund.
+     */
+    availabilityWindow?: { start?: string; end?: string; };
+
+    /**
      * Whether the button should be enabled by default, i.e. has information been published?
      */
     enabled: boolean;
+
+    /**
+     * The current time against which the `availabilityWindow` should be compared.
+     */
+    now: Temporal.Instant;
 
     /**
      * Whether the volunteer has the ability to override normal access restrictions.
@@ -256,8 +339,11 @@ interface RefundStatusButtonProps {
  *   (3) The volunteer is able to request a refund because of an override.
  */
 function RefundStatusButton(props: RefundStatusButtonProps) {
-    const { enabled, override, refund, timezone } = props;
+    const { availabilityWindow, now, override, refund, timezone } = props;
 
+    let enabled = props.enabled;
+
+    let status: 'pending' | 'confirmed' | 'missed' = 'confirmed';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
@@ -279,16 +365,26 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
             secondary = 'We\'ve received your request and will confirm it soon';
         }
     } else {
+        const availabilityWindowStatus = determineAvailabilityWindowStatus(now, availabilityWindow);
+
         // (3) The volunteer is able to request a refund.
         // (4) The volunteer is able to request a refund because of an override.
         primary = 'You will receive a free ticket next year!';
         secondary = 'Thank you for your help—you could request a refund';
+
+        if (!!availabilityWindowStatus) {
+            enabled = availabilityWindowStatus.enabled;
+            secondary = availabilityWindowStatus.secondary;
+            status = availabilityWindowStatus.status;
+        }
     }
 
     return (
         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }} href="./application/refund">
             <ListItemIcon>
-                <TaskAltIcon color="success" />
+                { status === 'confirmed' && <TaskAltIcon color="success" /> }
+                { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
+                { status === 'missed' && <RadioButtonUncheckedIcon color="error" /> }
             </ListItemIcon>
             <ListItemText primary={primary} secondary={secondary} />
             { (!enabled && override) &&
@@ -304,9 +400,19 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
  */
 interface TrainingStatusButtonProps {
     /**
+     * Availability window during which volunteers can indicate their training preferences.
+     */
+    availabilityWindow?: { start?: string; end?: string; };
+
+    /**
      * Whether the button should be enabled by default, i.e. has information been published?
      */
     enabled: boolean;
+
+    /**
+     * The current time against which the `availabilityWindow` should be compared.
+     */
+    now: Temporal.Instant;
 
     /**
      * Whether the volunteer has the ability to override normal access restrictions.
@@ -334,15 +440,18 @@ interface TrainingStatusButtonProps {
  *   (3) The volunteer indicated their preferences, wants to join and waits for confirmation.
  *   (4) The volunteer indicated their preferences and does not want to participate.
  *   (5) The volunteer is able to indicate their preferences, but has not done so yet.
- *   (6) The volunteer is not able to indicate their preferences yet.
+ *   (6) The information regarding training sessions has not been published yet.
+ *   (7) The availability window for training preferences has not opened yet.
  *
  * Volunteers can only join a single training session. It's possible for seniors to join multiple
  * training sessions, but we'll handle those out-of-bounds.
  */
 function TrainingStatusButton(props: TrainingStatusButtonProps) {
-    const { enabled, override, timezone, training } = props;
+    const { availabilityWindow, now, override, timezone, training } = props;
 
-    let status: 'pending' | 'submitted' | 'confirmed' = 'pending';
+    let enabled = props.enabled;
+
+    let status: 'pending' | 'submitted' | 'confirmed' | 'missed' = 'pending';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
@@ -384,15 +493,22 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
             primary = 'You would like to skip the training this year';
             secondary = 'This will be confirmed by a senior closer to the festival…';
         }
-    }
+    } else {
+        const availabilityWindowStatus = determineAvailabilityWindowStatus(now, availabilityWindow);
 
-    else {
         // (5) The volunteer is able to indicate their preferences, but has not done so yet.
         primary = 'Do you want to join our professional training?';
 
-        // (6) The volunteer is not able to indicate their preferences yet.
-        if (!enabled)
+        // (6) The information regarding training sessions has not been published yet.
+        if (!enabled) {
             secondary = 'Training information has not been published yet…';
+
+        // (7) The availability window for training preferences has not opened yet.
+        } else if (!!availabilityWindowStatus) {
+            enabled = availabilityWindowStatus.enabled;
+            secondary = availabilityWindowStatus.secondary;
+            status = availabilityWindowStatus.status;
+        }
     }
 
     return (
@@ -404,6 +520,7 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
                 { status === 'confirmed' && <TaskAltIcon color="success" /> }
                 { status === 'submitted' && <RadioButtonUncheckedIcon color="success" /> }
                 { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
+                { status === 'missed' && <RadioButtonUncheckedIcon color="error" /> }
             </ListItemIcon>
 
             <ListItemText primary={primary} secondary={secondary} />
@@ -421,6 +538,15 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
  * Props accepted by the <ApplicationStatusPage> page.
  */
 export interface ApplicationStatusPageProps {
+    /**
+     * Availability windows that apply for this event, as configured by volunteering leadership.
+     */
+    availabilityWindows: {
+        hotelPreferences?: { start?: string; end?: string; };
+        refundRequests?: { start?: string; end?: string; };
+        trainingPreferences?: { start?: string; end?: string; };
+    };
+
     /**
      * The event for which data is being displayed on this page.
      */
@@ -443,7 +569,7 @@ export interface ApplicationStatusPageProps {
  * retrieved by the team's leads and the status of its consideration.
  */
 export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
-    const { event, registration, user } = props;
+    const { availabilityWindows: aw, event, registration, user } = props;
 
     let label: string;
     let explanation: string;
@@ -486,6 +612,9 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     const enableSchedule = event.enableSchedule;
     const enableScheduleWithOverride = enableSchedule || can(user, Privilege.EventScheduleOverride);
 
+    // The current moment in time as an instant, at the time of the component being mounted.
+    const now = useMemo(() => Temporal.Now.instant(), [ /* no dependencies */ ]);
+
     const sp = ' ';  // thanks React
     return (
         <>
@@ -516,13 +645,15 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                             override={can(user, Privilege.EventAdministrator)} />
 
                         { (event.hotelEnabled && displayHotel) &&
-                            <HotelStatusButton bookings={registration.hotelBookings}
+                            <HotelStatusButton availabilityWindow={aw.hotelPreferences}
+                                               bookings={registration.hotelBookings} now={now}
                                                enabled={registration.hotelAvailable}
                                                override={can(user, Privilege.EventHotelManagement)}
                                                preferences={registration.hotelPreferences} /> }
 
                         { (event.trainingEnabled && displayTraining) &&
-                            <TrainingStatusButton enabled={registration.trainingAvailable}
+                            <TrainingStatusButton availabilityWindow={aw.trainingPreferences}
+                                                  enabled={registration.trainingAvailable} now={now}
                                                   override={
                                                       can(user, Privilege.EventTrainingManagement)
                                                   }
@@ -530,7 +661,8 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                                                   training={registration.training} /> }
 
                         { (event.refundEnabled && displayRefundWithOverride) &&
-                            <RefundStatusButton enabled={event.refundPublished}
+                            <RefundStatusButton availabilityWindow={aw.refundRequests} now={now}
+                                                enabled={event.refundPublished}
                                                 override={can(user, Privilege.Refunds)}
                                                 refund={registration.refund}
                                                 timezone={event.timezone} /> }
