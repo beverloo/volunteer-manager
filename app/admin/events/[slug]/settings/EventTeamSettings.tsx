@@ -129,11 +129,11 @@ export function EventTeamSettings(props: EventTeamSettingsProps) {
         <FormGridSection action={action} defaultValues={props.settings}
                          timezone={props.timezone} title={props.team.name} subtitle="settings"
                          icon={ <PeopleIcon htmlColor={props.team.colour} /> }>
-            <AvailabilityWindow label="Accept applications"
+            <AvailabilityWindow label="Accept applications" timezone={props.timezone}
                                 start="enableApplicationsStart" end="enableApplicationsEnd" />
-            <AvailabilityWindow label="Publish information"
+            <AvailabilityWindow label="Publish information" timezone={props.timezone}
                                 start="enableRegistrationStart" end="enableRegistrationEnd" />
-            <AvailabilityWindow label="Publish schedules"
+            <AvailabilityWindow label="Publish schedules" timezone={props.timezone}
                                 start="enableScheduleStart" end="enableScheduleEnd" />
             { /* TODO: Availability window for sharing participation preferences. */ }
             { /* TODO: Availability window for sharing availability preferences. */ }

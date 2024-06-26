@@ -69,7 +69,7 @@ interface HotelConfigurationProps {
     event: {
         id: number;
         slug: string;
-        timezone?: string;
+        timezone: string;
     };
 }
 
@@ -96,7 +96,7 @@ export function HotelConfiguration(props: HotelConfigurationProps) {
             </Grid>
             <AvailabilityToggle label="Publish information" name="publishHotelInformation" />
             <AvailabilityWindow label="Accept preferences" start="enableHotelPreferencesStart"
-                                end="enableHotelPreferencesEnd" />
+                                end="enableHotelPreferencesEnd" timezone={props.event.timezone} />
             <Grid xs={12}>
                 <Divider />
             </Grid>

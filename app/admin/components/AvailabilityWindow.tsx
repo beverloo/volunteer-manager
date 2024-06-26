@@ -26,6 +26,11 @@ interface AvailabilityWindowProps {
      * Name of the field that represents the starting time of this window.
      */
     start: string;
+
+    /**
+     * Timezone in which the input data will be represented.
+     */
+    timezone: string | undefined;
 }
 
 /**
@@ -39,13 +44,13 @@ export function AvailabilityWindow(props: AvailabilityWindowProps) {
                 <Typography variant="body2" sx={{ flexShrink: 0, width: '150px' }}>
                     {props.label}:
                 </Typography>
-                <DateTimePickerElement name={props.start}
+                <DateTimePickerElement name={props.start} timezone={props.timezone}
                                        inputProps={{ fullWidth: true, size: 'small' }}
                                        slotProps={{ field: { clearable: true } }} />
                 <Typography variant="body2">
                     until
                 </Typography>
-                <DateTimePickerElement name={props.end}
+                <DateTimePickerElement name={props.end} timezone={props.timezone}
                                        inputProps={{ fullWidth: true, size: 'small' }}
                                        slotProps={{ field: { clearable: true } }} />
                 <AvailabilityWindowIndicator fields={props} />
