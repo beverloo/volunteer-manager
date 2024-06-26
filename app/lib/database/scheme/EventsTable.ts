@@ -35,8 +35,6 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     publishRefundInformation = this.columnWithDefaultValue('publish_refund_information', 'int');
     enableRefundRequestsStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_refund_requests_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableRefundRequestsEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_refund_requests_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
-    eventRefundsStartTime = this.optionalColumnWithDefaultValue<ZonedDateTime>('event_refunds_start_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
-    eventRefundsEndTime = this.optionalColumnWithDefaultValue<ZonedDateTime>('event_refunds_end_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     eventAvailabilityStatus = this.column<EventAvailabilityStatus>('event_availability_status', 'enum', 'EventAvailabilityStatus');
     eventLocation = this.optionalColumnWithDefaultValue('event_location', 'string');
     eventTimezone = this.column('event_timezone', 'string');

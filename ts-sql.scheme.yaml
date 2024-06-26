@@ -3882,16 +3882,6 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
-  - name: event_refunds_start_time
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: event_refunds_end_time
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
   - name: event_availability_status
     type: enum('Unavailable','Available','Locked')
     nullable: false
@@ -3958,8 +3948,6 @@ tables:
       `publish_refund_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `enable_refund_requests_start` datetime DEFAULT NULL,
       `enable_refund_requests_end` datetime DEFAULT NULL,
-      `event_refunds_start_time` datetime DEFAULT NULL,
-      `event_refunds_end_time` datetime DEFAULT NULL,
       `event_availability_status` enum('Unavailable','Available','Locked') NOT NULL,
       `event_location` text DEFAULT NULL,
       `event_timezone` varchar(32) NOT NULL,
