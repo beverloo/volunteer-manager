@@ -26,10 +26,13 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventHidden = this.columnWithDefaultValue('event_hidden', 'int');
     eventStartTime = this.column<ZonedDateTime>('event_start_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     eventEndTime = this.column<ZonedDateTime>('event_end_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    publishHotelInformation = this.columnWithDefaultValue('publish_hotel_information', 'int');
     enableHotelPreferencesStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_hotel_preferences_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableHotelPreferencesEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_hotel_preferences_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    publishTrainingInformation = this.columnWithDefaultValue('publish_training_information', 'int');
     enableTrainingPreferencesStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_training_preferences_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableTrainingPreferencesEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_training_preferences_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    publishRefundInformation = this.columnWithDefaultValue('publish_refund_information', 'int');
     enableRefundRequestsStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_refund_requests_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     enableRefundRequestsEnd = this.optionalColumnWithDefaultValue<ZonedDateTime>('enable_refund_requests_end', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     eventRefundsStartTime = this.optionalColumnWithDefaultValue<ZonedDateTime>('event_refunds_start_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);

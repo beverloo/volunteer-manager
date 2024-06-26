@@ -8,7 +8,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { DateTimePickerElement } from '@proxy/react-hook-form-mui';
+import { DateTimePickerElement, SelectElement } from '@proxy/react-hook-form-mui';
 
 import { EventTeamSettingsIndicator } from './EventTeamSettingsIndicator';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
@@ -55,7 +55,6 @@ const kTeamSettingsData = z.object({
     // TODO: Availability window for sharing availability preferences.
 
     // Keep on their own pages?
-    //     TODO: Availability window for indicating hotel preferences.
     //     TODO: Availability window for indicating training preferences.
     //     TODO: Availability window for requesting refunds.
 });
@@ -109,7 +108,7 @@ interface AvailabilityWindowProps {
  * The <AvailabilityWindow> component displays two full-width date time picker components, followed
  * by an icon indicating how that would play out given the current date and time.
  */
-function AvailabilityWindow(props: AvailabilityWindowProps) {
+export function AvailabilityWindow(props: AvailabilityWindowProps) {
     return (
         <Grid xs={12}>
             <Stack direction="row" alignItems="center" spacing={2}>
@@ -124,6 +123,48 @@ function AvailabilityWindow(props: AvailabilityWindowProps) {
                 <DateTimePickerElement name={props.end}
                                        inputProps={{ fullWidth: true, size: 'small' }} />
                 <EventTeamSettingsIndicator fields={props} />
+            </Stack>
+        </Grid>
+    );
+}
+
+/**
+ * Options available to the `<AvailabilityToggle>` component.
+ */
+const kAvailabilityToggleOptions = [
+    { id: 0, label: 'Publish to Senior and Staff volunteers' },
+    { id: 1, label: 'Publish to everyone' },
+];
+
+/**
+ * Props accepted by the <AvailabilityToggle> component.
+ */
+interface AvailabilityToggleProps {
+    /**
+     * Label to display in front of this availability toggle.
+     */
+    label: string;
+
+    /**
+     * Name of the input field that will be added to the form.
+     */
+    name: string;
+}
+
+/**
+ * The <AvailabilityToggle> component displays an input field that can be used to either turn on or
+ * off publication of a particular field. A clear indicator will be shown at the end of the field.
+ */
+export function AvailabilityToggle(props: AvailabilityToggleProps) {
+    return (
+        <Grid xs={12}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+                <Typography variant="body2" sx={{ flexShrink: 0, width: '150px' }}>
+                    {props.label}:
+                </Typography>
+                <SelectElement name={props.name} options={kAvailabilityToggleOptions}
+                               fullWidth size="small" />
+                { /* TODO: Add an indicator */ }
             </Stack>
         </Grid>
     );

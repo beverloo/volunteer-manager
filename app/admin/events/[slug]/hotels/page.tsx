@@ -11,6 +11,7 @@ import { HotelProcessor } from './HotelProcessor';
 import { Privilege } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tEvents } from '@lib/database';
 
 /**
  * The <EventHotelsPage> page allows event administrators to see and make changes to the hotel room
@@ -35,13 +36,27 @@ export default async function EventHotelsPage(props: NextPageParams<'slug'>) {
     // A prioritised list of the warnings in the current hotel room planning.
     const warnings = processor.compileWarnings();
 
+    // ---------------------------------------------------------------------------------------------
+
+    const dbInstance = db;
+    const configuration = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(event.id))
+        .select({
+            publishHotelInformation: tEvents.publishHotelInformation,
+            enableHotelPreferencesStart:
+                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesStart),
+            enableHotelPreferencesEnd:
+                dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesEnd),
+        })
+        .executeSelectNoneOrOne() ?? undefined;
+
     return (
         <>
             <HotelAssignment event={event} requests={requests} rooms={rooms} warnings={warnings} />
             <Collapse in={!!unassignedRequests.length} sx={{ mt: '0px !important' }}>
                 <HotelPendingAssignment requests={unassignedRequests} />
             </Collapse>
-            <HotelConfiguration event={event} />
+            <HotelConfiguration configuration={configuration} event={event} />
         </>
     );
 }

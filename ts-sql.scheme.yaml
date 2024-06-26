@@ -3855,6 +3855,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: publish_hotel_information
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
   - name: enable_hotel_preferences_start
     type: datetime
     nullable: true
@@ -3865,6 +3870,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: publish_training_information
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
   - name: enable_training_preferences_start
     type: datetime
     nullable: true
@@ -3874,6 +3884,11 @@ tables:
     type: datetime
     nullable: true
     default: "NULL"
+    comment: ""
+  - name: publish_refund_information
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
     comment: ""
   - name: enable_refund_requests_start
     type: datetime
@@ -3967,10 +3982,13 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `publish_hotel_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `enable_hotel_preferences_start` datetime DEFAULT NULL,
       `enable_hotel_preferences_end` datetime DEFAULT NULL,
+      `publish_training_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `enable_training_preferences_start` datetime DEFAULT NULL,
       `enable_training_preferences_end` datetime DEFAULT NULL,
+      `publish_refund_information` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `enable_refund_requests_start` datetime DEFAULT NULL,
       `enable_refund_requests_end` datetime DEFAULT NULL,
       `event_refunds_start_time` datetime DEFAULT NULL,
