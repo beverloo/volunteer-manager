@@ -10,10 +10,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import type { TrainingsRowModel } from '@app/api/admin/trainings/[[...id]]/route';
 import { PublishAlert } from '@app/admin/components/PublishAlert';
-import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { Temporal, formatDate, fromLocalDate, toLocalDate } from '@lib/Temporal';
+import { TrainingConfigurationTable } from './TrainingConfigurationTable';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -46,69 +44,6 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
 
     }, [ event, router ]);
 
-    const context = { event: event.slug };
-    const columns: RemoteDataTableColumn<TrainingsRowModel>[] = [
-        {
-            field: 'id',
-            headerName: /* empty= */ '',
-            sortable: false,
-            width: 50,
-        },
-        {
-            field: 'start',
-            headerName: 'Date (start time)',
-            type: 'dateTime',
-            editable: true,
-            sortable: true,
-            flex: 2,
-
-            valueGetter: (value, row) => toLocalDate(Temporal.ZonedDateTime.from(row.start)),
-            valueSetter: (value, row) => ({
-                ...row,
-                start: fromLocalDate(value).toString(),
-            }),
-
-            renderCell: params =>
-                formatDate(
-                    Temporal.ZonedDateTime.from(params.row.start).withTimeZone(event.timezone),
-                    'YYYY-MM-DD [at] H:mm'),
-        },
-        {
-            field: 'end',
-            headerName: 'Date (end time)',
-            type: 'dateTime',
-            editable: true,
-            sortable: true,
-            flex: 2,
-
-            valueGetter: (value, row) => toLocalDate(Temporal.ZonedDateTime.from(row.end)),
-            valueSetter: (value, row) => ({
-                ...row,
-                end: fromLocalDate(value).toString(),
-            }),
-
-            renderCell: params =>
-                formatDate(
-                    Temporal.ZonedDateTime.from(params.row.end).withTimeZone(event.timezone),
-                    'YYYY-MM-DD [at] H:mm'),
-        },
-        {
-            field: 'address',
-            headerName: 'Address',
-            editable: true,
-            sortable: true,
-            flex: 3,
-        },
-        {
-            field: 'capacity',
-            headerName: 'Capacity',
-            editable: true,
-            sortable: true,
-            type: 'number',
-            flex: 1,
-        },
-    ];
-
     return (
         <Paper sx={{ p: 2 }}>
             <Typography variant="h5" sx={{ pb: 1 }}>
@@ -119,10 +54,7 @@ export function TrainingConfiguration(props: TrainingConfigurationProps) {
                     ? 'Training information has been published to volunteers.'
                     : 'Training information has not yet been published to volunteers.' }
             </PublishAlert>
-            <RemoteDataTable endpoint="/api/admin/trainings" context={context}
-                             columns={columns} defaultSort={{ field: 'start', sort: 'asc' }}
-                             disableFooter enableCreate enableDelete enableUpdate
-                             refreshOnUpdate subject="training" />
+            <TrainingConfigurationTable event={props.event.slug} timezone={props.event.timezone} />
         </Paper>
     );
 }

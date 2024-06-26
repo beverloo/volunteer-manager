@@ -48,10 +48,6 @@ const kTeamSettingsData = z.object({
 
     // TODO: Availability window for sharing participation preferences.
     // TODO: Availability window for sharing availability preferences.
-
-    // Keep on their own pages?
-    //     TODO: Availability window for indicating training preferences.
-    //     TODO: Availability window for requesting refunds.
 });
 
 /**
