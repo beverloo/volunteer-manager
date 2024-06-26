@@ -81,18 +81,18 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
         const refundAvailability = await db.selectFrom(tEvents)
             .where(tEvents.eventId.equals(event.eventId))
             .select({
-                refundsStartTime: tEvents.eventRefundsStartTime,
-                refundsEndTime: tEvents.eventRefundsEndTime,
+                refundRequestsStart: tEvents.enableRefundRequestsStart,
+                refundRequestsEnd: tEvents.enableRefundRequestsEnd,
             })
             .executeSelectOne();
 
-        if (!refundAvailability.refundsStartTime || !refundAvailability.refundsEndTime)
+        if (!refundAvailability.refundRequestsStart || !refundAvailability.refundRequestsEnd)
             return { success: false, error: 'Sorry, refunds are not being accepted.' };
 
         const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
-        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundsStartTime) < 0)
+        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundRequestsStart) < 0)
             return { success: false, error: 'Sorry, refunds are not being accepted yet.' };
-        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundsEndTime) >= 0)
+        if (Temporal.ZonedDateTime.compare(currentTime, refundAvailability.refundRequestsEnd) >= 0)
             return { success: false, error: 'Sorry, refunds are not being accepted anymore.' };
     }
 

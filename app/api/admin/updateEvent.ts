@@ -4,13 +4,13 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import { noAccess, type ActionProps } from '../Action';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tEvents } from '@lib/database';
 
@@ -49,14 +49,6 @@ export const kUpdateEventDefinition = z.object({
             location: z.string().optional(),
             festivalId: z.number().optional(),
             hotelRoomForm: z.string().optional(),
-        }).optional(),
-
-        /**
-         * Event refund settings that should be updated, if any.
-         */
-        eventRefunds: z.object({
-            refundsStartTime: kTemporalZonedDateTime.optional(),
-            refundsEndTime: kTemporalZonedDateTime.optional(),
         }).optional(),
 
         /**
@@ -174,33 +166,6 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 sourceUser: props.user,
                 data: {
                     action: 'event settings',
-                    event: event.shortName,
-                }
-            });
-        }
-
-        return { success: !!affectedRows };
-    }
-
-    if (request.eventRefunds !== undefined) {
-        if (!can(props.user, Privilege.Refunds))
-            noAccess();
-
-        const affectedRows = await db.update(tEvents)
-            .set({
-                eventRefundsStartTime: request.eventRefunds.refundsStartTime,
-                eventRefundsEndTime: request.eventRefunds.refundsEndTime
-            })
-            .where(tEvents.eventId.equals(event.eventId))
-            .executeUpdate();
-
-        if (affectedRows > 0) {
-            await Log({
-                type: LogType.AdminUpdateEvent,
-                severity: LogSeverity.Warning,
-                sourceUser: props.user,
-                data: {
-                    action: 'ticket refund settings',
                     event: event.shortName,
                 }
             });

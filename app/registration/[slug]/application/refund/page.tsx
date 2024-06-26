@@ -35,8 +35,8 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     const refundAvailability = await db.selectFrom(tEvents)
         .where(tEvents.eventId.equals(event.eventId))
         .select({
-            refundsStartTime: tEvents.eventRefundsStartTime,
-            refundsEndTime: tEvents.eventRefundsEndTime,
+            refundRequestsStart: tEvents.enableRefundRequestsStart,
+            refundRequestsEnd: tEvents.enableRefundRequestsEnd,
         })
         .executeSelectOne();
 
@@ -45,7 +45,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
 
     const contentPath = [ 'registration', 'application' ];
 
-    if (!refundAvailability.refundsStartTime || !refundAvailability.refundsEndTime) {
+    if (!refundAvailability.refundRequestsStart || !refundAvailability.refundRequestsEnd) {
         state = 'unavailable';
         content = await getStaticContent([ ...contentPath, 'refund-unavailable' ], {
             event: event.shortName,
@@ -55,16 +55,16 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         const substitutions = {
             event: event.shortName,
             firstName: user.firstName,
-            refundsStartTime: formatDate(refundAvailability.refundsStartTime, 'dddd, MMMM D'),
-            refundsEndTime: formatDate(refundAvailability.refundsEndTime, 'dddd, MMMM D'),
+            refundRequestsStart: formatDate(refundAvailability.refundRequestsStart, 'dddd, MMMM D'),
+            refundRequestsEnd: formatDate(refundAvailability.refundRequestsEnd, 'dddd, MMMM D'),
         };
 
         const now = Temporal.Now.zonedDateTimeISO('UTC');
 
-        if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundsStartTime) < 0) {
+        if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundRequestsStart) < 0) {
             state = 'too-early';
             content = await getStaticContent([ ...contentPath, 'refund-early' ], substitutions);
-        } else if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundsEndTime) > 0) {
+        } else if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundRequestsEnd) > 0) {
             state = 'too-late';
             content = await getStaticContent([ ...contentPath, 'refund-late' ], substitutions);
         } else {
