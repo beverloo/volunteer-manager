@@ -80,11 +80,6 @@ interface HotelConfigurationProps {
 export function HotelConfiguration(props: HotelConfigurationProps) {
     const action = updateHotelConfiguration.bind(null, props.event.id);
 
-    if (!!props.configuration) {
-        props.configuration.enableHotelPreferencesStart ??= null;
-        props.configuration.enableHotelPreferencesEnd ??= null;
-    }
-
     return (
         <FormGridSection action={action} defaultValues={props.configuration}
                          timezone={props.event.timezone} title="Hotel room configuration">

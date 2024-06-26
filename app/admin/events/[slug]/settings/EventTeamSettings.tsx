@@ -116,15 +116,6 @@ export interface EventTeamSettingsProps {
 export function EventTeamSettings(props: EventTeamSettingsProps) {
     const action = updateTeamSettings.bind(null, props.event, props.team.id);
 
-    props.settings.enableApplicationsStart ??= null;
-    props.settings.enableApplicationsEnd ??= null;
-
-    props.settings.enableRegistrationStart ??= null;
-    props.settings.enableRegistrationEnd ??= null;
-
-    props.settings.enableScheduleStart ??= null;
-    props.settings.enableScheduleEnd ??= null;
-
     return (
         <FormGridSection action={action} defaultValues={props.settings}
                          timezone={props.timezone} title={props.team.name} subtitle="settings"

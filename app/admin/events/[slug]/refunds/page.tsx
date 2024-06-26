@@ -85,12 +85,8 @@ export default async function EventRefundsPage(props: NextPageParams<'slug'>) {
             enableRefundRequestsEnd:
                 dbInstance.dateTimeAsString(tEvents.enableRefundRequestsEnd),
         })
+        .projectingOptionalValuesAsNullable()
         .executeSelectNoneOrOne() ?? undefined;
-
-    if (!!defaultValues) {
-        defaultValues.enableRefundRequestsStart ??= null;
-        defaultValues.enableRefundRequestsEnd ??= null;
-    }
 
     const action = updateRefundConfiguration.bind(null, event.id);
 

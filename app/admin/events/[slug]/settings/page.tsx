@@ -56,6 +56,7 @@ export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
                     dbInstance.dateTimeAsString(tEventsTeams.enableScheduleEnd),
             },
         })
+        .projectingOptionalValuesAsNullable()
         .orderBy('team.name', 'asc')
         .executeSelectMany();
 

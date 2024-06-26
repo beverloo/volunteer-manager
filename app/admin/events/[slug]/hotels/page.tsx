@@ -48,6 +48,7 @@ export default async function EventHotelsPage(props: NextPageParams<'slug'>) {
             enableHotelPreferencesEnd:
                 dbInstance.dateTimeAsString(tEvents.enableHotelPreferencesEnd),
         })
+        .projectingOptionalValuesAsNullable()
         .executeSelectNoneOrOne() ?? undefined;
 
     return (
