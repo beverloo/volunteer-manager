@@ -19,7 +19,6 @@ export interface EventDatabaseRow {
     eventEndTime: Temporal.ZonedDateTime;
     hotelEnabled: number;
     refundEnabled: number;
-    refundPublished: number;
     trainingEnabled: number;
     environments: {
         environment?: string;
@@ -84,11 +83,6 @@ export interface EventData {
      * Whether refund management is enabled for this event.
      */
     refundEnabled: boolean;
-
-    /**
-     * Whether the availability of refunds has been published for this event.
-     */
-    refundPublished: boolean;
 
     /**
      * Whether training management is enabled for this event.
@@ -211,7 +205,6 @@ export class Event implements EventData {
     get endTime() { return this.#event.eventEndTime.toString(); }
     get hotelEnabled() { return !!this.#event.hotelEnabled; }
     get refundEnabled() { return !!this.#event.refundEnabled; }
-    get refundPublished() { return !!this.#event.refundPublished; }
     get trainingEnabled() { return !!this.#event.trainingEnabled; }
 
     // ---------------------------------------------------------------------------------------------
@@ -235,7 +228,6 @@ export class Event implements EventData {
             endTime: this.endTime,
             hotelEnabled: this.hotelEnabled,
             refundEnabled: this.refundEnabled,
-            refundPublished: this.refundPublished,
             trainingEnabled: this.trainingEnabled,
         };
 

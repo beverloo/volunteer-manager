@@ -31,7 +31,9 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
     const bookings = registration.hotelBookings;
     const eligible = registration.hotelEligible;
-    const enabled = registration.hotelAvailable || can(user, Privilege.EventHotelManagement);
+    const enabled =
+        registration.hotelInformationPublished || can(user, Privilege.EventHotelManagement);
+
     const preferences = registration.hotelPreferences;
 
     if ((!eligible || !enabled) && !bookings)

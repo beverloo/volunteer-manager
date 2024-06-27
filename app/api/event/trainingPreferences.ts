@@ -87,8 +87,10 @@ export async function trainingPreferences(request: Request, props: ActionProps):
     if (!registration.trainingEligible && !registration.training)
         return { success: false, error: 'You are not eligible to participate in the training' };
 
-    if (!registration.trainingAvailable && !can(props.user, Privilege.EventTrainingManagement))
+    if (!registration.trainingInformationPublished
+            && !can(props.user, Privilege.EventTrainingManagement)) {
         return { success: false, error: 'Trainings cannot be booked yet, sorry!' };
+    }
 
     // Case (0): The administrator may want to clear the training preferences.
     if (!request.preferences) {

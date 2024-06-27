@@ -122,9 +122,9 @@ export function RegistrationProgressAccepted(props: RegistrationProgressProps) {
     const router = useRouter();
     const missingInformation =
         (registration.trainingEligible &&
-            (registration.trainingAvailable && !registration.training)) ||
+            (registration.trainingInformationPublished && !registration.training)) ||
         (registration.hotelEligible &&
-            (registration.hotelAvailable && !registration.hotelPreferences &&
+            (registration.hotelInformationPublished && !registration.hotelPreferences &&
              !registration.hotelBookings.length));
 
     const navigateToRegistration = useCallback(() => {

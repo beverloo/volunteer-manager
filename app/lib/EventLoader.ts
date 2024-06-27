@@ -37,7 +37,6 @@ export async function getEventBySlug(slug: string)
 
             hotelEnabled: tEvents.hotelEnabled,
             refundEnabled: tEvents.refundEnabled,
-            refundPublished: tEvents.refundInformationPublished,
             trainingEnabled: tEvents.trainingEnabled,
 
             environments: db.aggregateAsArray({
@@ -122,7 +121,6 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
 
             hotelEnabled: tEvents.hotelEnabled,
             refundEnabled: tEvents.refundEnabled,
-            refundPublished: tEvents.refundInformationPublished,
             trainingEnabled: tEvents.trainingEnabled,
 
             environments: db.aggregateAsArray({

@@ -30,7 +30,9 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
     const { environment, event, registration, user } = context;
 
     const eligible = registration.trainingEligible;
-    const enabled = registration.trainingAvailable || can(user, Privilege.EventTrainingManagement);
+    const enabled =
+        registration.trainingInformationPublished || can(user, Privilege.EventTrainingManagement);
+
     const preferences = registration.training;
 
     if ((!eligible || !enabled) && !(!!preferences && !!preferences.confirmed))

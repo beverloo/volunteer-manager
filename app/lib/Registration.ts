@@ -21,7 +21,7 @@ export interface RegistrationDatabaseRow {
         timeslots?: string;
     },
 
-    hotelAvailable: boolean;
+    hotelInformationPublished: boolean;
     hotelEligible: boolean;
     hotelPreferences?: {
         hotelId?: number;
@@ -34,6 +34,7 @@ export interface RegistrationDatabaseRow {
         updated?: string;
     };
 
+    refundInformationPublished: boolean;
     refund?: {
         ticketNumber?: string;
         accountIban?: string;
@@ -42,7 +43,7 @@ export interface RegistrationDatabaseRow {
         confirmed?: string;
     },
 
-    trainingAvailable: boolean;
+    trainingInformationPublished: boolean;
     trainingEligible: boolean;
     training?: {
         confirmed?: boolean;
@@ -276,9 +277,9 @@ export interface RegistrationData {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Whether the necessary data to indicate hotel bookings during the event exists.
+     * Whether the necessary data to indicate hotel bookings during the event has been published.
      */
-    hotelAvailable: boolean;
+    hotelInformationPublished: boolean;
 
     /**
      * Whether the volunteer is eligible to indicate hotel preferences, not accounting overrides.
@@ -300,6 +301,11 @@ export interface RegistrationData {
     // ---------------------------------------------------------------------------------------------
 
     /**
+     * Whether the availability of requesting a refund has been published.
+     */
+    refundInformationPublished: boolean;
+
+    /**
      * The refund preferences that the volunteer has indicated, together with confirmation status.
      */
     refund?: RegistrationRefund;
@@ -309,9 +315,9 @@ export interface RegistrationData {
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Whether the necessary data to indicate training preferences during the event exists.
+     * Whether the necessary data to indicate training preferences has been published.
      */
-    trainingAvailable: boolean;
+    trainingInformationPublished: boolean;
 
     /**
      * Whether the volunteer is eligible to indicate training preferences, not accounting overrides.
@@ -376,14 +382,15 @@ export class Registration implements RegistrationData {
     get availabilityEventLimit() { return this.#registration.availabilityEventLimit; }
     get availability() { return this.#availability; }
 
-    get hotelAvailable() { return this.#registration.hotelAvailable; }
+    get hotelInformationPublished() { return this.#registration.hotelInformationPublished; }
     get hotelEligible() { return this.#registration.hotelEligible; }
     get hotelPreferences() { return this.#registration.hotelPreferences; }
     get hotelBookings() { return this.#hotelBookings; }
 
+    get refundInformationPublished() { return this.#registration.refundInformationPublished; }
     get refund() { return this.#registration.refund; }
 
-    get trainingAvailable() { return this.#registration.trainingAvailable; }
+    get trainingInformationPublished() { return this.#registration.trainingInformationPublished; }
     get trainingEligible() { return this.#registration.trainingEligible; }
     get training() { return this.#registration.training; }
 
@@ -404,14 +411,15 @@ export class Registration implements RegistrationData {
             availabilityEventLimit: this.availabilityEventLimit,
             availability: this.availability,
 
-            hotelAvailable: this.hotelAvailable,
+            hotelInformationPublished: this.hotelInformationPublished,
             hotelEligible: this.hotelEligible,
             hotelPreferences: this.hotelPreferences,
             hotelBookings: this.#hotelBookings,
 
+            refundInformationPublished: this.refundInformationPublished,
             refund: this.refund,
 
-            trainingAvailable: this.trainingAvailable,
+            trainingInformationPublished: this.trainingInformationPublished,
             trainingEligible: this.trainingEligible,
             training: this.training,
         };
