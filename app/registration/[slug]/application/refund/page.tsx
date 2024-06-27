@@ -11,6 +11,7 @@ import Collapse from '@mui/material/Collapse';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
 import { Markdown } from '@components/Markdown';
+import { Privilege, can } from '@lib/auth/Privileges';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -29,6 +30,11 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         notFound();  // the event does not exist, or the volunteer is not signed in
 
     const { event, registration, user } = context;
+
+    if (registration.refundAvailabilityWindow === 'pending') {
+        if (!can(user, Privilege.Refunds))
+            notFound();  // the availability window has not opened yet
+    }
 
     // Determine the window within which volunteers can request refunds, which can be configured by
     // refund administrators. The content of this page will depend on that.

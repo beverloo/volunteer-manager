@@ -39,6 +39,11 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
     if ((!eligible || !enabled) && !bookings)
         notFound();  // the volunteer is not eligible to a hotel reservation
 
+    if (registration.hotelAvailabilityWindow === 'pending') {
+        if (!can(user, Privilege.EventHotelManagement))
+            notFound();  // the availability window has not opened yet
+    }
+
     const options = await getHotelRoomOptions(event.eventId);
     const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
         firstName: user.firstName,

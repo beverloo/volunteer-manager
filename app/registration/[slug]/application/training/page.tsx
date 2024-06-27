@@ -38,6 +38,11 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
     if ((!eligible || !enabled) && !(!!preferences && !!preferences.confirmed))
         notFound();  // the volunteer is not eligible to participate in the training
 
+    if (registration.trainingAvailabilityWindow === 'pending') {
+        if (!can(user, Privilege.EventTrainingManagement))
+            notFound();  // the availability window has not opened yet
+    }
+
     const trainingOptions = await getTrainingOptions(event.eventId);
     const content = await getStaticContent([ 'registration', 'application', 'training' ], {
         firstName: user.firstName,
