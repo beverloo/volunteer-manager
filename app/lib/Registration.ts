@@ -1,7 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { Temporal } from '@lib/Temporal';
 import { EventAvailabilityStatus, RegistrationStatus } from './database/Types';
+
+import { getAvailabilityWindowStatus, type AvailabilityWindowStatus }
+    from './isAvailabilityWindowOpen';
 
 /**
  * Interface that maps to the database representation of a registration.
@@ -22,6 +26,7 @@ export interface RegistrationDatabaseRow {
     },
 
     hotelInformationPublished: boolean;
+    hotelAvailabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime };
     hotelEligible: boolean;
     hotelPreferences?: {
         hotelId?: number;
@@ -35,6 +40,7 @@ export interface RegistrationDatabaseRow {
     };
 
     refundInformationPublished: boolean;
+    refundAvailabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime };
     refund?: {
         ticketNumber?: string;
         accountIban?: string;
@@ -44,6 +50,7 @@ export interface RegistrationDatabaseRow {
     },
 
     trainingInformationPublished: boolean;
+    trainingAvailabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime };
     trainingEligible: boolean;
     training?: {
         confirmed?: boolean;
@@ -282,6 +289,11 @@ export interface RegistrationData {
     hotelInformationPublished: boolean;
 
     /**
+     * Whether the hotel preferences availability window is currently open.
+     */
+    hotelAvailabilityWindow: AvailabilityWindowStatus;
+
+    /**
      * Whether the volunteer is eligible to indicate hotel preferences, not accounting overrides.
      */
     hotelEligible: boolean;
@@ -306,6 +318,11 @@ export interface RegistrationData {
     refundInformationPublished: boolean;
 
     /**
+     * Whether the refund requests availability window is currently open.
+     */
+    refundAvailabilityWindow: AvailabilityWindowStatus;
+
+    /**
      * The refund preferences that the volunteer has indicated, together with confirmation status.
      */
     refund?: RegistrationRefund;
@@ -318,6 +335,11 @@ export interface RegistrationData {
      * Whether the necessary data to indicate training preferences has been published.
      */
     trainingInformationPublished: boolean;
+
+    /**
+     * Whether the training preferences availability window is currently open.
+     */
+    trainingAvailabilityWindow: AvailabilityWindowStatus;
 
     /**
      * Whether the volunteer is eligible to indicate training preferences, not accounting overrides.
@@ -338,11 +360,22 @@ export interface RegistrationData {
 export class Registration implements RegistrationData {
     #registration: RegistrationDatabaseRow;
 
+    #hotelAvailabilityWindow: AvailabilityWindowStatus;
+    #refundAvailabilityWindow: AvailabilityWindowStatus;
+    #trainingAvailabilityWindow: AvailabilityWindowStatus;
+
     #availability: RegistrationAvailability;
     #hotelBookings: RegistrationHotelBooking[];
 
     constructor(registration: RegistrationDatabaseRow, hotelBookings: RegistrationHotelBooking[]) {
         this.#registration = registration;
+
+        this.#hotelAvailabilityWindow =
+            getAvailabilityWindowStatus(registration.hotelAvailabilityWindow);
+        this.#refundAvailabilityWindow =
+            getAvailabilityWindowStatus(registration.refundAvailabilityWindow);
+        this.#trainingAvailabilityWindow =
+            getAvailabilityWindowStatus(registration.trainingAvailabilityWindow);
 
         const { availability } = registration;
         {
@@ -383,14 +416,17 @@ export class Registration implements RegistrationData {
     get availability() { return this.#availability; }
 
     get hotelInformationPublished() { return this.#registration.hotelInformationPublished; }
+    get hotelAvailabilityWindow() { return this.#hotelAvailabilityWindow; }
     get hotelEligible() { return this.#registration.hotelEligible; }
     get hotelPreferences() { return this.#registration.hotelPreferences; }
     get hotelBookings() { return this.#hotelBookings; }
 
     get refundInformationPublished() { return this.#registration.refundInformationPublished; }
+    get refundAvailabilityWindow() { return this.#refundAvailabilityWindow; }
     get refund() { return this.#registration.refund; }
 
     get trainingInformationPublished() { return this.#registration.trainingInformationPublished; }
+    get trainingAvailabilityWindow() { return this.#trainingAvailabilityWindow; }
     get trainingEligible() { return this.#registration.trainingEligible; }
     get training() { return this.#registration.training; }
 
@@ -412,14 +448,17 @@ export class Registration implements RegistrationData {
             availability: this.availability,
 
             hotelInformationPublished: this.hotelInformationPublished,
+            hotelAvailabilityWindow: this.hotelAvailabilityWindow,
             hotelEligible: this.hotelEligible,
             hotelPreferences: this.hotelPreferences,
             hotelBookings: this.#hotelBookings,
 
             refundInformationPublished: this.refundInformationPublished,
+            refundAvailabilityWindow: this.refundAvailabilityWindow,
             refund: this.refund,
 
             trainingInformationPublished: this.trainingInformationPublished,
+            trainingAvailabilityWindow: this.#trainingAvailabilityWindow,
             trainingEligible: this.trainingEligible,
             training: this.training,
         };

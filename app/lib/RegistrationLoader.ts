@@ -77,6 +77,10 @@ export async function getRegistration(environmentName: string, event: Event, use
             },
 
             hotelInformationPublished: tEvents.hotelInformationPublished.equals(/* true= */ 1),
+            hotelAvailabilityWindow: {
+                start: tEvents.hotelPreferencesStart,
+                end: tEvents.hotelPreferencesEnd,
+            },
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(
                 tRoles.roleHotelEligible).equals(/* true= */ 1),
             hotelPreferences: {
@@ -91,6 +95,10 @@ export async function getRegistration(environmentName: string, event: Event, use
             },
 
             refundInformationPublished: tEvents.refundInformationPublished.equals(/* true= */ 1),
+            refundAvailabilityWindow: {
+                start: tEvents.refundRequestsStart,
+                end: tEvents.refundRequestsEnd,
+            },
             refund: {
                 ticketNumber: refundsJoin.refundTicketNumber,
                 accountIban: refundsJoin.refundAccountIban,
@@ -101,6 +109,10 @@ export async function getRegistration(environmentName: string, event: Event, use
 
             trainingInformationPublished:
                 tEvents.trainingInformationPublished.equals(/* true= */ 1),
+            trainingAvailabilityWindow: {
+                start: tEvents.trainingPreferencesStart,
+                end: tEvents.trainingPreferencesEnd,
+            },
             trainingEligible: tUsersEvents.trainingEligible.valueWhenNull(
                 tRoles.roleTrainingEligible).equals(/* true= */ 1),
             training: {
