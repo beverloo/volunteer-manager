@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
-import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AvailabilityWarning } from '../AvailabilityWarning';
 import { HotelConfirmation } from './HotelConfirmation';
 import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@components/Markdown';
@@ -31,18 +33,16 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
     const bookings = registration.hotelBookings;
     const eligible = registration.hotelEligible;
-    const enabled =
-        registration.hotelInformationPublished || can(user, Privilege.EventHotelManagement);
+    const override = can(user, Privilege.EventHotelManagement);
+    const enabled = registration.hotelInformationPublished || override;
 
     const preferences = registration.hotelPreferences;
 
     if ((!eligible || !enabled) && !bookings)
         notFound();  // the volunteer is not eligible to a hotel reservation
 
-    if (registration.hotelAvailabilityWindow === 'pending') {
-        if (!can(user, Privilege.EventHotelManagement))
-            notFound();  // the availability window has not opened yet
-    }
+    if (registration.hotelAvailabilityWindow.status === 'pending' && !override)
+        notFound();  // the availability window has not opened yet
 
     const options = await getHotelRoomOptions(event.eventId);
     const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
@@ -63,7 +63,16 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
     };
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Stack spacing={2} sx={{ p: 2 }}>
+            { !registration.hotelInformationPublished &&
+                <Alert severity="warning">
+                    Details about the available hotel rooms have not been published yet, which may
+                    result in this page appearing incomplete or broken.
+                </Alert> }
+
+            <AvailabilityWarning override={override}
+                                 window={registration.hotelAvailabilityWindow} />
+
             { content && <Markdown>{content.markdown}</Markdown> }
             { bookings.length > 0 &&
                 <HotelConfirmation bookings={bookings} /> }
@@ -75,7 +84,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
                 « Back to your registration
             </MuiLink>
-        </Box>
+        </Stack>
     );
 }
 

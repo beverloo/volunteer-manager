@@ -4,9 +4,13 @@
 import { Temporal } from '@lib/Temporal';
 
 /**
- * Status of a given availability window.
+ * Status of a given availability window. Includes both the actual status, and a stringified version
+ * of the
  */
-export type AvailabilityWindowStatus = 'pending' | 'current' | 'missed';
+export type AvailabilityWindowStatus =
+    { status: 'pending'; open?: string; } |
+    { status: 'current'; close?: string; } |
+    { status: 'missed'; close: string; };
 
 /**
  * Type definition for the contents of an availability window, including its override.
@@ -34,24 +38,25 @@ export type AvailabilityWindow = {
  */
 export function getAvailabilityWindowStatus(window?: AvailabilityWindow): AvailabilityWindowStatus {
     if (!window || (!window.start && !window.end))
-        return 'pending';
+        return { status: 'pending' };
 
     if (typeof window.override === 'boolean')
-        return window.override ? 'current' : 'pending';
+        return window.override ? { status: 'current' } : { status: 'pending' };
 
     const currentTime = Temporal.Now.zonedDateTimeISO();
     if (!!window.start && Temporal.ZonedDateTime.compare(window.start, currentTime) > 0)
-        return 'pending';
+        return { status: 'pending', open: window.start.toString() };
 
     if (!!window.end && Temporal.ZonedDateTime.compare(window.end, currentTime) <= 0)
-        return 'missed';
+        return { status: 'missed', close: window.end.toString() };
 
-    return 'current';
+    return !!window.end ? { status: 'current', close: window.end.toString() }
+                        : { status: 'current' };
 }
 
 /**
  * Utility function to determine whether the given availabiltiy `window` is currently open.
  */
 export function isAvailabilityWindowOpen(window?: AvailabilityWindow): boolean {
-    return getAvailabilityWindowStatus(window) === 'current';
+    return getAvailabilityWindowStatus(window).status === 'current';
 }

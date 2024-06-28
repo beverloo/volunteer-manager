@@ -31,10 +31,12 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
 
     const { event, registration, user } = context;
 
-    if (registration.refundAvailabilityWindow === 'pending') {
+    if (registration.refundAvailabilityWindow.status === 'pending') {
         if (!can(user, Privilege.Refunds))
             notFound();  // the availability window has not opened yet
     }
+
+    // TODO: Revise the following logic with availability windows in mind.
 
     // Determine the window within which volunteers can request refunds, which can be configured by
     // refund administrators. The content of this page will depend on that.
