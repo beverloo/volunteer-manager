@@ -8,6 +8,7 @@ import { MuiMarkdown, defaultOverrides } from 'mui-markdown';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
+import Alert from '@mui/material/Alert';
 import Box, { type BoxProps } from '@mui/material/Box';
 import { default as MuiLink, type LinkProps } from '@mui/material/Link';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
@@ -23,27 +24,13 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '&> div >:last-child': { mb: 0 },
         '&> p:last-child': { mb: 0 },
 
-        '& blockquote': theme => {
-            const backgroundColor =
-                theme.palette.mode === 'light' ? lighten(theme.palette.error.main, .8)
-                                               : darken(theme.palette.error.main, .7);
-
-            return {
-                backgroundColor,
-                borderColor: 'transparent',
-                borderRadius: `${theme.shape.borderRadius}px`,
-                color: theme.palette.getContrastText(backgroundColor),
-
-                margin: theme.spacing(2, 0),
-                padding: theme.spacing(0, 2),
-
-                '& p': {
-                    padding: theme.spacing(1, 0),
-                }
-            };
-        },
-
         '& p': { marginBottom: 2 },
+
+        '& .MuiAlert-root': { marginBottom: 2 },
+        '& .MuiAlert-root p': {
+            marginBottom: 0,
+            typography: 'body2',
+        },
 
         '& h5': { /* none yet */ },
         '& h6': { fontWeight: 800 },
@@ -106,6 +93,7 @@ export function Markdown(props: MarkdownProps) {
                 <MuiMarkdown overrides={{
                     ...defaultOverrides,
                     a: { component: LinkComponent },
+                    blockquote: { component: Alert, props: { severity: 'warning' } },
                     h1: { component: Text, props: { tag: 'h1' } },
                     h2: { component: Text, props: { tag: 'h2' } },
                     h3: { component: Text, props: { tag: 'h3' } },
