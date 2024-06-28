@@ -119,7 +119,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!registration.hotelEligible && !registration.hotelPreferences)
         return { success: false, error: 'You are not eligible to book a hotel room' };
 
-    if (!registration.hotelAvailable && !can(props.user, Privilege.EventHotelManagement))
+    if (!registration.hotelInformationPublished && !can(props.user, Privilege.EventHotelManagement))
         return { success: false, error: 'Hotel rooms cannot be booked yet, sorry!' };
 
     // TODO: Disallow updates when the room has been confirmed
