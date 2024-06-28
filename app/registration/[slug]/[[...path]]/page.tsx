@@ -45,7 +45,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
 
     if (path && path.length > 0) {
         return (
-            <Stack spacing={2}>
+            <Stack spacing={2} sx={{ p: 2 }}>
                 <Markdown>{content.markdown}</Markdown>
                 <MuiLink component={Link} href={`/registration/${slug}`}>
                     « Previous page
