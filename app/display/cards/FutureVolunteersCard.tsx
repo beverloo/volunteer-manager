@@ -75,7 +75,8 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
             return undefined;
 
         return {
-            dt: Temporal.Instant.fromEpochSeconds(volunteers[0].start).toZonedDateTimeISO(timezone),
+            dt: Temporal.Instant.fromEpochMilliseconds(volunteers[0].start * 1000)
+                .toZonedDateTimeISO(timezone),
             volunteers,
         };
 

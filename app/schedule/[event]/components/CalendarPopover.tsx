@@ -72,11 +72,11 @@ export default function CalendarPopover(props: CalendarPopoverProps) {
             const color = availableColours.shift();
 
             for (const shift of vendor.shifts) {
-                const startInstant = Temporal.Instant.fromEpochSeconds(shift.start);
+                const startInstant = Temporal.Instant.fromEpochMilliseconds(shift.start * 1000);
                 if (!min || min.epochSeconds > startInstant.epochSeconds)
                     min = startInstant;
 
-                const endInstant = Temporal.Instant.fromEpochSeconds(shift.end);
+                const endInstant = Temporal.Instant.fromEpochMilliseconds(shift.end * 1000);
                 if (!max || max.epochSeconds < endInstant.epochSeconds)
                     max = endInstant;
 

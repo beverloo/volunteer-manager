@@ -57,7 +57,7 @@ export function currentZonedDateTime(): Temporal.ZonedDateTime {
 export function toZonedDateTime(unixTimestamp: number): Temporal.ZonedDateTime {
     let zonedDateTime = globalThis.animeConTimeCache.get(unixTimestamp);
     if (!zonedDateTime) {
-        zonedDateTime = Temporal.Instant.fromEpochSeconds(unixTimestamp)
+        zonedDateTime = Temporal.Instant.fromEpochMilliseconds(unixTimestamp * 1000)
             .toZonedDateTimeISO(globalThis.animeConTimezone);
 
         globalThis.animeConTimeCache.set(unixTimestamp, zonedDateTime);

@@ -62,8 +62,8 @@ export function VolunteersDialog(props: VolunteersDialogProps) {
             for (const event of schedule[type]) {
                 events.push({
                     id: event.id,
-                    start: Temporal.Instant.fromEpochSeconds(event.start).toString(),
-                    end: Temporal.Instant.fromEpochSeconds(event.end).toString(),
+                    start: Temporal.Instant.fromEpochMilliseconds(event.start * 1000).toString(),
+                    end: Temporal.Instant.fromEpochMilliseconds(event.end * 1000).toString(),
                     title: event.name,
                     color: determineColour(event.name),
                 });

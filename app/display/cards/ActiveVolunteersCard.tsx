@@ -34,7 +34,8 @@ interface ActiveVolunteerCardProps {
  */
 function ActiveVolunteerCard(props: ActiveVolunteerCardProps) {
     const endZonedDateTime =
-        Temporal.Instant.fromEpochSeconds(props.volunteer.end).toZonedDateTimeISO(props.timezone);
+        Temporal.Instant.fromEpochMilliseconds(props.volunteer.end * 1000)
+            .toZonedDateTimeISO(props.timezone);
 
     return (
         <Paper sx={{ px: 2, py: 1.5, backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
