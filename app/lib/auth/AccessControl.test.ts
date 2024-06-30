@@ -8,12 +8,22 @@ describe('AccessControl', () => {
         const kPermissionTestCases = {
             valid: [
                 'foo',
+                'foo:create',
+                'foo:read',
+                'foo:update',
+                'foo:delete',
                 'foo.bar',
+                'foo.bar:create',
+                'foo.bar:read',
+                'foo.bar:update',
+                'foo.bar:delete',
                 'foo.bar.baz',
             ],
             invalid: [
                 '',
                 ' ',
+                'foo:unicorn',
+                'bar:unicorn',
                 'foo,bar',
                 '1234',
                 'foo$bar',
@@ -42,9 +52,9 @@ describe('AccessControl', () => {
         expect(accessControl.can('test.crud', 'read')).toBeFalse();
     });
 
-    it.failing('has the ability to grant individual CRUD operations', () => {
+    it('has the ability to grant individual CRUD operations', () => {
         const accessControl = new AccessControl({
-            grants: 'test.crud.create,test.crud.read',
+            grants: 'test.crud:create,test.crud:read',
         });
 
         expect(accessControl.can('test.crud', 'create')).toBeTrue();
@@ -83,10 +93,10 @@ describe('AccessControl', () => {
         expect(accessControl.can('test.crud', 'delete')).toBeFalse();
     });
 
-    it.failing('has the ability to revoke individual CRUD operations', () => {
+    it('has the ability to revoke individual CRUD operations', () => {
         const accessControl = new AccessControl({
             grants: 'test.crud',
-            revokes: 'test.crud.delete',
+            revokes: 'test.crud:delete',
         });
 
         expect(accessControl.can('test.boolean')).toBeFalse();

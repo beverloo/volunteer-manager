@@ -44,7 +44,7 @@ interface Options {
  *
  * @visible Exclusively for testing purposes.
  */
-export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*$/i;
+export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|update|delete))*$/;
 
 /**
  * The `AccessControl` object enables consistent access checks throughout the Volunteer Manager
@@ -54,6 +54,10 @@ export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*$/i;
  * There are two axes specific to the Volunteer Manager: grants that are scoped to a particular
  * event, and grants that are scoped to a particular team. Possibly both. This enables implicitly
  * granted permissions based on a volunteer's role in a particular event.
+ *
+ * Individual permissions have hierarchical names, each scope separated by a dot, with the most
+ * significant scope being the left-most entry. CRUD permissions can further have modifiers on the
+ * permission that indicate the scope, e.g. "foo.bar:update".
  */
 export class AccessControl {
     #grants: Set<string>;
@@ -91,6 +95,10 @@ export class AccessControl {
      * Checks whether the visitor has access to the given `permission`. When the `permission` is a
      * CRUD-based permission, the operation must be specified. A set of options may be given when
      * applicable, to enable further fine-grained access control at the resource level.
+     *
+     * Permission checks will be highly specific at first, to ensure that someone who is granted the
+     * "foo" permission can still have "foo.bar" explicitly revoked. CRUD permissions will be
+     * expanded separately at the deepest scope.
      */
     can(permission: BooleanPermission, options?: Options): boolean;
     can(permission: CRUDPermission, operation: Operation, options?: Options): boolean;
@@ -98,23 +106,34 @@ export class AccessControl {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);
 
-        let scopeLength: number = /* starting index= */ -1;
-        do {
-            scopeLength = permission.indexOf('.', scopeLength + 1);
-            const scope = scopeLength === -1 ? permission
-                                             : permission.substring(0, scopeLength);
+        if (getPermissionType(permission) === 'crud') {
+            if (typeof second !== 'string')
+                throw new Error(`Invalid operation given for a CRUD permission: "${second}"`);
 
-            // (1) If the permission has been explicitly revoked, prioritise that.
+            const scope = `${permission}:${second}`;
+
             if (this.#revokes.has(scope))
-                return false;
+                return false;  // permission+scope has been explicitly revoked
 
-            // (2) If the permission has been explicitly granted, then prioritise that.
             if (this.#grants.has(scope))
-                return true;
+                return true;  // permission+scope has been explicitly granted
+        }
 
-        } while (scopeLength !== -1);
+        const path = permission.split('.');
+        do {
+            const scope = path.join('.');
 
-        return false;
+            if (this.#revokes.has(scope))
+                return false;  // (scoped) permission has been explicitly revoked
+
+            if (this.#grants.has(scope))
+                return true;  // (scoped) permission has been explicitly granted
+
+            path.pop();
+
+        } while (!!path.length);
+
+        return false;  // no permission has been granted
     }
 
     /**
