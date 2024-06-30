@@ -115,4 +115,10 @@ describe('AccessControl', () => {
         expect(accessControl.can('test.boolean')).toBeFalse();
         expect(accessControl.can('test.crud', 'read')).toBeFalse();
     });
+
+    it('has the ability to require a permission to be granted', () => {
+        const accessControl = new AccessControl({ /* no grants */ });
+
+        expect(() => accessControl.require('test.boolean')).toThrow();
+    });
 });

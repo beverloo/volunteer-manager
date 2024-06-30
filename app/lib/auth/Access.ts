@@ -4,6 +4,8 @@
 // TODO: Special permissions
 
 // -------------------------------------------------------------------------------------------------
+// Boolean permissions
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Permissions that are boolean-based, i.e. they're either granted, or they're not.
@@ -19,10 +21,12 @@ enum BooleanPermissions {
 export type BooleanPermission = `${BooleanPermissions}`;
 
 // -------------------------------------------------------------------------------------------------
+// CRUD permissions
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Permissions that are CRUD-based, i.e. have different states depending on whether data is being
- * created, read, updated or deleted.
+ * created, read, updated or deleted. Individual operations can be both granted and/or revoked.
  */
 enum CRUDPermissions {
     // Namespace: `test`

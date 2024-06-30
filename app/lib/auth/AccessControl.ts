@@ -1,6 +1,8 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import type { BooleanPermission, CRUDPermission } from './Access';
 import { getPermissionType } from './Access';
 
@@ -147,6 +149,7 @@ export class AccessControl {
     require(permission: BooleanPermission, options?: Options): void;
     require(permission: CRUDPermission, operation: Operation, options?: Options): void;
     require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
-        // TODO
+        if (!this.can(permission as any, second, third))
+            notFound();
     }
 }
