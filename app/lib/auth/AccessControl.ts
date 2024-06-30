@@ -4,7 +4,7 @@
 import { notFound } from 'next/navigation';
 
 import type { BooleanPermission, CRUDPermission } from './Access';
-import { getPermissionType } from './Access';
+import { expandPermissionGroup, getPermissionType } from './Access';
 
 /**
  * CRUD-described operations that can happen based on a permission.
@@ -81,7 +81,10 @@ export class AccessControl {
         if (typeof input !== 'string')
             return grants;
 
-        for (const permission of input.split(',')) {
+        const expandedPermissions =
+            input.split(',').map(permission => expandPermissionGroup(permission)).flat();
+
+        for (const permission of expandedPermissions) {
             if (!kPermissionPattern.test(permission)) {
                 console.warn(`Invalid syntax for the given grant: "${permission}" (ignoring)`);
                 continue;

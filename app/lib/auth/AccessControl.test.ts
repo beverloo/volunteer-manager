@@ -116,6 +116,19 @@ describe('AccessControl', () => {
         expect(accessControl.can('test.crud', 'read')).toBeFalse();
     });
 
+    it('has the ability to expand permission groups', () => {
+        const accessControl = new AccessControl({
+            grants: 'admin',
+            revokes: 'test.crud:delete',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'create')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+        expect(accessControl.can('test.crud', 'update')).toBeTrue();
+        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
+    });
+
     it('has the ability to require a permission to be granted', () => {
         const accessControl = new AccessControl({ /* no grants */ });
 

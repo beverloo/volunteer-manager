@@ -1,7 +1,11 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-// TODO: Special permissions
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!                                                                                             !!
+// !!    When updating permissions in this file, make sure to also update AccessDescriptors.ts    !!
+// !!                                                                                             !!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // -------------------------------------------------------------------------------------------------
 // Boolean permissions
@@ -37,6 +41,23 @@ enum CRUDPermissions {
  * Type containing all the permissions available for CRUD operations.
  */
 export type CRUDPermission = `${CRUDPermissions}`;
+
+// -------------------------------------------------------------------------------------------------
+// Permission groups
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Expands the given `permission` into a set of permission in case this is applicable. This allows
+ * the "admin" group to expand into each of the individual namespaces, for example.
+ */
+export function expandPermissionGroup(permission: string): string | string[] {
+    switch (permission) {
+        case 'admin':
+            return [ 'test' ];
+    }
+
+    return permission;
+}
 
 // -------------------------------------------------------------------------------------------------
 
