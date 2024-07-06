@@ -4,6 +4,7 @@
 import type { AuthenticationContext, UserEventAuthenticationContext } from './AuthenticationContext';
 import type { User } from './User';
 import type { useMockConnection } from '@lib/database/Connection';
+import { AccessControl } from './AccessControl';
 import { AuthType } from '../database/Types';
 
 /**
@@ -11,6 +12,14 @@ import { AuthType } from '../database/Types';
  * are a series of tests that mock user authentication.
  */
 export interface AuthenticationResult {
+    // AuthenticationContext.accessControl:
+    accessControl?: {
+        grants?: string;
+        revokes?: string;
+        events?: string;
+        teams?: string;
+    };
+
     // UserAuthenticationContext.authType:
     authType: AuthType,
 
@@ -38,6 +47,12 @@ export interface AuthenticationResult {
  * will be substituted with default values, and is not required to be given.
  */
 interface BuildAuthenticationContextParams {
+    access?: Partial<{
+        grants?: string;
+        revokes?: string;
+        events?: string;
+        teams?: string;
+    }>;
     user?: Partial<User>;
     authType?: AuthType;
     events?: Map<string, UserEventAuthenticationContext>;
@@ -52,6 +67,7 @@ export function buildAuthenticationContext(params?: BuildAuthenticationContextPa
 {
     params = params ?? {};
     return {
+        access: new AccessControl(params.access ?? { grants: 'everyone' }),
         user: {
             userId: 2000000,
             username: 'joe@example.com',

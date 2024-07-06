@@ -5,6 +5,7 @@ import type { AuthenticationContext, UserAuthenticationContext } from './Authent
 import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
+import { AccessControl, type Grant } from './AccessControl';
 import { AuthType, RegistrationStatus } from '../database/Types';
 import { Temporal } from '@lib/Temporal';
 import { expand } from './Privileges';
@@ -97,6 +98,14 @@ export async function authenticateUser(params: AuthenticateUserParams)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .groupBy(tUsers.userId)
         .select({
+            // AuthenticationContext.accessControl:
+            accessControl: {
+                grants: tUsers.permissionsGrants,
+                revokes: tUsers.permissionsRevokes,
+                events: tUsers.permissionsEvents,
+                teams: tUsers.permissionsTeams,
+            },
+
             // UserAuthenticationContext.authType:
             authType: tUsersAuth.authType,
 
@@ -159,8 +168,12 @@ export async function authenticateUser(params: AuthenticateUserParams)
     }
 
     const authenticationResult: AuthenticationResult | null = await authenticationQuery;
-    if (!authenticationResult)
-        return { user: /* visitor= */ undefined };
+    if (!authenticationResult) {
+        return {
+            access: new AccessControl({ grants: 'everyone' }),
+            user: /* guest= */ undefined,
+        };
+    }
 
     const authType = authenticationResult.authType;
     const events: UserAuthenticationContext['events'] = new Map();
@@ -179,12 +192,24 @@ export async function authenticateUser(params: AuthenticateUserParams)
         privileges: expand(authenticationResult.privileges),
     };
 
+    const grants: Grant[] = [ 'everyone' ];
+
+    if (!!authenticationResult.accessControl?.grants)
+        grants.push(authenticationResult.accessControl.grants);
+
     for (const entry of authenticationResult.events) {
         if (!entry.event || !entry.team)
             continue;  // incomplete data
 
         if (entry.isEventHidden)
             continue;  // the event has been suspended
+
+        // TODO: Distinguish between Senior and Staff
+        grants.push({
+            permission: 'senior',
+            event: entry.event,
+            team: entry.team,
+        });
 
         events.set(entry.event, {
             admin: !!entry.isRoleAdmin,
@@ -193,7 +218,14 @@ export async function authenticateUser(params: AuthenticateUserParams)
         });
     }
 
-    return { authType, events, user };
+    const accessControl = new AccessControl({
+        grants,
+        revokes: authenticationResult.accessControl?.revokes,
+        events: authenticationResult.accessControl?.events,
+        teams: authenticationResult.accessControl?.teams,
+    });
+
+    return { access: accessControl, authType, events, user };
 }
 
 type UserLike = { userId: number };

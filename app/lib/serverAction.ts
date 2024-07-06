@@ -7,6 +7,7 @@ import type { ZodObject, ZodRawShape, z } from 'zod';
 import { ZodError, ZodFirstPartyTypeKind } from 'zod';
 
 import type { User } from './auth/User';
+import { AccessControl } from './auth/AccessControl';
 import { AuthType } from './database/Types';
 import { getAuthenticationContextFromHeaders, type AuthenticationContext }
     from './auth/AuthenticationContext';
@@ -224,8 +225,14 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
         const requestHeaders = userForTesting ? new Headers : headers();
 
         const authenticationContext =
-            userForTesting ? { authType: AuthType.password, events: new Map, user: userForTesting }
-                           : await getAuthenticationContextFromHeaders(requestHeaders);
+            userForTesting ?
+                {
+                    access: new AccessControl({ /* todo? */ }),
+                    authType: AuthType.password,
+                    events: new Map,
+                    user: userForTesting
+
+                } : await getAuthenticationContextFromHeaders(requestHeaders);
 
         const props: ServerActionProps = {
             authenticationContext,

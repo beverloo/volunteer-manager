@@ -5,6 +5,7 @@ import type { AuthenticationContext } from './auth/AuthenticationContext';
 import type { AuthenticateUserParams } from './auth/Authentication';
 import type { User } from '@lib/auth/User';
 import { AuthType } from './database/Types';
+import { AccessControl } from './auth/AccessControl';
 
 /**
  * Internal fields to the User type used by Playwright.
@@ -100,6 +101,7 @@ export class PlaywrightHooks {
                 continue;
 
             return {
+                access: new AccessControl({ /* todo? */ }),
                 authType: playwrightUser.authType,
                 events: new Map(),
                 user: {
@@ -116,7 +118,10 @@ export class PlaywrightHooks {
             };
         }
 
-        return { user: /* visitor= */ undefined };
+        return {
+            access: new AccessControl({ grants: 'everyone' }),
+            user: /* visitor= */ undefined
+        };
     }
 
     /**

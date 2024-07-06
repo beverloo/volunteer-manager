@@ -10,7 +10,7 @@ import { getPermissionType, kPermissionGroups } from './Access';
  * Type definition for a grant, which can either be an individual grant without scope, or one that
  * is scoped to a particular event or team.
  */
-type Grant = string | { event?: string; permission: string; team?: string; }
+export type Grant = string | { event?: string; permission: string; team?: string; }
 
 /**
  * CRUD-described operations that can happen based on a permission.

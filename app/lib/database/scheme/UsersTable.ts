@@ -28,6 +28,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     privileges = this.columnWithDefaultValue('privileges', 'bigint');
     permissionsGrants = this.optionalColumnWithDefaultValue('permissions_grants', 'string');
     permissionsRevokes = this.optionalColumnWithDefaultValue('permissions_revokes', 'string');
+    permissionsEvents = this.optionalColumnWithDefaultValue('permissions_events', 'string');
     permissionsTeams = this.optionalColumnWithDefaultValue('permissions_teams', 'string');
     challenge = this.optionalColumnWithDefaultValue('challenge', 'string');
     activated = this.columnWithDefaultValue('activated', 'int');

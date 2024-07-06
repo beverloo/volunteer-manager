@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { SessionData } from './Session';
 import type { User } from './User';
+import { AccessControl } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
 import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
@@ -70,7 +71,13 @@ export interface VisitorAuthenticationContext {
  * Authentication Context, which defines not just the signed in user, but also detailed access
  * information about the level of access they have to different events.
  */
-export type AuthenticationContext = UserAuthenticationContext | VisitorAuthenticationContext;
+export type AuthenticationContext = {
+    /**
+     * Object that helps determine what permissions and privileges are granted to the visitor.
+     */
+    access: AccessControl;
+
+} & (UserAuthenticationContext | VisitorAuthenticationContext);
 
 /**
  * Determines the authentication context from the cookies included with the current request. May
@@ -81,7 +88,10 @@ export async function getAuthenticationContext(): Promise<AuthenticationContext>
     if (sessionData)
         return getAuthenticationContextFromSessionData(sessionData);
 
-    return { user: /* visitor= */ undefined };
+    return {
+        access: new AccessControl({ grants: 'everyone' }),
+        user: /* guest= */ undefined,
+    };
 }
 
 /**
@@ -95,7 +105,10 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
     if (sessionData)
         return getAuthenticationContextFromSessionData(sessionData);
 
-    return { user: /* visitor= */ undefined };
+    return {
+        access: new AccessControl({ grants: 'everyone' }),
+        user: /* guest= */ undefined,
+    }
 }
 
 /**

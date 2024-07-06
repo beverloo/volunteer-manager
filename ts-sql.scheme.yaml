@@ -1146,6 +1146,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: permissions_events
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: permissions_teams
     type: text
     nullable: true
@@ -1198,6 +1203,7 @@ tables:
       `privileges` bigint(20) NOT NULL DEFAULT 0,
       `permissions_grants` text DEFAULT NULL,
       `permissions_revokes` text DEFAULT NULL,
+      `permissions_events` text DEFAULT NULL,
       `permissions_teams` text DEFAULT NULL,
       `challenge` text DEFAULT NULL,
       `activated` tinyint(1) NOT NULL DEFAULT 0,

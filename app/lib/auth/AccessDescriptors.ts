@@ -34,6 +34,10 @@ interface AccessDescriptor {
  * The list of descriptors that explain what permissions are available in the Volunteer Manager.
  */
 export const kAccessDescriptors: { [k in Permissions]: AccessDescriptor } = {
+    'event.visible': {
+        name: 'Event visibility',
+        description: 'Whether this event can be discovered by them in the user interface',
+    },
     'test.boolean': {
         name: 'Test (boolean)',
         description: 'Boolean permission exclusively used for testing purposes',

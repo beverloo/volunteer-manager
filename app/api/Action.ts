@@ -7,8 +7,9 @@ import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
-import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
+import { AccessControl } from '@lib/auth/AccessControl';
 import { AuthType } from '@lib/database/Types';
+import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
 
 /**
  * Route parameters that can be included in the action request payload, based on REST principles.
@@ -177,8 +178,14 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         }
 
         const authenticationContext =
-            userForTesting ? { authType: AuthType.password, events: new Map, user: userForTesting }
-                           : await getAuthenticationContextFromHeaders(request.headers);
+            userForTesting ?
+                {
+                    access: new AccessControl({ /* todo? */ }),
+                    authType: AuthType.password,
+                    events: new Map,
+                    user: userForTesting
+
+                } : await getAuthenticationContextFromHeaders(request.headers);
 
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {

@@ -3,6 +3,7 @@
 
 import { isNotFoundError } from 'next/dist/client/components/not-found';
 
+import { AccessControl } from './AccessControl';
 import { Privilege } from './Privileges';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { executeAccessCheck, or, and, getAuthenticationContextFromHeaders } from './AuthenticationContext';
@@ -46,7 +47,7 @@ describe('AuthenticationContext', () => {
 
     it('is able to execute dedicated access checks: "admin"', () => {
         // Case (1): Visitors are never administrators
-        const visitorAuthenticationContext = { user: undefined };
+        const visitorAuthenticationContext = { access: new AccessControl({}), user: undefined };
         try {
             executeAccessCheck(visitorAuthenticationContext, { check: 'admin' });
             fail('executeAccessCheck was expected to throw');
@@ -84,7 +85,7 @@ describe('AuthenticationContext', () => {
 
     it('is able to execute dedicated access checks: "admin-event"', () => {
         // Case (1): Visitors are never administrators
-        const visitorAuthenticationContext = { user: undefined };
+        const visitorAuthenticationContext = { access: new AccessControl({}), user: undefined };
         try {
             executeAccessCheck(visitorAuthenticationContext, { check: 'admin-event', event: 'XX' });
             fail('executeAccessCheck was expected to throw');
