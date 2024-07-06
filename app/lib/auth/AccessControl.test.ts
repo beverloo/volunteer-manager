@@ -168,14 +168,6 @@ describe('AccessControl', () => {
         expect(unknownAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
     });
 
-    it('has the ability to grant permissions specific to a given event', () => {
-        // TODO
-    });
-
-    it('has the ability to revoke permissions specific to a given event', () => {
-        // TODO
-    });
-
     it('has the ability to grant holistic access to a given team', () => {
         const fullAccessControl = new AccessControl({
             grants: 'test.boolean',
@@ -336,6 +328,29 @@ describe('AccessControl', () => {
     });
 
     it('has the ability to grant role-based permissions specific', () => {
-        // TODO
+        const accessControl = new AccessControl({
+            grants: [
+                'test',
+                {
+                    permission: 'senior',
+                    event: '2024',
+                    team: 'crew',
+                }
+            ],
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+
+        expect(accessControl.can('event.visible')).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2024', team: kEveryTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: kEveryTeam })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: kEveryEvent, team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kEveryEvent, team: 'hosts' }))
+            .toBeFalse();
     });
 });

@@ -216,6 +216,9 @@ export class AccessControl {
         let teamApplicable = false;
 
         if (!!options?.event) {
+            if (options.event === kEveryEvent)
+                eventApplicable = true;  // event qualification is explicitly ignored
+
             if (permission.events?.has(options.event))
                 eventApplicable = true;  // a specific exception for this event was made
 
@@ -229,6 +232,9 @@ export class AccessControl {
         }
 
         if (!!options?.team) {
+            if (options.team === kEveryTeam)
+                teamApplicable = true;  // team qualification is explicitly ignored
+
             if (permission.teams?.has(options.team))
                 teamApplicable = true;  // a specific exception for this team was made
 

@@ -15,6 +15,9 @@
  * Permissions that are boolean-based, i.e. they're either granted, or they're not.
  */
 enum BooleanPermissions {
+    // Namespace: `event`
+    EventVisible = 'event.visible',
+
     // Namespace: `test`
     TestBooleanPermission = 'test.boolean',
 };
@@ -47,17 +50,21 @@ export type CRUDPermission = `${CRUDPermissions}`;
 // -------------------------------------------------------------------------------------------------
 
 /**
- * Expands the given `permission` into a set of permission in case this is applicable. This allows
- * the "admin" group to expand into each of the individual namespaces, for example.
+ * Permission groups that will be expanded prior to being applied. For example, when a user has been
+ * granted the "admin" permission, permissions included in the associated list will also be granted.
  */
-export function expandPermissionGroup(permission: string): string | string[] {
-    switch (permission) {
-        case 'admin':
-            return [ 'test' ];
-    }
-
-    return permission;
-}
+export const kPermissionGroups: Record<string, string[]> = {
+    admin: [
+        'event',
+        'test',
+    ],
+    staff: [
+        'event.visible',
+    ],
+    senior: [
+        'event.visible',
+    ],
+};
 
 // -------------------------------------------------------------------------------------------------
 
