@@ -54,7 +54,7 @@ describe('AccessControl', () => {
 
     it('has the ability to grant individual CRUD operations', () => {
         const accessControl = new AccessControl({
-            grants: 'test.crud:create,test.crud:read',
+            grants: [ 'test.crud:create', 'test.crud:read' ],
         });
 
         expect(accessControl.can('test.crud', 'create')).toBeTrue();
@@ -96,7 +96,7 @@ describe('AccessControl', () => {
     it('has the ability to revoke individual CRUD operations', () => {
         const accessControl = new AccessControl({
             grants: 'test.crud',
-            revokes: 'test.crud:delete',
+            revokes: [ { permission: 'test.crud:delete' } ],
         });
 
         expect(accessControl.can('test.boolean')).toBeFalse();
@@ -197,7 +197,7 @@ describe('AccessControl', () => {
 
         const unknownAccessControl = new AccessControl({
             grants: 'test.boolean',
-            // `teams` deliberately undefined
+            // `teams` deliberately omitted
         });
 
         expect(unknownAccessControl.can('test.boolean')).toBeTrue();
@@ -205,19 +205,137 @@ describe('AccessControl', () => {
         expect(unknownAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
     });
 
-    it('has the ability to grant permissions specific to a given team', () => {
-        // TODO
+    it('has the ability to grant permissions specific to a given event or team', () => {
+        const singleEventAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    event: '2024',
+                }
+            ],
+            // `events` deliberately omitted
+        });
+
+        expect(singleEventAccessControl.can('test.boolean')).toBeFalse();
+        expect(singleEventAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(singleEventAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+
+        const doubleEventAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    event: '2024',
+                }
+            ],
+            events: '2025',
+        });
+
+        expect(doubleEventAccessControl.can('test.boolean')).toBeFalse();
+        expect(doubleEventAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(doubleEventAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
+        expect(doubleEventAccessControl.can('test.boolean', { event: '2026' })).toBeFalse();
+
+        const singleTeamAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    team: 'hosts',
+                }
+            ],
+            // `teams` deliberately omitted
+        });
+
+        expect(singleTeamAccessControl.can('test.boolean')).toBeFalse();
+        expect(singleTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(singleTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
+
+        const doubleTeamAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    team: 'stewards',
+                }
+            ],
+            teams: 'crew',
+        });
+
+        expect(doubleTeamAccessControl.can('test.boolean')).toBeFalse();
+        expect(doubleTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
+        expect(doubleTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
+        expect(doubleTeamAccessControl.can('test.boolean', { team: 'stewards' })).toBeTrue();
     });
 
-    it('has the ability to revoke permissions specific to a given team', () => {
-        // TODO
+    it('has the ability to revoke permissions specific to a given event or team', () => {
+        const scopedEventAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            revokes: {
+                permission: 'test.boolean',
+                event: '2024',
+            },
+            events: kEveryEvent,
+        });
+
+        expect(scopedEventAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedEventAccessControl.can('test.boolean', { event: '2024' })).toBeFalse();
+        expect(scopedEventAccessControl.can('test.boolean', { event: '2025x' })).toBeTrue();
+
+        const partialEventAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    event: '2024',
+                },
+                {
+                    permission: 'test.boolean',
+                    event: '2025',
+                }
+            ],
+            revokes: {
+                permission: 'test.boolean',
+                event: '2024',
+            },
+        });
+
+        expect(partialEventAccessControl.can('test.boolean')).toBeFalse();
+        expect(partialEventAccessControl.can('test.boolean', { event: '2024' })).toBeFalse();
+        expect(partialEventAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
+
+        const scopedTeamAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            revokes: {
+                permission: 'test.boolean',
+                team: 'crew',
+            },
+            teams: kEveryTeam,
+        });
+
+        expect(scopedTeamAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(scopedTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
+
+        const partialTeamAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'test.boolean',
+                    team: 'crew',
+                },
+                {
+                    permission: 'test.boolean',
+                    team: 'hosts',
+                }
+            ],
+            revokes: {
+                permission: 'test.boolean',
+                team: 'crew',
+            },
+        });
+
+        expect(partialTeamAccessControl.can('test.boolean')).toBeFalse();
+        expect(partialTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(partialTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
     });
 
-    it('has the ability to grant permissions specific to a given event + team pair', () => {
-        // TODO
-    });
-
-    it('has the ability to revoke permissions specific to a given event + team pair', () => {
+    it('has the ability to grant role-based permissions specific', () => {
         // TODO
     });
 });

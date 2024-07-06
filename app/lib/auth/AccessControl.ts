@@ -4,7 +4,13 @@
 import { notFound } from 'next/navigation';
 
 import type { BooleanPermission, CRUDPermission } from './Access';
-import { expandPermissionGroup, getPermissionType } from './Access';
+import { getPermissionType, kPermissionGroups } from './Access';
+
+/**
+ * Type definition for a grant, which can either be an individual grant without scope, or one that
+ * is scoped to a particular event or team.
+ */
+type Grant = string | { event?: string; permission: string; team?: string; }
 
 /**
  * CRUD-described operations that can happen based on a permission.
@@ -18,23 +24,25 @@ type Operation = 'create' | 'read' | 'update' | 'delete';
  */
 interface Grants {
     /**
-     * Events that access should be granted to. By default no events are accessible, although some
-     * permissions may not be associated with a particular event. Certain permissions may be granted
-     * specific to a given event based on Senior-level access.
-     */
-    events?: string;
-
-    /**
      * Permissions that have been granted to the user, if any. These are in addition to implicit
      * grants based on event-level allocations, i.e. by being assigned to a Senior-level position.
      */
-    grants?: string;
+    grants?: Grant | Grant[];
 
     /**
      * Permissions that have been revoked for the user, if any. These take precedent over both
      * explicit grants, and implicit grants based on event-level allocations.
      */
-    revokes?: string;
+    revokes?: Grant | Grant[];
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Events that access should be granted to. By default no events are accessible, although some
+     * permissions may not be associated with a particular event. Certain permissions may be granted
+     * specific to a given event based on Senior-level access.
+     */
+    events?: string;
 
     /**
      * Teams that access should be granted to. By default no teams are accessible, although certain
@@ -82,9 +90,15 @@ export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|up
  * Contextualized information stored regarding a granted (or revoked) permission.
  */
 interface Permission {
-    // TODO: `eventsWithTeam` (?)
-    // TODO: `events`
-    // TODO: `teams`
+    /**
+     * Events that this permission is scoped to, if any. This is in addition to global access.
+     */
+    events?: Set<string>;
+
+    /**
+     * Teams that this permission is scoped to, if any. This is in addition to global access.
+     */
+    teams?: Set<string>;
 }
 
 /**
@@ -106,15 +120,26 @@ type PermissionMap = Map<string, Permission>;
  * permission that indicate the scope, e.g. "foo.bar:update".
  */
 export class AccessControl {
+    #grants: PermissionMap = new Map;
+    #revokes: PermissionMap = new Map;
+
     #events: Set<string> | undefined;
-    #grants: PermissionMap;
-    #revokes: PermissionMap;
     #teams: Set<string> | undefined;
+
     // TODO: isValid?
 
     constructor(grants: Grants) {
-        this.#grants = this.createGrantSetFromInput(grants.grants);
-        this.#revokes = this.createGrantSetFromInput(grants.revokes);
+        if (!!grants.grants) {
+            const grantArray = Array.isArray(grants.grants) ? grants.grants : [ grants.grants ];
+            for (const grant of grantArray)
+                this.populatePermissionMapFromInput(this.#grants, grant);
+        }
+
+        if (!!grants.revokes) {
+            const revokeArray = Array.isArray(grants.revokes) ? grants.revokes : [ grants.revokes ];
+            for (const revoke of revokeArray)
+                this.populatePermissionMapFromInput(this.#revokes, revoke);
+        }
 
         if (!!grants.events && !!grants.events.length)
             this.#events = new Set<string>(grants.events.split(','));
@@ -124,17 +149,14 @@ export class AccessControl {
     }
 
     /**
-     * Creates a new grant Map for the given `input`, when any has been provided. The input is
-     * expected to be a comma separated list of permissions. Each entry will be verified, and will
-     * result in a warning message when invalid input is seen.
+     * Populates the given `target` map with permissions sourced from the given `input`, which
+     * contain a comma-separated list of permissions, and optionally scoping to a specific event
+     * and/or team. No information will be returned from this method.
      */
-    private createGrantSetFromInput(input: string | undefined) {
-        const grants: PermissionMap = new Map;
-        if (typeof input !== 'string')
-            return grants;
-
+    private populatePermissionMapFromInput(target: PermissionMap, input: Grant): void {
+        const permissions = typeof input === 'string' ? input : input.permission;
         const expandedPermissions =
-            input.split(',').map(permission => expandPermissionGroup(permission)).flat();
+            permissions.split(',').map(perm => kPermissionGroups[perm] ?? perm).flat();
 
         for (const permission of expandedPermissions) {
             if (!kPermissionPattern.test(permission)) {
@@ -142,31 +164,84 @@ export class AccessControl {
                 continue;
             }
 
-            grants.set(permission, { /* no permission-level modifiers are applicable */ });
-        }
+            let event: string | undefined;
+            let team: string | undefined;
 
-        return grants;
+            if (typeof input !== 'string') {
+                if (!!input.event)
+                    event = input.event;
+
+                if (!!input.team)
+                    team = input.team;
+            }
+
+            const existingPermission = target.get(permission);
+            if (existingPermission === undefined) {
+                target.set(permission, {
+                    events: event ? new Set([ event ]) : undefined,
+                    teams: team ? new Set([ team ]) : undefined,
+                });
+
+                continue;
+            }
+
+            if (!!event) {
+                if (!existingPermission.events)
+                    existingPermission.events = new Set([ event ]);
+                else
+                    existingPermission.events.add(event);
+            }
+
+            if (!!team) {
+                if (!existingPermission.teams)
+                    existingPermission.teams = new Set([ team ]);
+                else
+                    existingPermission.teams.add(team);
+            }
+        }
     }
 
     /**
      * Returns whether the given `permission` is applicable for a check with the given `options`.
+     * When no event-specific or team-specific access has been granted, while it is being checked
+     * for, the `globalAccess` argument controls whether global access grants should be considered.
      */
-    private isPermissionApplicable(permission?: Permission, options?: Options): boolean {
-        if (!!options?.event) {
-            // TODO: Confirm event access specific to the given `permission`.
+    private isPermissionApplicable(
+        permission?: Permission, options?: Options, globalAccess?: boolean): boolean
+    {
+        if (!permission)
+            return false;  // no permission has been granted at all
 
-            if (!this.#events?.has(options.event) && !this.#events?.has(kEveryEvent))
-                return false;
+        let eventApplicable = false;
+        let teamApplicable = false;
+
+        if (!!options?.event) {
+            if (permission.events?.has(options.event))
+                eventApplicable = true;  // a specific exception for this event was made
+
+            else if (!!globalAccess) {
+                if (this.#events?.has(options.event) || this.#events?.has(kEveryEvent))
+                    eventApplicable = true;  // this event has not been included in the permission
+            }
+
+        } else if (!permission.events) {
+            eventApplicable = true;  // no event-specific access was requested
         }
 
         if (!!options?.team) {
-            // TODO: Confirm team access specific to the given `permission`.
+            if (permission.teams?.has(options.team))
+                teamApplicable = true;  // a specific exception for this team was made
 
-            if (!this.#teams?.has(options.team) && !this.#teams?.has(kEveryTeam))
-                return false;
+            else if (!!globalAccess) {
+                if (this.#teams?.has(options.team) || this.#teams?.has(kEveryTeam))
+                    teamApplicable = true;  // this team has not been included in the permission
+            }
+
+        } else if (!permission.teams) {
+            teamApplicable = true;  // no team-specific access was requested
         }
 
-        return !!permission;
+        return eventApplicable && teamApplicable;
     }
 
     /**
@@ -193,12 +268,12 @@ export class AccessControl {
             const scope = `${permission}:${second}`;
 
             const maybeRevoked = this.#revokes.get(scope);
-            if (this.isPermissionApplicable(maybeRevoked, third))
-                return false;  // permission+scope has been explicitly revoked
+            if (this.isPermissionApplicable(maybeRevoked, third, /* globalAccess= */ false))
+                return false;  // permission + scope has been explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
-            if (this.isPermissionApplicable(maybeGranted, third))
-                return true;  // permission+scope has been explicitly granted
+            if (this.isPermissionApplicable(maybeGranted, third, /* globalAccess= */ true))
+                return true;  // permission + scope has been explicitly granted
 
             options = third;
         } else {
@@ -210,11 +285,11 @@ export class AccessControl {
             const scope = path.join('.');
 
             const maybeRevoked = this.#revokes.get(scope);
-            if (this.isPermissionApplicable(maybeRevoked, options))
+            if (this.isPermissionApplicable(maybeRevoked, options, /* globalAccess= */ false))
                 return false;  // (scoped) permission has been explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
-            if (this.isPermissionApplicable(maybeGranted, options))
+            if (this.isPermissionApplicable(maybeGranted, options, /* globalAccess= */ true))
                 return true;  // (scoped) permission has been explicitly granted
 
             path.pop();
