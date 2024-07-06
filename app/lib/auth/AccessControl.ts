@@ -13,9 +13,17 @@ type Operation = 'create' | 'read' | 'update' | 'delete';
 
 /**
  * Information about the permission grants that have been given to the visitor. This includes both
- * grants, and specific control to which team(s) the visitor has access.
+ * grants, and specific control to which team(s) the visitor has access. Each value takes a list of
+ * values, separated by commas.
  */
 interface Grants {
+    /**
+     * Events that access should be granted to. By default no events are accessible, although some
+     * permissions may not be associated with a particular event. Certain permissions may be granted
+     * specific to a given event based on Senior-level access.
+     */
+    events?: string;
+
     /**
      * Permissions that have been granted to the user, if any. These are in addition to implicit
      * grants based on event-level allocations, i.e. by being assigned to a Senior-level position.
@@ -28,17 +36,39 @@ interface Grants {
      */
     revokes?: string;
 
-    // TODO: events for event-scoped grants
-    // TODO: teams for team-scoped grants
+    /**
+     * Teams that access should be granted to. By default no teams are accessible, although certain
+     * permissions may be granted specific to a given team based on Senior-level access.
+     */
+    teams?: string;
 }
 
 /**
  * Further options that can be provided to the access control mechanism.
  */
 interface Options {
-    // TODO: event for event-scoped checks
-    // TODO: team for team-scoped checks
+    /**
+     * Event that the permission check is in scope for. Permission-specific grants and revocations
+     * will be considered first, after which global access will be considered.
+     */
+    event?: string;
+
+    /**
+     * Team that the permission check is in scope for. Permission-specific grants and revocations
+     * will be considered first, after which global access will be considered.
+     */
+    team?: string;
 }
+
+/**
+ * Value that represents that every event is in scope for a grant.
+ */
+export const kEveryEvent = '*';
+
+/**
+ * Value that represents that every team is in scope for a grant.
+ */
+export const kEveryTeam = '*';
 
 /**
  * Pattern that defines the valid syntax for an individual permission, which are single-word alpha-
@@ -47,6 +77,20 @@ interface Options {
  * @visible Exclusively for testing purposes.
  */
 export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|update|delete))*$/;
+
+/**
+ * Contextualized information stored regarding a granted (or revoked) permission.
+ */
+interface Permission {
+    // TODO: `eventsWithTeam` (?)
+    // TODO: `events`
+    // TODO: `teams`
+}
+
+/**
+ * Map of permission names with their associated `Permission` instances.
+ */
+type PermissionMap = Map<string, Permission>;
 
 /**
  * The `AccessControl` object enables consistent access checks throughout the Volunteer Manager
@@ -62,22 +106,30 @@ export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|up
  * permission that indicate the scope, e.g. "foo.bar:update".
  */
 export class AccessControl {
-    #grants: Set<string>;
-    #revokes: Set<string>;
+    #events: Set<string> | undefined;
+    #grants: PermissionMap;
+    #revokes: PermissionMap;
+    #teams: Set<string> | undefined;
     // TODO: isValid?
 
     constructor(grants: Grants) {
         this.#grants = this.createGrantSetFromInput(grants.grants);
         this.#revokes = this.createGrantSetFromInput(grants.revokes);
+
+        if (!!grants.events && !!grants.events.length)
+            this.#events = new Set<string>(grants.events.split(','));
+
+        if (!!grants.teams && !!grants.teams.length)
+            this.#teams = new Set<string>(grants.teams.split(','));
     }
 
     /**
-     * Creates a new grant Set for the given `input`, when any has been provided. The input is
+     * Creates a new grant Map for the given `input`, when any has been provided. The input is
      * expected to be a comma separated list of permissions. Each entry will be verified, and will
      * result in a warning message when invalid input is seen.
      */
-    private createGrantSetFromInput(input?: string): Set<string> {
-        const grants = new Set<string>;
+    private createGrantSetFromInput(input: string | undefined) {
+        const grants: PermissionMap = new Map;
         if (typeof input !== 'string')
             return grants;
 
@@ -90,10 +142,31 @@ export class AccessControl {
                 continue;
             }
 
-            grants.add(permission);
+            grants.set(permission, { /* no permission-level modifiers are applicable */ });
         }
 
         return grants;
+    }
+
+    /**
+     * Returns whether the given `permission` is applicable for a check with the given `options`.
+     */
+    private isPermissionApplicable(permission?: Permission, options?: Options): boolean {
+        if (!!options?.event) {
+            // TODO: Confirm event access specific to the given `permission`.
+
+            if (!this.#events?.has(options.event) && !this.#events?.has(kEveryEvent))
+                return false;
+        }
+
+        if (!!options?.team) {
+            // TODO: Confirm team access specific to the given `permission`.
+
+            if (!this.#teams?.has(options.team) && !this.#teams?.has(kEveryTeam))
+                return false;
+        }
+
+        return !!permission;
     }
 
     /**
@@ -111,27 +184,37 @@ export class AccessControl {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);
 
+        let options: Options | undefined;
+
         if (getPermissionType(permission) === 'crud') {
             if (typeof second !== 'string')
                 throw new Error(`Invalid operation given for a CRUD permission: "${second}"`);
 
             const scope = `${permission}:${second}`;
 
-            if (this.#revokes.has(scope))
+            const maybeRevoked = this.#revokes.get(scope);
+            if (this.isPermissionApplicable(maybeRevoked, third))
                 return false;  // permission+scope has been explicitly revoked
 
-            if (this.#grants.has(scope))
+            const maybeGranted = this.#grants.get(scope);
+            if (this.isPermissionApplicable(maybeGranted, third))
                 return true;  // permission+scope has been explicitly granted
+
+            options = third;
+        } else {
+            options = second;
         }
 
         const path = permission.split('.');
         do {
             const scope = path.join('.');
 
-            if (this.#revokes.has(scope))
+            const maybeRevoked = this.#revokes.get(scope);
+            if (this.isPermissionApplicable(maybeRevoked, options))
                 return false;  // (scoped) permission has been explicitly revoked
 
-            if (this.#grants.has(scope))
+            const maybeGranted = this.#grants.get(scope);
+            if (this.isPermissionApplicable(maybeGranted, options))
                 return true;  // (scoped) permission has been explicitly granted
 
             path.pop();

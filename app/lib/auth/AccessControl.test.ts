@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AccessControl, kPermissionPattern } from './AccessControl';
+import { AccessControl, kEveryEvent, kEveryTeam, kPermissionPattern } from './AccessControl';
 
 describe('AccessControl', () => {
     it('has an expression to validate both grants and permissions', () => {
@@ -130,8 +130,94 @@ describe('AccessControl', () => {
     });
 
     it('has the ability to require a permission to be granted', () => {
-        const accessControl = new AccessControl({ /* no grants */ });
+        const accessControl = new AccessControl({
+            grants: 'test.crud:update',
+        });
 
         expect(() => accessControl.require('test.boolean')).toThrow();
+        expect(() => accessControl.require('test.crud', 'read')).toThrow();
+        expect(() => accessControl.require('test.crud', 'update')).not.toThrow();
+    });
+
+    it('has the ability to grant holistic access to a given event', () => {
+        const fullAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            events: kEveryEvent,
+        });
+
+        expect(fullAccessControl.can('test.boolean')).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
+
+        const scopedAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            events: '2024',
+        });
+
+        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+
+        const unknownAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            // `events` deliberately undefined
+        });
+
+        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
+        expect(unknownAccessControl.can('test.boolean', { event: '2024' })).toBeFalse();
+        expect(unknownAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+    });
+
+    it('has the ability to grant permissions specific to a given event', () => {
+        // TODO
+    });
+
+    it('has the ability to revoke permissions specific to a given event', () => {
+        // TODO
+    });
+
+    it('has the ability to grant holistic access to a given team', () => {
+        const fullAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            teams: kEveryTeam,
+        });
+
+        expect(fullAccessControl.can('test.boolean')).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
+
+        const scopedAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            teams: 'crew',
+        });
+
+        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
+
+        const unknownAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            // `teams` deliberately undefined
+        });
+
+        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
+        expect(unknownAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(unknownAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
+    });
+
+    it('has the ability to grant permissions specific to a given team', () => {
+        // TODO
+    });
+
+    it('has the ability to revoke permissions specific to a given team', () => {
+        // TODO
+    });
+
+    it('has the ability to grant permissions specific to a given event + team pair', () => {
+        // TODO
+    });
+
+    it('has the ability to revoke permissions specific to a given event + team pair', () => {
+        // TODO
     });
 });
