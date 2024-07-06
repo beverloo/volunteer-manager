@@ -147,6 +147,26 @@ export class AccessControl {
     }
 
     /**
+     * Gets the events to which access has been globally granted.
+     */
+    get events() { return this.#events; }
+
+    /**
+     * Gets the permissions that have been explicitly granted.
+     */
+    get grants() { return this.#grants.values(); }
+
+    /**
+     * Gets the permissions that have been explicitly revoked.
+     */
+    get revokes() { return this.#revokes.values(); }
+
+    /**
+     * Gets the teams to which access has been globally granted.
+     */
+    get teams() { return this.#teams; }
+
+    /**
      * Checks whether the visitor has access to the given `permission`. When the `permission` is a
      * CRUD-based permission, the operation must be specified. A set of options may be given when
      * applicable, to enable further fine-grained access control at the resource level.
