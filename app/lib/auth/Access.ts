@@ -1,52 +1,41 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// !!                                                                                             !!
-// !!    When updating permissions in this file, make sure to also update AccessDescriptors.ts    !!
-// !!                                                                                             !!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-// -------------------------------------------------------------------------------------------------
-// Boolean permissions
-// -------------------------------------------------------------------------------------------------
+import type { AccessDescriptor } from './AccessDescriptor';
 
 /**
- * Permissions that are boolean-based, i.e. they're either granted, or they're not.
+ * List of permissions available in the Volunteer Manager. Keep grouped based on namespace, then
+ * alphabetized based on the individual permission names.
  */
-enum BooleanPermissions {
-    // Namespace: `event`
-    EventVisible = 'event.visible',
+export const kPermissions = {
+    // ---------------------------------------------------------------------------------------------
+    // Event-associated permissions
+    // ---------------------------------------------------------------------------------------------
 
-    // Namespace: `test`
-    TestBooleanPermission = 'test.boolean',
-};
+    'event.visible': {
+        name: 'Event visibility',
+        description: 'Whether this event can be discovered by them in the user interface',
+        type: 'boolean',
+    },
 
-/**
- * Type containing all the permissions available for boolean operations.
- */
-export type BooleanPermission = `${BooleanPermissions}`;
+    // ---------------------------------------------------------------------------------------------
+    // Permissions that exist for testing purposes
+    // ---------------------------------------------------------------------------------------------
 
-// -------------------------------------------------------------------------------------------------
-// CRUD permissions
-// -------------------------------------------------------------------------------------------------
+    'test.boolean': {
+        name: 'Test (boolean)',
+        description: 'Boolean permission exclusively used for testing purposes',
+        type: 'boolean',
+    },
 
-/**
- * Permissions that are CRUD-based, i.e. have different states depending on whether data is being
- * created, read, updated or deleted. Individual operations can be both granted and/or revoked.
- */
-enum CRUDPermissions {
-    // Namespace: `test`
-    TestCRUDPermission = 'test.crud',
-};
+    'test.crud': {
+        name: 'Test (CRUD)',
+        description: 'CRUD permission exculsively used for testing purposes',
+        type: 'crud',
+    },
 
-/**
- * Type containing all the permissions available for CRUD operations.
- */
-export type CRUDPermission = `${CRUDPermissions}`;
+} satisfies Record<string, AccessDescriptor>;
 
-// -------------------------------------------------------------------------------------------------
-// Permission groups
 // -------------------------------------------------------------------------------------------------
 
 /**
@@ -72,24 +61,22 @@ export const kPermissionGroups: Record<string, string[]> = {
 // -------------------------------------------------------------------------------------------------
 
 /**
- * Cache sets of the defined permissions on the global scope, to allow fast lookup of the particular
- * type of permission may be indicated by a given value.
+ * Selects the permissions from `Source` whose type matches the given `Type`.
  */
-const kBooleanPermissionSet = new Set<string>(Object.values(BooleanPermissions));
-const kCRUDPermissionSet = new Set<string>(Object.values(CRUDPermissions));
+type PermissionListForType<Source, Type> =
+    { [K in keyof Source]: Source[K] extends { type: Type } ? K : never }[keyof Source];
 
 /**
- * Returns whether the given `permission` is a boolean or a CRUD permission, if any at all. When
- * the given `permission` is not known to the system, `undefined` will be returned instead.
+ * Type listing every permission known to the Volunteer Manager.
  */
-export function getPermissionType(permission: unknown): 'boolean' | 'crud' | undefined {
-    if (typeof permission === 'string') {
-        if (kBooleanPermissionSet.has(permission))
-            return 'boolean';
+export type Permission = keyof typeof kPermissions;
 
-        if (kCRUDPermissionSet.has(permission))
-            return 'crud';
-    }
+/**
+ * Type listing every boolean permission known to the Volunteer Manager.
+ */
+export type BooleanPermission = PermissionListForType<typeof kPermissions, 'boolean'>;
 
-    return undefined;
-}
+/**
+ * Type listing every CRUD permission known to the Volunteer Manager.
+ */
+export type CRUDPermission = PermissionListForType<typeof kPermissions, 'crud'>;

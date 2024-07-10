@@ -1,0 +1,24 @@
+// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+/**
+ * Describes a permission available in the Volunteer Manager. Permissions must have a type, a name
+ * and a description, and can optionally have additional metadata associated too.
+ */
+export interface AccessDescriptor {
+    /**
+     * Human-readable name given to the permission.
+     */
+    name: string;
+
+    /**
+     * Brief description explaining what the permission does.
+     */
+    description: string;
+
+    /**
+     * Whether the permission is either granted or not granted ("boolean"), or has additional
+     * granularity ("crud") for the Create, Read, Update and Delete operations.
+     */
+    type: 'boolean' | 'crud';
+}

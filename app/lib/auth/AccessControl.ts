@@ -4,7 +4,7 @@
 import { notFound } from 'next/navigation';
 
 import type { BooleanPermission, CRUDPermission } from './Access';
-import { getPermissionType, kPermissionGroups } from './Access';
+import { kPermissionGroups, kPermissions } from './Access';
 
 /**
  * Type definition for a grant, which can either be an individual grant without scope, or one that
@@ -181,9 +181,14 @@ export class AccessControl {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);
 
+        if (!Object.hasOwn(kPermissions, permission))
+            throw new Error(`Unrecognised permission: "${permission}"`);
+
+        const descriptor = kPermissions[permission];
+
         let options: Options | undefined;
 
-        if (getPermissionType(permission) === 'crud') {
+        if (descriptor.type === 'crud') {
             if (typeof second !== 'string')
                 throw new Error(`Invalid operation given for a CRUD permission: "${second}"`);
 
