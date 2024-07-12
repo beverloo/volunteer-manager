@@ -18,6 +18,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ReportIcon from '@mui/icons-material/Report';
 import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Tooltip from '@mui/material/Tooltip';
@@ -51,6 +52,11 @@ export interface VolunteerPermissionStatus {
      * Whether the permission has been explicitly revoked.
      */
     revoked?: boolean;
+
+    /**
+     * Whether a warning should be shown indicating that this is a dangerous permission.
+     */
+    warning?: boolean;
 }
 
 /**
@@ -131,9 +137,22 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
             flex: 1,
 
             renderCell: params => {
-                // TODO: Permission warnings
-                if (!!params.value)
+                if (!!params.value) {
+                    if (!!params.row.warning) {
+                        return (
+                            <>
+                                <Typography variant="body2" sx={{ pr: .5 }}>
+                                    {params.value}
+                                </Typography>
+                                <Tooltip title="This is a dangerous permission">
+                                    <ReportIcon sx={{ color: 'error.main' }} fontSize="small" />
+                                </Tooltip>
+                            </>
+                        );
+                    }
+
                     return params.value;
+                }
 
                 return (
                     <Typography variant="body2" sx={{ color: 'text.disabled' }}>

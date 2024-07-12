@@ -18,6 +18,7 @@ export const kPermissions = {
             'The administrator role grants all permissions in the system without exception, thus ' +
             'full access to all event and volunteer information.',
         type: 'boolean',
+        warning: true,
     },
 
     // ---------------------------------------------------------------------------------------------

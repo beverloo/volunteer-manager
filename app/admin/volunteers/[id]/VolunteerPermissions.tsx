@@ -6,6 +6,7 @@ import { z } from 'zod';
 import CategoryIcon from '@mui/icons-material/Category';
 import Grid from '@mui/material/Unstable_Grid2';
 
+import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
@@ -62,11 +63,16 @@ export function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const action = updateVolunteerPermissions.bind(null, props.userId);
 
     const permissions: VolunteerPermissionStatus[] = [ /* empty */ ];
-    for (const [ name, descriptor ] of Object.entries(kPermissions)) {
+    for (const [ name, rawDescriptor ] of Object.entries(kPermissions)) {
+        const descriptor = rawDescriptor as AccessDescriptor;
+        if (!!descriptor.hidden)
+            continue;
+
         permissions.push({
             id: name,
             name: descriptor.name,
             description: descriptor.description,
+            warning: !!descriptor.warning,
         });
     }
 

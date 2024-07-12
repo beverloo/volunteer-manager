@@ -38,4 +38,9 @@ export interface AccessDescriptor {
      * granularity ("crud") for the Create, Read, Update and Delete operations.
      */
     type: 'boolean' | 'crud';
+
+    /**
+     * Whether a warning should be shown next to this permission in the user interface.
+     */
+    warning?: boolean;
 }
