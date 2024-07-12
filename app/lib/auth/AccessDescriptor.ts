@@ -17,6 +17,11 @@ export interface AccessDescriptor {
     description: string;
 
     /**
+     * Whether the permission should be hidden from the user interface.
+     */
+    hidden?: boolean;
+
+    /**
      * Whether the applicable event must be specified when checking whether this permission has been
      * granted. May be set to `kAnyEvent` to pass when access to any event been granted.
      */
