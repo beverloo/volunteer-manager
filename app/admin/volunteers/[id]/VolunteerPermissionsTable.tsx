@@ -1,0 +1,180 @@
+// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import { useCallback, useState } from 'react';
+
+import type { GridColDef, GridGroupNode, DataGridProProps } from '@mui/x-data-grid-pro';
+import { DataGridPro } from '@mui/x-data-grid-pro';
+
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+
+/**
+ * Information stored for a particular permission.
+ */
+export interface VolunteerPermissionStatus {
+    /**
+     * Unique ID of the permission. May contain dots as a path separator.
+     */
+    id: string;
+
+    /**
+     * Name given to the permission, succintly describing what it does.
+     */
+    name: string;
+
+    /**
+     * Description associated with the permission, explaining why it does what it does.
+     */
+    description: string;
+}
+
+/**
+ * Props accepted by the <VolunteerPermissionsTable> component.
+ */
+interface VolunteerPermissionsTableProps {
+    /**
+     * The permissions that should be shown in the table.
+     */
+    permissions: VolunteerPermissionStatus[];
+}
+
+/**
+ * The <VolunteerPermissionsTable> component displays a data table listing all of the permissions,
+ * and whether the volunteer has been granted them.
+ */
+export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps) {
+    const [ learnMoreOpen, setLearnMoreOpen ] = useState<boolean>(false);
+
+    const [ learnMoreTitle, setLearnMoreTitle ] = useState<string | undefined>();
+    const [ learnMoreText, setLearnMoreText ] = useState<string | undefined>();
+
+    const closeLearnMore = useCallback(() => setLearnMoreOpen(false), [ /* no dependencies */ ]);
+    const openLearnMore = useCallback((title: string, text: string) => {
+        setLearnMoreOpen(true);
+        setLearnMoreTitle(title);
+        setLearnMoreText(text);
+
+    }, [ /* no dependencies */ ]);
+
+    const grouping: GridColDef<VolunteerPermissionStatus> = {
+        field: 'id',
+        headerName: 'Permission',
+        width: 250,
+    };
+
+    const columns: GridColDef<VolunteerPermissionStatus>[] = [
+        {
+            display: 'flex',
+            field: 'description',
+            headerAlign: 'center',
+            headerName: '',
+            align: 'center',
+            editable: false,
+            sortable: false,
+            width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Learn more…">
+                    <InfoOutlinedIcon color="primary" fontSize="small" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (!params.row.id) {
+                    return (
+                        <Tooltip title="No description available">
+                            <InfoOutlinedIcon color="disabled" fontSize="small" />
+                        </Tooltip>
+                    );
+                }
+
+                const title = params.row.name;
+                const text = params.row.description;
+
+                return (
+                    <Tooltip title="Learn more…">
+                        <IconButton size="small" onClick={() => openLearnMore(title, text) }>
+                            <InfoOutlinedIcon color="info" fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                );
+            },
+        },
+        {
+            display: 'flex',
+            field: 'name',
+            headerName: 'Name',
+            editable: false,
+            sortable: false,
+            flex: 1,
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                        …
+                    </Typography>
+                );
+            },
+        },
+
+        // TODO: CRUD specialisation
+        // TODO: Status (implicitly / explicitly granted)
+        // TODO: Grant
+        // TODO: Revoke
+    ];
+
+    const getTreeDataPath: DataGridProProps['getTreeDataPath'] = useCallback((row: any) => {
+        return row.id.split('.');
+
+    }, [ /* no dependencies */ ]);
+
+    const isGroupExpandedByDefault = useCallback((node: GridGroupNode) => {
+        if (!node.depth)
+            return true;  // always expand top-level nodes
+
+        // TODO: expand nodes that contain granted permissions
+
+        return false;
+
+    }, [ /* no dependencies */ ]);
+
+    return (
+        <>
+            <DataGridPro columns={columns} rows={props.permissions}
+                         editMode="row" treeData getTreeDataPath={getTreeDataPath}
+                         groupingColDef={grouping}
+                         isGroupExpandedByDefault={isGroupExpandedByDefault}
+                         initialState={{ density: 'compact' }}
+                         autoHeight disableColumnMenu hideFooterSelectedRowCount
+                         hideFooter />
+            <Dialog fullWidth open={learnMoreOpen} onClose={closeLearnMore}>
+                <DialogTitle>
+                    {learnMoreTitle} permission
+                </DialogTitle>
+                <DialogContent sx={{ pb: 0 }}>
+                    <DialogContentText>
+                        {learnMoreText}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={closeLearnMore}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
+}

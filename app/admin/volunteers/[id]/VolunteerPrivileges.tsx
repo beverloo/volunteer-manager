@@ -107,8 +107,8 @@ export function VolunteerPrivileges(props: VolunteerPrivilegesProps) {
                 Volunteer Manager Privileges
             </Typography>
             <Alert severity="warning" sx={{ mb: 1 }}>
-                Privileges are granted in addition to event-based administrative access. Only
-                administrators have the ability to amend privileges.
+                Privileges are deprecated and will be replaced by permissions. The privileges listed
+                hereafter will continue to be considered by the system.
             </Alert>
             <Grid container spacing={1}>
                 { groups.map(group =>

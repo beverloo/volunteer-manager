@@ -13,6 +13,7 @@ import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { VolunteerPermissions } from './VolunteerPermissions';
 import { VolunteerPrivileges } from './VolunteerPrivileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -132,6 +133,9 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
                     <LogsDataTable filters={{ sourceOrTargetUserId: account.userId }}
                                    pageSize={10} />
                 </Paper> }
+
+            { can(user, Privilege.Administrator) &&
+                <VolunteerPermissions userId={account.userId} /> }
 
             { can(user, Privilege.Administrator) &&
                 <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }
