@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
+import type { AccessDescriptor } from './AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from './Access';
 import { kPermissionGroups, kPermissions } from './Access';
 
@@ -195,11 +196,11 @@ export class AccessControl {
             const scope = `${permission}:${second}`;
 
             const maybeRevoked = this.#revokes.get(scope);
-            if (this.isPermissionApplicable(maybeRevoked, third, /* globalAccess= */ false))
+            if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, third))
                 return false;  // permission + scope has been explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
-            if (this.isPermissionApplicable(maybeGranted, third, /* globalAccess= */ true))
+            if (maybeGranted && this.isGrantApplicable(maybeGranted, third))
                 return true;  // permission + scope has been explicitly granted
 
             options = third;
@@ -212,11 +213,11 @@ export class AccessControl {
             const scope = path.join('.');
 
             const maybeRevoked = this.#revokes.get(scope);
-            if (this.isPermissionApplicable(maybeRevoked, options, /* globalAccess= */ false))
+            if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, options))
                 return false;  // (scoped) permission has been explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
-            if (this.isPermissionApplicable(maybeGranted, options, /* globalAccess= */ true))
+            if (maybeGranted && this.isGrantApplicable(maybeGranted, options))
                 return true;  // (scoped) permission has been explicitly granted
 
             path.pop();
@@ -297,52 +298,58 @@ export class AccessControl {
     }
 
     /**
-     * Returns whether the given `permission` is applicable for a check with the given `options`.
-     * When no event-specific or team-specific access has been granted, while it is being checked
-     * for, the `globalAccess` argument controls whether global access grants should be considered.
+     * Returns whether the given `permission` is an applicable grant considering scoping information
+     * given in `options`. Global event and team access will be considered.
      */
-    private isPermissionApplicable(
-        permission?: Permission, options?: Options, globalAccess?: boolean): boolean
-    {
-        if (!permission)
-            return false;  // no permission has been granted at all
-
-        let eventApplicable = false;
-        let teamApplicable = false;
-
-        if (!!options?.event) {
-            if (options.event === kEveryEvent)
-                eventApplicable = true;  // event qualification is explicitly ignored
-
-            if (permission.events?.has(options.event))
-                eventApplicable = true;  // a specific exception for this event was made
-
-            else if (!!globalAccess) {
-                if (this.#events?.has(options.event) || this.#events?.has(kEveryEvent))
-                    eventApplicable = true;  // this event has not been included in the permission
+    private isGrantApplicable(permission: Permission, options?: Options) {
+        if (!!options?.event && options.event !== kEveryEvent) {
+            if (!this.#events?.has(kEveryEvent)) {
+                if (!permission.events?.has(options.event) && !this.#events?.has(options.event))
+                    return false;  // event access has not been granted
             }
-
-        } else if (!permission.events) {
-            eventApplicable = true;  // no event-specific access was requested
         }
 
-        if (!!options?.team) {
-            if (options.team === kEveryTeam)
-                teamApplicable = true;  // team qualification is explicitly ignored
-
-            if (permission.teams?.has(options.team))
-                teamApplicable = true;  // a specific exception for this team was made
-
-            else if (!!globalAccess) {
-                if (this.#teams?.has(options.team) || this.#teams?.has(kEveryTeam))
-                    teamApplicable = true;  // this team has not been included in the permission
+        if (!!options?.team && options.team !== kEveryTeam) {
+            if (!this.#teams?.has(kEveryTeam)) {
+                if (!permission.teams?.has(options.team) && !this.#teams?.has(options.team))
+                    return false;  // team access has not been granted
             }
-
-        } else if (!permission.teams) {
-            teamApplicable = true;  // no team-specific access was requested
         }
 
-        return eventApplicable && teamApplicable;
+        return true;
     }
 
+    /**
+     * Returns whether the given `permission` is an applicable revocation considering scoping
+     * information given in `options`. Global event and team access will be not be considered, as
+     * revokes are exclusionary for something that could be granted.
+     */
+    private isRevokeApplicable(permission: Permission, options?: Options) {
+        if (!!permission.events?.size) {
+            // TODO: kEveryEvent handling?
+            if (!!options?.event && !permission.events.has(options.event))
+                return false;
+        }
+
+        if (!!permission.teams?.size) {
+            // TODO: kEveryTeam handling?
+            if (!!options?.team && !permission.teams.has(options.team))
+                return false;
+        }
+
+        return true;
+
+
+        if (!!options?.event && options.event !== kEveryEvent) {
+            if (!!permission.events?.size && !permission.events?.has(options.event))
+                return false;
+        }
+
+        if (!!options?.team && options.event !== kEveryEvent) {
+            if (!permission.teams?.has(options.team))
+                return false;
+        }
+
+        return true;
+    }
 }
