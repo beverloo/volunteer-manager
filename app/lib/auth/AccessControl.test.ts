@@ -355,6 +355,60 @@ describe('AccessControl', () => {
         expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeFalse();
     });
 
+    it('has the ability to revoke permissions for specific events or teams', () => {
+        const accessControl = new AccessControl({
+            grants: 'test',
+            revokes: [
+                {
+                    permission: 'test.boolean',
+                    event: '2025',
+                    team: 'crew',
+                },
+                {
+                    permission: 'test.boolean.required.event',
+                    event: '2025',
+                },
+                {
+                    permission: 'test.boolean.required.team',
+                    team: 'crew',
+                },
+            ],
+
+            events: kAnyEvent,
+            teams: kAnyTeam,
+        });
+
+        // Event:
+        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
+        expect(accessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('test.boolean', { event: kAnyEvent })).toBeTrue();
+
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
+        expect(accessControl.can('test.crud', 'read', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { event: '2025' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { event: kAnyEvent })).toBeTrue();
+
+        expect(accessControl.can('test.boolean.required.event', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.boolean.required.event', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('test.boolean.required.event', { event: kAnyEvent })).toBeTrue();
+
+        // Team:
+        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
+        expect(accessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(accessControl.can('test.boolean', { team: kAnyTeam })).toBeTrue();
+
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
+        expect(accessControl.can('test.crud', 'read', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { team: 'crew' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { team: kAnyTeam })).toBeTrue();
+
+        expect(accessControl.can('test.boolean.required.team', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.boolean.required.team', { team: 'crew' })).toBeFalse();
+        expect(accessControl.can('test.boolean.required.team', { team: kAnyTeam })).toBeTrue();
+    });
+
     it('has the ability to require event and/or team to be set in permission checks', () => {
         const accessControl = new AccessControl({
             grants: 'test',

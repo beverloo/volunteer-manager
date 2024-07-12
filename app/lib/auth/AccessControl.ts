@@ -326,16 +326,14 @@ export class AccessControl {
      * revokes are exclusionary for something that could be granted.
      */
     private isRevokeApplicable(permission: Permission, options?: Options) {
-        if (!!permission.events?.size) {
-            // TODO: kAnyEvent handling?
-            if (!!options?.event && !permission.events.has(options.event))
-                return false;
+        if (!!permission.events?.size && !!options?.event) {
+            if (!permission.events.has(options.event))
+                return false;  // event access has not been revoked
         }
 
-        if (!!permission.teams?.size) {
-            // TODO: kAnyEvent handling?
-            if (!!options?.team && !permission.teams.has(options.team))
-                return false;
+        if (!!permission.teams?.size && !!options?.team) {
+            if (!permission.teams.has(options.team))
+                return false;  // team access has not been revoked
         }
 
         return true;
