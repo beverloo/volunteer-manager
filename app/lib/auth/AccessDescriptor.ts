@@ -17,6 +17,18 @@ export interface AccessDescriptor {
     description: string;
 
     /**
+     * Whether the applicable event must be specified when checking whether this permission has been
+     * granted. May be set to `kAnyEvent` to pass when access to any event been granted.
+     */
+    requireEvent?: boolean;
+
+    /**
+     * Whether the applicable team must be specified when checking whether this permission has been
+     * granted. May be set to `kAnyTeam` to pass when access to any team been granted.
+     */
+    requireTeam?: boolean;
+
+    /**
      * Whether the permission is either granted or not granted ("boolean"), or has additional
      * granularity ("crud") for the Create, Read, Update and Delete operations.
      */

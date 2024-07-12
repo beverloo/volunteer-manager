@@ -15,6 +15,7 @@ export const kPermissions = {
     'event.visible': {
         name: 'Event visibility',
         description: 'Whether this event can be discovered by them in the user interface',
+        requireEvent: true,
         type: 'boolean',
     },
 
@@ -25,6 +26,28 @@ export const kPermissions = {
     'test.boolean': {
         name: 'Test (boolean)',
         description: 'Boolean permission exclusively used for testing purposes',
+        type: 'boolean',
+    },
+
+    'test.boolean.required.both': {
+        name: 'Test (boolean w/ event + team)',
+        description: 'Boolean permission exclusively used for testing purposes w/ required scoping',
+        requireEvent: true,
+        requireTeam: true,
+        type: 'boolean',
+    },
+
+    'test.boolean.required.event': {
+        name: 'Test (boolean w/ event)',
+        description: 'Boolean permission exclusively used for testing purposes w/ required event',
+        requireEvent: true,
+        type: 'boolean',
+    },
+
+    'test.boolean.required.team': {
+        name: 'Test (boolean w/ team)',
+        description: 'Boolean permission exclusively used for testing purposes w/ required team',
+        requireTeam: true,
         type: 'boolean',
     },
 

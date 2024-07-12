@@ -70,14 +70,14 @@ interface Options {
 }
 
 /**
- * Value that represents that every event is in scope for a grant.
+ * Value that represents that any event will be applicable.
  */
-export const kEveryEvent = '*';
+export const kAnyEvent = '*';
 
 /**
- * Value that represents that every team is in scope for a grant.
+ * Value that represents that any team will be applicable.
  */
-export const kEveryTeam = '*';
+export const kAnyTeam = '*';
 
 /**
  * Pattern that defines the valid syntax for an individual permission, which are single-word alpha-
@@ -185,9 +185,14 @@ export class AccessControl {
         if (!Object.hasOwn(kPermissions, permission))
             throw new Error(`Unrecognised permission: "${permission}"`);
 
-        const descriptor = kPermissions[permission];
+        const descriptor: AccessDescriptor = kPermissions[permission];
+        const options: Options | undefined = descriptor.type === 'crud' ? third : second;
 
-        let options: Options | undefined;
+        if (descriptor.requireEvent && !options?.event)
+            throw new Error(`Event is required when checking "${permission}" access`);
+
+        if (descriptor.requireTeam && !options?.team)
+            throw new Error(`Team is required when checking "${permission}" access`);
 
         if (descriptor.type === 'crud') {
             if (typeof second !== 'string')
@@ -202,10 +207,6 @@ export class AccessControl {
             const maybeGranted = this.#grants.get(scope);
             if (maybeGranted && this.isGrantApplicable(maybeGranted, third))
                 return true;  // permission + scope has been explicitly granted
-
-            options = third;
-        } else {
-            options = second;
         }
 
         const path = permission.split('.');
@@ -302,15 +303,15 @@ export class AccessControl {
      * given in `options`. Global event and team access will be considered.
      */
     private isGrantApplicable(permission: Permission, options?: Options) {
-        if (!!options?.event && options.event !== kEveryEvent) {
-            if (!this.#events?.has(kEveryEvent)) {
+        if (!!options?.event && options.event !== kAnyEvent) {
+            if (!this.#events?.has(kAnyEvent)) {
                 if (!permission.events?.has(options.event) && !this.#events?.has(options.event))
                     return false;  // event access has not been granted
             }
         }
 
-        if (!!options?.team && options.team !== kEveryTeam) {
-            if (!this.#teams?.has(kEveryTeam)) {
+        if (!!options?.team && options.team !== kAnyEvent) {
+            if (!this.#teams?.has(kAnyEvent)) {
                 if (!permission.teams?.has(options.team) && !this.#teams?.has(options.team))
                     return false;  // team access has not been granted
             }
@@ -326,27 +327,14 @@ export class AccessControl {
      */
     private isRevokeApplicable(permission: Permission, options?: Options) {
         if (!!permission.events?.size) {
-            // TODO: kEveryEvent handling?
+            // TODO: kAnyEvent handling?
             if (!!options?.event && !permission.events.has(options.event))
                 return false;
         }
 
         if (!!permission.teams?.size) {
-            // TODO: kEveryTeam handling?
+            // TODO: kAnyEvent handling?
             if (!!options?.team && !permission.teams.has(options.team))
-                return false;
-        }
-
-        return true;
-
-
-        if (!!options?.event && options.event !== kEveryEvent) {
-            if (!!permission.events?.size && !permission.events?.has(options.event))
-                return false;
-        }
-
-        if (!!options?.team && options.event !== kEveryEvent) {
-            if (!permission.teams?.has(options.team))
                 return false;
         }
 

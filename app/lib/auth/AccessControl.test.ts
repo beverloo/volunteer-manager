@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AccessControl, kEveryEvent, kEveryTeam, kPermissionPattern } from './AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, kPermissionPattern } from './AccessControl';
 
 describe('AccessControl', () => {
     it('has an expression to validate both grants and permissions', () => {
@@ -142,7 +142,7 @@ describe('AccessControl', () => {
     it('has the ability to grant holistic access to a given event', () => {
         const fullAccessControl = new AccessControl({
             grants: 'test.boolean',
-            events: kEveryEvent,
+            events: kAnyEvent,
         });
 
         expect(fullAccessControl.can('test.boolean')).toBeTrue();
@@ -171,7 +171,7 @@ describe('AccessControl', () => {
     it('has the ability to grant holistic access to a given team', () => {
         const fullAccessControl = new AccessControl({
             grants: 'test.boolean',
-            teams: kEveryTeam,
+            teams: kAnyTeam,
         });
 
         expect(fullAccessControl.can('test.boolean')).toBeTrue();
@@ -208,7 +208,7 @@ describe('AccessControl', () => {
             // `events` deliberately omitted
         });
 
-        expect(singleEventAccessControl.can('test.boolean')).toBeTrue();  // FIXME?
+        expect(singleEventAccessControl.can('test.boolean')).toBeTrue();
         expect(singleEventAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
         expect(singleEventAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
 
@@ -222,7 +222,7 @@ describe('AccessControl', () => {
             events: '2025',
         });
 
-        expect(doubleEventAccessControl.can('test.boolean')).toBeTrue();  // FIXME?
+        expect(doubleEventAccessControl.can('test.boolean')).toBeTrue();
         expect(doubleEventAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
         expect(doubleEventAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
         expect(doubleEventAccessControl.can('test.boolean', { event: '2026' })).toBeFalse();
@@ -237,7 +237,7 @@ describe('AccessControl', () => {
             // `teams` deliberately omitted
         });
 
-        expect(singleTeamAccessControl.can('test.boolean')).toBeTrue();  // FIXME?
+        expect(singleTeamAccessControl.can('test.boolean')).toBeTrue();
         expect(singleTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
         expect(singleTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
 
@@ -251,7 +251,7 @@ describe('AccessControl', () => {
             teams: 'crew',
         });
 
-        expect(doubleTeamAccessControl.can('test.boolean')).toBeTrue();  // FIXME?
+        expect(doubleTeamAccessControl.can('test.boolean')).toBeTrue();
         expect(doubleTeamAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
         expect(doubleTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
         expect(doubleTeamAccessControl.can('test.boolean', { team: 'stewards' })).toBeTrue();
@@ -264,7 +264,7 @@ describe('AccessControl', () => {
                 permission: 'test.boolean',
                 event: '2024',
             },
-            events: kEveryEvent,
+            events: kAnyEvent,
         });
 
         expect(scopedEventAccessControl.can('test.boolean')).toBeFalse();
@@ -298,7 +298,7 @@ describe('AccessControl', () => {
                 permission: 'test.boolean',
                 team: 'crew',
             },
-            teams: kEveryTeam,
+            teams: kAnyTeam,
         });
 
         expect(scopedTeamAccessControl.can('test.boolean')).toBeFalse();
@@ -332,7 +332,7 @@ describe('AccessControl', () => {
             grants: [
                 'test',
                 {
-                    permission: 'senior',
+                    permission: 'senior',  // expands to "event.visible", among others
                     event: '2024',
                     team: 'crew',
                 }
@@ -341,16 +341,61 @@ describe('AccessControl', () => {
 
         expect(accessControl.can('test.boolean')).toBeTrue();
 
-        expect(accessControl.can('event.visible')).toBeTrue();  // FIXME
+        expect(() => accessControl.can('event.visible')).toThrow();
 
-        expect(accessControl.can('event.visible', { event: '2024', team: kEveryTeam })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: '2025', team: kEveryTeam })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2025', team: kAnyTeam })).toBeFalse();
 
         expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
         expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
 
-        expect(accessControl.can('event.visible', { event: kEveryEvent, team: 'crew' })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: kEveryEvent, team: 'hosts' }))
-            .toBeFalse();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeFalse();
+    });
+
+    it('has the ability to require event and/or team to be set in permission checks', () => {
+        const accessControl = new AccessControl({
+            grants: 'test',
+        });
+
+        // Without event + team:
+        expect(() => accessControl.can('test.boolean.required.both')).toThrow();
+        expect(() => accessControl.can('test.boolean.required.event')).toThrow();
+        expect(() => accessControl.can('test.boolean.required.team')).toThrow();
+
+        // Without team:
+        expect(() =>
+            accessControl.can('test.boolean.required.both', { event: '2024' }))
+                .toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.event', { event: '2024' }))
+                .not.toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.team', { event: '2024' }))
+                .toThrow();
+
+        // Without event:
+        expect(() =>
+            accessControl.can('test.boolean.required.both', { team: 'crew' }))
+                .toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.event', { team: 'crew' }))
+                .toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.team', { team: 'crew' }))
+                .not.toThrow();
+
+        // With event + team:
+        expect(() =>
+            accessControl.can('test.boolean.required.both', { event: '2024', team: 'crew' }))
+                .not.toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.event', { event: '2024', team: 'crew' }))
+                .not.toThrow();
+        expect(() =>
+            accessControl.can('test.boolean.required.team', { event: '2024', team: 'crew' }))
+                .not.toThrow();
     });
 });
