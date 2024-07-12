@@ -9,6 +9,18 @@ import type { AccessDescriptor } from './AccessDescriptor';
  */
 export const kPermissions = {
     // ---------------------------------------------------------------------------------------------
+    // Administrator permission
+    // ---------------------------------------------------------------------------------------------
+
+    'admin': {
+        name: 'Administrator',
+        description:
+            'The administrator role grants all permissions in the system without exception, thus ' +
+            'full access to all event and volunteer information.',
+        type: 'boolean',
+    },
+
+    // ---------------------------------------------------------------------------------------------
     // Event-associated permissions
     // ---------------------------------------------------------------------------------------------
 

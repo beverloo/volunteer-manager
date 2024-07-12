@@ -5,6 +5,8 @@
 
 import { useCallback, useState } from 'react';
 
+import { CheckboxElement } from '@components/proxy/react-hook-form-mui';
+
 import type { GridColDef, GridGroupNode, DataGridProProps } from '@mui/x-data-grid-pro';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 
@@ -16,6 +18,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -37,6 +41,16 @@ export interface VolunteerPermissionStatus {
      * Description associated with the permission, explaining why it does what it does.
      */
     description: string;
+
+    /**
+     * Whether the permission has been explicitly granted.
+     */
+    granted?: boolean;
+
+    /**
+     * Whether the permission has been explicitly revoked.
+     */
+    revoked?: boolean;
 }
 
 /**
@@ -80,7 +94,6 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
             headerAlign: 'center',
             headerName: '',
             align: 'center',
-            editable: false,
             sortable: false,
             width: 50,
 
@@ -114,11 +127,11 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
             display: 'flex',
             field: 'name',
             headerName: 'Name',
-            editable: false,
             sortable: false,
             flex: 1,
 
             renderCell: params => {
+                // TODO: Permission warnings
                 if (!!params.value)
                     return params.value;
 
@@ -132,8 +145,55 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
         // TODO: CRUD specialisation
         // TODO: Status (implicitly / explicitly granted)
-        // TODO: Grant
-        // TODO: Revoke
+
+        {
+            display: 'flex',
+            field: 'granted',
+            headerAlign: 'center',
+            headerName: '',
+            align: 'center',
+            sortable: false,
+            width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Permission granted?">
+                    <ThumbUpOutlinedIcon color="primary" fontSize="small" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (!params.row.id)
+                    return undefined;
+
+                return (
+                    <CheckboxElement name={`granted[${params.row.id}]`} size="small"
+                                     color="success" sx={{ ml: 1 }} />
+                );
+            },
+        },
+        {
+            display: 'flex',
+            field: 'revoked',
+            headerAlign: 'center',
+            headerName: '',
+            align: 'center',
+            sortable: false,
+            width: 50,
+
+            renderHeader: () =>
+                <Tooltip title="Permission revoked?">
+                    <ThumbDownOutlinedIcon color="primary" fontSize="small" />
+                </Tooltip>,
+
+            renderCell: params => {
+                if (!params.row.id)
+                    return undefined;
+
+                return (
+                    <CheckboxElement name={`revoked[${params.row.id}]`} size="small"
+                                     color="error" sx={{ ml: 1 }} />
+                );
+            },
+        }
     ];
 
     const getTreeDataPath: DataGridProProps['getTreeDataPath'] = useCallback((row: any) => {
@@ -154,8 +214,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
     return (
         <>
             <DataGridPro columns={columns} rows={props.permissions}
-                         editMode="row" treeData getTreeDataPath={getTreeDataPath}
-                         groupingColDef={grouping}
+                         treeData getTreeDataPath={getTreeDataPath} groupingColDef={grouping}
                          isGroupExpandedByDefault={isGroupExpandedByDefault}
                          initialState={{ density: 'compact' }}
                          autoHeight disableColumnMenu hideFooterSelectedRowCount

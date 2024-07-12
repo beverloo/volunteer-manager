@@ -7,6 +7,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
 
@@ -16,7 +17,20 @@ import { kPermissions } from '@lib/auth/Access';
  * Data associated with a volunteer permission update.
  */
 const kVolunteerPermissionData = z.object({
+    /**
+     * Nested object of granted permissions. Cannot be accurately represented by Zod.
+     * @example { event: { visible: true }, test: {} }
+     */
+    granted: z.any(),
 
+    /**
+     * Nested object of revoked permissions. Cannot be accurately represented by Zod.
+     * @example { event: { visible: false }, test: { boolean: true } }
+     */
+    revoked: z.any(),
+
+    // TODO: events
+    // TODO: teams
 });
 
 /**
@@ -25,6 +39,7 @@ const kVolunteerPermissionData = z.object({
 async function updateVolunteerPermissions(userId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kVolunteerPermissionData, async (data, props) => {
+        console.log(data);
         return { success: false, error: 'Not yet implemented' };
     });
 }
@@ -58,6 +73,13 @@ export function VolunteerPermissions(props: VolunteerPermissionsProps) {
     return (
         <FormGridSection action={action} icon={ <CategoryIcon color="primary" /> }
                          title="Permissions">
+            <Grid xs={12}>
+                <SectionIntroduction important>
+                    Granting permissions to a volunteer gives them more access within the Volunteer
+                    Manager. While you can also revoke permissions, it's usually best to keep that
+                    to a minimum.
+                </SectionIntroduction>
+            </Grid>
             <Grid xs={12}>
                 <VolunteerPermissionsTable permissions={permissions} />
             </Grid>
