@@ -108,6 +108,13 @@ interface Permission {
 type PermissionMap = Map<string, Permission>;
 
 /**
+ * Status that can be associated with a particular permission type.
+ */
+type Status =
+    'crud-granted' | 'crud-revoked' | 'parent-granted' | 'parent-revoked' |
+    'self-granted' | 'self-revoked' | 'unset';
+
+/**
  * The `AccessControl` object enables consistent access checks throughout the Volunteer Manager
  * system. Our permissions are hierarchical, resource-based and follow CRUD patterns. Furthermore,
  * the permissions themselves are predefined in the `Access.ts` file.
@@ -179,6 +186,52 @@ export class AccessControl {
     can(permission: BooleanPermission, options?: Options): boolean;
     can(permission: CRUDPermission, operation: Operation, options?: Options): boolean;
     can(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): boolean {
+        const status = this.getStatus(permission as any, second, third);
+        switch (status) {
+            case 'crud-granted':
+            case 'parent-granted':
+            case 'self-granted':
+                return true;
+
+            case 'crud-revoked':
+            case 'parent-revoked':
+            case 'self-revoked':
+            case 'unset':
+                return false;
+        }
+
+        throw new Error(`Unrecognised permission status: "${status}"`);
+    }
+
+    /**
+     * Requires that the visitor has access to the given `permission`, or throws an exception that
+     * will result in a HTTP 403 Forbidden error page. When the `permission` is a CRUD-based
+     * permission, the operation must be specified. A set of options may be given when applicable,
+     * to enable further fine-grained access control at the resource level.
+     *
+     * @todo Actually throw a HTTP 403 Forbidden error when Next.js supports it.
+     */
+    require(permission: BooleanPermission, options?: Options): void;
+    require(permission: CRUDPermission, operation: Operation, options?: Options): void;
+    require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
+        if (!this.can(permission as any, second, third))
+            notFound();
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the permission status for the given permission, which gives more information about
+     * why it would be granted or revoked. Generally this information is not important, and either
+     * the `can()` or `require()` methods should be used instead.
+     *
+     * Permission checks will be highly specific at first, to ensure that someone who is granted the
+     * "foo" permission can still have "foo.bar" explicitly revoked. CRUD permissions will be
+     * expanded separately at the deepest scope.
+     */
+    getStatus(permission: BooleanPermission, options?: Options): Status;
+    getStatus(permission: CRUDPermission, operation: Operation, options?: Options): Status;
+    getStatus(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): Status {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);
 
@@ -202,45 +255,31 @@ export class AccessControl {
 
             const maybeRevoked = this.#revokes.get(scope);
             if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, third))
-                return false;  // permission + scope has been explicitly revoked
+                return 'crud-revoked';  // permission + scope has been explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
             if (maybeGranted && this.isGrantApplicable(maybeGranted, third))
-                return true;  // permission + scope has been explicitly granted
+                return 'crud-granted';  // permission + scope has been explicitly granted
         }
 
         const path = permission.split('.');
         do {
             const scope = path.join('.');
+            const isParent = scope !== permission;
 
             const maybeRevoked = this.#revokes.get(scope);
             if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, options))
-                return false;  // (scoped) permission has been explicitly revoked
+                return isParent ? 'parent-revoked' : 'self-revoked';  // explicitly revoked
 
             const maybeGranted = this.#grants.get(scope);
             if (maybeGranted && this.isGrantApplicable(maybeGranted, options))
-                return true;  // (scoped) permission has been explicitly granted
+                return isParent ? 'parent-granted' : 'self-granted';  // explicitly granted
 
             path.pop();
 
         } while (!!path.length);
 
-        return false;  // no permission has been granted
-    }
-
-    /**
-     * Requires that the visitor has access to the given `permission`, or throws an exception that
-     * will result in a HTTP 403 Forbidden error page. When the `permission` is a CRUD-based
-     * permission, the operation must be specified. A set of options may be given when applicable,
-     * to enable further fine-grained access control at the resource level.
-     *
-     * @todo Actually throw a HTTP 403 Forbidden error when Next.js supports it.
-     */
-    require(permission: BooleanPermission, options?: Options): void;
-    require(permission: CRUDPermission, operation: Operation, options?: Options): void;
-    require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
-        if (!this.can(permission as any, second, third))
-            notFound();
+        return 'unset';  // no permission has been granted
     }
 
     // ---------------------------------------------------------------------------------------------

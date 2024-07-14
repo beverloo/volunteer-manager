@@ -7,12 +7,14 @@ import CategoryIcon from '@mui/icons-material/Category';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
+import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
+import db, { tEvents, tTeams, tUsers } from '@lib/database';
 
-import { kPermissions } from '@lib/auth/Access';
+import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
 
 /**
  * Data associated with a volunteer permission update.
@@ -59,8 +61,40 @@ interface VolunteerPermissionsProps {
  * The <VolunteerPermissions> component displays the permissions that have been granted to the given
  * volunteer, as indicated in the `props`. The settings can be updated in real time.
  */
-export function VolunteerPermissions(props: VolunteerPermissionsProps) {
+export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const action = updateVolunteerPermissions.bind(null, props.userId);
+
+    const defaultValues: Record<string, any> = { /* empty */ };
+
+    // ---------------------------------------------------------------------------------------------
+
+    const events = await db.selectFrom(tEvents)
+        .selectOneColumn(tEvents.eventSlug)
+        .executeSelectMany();
+
+    const teams = await db.selectFrom(tTeams)
+        .selectOneColumn(tTeams.teamSlug)
+        .executeSelectMany();
+
+    const userConfiguration = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(props.userId))
+        .select({
+            grants: tUsers.permissionsGrants,
+            revokes: tUsers.permissionsRevokes,
+            events: tUsers.permissionsEvents,
+            teams: tUsers.permissionsTeams,
+        })
+        .executeSelectOne();
+
+    const userAccessControl = new AccessControl(userConfiguration);
+    // TODO: Have a second `AccessControl` instance w/ implicitly granted rights
+
+    // ---------------------------------------------------------------------------------------------
+
+    const defaultOptions = {
+        event: kAnyEvent,
+        team: kAnyTeam,
+    };
 
     const permissions: VolunteerPermissionStatus[] = [ /* empty */ ];
     for (const [ name, rawDescriptor ] of Object.entries(kPermissions)) {
@@ -74,11 +108,30 @@ export function VolunteerPermissions(props: VolunteerPermissionsProps) {
             description: descriptor.description,
             warning: !!descriptor.warning,
         });
+
+        if (descriptor.type === 'boolean') {
+            const booleanPermission = name as BooleanPermission;
+            switch (userAccessControl.getStatus(booleanPermission, defaultOptions)) {
+                case 'self-granted':
+                    defaultValues[`granted[${name}]`] = true;
+                    break;
+
+                case 'self-revoked':
+                    defaultValues[`revoked[${name}]`] = true;
+                    break;
+            }
+        } else if (descriptor.type === 'crud') {
+            // TODO: Deal with CRUD permissions
+        } else {
+            throw new Error(`Unhandled permission type: "${descriptor.type}"`);
+        }
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     return (
-        <FormGridSection action={action} icon={ <CategoryIcon color="primary" /> }
-                         title="Permissions">
+        <FormGridSection action={action} defaultValues={defaultValues}
+                         icon={ <CategoryIcon color="primary" /> } title="Permissions">
             <Grid xs={12}>
                 <SectionIntroduction important>
                     Granting permissions to a volunteer gives them more access within the Volunteer
@@ -86,6 +139,8 @@ export function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     to a minimum.
                 </SectionIntroduction>
             </Grid>
+            { /* TODO: Multi-select for events */ }
+            { /* TODO: Multi-select for teams */ }
             <Grid xs={12}>
                 <VolunteerPermissionsTable permissions={permissions} />
             </Grid>

@@ -2270,6 +2270,11 @@ tables:
     default: null
     extraDef: auto_increment
     comment: ""
+  - name: team_slug
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
   - name: team_name
     type: varchar(32)
     nullable: false
@@ -2321,6 +2326,12 @@ tables:
     default: null
     comment: ""
   indexes:
+  - name: team_slug
+    def: KEY team_slug (team_slug) USING BTREE
+    table: teams
+    columns:
+    - team_slug
+    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (team_id) USING BTREE
     table: teams
@@ -2341,6 +2352,7 @@ tables:
   def: |-
     CREATE TABLE `teams` (
       `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `team_slug` varchar(16) NOT NULL,
       `team_name` varchar(32) NOT NULL,
       `team_plural` varchar(32) NOT NULL,
       `team_title` varchar(128) NOT NULL,
@@ -2351,7 +2363,8 @@ tables:
       `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_colour_dark_theme` varchar(16) NOT NULL,
       `team_colour_light_theme` varchar(16) NOT NULL,
-      PRIMARY KEY (`team_id`)
+      PRIMARY KEY (`team_id`),
+      KEY `team_slug` (`team_slug`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE
