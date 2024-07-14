@@ -24,6 +24,12 @@ export type ActionRouteParams = {
  */
 export interface ActionProps {
     /**
+     * Access control management for this user. Lives off the `authenticationContext`, but pulled to
+     * the top-level as it's an object that will frequently be accessed.
+     */
+    access: AccessControl;
+
+    /**
      * The authentication context that's applicable for this request.
      */
     authenticationContext: AuthenticationContext;
@@ -189,6 +195,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
 
         const responseHeaders = new Headers();
         const response = await action((result.data as any).request, {
+            access: authenticationContext.access,
             authenticationContext,
             ip: request.ip ?? request.headers.get('x-forwarded-for') ?? undefined,
             origin: request.headers.get('host') ?? 'animecon.team',

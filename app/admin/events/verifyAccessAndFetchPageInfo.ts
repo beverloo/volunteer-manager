@@ -3,10 +3,11 @@
 
 import { notFound } from 'next/navigation';
 
-import { RegistrationStatus, type EventAvailabilityStatus } from '@lib/database/Types';
+import type { AccessControl } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
 import { Privilege } from '@lib/auth/Privileges';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { RegistrationStatus, type EventAvailabilityStatus } from '@lib/database/Types';
+import { requireAuthenticationContext, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
 /**
@@ -14,6 +15,11 @@ import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } fro
  * information about the event that is being displayed in the administrative area.
  */
 export interface PageInfo {
+    /**
+     * Access control object defining what the signed in user is able to do.
+     */
+    access: AccessControl;
+
     /**
      * The event that is being shown on this page.
      */
@@ -190,18 +196,23 @@ type PageInfoWithTeamParams = { slug: string; team: string; };
  * page can optionally be guarded behind a given `privilege` as well.
  */
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoWithTeamParams, privilege?: Privilege): Promise<PageInfoWithTeam | never>;
+    params: PageInfoWithTeamParams, accessCheck?: PermissionAccessCheck | Privilege)
+        : Promise<PageInfoWithTeam | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoParams, privilege?: Privilege): Promise<PageInfo | never>;
-
+    params: PageInfoParams, accessCheck?: PermissionAccessCheck | Privilege)
+        : Promise<PageInfo | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: { slug: string, team?: string }, privilege?: Privilege)
+    params: { slug: string, team?: string }, accessCheck?: PermissionAccessCheck | Privilege)
         : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
-    const { user } = await requireAuthenticationContext({
+    const permission = typeof accessCheck === 'object' ? accessCheck : undefined;
+    const privilege = typeof accessCheck === 'number' ? accessCheck : undefined;
+
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin-event',
         event: params.slug,
-        privilege
+        permission,
+        privilege,
     });
 
     // ---------------------------------------------------------------------------------------------
@@ -258,7 +269,7 @@ export async function verifyAccessAndFetchPageInfo(
         notFound();  // no event identified by |params.slug| exists in the database
 
     if (!Object.hasOwn(params, 'team'))
-        return { user, event };
+        return { access, user, event };
 
     // ---------------------------------------------------------------------------------------------
     // Team information
@@ -285,5 +296,5 @@ export async function verifyAccessAndFetchPageInfo(
     if (!team)
         notFound();  // the team does not exist, or does not participate in the |event|
 
-    return { user, event, team };
+    return { access, user, event, team };
 }

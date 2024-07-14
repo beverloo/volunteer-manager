@@ -20,11 +20,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { deepmerge } from '@mui/utils';
 
-import type { AccessOperation } from '@lib/auth/AccessDescriptor';
-import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
-import type { AccessControl, Options } from '@lib/auth/AccessControl';
-import type { User } from '@lib/auth/User';
-import { type Privilege, can } from '@lib/auth/Privileges';
+import type { PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
+import type { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <AdminSidebar> & related components.
@@ -41,21 +38,6 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 };
 
 /**
- * Type definition for a sidebar permission. Boolean permissions are one-off, whereas the operation
- * needs to be specified for CRUD permissions. Options may be specified in either case.
- */
-type SidebarPermission =
-    {
-        permission: BooleanPermission;
-        options?: Options;
-    } |
-    {
-        permission: CRUDPermission;
-        operation: AccessOperation;
-        options?: Options;
-    };
-
-/**
  * Properties available to all sidebar entires, regardless of type.
  */
 interface AdminSidebarMenuCommon {
@@ -68,7 +50,7 @@ interface AdminSidebarMenuCommon {
      * The permission this entry is gated behind. Visibility control, not an access control. When
      * multiple permissions are provided, then this entry will be visible when any of them are set.
      */
-    permission?: SidebarPermission | SidebarPermission[];
+    permission?: PermissionAccessCheck | PermissionAccessCheck[];
 
     /**
      * The privilege this entry is gated behind. Visibility control, not an access control. When

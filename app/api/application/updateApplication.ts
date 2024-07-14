@@ -9,6 +9,7 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
+import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
@@ -236,7 +237,14 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: request.event,
-                    privilege: Privilege.EventApplicationManagement,
+                    permission: {
+                        permission: 'event.applications',
+                        operation: 'update',
+                        options: {
+                            event: request.event,
+                            team: environmentToTeamSlug(request.team),
+                        },
+                    },
                 });
 
                 break;
@@ -246,7 +254,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: request.event,
-                    privilege: Privilege.EventAdministrator,
+                    privilege: Privilege.EventAdministrator,  // fixme?
                 });
 
                 break;

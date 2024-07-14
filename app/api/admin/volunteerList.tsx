@@ -5,9 +5,10 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents } from '@lib/database';
+
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-list. Only
@@ -57,7 +58,14 @@ type Response = ApiResponse<typeof kVolunteerListDefinition>;
 export async function volunteerList(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.EventApplicationManagement,
+        permission: {
+            permission: 'event.applications',
+            operation: 'create',
+            options: {
+                event: kAnyEvent,
+                team: kAnyTeam,
+            },
+        },
     });
 
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();

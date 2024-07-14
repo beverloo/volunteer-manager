@@ -14,6 +14,7 @@ import { Applications } from './Applications';
 import { CreateApplication } from './CreateApplication';
 import { Header } from './Header';
 import { RejectedApplications } from './RejectedApplications';
+import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 
 /**
  * The Applications page allows senior volunteers to see, and sometimes modify the incoming requests
@@ -21,7 +22,16 @@ import { RejectedApplications } from './RejectedApplications';
  * new applications on this page themselves.
  */
 export default async function EventApplicationsPage(props: NextPageParams<'slug' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const permissionOptions = {
+        event: props.params.slug,
+        team: environmentToTeamSlug(props.params.team),
+    };
+
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.applications',
+        operation: 'read',
+        options: permissionOptions,
+    });
 
     const dbInstance = db;
 
@@ -83,16 +93,18 @@ export default async function EventApplicationsPage(props: NextPageParams<'slug'
     // application managers cannot, however, event administrators are allowed to. Similarly, only
     // event administrators are able to reverse the decision on rejections.
     const canAccessAccounts = can(user, Privilege.VolunteerAdministrator);
-    const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);
-    const canManageApplications = can(user, Privilege.EventAdministrator);
+    const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);  // fixme?
+
+    const canCreateApplications = access.can('event.applications', 'create', permissionOptions);
+    const canUpdateApplications = access.can('event.applications', 'update', permissionOptions);
 
     return (
         <>
             <Header event={event} team={team} user={user} />
             <Applications event={event.slug} team={team.slug} applications={applications}
                           canAccessAccounts={canAccessAccounts}
-                          canManageApplications={canManageApplications} allowSilent={allowSilent} />
-            { canManageApplications &&
+                          canManageApplications={canUpdateApplications} allowSilent={allowSilent} />
+            { canCreateApplications &&
                 <CreateApplication event={event} team={team} user={user} /> }
             <Collapse in={!!rejections.length}>
                 <RejectedApplications applications={rejections} event={event.slug} team={team.slug}

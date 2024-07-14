@@ -7,11 +7,11 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { AdminSidebarMenuEntry, RenderSidebarMenuProps } from './AdminSidebarClient';
-import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { AccessControl } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
 import { RenderSidebarClient } from './AdminSidebarClient';
 import { can } from '@lib/auth/Privileges';
+import { checkPermission } from '@lib/auth/AuthenticationContext';
 
 /**
  * Re-export the types from the client file.
@@ -44,19 +44,9 @@ function filterMenuOptions(inputMenu: AdminSidebarMenuEntry[], access: AccessCon
             const permissions =
                 Array.isArray(entry.permission) ? entry.permission : [ entry.permission ];
 
-            for (const sidebarPermission of permissions) {
-                const options = sidebarPermission.options;
-
-                if ('operation' in sidebarPermission) {
-                    const permission = sidebarPermission.permission as CRUDPermission;
-                    if (!access.can(permission, sidebarPermission.operation, options))
-                        continue;  // permission has not been granted
-
-                } else {
-                    const permission = sidebarPermission.permission as BooleanPermission;
-                    if (!access.can(permission, options))
-                        continue;  // permission has not been granted
-                }
+            for (const permission of permissions) {
+                if (!checkPermission(access, permission))
+                    continue;  // permission has not been granted
             }
         }
 

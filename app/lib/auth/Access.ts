@@ -30,6 +30,7 @@ export const kPermissions = {
         description:
             'This permission determines whether the volunteer is able to deal with incoming ' +
             'participation applications.',
+        hide: [ 'delete' ],  // applications must be responded to, even if done silently
         requireEvent: true,
         requireTeam: true,
         type: 'crud',

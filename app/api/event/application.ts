@@ -135,6 +135,7 @@ export async function application(request: Request, props: ActionProps): Promise
             .select({
                 id: tTeams.teamId,
                 name: tTeams.teamName,
+                slug: tTeams.teamSlug,
                 title: tTeams.teamTitle,
             })
             .executeSelectNoneOrOne();
@@ -147,7 +148,14 @@ export async function application(request: Request, props: ActionProps): Promise
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin-event',
                 event: request.event,
-                privilege: Privilege.EventApplicationManagement,
+                permission: {
+                    permission: 'event.applications',
+                    operation: 'create',
+                    options: {
+                        event: event.slug,
+                        team: team.slug,
+                    },
+                },
             });
 
             userId = request.adminOverride.userId;

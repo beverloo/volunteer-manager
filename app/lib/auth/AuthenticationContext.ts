@@ -3,9 +3,11 @@
 
 import { notFound } from 'next/navigation';
 
+import type { AccessOperation } from '@lib/auth/AccessDescriptor';
+import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { SessionData } from './Session';
 import type { User } from './User';
-import { AccessControl } from './AccessControl';
+import { AccessControl, type Options } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
 import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
@@ -124,6 +126,20 @@ export const and = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'and',
 export const or = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'or', privileges });
 
 /**
+ * Definition for a permission-based access check.
+ */
+export type PermissionAccessCheck =
+    {
+        permission: BooleanPermission;
+        options?: Options;
+    } |
+    {
+        permission: CRUDPermission;
+        operation: AccessOperation;
+        options?: Options;
+    };
+
+/**
  * Types of access check that can be executed. Each check should be individually documented.
  */
 type AuthenticationAccessCheckTypes =
@@ -158,8 +174,27 @@ type AuthenticationAccessCheckTypes =
  * The access check always allows for permissions to be checked inline.
  */
 type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
+    permission?: PermissionAccessCheck;
     privilege?: Privilege | PrivilegeSet;
 };
+
+/**
+ * Executes a permission `check` on the given `access` object.
+ */
+export function checkPermission(access: AccessControl, check: PermissionAccessCheck): boolean {
+    if ('operation' in check) {
+        const permission = check.permission as CRUDPermission;
+        if (access.can(permission, check.operation, check.options))
+            return true;  // permission has been granted
+
+    } else {
+        const permission = check.permission as BooleanPermission;
+        if (access.can(permission, check.options))
+            return true;  // permission has been granted
+    }
+
+    return false;
+}
 
 /**
  * Checks whether the `user` has been granted the given `privilege`, which may be a privilege set.
@@ -186,6 +221,11 @@ function checkPrivilege(user: User | undefined, privilege: Privilege | Privilege
 export function executeAccessCheck(
     context: AuthenticationContext, access: AuthenticationAccessCheck): void | never
 {
+    if (access.permission) {
+        if (!checkPermission(context.access, access.permission))
+            notFound();
+    }
+
     if (access.privilege) {
         if (!checkPrivilege(context.user, access.privilege))
             notFound();
