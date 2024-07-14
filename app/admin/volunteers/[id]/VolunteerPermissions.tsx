@@ -10,7 +10,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
-import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, type AccessGrants } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -150,6 +150,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
     const eventsJoin = tEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
+    const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const userConfiguration = await dbInstance.selectFrom(tUsers)
@@ -161,6 +162,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 .and(eventsJoin.eventHidden.equals(/* false= */ 0))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .where(tUsers.userId.equals(props.userId))
             .and(eventsJoin.eventId.isNotNull())
         .select({
@@ -174,13 +177,29 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 event: eventsJoin.eventSlug,
                 grant: rolesJoin.rolePermissionGrant,
                 label: eventsJoin.eventShortName,
+                team: teamsJoin.teamSlug,
             }),
         })
         .groupBy(tUsers.userId)
         .executeSelectNoneOrOne();
 
     const userAccessControl = new AccessControl(userConfiguration?.access ?? { /* no grants */ });
-    // TODO: Have a second `AccessControl` instance w/ implicitly granted rights
+
+    const roleGrants: AccessGrants = { grants: [], revokes: [] };
+    if (!!userConfiguration) {
+        for (const { event, grant, team } of userConfiguration?.events) {
+            if (!grant || !Array.isArray(roleGrants.grants))
+                continue;  // no grants are part of this participation
+
+            roleGrants.grants.push({
+                permission: grant,
+                event,
+                team,
+            });
+        }
+    }
+
+    const roleAccessControl = new AccessControl(roleGrants);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -212,7 +231,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
             permission.status.account =
                 userAccessControl.getStatus(booleanPermission, defaultOptions);
-            permission.status.roles = 'unset';  // fixme
+            permission.status.roles =
+                roleAccessControl.getStatus(booleanPermission, defaultOptions);
 
             switch (permission.status.account) {
                 case 'self-granted':
@@ -238,7 +258,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     status: {
                         account:
                             userAccessControl.getStatus(crudPermission, operation, defaultOptions),
-                        roles: 'unset',  // fixme
+                        roles:
+                            roleAccessControl.getStatus(crudPermission, operation, defaultOptions),
                     },
                 };
 

@@ -219,12 +219,12 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                         case 'crud-granted':
                         case 'self-granted':
                             color = 'success.main';
-                            text = 'Granted (role)';
+                            text = 'Limited grant (role)';
                             break;
 
                         case 'parent-granted':
                             color = 'success.main';
-                            text = 'Granted (role, inherited)';
+                            text = 'Limited grant (role, inherited)';
                             break;
 
                         case 'crud-revoked':
@@ -240,7 +240,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
                         case 'partial-granted':
                             color = 'warning.main';
-                            text = 'Partially granted';
+                            text = 'Partial limited grant';
                             break;
                     }
                 }

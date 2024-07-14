@@ -18,7 +18,7 @@ export type Grant = string | { event?: string; permission: string; team?: string
  * grants, and specific control to which team(s) the visitor has access. Each value takes a list of
  * values, separated by commas.
  */
-interface Grants {
+export interface AccessGrants {
     /**
      * Permissions that have been granted to the user, if any. These are in addition to implicit
      * grants based on event-level allocations, i.e. by being assigned to a Senior-level position.
@@ -129,7 +129,7 @@ export class AccessControl {
     #events: Set<string> | undefined;
     #teams: Set<string> | undefined;
 
-    constructor(grants: Grants) {
+    constructor(grants: AccessGrants) {
         if (!!grants.grants) {
             const grantArray = Array.isArray(grants.grants) ? grants.grants : [ grants.grants ];
             for (const grant of grantArray)

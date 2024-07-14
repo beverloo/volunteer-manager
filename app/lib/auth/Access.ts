@@ -122,9 +122,12 @@ export const kPermissionGroups: Record<string, string[]> = {
         // no implicitly granted permissions
     ],
     staff: [
+        'event.applications:read',
+        'event.applications:update',
         'event.visible',
     ],
     senior: [
+        'event.applications:read',
         'event.visible',
     ],
 };
