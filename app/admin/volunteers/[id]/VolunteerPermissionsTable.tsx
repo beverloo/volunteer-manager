@@ -3,11 +3,12 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { CheckboxElement } from '@components/proxy/react-hook-form-mui';
 
-import type { GridColDef, GridGroupNode, GridGroupingColDefOverride, DataGridProProps } from '@mui/x-data-grid-pro';
+import type { GridColDef, GridGroupNode, GridGroupingColDefOverride, GridRowId, DataGridProProps }
+    from '@mui/x-data-grid-pro';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 
 import Button from '@mui/material/Button';
@@ -65,6 +66,16 @@ export interface VolunteerPermissionStatus {
 }
 
 /**
+ * Constant listing the permission statuses that were explicitly granted.
+ */
+const kExplicitlySetPermissionStatuses: ComprehensivePermissionStatus[] = [
+    'crud-granted',
+    'crud-revoked',
+    'self-granted',
+    'self-revoked',
+];
+
+/**
  * Props accepted by the <VolunteerPermissionsTable> component.
  */
 interface VolunteerPermissionsTableProps {
@@ -84,6 +95,24 @@ interface VolunteerPermissionsTableProps {
  * and whether the volunteer has been granted them.
  */
 export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps) {
+    const permissionGroupsToExpand = useMemo(() => {
+        const permissionGroupsToExpand = new Set<GridRowId>();
+        for (const permission of props.permissions) {
+            if (!kExplicitlySetPermissionStatuses.includes(permission.status.account))
+                continue;
+
+            const path = permission.id.split('.');
+            do {
+                permissionGroupsToExpand.add(path.join('.'));
+                path.pop();
+
+            } while (!!path.length)
+        }
+
+        return permissionGroupsToExpand;
+
+    }, [ props.permissions ]);
+
     const [ learnMoreOpen, setLearnMoreOpen ] = useState<boolean>(false);
 
     const [ learnMoreTitle, setLearnMoreTitle ] = useState<string | undefined>();
@@ -311,11 +340,9 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
         if (!node.depth)
             return true;  // always expand top-level nodes
 
-        // TODO: expand nodes that contain granted permissions
+        return permissionGroupsToExpand.has(node.id);
 
-        return false;
-
-    }, [ /* no dependencies */ ]);
+    }, [ permissionGroupsToExpand ]);
 
     return (
         <>
