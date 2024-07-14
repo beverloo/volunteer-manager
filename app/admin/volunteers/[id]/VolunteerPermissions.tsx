@@ -3,8 +3,11 @@
 
 import { z } from 'zod';
 
+import Alert from '@mui/material/Alert';
 import CategoryIcon from '@mui/icons-material/Category';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
+import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type Operation } from '@lib/auth/AccessControl';
@@ -12,9 +15,10 @@ import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
-import db, { tEvents, tTeams, tUsers } from '@lib/database';
+import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
+import { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Data associated with a volunteer permission update.
@@ -78,29 +82,51 @@ interface VolunteerPermissionsProps {
 export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const action = updateVolunteerPermissions.bind(null, props.userId);
 
+    const dbInstance = db;
     const defaultValues: Record<string, any> = { /* empty */ };
 
     // ---------------------------------------------------------------------------------------------
 
-    const events = await db.selectFrom(tEvents)
+    const events = await dbInstance.selectFrom(tEvents)
         .selectOneColumn(tEvents.eventSlug)
         .executeSelectMany();
 
-    const teams = await db.selectFrom(tTeams)
+    const teams = await dbInstance.selectFrom(tTeams)
         .selectOneColumn(tTeams.teamSlug)
         .executeSelectMany();
 
-    const userConfiguration = await db.selectFrom(tUsers)
-        .where(tUsers.userId.equals(props.userId))
-        .select({
-            grants: tUsers.permissionsGrants,
-            revokes: tUsers.permissionsRevokes,
-            events: tUsers.permissionsEvents,
-            teams: tUsers.permissionsTeams,
-        })
-        .executeSelectOne();
+    const eventsJoin = tEvents.forUseInLeftJoin();
+    const rolesJoin = tRoles.forUseInLeftJoin();
+    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
-    const userAccessControl = new AccessControl(userConfiguration);
+    const userConfiguration = await dbInstance.selectFrom(tUsers)
+        .leftJoin(usersEventsJoin)
+            .on(usersEventsJoin.userId.equals(tUsers.userId))
+                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(eventsJoin)
+            .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
+                .and(eventsJoin.eventHidden.equals(/* false= */ 0))
+        .leftJoin(rolesJoin)
+            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
+        .where(tUsers.userId.equals(props.userId))
+            .and(eventsJoin.eventId.isNotNull())
+        .select({
+            access: {
+                grants: tUsers.permissionsGrants,
+                revokes: tUsers.permissionsRevokes,
+                events: tUsers.permissionsEvents,
+                teams: tUsers.permissionsTeams,
+            },
+            events: dbInstance.aggregateAsArray({
+                event: eventsJoin.eventSlug,
+                grant: rolesJoin.rolePermissionGrant,
+                label: eventsJoin.eventShortName,
+            }),
+        })
+        .groupBy(tUsers.userId)
+        .executeSelectNoneOrOne();
+
+    const userAccessControl = new AccessControl(userConfiguration?.access ?? { /* no grants */ });
     // TODO: Have a second `AccessControl` instance w/ implicitly granted rights
 
     // ---------------------------------------------------------------------------------------------
@@ -179,11 +205,43 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     to a minimum.
                 </SectionIntroduction>
             </Grid>
-            { /* TODO: Multi-select for events */ }
-            { /* TODO: Multi-select for teams */ }
+
+            <Grid xs={3}>
+                <Typography variant="body2">
+                    Explicit event access:
+                </Typography>
+            </Grid>
+            <Grid xs={9}>
+                ...
+            </Grid>
+
+            <Grid xs={3}>
+                <Typography variant="body2">
+                    Explicit team access:
+                </Typography>
+            </Grid>
+            <Grid xs={9}>
+                ...
+            </Grid>
+
             <Grid xs={12}>
                 <VolunteerPermissionsTable permissions={permissions} />
             </Grid>
+
+            { !!userConfiguration?.events.length &&
+                <>
+                    <Grid xs={12}>
+                        <Divider />
+                    </Grid>
+                    <Grid xs={12}>
+                        <Alert variant="outlined" severity="info">
+                            Additional role-based access has been granted based on their
+                            participation in{' '}
+                            {userConfiguration.events.map(({ label }) => label ).sort().join(', ')}.
+                        </Alert>
+                    </Grid>
+                </> }
+
         </FormGridSection>
     );
 }

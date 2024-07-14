@@ -365,6 +365,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: role_permission_grant
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: role_admin_access
     type: tinyint(1)
     nullable: false
@@ -410,6 +415,7 @@ tables:
       `role_badge` enum('Staff','Senior','Host') DEFAULT NULL,
       `role_order` int(4) NOT NULL DEFAULT 0,
       `role_availability_event_limit` int(8) unsigned NOT NULL,
+      `role_permission_grant` text DEFAULT NULL,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
       `role_schedule_collapse` tinyint(1) unsigned NOT NULL DEFAULT 0,
