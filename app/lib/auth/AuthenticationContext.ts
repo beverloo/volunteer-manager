@@ -41,6 +41,11 @@ export interface UserEventAuthenticationContext {
  */
 export interface UserAuthenticationContext {
     /**
+     * Object that helps determine what permissions and privileges are granted to the visitor.
+     */
+    access: AccessControl;
+
+    /**
      * The user who is currently signed in to their account.
      */
     user: User;
@@ -62,6 +67,11 @@ export interface UserAuthenticationContext {
  */
 export interface VisitorAuthenticationContext {
     /**
+     * Object that helps determine what permissions and privileges are granted to the visitor.
+     */
+    access: AccessControl;
+
+    /**
      * The user who is currently signed in to their account. Undefined for visitors.
      */
     user: undefined;
@@ -71,13 +81,7 @@ export interface VisitorAuthenticationContext {
  * Authentication Context, which defines not just the signed in user, but also detailed access
  * information about the level of access they have to different events.
  */
-export type AuthenticationContext = {
-    /**
-     * Object that helps determine what permissions and privileges are granted to the visitor.
-     */
-    access: AccessControl;
-
-} & (UserAuthenticationContext | VisitorAuthenticationContext);
+export type AuthenticationContext = UserAuthenticationContext | VisitorAuthenticationContext;
 
 /**
  * Determines the authentication context from the cookies included with the current request. May

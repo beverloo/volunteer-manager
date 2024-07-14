@@ -104,7 +104,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
  * be fetched from the database prior to being displayed.
  */
 export default async function VolunteerPage(props: NextPageParams<'id'>) {
-    const { user } = await requireAuthenticationContext({
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerAdministrator,
     });
@@ -116,6 +116,8 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
     const { account, participation } = volunteerInfo;
 
     const isAdmin = can(user, Privilege.Administrator);
+
+    const permissionsReadOnly = !access.can('volunteer.permissions', 'update');
 
     return (
         <>
@@ -134,8 +136,8 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
                                    pageSize={10} />
                 </Paper> }
 
-            { can(user, Privilege.Administrator) &&
-                <VolunteerPermissions userId={account.userId} /> }
+            { access.can('volunteer.permissions', 'read') &&
+                <VolunteerPermissions readOnly={permissionsReadOnly} userId={account.userId} /> }
 
             { can(user, Privilege.Administrator) &&
                 <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }

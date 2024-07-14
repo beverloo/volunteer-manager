@@ -67,6 +67,11 @@ interface VolunteerPermissionsTableProps {
      * The permissions that should be shown in the table.
      */
     permissions: VolunteerPermissionStatus[];
+
+    /**
+     * Whether the permissions should be displayed as read-only.
+     */
+    readOnly?: boolean;
 }
 
 /**
@@ -185,7 +190,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
                 return (
                     <CheckboxElement name={`granted[${params.row.id}]`} size="small"
-                                     color="success" sx={{ ml: 1 }} />
+                                     color="success" sx={{ ml: 1 }} disabled={props.readOnly} />
                 );
             },
         },
@@ -209,7 +214,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
                 return (
                     <CheckboxElement name={`revoked[${params.row.id}]`} size="small"
-                                     color="error" sx={{ ml: 1 }} />
+                                     color="error" sx={{ ml: 1 }} disabled={props.readOnly}/>
                 );
             },
         }

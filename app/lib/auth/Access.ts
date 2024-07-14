@@ -45,6 +45,20 @@ export const kPermissions = {
     },
 
     // ---------------------------------------------------------------------------------------------
+    // Volunteer-associated permissions
+    // ---------------------------------------------------------------------------------------------
+
+    'volunteer.permissions': {
+        name: 'Volunteer account permissions',
+        description:
+            'This permission determines whether the volunteer is able to manage the permissions ' +
+            'of other volunteers. This is an extremely dangerous permission, as it enables them ' +
+            'to manage their own permissions as well.',
+        type: 'crud',
+        warning: true,
+    },
+
+    // ---------------------------------------------------------------------------------------------
     // Permissions that exist for testing purposes
     // ---------------------------------------------------------------------------------------------
 
@@ -98,6 +112,7 @@ export const kPermissions = {
 export const kPermissionGroups: Record<string, string[]> = {
     admin: [
         'event',
+        'volunteer',
         'test',
     ],
     everyone: [

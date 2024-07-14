@@ -17,6 +17,12 @@ import { getAuthenticationContextFromHeaders, type AuthenticationContext }
  */
 type ServerActionProps = {
     /**
+     * Access control management for this user. Lives off the `authenticationContext`, but pulled to
+     * the top-level as it's an object that will frequently be accessed.
+     */
+    access: AccessControl,
+
+    /**
      * Authentication context describing the privileges of the visitor.
      */
     authenticationContext: AuthenticationContext;
@@ -235,6 +241,7 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
                 } : await getAuthenticationContextFromHeaders(requestHeaders);
 
         const props: ServerActionProps = {
+            access: authenticationContext.access,
             authenticationContext,
             host: requestHeaders.get('host') ?? 'animecon.team',
             ip: requestHeaders.get('x-forwarded-for') ?? undefined,

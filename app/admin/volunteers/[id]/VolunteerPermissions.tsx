@@ -46,6 +46,9 @@ const kVolunteerPermissionData = z.object({
 async function updateVolunteerPermissions(userId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kVolunteerPermissionData, async (data, props) => {
+        if (!props.access.can('volunteer.permissions', 'update'))
+            return { success: false, error: 'You are not able to update permissions' };
+
         console.log(data);
         return { success: false, error: 'Not yet implemented' };
     });
@@ -69,6 +72,11 @@ function uppercaseFirst(text: string): string {
  * Props accepted by the <VolunteerPermissions> component.
  */
 interface VolunteerPermissionsProps {
+    /**
+     * Whether the permissions should be displayed as read-only.
+     */
+    readOnly?: boolean;
+
     /**
      * Unique ID of the user for whom permissions are being shown.
      */
@@ -225,7 +233,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
             </Grid>
 
             <Grid xs={12}>
-                <VolunteerPermissionsTable permissions={permissions} />
+                <VolunteerPermissionsTable permissions={permissions} readOnly={props.readOnly} />
             </Grid>
 
             { !!userConfiguration?.events.length &&
