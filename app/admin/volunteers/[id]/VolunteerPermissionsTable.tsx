@@ -24,6 +24,13 @@ import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import type { PermissionStatus } from '@lib/auth/AccessControl';
+
+/**
+ * Comprehensive list of permission statuses that also consider partial assignment for CRUD.
+ */
+export type ComprehensivePermissionStatus = PermissionStatus | 'partial-granted';
+
 /**
  * Information stored for a particular permission.
  */
@@ -44,14 +51,12 @@ export interface VolunteerPermissionStatus {
     description?: string;
 
     /**
-     * Whether the permission has been explicitly granted.
+     * The status of this permission, summarising its state.
      */
-    granted?: boolean;
-
-    /**
-     * Whether the permission has been explicitly revoked.
-     */
-    revoked?: boolean;
+    status: {
+        account: ComprehensivePermissionStatus;
+        roles: ComprehensivePermissionStatus;
+    };
 
     /**
      * Whether a warning should be shown indicating that this is a dangerous permission.
@@ -166,10 +171,87 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                 );
             },
         },
+        {
+            display: 'flex',
+            field: 'status',
+            headerName: 'Effective status',
+            sortable: false,
+            flex: 1,
 
-        // TODO: CRUD specialisation
-        // TODO: Status (implicitly / explicitly granted)
+            renderCell: params => {
+                if (!params.row.status)
+                    return undefined;  // skip generated rows
 
+                let color: string = 'text.disabled';
+                let text: string = 'Not granted';
+
+                if (params.row.status.account !== 'unset') {
+                    switch (params.row.status.account) {
+                        case 'crud-granted':
+                        case 'self-granted':
+                            color = 'success.main';
+                            text = 'Granted';
+                            break;
+
+                        case 'parent-granted':
+                            color = 'success.main';
+                            text = 'Granted (inherited)';
+                            break;
+
+                        case 'crud-revoked':
+                        case 'self-revoked':
+                            color = 'error.main';
+                            text = 'Revoked';
+                            break;
+
+                        case 'parent-revoked':
+                            color = 'error.main';
+                            text = 'Revoked (inherited)';
+                            break;
+
+                        case 'partial-granted':
+                            color = 'warning.main';
+                            text = 'Partially granted';
+                            break;
+                    }
+                } else if (params.row.status.roles !== 'unset') {
+                    switch (params.row.status.roles) {
+                        case 'crud-granted':
+                        case 'self-granted':
+                            color = 'success.main';
+                            text = 'Granted (role)';
+                            break;
+
+                        case 'parent-granted':
+                            color = 'success.main';
+                            text = 'Granted (role, inherited)';
+                            break;
+
+                        case 'crud-revoked':
+                        case 'self-revoked':
+                            color = 'error.main';
+                            text = 'Revoked (role)';
+                            break;
+
+                        case 'parent-revoked':
+                            color = 'error.main';
+                            text = 'Revoked (role, inherited)';
+                            break;
+
+                        case 'partial-granted':
+                            color = 'warning.main';
+                            text = 'Partially granted';
+                            break;
+                    }
+                }
+
+                return (
+                    <Typography variant="body2" sx={{ color }}>
+                        {text}
+                    </Typography>
+                );
+            },
+        },
         {
             display: 'flex',
             field: 'granted',

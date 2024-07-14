@@ -12,13 +12,13 @@ import Typography from '@mui/material/Typography';
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
+import { VolunteerPermissionsTable, type ComprehensivePermissionStatus, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
-import { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Data associated with a volunteer permission update.
@@ -66,6 +66,51 @@ function lowercaseFirst(text: string): string {
  */
 function uppercaseFirst(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Decides whether the 'current' should be upgraded into the `incoming` permission status. This is
+ * only the case when the `incoming` status is less specific than the given `current` status.
+ */
+function maybeUpgradePermissionStatus(
+    current: ComprehensivePermissionStatus, incoming: ComprehensivePermissionStatus)
+        : ComprehensivePermissionStatus
+{
+    switch (current) {
+        case 'unset': {
+            switch (incoming) {
+                case 'crud-granted':
+                    return 'partial-granted';
+                case 'crud-revoked':
+                    break;  // parent permission wasn't granted, so this is a no-op
+
+                case 'parent-granted':
+                case 'parent-revoked':
+                    return incoming;
+            }
+            break;
+        }
+
+        case 'parent-granted':
+        case 'self-granted': {
+            switch (incoming) {
+                case 'crud-revoked':
+                    return 'partial-granted';
+            }
+            break;
+        }
+
+        case 'parent-revoked':
+        case 'self-revoked': {
+            switch (incoming) {
+                case 'crud-granted':
+                    return 'partial-granted';
+            }
+            break;
+        }
+    }
+
+    return current;
 }
 
 /**
@@ -150,16 +195,26 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         if (!!descriptor.hidden)
             continue;  // this permission has been explicitly hidden
 
-        permissions.push({
+        const permissionChildren: VolunteerPermissionStatus[] = [];
+        const permission: VolunteerPermissionStatus = {
             id: name,
             name: descriptor.name,
             description: descriptor.description,
+            status: {
+                account: 'unset',
+                roles: 'unset',
+            },
             warning: !!descriptor.warning,
-        });
+        };
 
         if (descriptor.type === 'boolean') {
             const booleanPermission = name as BooleanPermission;
-            switch (userAccessControl.getStatus(booleanPermission, defaultOptions)) {
+
+            permission.status.account =
+                userAccessControl.getStatus(booleanPermission, defaultOptions);
+            permission.status.roles = 'unset';  // fixme
+
+            switch (permission.status.account) {
                 case 'self-granted':
                     defaultValues[`granted[${name}]`] = true;
                     break;
@@ -170,18 +225,30 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
             }
         } else if (descriptor.type === 'crud') {
             const crudPermission = name as CRUDPermission;
+
             for (const rawOperation of [ 'create', 'read', 'update', 'delete' ]) {
                 const operation = rawOperation as AccessOperation;
 
                 if (!!descriptor.hide && descriptor.hide.includes(operation))
                     continue;  // this operation has been explicitly hidden
 
-                permissions.push({
+                const childPermission: VolunteerPermissionStatus = {
                     id: `${name}.${operation}`,
                     name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
-                });
+                    status: {
+                        account:
+                            userAccessControl.getStatus(crudPermission, operation, defaultOptions),
+                        roles: 'unset',  // fixme
+                    },
+                };
 
-                switch (userAccessControl.getStatus(crudPermission, operation, defaultOptions)) {
+                permission.status.account = maybeUpgradePermissionStatus(
+                    permission.status.account, childPermission.status.account);
+
+                permission.status.roles = maybeUpgradePermissionStatus(
+                    permission.status.roles, childPermission.status.roles);
+
+                switch (childPermission.status.account) {
                     case 'crud-granted':
                         defaultValues[`granted[${name}.${operation}]`] = true;
                         break;
@@ -196,12 +263,16 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
                     case 'self-revoked':
                         defaultValues[`revoked[${name}]`] = true;
-                        break
+                        break;
                 }
+
+                permissionChildren.push(childPermission);
             }
         } else {
             throw new Error(`Unhandled permission type: "${descriptor.type}"`);
         }
+
+        permissions.push(permission, ...permissionChildren);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -223,7 +294,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 </Typography>
             </Grid>
             <Grid xs={9}>
-                ...
+                (todo)
             </Grid>
 
             <Grid xs={3}>
@@ -232,7 +303,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 </Typography>
             </Grid>
             <Grid xs={9}>
-                ...
+                (todo)
             </Grid>
 
             <Grid xs={12}>

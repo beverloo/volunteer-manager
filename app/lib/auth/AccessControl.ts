@@ -105,7 +105,7 @@ type PermissionMap = Map<string, Permission>;
 /**
  * Status that can be associated with a particular permission type.
  */
-type Status =
+export type PermissionStatus =
     'crud-granted' | 'crud-revoked' | 'parent-granted' | 'parent-revoked' |
     'self-granted' | 'self-revoked' | 'unset';
 
@@ -224,9 +224,12 @@ export class AccessControl {
      * "foo" permission can still have "foo.bar" explicitly revoked. CRUD permissions will be
      * expanded separately at the deepest scope.
      */
-    getStatus(permission: BooleanPermission, options?: Options): Status;
-    getStatus(permission: CRUDPermission, operation: AccessOperation, options?: Options): Status;
-    getStatus(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): Status {
+    getStatus(permission: BooleanPermission, options?: Options): PermissionStatus;
+    getStatus(permission: CRUDPermission, operation: AccessOperation, options?: Options)
+        : PermissionStatus;
+    getStatus(permission: BooleanPermission | CRUDPermission, second?: any, third?: any)
+        : PermissionStatus
+    {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);
 

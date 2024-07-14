@@ -112,6 +112,8 @@ export const kPermissions = {
  */
 export const kPermissionGroups: Record<string, string[]> = {
     admin: [
+        'admin',  // reflection
+
         'event',
         'volunteer',
         'test',
