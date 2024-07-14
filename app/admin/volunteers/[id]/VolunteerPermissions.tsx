@@ -9,8 +9,8 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
-import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
-import { AccessControl, kAnyEvent, kAnyTeam, type Operation } from '@lib/auth/AccessControl';
+import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
+import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
@@ -148,7 +148,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     for (const [ name, rawDescriptor ] of Object.entries(kPermissions)) {
         const descriptor = rawDescriptor as AccessDescriptor;
         if (!!descriptor.hidden)
-            continue;
+            continue;  // this permission has been explicitly hidden
 
         permissions.push({
             id: name,
@@ -171,7 +171,10 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         } else if (descriptor.type === 'crud') {
             const crudPermission = name as CRUDPermission;
             for (const rawOperation of [ 'create', 'read', 'update', 'delete' ]) {
-                const operation = rawOperation as Operation;
+                const operation = rawOperation as AccessOperation;
+
+                if (!!descriptor.hide && descriptor.hide.includes(operation))
+                    continue;  // this operation has been explicitly hidden
 
                 permissions.push({
                     id: `${name}.${operation}`,

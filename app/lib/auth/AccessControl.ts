@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import type { AccessDescriptor } from './AccessDescriptor';
+import type { AccessDescriptor, AccessOperation } from './AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from './Access';
 import { kPermissionGroups, kPermissions } from './Access';
 
@@ -12,11 +12,6 @@ import { kPermissionGroups, kPermissions } from './Access';
  * is scoped to a particular event or team.
  */
 export type Grant = string | { event?: string; permission: string; team?: string; }
-
-/**
- * CRUD-described operations that can happen based on a permission.
- */
-export type Operation = 'create' | 'read' | 'update' | 'delete';
 
 /**
  * Information about the permission grants that have been given to the visitor. This includes both
@@ -184,7 +179,7 @@ export class AccessControl {
      * expanded separately at the deepest scope.
      */
     can(permission: BooleanPermission, options?: Options): boolean;
-    can(permission: CRUDPermission, operation: Operation, options?: Options): boolean;
+    can(permission: CRUDPermission, operation: AccessOperation, options?: Options): boolean;
     can(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): boolean {
         const status = this.getStatus(permission as any, second, third);
         switch (status) {
@@ -212,7 +207,7 @@ export class AccessControl {
      * @todo Actually throw a HTTP 403 Forbidden error when Next.js supports it.
      */
     require(permission: BooleanPermission, options?: Options): void;
-    require(permission: CRUDPermission, operation: Operation, options?: Options): void;
+    require(permission: CRUDPermission, operation: AccessOperation, options?: Options): void;
     require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
         if (!this.can(permission as any, second, third))
             notFound();
@@ -230,7 +225,7 @@ export class AccessControl {
      * expanded separately at the deepest scope.
      */
     getStatus(permission: BooleanPermission, options?: Options): Status;
-    getStatus(permission: CRUDPermission, operation: Operation, options?: Options): Status;
+    getStatus(permission: CRUDPermission, operation: AccessOperation, options?: Options): Status;
     getStatus(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): Status {
         if (!kPermissionPattern.test(permission))
             throw new Error(`Invalid syntax for the given permission: "${permission}"`);

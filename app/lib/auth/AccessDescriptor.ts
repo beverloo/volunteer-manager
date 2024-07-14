@@ -2,6 +2,11 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
+ * CRUD-described operations that can happen based on a permission.
+ */
+export type AccessOperation = 'create' | 'read' | 'update' | 'delete';
+
+/**
  * Describes a permission available in the Volunteer Manager. Permissions must have a type, a name
  * and a description, and can optionally have additional metadata associated too.
  */
@@ -20,6 +25,12 @@ export interface AccessDescriptor {
      * Whether the permission should be hidden from the user interface.
      */
     hidden?: boolean;
+
+    /**
+     * Whether certain access operations should be hidden from the user interface. Only applicable
+     * for CRUD-type permissions.
+     */
+    hide?: AccessOperation[];
 
     /**
      * Whether the applicable event must be specified when checking whether this permission has been

@@ -54,6 +54,7 @@ export const kPermissions = {
             'This permission determines whether the volunteer is able to manage the permissions ' +
             'of other volunteers. This is an extremely dangerous permission, as it enables them ' +
             'to manage their own permissions as well.',
+        hide: [ 'create', 'delete' ],  // all mutations are considered updates
         type: 'crud',
         warning: true,
     },
