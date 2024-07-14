@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 
 import { CheckboxElement } from '@components/proxy/react-hook-form-mui';
 
-import type { GridColDef, GridGroupNode, DataGridProProps } from '@mui/x-data-grid-pro';
+import type { GridColDef, GridGroupNode, GridGroupingColDefOverride, DataGridProProps } from '@mui/x-data-grid-pro';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 
 import Button from '@mui/material/Button';
@@ -41,7 +41,7 @@ export interface VolunteerPermissionStatus {
     /**
      * Description associated with the permission, explaining why it does what it does.
      */
-    description: string;
+    description?: string;
 
     /**
      * Whether the permission has been explicitly granted.
@@ -87,9 +87,9 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
     }, [ /* no dependencies */ ]);
 
-    const grouping: GridColDef<VolunteerPermissionStatus> = {
-        field: 'id',
+    const grouping: GridGroupingColDefOverride<VolunteerPermissionStatus> = {
         headerName: 'Permission',
+        hideDescendantCount: true,
         width: 250,
     };
 
@@ -109,7 +109,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                 </Tooltip>,
 
             renderCell: params => {
-                if (!params.row.id) {
+                if (!params.row.description) {
                     return (
                         <Tooltip title="No description available">
                             <InfoOutlinedIcon color="disabled" fontSize="small" />

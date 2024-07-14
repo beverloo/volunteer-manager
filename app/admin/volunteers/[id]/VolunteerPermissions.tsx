@@ -7,7 +7,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
-import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, type Operation } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
@@ -45,6 +45,20 @@ async function updateVolunteerPermissions(userId: number, formData: unknown) {
         console.log(data);
         return { success: false, error: 'Not yet implemented' };
     });
+}
+
+/**
+ * Helper function that lowercases the first letter of the given `text`.
+ */
+function lowercaseFirst(text: string): string {
+    return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+/**
+ * Helper function that capitalises the first letter of the given `text`.
+ */
+function uppercaseFirst(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /**
@@ -121,7 +135,33 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     break;
             }
         } else if (descriptor.type === 'crud') {
-            // TODO: Deal with CRUD permissions
+            const crudPermission = name as CRUDPermission;
+            for (const rawOperation of [ 'create', 'read', 'update', 'delete' ]) {
+                const operation = rawOperation as Operation;
+
+                permissions.push({
+                    id: `${name}.${operation}`,
+                    name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
+                });
+
+                switch (userAccessControl.getStatus(crudPermission, operation, defaultOptions)) {
+                    case 'crud-granted':
+                        defaultValues[`granted[${name}.${operation}]`] = true;
+                        break;
+
+                    case 'crud-revoked':
+                        defaultValues[`revoked[${name}.${operation}]`] = true;
+                        break;
+
+                    case 'self-granted':
+                        defaultValues[`granted[${name}]`] = true;
+                        break;
+
+                    case 'self-revoked':
+                        defaultValues[`revoked[${name}]`] = true;
+                        break
+                }
+            }
         } else {
             throw new Error(`Unhandled permission type: "${descriptor.type}"`);
         }

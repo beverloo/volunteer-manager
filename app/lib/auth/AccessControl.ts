@@ -16,7 +16,7 @@ export type Grant = string | { event?: string; permission: string; team?: string
 /**
  * CRUD-described operations that can happen based on a permission.
  */
-type Operation = 'create' | 'read' | 'update' | 'delete';
+export type Operation = 'create' | 'read' | 'update' | 'delete';
 
 /**
  * Information about the permission grants that have been given to the visitor. This includes both

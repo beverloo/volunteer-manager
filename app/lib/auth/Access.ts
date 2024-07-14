@@ -13,10 +13,10 @@ export const kPermissions = {
     // ---------------------------------------------------------------------------------------------
 
     'admin': {
-        name: 'Administrator',
+        name: 'Administrator (role)',
         description:
-            'The administrator role grants all permissions in the system without exception, thus ' +
-            'full access to all event and volunteer information.',
+            'The administrator role grants all permissions in the system without exception, ' +
+            'including full access to all event and volunteer information.',
         type: 'boolean',
         warning: true,
     },
@@ -25,9 +25,21 @@ export const kPermissions = {
     // Event-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'event.applications': {
+        name: 'Event volunteer applications',
+        description:
+            'This permission determines whether the volunteer is able to deal with incoming ' +
+            'participation applications.',
+        requireEvent: true,
+        requireTeam: true,
+        type: 'crud',
+    },
+
     'event.visible': {
         name: 'Event visibility',
-        description: 'Whether this event can be discovered by them in the user interface',
+        description:
+            'The event visibility permission determined whether the volunteer is able to see the ' +
+            'existence of a particular event, for example in the admin area.',
         requireEvent: true,
         type: 'boolean',
     },
