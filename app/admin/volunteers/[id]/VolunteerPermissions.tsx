@@ -23,6 +23,12 @@ import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
 
 /**
+ * Suffix to distinguish the root of nested permissions from its children. Forms are submitted in
+ * declaration order, which means that "foo: true" will be overridden by "foo: { bar }".
+ */
+const kSelfSuffix = ':self';
+
+/**
  * Data associated with a volunteer permission update.
  */
 const kVolunteerPermissionData = z.object({
@@ -68,7 +74,11 @@ export function toPermissionList(input: any, path?: string, permissions?: string
     const isRoot = !path;
 
     for (const entry of Object.keys(input)) {
-        const permission = isRoot ? entry : `${path}${entry}`;
+        let permissionName = entry;
+        if (permissionName.endsWith(kSelfSuffix))
+            permissionName = entry.substring(0, entry.length - kSelfSuffix.length);
+
+        const permission = isRoot ? permissionName : `${path}${permissionName}`;
         if (typeof input[entry] === 'boolean') {
             if (!!input[entry])
                 permissions.push(permission);
@@ -130,9 +140,6 @@ async function updateVolunteerPermissions(userId: number, formData: unknown) {
         let teams: string | null = null;
         if (!!data.teams.length)
             teams = data.teams.includes(kAnyTeam) ? kAnyTeam : data.teams.join(',');
-
-        console.log('G:', grants, '::', data.grants);
-        console.log('R:', revokes, '::', data.revokes);
 
         const affectedRows = await db.update(tUsers)
             .set({
@@ -241,8 +248,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
     const dbInstance = db;
     const defaultValues: Record<string, any> = {
-        events: [ /* todo */ ],
-        teams: [ /* todo */ ],
+        events: [ /* empty */ ],
+        teams: [ /* empty */ ],
     };
 
     // ---------------------------------------------------------------------------------------------
@@ -381,6 +388,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         } else if (descriptor.type === 'crud') {
             const crudPermission = name as CRUDPermission;
 
+            permission.suffix = kSelfSuffix;  // avoids overwriting values when submitting the form
+
             for (const rawOperation of [ 'create', 'read', 'update', 'delete' ]) {
                 const operation = rawOperation as AccessOperation;
 
@@ -398,9 +407,6 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     },
                 };
 
-                if (permission.id === 'volunteer.permissions')
-                    console.log(childPermission.status.account);
-
                 permission.status.account = maybeUpgradePermissionStatus(
                     permission.status.account, childPermission.status.account);
 
@@ -417,12 +423,12 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                         break;
 
                     case 'self-granted':
-                        defaultValues[`grants[${name}]`] = true;
+                        defaultValues[`grants[${name}${kSelfSuffix}]`] = true;
                         childPermission.status.account = 'parent-granted';
                         break;
 
                     case 'self-revoked':
-                        defaultValues[`revokes[${name}]`] = true;
+                        defaultValues[`revokes[${name}${kSelfSuffix}]`] = true;
                         childPermission.status.account = 'parent-revoked';
                         break;
                 }
@@ -432,9 +438,6 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         } else {
             throw new Error(`Unhandled permission type: "${descriptor.type}"`);
         }
-
-        if (permission.id === 'volunteer.permissions')
-            console.log(permission);
 
         permissions.push(permission, ...permissionChildren);
     }
@@ -448,7 +451,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 <SectionIntroduction important>
                     Granting permissions to a volunteer gives them more access within the Volunteer
                     Manager. While you can also revoke permissions, it's usually best to keep that
-                    to a minimum.
+                    to a minimum. Role-based granted access will be reflected in the permission's
+                    effective status, for example because they're a Senior in a particular event.
                 </SectionIntroduction>
             </Grid>
 

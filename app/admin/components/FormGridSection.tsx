@@ -134,6 +134,9 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
             // DirtyFields and isDirty will remained, and only none dirty fields will be updated to
             // the latest rest value.
             keepDirtyValues: true,
+
+            // Form input values will be unchanged.
+            keepValues: true,
         });
     }, [ processedDefaultValues, form ]);
 

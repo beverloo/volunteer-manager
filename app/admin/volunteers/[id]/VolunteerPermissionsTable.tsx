@@ -60,6 +60,11 @@ export interface VolunteerPermissionStatus {
     };
 
     /**
+     * Suffix to assign to the form field, to avoid duplicates caused by nesting.
+     */
+    suffix?: string;
+
+    /**
      * Whether a warning should be shown indicating that this is a dangerous permission.
      */
     warning?: boolean;
@@ -299,8 +304,12 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                 if (!params.row.id)
                     return undefined;
 
+                let name = params.row.id;
+                if (!!params.row.suffix)
+                    name += params.row.suffix;
+
                 return (
-                    <CheckboxElement name={`grants[${params.row.id}]`} size="small"
+                    <CheckboxElement name={`grants[${name}]`} size="small"
                                      color="success" sx={{ ml: 1 }} disabled={props.readOnly} />
                 );
             },
@@ -323,8 +332,12 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                 if (!params.row.id)
                     return undefined;
 
+                let name = params.row.id;
+                if (!!params.row.suffix)
+                    name += params.row.suffix;
+
                 return (
-                    <CheckboxElement name={`revokes[${params.row.id}]`} size="small"
+                    <CheckboxElement name={`revokes[${name}]`} size="small"
                                      color="error" sx={{ ml: 1 }} disabled={props.readOnly}/>
                 );
             },
