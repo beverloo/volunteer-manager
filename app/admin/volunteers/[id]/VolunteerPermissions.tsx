@@ -3,6 +3,8 @@
 
 import { z } from 'zod';
 
+import { SelectElement } from '@components/proxy/react-hook-form-mui';
+
 import Alert from '@mui/material/Alert';
 import CategoryIcon from '@mui/icons-material/Category';
 import Divider from '@mui/material/Divider';
@@ -36,8 +38,17 @@ const kVolunteerPermissionData = z.object({
      */
     revoked: z.any(),
 
-    // TODO: events
-    // TODO: teams
+    /**
+     * Events that the account has been explicitly granted access to.
+     * @example [ "2024", "2025" ]
+     */
+    events: z.array(z.string()),
+
+    /**
+     * Teams that the account has been explicitly granted access to.
+     * @example [ "crew", "hosts" ]
+     */
+    teams: z.array(z.string()),
 });
 
 /**
@@ -136,17 +147,40 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const action = updateVolunteerPermissions.bind(null, props.userId);
 
     const dbInstance = db;
-    const defaultValues: Record<string, any> = { /* empty */ };
+    const defaultValues: Record<string, any> = {
+        events: [ /* todo */ ],
+        teams: [ /* todo */ ],
+    };
 
     // ---------------------------------------------------------------------------------------------
 
     const events = await dbInstance.selectFrom(tEvents)
-        .selectOneColumn(tEvents.eventSlug)
+        .select({
+            id: tEvents.eventSlug,
+            label: tEvents.eventSlug,
+        })
+        .orderBy(tEvents.eventStartTime, 'desc')
         .executeSelectMany();
 
+    const eventsOptions = [
+        { id: kAnyEvent, label: 'All events' },
+        ...events,
+    ];
+
     const teams = await dbInstance.selectFrom(tTeams)
-        .selectOneColumn(tTeams.teamSlug)
+        .select({
+            id: tTeams.teamSlug,
+            label: tTeams.teamName,
+        })
+        .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
+
+    const teamsOptions = [
+        { id: kAnyTeam, label: 'All teams' },
+        ...teams,
+    ];
+
+    // ---------------------------------------------------------------------------------------------
 
     const eventsJoin = tEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
@@ -200,6 +234,14 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     }
 
     const roleAccessControl = new AccessControl(roleGrants);
+
+    // ---------------------------------------------------------------------------------------------
+
+    if (userConfiguration?.access?.events)
+        defaultValues['events'] = userConfiguration.access.events.split(',');
+
+    if (userConfiguration?.access?.teams)
+        defaultValues['teams'] = userConfiguration.access.teams.split(',');
 
     // ---------------------------------------------------------------------------------------------
 
@@ -309,22 +351,26 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 </SectionIntroduction>
             </Grid>
 
-            <Grid xs={3}>
-                <Typography variant="body2">
+            <Grid xs={2}>
+                <Typography variant="body2" sx={{ pt: 1.25 }}>
                     Explicit event access:
                 </Typography>
             </Grid>
-            <Grid xs={9}>
-                (todo)
+            <Grid xs={10}>
+                <SelectElement name="events" label="Event access" SelectProps={{ multiple: true }}
+                               options={eventsOptions} size="small" fullWidth
+                               disabled={props.readOnly} />
             </Grid>
 
-            <Grid xs={3}>
-                <Typography variant="body2">
+            <Grid xs={2}>
+                <Typography variant="body2" sx={{ pt: 1.25 }}>
                     Explicit team access:
                 </Typography>
             </Grid>
-            <Grid xs={9}>
-                (todo)
+            <Grid xs={10}>
+                <SelectElement name="teams" label="Team access" SelectProps={{ multiple: true }}
+                               options={teamsOptions} size="small" fullWidth
+                               disabled={props.readOnly} />
             </Grid>
 
             <Grid xs={12}>
