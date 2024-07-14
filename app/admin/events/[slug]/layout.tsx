@@ -21,6 +21,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { NextLayoutParams } from '@lib/NextRouterParams';
+import type { Options } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
@@ -83,7 +84,8 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
             teams: dbInstance.aggregateAsArray({
                 id: teamsJoin.teamId,
                 name: teamsJoin.teamName,
-                slug: teamsJoin.teamEnvironment,
+                slug: teamsJoin.teamSlug,
+                environment: teamsJoin.teamEnvironment,
                 color: teamsJoin.teamColourLightTheme,
                 managesFaq: teamsJoin.teamManagesFaq.equals(/* true= */ 1),
                 managesFirstAid: teamsJoin.teamManagesFirstAid.equals(/* true= */ 1),
@@ -107,8 +109,8 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     if (typeof props.params.slug !== 'string' || !props.params.slug.length)
         notFound();
 
+    const { access, user } = await requireAuthenticationContext();
     const { slug } = props.params;
-    const { user } = await requireAuthenticationContext();
 
     const info = await fetchEventSidebarInformation(user, slug);
     if (!info)
@@ -174,6 +176,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             refundsBadge = badgeValues?.unconfirmedRefunds;
         if (can(user, Privilege.EventTrainingManagement))
             trainingsBadge = badgeValues?.unconfirmedTrainings;
+    }
+
+    const eventPermissionOptions = {
+        event: slug,
     }
 
     // Only display the "Program" entry when an event has been associated with a Festival ID. This
@@ -248,12 +254,17 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     ];
 
     for (const team of info.teams) {
+        const teamPermissionOptions: Options = {
+            event: slug,
+            team: team.slug,
+        };
+
         const knowledgeEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
         if (team.managesFaq) {
             knowledgeEntry.push({
                 icon: <InfoOutlinedIcon />,
                 label: 'Knowledge base',
-                url: `/admin/events/${slug}/${team.slug}/knowledge`,
+                url: `/admin/events/${slug}/${team.environment}/knowledge`,
             });
         }
 
@@ -262,7 +273,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             firstAidEntry.push({
                 icon: <LocalHospitalIcon />,
                 label: 'First aid',
-                url: `/admin/events/${slug}/${team.slug}/first-aid`,
+                url: `/admin/events/${slug}/${team.environment}/first-aid`,
                 privilege: Privilege.EventSupportingTeams,
             });
         }
@@ -272,7 +283,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             securityEntry.push({
                 icon: <SecurityIcon />,
                 label: 'Security',
-                url: `/admin/events/${slug}/${team.slug}/security`,
+                url: `/admin/events/${slug}/${team.environment}/security`,
                 privilege: Privilege.EventSupportingTeams,
             });
         }
@@ -286,14 +297,19 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 {
                     icon: <NewReleasesIcon />,
                     label: 'Applications',
-                    url: `/admin/events/${slug}/${team.slug}/applications`,
+                    permission: {
+                        permission: 'event.applications',
+                        operation: 'read',
+                        options: teamPermissionOptions,
+                    },
+                    url: `/admin/events/${slug}/${team.environment}/applications`,
                     badge: team.pendingApplications,
                     badgeSeverity: 'error',
                 },
                 {
                     icon: <FeedOutlinedIcon />,
                     label: 'Content',
-                    url: `/admin/events/${slug}/${team.slug}/content`,
+                    url: `/admin/events/${slug}/${team.environment}/content`,
                 },
                 ...knowledgeEntry,
                 ...firstAidEntry,
@@ -301,23 +317,23 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     icon: <RepeatIcon />,
                     label: 'Retention',
                     privilege: Privilege.EventRetentionManagement,
-                    url: `/admin/events/${slug}/${team.slug}/retention`,
+                    url: `/admin/events/${slug}/${team.environment}/retention`,
                 },
                 {
                     icon: <ScheduleIcon />,
                     label: 'Schedule',
-                    url: `/admin/events/${slug}/${team.slug}/schedule`,
+                    url: `/admin/events/${slug}/${team.environment}/schedule`,
                 },
                 ...securityEntry,
                 {
                     icon: <PendingActionsIcon />,
                     label: 'Shifts',
-                    url: `/admin/events/${slug}/${team.slug}/shifts`,
+                    url: `/admin/events/${slug}/${team.environment}/shifts`,
                 },
                 {
                     icon: <PersonIcon />,
                     label: 'Volunteers',
-                    url: `/admin/events/${slug}/${team.slug}/volunteers`,
+                    url: `/admin/events/${slug}/${team.environment}/volunteers`,
                 },
             ],
         });
@@ -325,7 +341,8 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
 
     return (
         <AdminContent>
-            <AdminSidebar menu={volunteersMenu} title={info.event.name} user={user} />
+            <AdminSidebar access={access} menu={volunteersMenu} title={info.event.name}
+                          user={user} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

@@ -25,7 +25,7 @@ import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 export default async function TopLevelLayout(props: React.PropsWithChildren) {
-    const { user } = await requireAuthenticationContext();
+    const { access, user } = await requireAuthenticationContext();
 
     const dashboardMenu: AdminSidebarMenuEntry[] = [
         {
@@ -144,7 +144,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
 
     return (
         <AdminContent>
-            <AdminSidebar menu={dashboardMenu} title="Dashboard" user={user} />
+            <AdminSidebar access={access} menu={dashboardMenu} title="Dashboard" user={user} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

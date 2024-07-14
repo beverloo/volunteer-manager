@@ -50,7 +50,7 @@ export interface AccessGrants {
 /**
  * Further options that can be provided to the access control mechanism.
  */
-interface Options {
+export interface Options {
     /**
      * Event that the permission check is in scope for. Permission-specific grants and revocations
      * will be considered first, after which global access will be considered.
