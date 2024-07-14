@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessGrants } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { Log, LogType, LogSeverity } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type ComprehensivePermissionStatus, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
@@ -151,10 +152,20 @@ async function updateVolunteerPermissions(userId: number, formData: unknown) {
             .where(tUsers.userId.equals(userId))
             .executeUpdate();
 
-        // TODO: Log the mutation
-
-        if (!affectedRows)
+        if (!!affectedRows) {
+            await Log({
+                type: LogType.AdminUpdatePermission,
+                severity: LogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: userId,
+                data: {
+                    ip: props.ip,
+                    grants, revokes, events, teams,
+                }
+            });
+        } else {
             return { success: false, error: 'Unable to update permissions in the database…' };
+        }
 
         return {
             success: true,
