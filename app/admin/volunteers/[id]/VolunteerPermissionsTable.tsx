@@ -300,7 +300,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                     return undefined;
 
                 return (
-                    <CheckboxElement name={`granted[${params.row.id}]`} size="small"
+                    <CheckboxElement name={`grants[${params.row.id}]`} size="small"
                                      color="success" sx={{ ml: 1 }} disabled={props.readOnly} />
                 );
             },
@@ -324,7 +324,7 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                     return undefined;
 
                 return (
-                    <CheckboxElement name={`revoked[${params.row.id}]`} size="small"
+                    <CheckboxElement name={`revokes[${params.row.id}]`} size="small"
                                      color="error" sx={{ ml: 1 }} disabled={props.readOnly}/>
                 );
             },

@@ -30,13 +30,13 @@ const kVolunteerPermissionData = z.object({
      * Nested object of granted permissions. Cannot be accurately represented by Zod.
      * @example { event: { visible: true }, test: {} }
      */
-    granted: z.any(),
+    grants: z.any(),
 
     /**
      * Nested object of revoked permissions. Cannot be accurately represented by Zod.
      * @example { event: { visible: false }, test: { boolean: true } }
      */
-    revoked: z.any(),
+    revokes: z.any(),
 
     /**
      * Events that the account has been explicitly granted access to.
@@ -52,6 +52,61 @@ const kVolunteerPermissionData = z.object({
 });
 
 /**
+ * Converts the given `input` to a list of permissions as a string. The input is expected to be
+ * formatted in line with `kVolunteerPermissionData.grants`, which means a nested object with keys
+ * indicating the permission status.
+ *
+ * @example input: { event: { applications: true, visible: false }, test: { boolean: true } }
+ * @example output: event.applications,test.boolean
+ */
+export function toPermissionList(input: any, path?: string, permissions?: string[]): string | null {
+    permissions ??= [ /* empty array */ ];
+
+    if (!input || typeof input !== 'object' || Array.isArray(input))
+        throw new Error(`Unexpected input type: "${typeof input}"`);
+
+    const isRoot = !path;
+
+    for (const entry of Object.keys(input)) {
+        const permission = isRoot ? entry : `${path}${entry}`;
+        if (typeof input[entry] === 'boolean') {
+            if (!!input[entry])
+                permissions.push(permission);
+
+            continue;
+        } else if (typeof input[entry] === 'object') {
+            const typedPermission: BooleanPermission | CRUDPermission = permission as any;
+            if (Object.hasOwn(kPermissions, typedPermission)) {
+                const descriptor: AccessDescriptor = kPermissions[typedPermission];
+                if (descriptor.type === 'crud') {
+                    const operations: string[] = [ /* none */ ];
+                    for (const operation of [ 'create', 'read', 'update', 'delete' ]) {
+                        if (!!input[entry][operation])
+                            operations.push(operation);
+                    }
+
+                    if (operations.length === /* all= */ 4) {
+                        permissions.push(permission);
+                    } else {
+                        for (const includedOperation of operations)
+                            permissions.push(`${permission}:${includedOperation}`);
+                    }
+
+                    continue;
+                }
+            }
+
+            toPermissionList(input[entry], `${permission}.`, permissions);
+        }
+    }
+
+    if (isRoot && permissions.length > 0)
+        return permissions.join(',');
+
+    return null;
+}
+
+/**
  * Server Action called when the permissions are being updated.
  */
 async function updateVolunteerPermissions(userId: number, formData: unknown) {
@@ -60,8 +115,44 @@ async function updateVolunteerPermissions(userId: number, formData: unknown) {
         if (!props.access.can('volunteer.permissions', 'update'))
             return { success: false, error: 'You are not able to update permissions' };
 
-        console.log(data);
-        return { success: false, error: 'Not yet implemented' };
+        let grants: string | null = null;
+        if (!!data.grants)
+            grants = toPermissionList(data.grants);
+
+        let revokes: string | null = null;
+        if (!!data.revokes)
+            revokes = toPermissionList(data.revokes);
+
+        let events: string | null = null;
+        if (!!data.events.length)
+            events = data.events.includes(kAnyEvent) ? kAnyEvent : data.events.join(',');
+
+        let teams: string | null = null;
+        if (!!data.teams.length)
+            teams = data.teams.includes(kAnyTeam) ? kAnyTeam : data.teams.join(',');
+
+        console.log('G:', grants, '::', data.grants);
+        console.log('R:', revokes, '::', data.revokes);
+
+        const affectedRows = await db.update(tUsers)
+            .set({
+                permissionsGrants: grants,
+                permissionsRevokes: revokes,
+                permissionsEvents: events,
+                permissionsTeams: teams,
+            })
+            .where(tUsers.userId.equals(userId))
+            .executeUpdate();
+
+        // TODO: Log the mutation
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update permissions in the database…' };
+
+        return {
+            success: true,
+            refresh: true,
+        };
     });
 }
 
@@ -97,6 +188,8 @@ function maybeUpgradePermissionStatus(
 
                 case 'parent-granted':
                 case 'parent-revoked':
+                case 'self-granted':
+                case 'self-revoked':
                     return incoming;
             }
             break;
@@ -278,11 +371,11 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
             switch (permission.status.account) {
                 case 'self-granted':
-                    defaultValues[`granted[${name}]`] = true;
+                    defaultValues[`grants[${name}]`] = true;
                     break;
 
                 case 'self-revoked':
-                    defaultValues[`revoked[${name}]`] = true;
+                    defaultValues[`revokes[${name}]`] = true;
                     break;
             }
         } else if (descriptor.type === 'crud') {
@@ -305,6 +398,9 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     },
                 };
 
+                if (permission.id === 'volunteer.permissions')
+                    console.log(childPermission.status.account);
+
                 permission.status.account = maybeUpgradePermissionStatus(
                     permission.status.account, childPermission.status.account);
 
@@ -313,19 +409,21 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
                 switch (childPermission.status.account) {
                     case 'crud-granted':
-                        defaultValues[`granted[${name}.${operation}]`] = true;
+                        defaultValues[`grants[${name}.${operation}]`] = true;
                         break;
 
                     case 'crud-revoked':
-                        defaultValues[`revoked[${name}.${operation}]`] = true;
+                        defaultValues[`revokes[${name}.${operation}]`] = true;
                         break;
 
                     case 'self-granted':
-                        defaultValues[`granted[${name}]`] = true;
+                        defaultValues[`grants[${name}]`] = true;
+                        childPermission.status.account = 'parent-granted';
                         break;
 
                     case 'self-revoked':
-                        defaultValues[`revoked[${name}]`] = true;
+                        defaultValues[`revokes[${name}]`] = true;
+                        childPermission.status.account = 'parent-revoked';
                         break;
                 }
 
@@ -334,6 +432,9 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         } else {
             throw new Error(`Unhandled permission type: "${descriptor.type}"`);
         }
+
+        if (permission.id === 'volunteer.permissions')
+            console.log(permission);
 
         permissions.push(permission, ...permissionChildren);
     }
@@ -353,7 +454,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
             <Grid xs={2}>
                 <Typography variant="body2" sx={{ pt: 1.25 }}>
-                    Explicit event access:
+                    Global event access:
                 </Typography>
             </Grid>
             <Grid xs={10}>
@@ -364,7 +465,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
             <Grid xs={2}>
                 <Typography variant="body2" sx={{ pt: 1.25 }}>
-                    Explicit team access:
+                    Global team access:
                 </Typography>
             </Grid>
             <Grid xs={10}>
