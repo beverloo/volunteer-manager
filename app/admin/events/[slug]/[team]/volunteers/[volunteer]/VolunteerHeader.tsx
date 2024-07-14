@@ -327,6 +327,11 @@ function ChangeTeamDialog(props: ChangeTeamDialogProps) {
  */
 interface VolunteerHeaderProps {
     /**
+     * Whether the signed in volunteer has the ability to update applications.
+     */
+    canUpdateApplications: boolean;
+
+    /**
      * Information about the event this volunteer will participate in.
      */
     event: PageInfoWithTeam['event'];
@@ -377,12 +382,12 @@ interface VolunteerHeaderProps {
  * to change their participation. The exact actions depend on the access level of the user.
  */
 export function VolunteerHeader(props: VolunteerHeaderProps) {
-    const { event, team, volunteer, user } = props;
+    const { canUpdateApplications, event, team, volunteer, user } = props;
 
     const router = useRouter();
     const showOptions =
         can(user, Privilege.EventAdministrator) ||
-        can(user, Privilege.EventApplicationManagement) ||
+        canUpdateApplications ||
         can(user, Privilege.VolunteerAdministrator);
 
     // ---------------------------------------------------------------------------------------------
@@ -509,13 +514,13 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                             Account
                         </Button> }
 
-                    { (can(user, Privilege.EventApplicationManagement) &&
+                    { (canUpdateApplications &&
                            volunteer.registrationStatus === RegistrationStatus.Accepted) &&
                         <Button startIcon={ <DoNotDisturbIcon /> } onClick={handleCancelOpen}>
                             Cancel participation
                         </Button> }
 
-                    { (can(user, Privilege.EventApplicationManagement) &&
+                    { (canUpdateApplications &&
                            volunteer.registrationStatus === RegistrationStatus.Cancelled) &&
                         <Button startIcon={ <SettingsBackupRestoreIcon /> }
                                 onClick={handleReinstateOpen}>
