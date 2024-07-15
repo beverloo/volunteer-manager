@@ -364,7 +364,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const permissions: VolunteerPermissionStatus[] = [ /* empty */ ];
     for (const [ name, rawDescriptor ] of Object.entries(kPermissions)) {
         const descriptor = rawDescriptor as AccessDescriptor;
-        if (!!descriptor.hidden)
+        if (typeof descriptor.hide === 'boolean' && !!descriptor.hide)
             continue;  // this permission has been explicitly hidden
 
         const permissionChildren: VolunteerPermissionStatus[] = [];
