@@ -5,8 +5,17 @@
  * Converts the given `environment` to a team's slug. Temporary while we migrate away from using
  * environment identifiers in URLs.
  */
-export function environmentToTeamSlug(environment: string): string {
+export function environmentToTeamSlug(environment?: string): string | undefined {
+    if (!environment)
+        return undefined;
+
     switch (environment) {
+        case 'crew':
+        case 'hosts':
+        case 'stewards':
+            console.warn('Redundant call to environmentToTeamSlug() detected');
+            return environment;
+
         case 'animecon.team':
             return 'crew';
         case 'hosts.team':

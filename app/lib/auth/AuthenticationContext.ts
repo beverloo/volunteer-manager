@@ -118,14 +118,6 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
 }
 
 /**
- * A set of privileges that should be checked in a particular manner.
- */
-type PrivilegeSet = { type: 'and' | 'or', privileges: Privilege[] };
-
-export const and = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'and', privileges });
-export const or = (...privileges: Privilege[]): PrivilegeSet => ({ type: 'or', privileges });
-
-/**
  * Definition for a permission-based access check.
  */
 export type PermissionAccessCheck =
@@ -138,6 +130,28 @@ export type PermissionAccessCheck =
         operation: AccessOperation;
         options?: Options;
     };
+
+/**
+ * A set of privileges that should be checked in a particular manner.
+ */
+type PrivilegeSet = { type: 'and' | 'or', checks: Privilege[] };
+
+/**
+ * A set of permissions that should be checked in a particular manner.
+ */
+type PermissionSet = { type: 'and' | 'or', checks: PermissionAccessCheck[] };
+
+export function and(...privileges: Privilege[]): PrivilegeSet;
+export function and(...permissions: PermissionAccessCheck[]): PermissionSet;
+export function and(...input: any) {
+    return { type: 'and', checks: input };
+}
+
+export function or(...privileges: Privilege[]): PrivilegeSet;
+export function or(...permissions: PermissionAccessCheck[]): PermissionSet;
+export function or(...input: any) {
+    return { type: 'or', checks: input };
+}
 
 /**
  * Types of access check that can be executed. Each check should be individually documented.
@@ -174,14 +188,14 @@ type AuthenticationAccessCheckTypes =
  * The access check always allows for permissions to be checked inline.
  */
 type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
-    permission?: PermissionAccessCheck;
+    permission?: PermissionAccessCheck | PermissionSet;
     privilege?: Privilege | PrivilegeSet;
 };
 
 /**
  * Executes a permission `check` on the given `access` object.
  */
-export function checkPermission(access: AccessControl, check: PermissionAccessCheck): boolean {
+function checkIndividualPermission(access: AccessControl, check: PermissionAccessCheck): boolean {
     if ('operation' in check) {
         const permission = check.permission as CRUDPermission;
         if (access.can(permission, check.operation, check.options))
@@ -197,6 +211,25 @@ export function checkPermission(access: AccessControl, check: PermissionAccessCh
 }
 
 /**
+ * Executes a permission `check` on the given `access` object, which may also be a set of checks
+ * that should be executed with a particular result in mind.
+ */
+export function checkPermission(
+    access: AccessControl, permission: PermissionAccessCheck | PermissionSet): boolean
+{
+    if ('type' in permission) {
+        let count = 0;
+        for (const individualPermission of permission.checks)
+            count += checkIndividualPermission(access, individualPermission) ? 1 : 0;
+
+        return permission.type === 'and' ? /* && */ count === permission.checks.length
+                                         : /* || */ count > 0;
+    }
+
+    return checkIndividualPermission(access, permission);
+}
+
+/**
  * Checks whether the `user` has been granted the given `privilege`, which may be a privilege set.
  */
 function checkPrivilege(user: User | undefined, privilege: Privilege | PrivilegeSet): boolean {
@@ -204,10 +237,10 @@ function checkPrivilege(user: User | undefined, privilege: Privilege | Privilege
         return can(user, privilege);
 
     let count = 0;
-    for (const individualPrivilege of privilege.privileges)
+    for (const individualPrivilege of privilege.checks)
         count += can(user, individualPrivilege) ? 1 : 0;
 
-    return privilege.type === 'and' ? /* && */ count === privilege.privileges.length
+    return privilege.type === 'and' ? /* && */ count === privilege.checks.length
                                     : /* || */ count > 0;
 }
 

@@ -13,7 +13,8 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
+import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 
@@ -158,9 +159,20 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer':
+            {
+                const unused = Privilege.SystemAiAccess;  // fixme: include in `permission` below
+            }
+
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                privilege: or(Privilege.EventApplicationManagement, Privilege.SystemAiAccess),
+                permission: {
+                    permission: 'event.applications',
+                    operation: 'update',
+                    options: {
+                        event: request.approveVolunteer?.event,
+                        team: environmentToTeamSlug(request.approveVolunteer?.team),
+                    },
+                },
             });
 
             generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
@@ -181,9 +193,20 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'reject-volunteer':
+            {
+                const unused = Privilege.SystemAiAccess;  // fixme: include in `permission` below
+            }
+
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                privilege: or(Privilege.EventApplicationManagement, Privilege.SystemAiAccess),
+                permission: {
+                    permission: 'event.applications',
+                    operation: 'update',
+                    options: {
+                        event: request.approveVolunteer?.event,
+                        team: environmentToTeamSlug(request.approveVolunteer?.team),
+                    },
+                },
             });
 
             generator = new RejectVolunteerPromptBuilder(userId, request.rejectVolunteer);
