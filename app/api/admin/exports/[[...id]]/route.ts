@@ -1,20 +1,20 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
-import { executeAccessCheck, type AuthenticationContext, and } from '@lib/auth/AuthenticationContext';
+import { executeAccessCheck, type AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
+import { hasAccessToExport } from '@app/admin/volunteers/exports/ExportPrivileges';
 import { nanoid } from '@lib/nanoid';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
-
-import { kExportTypePrivilege } from '@app/admin/volunteers/exports/ExportPrivileges';
 
 /**
  * Row model for a data export.
@@ -102,10 +102,13 @@ export type ExportsRowModel = z.infer<typeof kExportRowModel>;
 function executeActionCheckForEventAndType(
     authenticationContext: AuthenticationContext, event: Event, type: ExportType): void | never
 {
+    if (!hasAccessToExport(type, authenticationContext.access, authenticationContext.user))
+        notFound();
+
     executeAccessCheck(authenticationContext, {
         check: 'admin-event',
         event: event.slug,
-        privilege: and(Privilege.VolunteerDataExports, kExportTypePrivilege[type]),
+        privilege: Privilege.VolunteerDataExports,
     });
 }
 
@@ -224,7 +227,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
             .executeSelectPage();
 
         // Only make available exports of data types that the volunteer is allowed to access.
-        const exportData = data.filter(row => can(props.user, kExportTypePrivilege[row.type]));
+        const exportData = data.filter(row => hasAccessToExport(row.type, props.access, props.user))
 
         return {
             success: true,

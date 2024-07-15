@@ -12,17 +12,17 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { ExportAccess } from './ExportAccess';
 import { ExportMetadata } from './ExportMetadata';
 import { Privilege, can } from '@lib/auth/Privileges';
+import { hasAccessToExport } from '../ExportPrivileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
 
-import { kExportTypePrivilege } from '../ExportPrivileges';
 
 /**
  * The <VolunteersExportDetailsPage> component is the page that displays detailed information about
  * a particular data export. This includes both metadata and access logs.
  */
 export default async function VolunteersExportDetailsPage(props: NextPageParams<'id'>) {
-    const { user } = await requireAuthenticationContext({
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin',
         privilege: Privilege.VolunteerDataExports,
     });
@@ -53,7 +53,7 @@ export default async function VolunteersExportDetailsPage(props: NextPageParams<
         .groupBy(tExports.exportId)
         .executeSelectNoneOrOne();
 
-    if (!data || !can(user, kExportTypePrivilege[data.type]))
+    if (!data || !hasAccessToExport(data.type, access, user))
         notFound();
 
     const usersJoin = tUsers.forUseInLeftJoin();

@@ -21,7 +21,6 @@ export enum Privilege {
     VolunteerAdministrator              = 1 << 9,
 
     // Privileges captured by EventAdministrator:
-    EventApplicationManagement          = 1 << 10,
     EventApplicationOverride            = 1 << 3,
     EventContentOverride                = 1 << 2,
     EventHelpRequests                   = 1 << 30,
@@ -84,7 +83,6 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     ],
 
     [Privilege.EventAdministrator]: [
-        Privilege.EventApplicationManagement,
         Privilege.EventApplicationOverride,
         Privilege.EventContentOverride,
         Privilege.EventHelpRequests,
@@ -120,7 +118,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
 
 /**
  * Maximum depth of privilege expansion rules. I.e. Administrator -> EventAdministrator ->
- * EventApplicationManagement makes for two necessary iterations.
+ * EventVolunteerContactInfo makes for two necessary iterations.
  */
 const kPrivilegeExpansionIterations = 2;
 
@@ -151,7 +149,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     //[Privilege.Statistics]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
-    [Privilege.EventApplicationManagement]: 'Event access',
     [Privilege.EventApplicationOverride]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventHelpRequests]: 'Event access',
@@ -192,7 +189,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     //[Privilege.Statistics]: 'Statistics',
 
     [Privilege.EventAdministrator]: 'Event administrator',
-    [Privilege.EventApplicationManagement]: 'Manage applications',
     [Privilege.EventApplicationOverride]: 'Always accept their applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventHelpRequests]: 'Help requests',

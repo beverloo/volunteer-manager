@@ -1,15 +1,31 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AccessControl } from '@lib/auth/AccessControl';
+import type { User } from '@lib/auth/User';
 import { ExportType } from '@lib/database/Types';
-import { Privilege } from '@lib/auth/Privileges';
+import { Privilege, can } from '@lib/auth/Privileges';
+
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
- * Additional privilege required in order to create or access exports of a certain type.
+ * Returns whether the visitor has access to exports of the given `type`.
  */
-export const kExportTypePrivilege: { [key in ExportType]: Privilege } = {
-    [ExportType.Credits]: Privilege.EventApplicationManagement,
-    [ExportType.Refunds]: Privilege.Refunds,
-    [ExportType.Trainings]: Privilege.EventTrainingManagement,
-    [ExportType.Volunteers]: Privilege.EventApplicationManagement,
-};
+export function hasAccessToExport(type: ExportType, access: AccessControl, user?: User): boolean {
+    switch (type) {
+        case ExportType.Credits:
+        case ExportType.Volunteers:
+            return access.can('event.applications', 'read', {
+                event: kAnyEvent,
+                team: kAnyTeam,
+            });
+
+        case ExportType.Refunds:
+            return can(user, Privilege.Refunds);
+
+        case ExportType.Trainings:
+            return can(user, Privilege.EventTrainingManagement);
+    }
+
+    throw new Error(`Unrecognised export type: "${type}"`);
+}
