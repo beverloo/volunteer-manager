@@ -22,15 +22,10 @@ export interface AccessDescriptor {
     description: string;
 
     /**
-     * Whether the permission should be hidden from the user interface.
+     * Whether certain access operations should be hidden from the user interface, or, in case of
+     * boolean permissions, whether the entire permission should be omitted.
      */
-    hidden?: boolean;
-
-    /**
-     * Whether certain access operations should be hidden from the user interface. Only applicable
-     * for CRUD-type permissions.
-     */
-    hide?: AccessOperation[];
+    hide?: AccessOperation[] | boolean;
 
     /**
      * Whether the applicable event must be specified when checking whether this permission has been

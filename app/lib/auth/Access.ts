@@ -67,14 +67,14 @@ export const kPermissions = {
     'test.boolean': {
         name: 'Test (boolean)',
         description: 'Boolean permission exclusively used for testing purposes',
-        hidden: true,  // rationale: testing-only permission
+        hide: true,  // rationale: testing-only permission
         type: 'boolean',
     },
 
     'test.boolean.required.both': {
         name: 'Test (boolean w/ event + team)',
         description: 'Boolean permission exclusively used for testing purposes w/ required scoping',
-        hidden: true,  // rationale: testing-only permission
+        hide: true,  // rationale: testing-only permission
         requireEvent: true,
         requireTeam: true,
         type: 'boolean',
@@ -83,7 +83,7 @@ export const kPermissions = {
     'test.boolean.required.event': {
         name: 'Test (boolean w/ event)',
         description: 'Boolean permission exclusively used for testing purposes w/ required event',
-        hidden: true,  // rationale: testing-only permission
+        hide: true,  // rationale: testing-only permission
         requireEvent: true,
         type: 'boolean',
     },
@@ -91,7 +91,7 @@ export const kPermissions = {
     'test.boolean.required.team': {
         name: 'Test (boolean w/ team)',
         description: 'Boolean permission exclusively used for testing purposes w/ required team',
-        hidden: true,  // rationale: testing-only permission
+        hide: true,  // rationale: testing-only permission
         requireTeam: true,
         type: 'boolean',
     },
@@ -99,7 +99,7 @@ export const kPermissions = {
     'test.crud': {
         name: 'Test (CRUD)',
         description: 'CRUD permission exculsively used for testing purposes',
-        hidden: true,  // rationale: testing-only permission
+        hide: true,  // rationale: testing-only permission
         type: 'crud',
     },
 
