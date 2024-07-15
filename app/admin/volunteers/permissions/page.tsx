@@ -6,15 +6,31 @@ import type { Metadata } from 'next';
 import CategoryIcon from '@mui/icons-material/Category';
 
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
-import { AccessControl } from '@lib/auth/AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { PermissionsTable, type PermissionRecord, type PermissionUserRecord } from './PermissionsTable';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { getBlobUrl } from '@lib/database/BlobStore';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import db, { tEvents, tRoles, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
+
+/**
+ * Helper function that lowercases the first letter of the given `text`.
+ */
+function lowercaseFirst(text: string): string {
+    return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+/**
+ * Helper function that capitalises the first letter of the given `text`.
+ */
+function uppercaseFirst(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 /**
  * Information required for a "limited access" permission grant.
@@ -31,8 +47,50 @@ type LimitedAccess = {
 type UserAccessInfo = {
     access?: AccessControl;
     limitedAccess: LimitedAccess[];
-    user: Partial<PermissionUserRecord>;
+    user: PermissionUserRecord;
 };
+
+/**
+ * Information necessary to run a permission check.
+ */
+interface CheckInfo {
+    access?: AccessControl;
+    descriptor: AccessDescriptor;
+    name: string;
+    operation?: 'create' | 'read' | 'update' | 'delete';
+}
+
+/**
+ * Checks whether the detailed permission has been granted, all based on `info`.
+ */
+function check(info: CheckInfo): boolean {
+    if (!info.access)
+        return false;  // no access at all
+
+    const { access, descriptor, name, operation } = info;
+    if (descriptor.type === 'boolean') {
+        return access.can(name as BooleanPermission, {
+            event: kAnyEvent,
+            team: kAnyTeam,
+        });
+    }
+
+    const result = access.getStatus(name as CRUDPermission, operation ?? 'read', {
+        event: kAnyEvent,
+        team: kAnyTeam,
+    });
+
+    switch (result) {
+        case 'crud-granted':
+            return !!operation ? true : false;
+
+        case 'parent-granted':
+        case 'self-granted':
+            return true;
+    }
+
+    return false;
+}
 
 /**
  * Information necessary to populate permission information.
@@ -51,16 +109,34 @@ interface PermissionInfo {
 function populatePermission(target: PermissionRecord[], info: PermissionInfo): void {
     const { descriptor, name, operation, userRecords } = info;
 
-    const permission: PermissionRecord = {
-        id: !!operation ? `${name}:${operation}` : name,
-        permission: name,
-        name: descriptor.name,
-        operation,
-        description: descriptor.description,
-        users: [ /* empty */ ],
-    };
+    const permission: PermissionRecord = !!operation ?
+        {
+            id: `${name}:${operation}`,
+            permission: name,
+            name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
+            operation,
+            users: [ /* empty */ ],
+        } : {
+            id: name,
+            permission: name,
+            name: descriptor.name,
+            description: descriptor.description,
+            users: [ /* empty */ ],
+        };
 
-    // TODO: Populate `permission.users`...
+    for (const userRecord of userRecords) {
+        const permissionGranted = check({ access: userRecord.access, descriptor, name, operation });
+        if (permissionGranted) {
+            permission.users.push(userRecord.user);
+        } else {
+            for (const { access, event, team } of userRecord.limitedAccess) {
+                if (!check({ access, descriptor, name, operation }))
+                    continue;
+
+                permission.users.push({ ...userRecord.user, event, team });
+            }
+        }
+    }
 
     target.push(permission);
 }
@@ -82,16 +158,20 @@ export default async function PermissionsPage() {
 
     const eventsJoin = tEvents.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
+    const storageJoin = tStorage.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const dbInstance = db;
     const users = await dbInstance.selectFrom(tUsers)
+        .leftJoin(storageJoin)
+            .on(storageJoin.fileId.equals(tUsers.avatarId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
                 .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
+                .and(eventsJoin.eventHidden.equals(/* false= */ 0))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(teamsJoin)
@@ -100,6 +180,7 @@ export default async function PermissionsPage() {
             user: {
                 id: tUsers.userId,
                 name: tUsers.name,
+                avatar: storageJoin.fileHash,
             },
             access: {
                 grants: tUsers.permissionsGrants,
@@ -128,7 +209,7 @@ export default async function PermissionsPage() {
             access = new AccessControl(user.access);
 
         for (const event of user.events) {
-            if (!event.permission)
+            if (!event.event || !event.team || !event.permission)
                 continue;  // no permissions were granted for this event
 
             const grant = {
@@ -150,7 +231,10 @@ export default async function PermissionsPage() {
         userRecords.push({
             access,
             limitedAccess,
-            user: user.user,
+            user: {
+                ...user.user,
+                avatar: getBlobUrl(user.user.avatar),
+            },
         });
     }
 
