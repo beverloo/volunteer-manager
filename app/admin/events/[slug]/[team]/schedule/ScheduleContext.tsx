@@ -159,9 +159,9 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
             endpointParams.set('date', date);
 
         const params = endpointParams.toString();
-        return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;
+        return `/api/admin/event/schedule/${props.event.slug}/${props.team.environment}?${params}`;
 
-    }, [ date, props.event.slug, props.team.slug ]);
+    }, [ date, props.event.slug, props.team.environment ]);
 
     const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(endpoint, fetcher, {
         refreshInterval: /* ms= */ 15 * 1000,
@@ -182,7 +182,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
             if ('created' in change) {
                 response = await callApi('post', '/api/admin/event/schedule/:event/:team', {
                     event: props.event.slug,
-                    team: props.team.slug,
+                    team: props.team.environment,
                     shift: {
                         userId: change.created.resource! as number,
                         start: change.created.start,
@@ -193,13 +193,13 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 response = await callApi('delete', '/api/admin/event/schedule/:event/:team/:id', {
                     id: change.deleted.id as any as string[],
                     event: props.event.slug,
-                    team: props.team.slug,
+                    team: props.team.environment,
                 });
             } else if ('updated' in change) {
                 response = await callApi('put', '/api/admin/event/schedule/:event/:team/:id', {
                     id: change.updated.id as any as string[],
                     event: props.event.slug,
-                    team: props.team.slug,
+                    team: props.team.environment,
                     shift: {
                         userId: change.updated.resource! as number,
                         shiftId: change.updated.shiftId,
@@ -220,7 +220,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
             setProcessingChange(false);
             mutate();  // invalidate the `schedule`
         }
-    }, [ mutate, props.event.slug, props.team.slug ]);
+    }, [ mutate, props.event.slug, props.team.environment ]);
 
     // Closes the processing error that's shown, if any.
     const doCloseError = useCallback(() => setProcessingError(undefined), [ /* no dependencies */ ])

@@ -181,9 +181,9 @@ export interface PageInfoWithTeam extends PageInfo {
         plural: string;
 
         /**
-         * Slug through which this team can be identified in the URL.
+         * Environment of the frontend that this team is serviced by.
          */
-        slug: string;
+        environment: string;
     };
 }
 
@@ -286,7 +286,7 @@ export async function verifyAccessAndFetchPageInfo(
             colour: tTeams.teamColourLightTheme,
             name: tTeams.teamName,
             plural: tTeams.teamPlural,
-            slug: tTeams.teamEnvironment,
+            environment: tTeams.teamEnvironment,
             managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
             managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
             managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),

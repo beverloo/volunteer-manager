@@ -101,13 +101,14 @@ export default async function EventApplicationsPage(props: NextPageParams<'slug'
     return (
         <>
             <Header event={event} team={team} user={user} />
-            <Applications event={event.slug} team={team.slug} applications={applications}
+            <Applications event={event.slug} team={team.environment} applications={applications}
                           canAccessAccounts={canAccessAccounts}
                           canManageApplications={canUpdateApplications} allowSilent={allowSilent} />
             { canCreateApplications &&
                 <CreateApplication event={event} team={team} user={user} /> }
             <Collapse in={!!rejections.length}>
-                <RejectedApplications applications={rejections} event={event.slug} team={team.slug}
+                <RejectedApplications applications={rejections} event={event.slug}
+                                      team={team.environment}
                                       editable={canApproveRejectedVolunteers} />
             </Collapse>
         </>

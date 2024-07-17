@@ -21,10 +21,10 @@ export default async function EventContentEntryPage(props: NextPageParams<'slug'
 
     return (
         <ContentEditor contentId={parseInt(props.params.id)} pathPrefix={pathPrefix} scope={scope}
-                       title="Page editor" subtitle={team.slug}>
+                       title="Page editor" subtitle={team.environment}>
             <SectionIntroduction>
-                You are editing content on <strong>{team.slug}</strong>, any changes that you save
-                will be published immediately.
+                You are editing content on <strong>{team.environment}</strong>, any changes that you
+                save will be published immediately.
             </SectionIntroduction>
         </ContentEditor>
     );

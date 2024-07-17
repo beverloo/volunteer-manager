@@ -182,7 +182,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <ApplicationHotelPreferences eventDate={event.startTime}
                                          eventSlug={event.slug} hotelOptions={hotelOptions}
                                          hotelPreferences={hotelPreferences}
-                                         teamSlug={team.slug} volunteerUserId={volunteer.userId} />
+                                         teamSlug={team.environment}
+                                         volunteerUserId={volunteer.userId} />
         );
     }
 
@@ -225,7 +226,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
         trainingManagement = (
             <ApplicationTrainingPreferences eventSlug={event.slug}
-                                            teamSlug={team.slug}
+                                            teamSlug={team.environment}
                                             trainingOptions={trainingOptions} training={training}
                                             volunteerUserId={volunteer.userId} />
         );
@@ -246,7 +247,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     const canUpdateApplications = access.can('event.applications', 'update', {
         event: event.slug,
-        team: environmentToTeamSlug(team.slug),
+        team: environmentToTeamSlug(team.environment),
     });
 
     return (
@@ -258,7 +259,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <ExpandableSection icon={ <EditNoteIcon color="info" /> } title="Notes"
                                defaultExpanded={notesExpanded}
                                setting="user-admin-volunteers-expand-notes">
-                <VolunteerNotes event={event.slug} team={team.slug} volunteer={volunteer} />
+                <VolunteerNotes event={event.slug} team={team.environment} volunteer={volunteer} />
             </ExpandableSection>
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
@@ -266,14 +267,16 @@ export default async function EventVolunteerPage(props: RouterParams) {
                                    setting="user-admin-volunteers-expand-shifts">
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
-            <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
+            <ApplicationPreferences event={event.slug} team={team.environment}
+                                    volunteer={volunteer} />
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
-                                     team={team.slug} volunteer={volunteer} />
+                                     team={team.environment} volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}
             {trainingManagement}
             { can(user, Privilege.EventVolunteerApplicationOverrides) &&
-                <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
+                <ApplicationMetadata event={event.slug} team={team.environment}
+                                     volunteer={volunteer} /> }
         </>
     );
 }

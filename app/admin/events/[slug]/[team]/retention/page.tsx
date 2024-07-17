@@ -73,7 +73,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'slug
                     <em> claim</em> a volunteer, which you can do by double clicking on cells in the
                     the "Assignee" or "Notes" columns.
                 </Alert>
-                <RetentionDataTable event={event.slug} leaders={leaders} team={team.slug} />
+                <RetentionDataTable event={event.slug} leaders={leaders} team={team.environment} />
             </Paper>
         </>
     )
