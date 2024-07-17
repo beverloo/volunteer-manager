@@ -12,6 +12,12 @@ declare module globalThis {
 }
 
 /**
+ * Type that describes the name of an environment. Environment names are domain names, so must end
+ * with a top-level domain such as ".team" or ".com".
+ */
+export type EnvironmentName = `${string}.${string}`;
+
+/**
  * Describes the environment in which the Volunteer Manager has been loaded. Only applicable for the
  * front-end, as the other sub applications are shared among the environments.
  */
@@ -24,7 +30,7 @@ export interface Environment {
     /**
      * Name of the environment that this instance represents. (E.g. "animecon.team".)
      */
-    environmentName: string;
+    environmentName: EnvironmentName;
 
     /**
      * Team that is associated with this environment. (E.g. "crew".)
@@ -83,7 +89,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
     for (const environment of environments) {
         globalThis.animeConEnvironmentCache.set(environment.teamEnvironment, {
             id: environment.id,
-            environmentName: environment.teamEnvironment,
+            environmentName: environment.teamEnvironment as EnvironmentName,
             environmentTeamDoNotUse: environment.teamSlug,
             environmentTitle: environment.teamTitle,
             teamName: environment.teamName,
@@ -100,7 +106,9 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
  * Returns the environment identified by the given `environmentName`, or `undefined` when no such
  * environment could be found. May result in a database query, although results are cached.
  */
-export async function getEnvironment(environmentName: string): Promise<Environment | undefined> {
+export async function getEnvironment(environmentName: EnvironmentName)
+    : Promise<Environment | undefined>
+{
     if (!globalThis.animeConEnvironmentCache)
         await loadEnvironmentsFromDatabase();
 

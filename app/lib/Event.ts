@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { EnvironmentName } from './Environment';
 import { Temporal } from '@lib/Temporal';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
 
@@ -180,15 +181,8 @@ export class Event implements EventData {
      * Returns the environment information for the given |environmentName| when it exists, or
      * `undefined` in all other cases.
      */
-    getEnvironmentData(environmentName: string): EventEnvironmentData | undefined {
+    getEnvironmentData(environmentName: EnvironmentName): EventEnvironmentData | undefined {
         return this.#environments.get(environmentName);
-    }
-
-    /**
-     * Whether this event has environment information for the given |environmentName|.
-     */
-    hasEnvironmentData(environmentName: string): boolean {
-        return this.#environments.has(environmentName);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -215,8 +209,8 @@ export class Event implements EventData {
      * Returns a plain JavaScript object that conforms to the EventData interface.
      */
     toEventData(): EventData;
-    toEventData(environmentName: string): EventDataWithEnvironment;
-    toEventData(environmentName?: string) {
+    toEventData(environmentName: EnvironmentName): EventDataWithEnvironment;
+    toEventData(environmentName?: EnvironmentName) {
         const eventData: EventData = {
             id: this.id,
             name: this.name,
