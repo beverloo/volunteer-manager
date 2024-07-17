@@ -452,4 +452,66 @@ describe('AccessControl', () => {
             accessControl.can('test.boolean.required.team', { event: '2024', team: 'crew' }))
                 .not.toThrow();
     });
+
+    it('behaves sensibly when it comes down to event visibility checks', () => {
+        const accessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'staff',
+                    event: '2024',
+                    team: 'crew',
+                },
+                {
+                    permission: 'senior',
+                    event: '2023',
+                    team: 'hosts',
+                }
+            ],
+            teams: 'example',
+        });
+
+        // They have access to at least one event:
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: kAnyTeam })).toBeTrue();
+
+        // They are able to access 2023 and 2024:
+        expect(accessControl.can('event.visible', { event: '2022', team: kAnyTeam })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: kAnyTeam })).toBeFalse();
+
+        // They are able to access crew, host and example information:
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'tech' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'example' }))
+            .toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'stewards' }))
+            .toBeFalse();
+
+        // They are able to access Crew, Example and Host team information:
+        expect(accessControl.can('event.visible', { event: '2022', team: 'crew' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'crew' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2022', team: 'example' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'example' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'example' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'example' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2022', team: 'hosts' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'hosts' })).toBeFalse();
+
+        // TODO:
+        //
+        // In an ideal world, crew access would be exclusively granted in 2024, host access would be
+        // exclusively granted in 2023, and example access would be granted in both teams.
+        //
+        // This would be a fun refactor of `AccessControl.isGrantApplicable()` and
+        // `AccessControl.isRevokeApplicable()`. Until we get there, let's have a change detector
+        // test to document the existing behaviour, and capture this when it changes.
+        //
+    });
 });
