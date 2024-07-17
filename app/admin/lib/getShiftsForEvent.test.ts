@@ -19,7 +19,7 @@ describe('getShiftsForEvent', () => {
                 team: {
                     id: 1,
                     name: 'Crew',
-                    team: 'crew',
+                    slug: 'crew',
                 },
                 activity: undefined,
                 // TODO: requested
@@ -43,7 +43,7 @@ describe('getShiftsForEvent', () => {
             team: {
                 id: 1,
                 name: 'Crew',
-                team: 'crew',
+                slug: 'crew',
             },
             activity: undefined,
             // TODO: requested
@@ -74,7 +74,7 @@ describe('getShiftsForEvent', () => {
             team: {
                 id: 1,
                 name: 'Crew',
-                team: 'crew',
+                slug: 'crew',
             },
             activity: undefined,
             // TODO: requested
@@ -101,8 +101,8 @@ describe('getShiftsForEvent', () => {
     });
 
     it('should consider the team a shift is assigned to when given a gradient', async () => {
-        const kCrew = { id: 1, name: 'Crew', team: 'crew' };
-        const kHosts = { id: 2, name: 'Hosts', team: 'hosts' };
+        const kCrew = { id: 1, name: 'Crew', slug: 'crew' };
+        const kHosts = { id: 2, name: 'Hosts', slug: 'hosts' };
 
         const shiftTemplate = {
             category: {
