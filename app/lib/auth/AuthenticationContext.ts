@@ -95,7 +95,7 @@ export async function getAuthenticationContext(): Promise<AuthenticationContext>
         return getAuthenticationContextFromSessionData(sessionData);
 
     return {
-        access: new AccessControl({ grants: 'everyone' }),
+        access: new AccessControl({ /* no grants */ }),
         user: /* guest= */ undefined,
     };
 }
@@ -112,7 +112,7 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
         return getAuthenticationContextFromSessionData(sessionData);
 
     return {
-        access: new AccessControl({ grants: 'everyone' }),
+        access: new AccessControl({ /* no grants */ }),
         user: /* guest= */ undefined,
     }
 }

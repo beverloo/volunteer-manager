@@ -170,7 +170,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
     const authenticationResult: AuthenticationResult | null = await authenticationQuery;
     if (!authenticationResult) {
         return {
-            access: new AccessControl({ grants: 'everyone' }),
+            access: new AccessControl({ /* no grants */ }),
             user: /* guest= */ undefined,
         };
     }
@@ -192,7 +192,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
         privileges: expand(authenticationResult.privileges),
     };
 
-    const grants: Grant[] = [ 'everyone' ];
+    const grants: Grant[] = [ /* no grants */ ];
 
     if (!!authenticationResult.accessControl?.grants)
         grants.push(authenticationResult.accessControl.grants);

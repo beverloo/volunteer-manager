@@ -67,7 +67,7 @@ export function buildAuthenticationContext(params?: BuildAuthenticationContextPa
 {
     params = params ?? {};
     return {
-        access: new AccessControl(params.access ?? { grants: 'everyone' }),
+        access: new AccessControl(params.access ?? { /* empty */ }),
         user: {
             userId: 2000000,
             username: 'joe@example.com',

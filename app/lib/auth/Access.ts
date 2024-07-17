@@ -196,9 +196,6 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'test',
     ],
-    everyone: [
-        // no implicitly granted permissions
-    ],
     staff: [
         'event.applications:read',
         'event.applications:update',

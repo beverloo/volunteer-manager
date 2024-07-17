@@ -119,7 +119,7 @@ export class PlaywrightHooks {
         }
 
         return {
-            access: new AccessControl({ grants: 'everyone' }),
+            access: new AccessControl({ /* no grants */ }),
             user: /* visitor= */ undefined
         };
     }
