@@ -11,7 +11,7 @@ import db, { tActivitiesAreas } from '@lib/database';
  * The <ProgramLocationsPage> component contains the locations that are part of the program of a
  * particular event, or rather, its venue. Each location links through to a more detailed page.
  */
-export default async function ProgramLocationsPage(props: NextPageParams<'slug'>) {
+export default async function ProgramLocationsPage(props: NextPageParams<'event'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const areas = await db.selectFrom(tActivitiesAreas)

@@ -13,7 +13,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { EventSettingsForm } from './[slug]/settings/EventSettingsForm';
+import { EventSettingsForm } from './[event]/settings/EventSettingsForm';
 import { SubmitCollapse } from '../components/SubmitCollapse';
 import { dayjs } from '@lib/DateTime';
 import { callApi } from '@lib/callApi';

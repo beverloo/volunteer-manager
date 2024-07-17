@@ -18,7 +18,7 @@ import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
  * The retention page displays a recruiting tool to understand how participants from the past two
  * events are interested in participating in the upcoming event.
  */
-export default async function EventTeamRetentionPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamRetentionPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const usersEventJoin = tUsersEvents.forUseInLeftJoin();

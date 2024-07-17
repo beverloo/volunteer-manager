@@ -27,7 +27,7 @@ const kUpdateFormat = ' dddd, MMMM D, [at] HH:mm';
  * The <ProgramLayout> component contains the common elements between the different pages that make
  * up the Program section of the Volunteer Manager. A program is bound to an event.
  */
-export default async function ProgramActivityPage(props: NextPageParams<'slug' | 'id'>) {
+export default async function ProgramActivityPage(props: NextPageParams<'event' | 'id'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const activityId = parseInt(props.params.id, 10);

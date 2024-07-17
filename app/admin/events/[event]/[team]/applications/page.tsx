@@ -21,9 +21,9 @@ import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
  * for people who want to participate in this event. Event administrators can also directly create
  * new applications on this page themselves.
  */
-export default async function EventApplicationsPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventApplicationsPage(props: NextPageParams<'event' | 'team'>) {
     const permissionOptions = {
-        event: props.params.slug,
+        event: props.params.event,
         team: environmentToTeamSlug(props.params.team),
     };
 

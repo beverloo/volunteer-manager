@@ -12,7 +12,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <EventContentEntryPage> page displays an individual piece of content that can be edited by
  * the volunteer. The <ContentEditor> component takes care of the actual behaviour.
  */
-export default async function EventContentEntryPage(props: NextPageParams<'slug' | 'team' | 'id'>)
+export default async function EventContentEntryPage(props: NextPageParams<'event' | 'team' | 'id'>)
 {
     const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
 

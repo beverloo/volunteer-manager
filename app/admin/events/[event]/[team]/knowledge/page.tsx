@@ -21,7 +21,7 @@ import db, { tContentCategories } from '@lib/database';
  * is made available through the Volunteer Portal for all volunteers to be able to conveniently
  * answer any questions that they may receive from Staff, visitors and guests alike.
  */
-export default async function EventTeamFaqPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamFaqPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();

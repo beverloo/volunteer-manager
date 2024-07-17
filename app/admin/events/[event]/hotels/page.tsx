@@ -18,7 +18,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <EventHotelsPage> page allows event administrators to see and make changes to the hotel room
  * situation for a particular event, including assigning rooms (and roommates!) to volunteers.
  */
-export default async function EventHotelsPage(props: NextPageParams<'slug'>) {
+export default async function EventHotelsPage(props: NextPageParams<'event'>) {
     const { event } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventHotelManagement);
 

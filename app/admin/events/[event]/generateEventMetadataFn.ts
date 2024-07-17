@@ -14,25 +14,25 @@ const kTitleCache = new Map();
  * Generates metadata for one of the sub-pages of a particular event based on the given `title`,
  * and the `props` which include the event's slug. Will cause a database query.
  */
-async function generateMetadata(props: NextPageParams<'slug'>, title?: string)
+async function generateMetadata(props: NextPageParams<'event'>, title?: string)
     : Promise<Metadata>
 {
-    const { slug } = props.params;
+    const { event } = props.params;
 
-    if (slug && slug.length > 0 && !kTitleCache.has(slug)) {
-        const event = await db.selectFrom(tEvents)
-            .select({ shortName: tEvents.eventShortName })
-            .where(tEvents.eventSlug.equals(slug))
+    if (event && event.length > 0 && !kTitleCache.has(event)) {
+        const shortName = await db.selectFrom(tEvents)
+            .selectOneColumn(tEvents.eventShortName)
+            .where(tEvents.eventSlug.equals(event))
             .executeSelectNoneOrOne();
 
-        if (event)
-            kTitleCache.set(slug, event.shortName);
+        if (shortName)
+            kTitleCache.set(event, shortName);
     }
 
     return {
         title: [
             title,
-            kTitleCache.get(slug),
+            kTitleCache.get(event),
             'AnimeCon Volunteer Manager',
 
         ].filter(Boolean).join(' | '),
@@ -43,5 +43,5 @@ async function generateMetadata(props: NextPageParams<'slug'>, title?: string)
  * Generates a `generateMetadata` compatible-function for an event with the given `title`.
  */
 export function generateEventMetadataFn(title?: string) {
-    return (props: NextPageParams<'slug'>) => generateMetadata(props, title);
+    return (props: NextPageParams<'event'>) => generateMetadata(props, title);
 }

@@ -104,15 +104,15 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
  * Layout of the event overview page in the volunteer portal administration area. This shows the
  * options available to Senior+ volunteers for the organisation of a particular event.
  */
-export default async function EventLayout(props: React.PropsWithChildren<NextLayoutParams<'slug'>>)
+export default async function EventLayout(props: React.PropsWithChildren<NextLayoutParams<'event'>>)
 {
-    if (typeof props.params.slug !== 'string' || !props.params.slug.length)
+    if (typeof props.params.event !== 'string' || !props.params.event.length)
         notFound();
 
     const { access, user } = await requireAuthenticationContext();
-    const { slug } = props.params;
+    const { event } = props.params;
 
-    const info = await fetchEventSidebarInformation(user, slug);
+    const info = await fetchEventSidebarInformation(user, event);
     if (!info)
         notFound();
 
@@ -178,9 +178,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             trainingsBadge = badgeValues?.unconfirmedTrainings;
     }
 
-    const eventPermissionOptions = {
-        event: slug,
-    }
+    const eventPermissionOptions = { event };
 
     // Only display the "Program" entry when an event has been associated with a Festival ID. This
     // is how AnPlan maps the events, and we rely on the key to import information.
@@ -202,8 +200,8 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         programEntry.push({
             icon: <EventNoteIcon />,
             label: 'Program',
-            url: `/admin/events/${slug}/program/requests`,
-            urlPrefix: `/admin/events/${slug}/program`,
+            url: `/admin/events/${event}/program/requests`,
+            urlPrefix: `/admin/events/${event}/program`,
             badge: unknownProgramEntries,
             badgeSeverity: 'error',
         });
@@ -213,7 +211,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <GridViewIcon />,
             label: 'Dashboard',
-            url: `/admin/events/${slug}`,
+            url: `/admin/events/${event}`,
             urlMatchMode: 'strict',
         },
         {
@@ -221,7 +219,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             label: 'Hotels',
             condition: info.event.hotelEnabled,
             privilege: Privilege.EventHotelManagement,
-            url: `/admin/events/${slug}/hotels`,
+            url: `/admin/events/${event}/hotels`,
             badge: hotelBadge,
         },
         ...programEntry,
@@ -230,7 +228,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             label: 'Refunds',
             condition: info.event.refundEnabled,
             privilege: Privilege.Refunds,
-            url: `/admin/events/${slug}/refunds`,
+            url: `/admin/events/${event}/refunds`,
             badge: refundsBadge,
             badgeSeverity: 'error',
         },
@@ -239,14 +237,14 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             label: 'Trainings',
             condition: info.event.trainingEnabled,
             privilege: Privilege.EventTrainingManagement,
-            url: `/admin/events/${slug}/training`,
+            url: `/admin/events/${event}/training`,
             badge: trainingsBadge,
         },
         {
             icon: <SettingsIcon />,
             label: 'Settings',
             privilege: Privilege.EventAdministrator,
-            url: `/admin/events/${slug}/settings`,
+            url: `/admin/events/${event}/settings`,
         },
         {
             divider: true,
@@ -255,7 +253,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
 
     for (const team of info.teams) {
         const teamPermissionOptions: Options = {
-            event: slug,
+            event,
             team: team.slug,
         };
 
@@ -264,7 +262,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             knowledgeEntry.push({
                 icon: <InfoOutlinedIcon />,
                 label: 'Knowledge base',
-                url: `/admin/events/${slug}/${team.environment}/knowledge`,
+                url: `/admin/events/${event}/${team.slug}/knowledge`,
             });
         }
 
@@ -273,7 +271,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             firstAidEntry.push({
                 icon: <LocalHospitalIcon />,
                 label: 'First aid',
-                url: `/admin/events/${slug}/${team.environment}/first-aid`,
+                url: `/admin/events/${event}/${team.slug}/first-aid`,
                 privilege: Privilege.EventSupportingTeams,
             });
         }
@@ -283,7 +281,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             securityEntry.push({
                 icon: <SecurityIcon />,
                 label: 'Security',
-                url: `/admin/events/${slug}/${team.environment}/security`,
+                url: `/admin/events/${event}/${team.slug}/security`,
                 privilege: Privilege.EventSupportingTeams,
             });
         }
@@ -302,14 +300,14 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                         operation: 'read',
                         options: teamPermissionOptions,
                     },
-                    url: `/admin/events/${slug}/${team.environment}/applications`,
+                    url: `/admin/events/${event}/${team.slug}/applications`,
                     badge: team.pendingApplications,
                     badgeSeverity: 'error',
                 },
                 {
                     icon: <FeedOutlinedIcon />,
                     label: 'Content',
-                    url: `/admin/events/${slug}/${team.environment}/content`,
+                    url: `/admin/events/${event}/${team.slug}/content`,
                 },
                 ...knowledgeEntry,
                 ...firstAidEntry,
@@ -317,23 +315,23 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     icon: <RepeatIcon />,
                     label: 'Retention',
                     privilege: Privilege.EventRetentionManagement,
-                    url: `/admin/events/${slug}/${team.environment}/retention`,
+                    url: `/admin/events/${event}/${team.slug}/retention`,
                 },
                 {
                     icon: <ScheduleIcon />,
                     label: 'Schedule',
-                    url: `/admin/events/${slug}/${team.environment}/schedule`,
+                    url: `/admin/events/${event}/${team.slug}/schedule`,
                 },
                 ...securityEntry,
                 {
                     icon: <PendingActionsIcon />,
                     label: 'Shifts',
-                    url: `/admin/events/${slug}/${team.environment}/shifts`,
+                    url: `/admin/events/${event}/${team.slug}/shifts`,
                 },
                 {
                     icon: <PersonIcon />,
                     label: 'Volunteers',
-                    url: `/admin/events/${slug}/${team.environment}/volunteers`,
+                    url: `/admin/events/${event}/${team.slug}/volunteers`,
                 },
             ],
         });

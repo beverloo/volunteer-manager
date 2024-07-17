@@ -13,7 +13,7 @@ import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/dat
  * The <ProgramRequestsPage> component lists the program entries where the organiser has requested
  * help from the volunteering teams. Requests must be managed directly by our team.
  */
-export default async function ProgramRequestsPage(props: NextPageParams<'slug'>) {
+export default async function ProgramRequestsPage(props: NextPageParams<'event'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const unfilteredLeaders = await db.selectFrom(tUsersEvents)

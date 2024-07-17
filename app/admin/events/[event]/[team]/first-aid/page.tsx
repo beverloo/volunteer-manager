@@ -19,7 +19,7 @@ import db, { tVendors, tVendorsSchedule } from '@lib/database';
  * The first aid team (normally supporting the Stewards) is responsible for making sure that all our
  * visitors are safe, and any incidents are taken care of.
  */
-export default async function EventTeamFirstAidPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamFirstAidPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventSupportingTeams);
 

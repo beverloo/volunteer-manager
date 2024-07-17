@@ -15,7 +15,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * up the Program section of the Volunteer Manager. A program is bound to an event.
  */
 export default async function ProgramLayout(
-    props: React.PropsWithChildren<NextLayoutParams<'slug'>>)
+    props: React.PropsWithChildren<NextLayoutParams<'event'>>)
 {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
     if (!event.festivalId)

@@ -20,7 +20,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * assigned to our volunteers. Shifts linked to program entries will automatically warn when they
  * end up out of sync.
  */
-export default async function EventTeamShiftsPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamShiftsPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     // TODO: Box with warnings regarding the shifts (e.g. out-of-sync entries).

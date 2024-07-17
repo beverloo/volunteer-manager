@@ -16,7 +16,7 @@ import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, t
  * accepted into the team. Each volunteer has a detailed page that will be linked to as well. Users
  * who have event administrator permission can "import" any volunteer into this event.
  */
-export default async function VolunteersPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function VolunteersPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;

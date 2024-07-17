@@ -15,7 +15,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <EventContentPage> page lists the content that's associated with a particular team and a
  * particular event. It includes a mixture of required (fixed) content and dynamic content.
  */
-export default async function EventContentPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventContentPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);

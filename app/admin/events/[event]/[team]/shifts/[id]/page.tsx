@@ -66,7 +66,7 @@ function demandToTimelineEvents(
  * This page displays an individual shift, its configuration, time allocation and warnings. The
  * actual volunteers cannot be adjusted; this is something that has to be done on the schedule page.
  */
-export default async function EventTeamShiftPage(props: NextPageParams<'slug' | 'team' | 'id'>) {
+export default async function EventTeamShiftPage(props: NextPageParams<'event' | 'team' | 'id'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const readOnly = !can(user, Privilege.EventShiftManagement);

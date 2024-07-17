@@ -67,7 +67,7 @@ export interface VolunteerInfo {
 /**
  * Props accepted by the <VolunteerTable> component.
  */
-interface VolunteerTableProps extends NextPageParams<'slug' | 'team'> {
+interface VolunteerTableProps extends NextPageParams<'event' | 'team'> {
     /**
      * Whether a link to the data export tool should be displayed on the page.
      */
@@ -90,7 +90,7 @@ interface VolunteerTableProps extends NextPageParams<'slug' | 'team'> {
  * in the current event, in the current team. Each volunteer will receive a detailed page.
  */
 export function VolunteerTable(props: VolunteerTableProps) {
-    const kVolunteerBase = `/admin/events/${props.params.slug}/${props.params.team}/volunteers/`;
+    const kVolunteerBase = `/admin/events/${props.params.event}/${props.params.team}/volunteers/`;
 
     const columns: DataTableColumn<VolunteerInfo>[] = [
         {

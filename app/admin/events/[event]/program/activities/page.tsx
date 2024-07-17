@@ -13,7 +13,7 @@ import db, { tActivitiesLocations } from '@lib/database';
  * The <ProgramActivitiesPage> component contains the activities that are part of the program of a
  * particular event. Each activity can link through to a detail page.
  */
-export default async function ProgramActivitiesPage(props: NextPageParams<'slug'>) {
+export default async function ProgramActivitiesPage(props: NextPageParams<'event'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
     if (!event.festivalId)
         notFound();

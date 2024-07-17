@@ -25,7 +25,7 @@ import db, { tEventsTeams, tTeams } from '@lib/database';
  * The <EventSettingsPage> page allows event administrators to make changes to an event, such as its
  * name, slug, target team sizes and so on. These have an effect on the entire Volunteer Manager.
  */
-export default async function EventSettingsPage(props: NextPageParams<'slug'>) {
+export default async function EventSettingsPage(props: NextPageParams<'event'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventAdministrator);
 

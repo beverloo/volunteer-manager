@@ -3,12 +3,10 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextPageParams } from '@lib/NextRouterParams';
-
 /**
  * The <ProgramPage> component is the main page of a festival's program. Because there is nothing to
  * show here per se, we display an error page instead.
  */
-export default async function ProgramPage(props: NextPageParams<'slug'>) {
+export default async function ProgramPage() {
     notFound();
 }

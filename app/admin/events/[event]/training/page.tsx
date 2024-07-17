@@ -21,7 +21,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra, tUsersEvents,
     tUsers } from '@lib/database';
 
-export default async function EventTrainingPage(props: NextPageParams<'slug'>) {
+export default async function EventTrainingPage(props: NextPageParams<'event'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventTrainingManagement);
 

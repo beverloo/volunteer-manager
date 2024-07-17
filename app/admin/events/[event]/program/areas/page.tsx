@@ -10,7 +10,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * The <ProgramAreasPage> component contains the areas that are part of the program of a particular
  * event, or rather, its location. Each area links through to a detailed page.
  */
-export default async function ProgramAreasPage(props: NextPageParams<'slug'>) {
+export default async function ProgramAreasPage(props: NextPageParams<'event'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
     return <AreaDataTable event={event.slug} />;
 }

@@ -192,8 +192,8 @@ export interface PageInfoWithTeam extends PageInfo {
     };
 }
 
-type PageInfoParams = { slug: string; };
-type PageInfoWithTeamParams = { slug: string; team: string; };
+type PageInfoParams = { event: string; };
+type PageInfoWithTeamParams = { event: string; team: string; };
 
 /**
  * Verifies that the current user has access to the current page, and returns information about the
@@ -207,7 +207,7 @@ export async function verifyAccessAndFetchPageInfo(
     params: PageInfoParams, accessCheck?: PermissionAccessCheck | Privilege)
         : Promise<PageInfo | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: { slug: string, team?: string }, accessCheck?: PermissionAccessCheck | Privilege)
+    params: { event: string, team?: string }, accessCheck?: PermissionAccessCheck | Privilege)
         : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
     const permission = typeof accessCheck === 'object' ? accessCheck : undefined;
@@ -215,7 +215,7 @@ export async function verifyAccessAndFetchPageInfo(
 
     const { access, user } = await requireAuthenticationContext({
         check: 'admin-event',
-        event: params.slug,
+        event: params.event,
         permission,
         privilege,
     });
@@ -238,7 +238,7 @@ export async function verifyAccessAndFetchPageInfo(
             .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
-        .where(tEvents.eventSlug.equals(params.slug))
+        .where(tEvents.eventSlug.equals(params.event))
         .select({
             id: tEvents.eventId,
             hidden: tEvents.eventHidden.equals(/* true= */ 1),
@@ -285,7 +285,7 @@ export async function verifyAccessAndFetchPageInfo(
             .on(tEventsTeams.eventId.equals(event.id))
             .and(tEventsTeams.teamId.equals(tTeams.teamId))
             .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
-        .where(tTeams.teamEnvironment.equals(params.team!))
+        .where(tTeams.teamSlug.equals(params.team!))
         .select({
             id: tTeams.teamId,
             colour: tTeams.teamColourLightTheme,

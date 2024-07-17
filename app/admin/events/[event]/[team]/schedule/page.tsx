@@ -25,7 +25,7 @@ const kExpandSection = z.record(z.string(), z.boolean());
  * will be helping out throughout the event. This is one of the most complex pages in our app, which
  * relies on the timeline component as well as data from many different sources.
  */
-export default async function EventTeamSchedulePage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamSchedulePage(props: NextPageParams<'event' | 'team'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const userSettings = await readUserSettings(user.userId, [

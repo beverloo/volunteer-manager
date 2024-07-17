@@ -3,12 +3,10 @@
 
 import { notFound } from 'next/navigation';
 
-import type { NextPageParams } from '@lib/NextRouterParams';
-
 /**
  * The <OutboxPage> component is the main page of the outbox mechanism, which can't be accessed
  * directly - rather, a messaging channel has to be selected by the user.
  */
-export default async function OutboxPage(props: NextPageParams<'slug'>) {
+export default async function OutboxPage() {
     notFound();
 }

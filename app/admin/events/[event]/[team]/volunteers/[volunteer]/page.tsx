@@ -34,7 +34,7 @@ import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 import { readUserSettings } from '@lib/UserSettings';
 
-type RouterParams = NextPageParams<'slug' | 'team' | 'volunteer'>;
+type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
 
 /**
  * Displays information about an individual volunteer and their participation in a particular event.

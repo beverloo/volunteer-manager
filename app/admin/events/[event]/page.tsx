@@ -371,7 +371,7 @@ async function getSeniorVolunteers(eventId: number) {
  * The <EventPage> component gathers the required information for the event-specific dashboard,
  * which concisely displays the status and progress of organising an individual event.
  */
-export default async function EventPage(props: NextPageParams<'slug'>) {
+export default async function EventPage(props: NextPageParams<'event'>) {
     const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const deadlines = await getEventDeadlines(event.id);

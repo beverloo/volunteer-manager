@@ -14,7 +14,7 @@ import db, { tContentCategories } from '@lib/database';
  * This page displays an individual FAQ entry, which allows the volunteer to change both the
  * question and the answer to the question. A rich text editing component is made available.
  */
-export default async function EventFaqEntryPage(props: NextPageParams<'slug' | 'team' | 'id'>) {
+export default async function EventFaqEntryPage(props: NextPageParams<'event' | 'team' | 'id'>) {
     const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();

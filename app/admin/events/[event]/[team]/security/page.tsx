@@ -19,7 +19,7 @@ import db, { tVendors, tVendorsSchedule } from '@lib/database';
  * The security team (normally supporting the Stewards) is responsible for the physical security of
  * our visitors and volunteers. They're a vendor team, and therefore not considered volunteers.
  */
-export default async function EventTeamSecurityPage(props: NextPageParams<'slug' | 'team'>) {
+export default async function EventTeamSecurityPage(props: NextPageParams<'event' | 'team'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventSupportingTeams);
 
