@@ -400,7 +400,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
         async (status: RegistrationStatus, subject?: string, message?: string) => {
             const response = await callApi('put', '/api/application/:event/:team/:userId', {
                 event: event.slug,
-                team: team.environment,
+                team: team.slug,
                 userId: volunteer.userId,
                 status: {
                     registrationStatus: status,
@@ -554,7 +554,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      cancelParticipation: {
                                          userId: volunteer.userId,
                                          event: event.slug,
-                                         team: team.environment,
+                                         team: team.slug,
                                      }
                                  }} onSubmit={handleCancelled} />
 
@@ -571,7 +571,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      reinstateParticipation: {
                                          userId: volunteer.userId,
                                          event: event.slug,
-                                         team: team.environment,
+                                         team: team.slug,
                                      }
                                  }} onSubmit={handleReinstated} />
 
@@ -582,7 +582,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
             <ChangeTeamDialog onClose={handleTeamsClose} open={teamsForVolunteer && teamsOpen}
                               teams={teamsForVolunteer!} allowSilent={allowSilent}
                               volunteer={volunteer} event={event.slug}
-                              currentTeam={team.environment} />
+                              currentTeam={team.slug} />
 
         </Paper>
     );

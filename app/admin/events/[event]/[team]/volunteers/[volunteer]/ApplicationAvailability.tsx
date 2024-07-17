@@ -209,13 +209,13 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             }
 
             const response = await callApi('post', '/api/event/availability-preferences', {
-                environment: team,
                 event: event.slug,
                 eventPreferences: eventPreferences,
                 exceptions,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
+                team,
                 adminOverrideUserId: volunteer.userId,
             });
 

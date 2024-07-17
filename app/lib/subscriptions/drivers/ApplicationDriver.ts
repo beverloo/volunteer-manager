@@ -41,6 +41,11 @@ export interface ApplicationMessage extends Message {
     teamName: string;
 
     /**
+     * URL-safe slug of the team in which they have asked to participate.
+     */
+    teamSlug: string;
+
+    /**
      * Title of the team in which they would like to help out. ("Steward Team")
      */
     teamTitle: string;
@@ -105,7 +110,7 @@ export class ApplicationDriver extends Driver<ApplicationMessage> {
             contentVariables: {
                 '1': message.name,
                 '2': message.teamTitle,
-                '3': `${message.eventSlug}/${message.teamEnvironment}/applications`,
+                '3': `${message.eventSlug}/${message.teamSlug}/applications`,
             },
             attribution: {
                 sourceUserId: message.userId,

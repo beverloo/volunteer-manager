@@ -26,7 +26,6 @@ import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { VolunteerNotes } from './VolunteerNotes';
 import { VolunteerSchedule } from './VolunteerSchedule';
-import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
@@ -245,7 +244,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     const canUpdateApplications = access.can('event.applications', 'update', {
         event: event.slug,
-        team: environmentToTeamSlug(team.slug),
+        team: team.slug,
     });
 
     return (

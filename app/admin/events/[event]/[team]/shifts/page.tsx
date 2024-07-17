@@ -38,7 +38,7 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'event' 
                     to be able to make any changes.
                 </Paper> }
             <Section title="Shifts" subtitle={team.name}>
-                <ShiftTable event={event.slug} team={team.environment} readOnly={readOnly} />
+                <ShiftTable event={event.slug} team={team.slug} readOnly={readOnly} />
             </Section>
             <CollapsableSection in={!!warnings.length} title="Shift warnings">
                 <SectionIntroduction important>
@@ -49,7 +49,7 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'event' 
                 <Section title="Create a new shift" privilege={Privilege.EventShiftManagement}>
                     <ShiftCreateSection activities={activities} categories={categories}
                                         locations={locations} event={event.slug}
-                                        team={team.environment} readOnly={readOnly} />
+                                        team={team.slug} readOnly={readOnly} />
                 </Section> }
         </>
     );

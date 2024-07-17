@@ -62,8 +62,8 @@ export interface EventRecentChangesProps {
         name: string;
 
         /**
-         * User ID and team environment name of the person who made the change, so that we can
-         * provide a link directly to their account.
+         * User ID and team name & slug of the person who made the change, so that we can provide a
+         * link directly to their account.
          */
         userId: number;
         team: string;

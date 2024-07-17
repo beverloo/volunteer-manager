@@ -30,20 +30,20 @@ const kPreferencesLockedMarkdown =
  */
 interface TrainingPreferencesProps {
     /**
-     * Environment for which the preferences are being shown.
-     */
-    environment: string;
-
-    /**
      * Slug of the event for which the preferences are being shown.
      */
-    eventSlug: string;
+    event: string;
 
     /**
      * Whether the form should be marked as read-only, useful in case their participation has been
      * confirmed. Changes can only be made after that by e-mailing our team.
      */
     readOnly?: boolean;
+
+    /**
+     * URL-safe slug that identifies the team in scope for this request.
+     */
+    team: string;
 
     /**
      * Information about the volunteer's training participation that we're representing.
@@ -79,8 +79,8 @@ export function TrainingPreferences(props: TrainingPreferencesProps) {
                 throw new Error('Your preferences have been locked in already.');
 
             const response = await callApi('post', '/api/event/training-preferences', {
-                environment: props.environment,
-                event: props.eventSlug,
+                event: props.event,
+                team: props.team,
                 preferences: {
                     training: data.training,
                 },
@@ -97,7 +97,7 @@ export function TrainingPreferences(props: TrainingPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, readOnly, router ]);
+    }, [ props.event, props.team, readOnly, router ]);
 
     const defaultValues = useMemo(() => {
         if (!training || !training.updated)

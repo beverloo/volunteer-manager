@@ -20,7 +20,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
  */
 interface StatisticsCardProps {
     /**
-     * Title of the environment for which the card is being shown.
+     * Title of the team for which the card is being shown.
      */
     title: string;
 }

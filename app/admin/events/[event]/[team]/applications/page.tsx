@@ -14,7 +14,6 @@ import { Applications } from './Applications';
 import { CreateApplication } from './CreateApplication';
 import { Header } from './Header';
 import { RejectedApplications } from './RejectedApplications';
-import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 
 /**
  * The Applications page allows senior volunteers to see, and sometimes modify the incoming requests
@@ -24,7 +23,7 @@ import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 export default async function EventApplicationsPage(props: NextPageParams<'event' | 'team'>) {
     const permissionOptions = {
         event: props.params.event,
-        team: environmentToTeamSlug(props.params.team),
+        team: props.params.team,
     };
 
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {
@@ -101,14 +100,14 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     return (
         <>
             <Header event={event} team={team} user={user} />
-            <Applications event={event.slug} team={team.environment} applications={applications}
+            <Applications event={event.slug} team={team.slug} applications={applications}
                           canAccessAccounts={canAccessAccounts}
                           canManageApplications={canUpdateApplications} allowSilent={allowSilent} />
             { canCreateApplications &&
                 <CreateApplication event={event} team={team} user={user} /> }
             <Collapse in={!!rejections.length}>
                 <RejectedApplications applications={rejections} event={event.slug}
-                                      team={team.environment}
+                                      team={team.slug}
                                       editable={canApproveRejectedVolunteers} />
             </Collapse>
         </>

@@ -10,7 +10,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
-import db, { tTrainingsAssignments } from '@lib/database';
+import db, { tEventsTeams, tTeams, tTrainingsAssignments } from '@lib/database';
 
 /**
  * Interface definition for the Training API, exposed through /api/event/training-preferences.
@@ -18,14 +18,14 @@ import db, { tTrainingsAssignments } from '@lib/database';
 export const kTrainingPreferencesDefinition = z.object({
     request: z.object({
         /**
-         * The environment for which the application is being submitted.
-         */
-        environment: z.string(),
-
-        /**
          * Unique slug of the event in which the volunteer would like to participate.
          */
         event: z.string(),
+
+        /**
+         * Unique slug of the team for which training preferences are being updated.
+         */
+        team: z.string(),
 
         /**
          * Preferences that the volunteer would like to share with us. The literal "false" can be
@@ -80,7 +80,24 @@ export async function trainingPreferences(request: Request, props: ActionProps):
     if (!event)
         return { success: false, error: 'The event no longer exists' };
 
-    const registration = await getRegistration(request.environment, event, subjectUserId);
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+
+    const team = await db.selectFrom(tTeams)
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(event.eventId))
+            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
+        .where(tTeams.teamSlug.equals(request.team))
+        .select({
+            id: tTeams.teamId,
+            enabled: eventsTeamsJoin.enableTeam,
+            environment: tTeams.teamEnvironment,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!team || !team.enabled)
+        return { success: false, error: 'This team does not participate in this event' };
+
+    const registration = await getRegistration(team.environment, event, subjectUserId);
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application' };
 

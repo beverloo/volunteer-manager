@@ -83,8 +83,8 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
 
     const handleClear = useCallback(async () => {
         const response = await callApi('post', '/api/event/hotel-preferences', {
-            environment: props.teamSlug,
             event: props.eventSlug,
+            team: props.teamSlug,
             preferences: /* clear= */ false,
             adminOverrideUserId: props.volunteerUserId,
         });
@@ -111,8 +111,8 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
         setError(undefined);
         try {
             const response = await callApi('post', '/api/event/hotel-preferences', {
-                environment: props.teamSlug,
                 event: props.eventSlug,
+                team: props.teamSlug,
                 preferences: {
                     interested: !!data.interested,
 

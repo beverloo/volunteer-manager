@@ -118,6 +118,11 @@ interface ApplicationPageProps {
     partnerApplications: PartneringTeamApplication[];
 
     /**
+     * URL-safe slug that identifies the team for which the application is relevant.
+     */
+    team: string;
+
+    /**
      * The user who is currently signed in. We require someone to be signed in when applying, as
      * it helps carry their participation information across multiple events.
      */
@@ -132,7 +137,7 @@ interface ApplicationPageProps {
  *       latest version of NextJS. See https://zenn.dev/hayato94087/articles/41ab9455bac4b8.
  */
 export function ApplicationPage(props: ApplicationPageProps) {
-    const { event, user } = props;
+    const { event, team, user } = props;
 
     const authenticationContext = useContext(AuthenticationContext);
     const requestAuthenticationFlow = useCallback(() => {
@@ -161,12 +166,12 @@ export function ApplicationPage(props: ApplicationPageProps) {
             const response = await callApi('post', '/api/event/application', {
                 availability: !!data.availability,
                 credits: !!data.credits,
-                environment: event.environmentName,
                 event: event.slug,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 socials: !!data.socials,
+                team,
                 tshirtFit: data.tshirtFit,
                 tshirtSize: data.tshirtSize,
             });
@@ -182,7 +187,7 @@ export function ApplicationPage(props: ApplicationPageProps) {
             setLoading(false);
         }
 
-    }, [ event, router, user ]);
+    }, [ event, router, team, user ]);
 
     const availabilityLabel = `Yes, I will be fully available during ${event.shortName}`;
     const creditsLabel = `Yes, I'd like to be included in the ${event.shortName} credit reel`;

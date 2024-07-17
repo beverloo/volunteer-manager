@@ -38,14 +38,9 @@ const kPreferencesLockedMarkdown =
  */
 interface AvailabilityPreferencesProps {
     /**
-     * Name of the environment describing the team the volunteer is part of.
+     * URL-save slug of the event for which preferences are being displayed.
      */
-    environment: string;
-
-    /**
-     * Slug of the event for which preferences are being displayed.
-     */
-    eventSlug: string;
+    event: string;
 
     /**
      * Events that exist in the program. Only public events should be listed.
@@ -67,6 +62,11 @@ interface AvailabilityPreferencesProps {
      * event and changes to the schedule should not be made anymore.
      */
     readOnly?: boolean;
+
+    /**
+     * URL-safe slug that identifies the team in scope for this request.
+     */
+    team: string;
 }
 
 /**
@@ -101,12 +101,12 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
             }
 
             const response = await callApi('post', '/api/event/availability-preferences', {
-                environment: props.environment,
-                event: props.eventSlug,
+                event: props.event,
                 eventPreferences,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
+                team: props.team,
             });
 
             if (response.success) {
@@ -120,7 +120,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, props.limit, props.readOnly, router ]);
+    }, [ props.event, props.limit, props.readOnly, props.team, router ]);
 
     const defaultValues = useMemo(() => ({
         preferences: props.preferences.preferences,

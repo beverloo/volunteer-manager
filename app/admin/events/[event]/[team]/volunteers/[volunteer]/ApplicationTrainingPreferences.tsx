@@ -68,8 +68,8 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
 
     const handleClear = useCallback(async () => {
         const response = await callApi('post', '/api/event/training-preferences', {
-            environment: props.teamSlug,
             event: props.eventSlug,
+            team: props.teamSlug,
             preferences: /* clear= */ false,
             adminOverrideUserId: props.volunteerUserId,
         });
@@ -88,8 +88,8 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
         setError(undefined);
         try {
             const response = await callApi('post', '/api/event/training-preferences', {
-                environment: props.teamSlug,
                 event: props.eventSlug,
+                team: props.teamSlug,
                 preferences: {
                     training: data.training,
                 },

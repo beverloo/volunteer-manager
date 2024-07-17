@@ -87,7 +87,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
             if (!participation)
                 notFound();  // the |user| is not participating in the |event|
             if (!eventData.enableSchedule)
-                notFound();  // the |event| has not been published for the |environment| yes
+                notFound();  // the |event| has not been published for the |environment|
         }
     }
 

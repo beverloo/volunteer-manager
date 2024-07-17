@@ -23,11 +23,6 @@ import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiRe
 export const kAvailabilityPreferencesDefinition = z.object({
     request: z.object({
         /**
-         * The environment for which the preferences are being submitted.
-         */
-        environment: z.string(),
-
-        /**
          * Unique slug of the event in which the volunteer would like to participate.
          */
         event: z.string(),
@@ -76,6 +71,11 @@ export const kAvailabilityPreferencesDefinition = z.object({
         serviceTiming: kServiceTimingProperty,
 
         /**
+         * Unique slug of the team that the volunteer is participating in.
+         */
+        team: z.string(),
+
+        /**
          * Property that allows administrators to push updates on behalf of other users.
          */
         adminOverrideUserId: z.number().optional(),
@@ -122,7 +122,24 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     if (!event || !event.festivalId)
         return { success: false, error: 'The event does not support preferences…' };
 
-    const registration = await getRegistration(request.environment, event, subjectUserId);
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+
+    const team = await db.selectFrom(tTeams)
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(event.eventId))
+            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
+        .where(tTeams.teamSlug.equals(request.team))
+        .select({
+            id: tTeams.teamId,
+            enabled: eventsTeamsJoin.enableTeam,
+            environment: tTeams.teamEnvironment,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!team || !team.enabled)
+        return { success: false, error: 'This team does not participate in this event…' };
+
+    const registration = await getRegistration(team.environment, event, subjectUserId);
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application…' };
 
@@ -130,22 +147,6 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             && !can(props.user, Privilege.EventAdministrator)) {
         return { success: false, error: 'Preferences cannot be shared yet, sorry!' };
     }
-
-    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
-
-    const team = await db.selectFrom(tTeams)
-        .leftJoin(eventsTeamsJoin)
-            .on(eventsTeamsJoin.eventId.equals(event.eventId))
-            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
-        .where(tTeams.teamEnvironment.equals(request.environment))
-        .select({
-            id: tTeams.teamId,
-            enabled: eventsTeamsJoin.enableTeam,
-        })
-        .executeSelectNoneOrOne();
-
-    if (!team || !team.enabled)
-        return { success: false, error: 'This team does not participate in this event…' };
 
     let validatedTimeslots: number[] = [];
     if (request.eventPreferences.length > 0) {

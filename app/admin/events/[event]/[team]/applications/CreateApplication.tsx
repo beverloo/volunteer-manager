@@ -174,12 +174,12 @@ export function CreateApplication(props: CreateApplicationProps) {
             const response = await callApi('post', '/api/event/application', {
                 availability: true,
                 credits: true,
-                environment: props.team.environment,
                 event: props.event.slug,
                 preferences: data.preferences,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 socials: true,
+                team: props.team.slug,
                 tshirtFit: data.tshirtFit,
                 tshirtSize: data.tshirtSize,
                 adminOverride: {

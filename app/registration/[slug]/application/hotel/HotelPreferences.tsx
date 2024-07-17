@@ -35,14 +35,9 @@ const kPreferencesLockedMarkdown =
  */
 export interface HotelPreferencesProps {
     /**
-     * Environment for which the preferences are being shown.
+     * URL-save slug of the event for which the preferences are being shown.
      */
-    environment: string;
-
-    /**
-     * Slug of the event for which the preferences are being shown.
-     */
-    eventSlug: string;
+    event: string;
 
     /**
      * Date on which the event will take place. Used to focus the check-{in, out} pickers.
@@ -71,6 +66,11 @@ export interface HotelPreferencesProps {
      * confirmed. Changes can only be made after that by e-mailing our team.
      */
     readOnly?: boolean;
+
+    /**
+     * URL-safe slug that identifies the team in scope for this request.
+     */
+    team: string;
 }
 
 /**
@@ -107,8 +107,8 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                 throw new Error('Your preferences have bene locked in already.');
 
             const response = await callApi('post', '/api/event/hotel-preferences', {
-                environment: props.environment,
-                event: props.eventSlug,
+                event: props.event,
+                team: props.team,
                 preferences: {
                     interested: !!data.interested,
 
@@ -131,7 +131,7 @@ export function HotelPreferences(props: HotelPreferencesProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.environment, props.eventSlug, props.readOnly, router ]);
+    }, [ props.event, props.readOnly, props.team, router ]);
 
     const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
     const [ fieldValues, setFieldValues ] = useState<FieldValues | undefined>();

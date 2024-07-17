@@ -27,6 +27,12 @@ export interface Environment {
     environmentName: string;
 
     /**
+     * Team that is associated with this environment. (E.g. "crew".)
+     * @deprecated There isn't a 1:1 mapping between environments and teams, don't rely on this.
+     */
+    environmentTeamDoNotUse: string;
+
+    /**
      * Title of the environment that this instance represents. (E.g. "Volunteering Crew".)
      */
     environmentTitle: string;
@@ -66,6 +72,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             teamName: tTeams.teamName,
             teamDescription: tTeams.teamDescription,
             teamEnvironment: tTeams.teamEnvironment,
+            teamSlug: tTeams.teamSlug,
             teamTitle: tTeams.teamTitle,
             themeColourDark: tTeams.teamColourDarkTheme,
             themeColourLight: tTeams.teamColourLightTheme,
@@ -77,6 +84,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
         globalThis.animeConEnvironmentCache.set(environment.teamEnvironment, {
             id: environment.id,
             environmentName: environment.teamEnvironment,
+            environmentTeamDoNotUse: environment.teamSlug,
             environmentTitle: environment.teamTitle,
             teamName: environment.teamName,
             teamDescription: environment.teamDescription,

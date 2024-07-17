@@ -24,14 +24,14 @@ export default async function EventContentPage(props: NextPageParams<'event' | '
 
     return (
         <>
-            <Section title="Pages" subtitle={team.environment}>
+            <Section title="Pages" subtitle={team._environment}>
                 <ContentList enableAuthorLink={enableAuthorLink} pathPrefix={pathPrefix}
                              scope={scope} />
             </Section>
             <Section title="Create a new page">
                 <SectionIntroduction>
                     You can create a new page for the <strong>{team.name}</strong>, which will
-                    immediately be published on <strong>{team.environment}</strong>.
+                    immediately be published on <strong>{team._environment}</strong>.
                 </SectionIntroduction>
                 <ContentCreate pathPrefix={pathPrefix} scope={scope} />
             </Section>

@@ -26,7 +26,7 @@ export interface HotelPendingRequestRowModel {
     name: string;
 
     /**
-     * Environment of the team that the user is part of.
+     * URL-safe slug identifing the URL the volunteer is part of.
      */
     team: string;
 

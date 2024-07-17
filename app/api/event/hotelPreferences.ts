@@ -21,14 +21,14 @@ import { kTemporalPlainDate } from '../Types';
 export const kHotelPreferencesDefinition = z.object({
     request: z.object({
         /**
-         * The environment for which the application is being submitted.
-         */
-        environment: z.string(),
-
-        /**
          * Unique slug of the event in which the volunteer would like to participate.
          */
         event: z.string(),
+
+        /**
+         * Unique slug of the team for which preferences are to be updated.
+         */
+        team: z.string(),
 
         /**
          * Preferences that the volunteer would like to share with us. A potentially partial set of
@@ -112,7 +112,24 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!event)
         return { success: false, error: 'The event no longer exists' };
 
-    const registration = await getRegistration(request.environment, event, subjectUserId);
+    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
+
+    const team = await db.selectFrom(tTeams)
+        .leftJoin(eventsTeamsJoin)
+            .on(eventsTeamsJoin.eventId.equals(event.eventId))
+            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
+        .where(tTeams.teamSlug.equals(request.team))
+        .select({
+            id: tTeams.teamId,
+            enabled: eventsTeamsJoin.enableTeam,
+            environment: tTeams.teamEnvironment,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!team || !team.enabled)
+        return { success: false, error: 'This team does not participate in this event' };
+
+    const registration = await getRegistration(team.environment, event, subjectUserId);
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application' };
 
@@ -123,22 +140,6 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
         return { success: false, error: 'Hotel rooms cannot be booked yet, sorry!' };
 
     // TODO: Disallow updates when the room has been confirmed
-
-    const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
-
-    const team = await db.selectFrom(tTeams)
-        .leftJoin(eventsTeamsJoin)
-            .on(eventsTeamsJoin.eventId.equals(event.eventId))
-            .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
-        .where(tTeams.teamEnvironment.equals(request.environment))
-        .select({
-            id: tTeams.teamId,
-            enabled: eventsTeamsJoin.enableTeam,
-        })
-        .executeSelectNoneOrOne();
-
-    if (!team || !team.enabled)
-        return { success: false, error: 'This team does not participate in this event' };
 
     // Case (0): The preferences should be cleared rather than amended.
     if (!request.preferences) {

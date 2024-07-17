@@ -77,7 +77,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
             { bookings.length > 0 &&
                 <HotelConfirmation bookings={bookings} /> }
             { (eligible || !!registration.hotelPreferences) &&
-                <HotelPreferences environment={environment.environmentName} eventSlug={event.slug}
+                <HotelPreferences event={event.slug} team={environment.environmentTeamDoNotUse}
                                   eventDate={event.startTime} hotelOptions={options}
                                   hotelPreferences={hotelPreferences} readOnly={readOnly} /> }
 

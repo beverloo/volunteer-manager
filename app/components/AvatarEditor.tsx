@@ -154,7 +154,7 @@ export default function AvatarEditor(props: AvatarEditorProps) {
                     console.error(e);
 
                     // Exceptions usually imply that the <canvas> element was tainted, which is
-                    // possible in the local debuggin environment.
+                    // possible in the local debugging environment.
                     setUploadError(true);
                     setUploading(false);
                 }

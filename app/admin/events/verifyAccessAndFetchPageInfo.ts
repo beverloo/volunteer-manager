@@ -188,7 +188,7 @@ export interface PageInfoWithTeam extends PageInfo {
         /**
          * Environment of the frontend that this team is serviced by.
          */
-        environment: string;
+        _environment: string;
     };
 }
 
@@ -292,7 +292,7 @@ export async function verifyAccessAndFetchPageInfo(
             name: tTeams.teamName,
             plural: tTeams.teamPlural,
             slug: tTeams.teamSlug,
-            environment: tTeams.teamEnvironment,
+            _environment: tTeams.teamEnvironment,
             managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
             managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
             managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),

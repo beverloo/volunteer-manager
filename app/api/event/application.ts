@@ -79,14 +79,14 @@ export const kApplicationDefinition = z.object({
         availability: z.boolean(),
 
         /**
-         * The environment for which the application is being submitted.
-         */
-        environment: z.string(),
-
-        /**
          * Unique slug of the event in which the volunteer would like to participate.
          */
         event: z.string(),
+
+        /**
+         * Unique slug of the team in which the volunteer would like to participate.
+         */
+        team: z.string(),
 
         /**
          * Override configuration that can be provided when an application is being created through
@@ -131,9 +131,10 @@ export async function application(request: Request, props: ActionProps): Promise
             throw new Error('Sorry, something went wrong (unable to find the right event)...');
 
         const team = await db.selectFrom(tTeams)
-            .where(tTeams.teamEnvironment.equals(request.environment))
+            .where(tTeams.teamSlug.equals(request.team))
             .select({
                 id: tTeams.teamId,
+                environment: tTeams.teamEnvironment,
                 name: tTeams.teamName,
                 slug: tTeams.teamSlug,
                 title: tTeams.teamTitle,
@@ -161,7 +162,7 @@ export async function application(request: Request, props: ActionProps): Promise
             userId = request.adminOverride.userId;
 
         } else {
-            const environmentData = event.getEnvironmentData(request.environment);
+            const environmentData = event.getEnvironmentData(team.environment);
             if (!environmentData)
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 
@@ -171,11 +172,11 @@ export async function application(request: Request, props: ActionProps): Promise
             }
         }
 
-        const registration = await getRegistration(request.environment, event, userId);
+        const registration = await getRegistration(team.environment, event, userId);
         if (registration)
             throw new Error('Sorry, you have already applied to participate in this event.');
 
-        await createRegistration(request.environment, event, userId, request);
+        await createRegistration(team.environment, event, userId, request);
         if (request.adminOverride) {
             await Log({
                 type: LogType.AdminEventApplication,
@@ -202,12 +203,13 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!request.adminOverride) {
             const applicationConfirmation =
                 await getStaticContent([ 'message', 'application-confirmation' ], {
-                    environment: request.environment,
+                    environment: team.environment,
                     event: event.shortName,
                     eventSlug: event.slug,
                     hostname: props.origin,
                     name: props.user.firstName,
                     team: team.title,
+                    teamSlug: team.slug,
                 });
 
             if (applicationConfirmation) {
@@ -234,8 +236,9 @@ export async function application(request: Request, props: ActionProps): Promise
                     name: props.user.name,
                     event: event.shortName,
                     eventSlug: event.slug,
-                    teamEnvironment: request.environment,
+                    teamEnvironment: team.environment,
                     teamName: team.name,
+                    teamSlug: team.slug,
                     teamTitle: team.title,
                 },
             });

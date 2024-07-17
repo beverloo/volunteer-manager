@@ -13,7 +13,6 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { environmentToTeamSlug } from '@app/admin/lib/environmentToTeamSlug';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 
 import { createVertexAIClient } from '@lib/integrations/vertexai';
@@ -170,7 +169,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                     operation: 'update',
                     options: {
                         event: request.approveVolunteer?.event,
-                        team: environmentToTeamSlug(request.approveVolunteer?.team),
+                        team: request.approveVolunteer?.team,
                     },
                 },
             });
@@ -204,7 +203,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                     operation: 'update',
                     options: {
                         event: request.approveVolunteer?.event,
-                        team: environmentToTeamSlug(request.approveVolunteer?.team),
+                        team: request.approveVolunteer?.team,
                     },
                 },
             });
