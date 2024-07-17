@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { noAccess } from '@app/api/Action';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -112,7 +111,13 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: context.event,
-                    privilege: Privilege.EventRequestOwnership,
+
+                    permission: {
+                        permission: 'event.requests',
+                        options: {
+                            event: context.event,
+                        },
+                    }
                 });
 
                 break;

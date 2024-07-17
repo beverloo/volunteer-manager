@@ -4,7 +4,6 @@
 import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege } from '@lib/auth/Privileges';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { Section } from '@app/admin/components/Section';
 import { VendorSchedule } from '../first-aid/VendorSchedule';
@@ -20,11 +19,22 @@ import db, { tVendors, tVendorsSchedule } from '@lib/database';
  * our visitors and volunteers. They're a vendor team, and therefore not considered volunteers.
  */
 export default async function EventTeamSecurityPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team } = await verifyAccessAndFetchPageInfo(
-        props.params, Privilege.EventSupportingTeams);
+    const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.vendors',
+        operation: 'read',
+        options: {
+            event: props.params.event,
+            team: props.params.team,
+        },
+    });
 
     if (!team.managesSecurity)
         notFound();
+
+    const canUpdateVendors = access.can('event.vendors', 'update', {
+        event: props.params.event,
+        team: props.params.team,
+    });
 
     const roleSetting = await readSetting('vendor-security-roles') ?? 'Security';
     const roles = roleSetting.split(',').map(role => role.trim());
@@ -60,12 +70,13 @@ export default async function EventTeamSecurityPage(props: NextPageParams<'event
                     This page allows you to manage the <strong>security vendor team</strong>. The
                     information shared on this page is exclusively used in the scheduling app.
                 </SectionIntroduction>
-                <VendorTable event={event.slug} team={VendorTeam.Security} roles={roles} />
+                <VendorTable event={event.slug} team={VendorTeam.Security}
+                             readOnly={!canUpdateVendors} roles={roles} />
             </Section>
             { !!schedule.length &&
                 <Section noHeader>
                     <VendorSchedule event={event} team={VendorTeam.Security} roles={roles}
-                                    schedule={schedule} />
+                                    readOnly={!canUpdateVendors} schedule={schedule} />
                 </Section> }
         </>
     );

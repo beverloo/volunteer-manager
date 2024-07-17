@@ -272,7 +272,11 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 icon: <LocalHospitalIcon />,
                 label: 'First aid',
                 url: `/admin/events/${event}/${team.slug}/first-aid`,
-                privilege: Privilege.EventSupportingTeams,
+                permission: {
+                    permission: 'event.vendors',
+                    operation: 'read',
+                    options: teamPermissionOptions,
+                },
             });
         }
 
@@ -282,7 +286,11 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 icon: <SecurityIcon />,
                 label: 'Security',
                 url: `/admin/events/${event}/${team.slug}/security`,
-                privilege: Privilege.EventSupportingTeams,
+                permission: {
+                    permission: 'event.vendors',
+                    operation: 'read',
+                    options: teamPermissionOptions,
+                },
             });
         }
 
@@ -314,7 +322,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 {
                     icon: <RepeatIcon />,
                     label: 'Retention',
-                    privilege: Privilege.EventRetentionManagement,
+                    permission: {
+                        permission: 'event.retention',
+                        options: teamPermissionOptions,
+                    },
                     url: `/admin/events/${event}/${team.slug}/retention`,
                 },
                 {

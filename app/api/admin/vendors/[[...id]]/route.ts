@@ -6,12 +6,13 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tVendors } from '@lib/database';
 import { readSetting } from '@lib/Settings';
+import db, { tVendors } from '@lib/database';
+
+import { kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
  * Row model for vendor entry, as can be shown and modified in the administration area.
@@ -99,11 +100,47 @@ export type VendorScope = z.infer<typeof kVendorContext>['context'];
  */
 export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kVendorContext, {
     async accessCheck({ context }, action, props) {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
-            event: context.event,
-            privilege: Privilege.EventSupportingTeams,
-        });
+        switch (action) {
+            case 'create':
+            case 'delete':
+            case 'reorder':
+            case 'update':
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin-event',
+                    event: context.event,
+
+                    permission: {
+                        permission: 'event.vendors',
+                        operation: 'update',
+                        options: {
+                            event: context.event,
+                            team: kAnyTeam,
+                        },
+                    },
+                });
+
+                break;
+
+            case 'get':
+            case 'list':
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin-event',
+                    event: context.event,
+
+                    permission: {
+                        permission: 'event.vendors',
+                        operation: 'read',
+                        options: {
+                            event: context.event,
+                            team: kAnyTeam,
+                        },
+                    },
+                });
+
+                break;
+        }
+
+
     },
 
     async create({ context }) {

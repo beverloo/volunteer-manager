@@ -4,7 +4,6 @@
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationStatus } from '@lib/database/Types';
 import { RequestDataTable } from './RequestDataTable';
-import { Privilege, can, expand } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
@@ -14,9 +13,9 @@ import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/dat
  * help from the volunteering teams. Requests must be managed directly by our team.
  */
 export default async function ProgramRequestsPage(props: NextPageParams<'event'>) {
-    const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
-    const unfilteredLeaders = await db.selectFrom(tUsersEvents)
+    const leaders = await db.selectFrom(tUsersEvents)
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tUsers)
@@ -24,19 +23,12 @@ export default async function ProgramRequestsPage(props: NextPageParams<'event'>
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
-        .select({
-            username: tUsers.name,
-            privileges: tUsers.privileges,
-        })
+        .selectOneColumn(tUsers.name)
         .orderBy(tUsers.firstName, 'asc')
             .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();
 
-    const filteredLeaders = unfilteredLeaders.filter(({ privileges }) =>
-        can(expand(privileges), Privilege.EventRequestOwnership));
-
-    const leaders = filteredLeaders.map(({ username }) => username);
-    const readOnly = !leaders.includes(`${user.firstName} ${user.lastName}`);
+    const readOnly = !access.can('event.requests', { event: event.slug });
 
     const teams = await db.selectFrom(tEventsTeams)
         .innerJoin(tTeams)

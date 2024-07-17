@@ -4,7 +4,6 @@
 import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege } from '@lib/auth/Privileges';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { Section } from '@app/admin/components/Section';
 import { VendorSchedule } from './VendorSchedule';
@@ -20,11 +19,22 @@ import db, { tVendors, tVendorsSchedule } from '@lib/database';
  * visitors are safe, and any incidents are taken care of.
  */
 export default async function EventTeamFirstAidPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team } = await verifyAccessAndFetchPageInfo(
-        props.params, Privilege.EventSupportingTeams);
+    const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.vendors',
+        operation: 'read',
+        options: {
+            event: props.params.event,
+            team: props.params.team,
+        },
+    });
 
     if (!team.managesFirstAid)
         notFound();
+
+    const canUpdateVendors = access.can('event.vendors', 'update', {
+        event: props.params.event,
+        team: props.params.team,
+    });
 
     const roleSetting = await readSetting('vendor-first-aid-roles') ?? 'First Aid';
     const roles = roleSetting.split(',').map(role => role.trim());
@@ -62,12 +72,13 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'event
                     to know their full name in order to issue a valid ticket, and optionally their
                     t-shirt preferences when it is appropriate to grant one.
                 </SectionIntroduction>
-                <VendorTable event={event.slug} team={VendorTeam.FirstAid} roles={roles} />
+                <VendorTable event={event.slug} team={VendorTeam.FirstAid}
+                             readOnly={!canUpdateVendors} roles={roles} />
             </Section>
             { !!schedule.length &&
                 <Section noHeader>
                     <VendorSchedule event={event} team={VendorTeam.FirstAid} roles={roles}
-                                    schedule={schedule} />
+                                    readOnly={!canUpdateVendors} schedule={schedule} />
                 </Section> }
         </>
     );

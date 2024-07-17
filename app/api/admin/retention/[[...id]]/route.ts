@@ -140,7 +140,14 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: context.event,
-                    privilege: Privilege.EventRetentionManagement,
+
+                    permission: {
+                        permission: 'event.retention',
+                        options: {
+                            event: context.event,
+                            team: context.team,
+                        },
+                    },
                 });
 
                 break;

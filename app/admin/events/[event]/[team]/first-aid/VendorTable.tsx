@@ -22,6 +22,11 @@ interface VendorTableProps {
     team: VendorTeam;
 
     /**
+     * Whether the vendor information should be in read only mode.
+     */
+    readOnly?: boolean;
+
+    /**
      * Roles that can be assigned to each of the vendors.
      */
     roles: string[];
@@ -61,13 +66,6 @@ export function VendorTable(props: VendorTableProps) {
 
     const columns: RemoteDataTableColumn<VendorRowModel>[] = [
         {
-            field: 'id',
-            headerName: 'ID',
-            sortable: false,
-            editable: false,
-            width: 50,
-        },
-        {
             field: 'firstName',
             headerName: 'First name',
             editable: true,
@@ -100,9 +98,20 @@ export function VendorTable(props: VendorTableProps) {
         ...teamSpecificColumns,
     ];
 
+    if (!props.readOnly) {
+        columns.unshift({
+            field: 'id',
+            headerName: /* empty= */ '',
+            sortable: false,
+            editable: false,
+            width: 50,
+        });
+    }
+
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/vendors" context={context}
-                         enableCreate enableDelete enableUpdate refreshOnUpdate
+                         enableCreate={!props.readOnly} enableDelete={!props.readOnly}
+                         enableUpdate={!props.readOnly} refreshOnUpdate
                          defaultSort={{ field: 'firstName', sort: 'asc' }} disableFooter />
     );
 }

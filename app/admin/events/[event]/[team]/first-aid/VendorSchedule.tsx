@@ -70,6 +70,11 @@ interface VendorScheduleProps {
     team: VendorTeam;
 
     /**
+     * Whether the vendor schedule should be in read only mode.
+     */
+    readOnly?: boolean;
+
+    /**
      * The roles, in order of them being displayed in the schedule.
      */
     roles: string[];
@@ -85,7 +90,7 @@ interface VendorScheduleProps {
  * team during the selected event. The vendors are grouped by role.
  */
 export function VendorSchedule(props: VendorScheduleProps) {
-    const { event, team, roles, schedule } = props;
+    const { event, team, readOnly, roles, schedule } = props;
 
     // ---------------------------------------------------------------------------------------------
     // Prepare the events
@@ -215,7 +220,7 @@ export function VendorSchedule(props: VendorScheduleProps) {
                     <Schedule min={min} max={max} displayTimezone={event.timezone}
                               resources={resources} eventDefaults={eventDefaults}
                               eventOverlap={false} events={events} markers={markers}
-                              onChange={handleChange} subject="shift" />
+                              readOnly={readOnly} onChange={handleChange} subject="shift" />
                 </Box>
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ m: 2 }} />
             </Stack>

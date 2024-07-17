@@ -36,6 +36,39 @@ export const kPermissions = {
         type: 'crud',
     },
 
+    'event.requests': {
+        name: 'Program request management',
+        description:
+            'This permission describes whether they have the ability to manage incoming program ' +
+            'requests set in AnPlan. Doing so requires collaboration across the broader AnimeCon ' +
+            'organisation.',
+        requireEvent: true,
+        type: 'boolean',
+    },
+
+    'event.retention': {
+        name: 'Retention management',
+        description:
+            'This permission grants them access to the ability to help out with retention ' +
+            'management for a particular event and team. It can reveal contact information of ' +
+            'people who helped us out in the past to them.',
+        requireEvent: true,
+        requireTeam: true,
+        type: 'boolean',
+    },
+
+    'event.vendors': {
+        name: 'Vendor team schedules',
+        description:
+            'This permission determines whether the volunteer has the ability to manage vendor ' +
+            'information part of the teams they have access to, for example the first aid and ' +
+            'security teams.',
+        hide: [ 'create', 'delete' ],  // schedules can only be read or updated
+        requireEvent: true,
+        requireTeam: true,
+        type: 'crud',
+    },
+
     'event.visible': {
         name: 'Event visibility',
         description:
@@ -169,11 +202,15 @@ export const kPermissionGroups: Record<string, string[]> = {
     staff: [
         'event.applications:read',
         'event.applications:update',
+        'event.requests',
+        'event.retention',
+        'event.vendors',
         'event.visible',
         'volunteer.avatars',
     ],
     senior: [
         'event.applications:read',
+        'event.vendors:read',
         'event.visible',
         'volunteer.avatars',
     ],
