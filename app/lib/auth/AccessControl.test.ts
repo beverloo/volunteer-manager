@@ -118,7 +118,7 @@ describe('AccessControl', () => {
 
     it('has the ability to expand permission groups', () => {
         const accessControl = new AccessControl({
-            grants: 'admin',
+            grants: 'testgroup',
             revokes: 'test.crud:delete',
         });
 

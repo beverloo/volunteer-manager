@@ -193,9 +193,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event',
         'system',
         'volunteer',
-
-        'test',
     ],
+
     staff: [
         'event.applications:read',
         'event.applications:update',
@@ -205,12 +204,15 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.visible',
         'volunteer.avatars',
     ],
+
     senior: [
         'event.applications:read',
         'event.vendors:read',
         'event.visible',
         'volunteer.avatars',
     ],
+
+    testgroup: [ 'test' ],  // for testing purposes only
 };
 
 // -------------------------------------------------------------------------------------------------
