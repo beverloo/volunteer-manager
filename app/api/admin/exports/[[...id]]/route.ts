@@ -108,9 +108,7 @@ function executeActionCheckForEventAndType(
     executeAccessCheck(authenticationContext, {
         check: 'admin-event',
         event: event.slug,
-        permission: {
-            permission: 'volunteer.export',
-        },
+        permission: 'volunteer.export',
     });
 }
 
@@ -122,9 +120,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
     accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: {
-                permission: 'volunteer.export',
-            },
+            permission: 'volunteer.export',
         });
     },
 

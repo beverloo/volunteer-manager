@@ -24,9 +24,7 @@ import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
 export default async function VolunteersExportDetailsPage(props: NextPageParams<'id'>) {
     const { access, user } = await requireAuthenticationContext({
         check: 'admin',
-        permission: {
-            permission: 'volunteer.export',
-        },
+        permission: 'volunteer.export',
     });
 
     const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();

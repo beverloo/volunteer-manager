@@ -23,9 +23,7 @@ import db, { tEvents } from '@lib/database';
 export default async function VolunteersExportsPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        permission: {
-            permission: 'volunteer.export',
-        },
+        permission: 'volunteer.export',
     });
 
     const events = await db.selectFrom(tEvents)

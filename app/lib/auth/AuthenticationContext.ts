@@ -121,6 +121,7 @@ export async function getAuthenticationContextFromHeaders(headers: Headers)
  * Definition for a permission-based access check.
  */
 export type PermissionAccessCheck =
+    BooleanPermission |
     {
         permission: BooleanPermission;
         options?: Options;
@@ -196,6 +197,9 @@ type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
  * Executes a permission `check` on the given `access` object.
  */
 function checkIndividualPermission(access: AccessControl, check: PermissionAccessCheck): boolean {
+    if (typeof check === 'string')
+        return access.can(check as BooleanPermission);
+
     if ('operation' in check) {
         const permission = check.permission as CRUDPermission;
         if (access.can(permission, check.operation, check.options))
@@ -217,7 +221,7 @@ function checkIndividualPermission(access: AccessControl, check: PermissionAcces
 export function checkPermission(
     access: AccessControl, permission: PermissionAccessCheck | PermissionSet): boolean
 {
-    if ('type' in permission) {
+    if (typeof permission !== 'string' && 'type' in permission) {
         let count = 0;
         for (const individualPermission of permission.checks)
             count += checkIndividualPermission(access, individualPermission) ? 1 : 0;
