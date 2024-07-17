@@ -15,7 +15,7 @@ type Context = { event: string; team: string; };
 export async function validateContext(context: Context) {
     const result = await db.selectFrom(tEvents)
         .innerJoin(tTeams)
-            .on(tTeams.teamEnvironment.equals(context.team))
+            .on(tTeams.teamSlug.equals(context.team))
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.teamId.equals(tTeams.teamId))
                 .and(tEventsTeams.enableTeam.equals(/* true= */ 1))

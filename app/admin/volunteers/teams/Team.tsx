@@ -66,9 +66,9 @@ interface TeamProps {
      */
     team: {
         /**
-         * Name of the environment (domain name) that this team represents.
+         * Unique slug that identifies this team in URLs.
          */
-        teamEnvironment: string;
+        teamSlug: string;
 
         /**
          * The roles that exist for this team.
@@ -168,7 +168,7 @@ export function Team(props: TeamProps) {
             <Typography variant="h5" sx={{ mb: 2 }}>
                 {team.teamName.replace(/s$/, '')} team
                 <Typography component="span" variant="h5" color="action.active" sx={{ pl: 1 }}>
-                    ({team.teamEnvironment})
+                    ({team.teamSlug})
                 </Typography>
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>

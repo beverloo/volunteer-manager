@@ -124,7 +124,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             .and(tEvents.eventSlug.equals(request.event))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
-            .and(tTeams.teamEnvironment.equals(request.team))
+            .and(tTeams.teamSlug.equals(request.team))
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(request.userId))
         .where(tEventsTeams.enableTeam.equals(/* true= */ 1))

@@ -191,7 +191,7 @@ async function getRecentChanges(eventId: number) {
         .select({
             userId: tUsersEvents.userId,
             name: tUsers.firstName,
-            team: tTeams.teamEnvironment,
+            team: tTeams.teamSlug,
             teamName: tTeams.teamName,
             status: tUsersEvents.registrationStatus,
 
@@ -323,7 +323,7 @@ async function getRecentVolunteers(eventId: number) {
         .select({
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,
-            teamEnvironment: tTeams.teamEnvironment,
+            team: tTeams.teamSlug,
             name: tUsers.name,
             status: tUsersEvents.registrationStatus,
         })
@@ -358,7 +358,7 @@ async function getSeniorVolunteers(eventId: number) {
         .select({
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,
-            teamEnvironment: tTeams.teamEnvironment,
+            team: tTeams.teamSlug,
             name: tUsers.name,
             status: tUsersEvents.registrationStatus,
         })

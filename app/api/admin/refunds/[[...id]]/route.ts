@@ -119,7 +119,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
             .select({
                 id: tRefunds.userId,
                 name: tUsers.name,
-                team: tTeams.teamEnvironment,
+                team: tTeams.teamSlug,
                 ticketNumber: tRefunds.refundTicketNumber,
                 accountIban: tRefunds.refundAccountIban,
                 accountName: tRefunds.refundAccountName,

@@ -125,7 +125,7 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
                 userId: tUsersEvents.userId,
 
                 name: tUsers.name,
-                team: tTeams.teamEnvironment,
+                team: tTeams.teamSlug,
 
                 preferenceTrainingId: trainingsAssignmentsJoin.preferenceTrainingId,
                 preferenceUpdated: trainingsAssignmentsJoin.preferenceUpdated,

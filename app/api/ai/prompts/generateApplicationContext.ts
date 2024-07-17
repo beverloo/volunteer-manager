@@ -84,7 +84,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             .and(tEvents.eventSlug.equals(event))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .and(tTeams.teamEnvironment.equals(team))
+            .and(tTeams.teamSlug.equals(team))
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
             .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))
@@ -94,7 +94,7 @@ export async function generateApplicationContext(userId: number, event: string, 
             firstName: tUsers.firstName,
             teamName: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
-            team: tTeams.teamEnvironment,
+            team: tTeams.teamSlug,
             whatsappLink: tEventsTeams.whatsappLink,
         })
         .executeSelectOne();

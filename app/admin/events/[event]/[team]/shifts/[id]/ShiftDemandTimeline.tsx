@@ -32,9 +32,9 @@ export interface ShiftDemandTeamInfo {
     plural: string;
 
     /**
-     * Environment that the shift is serviced by.
+     * Unique slug that identifies this team in a URL.
      */
-    environment: string;
+    slug: string;
 }
 
 /**

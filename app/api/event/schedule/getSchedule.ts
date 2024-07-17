@@ -417,7 +417,7 @@ async function populateVolunteers(
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .where(tUsersEvents.eventId.equals(eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
-            .and(tTeams.teamEnvironment.equalsIfValue(team).ignoreWhen(isLeader))
+            .and(tTeams.teamSlug.equalsIfValue(team).ignoreWhen(isLeader))
         .select({
             id: tUsers.userId,
             user: {

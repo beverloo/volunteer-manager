@@ -33,14 +33,14 @@ export interface TeamInfo {
     colour: string;
 
     /**
-     * Environment of the team, as they're identified in URLs.
-     */
-    environment: string;
-
-    /**
      * Name of the team, as they should be labelled.
      */
     name: string;
+
+    /**
+     * Unique slug that identifies this team in URLs.
+     */
+    slug: string;
 }
 
 /**
@@ -186,7 +186,7 @@ export function RequestDataTable(props: RequestDataTableProps) {
                 const shifts = params.row.shifts[`${team.id}`];
                 if (shifts.length === 1) {
                     const href =
-                        `/admin/events/${props.event}/${team.environment}/shifts/${shifts[0]}`;
+                        `/admin/events/${props.event}/${team.slug}/shifts/${shifts[0]}`;
 
                     return (
                         <Tooltip title="One shift has been scheduled">

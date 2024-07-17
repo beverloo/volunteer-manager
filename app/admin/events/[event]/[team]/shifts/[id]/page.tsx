@@ -44,7 +44,7 @@ function demandToTimelineEvents(
 
             for (const { start, end, volunteers } of demand) {
                 timelineEvents.push({
-                    id: `${team.environment}/${timelineEvents.length}`,
+                    id: `${team.slug}/${timelineEvents.length}`,
                     start, end, editable,
                     color: team.colour,
                     title: `${volunteers} ${volunteers === 1 ? label.singular : label.plural}`,
@@ -152,7 +152,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
                 team: {
                     colour: tTeams.teamColourLightTheme,
                     plural: tTeams.teamPlural,
-                    environment: tTeams.teamEnvironment,
+                    slug: tTeams.teamSlug,
                 },
             })
             .executeSelectMany();
@@ -189,7 +189,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
             title: tUsers.name,
 
             // Internal information to provide filtering and linkification capabilities:
-            animeConTeam: tTeams.teamEnvironment,
+            animeConTeam: tTeams.teamSlug,
             animeConTeamId: tTeams.teamId,
             animeConUserId: tUsers.userId,
         })
@@ -211,7 +211,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
         <>
             <Section title={`${shift.name} shift`} subtitle={team.name}>
                 <ShiftSettingsSection activities={activities} categories={categories}
-                                      context={{ event: event.slug, team: team.environment }}
+                                      context={{ event: event.slug, team: team.slug }}
                                       locations={locations} readOnly={readOnly} shift={shift} />
             </Section>
             <ShiftTeamVisibilityContext includeAllTeams={includeAllTeams}>

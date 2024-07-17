@@ -66,7 +66,7 @@ export async function generateUpdatedTeamContext(userId: number, event: string, 
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.teamId.equals(tTeams.teamId))
             .and(tEventsTeams.eventId.equals(tEvents.eventId))
-        .where(tTeams.teamEnvironment.equals(team))
+        .where(tTeams.teamSlug.equals(team))
         .select({
             event: db.const(event, 'string'),
             teamName: tTeams.teamTitle,

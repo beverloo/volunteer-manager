@@ -85,7 +85,6 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 id: teamsJoin.teamId,
                 name: teamsJoin.teamName,
                 slug: teamsJoin.teamSlug,
-                environment: teamsJoin.teamEnvironment,
                 color: teamsJoin.teamColourLightTheme,
                 managesFaq: teamsJoin.teamManagesFaq.equals(/* true= */ 1),
                 managesFirstAid: teamsJoin.teamManagesFirstAid.equals(/* true= */ 1),
@@ -177,8 +176,6 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         if (can(user, Privilege.EventTrainingManagement))
             trainingsBadge = badgeValues?.unconfirmedTrainings;
     }
-
-    const eventPermissionOptions = { event };
 
     // Only display the "Program" entry when an event has been associated with a Festival ID. This
     // is how AnPlan maps the events, and we rely on the key to import information.

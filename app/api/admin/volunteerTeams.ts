@@ -132,7 +132,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
             teamId: tTeams.teamId,
             teamColour: tTeams.teamColourLightTheme,
             teamName: tTeams.teamName,
-            teamSlug: tTeams.teamEnvironment,
+            teamSlug: tTeams.teamSlug,
             teamDefaultRole: tTeamsRoles.roleId,
             status: usersEventsJoin.registrationStatus,
         })

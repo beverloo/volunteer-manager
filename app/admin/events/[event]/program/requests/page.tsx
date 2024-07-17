@@ -46,8 +46,8 @@ export default async function ProgramRequestsPage(props: NextPageParams<'event'>
         .select({
             id: tTeams.teamId,
             colour: tTeams.teamColourLightTheme,
-            environment: tTeams.teamEnvironment,
             name: tTeams.teamTitle,
+            slug: tTeams.teamSlug,
         })
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();

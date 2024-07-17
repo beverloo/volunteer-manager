@@ -34,12 +34,12 @@ interface Shift {
     name: string;
 
     /**
-     * Unique ID, environment and name of the team that this shift has been created for.
+     * Unique ID, name and slug of the team that this shift has been created for.
      */
     team: {
         id: number;
-        environment: string;
         name: string;
+        slug: string;
     }
 
     /**
@@ -138,8 +138,8 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
             name: tShifts.shiftName,
             team: {
                 id: tTeams.teamId,
-                environment: tTeams.teamEnvironment,
                 name: tTeams.teamName,
+                slug: tTeams.teamSlug,
             },
             activity: {
                 id: activitiesJoin.activityId,

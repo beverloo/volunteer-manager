@@ -115,7 +115,7 @@ async function getEventAndTeamId(context: RetentionContext) {
     const event = await getEventBySlug(context.event);
     const teamId = await db.selectFrom(tTeams)
         .selectOneColumn(tTeams.teamId)
-        .where(tTeams.teamEnvironment.equals(context.team))
+        .where(tTeams.teamSlug.equals(context.team))
         .executeSelectNoneOrOne();
 
     if (!event || !teamId)
@@ -200,8 +200,8 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                     name: tEvents.eventShortName,
                 }),
                 registrationStatus: dbInstance.aggregateAsArray({
-                    team: teamsJoin.teamEnvironment,
                     status: usersEventsJoin.registrationStatus,
+                    team: teamsJoin.teamSlug,
                 }),
                 retentionStatus: retentionJoin.retentionStatus,
                 retentionAssigneeName: usersJoin.name,

@@ -178,7 +178,7 @@ export const { GET } = createDataTableApi(kProgramChangeRowModel, kProgramChange
                 // User information:
                 userId: tActivitiesLogs.mutationUserId,
                 userName: usersJoin.name,
-                userTeam: teamsJoin.teamEnvironment,
+                userTeam: teamsJoin.teamSlug,
             })
             .orderBy(sortingKey ?? 'date', sort?.sort ?? 'desc')
                 .orderBy('areaId', 'asc nulls last')

@@ -43,9 +43,9 @@ export default async function VolunteersTeamsPage() {
             teamName: tTeams.teamName,
             teamTitle: tTeams.teamTitle,
             teamDescription: tTeams.teamDescription,
-            teamEnvironment: tTeams.teamEnvironment,
             teamColourDarkTheme: tTeams.teamColourDarkTheme,
             teamColourLightTheme: tTeams.teamColourLightTheme,
+            teamSlug: tTeams.teamSlug,
             roles: dbInstance.aggregateAsArray({
                 roleId: teamsRolesJoin.roleId,
                 roleDefault: teamsRolesJoin.roleDefault.equals(/* true= */ 1)

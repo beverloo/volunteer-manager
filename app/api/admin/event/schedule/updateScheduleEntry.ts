@@ -109,7 +109,7 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
         .select({
             id: tUsersEvents.userId,
 
-            teamSlug: tTeams.teamEnvironment,
+            teamSlug: tTeams.teamSlug,
 
             availabilityExceptions: tUsersEvents.availabilityExceptions,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,

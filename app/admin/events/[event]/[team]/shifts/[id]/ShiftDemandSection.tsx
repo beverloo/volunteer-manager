@@ -96,7 +96,7 @@ export function ShiftDemandSection(props: ShiftDemandSectionProps) {
             const result = await callApi('put', '/api/admin/event/shifts/:id', {
                 context: {
                     event: event.slug,
-                    team: team.environment,
+                    team: team.slug,
                 },
                 id: props.shiftId,
                 row: {

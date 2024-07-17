@@ -36,9 +36,9 @@ export interface EventRecentVolunteersProps {
         avatarHash?: string;
 
         /**
-         * Environment name of the team that they're part of, for the URL.
+         * Unique slug identifying the team that they're part of.
          */
-        teamEnvironment: string;
+        team: string;
 
         /**
          * Full name of the volunteer that applied.
@@ -60,7 +60,7 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
     return (
         <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
             { volunteers.map((volunteer, index) => {
-                const linkBase = `/admin/events/${event.slug}/${volunteer.teamEnvironment}`;
+                const linkBase = `/admin/events/${event.slug}/${volunteer.team}`;
 
                 let link: string = '/applications';
                 switch (volunteer.status) {

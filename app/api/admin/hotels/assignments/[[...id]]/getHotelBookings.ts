@@ -38,7 +38,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
                 usersJoin.name),
 
             userId: tHotelsAssignments.assignmentUserId,
-            team: teamsJoin.teamEnvironment,
+            team: teamsJoin.teamSlug,
         })
         .orderBy(tHotelsAssignments.assignmentPrimary, 'desc')
             .orderBy('name', 'asc')

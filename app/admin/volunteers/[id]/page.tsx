@@ -86,7 +86,7 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             status: tUsersEvents.registrationStatus,
             role: tRoles.roleName,
             team: tTeams.teamName,
-            teamSlug: tTeams.teamEnvironment,
+            teamSlug: tTeams.teamSlug,
             teamDarkThemeColour: tTeams.teamColourDarkTheme,
             teamLightThemeColour: tTeams.teamColourLightTheme,
         })

@@ -129,7 +129,7 @@ export class HotelProcessor {
             .select({
                 userId: tHotelsPreferences.userId,
                 name: tUsers.name,
-                team: tTeams.teamEnvironment,
+                team: tTeams.teamSlug,
                 hotelId: tHotelsPreferences.hotelId,
                 checkIn: tHotelsPreferences.hotelDateCheckIn,
                 checkOut: tHotelsPreferences.hotelDateCheckOut,
