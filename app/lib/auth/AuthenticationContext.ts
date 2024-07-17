@@ -7,7 +7,7 @@ import type { AccessOperation } from '@lib/auth/AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { SessionData } from './Session';
 import type { User } from './User';
-import { AccessControl, type Options } from './AccessControl';
+import { AccessControl, kAnyTeam, type Options } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
 import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
@@ -168,9 +168,10 @@ type AuthenticationAccessCheckTypes =
     /**
      * Access to the administrative area for a particular event. This is the case when either:
      *   (1) The user has the Administrator privilege,
-     *   (2) The user has admin access to the given `event`, which must be active.
+     *   (2) The user has admin access to the given `event`, which must be a slug.
+     *   (3) Optionally, the user has admin access to the given `team`, which must be a slug.
      */
-    { check: 'admin-event', event: string } |
+    { check: 'admin-event', event: string, team?: string } |
 
     /**
      * Access to the schedule for a particular event. This is the case when either:
@@ -287,11 +288,11 @@ export function executeAccessCheck(
                 break;
 
             case 'admin-event':
-                if (!can(context.user, Privilege.EventAdministrator)) {
-                    const eventAccess = context.events.get(access.event);
-                    if (!eventAccess || !eventAccess.admin)
-                        notFound();
-                }
+                context.access.require('event.visible', {
+                    event: access.event,
+                    team: access.team ?? kAnyTeam
+                });
+
                 break;
 
             case 'event':

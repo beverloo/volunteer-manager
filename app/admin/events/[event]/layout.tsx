@@ -254,6 +254,9 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             team: team.slug,
         };
 
+        if (!access.can('event.visible', teamPermissionOptions))
+            continue;  // the volunteer does not have access to this team
+
         const knowledgeEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
         if (team.managesFaq) {
             knowledgeEntry.push({

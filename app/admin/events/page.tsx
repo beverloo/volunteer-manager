@@ -8,7 +8,9 @@ import { EventCreate } from './EventCreate';
 import { EventList } from './EventList';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEvents, tEventsTeams, tTeams } from '@lib/database';
+
+import { kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
  * The <EventsPage> component displays an overview of the available events within the portal, even
@@ -16,20 +18,13 @@ import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from '@lib/da
  * events. Events cannot be removed through the portal, although they can be hidden.
  */
 export default async function EventsPage() {
-    const { user } = await requireAuthenticationContext({ check: 'admin' });
+    const { access, user } = await requireAuthenticationContext({ check: 'admin' });
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
-    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
-    const rolesJoin = tRoles.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
 
     const dbInstance = db;
     const unfilteredEvents = await dbInstance.selectFrom(tEvents)
-        .leftJoin(usersEventsJoin)
-            .on(usersEventsJoin.eventId.equals(tEvents.eventId))
-            .and(usersEventsJoin.userId.equals(user.userId))
-        .leftJoin(rolesJoin)
-            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(eventsTeamsJoin)
             .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
         .leftJoin(teamsJoin)
@@ -47,10 +42,6 @@ export default async function EventsPage() {
                 dark: teamsJoin.teamColourDarkTheme,
                 light: teamsJoin.teamColourLightTheme,
             }),
-
-            // For internal use:
-            userAdminAccess: rolesJoin.roleAdminAccess,
-            userRegistrationStatus: usersEventsJoin.registrationStatus,
         })
         .groupBy(tEvents.eventId)
         .orderBy(tEvents.eventStartTime, 'desc')
@@ -58,7 +49,10 @@ export default async function EventsPage() {
 
     const eventAdministrator = can(user, Privilege.EventAdministrator);
     const filteredEvents = unfilteredEvents.filter(event => {
-        return eventAdministrator || !event.hidden;
+        return access.can('event.visible', {
+            event: event.slug,
+            team: kAnyTeam,
+        });
     });
 
     return (

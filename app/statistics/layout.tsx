@@ -32,7 +32,7 @@ export default async function StatisticsLayout(props: StatisticsLayoutProps) {
     if (!environment)
         notFound();
 
-    const events = await getHeaderEventsForUser(authenticationContext.user);
+    const events = await getHeaderEventsForUser(authenticationContext.access);
 
     return (
         <RegistrationLayout environment={environment}>

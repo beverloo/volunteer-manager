@@ -81,9 +81,10 @@ export type EventDeadlinesRowModel = z.infer<typeof kEventDeadlineRowModel>;
  */
 export const { GET, DELETE, POST, PUT } =
 createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
-    async accessCheck(request, action, props) {
+    async accessCheck({ context }, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
+            event: context.event,
             privilege: Privilege.EventAdministrator,
         });
     },

@@ -216,6 +216,8 @@ export async function verifyAccessAndFetchPageInfo(
     const { access, user } = await requireAuthenticationContext({
         check: 'admin-event',
         event: params.event,
+        team: params.team,
+
         permission,
         privilege,
     });
