@@ -183,7 +183,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
 
     const { subject, message } = request.update;
     if (!subject || !message || /* null check= */ !props.user) {
-        if (!can(props.user, Privilege.VolunteerSilentMutations))
+        if (!props.access.can('volunteer.silent'))
             noAccess();
 
     } else {

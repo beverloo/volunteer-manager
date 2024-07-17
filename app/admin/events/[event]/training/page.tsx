@@ -7,7 +7,7 @@ import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
-import { Privilege, can } from '@lib/auth/Privileges';
+import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { TrainingAssignments } from './TrainingAssignments';
@@ -22,7 +22,7 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
     tUsers } from '@lib/database';
 
 export default async function EventTrainingPage(props: NextPageParams<'event'>) {
-    const { event, user } = await verifyAccessAndFetchPageInfo(
+    const { access, event } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventTrainingManagement);
 
     if (!event.trainingEnabled)
@@ -198,7 +198,7 @@ export default async function EventTrainingPage(props: NextPageParams<'event'>) 
     const trainingOptions = processor.compileTrainingOptions();
     const warnings = processor.compileWarnings();
 
-    const enableExport = can(user, Privilege.VolunteerDataExports);
+    const enableExport = access.can('volunteer.export');
 
     return (
         <>

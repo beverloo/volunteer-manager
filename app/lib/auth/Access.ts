@@ -50,7 +50,7 @@ export const kPermissions = {
     // ---------------------------------------------------------------------------------------------
 
     'system.logs': {
-        name: 'Logs access',
+        name: 'Volunteer Manager logs',
         description:
             'This permission determines whether the volunteer is able to access system logs. The ' +
             'logs contain all account activity, actions and changes that are made in the ' +
@@ -64,6 +64,24 @@ export const kPermissions = {
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'volunteer.avatars': {
+        name: 'Avatar management',
+        description:
+            'This permission controls whether they have the ability to manage avatars of other ' +
+            'volunteers, i.e. update new photos or delete existing ones.',
+        type: 'boolean',
+    },
+
+    'volunteer.export': {
+        name: 'Export volunteering information',
+        description:
+            'This description controls whether they have the ability to export portions of ' +
+            'volunteering information for purposes of sharing this with a third party. All our ' +
+            'data export mechanisms are GDPR compatible.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'volunteer.permissions': {
         name: 'Volunteer account permissions',
         description:
@@ -72,6 +90,15 @@ export const kPermissions = {
             'to manage their own permissions as well.',
         hide: [ 'create', 'delete' ],  // all mutations are considered updates
         type: 'crud',
+        warning: true,
+    },
+
+    'volunteer.silent': {
+        name: 'Silent mutations',
+        description:
+            'This permission controls whether they have the ability to make significant changes ' +
+            'to someone\'s participation in an event without having to send them a message.',
+        type: 'boolean',
         warning: true,
     },
 
@@ -143,10 +170,12 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.applications:read',
         'event.applications:update',
         'event.visible',
+        'volunteer.avatars',
     ],
     senior: [
         'event.applications:read',
         'event.visible',
+        'volunteer.avatars',
     ],
 };
 

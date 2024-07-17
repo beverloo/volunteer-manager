@@ -332,6 +332,11 @@ interface VolunteerHeaderProps {
     canUpdateApplications: boolean;
 
     /**
+     * Whether the signed in volunteer is able to make silent changes to their participation.
+     */
+    canUpdateWithoutNotification: boolean;
+
+    /**
      * Information about the event this volunteer will participate in.
      */
     event: PageInfoWithTeam['event'];
@@ -384,6 +389,8 @@ interface VolunteerHeaderProps {
 export function VolunteerHeader(props: VolunteerHeaderProps) {
     const { canUpdateApplications, event, team, volunteer, user } = props;
 
+    const allowSilent = props.canUpdateWithoutNotification;
+
     const router = useRouter();
     const showOptions =
         can(user, Privilege.EventAdministrator) ||
@@ -393,8 +400,6 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
     // ---------------------------------------------------------------------------------------------
     // Common (cancel & reinstate participation)
     // ---------------------------------------------------------------------------------------------
-
-    const allowSilent = can(user, Privilege.VolunteerSilentMutations);
 
     const handleDecided = useCallback(
         async (status: RegistrationStatus, subject?: string, message?: string) => {

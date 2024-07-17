@@ -5,7 +5,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
 import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles,
@@ -17,7 +16,7 @@ import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, t
  * who have event administrator permission can "import" any volunteer into this event.
  */
 export default async function VolunteersPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const dbInstance = db;
 
@@ -178,7 +177,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
     // Step (5): Actually display the page \o/
     // ---------------------------------------------------------------------------------------------
 
-    const enableExport = can(user, Privilege.VolunteerDataExports);
+    const enableExport = access.can('volunteer.export');
 
     return (
         <>

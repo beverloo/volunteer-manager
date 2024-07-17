@@ -752,6 +752,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (!event || !event.festivalId)
         notFound();
 
+    const { access } = props;
+
     let isLeader: boolean = can(props.user, Privilege.EventAdministrator);
     let team: string | undefined;
 
@@ -789,7 +791,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         slug: event.slug,
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
-            enableAvatarManagement: can(props.user, Privilege.VolunteerAvatarManagement),
+            enableAvatarManagement: access.can('volunteer.avatars'),
             enableHelpRequests: can(props.user, Privilege.EventHelpRequests),
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,

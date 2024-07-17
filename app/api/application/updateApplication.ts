@@ -262,7 +262,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
         if (request.status.registrationStatus !== RegistrationStatus.Registered) {
             const { subject, message } = request.status;
             if (!subject || !message) {
-                if (!can(props.user, Privilege.VolunteerSilentMutations))
+                if (!props.access.can('volunteer.silent'))
                     noAccess();
 
             } else {

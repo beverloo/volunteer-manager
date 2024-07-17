@@ -108,19 +108,23 @@ function executeActionCheckForEventAndType(
     executeAccessCheck(authenticationContext, {
         check: 'admin-event',
         event: event.slug,
-        privilege: Privilege.VolunteerDataExports,
+        permission: {
+            permission: 'volunteer.export',
+        },
     });
 }
 
 /**
  * The Export API is implemented as a regular, editable DataTable API. All operations are only
- * available to people with the VolunteerDataExport privilege.
+ * available to people with the appropriate volunteering data export permission.
  */
 export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExportContext, {
     accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.VolunteerDataExports,
+            permission: {
+                permission: 'volunteer.export',
+            },
         });
     },
 

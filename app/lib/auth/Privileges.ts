@@ -43,11 +43,6 @@ export enum Privilege {
     SystemOutboxAccess                  = 1 << 17,
     SystemSubscriptionEligible          = 1 << 28,
     SystemSubscriptionManagement        = 1 << 24,
-
-    // Privileges captured by VolunteerAdministrator:
-    VolunteerAvatarManagement           = 1 << 6,
-    VolunteerDataExports                = 1 << 20,
-    VolunteerSilentMutations            = 1 << 15,
 };
 
 /**
@@ -105,12 +100,6 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.SystemOutboxAccess,
         Privilege.SystemSubscriptionEligible,
         Privilege.SystemSubscriptionManagement,
-    ],
-
-    [Privilege.VolunteerAdministrator]: [
-        Privilege.VolunteerAvatarManagement,
-        Privilege.VolunteerDataExports,
-        Privilege.VolunteerSilentMutations,
     ],
 };
 
@@ -171,9 +160,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.SystemSubscriptionManagement]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
-    [Privilege.VolunteerAvatarManagement]: 'Volunteer access',
-    [Privilege.VolunteerDataExports]: 'Volunteer access',
-    [Privilege.VolunteerSilentMutations]: 'Volunteer access',
 };
 
 /**
@@ -210,9 +196,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.SystemSubscriptionManagement]: 'Subscription management',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
-    [Privilege.VolunteerAvatarManagement]: 'Avatar management',
-    [Privilege.VolunteerDataExports]: 'Data exports',
-    [Privilege.VolunteerSilentMutations]: 'Silent changes',
 };
 
 /**
@@ -225,13 +208,9 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
-    [Privilege.VolunteerAdministrator]: 'Grants all volunteer-related privileges',
 
     [Privilege.EventHelpRequests]: 'Grants access to incoming help requests',
 
     [Privilege.SystemOutboxAccess]: 'Access to all sent messages and their content',
     [Privilege.SystemSubscriptionManagement]: 'Access to modify anyone\'s subscriptions',
-
-    [Privilege.VolunteerDataExports]: 'Allows exporting volunteer PII',
-    [Privilege.VolunteerSilentMutations]: 'Make changes without informing the volunteer',
 };

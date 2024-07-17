@@ -27,7 +27,9 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
         {
             icon: <ShareIcon />,
             label: 'Exports',
-            privilege: Privilege.VolunteerDataExports,
+            permission: {
+                permission: 'volunteer.export',
+            },
             url: '/admin/volunteers/exports',
         },
         {

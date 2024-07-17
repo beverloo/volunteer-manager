@@ -247,10 +247,13 @@ export default async function EventVolunteerPage(props: RouterParams) {
         team: team.slug,
     });
 
+    const canUpdateWithoutNotification = access.can('volunteer.silent');
+
     return (
         <>
-            <VolunteerHeader canUpdateApplications={canUpdateApplications} event={event} team={team}
-                             volunteer={volunteer} user={user} />
+            <VolunteerHeader canUpdateApplications={canUpdateApplications}
+                             canUpdateWithoutNotification={canUpdateWithoutNotification}
+                             event={event} team={team} volunteer={volunteer} user={user} />
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
             <ExpandableSection icon={ <EditNoteIcon color="info" /> } title="Notes"

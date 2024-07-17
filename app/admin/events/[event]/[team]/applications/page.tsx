@@ -86,7 +86,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
 
     // Whether the volunteer can respond to applications without sending communication to the
     // affected volunteer. This is guarded behind a separate permission.
-    const allowSilent = can(user, Privilege.VolunteerSilentMutations);
+    const allowSilent = access.can('volunteer.silent');
 
     // Whether the volunteer can respond to applications depends on their permissions - normal
     // application managers cannot, however, event administrators are allowed to. Similarly, only
