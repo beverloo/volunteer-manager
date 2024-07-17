@@ -126,9 +126,13 @@ export const { DELETE, GET } = createDataTableApi(kLogsRowModel, kLogsContext, {
     },
 
     async delete({ id }) {
-        const affectedRows = await db.deleteFrom(tLogs)
+        const dbInstance = db;
+        const affectedRows = await dbInstance.update(tLogs)
+            .set({
+                logDeleted: dbInstance.currentZonedDateTime(),
+            })
             .where(tLogs.logId.equals(id))
-            .executeDelete();
+            .executeUpdate();
 
         return { success: !!affectedRows };
     },

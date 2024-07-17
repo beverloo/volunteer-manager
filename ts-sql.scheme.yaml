@@ -270,6 +270,11 @@ tables:
     nullable: true
     default: "NULL"
     comment: ""
+  - name: log_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
   indexes:
   - name: log_source_user_id
     def: KEY log_source_user_id (log_source_user_id) USING BTREE
@@ -329,6 +334,7 @@ tables:
       `log_source_user_id` int(8) unsigned DEFAULT NULL,
       `log_target_user_id` int(8) unsigned DEFAULT NULL,
       `log_data` text DEFAULT NULL,
+      `log_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`log_id`),
       KEY `log_target_user_id` (`log_target_user_id`),
       KEY `log_source_user_id` (`log_source_user_id`),

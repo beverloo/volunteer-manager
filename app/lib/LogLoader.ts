@@ -429,8 +429,9 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
         .limitIfValue(params.pagination?.pageSize)
             .offsetIfValue(params.pagination ? params.pagination.page * params.pagination.pageSize
                                              : undefined)
-        .where(tLogs.logSeverity.in(
-            params.severity ?? [ LogSeverity.Info, LogSeverity.Warning, LogSeverity.Error ]));
+        .where(tLogs.logDeleted.isNull())
+            .and(tLogs.logSeverity.in(
+                params.severity ?? [ LogSeverity.Info, LogSeverity.Warning, LogSeverity.Error ]));
 
     if (params.sourceOrTargetUserId) {
         selectQueryBuilder = selectQueryBuilder
