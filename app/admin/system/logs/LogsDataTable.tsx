@@ -20,6 +20,11 @@ import { Temporal, formatDate } from '@lib/Temporal';
  */
 interface LogsDataTableProps {
     /**
+     * Whether the ability to delete log entries should be shown in the user interface.
+     */
+    enableDelete?: boolean;
+
+    /**
      * Filters to apply to the logs selection. Filters are optional, and will be communicated with
      * the server where the actual filtering will take place.
      */
@@ -38,12 +43,22 @@ interface LogsDataTableProps {
  * transform the data and add interaction where applicable.
  */
 export function LogsDataTable(props: LogsDataTableProps) {
-    const { filters, pageSize } = props;
+    const { enableDelete, filters, pageSize } = props;
 
     const localTz = Temporal.Now.timeZoneId();
 
     const context = { v: '1', userId: filters?.sourceOrTargetUserId } as const;
     const columns: RemoteDataTableColumn<LogsRowModel>[] = [
+        {
+            field: 'date',
+            headerName: 'Date',
+            flex: 1,
+
+            renderCell: params =>
+                formatDate(
+                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
+                    'YYYY-MM-DD HH:mm:ss'),
+        },
         {
             field: 'severity',
             display: 'flex',
@@ -65,16 +80,6 @@ export function LogsDataTable(props: LogsDataTableProps) {
 
                 return params.value;
             },
-        },
-        {
-            field: 'date',
-            headerName: 'Date',
-            flex: 1,
-
-            renderCell: params =>
-                formatDate(
-                    Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
-                    'YYYY-MM-DD HH:mm:ss'),
         },
         {
             field: 'message',
@@ -116,7 +121,18 @@ export function LogsDataTable(props: LogsDataTableProps) {
         },
     ];
 
+    if (enableDelete) {
+        columns.unshift({
+            field: 'id',
+            headerName: '',
+            editable: false,
+            sortable: false,
+            width: 50,
+        });
+    }
+
     return <RemoteDataTable columns={columns} endpoint="/api/admin/logs" context={context}
                             defaultSort={{ field: 'date', sort: 'desc' }}
+                            enableDelete={enableDelete} subject="log entry"
                             pageSize={ pageSize ?? 50 } />;
 }

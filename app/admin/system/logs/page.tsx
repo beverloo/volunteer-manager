@@ -7,7 +7,6 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { LogsDataTable } from './LogsDataTable';
-import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -16,9 +15,12 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * however they will be streamed by the server to deal with ~infinitely large data sets.
  */
 export default async function LogsPage() {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemLogsAccess,
+        permission: {
+            permission: 'system.logs',
+            operation: 'read',
+        },
     });
 
     return (
@@ -26,7 +28,7 @@ export default async function LogsPage() {
             <Typography variant="h5" sx={{ pb: 2 }}>
                 Logs
             </Typography>
-            <LogsDataTable />
+            <LogsDataTable enableDelete={ access.can('system.logs', 'delete') } />
         </Paper>
     );
 }

@@ -127,7 +127,7 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
             { !!participation.length &&
                 <Participation participation={participation} userId={account.userId} /> }
 
-            { can(user, Privilege.SystemLogsAccess) &&
+            { access.can('system.logs', 'read') &&
                 <Paper sx={{ p: 2 }}>
                     <Typography variant="h5" sx={{ pb: 1 }}>
                         Logs

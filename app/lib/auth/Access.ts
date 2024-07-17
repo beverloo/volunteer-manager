@@ -46,6 +46,21 @@ export const kPermissions = {
     },
 
     // ---------------------------------------------------------------------------------------------
+    // System-associated permissions
+    // ---------------------------------------------------------------------------------------------
+
+    'system.logs': {
+        name: 'Logs access',
+        description:
+            'This permission determines whether the volunteer is able to access system logs. The ' +
+            'logs contain all account activity, actions and changes that are made in the ' +
+            'Volunteer Manager, without exception.',
+        hide: [ 'create', 'update' ],  // logs generally should be read-only, but can be deleted
+        type: 'crud',
+        warning: true,
+    },
+
+    // ---------------------------------------------------------------------------------------------
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
@@ -116,7 +131,9 @@ export const kPermissionGroups: Record<string, string[]> = {
         'admin',  // reflection
 
         'event',
+        'system',
         'volunteer',
+
         'test',
     ],
     everyone: [

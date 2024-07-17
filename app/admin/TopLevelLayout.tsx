@@ -54,7 +54,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         },
         {
             divider: true,
-            privilege: [ Privilege.SystemAdministrator, Privilege.SystemLogsAccess ],
+            privilege: [
+                Privilege.SystemAiAccess,
+                Privilege.SystemDisplayAccess,
+                Privilege.SystemOutboxAccess,
+                Privilege.SystemSubscriptionManagement
+            ],
         },
         {
             icon: <ChatBubbleOutlineIcon />,
@@ -97,7 +102,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             privilege: [
                 Privilege.SystemAiAccess,
                 Privilege.SystemDisplayAccess,
-                Privilege.SystemLogsAccess,
             ],
 
             defaultOpen: Privilege.SystemAdministrator,
@@ -123,7 +127,10 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <DvrIcon />,
                     label: 'Logs',
-                    privilege: Privilege.SystemLogsAccess,
+                    permission: {
+                        permission: 'system.logs',
+                        operation: 'read',
+                    },
                     url: '/admin/system/logs',
                 },
                 {

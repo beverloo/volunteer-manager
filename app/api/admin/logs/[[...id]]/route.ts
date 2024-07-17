@@ -5,9 +5,9 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { fetchLogs } from '@lib/LogLoader';
+import db, { tLogs } from '@lib/database';
 
 /**
  * Row model for a log message describing an event that happened on the Volunteer Manager.
@@ -94,18 +94,43 @@ export type LogsContext = z.infer<typeof kLogsContext>;
  * implementation:
  *
  *     GET /api/admin/logs
- *     GET /api/admin/logs/:id
+ *     DELETE /api/admin/logs/:id
  */
-export const { GET } = createDataTableApi(kLogsRowModel, kLogsContext, {
+export const { DELETE, GET } = createDataTableApi(kLogsRowModel, kLogsContext, {
     async accessCheck({ context }, action, props) {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin',
-            privilege: Privilege.SystemLogsAccess,
-        });
+        switch (action) {
+            case 'delete':
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin',
+                    permission: {
+                        permission: 'system.logs',
+                        operation: 'delete',
+                    },
+                });
+
+                return;
+
+            case 'list':
+                executeAccessCheck(props.authenticationContext, {
+                    check: 'admin',
+                    permission: {
+                        permission: 'system.logs',
+                        operation: 'read',
+                    },
+                });
+
+                return;
+        }
+
+        throw new Error(`Unexpected action on the logs endpoint: "${action}".`);
     },
 
-    async get({ context, id }) {
-        return { success: false, error: 'Not yet implemented.' };
+    async delete({ id }) {
+        const affectedRows = await db.deleteFrom(tLogs)
+            .where(tLogs.logId.equals(id))
+            .executeDelete();
+
+        return { success: !!affectedRows };
     },
 
     async list({ context, pagination, sort }) {
