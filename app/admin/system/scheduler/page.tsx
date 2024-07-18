@@ -15,7 +15,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function SchedulerPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.scheduler',
     });
 
     return (

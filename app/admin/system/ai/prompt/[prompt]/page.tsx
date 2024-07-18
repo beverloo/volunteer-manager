@@ -19,7 +19,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.ai',
+        permission: 'system.internals.ai',
     });
 
     const personality = await readSetting('gen-ai-personality') ?? '';

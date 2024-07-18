@@ -67,7 +67,7 @@ async function debugAction(formData: unknown) {
 export default async function DebugPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals',
     });
 
     const debugValues: Record<string, any> = {};

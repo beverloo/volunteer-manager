@@ -67,7 +67,7 @@ type Response = ApiResponse<typeof kScheduleTaskDefinition>;
 export async function scheduleTask(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.scheduler',
     });
 
     if ('taskId' in request) {

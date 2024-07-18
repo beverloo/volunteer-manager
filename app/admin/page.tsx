@@ -9,7 +9,6 @@ import type { SchedulerStatus } from './dashboard/SchedulerCard';
 import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -82,7 +81,7 @@ async function fetchBirthdays(user: User) {
  * give an overview of what's going on. Exact cards depend on the user's access level.
  */
 export default async function AdminPage() {
-    const { events, user } = await requireAuthenticationContext({ check: 'admin' });
+    const { access, events, user } = await requireAuthenticationContext({ check: 'admin' });
 
     // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);
@@ -90,7 +89,7 @@ export default async function AdminPage() {
     const connectionPool = getConnectionPool();
     let databaseStatus: DatabaseStatus | undefined;
 
-    if (can(user, Privilege.SystemAdministrator) && connectionPool) {
+    if (access.can('system.internals') && connectionPool) {
         databaseStatus = {
             connections: {
                 active: connectionPool.activeConnections(),
@@ -102,7 +101,7 @@ export default async function AdminPage() {
     }
 
     let schedulerStatus: SchedulerStatus | undefined;
-    if (can(user, Privilege.SystemAdministrator)) {
+    if (access.can('system.internals.scheduler')) {
         let timeSinceLastExecutionMs: number | undefined = undefined;
         if (globalScheduler.lastExecution !== undefined) {
             const diffNs = process.hrtime.bigint() - globalScheduler.lastExecution;

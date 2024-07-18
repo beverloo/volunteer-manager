@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import Alert from '@mui/material/Alert';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SettingSection, type ConfigurableSetting } from './SettingSection';
 import { readSettings, type Setting } from '@lib/Settings';
@@ -19,7 +18,7 @@ import { SettingUtilitiesSection } from './SettingUtilitiesSection';
 export default async function IntegrationsPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.settings',
     });
 
     // The configuration for settings contains the individual settings, the data types, and the

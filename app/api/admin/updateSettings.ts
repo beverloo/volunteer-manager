@@ -50,7 +50,7 @@ type Response = ApiResponse<typeof kUpdateSettingsDefinition>;
 export async function updateSettings(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.settings',
     });
 
     const settings: { [k: string]: boolean | number | string } = { /* will be composed */ };

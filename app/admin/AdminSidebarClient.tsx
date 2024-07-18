@@ -126,7 +126,7 @@ export interface AdminSidebarMenuSubMenuItem {
     /**
      * Whether the menu should be open by default. Defaults to false.
      */
-    defaultOpen?: boolean | Privilege;
+    defaultOpen?: boolean;
 
     /**
      * Child menu items that should be shown as part of this entry.

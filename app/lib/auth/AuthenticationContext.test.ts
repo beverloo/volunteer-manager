@@ -205,7 +205,7 @@ describe('AuthenticationContext', () => {
         executeAccessCheck(authenticationContext, { privilege: 0n as any as Privilege });
         executeAccessCheck(authenticationContext, { privilege: Privilege.EventHotelManagement });
         executeAccessCheck(authenticationContext, {
-            privilege: or(Privilege.EventHotelManagement, Privilege.Statistics),
+            privilege: or(Privilege.EventHotelManagement, Privilege.Refunds),
         });
 
         // Fail:
@@ -218,7 +218,7 @@ describe('AuthenticationContext', () => {
 
         try {
             executeAccessCheck(authenticationContext, {
-                privilege: and(Privilege.EventHotelManagement, Privilege.Statistics),
+                privilege: and(Privilege.EventHotelManagement, Privilege.Refunds),
             });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {

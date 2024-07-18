@@ -82,7 +82,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
     async accessCheck(context, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.SystemAdministrator,
+            permission: 'system.internals.scheduler',
         });
     },
 

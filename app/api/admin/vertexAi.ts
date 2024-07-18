@@ -58,7 +58,7 @@ type Response = ApiResponse<typeof kVertexAiDefinition>;
 export async function vertexAi(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.settings',
     });
 
     const { settings } = request;

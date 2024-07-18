@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 
 import { ExportLayout } from '@app/exports/[slug]/ExportLayout';
 import { FeedbackForm } from './FeedbackForm';
-import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -18,7 +17,7 @@ import { getStaticContent } from '@lib/Content';
  * soliciting feedback from volunteers. The page will automatically determine the right event.
  */
 export default async function FeedbackPage() {
-    await requireAuthenticationContext({ privilege: Privilege.Feedback });
+    await requireAuthenticationContext({ permission: 'system.feedback' });
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
     const eventSelectionTime = currentTime.subtract({ days: 30 });

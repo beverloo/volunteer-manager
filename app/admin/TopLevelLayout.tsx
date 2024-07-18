@@ -24,6 +24,8 @@ import { type AdminSidebarMenuEntry, AdminSidebar } from './AdminSidebar';
 import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
+
 export default async function TopLevelLayout(props: React.PropsWithChildren) {
     const { access, user } = await requireAuthenticationContext();
 
@@ -37,7 +39,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <FeedOutlinedIcon />,
             label: 'Content',
-            privilege: Privilege.SystemAdministrator,
+            permission: 'system.content',
             url: '/admin/content',
         },
         {
@@ -49,7 +51,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <EventNoteIcon />,
             label: 'Events',
-            privilege: Privilege.EventAdministrator,
+            permission: {
+                permission: 'event.visible',
+                options: {
+                    event: kAnyEvent,
+                    team: kAnyTeam,
+                },
+            },
             url: '/admin/events',
         },
         {
@@ -63,6 +71,8 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <ChatBubbleOutlineIcon />,
             label: 'Communication',
+            // permission: system.feedback
+            // permission: system.internals
             privilege: [
                 Privilege.SystemOutboxAccess,
                 Privilege.SystemSubscriptionManagement,
@@ -72,7 +82,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <FeedbackOutlinedIcon />,
                     label: 'Feedback',
-                    privilege: Privilege.SystemAdministrator,
+                    permission: 'system.feedback',
                     url: '/admin/system/feedback',
                 },
                 {
@@ -90,7 +100,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <WebhookIcon />,
                     label: 'Webhooks',
-                    privilege: Privilege.SystemAdministrator,
+                    permission: 'system.internals',
                     url: '/admin/system/webhooks',
                 },
             ],
@@ -99,11 +109,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <DeviceHubIcon />,
             label: 'System',
             permission: [
-                'system.ai',
                 'system.displays',
+                'system.internals.ai',
+                'system.internals.scheduler',
+                'system.internals.settings',
                 { permission: 'system.logs', operation: 'read' },
             ],
-            defaultOpen: Privilege.SystemAdministrator,
+            defaultOpen: access.can('system.internals'),
             menu: [
                 {
                     icon: <TabletIcon />,
@@ -114,13 +126,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <ModelTrainingIcon />,
                     label: 'Generative AI',
-                    permission: 'system.ai',
+                    permission: 'system.internals.ai',
                     url: '/admin/system/ai',
                 },
                 {
                     icon: <ApiIcon />,
                     label: 'Integrations',
-                    privilege: Privilege.Administrator,
+                    permission: 'system.internals.settings',
                     url: '/admin/system/integrations',
                 },
                 {
@@ -135,13 +147,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <ManageHistoryIcon />,
                     label: 'Scheduler',
-                    privilege: Privilege.SystemAdministrator,
+                    permission: 'system.internals.scheduler',
                     url: '/admin/system/scheduler',
                 },
                 {
                     icon: <SettingsIcon />,
                     label: 'Settings',
-                    privilege: Privilege.SystemAdministrator,
+                    permission: 'system.internals.settings',
                     url: '/admin/system/settings',
                 }
             ]

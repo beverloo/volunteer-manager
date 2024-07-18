@@ -8,7 +8,6 @@ import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Log, LogType } from '@lib/Log';
 import { LogSeverity } from '@lib/database/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tFeedback } from '@lib/database';
 
 /**
@@ -66,7 +65,7 @@ export async function submitFeedback(request: Request, props: ActionProps): Prom
     let userId: number | undefined = props.user.userId;
     let feedbackName: string | undefined;
 
-    if (can(props.user, Privilege.Feedback) && !!request.overrides) {
+    if (props.access.can('system.feedback') && !!request.overrides) {
         if (!!request.overrides.userId || !!request.overrides.name) {
             userId = request.overrides.userId ?? undefined;
             feedbackName = request.overrides.name ?? undefined;

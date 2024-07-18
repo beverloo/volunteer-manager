@@ -11,9 +11,7 @@ import type { User } from './User';
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
-    Feedback                            = 1 << 1,  // TODO: Assign to its own privilege
     Refunds                             = 1 << 23,
-    Statistics                          = 1 << 1,
 
     // Privileges regarding access in the administrative area.
     EventAdministrator                  = 1 << 7,
@@ -64,9 +62,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventAdministrator,
         Privilege.SystemAdministrator,
         Privilege.VolunteerAdministrator,
-        Privilege.Feedback,
         Privilege.Refunds,
-        Privilege.Statistics,
     ],
 
     [Privilege.EventAdministrator]: [
@@ -117,7 +113,6 @@ export function expand(privileges: Privileges): Privileges {
  */
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
-    [Privilege.Feedback]: 'Special access',
     [Privilege.Refunds]: 'Special access',
     //[Privilege.Statistics]: 'Special access',
 
@@ -146,7 +141,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
-    [Privilege.Feedback]: 'Feedback tool',
     [Privilege.Refunds]: 'Refund requests',
     //[Privilege.Statistics]: 'Statistics',
 

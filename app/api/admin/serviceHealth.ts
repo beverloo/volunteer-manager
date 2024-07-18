@@ -174,7 +174,7 @@ async function runVertexAIHealthCheck(): Promise<Response> {
 export async function serviceHealth(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals',
     });
 
     switch (request.service) {

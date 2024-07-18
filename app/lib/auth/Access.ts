@@ -82,15 +82,6 @@ export const kPermissions = {
     // System-associated permissions
     // ---------------------------------------------------------------------------------------------
 
-    'system.ai': {
-        name: 'Generative AI access',
-        description:
-            'This permission controls whether the volunteer has access to Generative AI-related ' +
-            'tooling, such as configuration and debugging pages. This does not include generated ' +
-            'e-mail messages, which are granted based on feature availability.',
-        type: 'boolean',
-    },
-
     'system.content': {
         name: 'Global content access',
         description:
@@ -105,6 +96,50 @@ export const kPermissions = {
         description:
             'This permission determines whether the volunteer has the ability to manage the ' +
             'volunteering displays we distribute across the festival grounds.',
+        type: 'boolean',
+    },
+
+    'system.feedback': {
+        name: 'Feedback access',
+        description:
+            'Volunteers have the ability to submit feedback through the portals, as well as ' +
+            'through the feedback sub-app. This permission controls whether they have access to ' +
+            'read all the feedback, possibly attributed.',
+        type: 'boolean',
+    },
+
+    'system.internals': {
+        name: 'Internal system capabilities',
+        description:
+            'This permission contains a set of individual permissions for features that will ' +
+            'generally not be useful to regular volunteers, as they are part of internal system ' +
+            'configuration or debugging capabilities.',
+        type: 'boolean',
+    },
+
+    'system.internals.ai': {
+        name: 'Generative AI-related tooling',
+        description:
+            'This permission controls whether the volunteer has access to Generative AI-related ' +
+            'tooling, such as configuration and debugging pages. This does not include generated ' +
+            'e-mail messages, which are granted based on feature availability.',
+        type: 'boolean',
+    },
+
+    'system.internals.scheduler': {
+        name: 'System Scheduler status',
+        description:
+            'The system scheduler is responsible for background operations such as sending ' +
+            'messages and fetching program updates. This permission controls access to the ' +
+            'status and overview pages of the scheduler.',
+        type: 'boolean',
+    },
+
+    'system.internals.settings': {
+        name: 'System Settings',
+        description:
+            'This permission grants access to the Volunteer Manager settings that allow detailed ' +
+            'behaviour of the system to be adjusted without needing code changes.',
         type: 'boolean',
     },
 

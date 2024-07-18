@@ -32,7 +32,7 @@ export default async function TaskPage(props: NextPageParams<'id'>) {
 
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.internals.scheduler',
     });
 
     const task = await db.selectFrom(tTasks)

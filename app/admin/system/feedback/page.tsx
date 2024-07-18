@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -16,7 +15,7 @@ import { FeedbackDataTable } from './FeedbackDataTable';
 export default async function FeedbackPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAdministrator,
+        permission: 'system.feedback',
     });
 
     // TODO: Consider allowing a response to be composed automagically.

@@ -160,7 +160,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
         case 'approve-volunteer':
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                permission: or('system.ai', {
+                permission: or('system.internals.ai', {
                     permission: 'event.applications',
                     operation: 'update',
                     options: {
@@ -190,7 +190,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
         case 'reject-volunteer':
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                permission: or('system.ai', {
+                permission: or('system.internals.ai', {
                     permission: 'event.applications',
                     operation: 'update',
                     options: {
@@ -209,7 +209,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     // Install personality and prompt overrides when provided. This feature is only accessible
     // through the Generative AI Explorer pages, and relies on a special permission.
-    if (request.overrides && props.access.can('system.ai'))
+    if (request.overrides && props.access.can('system.internals.ai'))
         generator.setOverrides(request.overrides.personality, request.overrides.prompt);
 
     const { context, prompt, subject } = await generator.build(request.language);

@@ -6,7 +6,6 @@ import type { Metadata } from 'next';
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
 import { HelpRequestTable } from './HelpRequestTable';
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
