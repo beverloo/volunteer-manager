@@ -12,11 +12,22 @@ export const kPermissions = {
     // Administrator permission
     // ---------------------------------------------------------------------------------------------
 
+    'root': {
+        name: 'Root administrator (role)',
+        description:
+            'The root administrator role grants all permissions in the system without exception, ' +
+            'providing unrestricted access. This includes read/write access to system logs and ' +
+            'the ability to update permissions for other people.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'admin': {
         name: 'Administrator (role)',
         description:
-            'The administrator role grants all permissions in the system without exception, ' +
-            'including full access to all event and volunteer information.',
+            'The administrator role grants all permissions in the system, except for the ability ' +
+            'to remove log entries, to grant or revoke permissions to others, and access to ' +
+            'internal tooling only useful for development.',
         type: 'boolean',
         warning: true,
     },
@@ -256,12 +267,32 @@ export const kPermissions = {
  * granted the "admin" permission, permissions included in the associated list will also be granted.
  */
 export const kPermissionGroups: Record<string, string[]> = {
-    admin: [
+    root: [
+        'root',  // reflection
         'admin',  // reflection
 
         'event',
         'system',
         'volunteer',
+    ],
+    admin: [
+        'admin',  // reflection
+
+        'event',
+
+        'system.content',
+        'system.displays',
+        'system.feedback',
+        // note: system.internals omitted
+        // note: system.logs:delete omitted
+        'system.logs:read',
+        'system.nardo',
+
+        'volunteer.avatars',
+        'volunteer.export',
+        // note: volunteer.permissions:update omitted
+        'volunteer.permissions:read',
+        'volunteer.silent',
     ],
 
     staff: [
