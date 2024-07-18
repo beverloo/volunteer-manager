@@ -29,7 +29,7 @@ import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database
 export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemDisplayAccess,
+        permission: 'system.displays',
     });
 
     const acknowledgedUserJoin = tUsers.forUseInLeftJoinAs('auj');

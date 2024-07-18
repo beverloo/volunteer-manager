@@ -13,7 +13,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 
@@ -158,20 +158,16 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer':
-            {
-                const unused = Privilege.SystemAiAccess;  // fixme: include in `permission` below
-            }
-
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                permission: {
+                permission: or('system.ai', {
                     permission: 'event.applications',
                     operation: 'update',
                     options: {
                         event: request.approveVolunteer?.event,
                         team: request.approveVolunteer?.team,
                     },
-                },
+                }),
             });
 
             generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
@@ -192,20 +188,16 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'reject-volunteer':
-            {
-                const unused = Privilege.SystemAiAccess;  // fixme: include in `permission` below
-            }
-
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                permission: {
+                permission: or('system.ai', {
                     permission: 'event.applications',
                     operation: 'update',
                     options: {
                         event: request.approveVolunteer?.event,
                         team: request.approveVolunteer?.team,
                     },
-                },
+                }),
             });
 
             generator = new RejectVolunteerPromptBuilder(userId, request.rejectVolunteer);
@@ -217,7 +209,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     // Install personality and prompt overrides when provided. This feature is only accessible
     // through the Generative AI Explorer pages, and relies on a special permission.
-    if (request.overrides && can(props.user, Privilege.SystemAiAccess))
+    if (request.overrides && props.access.can('system.ai'))
         generator.setOverrides(request.overrides.personality, request.overrides.prompt);
 
     const { context, prompt, subject } = await generator.build(request.language);

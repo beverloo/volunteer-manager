@@ -79,7 +79,8 @@ export type DisplayRequestRowModel = z.infer<typeof kDisplayRequestRowModel>;
 export const { GET } = createDataTableApi(kDisplayRequestRowModel, kDisplayRequestContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
-            privilege: Privilege.SystemDisplayAccess,
+            check: 'admin',
+            permission: 'system.displays',
         });
     },
 

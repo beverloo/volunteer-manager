@@ -94,7 +94,8 @@ export type DisplaysRowModel = z.infer<typeof kDisplaysRowModel>;
 export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDisplaysContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
-            privilege: Privilege.SystemDisplayAccess,
+            check: 'admin',
+            permission: 'system.displays',
         });
     },
 

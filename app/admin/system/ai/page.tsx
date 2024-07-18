@@ -18,7 +18,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function AiPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemAiAccess,
+        permission: 'system.ai',
     });
 
     // Settings to load for this page, shared across the different displays.

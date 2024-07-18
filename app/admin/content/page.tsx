@@ -18,7 +18,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function ContentPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemContentAccess,
+        permission: 'system.content',
     });
 
     const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);

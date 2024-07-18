@@ -131,7 +131,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         if (context.eventId === /* invalid event= */ 0) {
             executeAccessCheck(props.authenticationContext, {
                 check: 'admin',
-                privilege: Privilege.SystemContentAccess,
+                permission: 'system.content',
             });
         } else {
             executeAccessCheck(props.authenticationContext, {

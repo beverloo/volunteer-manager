@@ -43,7 +43,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <TipsAndUpdatesIcon />,
             label: 'Del a Rie Advies',
-            privilege: Privilege.SystemNardoAccess,
+            permission: 'system.nardo',
             url: '/admin/nardo',
         },
         {
@@ -54,9 +54,8 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         },
         {
             divider: true,
+            // permission: system.ai
             privilege: [
-                Privilege.SystemAiAccess,
-                Privilege.SystemDisplayAccess,
                 Privilege.SystemOutboxAccess,
                 Privilege.SystemSubscriptionManagement
             ],
@@ -99,23 +98,23 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         {
             icon: <DeviceHubIcon />,
             label: 'System',
-            privilege: [
-                Privilege.SystemAiAccess,
-                Privilege.SystemDisplayAccess,
+            permission: [
+                'system.ai',
+                'system.displays',
+                { permission: 'system.logs', operation: 'read' },
             ],
-
             defaultOpen: Privilege.SystemAdministrator,
             menu: [
                 {
                     icon: <TabletIcon />,
                     label: 'Displays',
-                    privilege: Privilege.SystemDisplayAccess,
+                    permission: 'system.displays',
                     url: '/admin/system/displays',
                 },
                 {
                     icon: <ModelTrainingIcon />,
                     label: 'Generative AI',
-                    privilege: Privilege.SystemAiAccess,
+                    permission: 'system.ai',
                     url: '/admin/system/ai',
                 },
                 {

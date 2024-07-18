@@ -17,7 +17,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function ContentEntryPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemContentAccess,
+        permission: 'system.content',
     });
 
     const scope = createGlobalScope();

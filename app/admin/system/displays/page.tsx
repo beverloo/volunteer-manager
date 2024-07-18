@@ -19,7 +19,7 @@ import db, { tEvents, tActivitiesLocations } from '@lib/database';
 export default async function DisplaysPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemDisplayAccess,
+        permission: 'system.displays',
     });
 
     const events: DisplayTableEventOption[] = await db.selectFrom(tEvents)

@@ -33,10 +33,6 @@ export enum Privilege {
     EventVolunteerContactInfo           = 1 << 11,
 
     // Privileges captured by SystemAdministrator:
-    SystemAiAccess                      = 1 << 18,
-    SystemContentAccess                 = 1 << 16,
-    SystemDisplayAccess                 = 1 << 27,
-    SystemNardoAccess                   = 1 << 19,
     SystemOutboxAccess                  = 1 << 17,
     SystemSubscriptionEligible          = 1 << 28,
     SystemSubscriptionManagement        = 1 << 24,
@@ -87,10 +83,6 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     ],
 
     [Privilege.SystemAdministrator]: [
-        Privilege.SystemAiAccess,
-        Privilege.SystemContentAccess,
-        Privilege.SystemDisplayAccess,
-        Privilege.SystemNardoAccess,
         Privilege.SystemOutboxAccess,
         Privilege.SystemSubscriptionEligible,
         Privilege.SystemSubscriptionManagement,
@@ -142,10 +134,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerContactInfo]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
-    [Privilege.SystemAiAccess]: 'System access',
-    [Privilege.SystemContentAccess]: 'System access',
-    [Privilege.SystemDisplayAccess]: 'System access',
-    [Privilege.SystemNardoAccess]: 'System access',
     [Privilege.SystemOutboxAccess]: 'System access',
     [Privilege.SystemSubscriptionEligible]: 'System access',
     [Privilege.SystemSubscriptionManagement]: 'System access',
@@ -175,10 +163,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',
 
     [Privilege.SystemAdministrator]: 'System administrator',
-    [Privilege.SystemAiAccess]: 'Generative AI prompts',
-    [Privilege.SystemContentAccess]: 'Global content access',
-    [Privilege.SystemDisplayAccess]: 'Display access',
-    [Privilege.SystemNardoAccess]: 'Manage Del a Rie Advies',
     [Privilege.SystemOutboxAccess]: 'Outbox access',
     [Privilege.SystemSubscriptionEligible]: 'Subscription eligibility',
     [Privilege.SystemSubscriptionManagement]: 'Subscription management',

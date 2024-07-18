@@ -82,6 +82,32 @@ export const kPermissions = {
     // System-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'system.ai': {
+        name: 'Generative AI access',
+        description:
+            'This permission controls whether the volunteer has access to Generative AI-related ' +
+            'tooling, such as configuration and debugging pages. This does not include generated ' +
+            'e-mail messages, which are granted based on feature availability.',
+        type: 'boolean',
+    },
+
+    'system.content': {
+        name: 'Global content access',
+        description:
+            'This permission controls whether they are able to access global content, which ' +
+            'includes our privacy policy, e-mail messages, notifications and other content that ' +
+            'is shared across events and teams.',
+        type: 'boolean',
+    },
+
+    'system.displays': {
+        name: 'Volunteering Display access',
+        description:
+            'This permission determines whether the volunteer has the ability to manage the ' +
+            'volunteering displays we distribute across the festival grounds.',
+        type: 'boolean',
+    },
+
     'system.logs': {
         name: 'Volunteer Manager logs',
         description:
@@ -91,6 +117,14 @@ export const kPermissions = {
         hide: [ 'create', 'update' ],  // logs generally should be read-only, but can be deleted
         type: 'crud',
         warning: true,
+    },
+
+    'system.nardo': {
+        name: 'Del a Rie Advies access',
+        description:
+            'This permission controls whether they are able to access and manage the advice ' +
+            'made available by Del a Rie advies.',
+        type: 'boolean',
     },
 
     // ---------------------------------------------------------------------------------------------

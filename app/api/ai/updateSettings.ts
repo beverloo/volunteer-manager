@@ -50,7 +50,7 @@ type Response = ApiResponse<typeof kUpdateAiSettingsDefinition>;
 export async function updateSettings(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.SystemAiAccess,
+        permission: 'system.ai',
     });
 
     if (request.personality) {

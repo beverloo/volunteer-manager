@@ -18,7 +18,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function DelARieAdviesPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemNardoAccess,
+        permission: 'system.nardo',
     });
 
     return (
