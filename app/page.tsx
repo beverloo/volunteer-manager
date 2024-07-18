@@ -52,7 +52,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         notFound();
 
     const authenticationContext = await getAuthenticationContext();
-    const { user } = authenticationContext;
+    const { access, user } = authenticationContext;
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
 
@@ -130,7 +130,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
                 redirect(`/schedule/${registrationEvent.slug}`);
         }
-        else if (can(user, Privilege.Feedback) && !can(user, Privilege.EventAdministrator))
+        else if (access.can('system.feedback') && !can(user, Privilege.EventAdministrator))
             redirect('/feedback');
     }
 
@@ -192,6 +192,9 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         backgroundImage: `url('/images/${environment.environmentName}/landing.jpg')`
     };
 
+    // TODO: Reintroduce the statistics sub-app
+    const enableStatistics: boolean = false;
+
     return (
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer title={`AnimeCon ${environment.environmentTitle}`}
@@ -221,7 +224,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                         <AdministrationCard />
                     </Grid> }
 
-                { can(user, Privilege.Statistics) &&
+                { (!!environment && !!enableStatistics) &&
                     <Grid xs={12} md={4}>
                         <StatisticsCard title={environment.environmentTitle} />
                     </Grid> }
