@@ -7,6 +7,8 @@ import type { AccessDescriptor, AccessOperation } from './AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from './Access';
 import { kPermissionGroups, kPermissions } from './Access';
 
+// -------------------------------------------------------------------------------------------------
+
 /**
  * Type definition for a grant, which can either be an individual grant without scope, or one that
  * is scoped to a particular event or team.
@@ -31,8 +33,6 @@ export interface AccessGrants {
      */
     revokes?: Grant | Grant[];
 
-    // ---------------------------------------------------------------------------------------------
-
     /**
      * Events that access should be granted to. By default no events are accessible, although some
      * permissions may not be associated with a particular event. Certain permissions may be granted
@@ -46,6 +46,8 @@ export interface AccessGrants {
      */
     teams?: string;
 }
+
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Further options that can be provided to the access control mechanism.
@@ -64,6 +66,8 @@ export interface Options {
     team?: string;
 }
 
+// -------------------------------------------------------------------------------------------------
+
 /**
  * Value that represents that any event will be applicable.
  */
@@ -81,6 +85,8 @@ export const kAnyTeam = '*';
  * @visible Exclusively for testing purposes.
  */
 export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|update|delete))*$/;
+
+// -------------------------------------------------------------------------------------------------
 
 /**
  * Contextualized information stored regarding a granted (or revoked) permission.
