@@ -11,7 +11,7 @@ describe('AccessList', () => {
 
         expect(singleAccessList.query('foo.bar')).not.toBeUndefined();
         expect(singleAccessList.query('foo.bar')).toEqual({
-
+            expanded: false,
         });
 
         const multipleAccessList = new AccessList({ grants: 'foo.bar,foo.baz' });
@@ -19,12 +19,12 @@ describe('AccessList', () => {
 
         expect(multipleAccessList.query('foo.bar')).not.toBeUndefined();
         expect(multipleAccessList.query('foo.bar')).toEqual({
-
+            expanded: false,
         });
 
         expect(multipleAccessList.query('foo.baz')).not.toBeUndefined();
         expect(multipleAccessList.query('foo.baz')).toEqual({
-
+            expanded: false,
         });
 
         const arrayAccessList = new AccessList({ grants: [ 'foo.bar', 'foo.baz' ] });
@@ -49,22 +49,22 @@ describe('AccessList', () => {
 
         expect(expandedAccessList.query('test')).not.toBeUndefined();
         expect(expandedAccessList.query('test')).toEqual({
-
+            expanded: false,
         });
 
         expect(expandedAccessList.query('test.foo')).not.toBeUndefined();
         expect(expandedAccessList.query('test.foo')).toEqual({
-
+            expanded: true,
         });
 
         expect(expandedAccessList.query('test.bar')).not.toBeUndefined();
         expect(expandedAccessList.query('test.bar')).toEqual({
-
+            expanded: true,
         });
 
         expect(expandedAccessList.query('test2')).not.toBeUndefined();
         expect(expandedAccessList.query('test2')).toEqual({
-
+            expanded: true,
         });
     });
 
@@ -83,27 +83,27 @@ describe('AccessList', () => {
         const nestedAccessList = new AccessList({ expansions, grants: 'test' });
         expect(nestedAccessList.query('test')).not.toBeUndefined();
         expect(nestedAccessList.query('test')).toEqual({
-
+            expanded: false,
         });
 
         expect(nestedAccessList.query('test.foo')).not.toBeUndefined();
         expect(nestedAccessList.query('test.foo')).toEqual({
-
+            expanded: true,
         });
 
         expect(nestedAccessList.query('test.bar')).not.toBeUndefined();
         expect(nestedAccessList.query('test.bar')).toEqual({
-
+            expanded: true,
         });
 
         expect(nestedAccessList.query('test2')).not.toBeUndefined();
         expect(nestedAccessList.query('test2')).toEqual({
-
+            expanded: true,
         });
 
         expect(nestedAccessList.query('test3')).not.toBeUndefined();
         expect(nestedAccessList.query('test3')).toEqual({
-
+            expanded: true,
         });
     });
 

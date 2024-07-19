@@ -28,7 +28,11 @@ interface AccessListParams {
  * Access definition for each of the grants the `AccessList` is constructed with.
  */
 interface Access {
-    // TODO: Expanded?
+    /**
+     * Whether the access was included because of an expanded permission group.
+     */
+    expanded: boolean;
+
     // TODO: Global?
     // TODO: Scopes
 }
@@ -52,7 +56,10 @@ interface Options {
  * Result that will be issued from a permission query, if any.
  */
 interface Result {
-
+    /**
+     * Whether the access was included because of an expanded permission group.
+     */
+    expanded: boolean;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -68,25 +75,32 @@ export class AccessList {
     #teams: Set<string> = new Set;
 
     constructor(params?: AccessListParams) {
-
         if (!!params?.grants) {
             const grants = Array.isArray(params.grants) ? params.grants : [ params.grants ];
-            for (const rawGrant of grants) {
-                const grant = typeof rawGrant === 'string' ? { permission: rawGrant } : rawGrant;
 
-                const permissions = grant.permission.split(',');
+            for (const stringOrObjectGrant of grants) {
+                const grant =
+                    typeof stringOrObjectGrant === 'string' ? { permission: stringOrObjectGrant }
+                                                            : stringOrObjectGrant;
+
                 const seen = new Set<string>();
+                const permissions = grant.permission.split(',').map(permission => ({
+                    expanded: false,
+                    permission,
+                }));
 
-                for (const permission of permissions) {
+                for (const { expanded, permission } of permissions) {
                     if (seen.has(permission))
                         continue;  // the permission has already been processed
 
                     seen.add(permission);
 
-                    if (params.expansions && Object.hasOwn(params.expansions, permission))
-                        permissions.push(...params.expansions[permission]);
+                    if (params.expansions && Object.hasOwn(params.expansions, permission)) {
+                        for (const expandedPermission of params.expansions[permission])
+                            permissions.push({ expanded: true, permission: expandedPermission });
+                    }
 
-                    this.#access.set(permission, { /* access object */ });
+                    this.#access.set(permission, { expanded });
                 }
             }
         }
@@ -109,6 +123,8 @@ export class AccessList {
         if (!access)
             return undefined;
 
-        return {};
+        return {
+            expanded: access.expanded,
+        };
     }
 }
