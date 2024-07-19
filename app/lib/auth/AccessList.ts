@@ -12,7 +12,7 @@ export type Grant = string | { permission: string; event?: string; team?: string
 /**
  * Parameters that can be passed to the constructor of the `AccessList` component.
  */
-interface AccessListParams {
+type AccessListParams = {
     /**
      * Permission group expansions that should be adhered to by the AccessList.
      */
@@ -22,25 +22,29 @@ interface AccessListParams {
      * Grants that are in scope for this access list.
      */
     grants?: Grant | Grant[];
-}
+};
 
 /**
  * Access definition for each of the grants the `AccessList` is constructed with.
  */
-interface Access {
+type Access = {
     /**
      * Whether the access was included because of an expanded permission group.
      */
     expanded: boolean;
 
-    // TODO: Global?
+    /**
+     * Whether the access was granted globally, or specific to a particular event and/or team.
+     */
+    global: boolean;
+
     // TODO: Scopes
-}
+};
 
 /**
  * Options that can be given when querying to see if a grant is included on the AccessList.
  */
-interface Options {
+type Options = {
     /**
      * Event that the access query should be scoped to.
      */
@@ -50,17 +54,17 @@ interface Options {
      * Team that the access query should be scoped to.
      */
     team?: string;
-}
+};
 
 /**
- * Result that will be issued from a permission query, if any.
+ * Result that will be issued from an `AccessList` query when the requested permission was found to
+ * exist on the access list.
  */
-interface Result {
+type Result = Pick<Access, 'expanded' | 'global'> & {
     /**
-     * Whether the access was included because of an expanded permission group.
+     * @todo
      */
-    expanded: boolean;
-}
+};
 
 // -------------------------------------------------------------------------------------------------
 
@@ -100,7 +104,19 @@ export class AccessList {
                             permissions.push({ expanded: true, permission: expandedPermission });
                     }
 
-                    this.#access.set(permission, { expanded });
+                    const access = this.#access.get(permission);
+                    const global = !grant.event && !grant.team;
+
+                    if (!access) {
+                        this.#access.set(permission, { expanded, global });
+
+                    } else if (global) {
+                        if (!access.global)
+                            access.global = true;  // global access has now been granted
+
+                    } else {
+                        // TODO: Grant scopes
+                    }
                 }
             }
         }
@@ -125,6 +141,7 @@ export class AccessList {
 
         return {
             expanded: access.expanded,
+            global: access.global,
         };
     }
 }

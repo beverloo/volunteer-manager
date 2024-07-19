@@ -12,6 +12,7 @@ describe('AccessList', () => {
         expect(singleAccessList.query('foo.bar')).not.toBeUndefined();
         expect(singleAccessList.query('foo.bar')).toEqual({
             expanded: false,
+            global: true,
         });
 
         const multipleAccessList = new AccessList({ grants: 'foo.bar,foo.baz' });
@@ -20,11 +21,13 @@ describe('AccessList', () => {
         expect(multipleAccessList.query('foo.bar')).not.toBeUndefined();
         expect(multipleAccessList.query('foo.bar')).toEqual({
             expanded: false,
+            global: true,
         });
 
         expect(multipleAccessList.query('foo.baz')).not.toBeUndefined();
         expect(multipleAccessList.query('foo.baz')).toEqual({
             expanded: false,
+            global: true,
         });
 
         const arrayAccessList = new AccessList({ grants: [ 'foo.bar', 'foo.baz' ] });
@@ -50,21 +53,25 @@ describe('AccessList', () => {
         expect(expandedAccessList.query('test')).not.toBeUndefined();
         expect(expandedAccessList.query('test')).toEqual({
             expanded: false,
+            global: true,
         });
 
         expect(expandedAccessList.query('test.foo')).not.toBeUndefined();
         expect(expandedAccessList.query('test.foo')).toEqual({
             expanded: true,
+            global: true,
         });
 
         expect(expandedAccessList.query('test.bar')).not.toBeUndefined();
         expect(expandedAccessList.query('test.bar')).toEqual({
             expanded: true,
+            global: true,
         });
 
         expect(expandedAccessList.query('test2')).not.toBeUndefined();
         expect(expandedAccessList.query('test2')).toEqual({
             expanded: true,
+            global: true,
         });
     });
 
@@ -84,26 +91,31 @@ describe('AccessList', () => {
         expect(nestedAccessList.query('test')).not.toBeUndefined();
         expect(nestedAccessList.query('test')).toEqual({
             expanded: false,
+            global: true,
         });
 
         expect(nestedAccessList.query('test.foo')).not.toBeUndefined();
         expect(nestedAccessList.query('test.foo')).toEqual({
             expanded: true,
+            global: true,
         });
 
         expect(nestedAccessList.query('test.bar')).not.toBeUndefined();
         expect(nestedAccessList.query('test.bar')).toEqual({
             expanded: true,
+            global: true,
         });
 
         expect(nestedAccessList.query('test2')).not.toBeUndefined();
         expect(nestedAccessList.query('test2')).toEqual({
             expanded: true,
+            global: true,
         });
 
         expect(nestedAccessList.query('test3')).not.toBeUndefined();
         expect(nestedAccessList.query('test3')).toEqual({
             expanded: true,
+            global: true,
         });
     });
 
@@ -119,5 +131,70 @@ describe('AccessList', () => {
         expect(nestedAccessList.query('test')).not.toBeUndefined();
         expect(nestedAccessList.query('test.foo')).not.toBeUndefined();
         expect(nestedAccessList.query('test.bar')).toBeUndefined();
+    });
+
+    it('should track whether permissions were listed with global or scoped access', () => {
+        const accessList = new AccessList({
+            grants: [
+                { permission: 'test' },
+                { permission: 'test.foo' },
+                { permission: 'test', event: '2024' },
+                { permission: 'test.bar', event: '2024' },
+            ],
+        });
+
+        expect(accessList.query('test')).not.toBeUndefined();
+        expect(accessList.query('test')).toEqual({
+            expanded: false,
+            global: true,
+        });
+
+        expect(accessList.query('test.foo')).not.toBeUndefined();
+        expect(accessList.query('test.foo')).toEqual({
+            expanded: false,
+            global: true,
+        });
+
+        expect(accessList.query('test.bar')).not.toBeUndefined();
+        expect(accessList.query('test.bar')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        const expandedAccessList = new AccessList({
+            expansions: {
+                test: [
+                    'test.foo',
+                ],
+            },
+            grants: [
+                { permission: 'test,test.qux', event: '2024' },
+                { permission: 'test,test.bar' },
+            ],
+        });
+
+        expect(expandedAccessList.query('test')).not.toBeUndefined();
+        expect(expandedAccessList.query('test')).toEqual({
+            expanded: false,
+            global: true,
+        });
+
+        expect(expandedAccessList.query('test.foo')).not.toBeUndefined();
+        expect(expandedAccessList.query('test.foo')).toEqual({
+            expanded: true,
+            global: true,
+        });
+
+        expect(expandedAccessList.query('test.bar')).not.toBeUndefined();
+        expect(expandedAccessList.query('test.bar')).toEqual({
+            expanded: false,
+            global: true,
+        });
+
+        expect(expandedAccessList.query('test.qux')).not.toBeUndefined();
+        expect(expandedAccessList.query('test.qux')).toEqual({
+            expanded: false,
+            global: false,
+        });
     });
 });
