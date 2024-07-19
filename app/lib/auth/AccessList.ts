@@ -25,26 +25,9 @@ type AccessListParams = {
 };
 
 /**
- * Access definition for each of the grants the `AccessList` is constructed with.
+ * Scope that applies to an access entry, defining the applicable event and/or team.
  */
-type Access = {
-    /**
-     * Whether the access was included because of an expanded permission group.
-     */
-    expanded: boolean;
-
-    /**
-     * Whether the access was granted globally, or specific to a particular event and/or team.
-     */
-    global: boolean;
-
-    // TODO: Scopes
-};
-
-/**
- * Options that can be given when querying to see if a grant is included on the AccessList.
- */
-type Options = {
+type AccessScope = {
     /**
      * Event that the access query should be scoped to.
      */
@@ -54,6 +37,26 @@ type Options = {
      * Team that the access query should be scoped to.
      */
     team?: string;
+};
+
+/**
+ * Access definition for each of the grants the `AccessList` is constructed with.
+ */
+type Access = {
+    /**
+     * Whether the access was included because of an expanded permission group.
+     */
+    expanded: boolean;
+
+    /**
+     * Whether the access entry applies globally, or specific to a particular event and/or team.
+     */
+    global: boolean;
+
+    /**
+     * Scopes for which the entry is applicable, if any.
+     */
+    scopes?: AccessScope[];
 };
 
 /**
@@ -104,19 +107,25 @@ export class AccessList {
                             permissions.push({ expanded: true, permission: expandedPermission });
                     }
 
-                    const access = this.#access.get(permission);
                     const global = !grant.event && !grant.team;
 
-                    if (!access) {
+                    if (!this.#access.has(permission))
                         this.#access.set(permission, { expanded, global });
 
-                    } else if (global) {
+                    const access = this.#access.get(permission)!;
+
+                    if (global) {
                         if (!access.global)
                             access.global = true;  // global access has now been granted
 
-                    } else {
-                        // TODO: Grant scopes
+                        continue;
                     }
+
+                    access.scopes ??= [ /* empty by default */ ];
+                    access.scopes.push({
+                        event: grant.event,
+                        team: grant.team,
+                    });
                 }
             }
         }
@@ -127,14 +136,14 @@ export class AccessList {
 
     /**
      * Queries whether the `permission` is included in this access list, optionally with the given
-     * `options` that can further scope the check. This is a fast O(k) operation, where `k` is the
+     * `scope` that can further scope the check. This is a fast O(k) operation, where `k` is the
      * number of grants that were issued for the given `permission`.
      *
      * @param permission The permission to run a query for.
-     * @param options Additional scoping to apply to the query.
+     * @param scope The permission scope for which the query will run.
      * @returns Result of the query, or undefined when not granted.
      */
-    query(permission: string, options?: Options): Result | undefined {
+    query(permission: string, scope?: AccessScope): Result | undefined {
         const access = this.#access.get(permission);
         if (!access)
             return undefined;
