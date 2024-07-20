@@ -7,6 +7,16 @@
  */
 export type Grant = string | { permission: string; event?: string; team?: string; }
 
+/**
+ * Value that represents that any event will be applicable.
+ */
+export const kAnyEvent = '*';
+
+/**
+ * Value that represents that any team will be applicable.
+ */
+export const kAnyTeam = '*';
+
 // -------------------------------------------------------------------------------------------------
 
 /**
@@ -65,8 +75,9 @@ type Access = {
  */
 type Result = Pick<Access, 'expanded' | 'global'> & {
     /**
-     * @todo
+     * The specific scope that was determined to be applicable for the query.
      */
+    scope?: AccessScope;
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -148,9 +159,37 @@ export class AccessList {
         if (!access)
             return undefined;
 
-        return {
-            expanded: access.expanded,
-            global: access.global,
-        };
+        if (!scope || (!scope.event && !scope.team)) {
+            return {
+                expanded: access.expanded,
+                global: access.global,
+            };
+        }
+
+        if (!!access.scopes) {
+            for (const accessScope of access.scopes) {
+                if (!!scope.event && scope.event !== kAnyEvent) {
+                    // TODO: What to do with `accessScope.event === undefined`?
+                    if (accessScope.event !== scope.event && accessScope.event !== kAnyEvent)
+                        continue;
+                }
+
+                if (!!scope.team && scope.team !== kAnyTeam) {
+                    // TODO: What to do with `accessScope.team === undefined`?
+                    if (accessScope.team !== scope.team && accessScope.team !== kAnyTeam)
+                        continue;
+                }
+
+                return {
+                    expanded: access.expanded,
+                    global: access.global,
+                    scope: accessScope,
+                };
+            }
+        }
+
+        // TODO: Global event / team access
+
+        return undefined;
     }
 }

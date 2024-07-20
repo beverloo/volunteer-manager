@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AccessList } from './AccessList';
+import { AccessList, kAnyEvent, kAnyTeam } from './AccessList';
 
 describe('AccessList', () => {
     it('should be able to run queries against basic permissions', () => {
@@ -195,6 +195,228 @@ describe('AccessList', () => {
         expect(expandedAccessList.query('test.qux')).toEqual({
             expanded: false,
             global: false,
+        });
+    });
+
+    it('should be able to adhere to permission queries scoped to an event', () => {
+        const scopedAccessList = new AccessList({
+            expansions: {
+                test: [
+                    'test2',
+                ],
+            },
+            grants: [
+                { permission: 'test', event: '2024' },
+                { permission: 'test2', event: '2025' },
+            ],
+        });
+
+        expect(scopedAccessList.query('test')).not.toBeUndefined();
+        expect(scopedAccessList.query('test')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        expect(scopedAccessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2024' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { event: '2025' })).toBeUndefined();
+
+        expect(scopedAccessList.query('test2')).not.toBeUndefined();
+        expect(scopedAccessList.query('test2')).toEqual({
+            expanded: true,
+            global: false,
+        });
+
+        expect(scopedAccessList.query('test2', { event: '2024' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2024' })).toEqual({
+            expanded: true,
+            global: false,
+            scope: {
+                event: '2024',
+            },
+        });
+
+        expect(scopedAccessList.query('test2', { event: '2025' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2025' })).toEqual({
+            expanded: true,  // <-- fixme, this is not correct
+            global: false,
+            scope: {
+                event: '2025',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { event: '2026' })).toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2026' })).toBeUndefined();
+    });
+
+    it('should be able to adhere to permission queries scoped to a team', () => {
+        const scopedAccessList = new AccessList({
+            expansions: {
+                test: [
+                    'test2',
+                ],
+            },
+            grants: [
+                { permission: 'test', team: 'crew' },
+                { permission: 'test2', team: 'stewards' },
+            ],
+        });
+
+        expect(scopedAccessList.query('test')).not.toBeUndefined();
+        expect(scopedAccessList.query('test')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        expect(scopedAccessList.query('test', { team: 'crew' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test', { team: 'crew' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                team: 'crew',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { team: 'stewards' })).toBeUndefined();
+
+        expect(scopedAccessList.query('test2')).not.toBeUndefined();
+        expect(scopedAccessList.query('test2')).toEqual({
+            expanded: true,
+            global: false,
+        });
+
+        expect(scopedAccessList.query('test2', { team: 'crew' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { team: 'crew' })).toEqual({
+            expanded: true,
+            global: false,
+            scope: {
+                team: 'crew',
+            },
+        });
+
+        expect(scopedAccessList.query('test2', { team: 'stewards' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { team: 'stewards' })).toEqual({
+            expanded: true,  // <-- fixme, this is not correct
+            global: false,
+            scope: {
+                team: 'stewards',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { team: 'hosts' })).toBeUndefined();
+        expect(scopedAccessList.query('test2', { team: 'hosts' })).toBeUndefined();
+    });
+
+    it('should be able to adhere to permission queries scoped to both an event and a team', () => {
+        const scopedAccessList = new AccessList({
+            expansions: {
+                test: [
+                    'test2',
+                ],
+            },
+            grants: [
+                { permission: 'test', event: '2024', team: 'crew' },
+                { permission: 'test', event: '2024', team: 'stewards' },
+                { permission: 'test', event: '2025', team: 'stewards' },
+
+                { permission: 'test2', event: '2025', team: 'hosts' },
+            ],
+        });
+
+        expect(scopedAccessList.query('test')).not.toBeUndefined();
+        expect(scopedAccessList.query('test')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        expect(scopedAccessList.query('test', { event: '2020' })).toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2030' })).toBeUndefined();
+
+        expect(scopedAccessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2024' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',
+                team: 'crew',  // not verified, so any value is accepted
+            }
+        });
+
+        expect(scopedAccessList.query('test', { event: '2024', team: kAnyTeam }))
+            .not.toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2024', team: kAnyTeam })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',
+                team: 'crew',  // verified against a wildcard
+            }
+        });
+
+        expect(scopedAccessList.query('test', { team: 'staff' })).toBeUndefined();
+
+        expect(scopedAccessList.query('test', { team: 'crew' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test', { team: 'crew' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',  // not verified, so any value is accepted
+                team: 'crew',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { event: kAnyEvent, team: 'crew' }))
+            .not.toBeUndefined();
+        expect(scopedAccessList.query('test', { event: kAnyEvent, team: 'crew' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',  // verified against a wildcard
+                team: 'crew',
+            },
+        });
+
+        expect(scopedAccessList.query('test', { event: '2020', team: 'crew' })).toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2024', team: 'staff' })).toBeUndefined();
+
+        expect(scopedAccessList.query('test', { event: '2024', team: 'crew' })).not.toBeUndefined();
+        expect(scopedAccessList.query('test', { event: '2024', team: 'crew' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',
+                team: 'crew',
+            },
+        });
+
+        expect(scopedAccessList.query('test2', { event: '2024', team: 'crew' }))
+            .not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2024', team: 'hosts' }))
+            .toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2024', team: 'stewards' }))
+            .not.toBeUndefined();
+
+        expect(scopedAccessList.query('test2', { event: '2025', team: 'crew' }))
+            .toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2025', team: 'hosts' }))
+            .not.toBeUndefined();
+        expect(scopedAccessList.query('test2', { event: '2025', team: 'stewards' }))
+            .not.toBeUndefined();
+
+        expect(scopedAccessList.query('test2', { event: '2025', team: 'stewards' })).toEqual({
+            expanded: true,  // <-- fixme, this is not correct
+            global: false,
+            scope: {
+                event: '2025',
+                team: 'stewards',
+            },
         });
     });
 });
