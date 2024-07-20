@@ -4,7 +4,7 @@
 import { AccessControl, kAnyEvent, kAnyTeam, kPermissionPattern } from './AccessControl';
 
 describe('AccessControl', () => {
-    it('has an expression to validate both grants and permissions', () => {
+    it('has a regular expression to validate both grants and permissions', () => {
         const kPermissionTestCases = {
             valid: [
                 'foo',
@@ -43,7 +43,7 @@ describe('AccessControl', () => {
             expect(runTest(testCase, /* expected= */ false)).toBeTrue();
     });
 
-    it('has the ability to grant individual permissions', () => {
+    it('should be able to grant boolean permissions in a global scope', () => {
         const accessControl = new AccessControl({
             grants: 'test.boolean',
         });
@@ -52,152 +52,7 @@ describe('AccessControl', () => {
         expect(accessControl.can('test.crud', 'read')).toBeFalse();
     });
 
-    it('has the ability to grant individual CRUD operations', () => {
-        const accessControl = new AccessControl({
-            grants: [ 'test.crud:create', 'test.crud:read' ],
-        });
-
-        expect(accessControl.can('test.crud', 'create')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();
-        expect(accessControl.can('test.crud', 'update')).toBeFalse();
-        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
-    });
-
-    it('has the ability to grant multiple permissions', () => {
-        const accessControl = new AccessControl({
-            grants: 'test.boolean,test.crud',
-        });
-
-        expect(accessControl.can('test.boolean')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();
-    });
-
-    it('has the ability to grant permission namespaces', () => {
-        const accessControl = new AccessControl({
-            grants: 'test',
-        });
-
-        expect(accessControl.can('test.boolean')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();
-        expect(accessControl.can('test.crud', 'delete')).toBeTrue();
-    });
-
-    it('has the ability to revoke individual permissions', () => {
-        const accessControl = new AccessControl({
-            grants: 'test.boolean,test.crud',
-            revokes: 'test.crud',
-        });
-
-        expect(accessControl.can('test.boolean')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeFalse();
-        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
-    });
-
-    it('has the ability to revoke individual CRUD operations', () => {
-        const accessControl = new AccessControl({
-            grants: 'test.crud',
-            revokes: [ { permission: 'test.crud:delete' } ],
-        });
-
-        expect(accessControl.can('test.boolean')).toBeFalse();
-        expect(accessControl.can('test.crud', 'create')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();
-        expect(accessControl.can('test.crud', 'update')).toBeTrue();
-        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
-    });
-
-    it('has the ability to revoke permission namespaces', () => {
-        const accessControl = new AccessControl({
-            grants: 'test',
-            revokes: 'test',
-        });
-
-        expect(accessControl.can('test.boolean')).toBeFalse();
-        expect(accessControl.can('test.crud', 'read')).toBeFalse();
-    });
-
-    it('has the ability to expand permission groups', () => {
-        const accessControl = new AccessControl({
-            grants: 'testgroup',
-            revokes: 'test.crud:delete',
-        });
-
-        expect(accessControl.can('test.boolean')).toBeTrue();
-        expect(accessControl.can('test.crud', 'create')).toBeTrue();
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();
-        expect(accessControl.can('test.crud', 'update')).toBeTrue();
-        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
-    });
-
-    it('has the ability to require a permission to be granted', () => {
-        const accessControl = new AccessControl({
-            grants: 'test.crud:update',
-        });
-
-        expect(() => accessControl.require('test.boolean')).toThrow();
-        expect(() => accessControl.require('test.crud', 'read')).toThrow();
-        expect(() => accessControl.require('test.crud', 'update')).not.toThrow();
-    });
-
-    it('has the ability to grant holistic access to a given event', () => {
-        const fullAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            events: kAnyEvent,
-        });
-
-        expect(fullAccessControl.can('test.boolean')).toBeTrue();
-        expect(fullAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
-        expect(fullAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
-
-        const scopedAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            events: '2024',
-        });
-
-        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
-        expect(scopedAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
-        expect(scopedAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
-
-        const unknownAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            // `events` deliberately undefined
-        });
-
-        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
-        expect(unknownAccessControl.can('test.boolean', { event: '2024' })).toBeFalse();
-        expect(unknownAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
-    });
-
-    it('has the ability to grant holistic access to a given team', () => {
-        const fullAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            teams: kAnyTeam,
-        });
-
-        expect(fullAccessControl.can('test.boolean')).toBeTrue();
-        expect(fullAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
-        expect(fullAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
-
-        const scopedAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            teams: 'crew',
-        });
-
-        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
-        expect(scopedAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
-        expect(scopedAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
-
-        const unknownAccessControl = new AccessControl({
-            grants: 'test.boolean',
-            // `teams` deliberately omitted
-        });
-
-        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
-        expect(unknownAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
-        expect(unknownAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
-    });
-
-    it('has the ability to grant permissions specific to a given event or team', () => {
+    it('should be able to grant boolean permissions with a specific scope', () => {
         const singleEventAccessControl = new AccessControl({
             grants: [
                 {
@@ -257,7 +112,78 @@ describe('AccessControl', () => {
         expect(doubleTeamAccessControl.can('test.boolean', { team: 'stewards' })).toBeTrue();
     });
 
-    it('has the ability to revoke permissions specific to a given event or team', () => {
+    it('should be able to grant CRUD permissions with a global scope', () => {
+        const accessControl = new AccessControl({
+            grants: 'test',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'create')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+        expect(accessControl.can('test.crud', 'update')).toBeTrue();
+        expect(accessControl.can('test.crud', 'delete')).toBeTrue();
+    });
+
+    it('should be able to grant CRUD permissions with a specific scope', () => {
+        const accessControl = new AccessControl({
+            grants: [ 'test.crud:create', 'test.crud:read' ],
+        });
+
+        expect(accessControl.can('test.crud', 'create')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+        expect(accessControl.can('test.crud', 'update')).toBeFalse();
+        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
+    });
+
+    it('should be able to grant multiple permissions', () => {
+        const accessControl = new AccessControl({
+            grants: 'test.boolean,test.crud',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+    });
+
+    it('should be able to grant hierarchical permissions', () => {
+        const accessControl = new AccessControl({
+            grants: [
+                'test',
+                {
+                    permission: 'senior',  // expands to "event.visible", among others
+                    event: '2024',
+                    team: 'crew',
+                }
+            ],
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+
+        expect(() => accessControl.can('event.visible')).toThrow();
+
+        expect(accessControl.can('event.visible', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2025', team: kAnyTeam })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeFalse();
+    });
+
+    it('should be able to revoke boolean permissions in a global scope', () => {
+        const accessControl = new AccessControl({
+            grants: 'test.boolean,test.crud',
+            revokes: 'test.crud',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeFalse();
+        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
+    });
+
+    it('should be able to revoke boolean permissions with a specific scope', () => {
         const scopedEventAccessControl = new AccessControl({
             grants: 'test.boolean',
             revokes: {
@@ -327,89 +253,101 @@ describe('AccessControl', () => {
         expect(partialTeamAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
     });
 
-    it('has the ability to grant role-based permissions specific', () => {
+    it('should be able to revoke CRUD permissions with a global scope', () => {
         const accessControl = new AccessControl({
-            grants: [
-                'test',
-                {
-                    permission: 'senior',  // expands to "event.visible", among others
-                    event: '2024',
-                    team: 'crew',
-                }
-            ],
+            grants: 'test.crud',
+            revokes: [ { permission: 'test.crud:delete' } ],
         });
 
-        expect(accessControl.can('test.boolean')).toBeTrue();
-
-        expect(() => accessControl.can('event.visible')).toThrow();
-
-        expect(accessControl.can('event.visible', { event: '2024' })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: '2024', team: kAnyTeam })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: '2025' })).toBeFalse();
-        expect(accessControl.can('event.visible', { event: '2025', team: kAnyTeam })).toBeFalse();
-
-        expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
-
-        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'crew' })).toBeTrue();
-        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeFalse();
+        expect(accessControl.can('test.boolean')).toBeFalse();
+        expect(accessControl.can('test.crud', 'create')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+        expect(accessControl.can('test.crud', 'update')).toBeTrue();
+        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
     });
 
-    it('has the ability to revoke permissions for specific events or teams', () => {
-        const accessControl = new AccessControl({
-            grants: 'test',
-            revokes: [
-                {
-                    permission: 'test.boolean',
-                    event: '2025',
-                    team: 'crew',
-                },
-                {
-                    permission: 'test.boolean.required.event',
-                    event: '2025',
-                },
-                {
-                    permission: 'test.boolean.required.team',
-                    team: 'crew',
-                },
-            ],
-
+    it('has the ability to grant holistic access to a given event', () => {
+        const fullAccessControl = new AccessControl({
+            grants: 'test.boolean',
             events: kAnyEvent,
+        });
+
+        expect(fullAccessControl.can('test.boolean')).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { event: '2025' })).toBeTrue();
+
+        const scopedAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            events: '2024',
+        });
+
+        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+
+        const unknownAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            // `events` deliberately undefined
+        });
+
+        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
+        expect(unknownAccessControl.can('test.boolean', { event: '2024' })).toBeFalse();
+        expect(unknownAccessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+    });
+
+    it('has the ability to grant holistic access to a given team', () => {
+        const fullAccessControl = new AccessControl({
+            grants: 'test.boolean',
             teams: kAnyTeam,
         });
 
-        // Event:
-        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
-        expect(accessControl.can('test.boolean', { event: '2024' })).toBeTrue();
-        expect(accessControl.can('test.boolean', { event: '2025' })).toBeFalse();
-        expect(accessControl.can('test.boolean', { event: kAnyEvent })).toBeTrue();
+        expect(fullAccessControl.can('test.boolean')).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
+        expect(fullAccessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
 
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
-        expect(accessControl.can('test.crud', 'read', { event: '2024' })).toBeTrue();
-        expect(accessControl.can('test.crud', 'read', { event: '2025' })).toBeTrue();
-        expect(accessControl.can('test.crud', 'read', { event: kAnyEvent })).toBeTrue();
+        const scopedAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            teams: 'crew',
+        });
 
-        expect(accessControl.can('test.boolean.required.event', { event: '2024' })).toBeTrue();
-        expect(accessControl.can('test.boolean.required.event', { event: '2025' })).toBeFalse();
-        expect(accessControl.can('test.boolean.required.event', { event: kAnyEvent })).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean')).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { team: 'crew' })).toBeTrue();
+        expect(scopedAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
 
-        // Team:
-        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
-        expect(accessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
-        expect(accessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
-        expect(accessControl.can('test.boolean', { team: kAnyTeam })).toBeTrue();
+        const unknownAccessControl = new AccessControl({
+            grants: 'test.boolean',
+            // `teams` deliberately omitted
+        });
 
-        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
-        expect(accessControl.can('test.crud', 'read', { team: 'hosts' })).toBeTrue();
-        expect(accessControl.can('test.crud', 'read', { team: 'crew' })).toBeTrue();
-        expect(accessControl.can('test.crud', 'read', { team: kAnyTeam })).toBeTrue();
-
-        expect(accessControl.can('test.boolean.required.team', { team: 'hosts' })).toBeTrue();
-        expect(accessControl.can('test.boolean.required.team', { team: 'crew' })).toBeFalse();
-        expect(accessControl.can('test.boolean.required.team', { team: kAnyTeam })).toBeTrue();
+        expect(unknownAccessControl.can('test.boolean')).toBeTrue();
+        expect(unknownAccessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(unknownAccessControl.can('test.boolean', { team: 'hosts' })).toBeFalse();
     });
 
-    it('has the ability to require event and/or team to be set in permission checks', () => {
+    it('has the ability to expand permission groups', () => {
+        const accessControl = new AccessControl({
+            grants: 'testgroup',
+            revokes: 'test.crud:delete',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'create')).toBeTrue();
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();
+        expect(accessControl.can('test.crud', 'update')).toBeTrue();
+        expect(accessControl.can('test.crud', 'delete')).toBeFalse();
+    });
+
+    it('has the ability to require a permission to be granted', () => {
+        const accessControl = new AccessControl({
+            grants: 'test.crud:update',
+        });
+
+        expect(() => accessControl.require('test.boolean')).toThrow();
+        expect(() => accessControl.require('test.crud', 'read')).toThrow();
+        expect(() => accessControl.require('test.crud', 'update')).not.toThrow();
+    });
+
+    it('should be able to enforce that specific scope parameters are given', () => {
         const accessControl = new AccessControl({
             grants: 'test',
         });
