@@ -32,6 +32,16 @@ type AccessListParams = {
      * Grants that are in scope for this access list.
      */
     grants?: Grant | Grant[];
+
+    /**
+     * Events that scoped permission queries should be granted for, on top of scoped grants.
+     */
+    events?: string;
+
+    /**
+     * Teams that scoped permission queries should be granted for, on top of scoped grants.
+     */
+    teams?: string;
 };
 
 /**
@@ -77,7 +87,7 @@ type Result = Pick<Access, 'expanded' | 'global'> & {
     /**
      * The specific scope that was determined to be applicable for the query.
      */
-    scope?: AccessScope;
+    scope?: 'global' | AccessScope;
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -144,8 +154,11 @@ export class AccessList {
             }
         }
 
-        // TODO: events
-        // TODO: teams
+        if (!!params?.events && !!params.events.length)
+            this.#events = new Set<string>(params.events.split(','));
+
+        if (!!params?.teams && !!params.teams.length)
+            this.#teams = new Set<string>(params.teams.split(','));
     }
 
     /**
@@ -169,29 +182,65 @@ export class AccessList {
             };
         }
 
+        const globalEventAccess =
+            this.#events.has(kAnyEvent) || (!!scope.event && this.#events.has(scope.event));
+
+        const globalTeamAccess =
+            this.#teams.has(kAnyTeam) || (!!scope.team && this.#teams.has(scope.team));
+
+        if (globalEventAccess && globalTeamAccess) {
+            return {
+                expanded: access.expanded,
+                global: access.global,
+                scope: 'global',
+            };
+        }
+
         if (!!access.scopes) {
             for (const accessScope of access.scopes) {
+                let global: 'global' | undefined = undefined;
+
                 if (!!scope.event && scope.event !== kAnyEvent) {
-                    // TODO: What to do with `accessScope.event === undefined`?
-                    if (accessScope.event !== scope.event && accessScope.event !== kAnyEvent)
-                        continue;
+                    if (accessScope.event !== scope.event && accessScope.event !== kAnyEvent) {
+                        if (!globalEventAccess)
+                            continue;
+
+                        global = 'global';
+                    }
                 }
 
                 if (!!scope.team && scope.team !== kAnyTeam) {
-                    // TODO: What to do with `accessScope.team === undefined`?
-                    if (accessScope.team !== scope.team && accessScope.team !== kAnyTeam)
-                        continue;
+                    if (accessScope.team !== scope.team && accessScope.team !== kAnyTeam) {
+                        if (!globalTeamAccess)
+                            continue;
+
+                        global = 'global';
+                    }
                 }
 
                 return {
                     expanded: access.expanded,
                     global: access.global,
-                    scope: accessScope,
+                    scope: global || accessScope,
                 };
             }
-        }
+        } else if (!!scope) {
+            if (!!scope.event && scope.event !== kAnyEvent) {
+                if (!globalEventAccess)
+                    return undefined;
+            }
 
-        // TODO: Global event / team access
+            if (!!scope.team && scope.team !== kAnyTeam) {
+                if (!globalTeamAccess)
+                    return undefined;
+            }
+
+            return {
+                expanded: access.expanded,
+                global: access.global,
+                scope: 'global',
+            };
+        }
 
         return undefined;
     }

@@ -284,7 +284,15 @@ describe('AccessList', () => {
             },
         });
 
+        expect(
+            scopedAccessList.query('test', { event: '2024', team: 'crew' })).toEqual(
+            scopedAccessList.query('test', { event: '2025', team: 'crew' }));
+
         expect(scopedAccessList.query('test', { team: 'stewards' })).toBeUndefined();
+
+        expect(
+            scopedAccessList.query('test', { event: '2024', team: 'stewards' })).toEqual(
+            scopedAccessList.query('test', { event: '2025', team: 'stewards' }));
 
         expect(scopedAccessList.query('test2')).not.toBeUndefined();
         expect(scopedAccessList.query('test2')).toEqual({
@@ -418,5 +426,121 @@ describe('AccessList', () => {
                 team: 'stewards',
             },
         });
+    });
+
+    it('should support global access to particular events', () => {
+        const accessList = new AccessList({
+            grants: [
+                { permission: 'test', event: '2024' },
+                { permission: 'test2' },
+            ],
+            events: '2025',
+        });
+
+        expect(accessList.query('test')).not.toBeUndefined();
+        expect(accessList.query('test')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        expect(accessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(accessList.query('test', { event: '2024' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                event: '2024',
+            },
+        });
+
+        expect(accessList.query('test', { event: '2025' })).not.toBeUndefined();
+        expect(accessList.query('test', { event: '2025' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: 'global',
+        });
+
+        expect(accessList.query('test', { event: '2026' })).toBeUndefined();
+
+        expect(accessList.query('test2', { event: '2025' })).not.toBeUndefined();
+        expect(accessList.query('test2', { event: '2025' })).toEqual({
+            expanded: false,
+            global: true,
+            scope: 'global',
+        });
+    });
+
+    it('should support global access to particular teams', () => {
+        const accessList = new AccessList({
+            grants: [
+                { permission: 'test', team: 'crew' },
+                { permission: 'test2' },
+            ],
+            teams: 'hosts,stewards',
+        });
+
+        expect(accessList.query('test')).not.toBeUndefined();
+        expect(accessList.query('test')).toEqual({
+            expanded: false,
+            global: false,
+        });
+
+        expect(accessList.query('test', { team: 'crew' })).not.toBeUndefined();
+        expect(accessList.query('test', { team: 'crew' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: {
+                team: 'crew',
+            },
+        });
+
+        expect(accessList.query('test', { team: 'hosts' })).not.toBeUndefined();
+        expect(accessList.query('test', { team: 'hosts' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: 'global',
+        });
+
+        expect(accessList.query('test', { team: 'stewards' })).not.toBeUndefined();
+        expect(accessList.query('test', { team: 'stewards' })).toEqual({
+            expanded: false,
+            global: false,
+            scope: 'global',
+        });
+
+        expect(accessList.query('test', { team: 'staff' })).toBeUndefined();
+
+        expect(accessList.query('test2', { team: 'hosts' })).not.toBeUndefined();
+        expect(accessList.query('test2', { team: 'hosts' })).toEqual({
+            expanded: false,
+            global: true,
+            scope: 'global',
+        });
+    });
+
+    it('should support global event and team access wildcards', () => {
+        const accessList = new AccessList({
+            grants: [
+                'test',
+                { permission: 'test2', event: '2024' },
+                { permission: 'test3', event: '2025', team: 'crew' },
+            ],
+            events: kAnyEvent,
+            teams: kAnyTeam,
+        });
+
+        expect(accessList.query('test')).not.toBeUndefined();
+        expect(accessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(accessList.query('test', { team: 'staff' })).not.toBeUndefined();
+        expect(accessList.query('test', { event: '2024', team: 'staff' })).not.toBeUndefined();
+
+        expect(accessList.query('test2')).not.toBeUndefined();
+        expect(accessList.query('test2', { event: '2024' })).not.toBeUndefined();
+        expect(accessList.query('test2', { team: 'staff' })).not.toBeUndefined();
+        expect(accessList.query('test2', { event: '2025', team: 'staff' })).not.toBeUndefined();
+
+        expect(accessList.query('test3')).not.toBeUndefined();
+        expect(accessList.query('test3', { event: '2025' })).not.toBeUndefined();
+        expect(accessList.query('test3', { team: 'staff' })).not.toBeUndefined();
+        expect(accessList.query('test3', { event: '2024', team: 'staff' })).not.toBeUndefined();
     });
 });
