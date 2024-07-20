@@ -230,13 +230,13 @@ describe('AccessList', () => {
 
         expect(scopedAccessList.query('test2')).not.toBeUndefined();
         expect(scopedAccessList.query('test2')).toEqual({
-            expanded: true,
+            expanded: false,
             global: false,
         });
 
         expect(scopedAccessList.query('test2', { event: '2024' })).not.toBeUndefined();
         expect(scopedAccessList.query('test2', { event: '2024' })).toEqual({
-            expanded: true,
+            expanded: false,
             global: false,
             scope: {
                 event: '2024',
@@ -245,7 +245,7 @@ describe('AccessList', () => {
 
         expect(scopedAccessList.query('test2', { event: '2025' })).not.toBeUndefined();
         expect(scopedAccessList.query('test2', { event: '2025' })).toEqual({
-            expanded: true,  // <-- fixme, this is not correct
+            expanded: false,
             global: false,
             scope: {
                 event: '2025',
@@ -288,13 +288,13 @@ describe('AccessList', () => {
 
         expect(scopedAccessList.query('test2')).not.toBeUndefined();
         expect(scopedAccessList.query('test2')).toEqual({
-            expanded: true,
+            expanded: false,
             global: false,
         });
 
         expect(scopedAccessList.query('test2', { team: 'crew' })).not.toBeUndefined();
         expect(scopedAccessList.query('test2', { team: 'crew' })).toEqual({
-            expanded: true,
+            expanded: false,
             global: false,
             scope: {
                 team: 'crew',
@@ -303,7 +303,7 @@ describe('AccessList', () => {
 
         expect(scopedAccessList.query('test2', { team: 'stewards' })).not.toBeUndefined();
         expect(scopedAccessList.query('test2', { team: 'stewards' })).toEqual({
-            expanded: true,  // <-- fixme, this is not correct
+            expanded: false,
             global: false,
             scope: {
                 team: 'stewards',
@@ -411,7 +411,7 @@ describe('AccessList', () => {
             .not.toBeUndefined();
 
         expect(scopedAccessList.query('test2', { event: '2025', team: 'stewards' })).toEqual({
-            expanded: true,  // <-- fixme, this is not correct
+            expanded: false,
             global: false,
             scope: {
                 event: '2025',

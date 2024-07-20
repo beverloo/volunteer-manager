@@ -125,6 +125,9 @@ export class AccessList {
 
                     const access = this.#access.get(permission)!;
 
+                    if (access.expanded && !expanded)
+                        access.expanded = false;
+
                     if (global) {
                         if (!access.global)
                             access.global = true;  // global access has now been granted
