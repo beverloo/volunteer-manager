@@ -20,8 +20,8 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 
+import type { AccessScope } from '@lib/auth/AccessControl';
 import type { NextLayoutParams } from '@lib/NextRouterParams';
-import type { Options } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
@@ -249,12 +249,12 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     ];
 
     for (const team of info.teams) {
-        const teamPermissionOptions: Options = {
+        const teamPermissionScope: AccessScope = {
             event,
             team: team.slug,
         };
 
-        if (!access.can('event.visible', teamPermissionOptions))
+        if (!access.can('event.visible', teamPermissionScope))
             continue;  // the volunteer does not have access to this team
 
         const knowledgeEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
@@ -275,7 +275,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 permission: {
                     permission: 'event.vendors',
                     operation: 'read',
-                    options: teamPermissionOptions,
+                    options: teamPermissionScope,
                 },
             });
         }
@@ -289,7 +289,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 permission: {
                     permission: 'event.vendors',
                     operation: 'read',
-                    options: teamPermissionOptions,
+                    options: teamPermissionScope,
                 },
             });
         }
@@ -306,7 +306,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     permission: {
                         permission: 'event.applications',
                         operation: 'read',
-                        options: teamPermissionOptions,
+                        options: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/applications`,
                     badge: team.pendingApplications,
@@ -324,7 +324,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     label: 'Retention',
                     permission: {
                         permission: 'event.retention',
-                        options: teamPermissionOptions,
+                        options: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/retention`,
                 },

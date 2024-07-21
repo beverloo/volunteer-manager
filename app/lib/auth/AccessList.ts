@@ -47,7 +47,7 @@ type AccessListParams = {
 /**
  * Scope that applies to an access entry, defining the applicable event and/or team.
  */
-type AccessScope = {
+export type AccessScope = {
     /**
      * Event that the access query should be scoped to.
      */
@@ -83,7 +83,7 @@ type Access = {
  * Result that will be issued from an `AccessList` query when the requested permission was found to
  * exist on the access list.
  */
-type Result = Pick<Access, 'expanded' | 'global'> & {
+export type Result = Pick<Access, 'expanded' | 'global'> & {
     /**
      * The specific scope that was determined to be applicable for the query.
      */
@@ -96,6 +96,9 @@ type Result = Pick<Access, 'expanded' | 'global'> & {
  * The access list takes a sequence of grants (defined by the `Grant` type) and enables queries to
  * be ran against those grants, to understand whether they are captured by this access list. Access
  * lists can be used to track both positive grants and revokes.
+ *
+ * This class is an implementation detail of the `AccessControl` mechanism, and generally should not
+ * be used directly. Accessors may be exposed on there to provide access when necessary.
  */
 export class AccessList {
     #access: Map<string, Access> = new Map;

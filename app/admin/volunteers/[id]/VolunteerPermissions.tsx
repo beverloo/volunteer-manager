@@ -12,7 +12,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
-import { AccessControl, kAnyEvent, kAnyTeam, type AccessGrants } from '@lib/auth/AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
@@ -330,7 +330,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
 
     const userAccessControl = new AccessControl(userConfiguration?.access ?? { /* no grants */ });
 
-    const roleGrants: AccessGrants = { grants: [], revokes: [] };
+    const roleGrants: AccessControlParams = { grants: [], revokes: [] };
     if (!!userConfiguration) {
         for (const { event, grant, team } of userConfiguration?.events) {
             if (!grant || !Array.isArray(roleGrants.grants))

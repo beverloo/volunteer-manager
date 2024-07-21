@@ -7,7 +7,7 @@ import type { AccessOperation } from '@lib/auth/AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { SessionData } from './Session';
 import type { User } from './User';
-import { AccessControl, kAnyTeam, type Options } from './AccessControl';
+import { AccessControl, kAnyTeam, type AccessScope } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
 import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
@@ -124,12 +124,12 @@ export type PermissionAccessCheck =
     BooleanPermission |
     {
         permission: BooleanPermission;
-        options?: Options;
+        options?: AccessScope;
     } |
     {
         permission: CRUDPermission;
         operation: AccessOperation;
-        options?: Options;
+        options?: AccessScope;
     };
 
 /**

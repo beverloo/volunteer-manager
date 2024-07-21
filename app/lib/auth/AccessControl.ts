@@ -4,23 +4,32 @@
 import { notFound } from 'next/navigation';
 
 import type { AccessDescriptor, AccessOperation } from './AccessDescriptor';
+import type { AccessScope, Grant, Result } from './AccessList';
 import type { BooleanPermission, CRUDPermission } from './Access';
+import { AccessList, kAnyEvent, kAnyTeam } from './AccessList';
 import { kPermissionGroups, kPermissions } from './Access';
+
+/**
+ * Re-export types from the underlying `AccessList` mechanism that are useful elsewhere.
+ */
+export type { AccessScope, Grant };
+export { kAnyEvent, kAnyTeam };
+
+/**
+ * Pattern that defines the valid syntax for an individual permission, which are single-word alpha-
+ * numeric sequences separated by a period. (E.g. "foo.bar.baz".)
+ *
+ * @visible Exclusively for testing purposes.
+ */
+export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|update|delete))*$/;
 
 // -------------------------------------------------------------------------------------------------
 
 /**
- * Type definition for a grant, which can either be an individual grant without scope, or one that
- * is scoped to a particular event or team.
+ * Parameters that can be passed to the `AccessControl` constructor, defining the input information
+ * necessary to fully define the scope of access for a particular user.
  */
-export type Grant = string | { event?: string; permission: string; team?: string; }
-
-/**
- * Information about the permission grants that have been given to the visitor. This includes both
- * grants, and specific control to which team(s) the visitor has access. Each value takes a list of
- * values, separated by commas.
- */
-export interface AccessGrants {
+export type AccessControlParams = {
     /**
      * Permissions that have been granted to the user, if any. These are in addition to implicit
      * grants based on event-level allocations, i.e. by being assigned to a Senior-level position.
@@ -45,46 +54,15 @@ export interface AccessGrants {
      * permissions may be granted specific to a given team based on Senior-level access.
      */
     teams?: string;
-}
-
-// -------------------------------------------------------------------------------------------------
+};
 
 /**
- * Further options that can be provided to the access control mechanism.
+ * Result that will be issued from an `AccessControl` query when the requested permission was found
+ * to exist on either the grant or revocation access lists.
  */
-export interface Options {
-    /**
-     * Event that the permission check is in scope for. Permission-specific grants and revocations
-     * will be considered first, after which global access will be considered.
-     */
-    event?: string;
+type AccessResult = Result & {
 
-    /**
-     * Team that the permission check is in scope for. Permission-specific grants and revocations
-     * will be considered first, after which global access will be considered.
-     */
-    team?: string;
-}
-
-// -------------------------------------------------------------------------------------------------
-
-/**
- * Value that represents that any event will be applicable.
- */
-export const kAnyEvent = '*';
-
-/**
- * Value that represents that any team will be applicable.
- */
-export const kAnyTeam = '*';
-
-/**
- * Pattern that defines the valid syntax for an individual permission, which are single-word alpha-
- * numeric sequences separated by a period. (E.g. "foo.bar.baz".)
- *
- * @visible Exclusively for testing purposes.
- */
-export const kPermissionPattern = /^[a-z][\w-]*(?:\.[\w-]+)*(?:\:(create|read|update|delete))*$/;
+};
 
 // -------------------------------------------------------------------------------------------------
 
@@ -129,23 +107,33 @@ export type PermissionStatus =
  * permission that indicate the scope, e.g. "foo.bar:update".
  */
 export class AccessControl {
-    #grants: PermissionMap = new Map;
-    #revokes: PermissionMap = new Map;
+    #grantMap: PermissionMap = new Map;
+    #grants: AccessList;
+
+    #revokeMap: PermissionMap = new Map;
+    #revokes: AccessList;
 
     #events: Set<string> | undefined;
     #teams: Set<string> | undefined;
 
-    constructor(grants: AccessGrants) {
+    constructor(grants: AccessControlParams) {
+        this.#revokes = new AccessList({ grants: grants.revokes })
+        this.#grants = new AccessList({
+            grants: grants.grants,
+            events: grants.events,
+            teams: grants.teams,
+        });
+
         if (!!grants.grants) {
             const grantArray = Array.isArray(grants.grants) ? grants.grants : [ grants.grants ];
             for (const grant of grantArray)
-                this.populatePermissionMapFromInput(this.#grants, grant);
+                this.populatePermissionMapFromInput(this.#grantMap, grant);
         }
 
         if (!!grants.revokes) {
             const revokeArray = Array.isArray(grants.revokes) ? grants.revokes : [ grants.revokes ];
             for (const revoke of revokeArray)
-                this.populatePermissionMapFromInput(this.#revokes, revoke);
+                this.populatePermissionMapFromInput(this.#revokeMap, revoke);
         }
 
         if (!!grants.events && !!grants.events.length)
@@ -156,36 +144,16 @@ export class AccessControl {
     }
 
     /**
-     * Gets the events to which access has been globally granted.
-     */
-    get events() { return this.#events; }
-
-    /**
-     * Gets the permissions that have been explicitly granted.
-     */
-    get grants() { return this.#grants.values(); }
-
-    /**
-     * Gets the permissions that have been explicitly revoked.
-     */
-    get revokes() { return this.#revokes.values(); }
-
-    /**
-     * Gets the teams to which access has been globally granted.
-     */
-    get teams() { return this.#teams; }
-
-    /**
-     * Checks whether the visitor has access to the given `permission`. When the `permission` is a
-     * CRUD-based permission, the operation must be specified. A set of options may be given when
-     * applicable, to enable further fine-grained access control at the resource level.
+     * Checks whether the given `permission` has been granted. Optionally, a `scope` may be given
+     * which adds additional granularity to the check, as permissions don't have to be granted for
+     * every event and team. CRUD-based permissions require an `operation` to be specified.
      *
-     * Permission checks will be highly specific at first, to ensure that someone who is granted the
-     * "foo" permission can still have "foo.bar" explicitly revoked. CRUD permissions will be
-     * expanded separately at the deepest scope.
+     * Permission checks are hierarchical, which means that someone granted the "event" permission
+     * also has access to the "event.visible" permission. These checks are done in order of highest
+     * specificity, to make sure that the most specific grant (and/or revoke) will be considered.
      */
-    can(permission: BooleanPermission, options?: Options): boolean;
-    can(permission: CRUDPermission, operation: AccessOperation, options?: Options): boolean;
+    can(permission: BooleanPermission, scope?: AccessScope): boolean;
+    can(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope): boolean;
     can(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): boolean {
         const status = this.getStatus(permission as any, second, third);
         switch (status) {
@@ -205,15 +173,40 @@ export class AccessControl {
     }
 
     /**
-     * Requires that the visitor has access to the given `permission`, or throws an exception that
-     * will result in a HTTP 403 Forbidden error page. When the `permission` is a CRUD-based
-     * permission, the operation must be specified. A set of options may be given when applicable,
-     * to enable further fine-grained access control at the resource level.
+     * Queries the status of the given `permission`, which contains full information on why the
+     * permission was either granted or revoked, if set at all. Optionally, a `scope` may be given
+     * which adds additional granularity to the query, as permissions don't have to be granted for
+     * every event and team. CRUD-based permissions require an `operation` to be specified.
+     *
+     * Permission queries are hierarchical, which means that someone granted the "event" permission
+     * also has access to the "event.visible" permission. These queries are done in order of highest
+     * specificity, to make sure that the most specific grant (and/or revoke) will be considered.
+     */
+    query(permission: BooleanPermission, scope?: AccessScope): AccessResult | undefined;
+    query(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope)
+        : AccessResult | undefined;
+    query(permission: BooleanPermission | CRUDPermission, second?: any, third?: any)
+        : AccessResult | undefined
+    {
+        // TODO: Implement this method.
+        return undefined;
+    }
+
+    /**
+     * Requires that the given `permission` has been granted, or throw a Next.js exception that will
+     * yield an HTTP 403 Forbidden error to be shown instead of the requested content. Optionally, a
+     * `scope` may be given which adds additional granularity to the query, as permissions don't
+     * have to be granted for every event and team. CRUD-based permissions require an `operation` to
+     * be specified.
+     *
+     * Permission queries are hierarchical, which means that someone granted the "event" permission
+     * also has access to the "event.visible" permission. These queries are done in order of highest
+     * specificity, to make sure that the most specific grant (and/or revoke) will be considered.
      *
      * @todo Actually throw a HTTP 403 Forbidden error when Next.js supports it.
      */
-    require(permission: BooleanPermission, options?: Options): void;
-    require(permission: CRUDPermission, operation: AccessOperation, options?: Options): void;
+    require(permission: BooleanPermission, scope?: AccessScope): void;
+    require(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope): void;
     require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
         if (!this.can(permission as any, second, third))
             notFound();
@@ -230,8 +223,8 @@ export class AccessControl {
      * "foo" permission can still have "foo.bar" explicitly revoked. CRUD permissions will be
      * expanded separately at the deepest scope.
      */
-    getStatus(permission: BooleanPermission, options?: Options): PermissionStatus;
-    getStatus(permission: CRUDPermission, operation: AccessOperation, options?: Options)
+    getStatus(permission: BooleanPermission, scope?: AccessScope): PermissionStatus;
+    getStatus(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope)
         : PermissionStatus;
     getStatus(permission: BooleanPermission | CRUDPermission, second?: any, third?: any)
         : PermissionStatus
@@ -243,12 +236,12 @@ export class AccessControl {
             throw new Error(`Unrecognised permission: "${permission}"`);
 
         const descriptor: AccessDescriptor = kPermissions[permission];
-        const options: Options | undefined = descriptor.type === 'crud' ? third : second;
+        const accessScope: AccessScope | undefined = descriptor.type === 'crud' ? third : second;
 
-        if (descriptor.requireEvent && !options?.event)
+        if (descriptor.requireEvent && !accessScope?.event)
             throw new Error(`Event is required when checking "${permission}" access`);
 
-        if (descriptor.requireTeam && !options?.team)
+        if (descriptor.requireTeam && !accessScope?.team)
             throw new Error(`Team is required when checking "${permission}" access`);
 
         if (descriptor.type === 'crud') {
@@ -257,11 +250,11 @@ export class AccessControl {
 
             const scope = `${permission}:${second}`;
 
-            const maybeRevoked = this.#revokes.get(scope);
+            const maybeRevoked = this.#revokeMap.get(scope);
             if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, third))
                 return 'crud-revoked';  // permission + scope has been explicitly revoked
 
-            const maybeGranted = this.#grants.get(scope);
+            const maybeGranted = this.#grantMap.get(scope);
             if (maybeGranted && this.isGrantApplicable(maybeGranted, third))
                 return 'crud-granted';  // permission + scope has been explicitly granted
         }
@@ -271,12 +264,12 @@ export class AccessControl {
             const scope = path.join('.');
             const isParent = scope !== permission;
 
-            const maybeRevoked = this.#revokes.get(scope);
-            if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, options))
+            const maybeRevoked = this.#revokeMap.get(scope);
+            if (maybeRevoked && this.isRevokeApplicable(maybeRevoked, accessScope))
                 return isParent ? 'parent-revoked' : 'self-revoked';  // explicitly revoked
 
-            const maybeGranted = this.#grants.get(scope);
-            if (maybeGranted && this.isGrantApplicable(maybeGranted, options))
+            const maybeGranted = this.#grantMap.get(scope);
+            if (maybeGranted && this.isGrantApplicable(maybeGranted, accessScope))
                 return isParent ? 'parent-granted' : 'self-granted';  // explicitly granted
 
             path.pop();
@@ -345,17 +338,17 @@ export class AccessControl {
      * Returns whether the given `permission` is an applicable grant considering scoping information
      * given in `options`. Global event and team access will be considered.
      */
-    private isGrantApplicable(permission: Permission, options?: Options) {
-        if (!!options?.event && options.event !== kAnyEvent) {
+    private isGrantApplicable(permission: Permission, scope?: AccessScope) {
+        if (!!scope?.event && scope.event !== kAnyEvent) {
             if (!this.#events?.has(kAnyEvent)) {
-                if (!permission.events?.has(options.event) && !this.#events?.has(options.event))
+                if (!permission.events?.has(scope.event) && !this.#events?.has(scope.event))
                     return false;  // event access has not been granted
             }
         }
 
-        if (!!options?.team && options.team !== kAnyEvent) {
+        if (!!scope?.team && scope.team !== kAnyEvent) {
             if (!this.#teams?.has(kAnyEvent)) {
-                if (!permission.teams?.has(options.team) && !this.#teams?.has(options.team))
+                if (!permission.teams?.has(scope.team) && !this.#teams?.has(scope.team))
                     return false;  // team access has not been granted
             }
         }
@@ -368,14 +361,14 @@ export class AccessControl {
      * information given in `options`. Global event and team access will be not be considered, as
      * revokes are exclusionary for something that could be granted.
      */
-    private isRevokeApplicable(permission: Permission, options?: Options) {
-        if (!!permission.events?.size && !!options?.event) {
-            if (!permission.events.has(options.event))
+    private isRevokeApplicable(permission: Permission, scope?: AccessScope) {
+        if (!!permission.events?.size && !!scope?.event) {
+            if (!permission.events.has(scope.event))
                 return false;  // event access has not been revoked
         }
 
-        if (!!permission.teams?.size && !!options?.team) {
-            if (!permission.teams.has(options.team))
+        if (!!permission.teams?.size && !!scope?.team) {
+            if (!permission.teams.has(scope.team))
                 return false;  // team access has not been revoked
         }
 
