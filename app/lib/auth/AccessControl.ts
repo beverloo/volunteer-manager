@@ -122,6 +122,7 @@ export class AccessControl {
     constructor(grants: AccessControlParams) {
         this.#revokes = new AccessList({ grants: grants.revokes })
         this.#grants = new AccessList({
+            expansions: kPermissionGroups,
             grants: grants.grants,
             events: grants.events,
             teams: grants.teams,
@@ -158,21 +159,7 @@ export class AccessControl {
     can(permission: BooleanPermission, scope?: AccessScope): boolean;
     can(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope): boolean;
     can(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): boolean {
-        const status = this.getStatus(permission as any, second, third);
-        switch (status) {
-            case 'crud-granted':
-            case 'parent-granted':
-            case 'self-granted':
-                return true;
-
-            case 'crud-revoked':
-            case 'parent-revoked':
-            case 'self-revoked':
-            case 'unset':
-                return false;
-        }
-
-        throw new Error(`Unrecognised permission status: "${status}"`);
+        return this.query(permission as any, second, third)?.result === 'granted';
     }
 
     /**

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { AccessControl, kAnyEvent, kAnyTeam, kPermissionPattern } from './AccessControl';
+import { kPermissionGroups } from './Access';
 
 describe('AccessControl', () => {
     it.each([
@@ -194,5 +195,153 @@ describe('AccessControl', () => {
         expect(() =>
             accessControl.query('test.boolean.required.team', { event: '2024', team: 'crew' }))
                 .not.toThrow();
+    });
+
+    it.failing('should be able to revoke permissions for specific events or teams', () => {
+        // FIXME
+
+        const accessControl = new AccessControl({
+            grants: 'test',
+            revokes: [
+                {
+                    permission: 'test.boolean',
+                    event: '2025',
+                    team: 'crew',
+                },
+                {
+                    permission: 'test.boolean.required.event',
+                    event: '2025',
+                },
+                {
+                    permission: 'test.boolean.required.team',
+                    team: 'crew',
+                },
+            ],
+
+            events: kAnyEvent,
+            teams: kAnyTeam,
+        });
+
+        // Event:
+        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
+        expect(accessControl.can('test.boolean', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.boolean', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('test.boolean', { event: kAnyEvent })).toBeTrue();
+
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
+        expect(accessControl.can('test.crud', 'read', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { event: '2025' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { event: kAnyEvent })).toBeTrue();
+
+        expect(accessControl.can('test.boolean.required.event', { event: '2024' })).toBeTrue();
+        expect(accessControl.can('test.boolean.required.event', { event: '2025' })).toBeFalse();
+        expect(accessControl.can('test.boolean.required.event', { event: kAnyEvent })).toBeTrue();
+
+        // Team:
+        expect(accessControl.can('test.boolean')).toBeFalse();  // no more unrestricted access
+        expect(accessControl.can('test.boolean', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.boolean', { team: 'crew' })).toBeFalse();
+        expect(accessControl.can('test.boolean', { team: kAnyTeam })).toBeTrue();
+
+        expect(accessControl.can('test.crud', 'read')).toBeTrue();  // unrestricted access
+        expect(accessControl.can('test.crud', 'read', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { team: 'crew' })).toBeTrue();
+        expect(accessControl.can('test.crud', 'read', { team: kAnyTeam })).toBeTrue();
+
+        expect(accessControl.can('test.boolean.required.team', { team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('test.boolean.required.team', { team: 'crew' })).toBeFalse();
+        expect(accessControl.can('test.boolean.required.team', { team: kAnyTeam })).toBeTrue();
+    });
+
+    it('should expand the Volunteer Manager permission groups', () => {
+        expect(kPermissionGroups).toHaveProperty('testgroup');  // verify the input condition
+
+        const accessControl = new AccessControl({ grants: 'testgroup' });
+        expect(accessControl.query('test.boolean')).toEqual({
+            result: 'granted',
+            expanded: true,
+            global: true,
+        });
+
+        expect(accessControl.query('test.crud', 'create')).toEqual({
+            result: 'granted',
+            expanded: true,
+            global: true,
+        });
+    });
+
+    it('should be able to reduce access queries to a boolean result', () => {
+        const accessControl = new AccessControl({
+            grants: 'test.boolean',
+        });
+
+        expect(accessControl.can('test.boolean')).toBeTrue();
+        expect(accessControl.can('test.crud', 'create')).toBeFalse();
+    });
+
+    it('should be able to require access queries to be successful', () => {
+        const accessControl = new AccessControl({
+            grants: 'test.crud:update',
+        });
+
+        expect(() => accessControl.require('test.boolean')).toThrow();
+        expect(() => accessControl.require('test.crud', 'read')).toThrow();
+        expect(() => accessControl.require('test.crud', 'update')).not.toThrow();
+    });
+
+    it('should behave sensibly when it comes down to event visibility checks', () => {
+        // This is a reference test for the permission system with expected outcomes for the
+        // "event.visible" permission, which heavily relies on automatically granted scoping rules.
+        // Any change in this test should be carefully reviewed.
+
+        const accessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'staff',
+                    event: '2024',
+                    team: 'crew',
+                },
+                {
+                    permission: 'senior',
+                    event: '2023',
+                    team: 'hosts',
+                }
+            ],
+            teams: 'example',
+        });
+
+        // They have access to at least one event:
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: kAnyTeam })).toBeTrue();
+
+        // They are able to access 2023 and 2024:
+        expect(accessControl.can('event.visible', { event: '2022', team: kAnyTeam })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: kAnyTeam })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: kAnyTeam })).toBeFalse();
+
+        // They are able to access crew, host and example information:
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'tech' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'example' }))
+            .toBeTrue();
+        expect(accessControl.can('event.visible', { event: kAnyEvent, team: 'stewards' }))
+            .toBeFalse();
+
+        // They are able to access Crew, Example and Host team information:
+        expect(accessControl.can('event.visible', { event: '2022', team: 'crew' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'crew' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'crew' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'crew' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2022', team: 'example' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'example' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'example' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'example' })).toBeFalse();
+
+        expect(accessControl.can('event.visible', { event: '2022', team: 'hosts' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2023', team: 'hosts' })).toBeTrue();
+        expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
+        expect(accessControl.can('event.visible', { event: '2025', team: 'hosts' })).toBeFalse();
     });
 });
