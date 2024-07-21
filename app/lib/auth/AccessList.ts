@@ -42,6 +42,12 @@ type AccessListParams = {
      * Teams that scoped permission queries should be granted for, on top of scoped grants.
      */
     teams?: string;
+
+    /**
+     * Whether the `kAnyEvent` and `kAnyTeam` qualifiers on an access check should be ignored for
+     * explicitly scoped entries. Important to be able to exclude specific scopes as a revoke.
+     */
+    requireSpecificScope?: boolean;
 };
 
 /**
@@ -101,11 +107,15 @@ export type Result = Pick<Access, 'expanded' | 'global'> & {
  * be used directly. Accessors may be exposed on there to provide access when necessary.
  */
 export class AccessList {
+    #requireSpecificScope: boolean;
+
     #access: Map<string, Access> = new Map;
     #events: Set<string> = new Set;
     #teams: Set<string> = new Set;
 
     constructor(params?: AccessListParams) {
+        this.#requireSpecificScope = !!params?.requireSpecificScope;
+
         if (!!params?.grants) {
             const grants = Array.isArray(params.grants) ? params.grants : [ params.grants ];
 
@@ -202,6 +212,13 @@ export class AccessList {
         if (!!access.scopes) {
             for (const accessScope of access.scopes) {
                 let global: 'global' | undefined = undefined;
+
+                if (this.#requireSpecificScope) {
+                    if (scope.event === kAnyEvent && accessScope.event !== kAnyEvent)
+                        continue;
+                    if (scope.team === kAnyTeam && accessScope.team !== kAnyTeam)
+                        continue;
+                }
 
                 if (!!scope.event && scope.event !== kAnyEvent) {
                     if (accessScope.event !== scope.event && accessScope.event !== kAnyEvent) {

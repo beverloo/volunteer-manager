@@ -214,9 +214,7 @@ describe('AccessControl', () => {
                 .not.toThrow();
     });
 
-    it.failing('should be able to revoke permissions for specific events or teams', () => {
-        // FIXME
-
+    it('should be able to revoke permissions for specific events or teams', () => {
         const accessControl = new AccessControl({
             grants: 'test',
             revokes: [

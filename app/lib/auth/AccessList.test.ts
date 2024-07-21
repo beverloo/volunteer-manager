@@ -543,4 +543,35 @@ describe('AccessList', () => {
         expect(accessList.query('test3', { team: 'staff' })).not.toBeUndefined();
         expect(accessList.query('test3', { event: '2024', team: 'staff' })).not.toBeUndefined();
     });
+
+    it('should have the ability to require a specific scope', () => {
+        // This tests a feature that ignores `kAnyEvent` and `kAnyTeam` values in scoped queries,
+        // which is behaviour that revocations specific to a particular event depend on without
+        // invalidating results for other events.
+
+        const regularAccessList = new AccessList({
+            grants: {
+                permission: 'test',
+                event: '2024',
+            },
+        });
+
+        expect(regularAccessList.query('test')).not.toBeUndefined();
+        expect(regularAccessList.query('test', { event: kAnyEvent })).not.toBeUndefined();  // <--
+        expect(regularAccessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(regularAccessList.query('test', { event: '2025' })).toBeUndefined();
+
+        const requiredScopeAccessList = new AccessList({
+            grants: {
+                permission: 'test',
+                event: '2024',
+            },
+            requireSpecificScope: true,
+        });
+
+        expect(requiredScopeAccessList.query('test')).not.toBeUndefined();
+        expect(requiredScopeAccessList.query('test', { event: kAnyEvent })).toBeUndefined();  // <--
+        expect(requiredScopeAccessList.query('test', { event: '2024' })).not.toBeUndefined();
+        expect(requiredScopeAccessList.query('test', { event: '2025' })).toBeUndefined();
+    });
 });

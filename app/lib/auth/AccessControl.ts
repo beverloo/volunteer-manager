@@ -92,7 +92,11 @@ export class AccessControl {
     #revokes: AccessList;
 
     constructor(grants: AccessControlParams) {
-        this.#revokes = new AccessList({ grants: grants.revokes })
+        this.#revokes = new AccessList({
+            grants: grants.revokes,
+            requireSpecificScope: true,
+        });
+
         this.#grants = new AccessList({
             expansions: kPermissionGroups,
             grants: grants.grants,
