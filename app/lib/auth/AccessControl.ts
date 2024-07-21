@@ -60,11 +60,16 @@ export type AccessControlParams = {
  * Result that will be issued from an `AccessControl` query when the requested permission was found
  * to exist on either the grant or revocation access lists.
  */
-type AccessResult = Result & {
+export type AccessResult = Result & {
     /**
      * Whether the access query resulted in the permission being granted or revoked.
      */
     result: 'granted' | 'revoked';
+
+    /**
+     * Whether the access query result was on the specific CRUD operation.
+     */
+    crud: boolean;
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -204,6 +209,7 @@ export class AccessControl {
             const qualifiedPermissionScope = qualifiedPermission.substring(0, length);
 
             const expanded = qualifiedPermission.length !== length;
+            const crud = descriptor.type === 'crud' && !expanded;
 
             const revocation = this.#revokes.query(qualifiedPermissionScope, accessScope);
             if (revocation) {
@@ -211,6 +217,7 @@ export class AccessControl {
                     ...revocation,
                     result: 'revoked',
                     expanded: expanded || revocation.expanded,
+                    crud,
                 };
             }
 
@@ -220,6 +227,7 @@ export class AccessControl {
                     ...grant,
                     result: 'granted',
                     expanded: expanded || grant.expanded,
+                    crud,
                 };
             }
 

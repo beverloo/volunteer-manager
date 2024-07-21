@@ -59,6 +59,7 @@ describe('AccessControl', () => {
         expect(accessControl.query('test.boolean.required.event', scope)).not.toBeUndefined();
         expect(accessControl.query('test.boolean.required.event', scope)).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
             scope: 'global',
@@ -67,6 +68,7 @@ describe('AccessControl', () => {
         expect(accessControl.query('test.boolean.required.team', scope)).not.toBeUndefined();
         expect(accessControl.query('test.boolean.required.team', scope)).toEqual({
             result: 'revoked',
+            crud: false,
             expanded: false,
             global: true,
             scope: 'global',
@@ -75,7 +77,10 @@ describe('AccessControl', () => {
 
     it('should enable CRUD permissions to be granted or revoked', () => {
         const fullAccessControl = new AccessControl({
-            grants: 'test.crud',
+            grants: [
+                'test.crud',
+                'test.crud:delete',
+            ],
         });
 
         const scope = { event: kAnyEvent, team: kAnyTeam };
@@ -86,6 +91,7 @@ describe('AccessControl', () => {
         expect(fullAccessControl.query('test.crud', 'create')).not.toBeUndefined();
         expect(fullAccessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
         });
@@ -94,8 +100,14 @@ describe('AccessControl', () => {
             fullAccessControl.query('test.crud', 'create'));
         expect(fullAccessControl.query('test.crud', 'update')).toEqual(
             fullAccessControl.query('test.crud', 'create'));
-        expect(fullAccessControl.query('test.crud', 'delete')).toEqual(
-            fullAccessControl.query('test.crud', 'create'));
+
+        expect(fullAccessControl.query('test.crud', 'delete')).not.toBeUndefined();
+        expect(fullAccessControl.query('test.crud', 'delete')).toEqual({
+            result: 'granted',
+            crud: true,  // this was an explicit grant on the CRUD operation
+            expanded: false,
+            global: true,
+        });
 
         const partialAccessControl = new AccessControl({
             grants: 'test.crud',
@@ -108,6 +120,7 @@ describe('AccessControl', () => {
         expect(partialAccessControl.query('test.crud', 'create')).not.toBeUndefined();
         expect(partialAccessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
         });
@@ -115,6 +128,7 @@ describe('AccessControl', () => {
         expect(partialAccessControl.query('test.crud', 'delete')).not.toBeUndefined();
         expect(partialAccessControl.query('test.crud', 'delete')).toEqual({
             result: 'revoked',
+            crud: true,  // this was an explicit revoke on the CRUD operation
             expanded: false,
             global: true,
         });
@@ -135,18 +149,21 @@ describe('AccessControl', () => {
 
         expect(accessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
         });
 
         expect(accessControl.query('test.boolean')).toEqual({
             result: 'revoked',
+            crud: false,
             expanded: false,
             global: true,
         });
 
         expect(accessControl.query('test.boolean.required.both', scope)).toEqual({
             result: 'revoked',
+            crud: false,
             expanded: true,
             global: true,
             scope: 'global',
@@ -259,12 +276,14 @@ describe('AccessControl', () => {
         const accessControl = new AccessControl({ grants: 'testgroup' });
         expect(accessControl.query('test.boolean')).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
         });
 
         expect(accessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
+            crud: false,
             expanded: true,
             global: true,
         });

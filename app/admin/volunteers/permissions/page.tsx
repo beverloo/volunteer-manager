@@ -75,18 +75,16 @@ function check(info: CheckInfo): boolean {
         });
     }
 
-    const result = access.getStatus(name as CRUDPermission, operation ?? 'read', {
+    const queryResult = access.query(name as CRUDPermission, operation ?? 'read', {
         event: kAnyEvent,
         team: kAnyTeam,
     });
 
-    switch (result) {
-        case 'crud-granted':
-            return !!operation ? true : false;
+    if (queryResult && queryResult.result === 'granted') {
+        if (!operation)
+            return !queryResult.crud;
 
-        case 'parent-granted':
-        case 'self-granted':
-            return true;
+        return true;
     }
 
     return false;
