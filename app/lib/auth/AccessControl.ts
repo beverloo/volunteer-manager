@@ -61,7 +61,10 @@ export type AccessControlParams = {
  * to exist on either the grant or revocation access lists.
  */
 type AccessResult = Result & {
-
+    /**
+     * Whether the access query resulted in the permission being granted or revoked.
+     */
+    result: 'granted' | 'revoked';
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -188,7 +191,52 @@ export class AccessControl {
     query(permission: BooleanPermission | CRUDPermission, second?: any, third?: any)
         : AccessResult | undefined
     {
-        // TODO: Implement this method.
+        if (!kPermissionPattern.test(permission))
+            throw new Error(`Invalid syntax for the given permission: "${permission}"`);
+
+        if (!Object.hasOwn(kPermissions, permission))
+            throw new Error(`Unrecognised permission: "${permission}"`);
+
+        const descriptor: AccessDescriptor = kPermissions[permission];
+        const accessScope: AccessScope | undefined = descriptor.type === 'crud' ? third : second;
+
+        if (descriptor.requireEvent && !accessScope?.event)
+            throw new Error(`The "event" scope is required when checking "${permission}" access`);
+
+        if (descriptor.requireTeam && !accessScope?.team)
+            throw new Error(`The "team" scope is required when checking "${permission}" access`);
+
+        // The qualified permission is either the full permission path for boolean permissions, or
+        // the full path with an annotation for the requested operation for CRUD-based permissions.
+        const qualifiedPermission =
+            descriptor.type === 'crud' ? `${permission}:${second}`
+                                       : permission;
+
+        let length = qualifiedPermission.length;
+        while (length > /* at least a partial permission - */ 0) {
+            const qualifiedPermissionScope = qualifiedPermission.substring(0, length);
+
+            const revocation = this.#revokes.query(qualifiedPermissionScope, accessScope);
+            if (revocation) {
+                return {
+                    result: 'revoked',
+                    ...revocation,
+                };
+            }
+
+            const grant = this.#grants.query(qualifiedPermissionScope, accessScope);
+            if (grant) {
+                return {
+                    result: 'granted',
+                    ...grant,
+                };
+            }
+
+            length = Math.max(
+                qualifiedPermission.lastIndexOf(':', length - 1),
+                qualifiedPermission.lastIndexOf('.', length - 1));
+        }
+
         return undefined;
     }
 
