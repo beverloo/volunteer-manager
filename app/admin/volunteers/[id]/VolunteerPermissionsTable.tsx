@@ -26,7 +26,6 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { AccessResult } from '@lib/auth/AccessControl';
-import type { PermissionStatus } from '@lib/auth/AccessControl';
 
 /**
  * Information stored for a particular permission.
