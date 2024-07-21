@@ -47,7 +47,7 @@ type AccessListParams = {
 /**
  * Scope that applies to an access entry, defining the applicable event and/or team.
  */
-export type AccessScope = {
+type AccessScope = {
     /**
      * Event that the access query should be scoped to.
      */
@@ -83,7 +83,7 @@ type Access = {
  * Result that will be issued from an `AccessList` query when the requested permission was found to
  * exist on the access list.
  */
-export type Result = Pick<Access, 'expanded' | 'global'> & {
+type Result = Pick<Access, 'expanded' | 'global'> & {
     /**
      * The specific scope that was determined to be applicable for the query.
      */
