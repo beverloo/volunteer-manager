@@ -58,7 +58,7 @@ describe('AccessControl', () => {
         expect(accessControl.query('test.boolean.required.event', scope)).not.toBeUndefined();
         expect(accessControl.query('test.boolean.required.event', scope)).toEqual({
             result: 'granted',
-            expanded: false,
+            expanded: true,
             global: true,
             scope: 'global',
         });
@@ -85,7 +85,7 @@ describe('AccessControl', () => {
         expect(fullAccessControl.query('test.crud', 'create')).not.toBeUndefined();
         expect(fullAccessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
-            expanded: false,
+            expanded: true,
             global: true,
         });
 
@@ -107,7 +107,7 @@ describe('AccessControl', () => {
         expect(partialAccessControl.query('test.crud', 'create')).not.toBeUndefined();
         expect(partialAccessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
-            expanded: false,  // fixme
+            expanded: true,
             global: true,
         });
 
@@ -134,7 +134,7 @@ describe('AccessControl', () => {
 
         expect(accessControl.query('test.crud', 'create')).toEqual({
             result: 'granted',
-            expanded: false,  // fixme
+            expanded: true,
             global: true,
         });
 
@@ -146,7 +146,7 @@ describe('AccessControl', () => {
 
         expect(accessControl.query('test.boolean.required.both', scope)).toEqual({
             result: 'revoked',
-            expanded: false,  // fixme
+            expanded: true,
             global: true,
             scope: 'global',
         });

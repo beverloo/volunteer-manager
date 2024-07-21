@@ -216,19 +216,23 @@ export class AccessControl {
         while (length > /* at least a partial permission - */ 0) {
             const qualifiedPermissionScope = qualifiedPermission.substring(0, length);
 
+            const expanded = qualifiedPermission.length !== length;
+
             const revocation = this.#revokes.query(qualifiedPermissionScope, accessScope);
             if (revocation) {
                 return {
-                    result: 'revoked',
                     ...revocation,
+                    result: 'revoked',
+                    expanded: expanded || revocation.expanded,
                 };
             }
 
             const grant = this.#grants.query(qualifiedPermissionScope, accessScope);
             if (grant) {
                 return {
-                    result: 'granted',
                     ...grant,
+                    result: 'granted',
+                    expanded: expanded || grant.expanded,
                 };
             }
 
