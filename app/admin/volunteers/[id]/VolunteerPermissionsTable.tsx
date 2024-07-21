@@ -25,12 +25,8 @@ import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import type { AccessResult } from '@lib/auth/AccessControl';
 import type { PermissionStatus } from '@lib/auth/AccessControl';
-
-/**
- * Comprehensive list of permission statuses that also consider partial assignment for CRUD.
- */
-export type ComprehensivePermissionStatus = PermissionStatus | 'partial-granted';
 
 /**
  * Information stored for a particular permission.
@@ -55,8 +51,8 @@ export interface VolunteerPermissionStatus {
      * The status of this permission, summarising its state.
      */
     status: {
-        account: ComprehensivePermissionStatus;
-        roles: ComprehensivePermissionStatus;
+        account: AccessResult | 'partial' | undefined;
+        roles: AccessResult | 'partial' | undefined;
     };
 
     /**
@@ -69,16 +65,6 @@ export interface VolunteerPermissionStatus {
      */
     warning?: boolean;
 }
-
-/**
- * Constant listing the permission statuses that were explicitly granted.
- */
-const kExplicitlySetPermissionStatuses: ComprehensivePermissionStatus[] = [
-    'crud-granted',
-    'crud-revoked',
-    'self-granted',
-    'self-revoked',
-];
 
 /**
  * Props accepted by the <VolunteerPermissionsTable> component.
@@ -103,8 +89,8 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
     const permissionGroupsToExpand = useMemo(() => {
         const permissionGroupsToExpand = new Set<GridRowId>();
         for (const permission of props.permissions) {
-            if (!kExplicitlySetPermissionStatuses.includes(permission.status.account))
-                continue;
+            //if (!kExplicitlySetPermissionStatuses.includes(permission.status.account))
+            //    continue;
 
             const path = permission.id.split('.');
             do {
@@ -219,63 +205,33 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
                 let color: string = 'text.disabled';
                 let text: string = 'Not granted';
 
-                if (params.row.status.account !== 'unset') {
-                    switch (params.row.status.account) {
-                        case 'crud-granted':
-                        case 'self-granted':
-                            color = 'success.main';
-                            text = 'Granted';
-                            break;
+                if (params.row.status.account === 'partial') {
+                    color = 'warning.main';
+                    text = 'Partially granted';
+                } else if (params.row.status.roles === 'partial') {
+                    color = 'warning.main';
+                    text = 'Partial limited grant';
+                } else if (params.row.status.account !== undefined) {
+                    const { result, expanded } = params.row.status.account;
+                    const suffix = expanded ? ' (inherited)' : '';
 
-                        case 'parent-granted':
-                            color = 'success.main';
-                            text = 'Granted (inherited)';
-                            break;
-
-                        case 'crud-revoked':
-                        case 'self-revoked':
-                            color = 'error.main';
-                            text = 'Revoked';
-                            break;
-
-                        case 'parent-revoked':
-                            color = 'error.main';
-                            text = 'Revoked (inherited)';
-                            break;
-
-                        case 'partial-granted':
-                            color = 'warning.main';
-                            text = 'Partially granted';
-                            break;
+                    if (result === 'granted') {
+                        color = 'success.main';
+                        text = `Granted${suffix}`;
+                    } else {
+                        color = 'error.main';
+                        text = `Revoked${suffix}`;
                     }
-                } else if (params.row.status.roles !== 'unset') {
-                    switch (params.row.status.roles) {
-                        case 'crud-granted':
-                        case 'self-granted':
-                            color = 'success.main';
-                            text = 'Limited grant (role)';
-                            break;
+                } else if (params.row.status.roles !== undefined) {
+                    const { result, expanded } = params.row.status.roles;
+                    const suffix = expanded ? ', inherited' : '';
 
-                        case 'parent-granted':
-                            color = 'success.main';
-                            text = 'Limited grant (role, inherited)';
-                            break;
-
-                        case 'crud-revoked':
-                        case 'self-revoked':
-                            color = 'error.main';
-                            text = 'Revoked (role)';
-                            break;
-
-                        case 'parent-revoked':
-                            color = 'error.main';
-                            text = 'Revoked (role, inherited)';
-                            break;
-
-                        case 'partial-granted':
-                            color = 'warning.main';
-                            text = 'Partial limited grant';
-                            break;
+                    if (result === 'granted') {
+                        color = 'success.main';
+                        text = `Limited granted (role${suffix})`;
+                    } else {
+                        color = 'error.main';
+                        text = `Limited revoked (role${suffix})`;
                     }
                 }
 

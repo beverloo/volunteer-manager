@@ -12,12 +12,12 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
-import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams } from '@lib/auth/AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { VolunteerPermissionsTable, type ComprehensivePermissionStatus, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
+import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -189,47 +189,19 @@ function uppercaseFirst(text: string): string {
 }
 
 /**
- * Decides whether the 'current' should be upgraded into the `incoming` permission status. This is
- * only the case when the `incoming` status is less specific than the given `current` status.
+ * Decides whether the 'current' should be upgraded into the `child` permission status. This is
+ * only the case when the `child` status is less specific than the given `current` status.
  */
 function maybeUpgradePermissionStatus(
-    current: ComprehensivePermissionStatus, incoming: ComprehensivePermissionStatus)
-        : ComprehensivePermissionStatus
+    current: AccessResult | 'partial' | undefined, child: AccessResult | 'partial' | undefined)
+        : AccessResult | 'partial' | undefined
 {
-    switch (current) {
-        case 'unset': {
-            switch (incoming) {
-                case 'crud-granted':
-                    return 'partial-granted';
-                case 'crud-revoked':
-                    break;  // parent permission wasn't granted, so this is a no-op
-
-                case 'parent-granted':
-                case 'parent-revoked':
-                case 'self-granted':
-                case 'self-revoked':
-                    return incoming;
-            }
-            break;
-        }
-
-        case 'parent-granted':
-        case 'self-granted': {
-            switch (incoming) {
-                case 'crud-revoked':
-                    return 'partial-granted';
-            }
-            break;
-        }
-
-        case 'parent-revoked':
-        case 'self-revoked': {
-            switch (incoming) {
-                case 'crud-granted':
-                    return 'partial-granted';
-            }
-            break;
-        }
+    if (!current && child && child !== 'partial') {
+        if (child.expanded || child.result === 'granted')
+            return child;
+    } else if (current && current !== 'partial' && child) {
+        if (child === 'partial' || child.result === 'revoked')
+            return 'partial';
     }
 
     return current;
@@ -310,7 +282,6 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .where(tUsers.userId.equals(props.userId))
-            .and(eventsJoin.eventId.isNotNull())
         .select({
             access: {
                 grants: tUsers.permissionsGrants,
@@ -327,6 +298,9 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         })
         .groupBy(tUsers.userId)
         .executeSelectNoneOrOne();
+
+    if (!!userConfiguration?.events)
+        userConfiguration.events = userConfiguration.events.filter(event => !!event.event);
 
     const userAccessControl = new AccessControl(userConfiguration?.access ?? { /* no grants */ });
 
@@ -373,8 +347,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
             name: descriptor.name,
             description: descriptor.description,
             status: {
-                account: 'unset',
-                roles: 'unset',
+                account: undefined,
+                roles: undefined,
             },
             warning: !!descriptor.warning,
         };
@@ -383,19 +357,17 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
             const booleanPermission = name as BooleanPermission;
 
             permission.status.account =
-                userAccessControl.getStatus(booleanPermission, defaultOptions);
+                userAccessControl.query(booleanPermission, defaultOptions);
             permission.status.roles =
-                roleAccessControl.getStatus(booleanPermission, defaultOptions);
+                roleAccessControl.query(booleanPermission, defaultOptions);
 
-            switch (permission.status.account) {
-                case 'self-granted':
+            if (permission.status.account?.expanded === false) {
+                if (permission.status.account.result === 'granted')
                     defaultValues[`grants[${name}]`] = true;
-                    break;
-
-                case 'self-revoked':
+                else
                     defaultValues[`revokes[${name}]`] = true;
-                    break;
             }
+
         } else if (descriptor.type === 'crud') {
             const crudPermission = name as CRUDPermission;
 
@@ -412,9 +384,9 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
                     status: {
                         account:
-                            userAccessControl.getStatus(crudPermission, operation, defaultOptions),
+                            userAccessControl.query(crudPermission, operation, defaultOptions),
                         roles:
-                            roleAccessControl.getStatus(crudPermission, operation, defaultOptions),
+                            roleAccessControl.query(crudPermission, operation, defaultOptions),
                     },
                 };
 
@@ -424,24 +396,21 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 permission.status.roles = maybeUpgradePermissionStatus(
                     permission.status.roles, childPermission.status.roles);
 
-                switch (childPermission.status.account) {
-                    case 'crud-granted':
-                        defaultValues[`grants[${name}.${operation}]`] = true;
-                        break;
+                if (typeof childPermission.status.account === 'object' &&
+                        childPermission.status.account?.expanded === false)
+                {
+                    if (childPermission.status.account.result === 'granted') {
+                        if (childPermission.status.account.crud)
+                            defaultValues[`grants[${name}.${operation}]`] = true;
+                        else
+                            defaultValues[`grants[${name}${kSelfSuffix}]`] = true;
 
-                    case 'crud-revoked':
-                        defaultValues[`revokes[${name}.${operation}]`] = true;
-                        break;
-
-                    case 'self-granted':
-                        defaultValues[`grants[${name}${kSelfSuffix}]`] = true;
-                        childPermission.status.account = 'parent-granted';
-                        break;
-
-                    case 'self-revoked':
-                        defaultValues[`revokes[${name}${kSelfSuffix}]`] = true;
-                        childPermission.status.account = 'parent-revoked';
-                        break;
+                    } else {
+                        if (childPermission.status.account.crud)
+                            defaultValues[`revokes[${name}.${operation}]`] = true;
+                        else
+                            defaultValues[`revokes[${name}${kSelfSuffix}]`] = true;
+                    }
                 }
 
                 permissionChildren.push(childPermission);
