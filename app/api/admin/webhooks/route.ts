@@ -89,7 +89,7 @@ export const { GET } = createDataTableApi(kWebhookRowModel, kWebhookContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.SystemOutboxAccess,
+            permission: 'system.internals.outbox',
         });
     },
 

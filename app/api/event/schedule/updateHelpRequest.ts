@@ -8,7 +8,6 @@ import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { DisplayHelpRequestStatus, LogSeverity } from '@lib/database/Types';
 import { Log, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
@@ -68,7 +67,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
     if (!props.user || !props.authenticationContext.user)
         notFound();
 
-    if (!can(props.user, Privilege.EventHelpRequests))
+    if (!props.access.can('event.help-requests', { event: request.event }))
         notFound();
 
     const event = await getEventBySlug(request.event);

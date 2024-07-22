@@ -21,19 +21,15 @@ export enum Privilege {
     // Privileges captured by EventAdministrator:
     EventApplicationOverride            = 1 << 3,
     EventContentOverride                = 1 << 2,
-    EventHelpRequests                   = 1 << 30,
     EventHotelManagement                = 1 << 12,
     EventScheduleManagement             = 1 << 29,
     EventScheduleOverride               = 1 << 4,
     EventShiftManagement                = 1 << 26,
     EventTrainingManagement             = 1 << 13,
     EventVolunteerApplicationOverrides  = 1 << 14,
-    EventVolunteerContactInfo           = 1 << 11,
 
     // Privileges captured by SystemAdministrator:
-    SystemOutboxAccess                  = 1 << 17,
     SystemSubscriptionEligible          = 1 << 28,
-    SystemSubscriptionManagement        = 1 << 24,
 };
 
 /**
@@ -68,26 +64,22 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.EventAdministrator]: [
         Privilege.EventApplicationOverride,
         Privilege.EventContentOverride,
-        Privilege.EventHelpRequests,
         Privilege.EventHotelManagement,
         Privilege.EventScheduleManagement,
         Privilege.EventScheduleOverride,
         Privilege.EventShiftManagement,
         Privilege.EventTrainingManagement,
         Privilege.EventVolunteerApplicationOverrides,
-        Privilege.EventVolunteerContactInfo,
     ],
 
     [Privilege.SystemAdministrator]: [
-        Privilege.SystemOutboxAccess,
         Privilege.SystemSubscriptionEligible,
-        Privilege.SystemSubscriptionManagement,
     ],
 };
 
 /**
  * Maximum depth of privilege expansion rules. I.e. Administrator -> EventAdministrator ->
- * EventVolunteerContactInfo makes for two necessary iterations.
+ * EventExamplePermission makes for two necessary iterations.
  */
 const kPrivilegeExpansionIterations = 2;
 
@@ -119,19 +111,15 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventAdministrator]: 'Special access',
     [Privilege.EventApplicationOverride]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
-    [Privilege.EventHelpRequests]: 'Event access',
     [Privilege.EventHotelManagement]: 'Event access',
     [Privilege.EventScheduleManagement]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.EventShiftManagement]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
     [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
-    [Privilege.EventVolunteerContactInfo]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
-    [Privilege.SystemOutboxAccess]: 'System access',
     [Privilege.SystemSubscriptionEligible]: 'System access',
-    [Privilege.SystemSubscriptionManagement]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
 };
@@ -147,19 +135,15 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventAdministrator]: 'Event administrator',
     [Privilege.EventApplicationOverride]: 'Always accept their applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
-    [Privilege.EventHelpRequests]: 'Help requests',
     [Privilege.EventHotelManagement]: 'Manage hotel rooms',
     [Privilege.EventScheduleManagement]: 'Manage schedules',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.EventShiftManagement]: 'Manage shifts',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
     [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
-    [Privilege.EventVolunteerContactInfo]: 'Always show volunteer contact info',
 
     [Privilege.SystemAdministrator]: 'System administrator',
-    [Privilege.SystemOutboxAccess]: 'Outbox access',
     [Privilege.SystemSubscriptionEligible]: 'Subscription eligibility',
-    [Privilege.SystemSubscriptionManagement]: 'Subscription management',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
 };
@@ -174,9 +158,4 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
     [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
-
-    [Privilege.EventHelpRequests]: 'Grants access to incoming help requests',
-
-    [Privilege.SystemOutboxAccess]: 'Access to all sent messages and their content',
-    [Privilege.SystemSubscriptionManagement]: 'Access to modify anyone\'s subscriptions',
 };

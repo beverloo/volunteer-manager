@@ -64,7 +64,7 @@ export const { GET } = createDataTableApi(kFeedbackRowModel, kFeedbackContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.SystemOutboxAccess,
+            permission: 'system.internals.outbox',
         });
     },
 

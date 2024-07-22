@@ -146,7 +146,12 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
     await requireAuthenticationContext({
         check: 'event',
         event: props.params.event,
-        privilege: Privilege.EventHelpRequests,
+        permission: {
+            permission: 'event.help-requests',
+            options: {
+                event: props.params.event,
+            },
+        },
     });
 
     const event = await getEventBySlug(props.params.event);

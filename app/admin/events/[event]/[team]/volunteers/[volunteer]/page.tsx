@@ -98,7 +98,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
         notFound();
 
     const contactAccess =
-        can(user, Privilege.EventVolunteerContactInfo) ||
+        access.can('volunteer.pii') ||
         can(user, Privilege.VolunteerAdministrator);
 
     const contactInfo =

@@ -16,7 +16,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function OutboxSmsDetailsPage({ params }: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemOutboxAccess,
+        permission: 'system.internals.outbox',
     });
 
     return <TwilioDetailsPage type={TwilioOutboxType.SMS} id={parseInt(params.id, 10)} />;

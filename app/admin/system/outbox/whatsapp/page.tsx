@@ -15,7 +15,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function OutboxWhatsAppPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemOutboxAccess,
+        permission: 'system.internals.outbox',
     });
 
     return <TwilioDataTable type={TwilioOutboxType.WhatsApp} />;

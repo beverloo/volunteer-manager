@@ -62,22 +62,21 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
         },
         {
             divider: true,
-            // permission: system.ai
-            privilege: [
-                Privilege.SystemOutboxAccess,
-                Privilege.SystemSubscriptionManagement
+            permission: [
+                'system.internals.ai',
+                'system.internals.outbox',
+                'system.subscriptions.management',
             ],
         },
         {
             icon: <ChatBubbleOutlineIcon />,
             label: 'Communication',
-            // permission: system.feedback
-            // permission: system.internals
-            privilege: [
-                Privilege.SystemOutboxAccess,
-                Privilege.SystemSubscriptionManagement,
+            permission: [
+                'system.feedback',
+                'system.internals',
+                'system.internals.outbox',
+                'system.subscriptions.management',
             ],
-
             menu: [
                 {
                     icon: <FeedbackOutlinedIcon />,
@@ -88,13 +87,13 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                 {
                     icon: <OutboxIcon />,
                     label: 'Outbox',
-                    privilege: Privilege.SystemOutboxAccess,
+                    permission: 'system.internals.outbox',
                     url: '/admin/system/outbox/email',
                 },
                 {
                     icon: <ForumIcon />,
                     label: 'Subscriptions',
-                    privilege: Privilege.SystemSubscriptionManagement,
+                    permission: 'system.subscriptions.management',
                     url: '/admin/system/subscriptions',
                 },
                 {

@@ -116,7 +116,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
     accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.SystemSubscriptionManagement,
+            permission: 'system.subscriptions.management',
         });
     },
 

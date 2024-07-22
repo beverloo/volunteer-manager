@@ -47,6 +47,16 @@ export const kPermissions = {
         type: 'crud',
     },
 
+    'event.help-requests': {
+        name: 'Help requests',
+        description:
+            'This permission controls whether they have the ability to see and respond to all ' +
+            'incoming help requests from the Volunteering Displays. This ability shows up both ' +
+            'in the administration area, and in the scheduling app.',
+        requireEvent: true,
+        type: 'boolean',
+    },
+
     'event.requests': {
         name: 'Program request management',
         description:
@@ -137,8 +147,18 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'system.internals.outbox': {
+        name: 'System message outbox',
+        description:
+            'This permission controls whether the volunteer is able to see the messages that ' +
+            'have left the Volunteer Manager, including volunteer activity, account activation ' +
+            'and recovery messages, and so on.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'system.internals.scheduler': {
-        name: 'System Scheduler status',
+        name: 'System scheduler status',
         description:
             'The system scheduler is responsible for background operations such as sending ' +
             'messages and fetching program updates. This permission controls access to the ' +
@@ -147,7 +167,7 @@ export const kPermissions = {
     },
 
     'system.internals.settings': {
-        name: 'System Settings',
+        name: 'System settings',
         description:
             'This permission grants access to the Volunteer Manager settings that allow detailed ' +
             'behaviour of the system to be adjusted without needing code changes.',
@@ -171,6 +191,16 @@ export const kPermissions = {
             'This permission controls whether they are able to access and manage the advice ' +
             'made available by Del a Rie advies.',
         type: 'boolean',
+    },
+
+    'system.subscriptions.management': {
+        name: 'Subscription management',
+        description:
+            'This permission controls whether they are able to manage the notification ' +
+            'subscriptions of all eligible users, not just of themselves, and decide who ' +
+            'receives which notifications through which channels.',
+        type: 'boolean',
+        warning: true,
     },
 
     // ---------------------------------------------------------------------------------------------
@@ -203,6 +233,16 @@ export const kPermissions = {
             'to manage their own permissions as well.',
         hide: [ 'create', 'delete' ],  // all mutations are considered updates
         type: 'crud',
+        warning: true,
+    },
+
+    'volunteer.pii': {
+        name: 'Volunteer contact information',
+        description:
+            'This permission determines whether this volunteer is able to access all contact ' +
+            'information without their access being on demand. This is generally inadvisable as ' +
+            'the confirmation is lightweight.',
+        type: 'boolean',
         warning: true,
     },
 
@@ -287,17 +327,20 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: system.logs:delete omitted
         'system.logs:read',
         'system.nardo',
+        'system.subscriptions.management',
 
         'volunteer.avatars',
         'volunteer.export',
         // note: volunteer.permissions:update omitted
         'volunteer.permissions:read',
+        'volunteer.pii',
         'volunteer.silent',
     ],
 
     staff: [
         'event.applications:read',
         'event.applications:update',
+        'event.help-requests',
         'event.requests',
         'event.retention',
         'event.vendors',

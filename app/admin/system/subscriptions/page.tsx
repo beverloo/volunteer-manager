@@ -17,7 +17,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function SubscriptionPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemSubscriptionManagement,
+        permission: 'system.subscriptions.management',
     });
 
     let action: React.ReactNode;

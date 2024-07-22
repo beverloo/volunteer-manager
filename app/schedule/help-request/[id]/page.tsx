@@ -14,9 +14,7 @@ import db, { tDisplaysRequests, tEvents, tTeams, tUsersEvents } from '@lib/datab
  * schedule tool for a particular help request. This link is included in WhatsApp messages.
  */
 export default async function EventlessHelpRequestPageWithId(props: NextPageParams<'id'>) {
-    const { user } = await getAuthenticationContext();
-    if (!user || !can(user, Privilege.EventHelpRequests))
-        redirect('/');
+    const { access, user } = await getAuthenticationContext();
 
     const dbInstance = db;
     const event = await dbInstance.selectFrom(tDisplaysRequests)
@@ -28,6 +26,9 @@ export default async function EventlessHelpRequestPageWithId(props: NextPagePara
 
     if (!event)
         notFound();
+
+    if (!user || !access.can('event.help-requests', { event }))
+        redirect('/');
 
     const environment = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)

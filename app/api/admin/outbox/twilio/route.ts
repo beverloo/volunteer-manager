@@ -85,7 +85,7 @@ export const { GET } = createDataTableApi(kOutboxTwilioRowModel, kOutboxTwilioCo
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            privilege: Privilege.SystemOutboxAccess,
+            permission: 'system.internals.outbox',
         });
     },
 

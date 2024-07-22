@@ -15,7 +15,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function OutboxEmailPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.SystemOutboxAccess,
+        permission: 'system.internals.outbox',
     });
 
     return <EmailDataTable />;

@@ -70,7 +70,7 @@
   "devDependencies": {
     "@datastructures-js/priority-queue": "^6.3.1",
     "@next/bundle-analyzer": "^14.2.5",
-    "@playwright/test": "^1.45.2",
+    "@playwright/test": "^1.45.3",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/cookie": "^0.6.0",
     "@types/d3": "^7.4.3",
