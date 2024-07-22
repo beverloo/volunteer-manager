@@ -52,8 +52,13 @@ type Response = ApiResponse<typeof kDeleteScheduleEntryDefinition>;
  * API that allows leaders to delete a schedule entry.
  */
 export async function deleteScheduleEntry(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
+    if (
+        !props.user ||
+        !props.access.can(
+            'event.schedules', 'update', { event: request.event, team: request.team }))
+    {
         notFound();
+    }
 
     if (request.id.length !== 1)
         notFound();  // invalid request

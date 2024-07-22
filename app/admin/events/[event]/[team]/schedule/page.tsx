@@ -1,6 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import Alert from '@mui/material/Alert';
@@ -26,7 +27,9 @@ const kExpandSection = z.record(z.string(), z.boolean());
  * relies on the timeline component as well as data from many different sources.
  */
 export default async function EventTeamSchedulePage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    if (!access.can('event.schedules', 'read', { event: event.slug, team: team.slug }))
+        notFound();
 
     const userSettings = await readUserSettings(user.userId, [
         'user-admin-schedule-date',
@@ -40,7 +43,8 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
         inclusiveShifts: userSettings['user-admin-schedule-inclusive-shifts'] ?? false,
     };
 
-    const readOnly = !can(user, Privilege.EventScheduleManagement);
+    const readOnly =
+        !access.can('event.schedules', 'update', { event: event.slug, team: team.slug });
 
     let sections: z.infer<typeof kExpandSection> = {};
     try {

@@ -67,6 +67,29 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'event.schedules': {
+        name: 'Event schedule planning',
+        description:
+            'This permission decides whether they have the ability to read or update event ' +
+            'scheduling, which is specific to a given event and team. The schedules are the ' +
+            'rosters shared with volunteers, telling them when they have to be where, doing what.',
+        hide: [ 'create', 'delete'],  // schedules are either in read-only more, or fully mutable
+        requireEvent: true,
+        requireTeam: true,
+        type: 'crud',
+    },
+
+    'event.shifts': {
+        name: 'Event shift planning',
+        description:
+            'This permission decides whether they have the ability to see or manage the shifts ' +
+            'that are planned for a particular event and team. The shifts decide what it is that ' +
+            'we expect volunteers to do.',
+        requireEvent: true,
+        requireTeam: true,
+        type: 'crud',
+    },
+
     'event.retention': {
         name: 'Retention management',
         description:
@@ -338,11 +361,12 @@ export const kPermissionGroups: Record<string, string[]> = {
     ],
 
     staff: [
-        'event.applications:read',
-        'event.applications:update',
+        'event.applications',
         'event.help-requests',
         'event.requests',
         'event.retention',
+        'event.schedules',
+        'event.shifts',
         'event.vendors',
         'event.visible',
         'volunteer.avatars',
@@ -350,6 +374,8 @@ export const kPermissionGroups: Record<string, string[]> = {
 
     senior: [
         'event.applications:read',
+        'event.schedules:read',
+        'event.shifts:read',
         'event.vendors:read',
         'event.visible',
         'volunteer.avatars',

@@ -71,8 +71,13 @@ type Response = ApiResponse<typeof kCreateScheduleEntryDefinition>;
  * API that allows leaders to create a new schedule entry.
  */
 export async function createScheduleEntry(request: Request, props: ActionProps): Promise<Response> {
-    if (!props.user || !can(props.user, Privilege.EventScheduleManagement))
+    if (
+        !props.user ||
+        !props.access.can(
+            'event.schedules', 'update', { event: request.event, team: request.team }))
+    {
         notFound();
+    }
 
     const event = await getEventBySlug(request.event);
     if (!event)

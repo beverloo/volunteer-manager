@@ -34,9 +34,9 @@ function formatMinutes(minutes: number): string {
  */
 export type ShiftTableProps = EventShiftContext['context'] & {
     /**
-     * Whether the shift table should be shown in read only mode.
+     * Whether shifts displayed in this table can be deleted.
      */
-    readOnly?: boolean;
+    canDeleteShifts: boolean;
 };
 
 /**
@@ -44,10 +44,10 @@ export type ShiftTableProps = EventShiftContext['context'] & {
  * displays the shifts that exist for a particular { event, team } pair.
  */
 export function ShiftTable(props: ShiftTableProps) {
-    const { readOnly, ...context } = props;
+    const { canDeleteShifts, ...context } = props;
 
     const deleteColumn: RemoteDataTableColumn<EventShiftRowModel>[] = [];
-    if (!readOnly) {
+    if (canDeleteShifts) {
         deleteColumn.push({
             field: 'id',
             headerName: /* no header= */ '',
@@ -227,6 +227,6 @@ export function ShiftTable(props: ShiftTableProps) {
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/event/shifts" context={context}
                          defaultSort={{ field: 'categoryOrder', sort: 'asc' }} subject="shift"
-                         enableDelete={!readOnly} pageSize={100} disableFooter />
+                         enableDelete={canDeleteShifts} pageSize={100} disableFooter />
     );
 }

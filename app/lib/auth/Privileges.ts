@@ -22,9 +22,7 @@ export enum Privilege {
     EventApplicationOverride            = 1 << 3,
     EventContentOverride                = 1 << 2,
     EventHotelManagement                = 1 << 12,
-    EventScheduleManagement             = 1 << 29,
     EventScheduleOverride               = 1 << 4,
-    EventShiftManagement                = 1 << 26,
     EventTrainingManagement             = 1 << 13,
     EventVolunteerApplicationOverrides  = 1 << 14,
 
@@ -65,9 +63,7 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventApplicationOverride,
         Privilege.EventContentOverride,
         Privilege.EventHotelManagement,
-        Privilege.EventScheduleManagement,
         Privilege.EventScheduleOverride,
-        Privilege.EventShiftManagement,
         Privilege.EventTrainingManagement,
         Privilege.EventVolunteerApplicationOverrides,
     ],
@@ -106,15 +102,12 @@ export function expand(privileges: Privileges): Privileges {
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
     [Privilege.Refunds]: 'Special access',
-    //[Privilege.Statistics]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
     [Privilege.EventApplicationOverride]: 'Event access',
     [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventHotelManagement]: 'Event access',
-    [Privilege.EventScheduleManagement]: 'Event access',
     [Privilege.EventScheduleOverride]: 'Event access',
-    [Privilege.EventShiftManagement]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
     [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
 
@@ -130,15 +123,12 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
     [Privilege.Refunds]: 'Refund requests',
-    //[Privilege.Statistics]: 'Statistics',
 
     [Privilege.EventAdministrator]: 'Event administrator',
     [Privilege.EventApplicationOverride]: 'Always accept their applications',
     [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventHotelManagement]: 'Manage hotel rooms',
-    [Privilege.EventScheduleManagement]: 'Manage schedules',
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
-    [Privilege.EventShiftManagement]: 'Manage shifts',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
     [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
 

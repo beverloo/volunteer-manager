@@ -7,7 +7,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { ScheduledShiftsSection } from './ScheduledShiftsSection';
 import { Section } from '@app/admin/components/Section';
@@ -67,9 +66,12 @@ function demandToTimelineEvents(
  * actual volunteers cannot be adjusted; this is something that has to be done on the schedule page.
  */
 export default async function EventTeamShiftPage(props: NextPageParams<'event' | 'team' | 'id'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
-    const readOnly = !can(user, Privilege.EventShiftManagement);
+    if (!access.can('event.shifts', 'read', { event: event.slug, team: team.slug }))
+        notFound();
+
+    const readOnly = !access.can('event.shifts', 'update', { event: event.slug, team: team.slug });
     const warnings: any[] = [ ];
 
     const step = await readSetting('schedule-time-step-minutes');

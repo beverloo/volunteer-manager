@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Privilege } from '@lib/auth/Privileges';
-import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { executeAccessCheck, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { validateContext } from '../../validateContext';
 import db, { tActivities, tSchedule, tShifts, tShiftsCategories } from '@lib/database';
@@ -145,16 +145,25 @@ export type EventShiftContext = z.infer<typeof kEventShiftContext>;
 export const { DELETE, GET, POST, PUT } =
 createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
     async accessCheck({ context }, action, props) {
-        let privilege: Privilege | undefined;
+        const permission: PermissionAccessCheck = {
+            permission: 'event.shifts',
+            operation: 'read',  // to be updated
+            options: {
+                event: context.event,
+                team: context.team,
+            },
+        };
+
         switch (action) {
             case 'get':
             case 'list':
-                break;  // no additional privilege necessary
+                permission.operation = 'read';
+                break;
 
             case 'create':
             case 'delete':
             case 'update':
-                privilege = Privilege.EventShiftManagement;
+                permission.operation = action;
                 break;
 
             default:
@@ -164,7 +173,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
-            privilege,
+            permission,
         });
     },
 
