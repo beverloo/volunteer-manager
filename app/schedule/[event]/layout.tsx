@@ -20,6 +20,7 @@ import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
+import { kAnyTeam } from '@lib/auth/AccessList';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
@@ -70,6 +71,8 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     if (!authenticationContext.user)
         notFound();  // only signed in users can access the schedule
 
+    const { access } = authenticationContext;
+
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
@@ -81,11 +84,13 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     const eventData = event.getEnvironmentData(environment.environmentName);
     if (!eventData) {
         notFound();  // the |environment| does not participate in the |event|
+
     } else {
         const participation = authenticationContext.events.get(event.slug);
-        if (!can(authenticationContext.user, Privilege.EventScheduleOverride)) {
+        if (!access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam })) {
             if (!participation)
                 notFound();  // the |user| is not participating in the |event|
+
             if (!eventData.enableSchedule)
                 notFound();  // the |event| has not been published for the |environment|
         }

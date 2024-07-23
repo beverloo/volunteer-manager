@@ -23,7 +23,9 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     if (!context)
         notFound();
 
-    const { environment, event, registration, user } = context;
+    const { access, environment, event, registration, user } = context;
+
+    const accessScope = { event: event.slug, team: environment.teamSlug };
 
     let content: Content | undefined = undefined;
     let state: 'status' | 'application' | 'unavailable';
@@ -32,7 +34,8 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
         state = 'status';
     } else {
         const environmentData = event.getEnvironmentData(environment.environmentName);
-        if (environmentData?.enableApplications || can(user, Privilege.EventApplicationOverride)) {
+        if (environmentData?.enableApplications ||
+                access.can('event.applications', 'create', accessScope)) {
             content = await getContent(environment.environmentName, event, [ 'application' ]);
             state = 'application';
         } else {

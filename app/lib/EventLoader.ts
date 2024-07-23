@@ -8,6 +8,7 @@ import { Privilege, can } from './auth/Privileges';
 import { RegistrationStatus } from './database/Types';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
+import { kAnyTeam, type AccessControl } from './auth/AccessControl';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -90,7 +91,9 @@ export async function getEventSlugForId(eventId: number): Promise<string | undef
  * Returns all events that are publicly visible, limited to the |user| when they are signed in to
  * their account. This function issues a database query specific to the current environment.
  */
-export async function getEventsForUser(environmentName: string, user?: User): Promise<Event[]> {
+export async function getEventsForUser(environmentName: string, access: AccessControl, user?: User)
+    : Promise<Event[]>
+{
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
@@ -125,6 +128,7 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
 
             environments: db.aggregateAsArray({
                 environment: teamsJoin.teamEnvironment,
+                slug: teamsJoin.teamSlug,
 
                 enableApplications: {
                     start: eventsTeamsJoin.enableApplicationsStart,
@@ -152,32 +156,26 @@ export async function getEventsForUser(environmentName: string, user?: User): Pr
     if (!eventInfos.length)
         return [ /* no events */ ];
 
-    const eventAvailabilityOverride =
-        can(user, Privilege.EventContentOverride) ||
-        can(user, Privilege.EventApplicationOverride) ||
-        can(user, Privilege.EventScheduleOverride);
-
     const events: Event[] = [];
     for (const eventInfo of eventInfos) {
         let environmentAccessible = false;
-        let environmentFound = false;
 
         for (const eventEnvironmentInfo of eventInfo.environments) {
             if (eventEnvironmentInfo.environment !== environmentName)
                 continue;
 
-            environmentFound = true;
             environmentAccessible =
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableRegistration) ||
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableApplications) ||
-                isAvailabilityWindowOpen(eventEnvironmentInfo.enableSchedule);
+                isAvailabilityWindowOpen(eventEnvironmentInfo.enableSchedule) ||
+                access.can('event.visible', {
+                    event: eventInfo.eventSlug,
+                    team: eventEnvironmentInfo.slug,
+                });
         }
 
-        if (!environmentFound)
-            continue;  // this |eventInfo| does not exist for the given |environmentName|
-
-        if (!environmentAccessible && !eventInfo.adminAccess && !eventAvailabilityOverride)
-            continue;  // this |eventInfo| is not yet available to the |user|
+        if (!environmentAccessible)
+            continue;  // this |eventInfo| does not exist, or is not accessible to the user
 
         events.push(new Event(eventInfo));
     }

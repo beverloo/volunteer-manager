@@ -296,7 +296,8 @@ export function executeAccessCheck(
                 break;
 
             case 'event':
-                if (!can(context.user, Privilege.EventScheduleOverride)) {
+                if (!context.access.can('event.schedules', 'read', { event: access.event,
+                                                                     team: kAnyTeam })) {
                     if (!context.events.has(access.event))
                         notFound();
                 }

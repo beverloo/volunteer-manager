@@ -1,12 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AccessControl } from '@lib/auth/AccessControl';
 import type { Environment } from '@lib/Environment';
 import type { Event } from '@lib/Event';
 import type { Registration } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
-
-import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -16,6 +15,11 @@ import { getRegistration } from '@lib/RegistrationLoader';
  * The context that should be commonly available for the different registration pages.
  */
 export interface RegistrationPageContext {
+    /**
+     * Access that the visitor has been granted on the Volunteer Manager.
+     */
+    access: AccessControl;
+
     /**
      * The environment for which the page is being loaded.
      */
@@ -53,10 +57,10 @@ export async function contextForRegistrationPage(slug: string)
         return undefined;  // invalid event
 
     const authenticationContext = await getAuthenticationContext();
-    const { user } = authenticationContext;
+    const { access, user } = authenticationContext;
 
     const registration = await getRegistration(environment.environmentName, event, user?.userId);
-    if (!can(user, Privilege.EventContentOverride)) {
+    if (!access.can('event.visible', { event: slug, team: environment.teamSlug })) {
         // Note that we deliberately skip checking whether the `user` has administration access to
         // the event, as (a) it being active and (b) them participating in it satisfies our bar.
         if (!authenticationContext.user || !authenticationContext.events.has(slug)) {
@@ -66,5 +70,5 @@ export async function contextForRegistrationPage(slug: string)
         }
     }
 
-    return { environment, event, registration, user };
+    return { access, environment, event, registration, user };
 }

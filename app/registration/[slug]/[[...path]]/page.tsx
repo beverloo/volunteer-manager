@@ -35,7 +35,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
     if (!context)
         notFound();
 
-    const { event, environment, registration, user } = context;
+    const { access, event, environment, registration, user } = context;
 
     const content = await getContent(environment.environmentName, event, path ?? []);
     const environmentData = event.getEnvironmentData(environment.environmentName);
@@ -75,7 +75,12 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
     }
 
     const enableApplications =
-        (environmentData.enableApplications || can(user, Privilege.EventApplicationOverride)) &&
+        (
+            environmentData.enableApplications ||
+            access.can('event.applications', 'create', {
+                event: event.slug, team: environment.teamSlug
+            })
+        ) &&
         capacity !== 'none';
 
     return (

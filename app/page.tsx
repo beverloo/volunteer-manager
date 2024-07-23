@@ -65,7 +65,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     // Load all events accessible to the |user|, and filter them for events that should be shown on
     // the overview page. Either registration or schedule access is required.
-    const unfilteredEvents = await getEventsForUser(environment.environmentName, user);
+    const unfilteredEvents = await getEventsForUser(environment.environmentName, access, user);
     const events = unfilteredEvents.filter(event => {
         const data = event.getEnvironmentData(environment.environmentName);
         if (data?.enableRegistration || registrationOverride)

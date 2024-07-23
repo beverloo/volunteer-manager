@@ -85,7 +85,8 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     if (!affectedRows)
         return { success: false };  // unable to update the user in the database?
 
-    const { user } = await authenticateUser({ type: 'userId', userId: registrationRequest.id });
+    const { access, user } =
+        await authenticateUser({ type: 'userId', userId: registrationRequest.id });
     const sessionToken = await getUserSessionToken(registrationRequest.id);
 
     if (!user || !sessionToken)
@@ -98,7 +99,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
         data: { ip: props.ip },
     });
 
-    const availableEvents = await getEventsForUser(environment.environmentName, user);
+    const availableEvents = await getEventsForUser(environment.environmentName, access, user);
 
     let applicationUrl: string | undefined;
     for (const availableEvent of availableEvents) {

@@ -183,15 +183,6 @@ describe('AuthenticationContext', () => {
         });
 
         executeAccessCheck(administratorAuthenticationContext, { check: 'event', event: '2025' });
-
-        // Case (4): People with the schedule override permission always have access:
-        const privilegedAuthenticationContext = buildAuthenticationContext({
-            user: {
-                privileges: BigInt(Privilege.EventScheduleOverride),
-            }
-        });
-
-        executeAccessCheck(privilegedAuthenticationContext, { check: 'event', event: '2025' });
     });
 
     it('is able to execute privilege-based access checks, including OR and AND sets', () => {

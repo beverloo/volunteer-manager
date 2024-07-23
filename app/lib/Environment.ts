@@ -54,6 +54,11 @@ export interface Environment {
     teamDescription: string;
 
     /**
+     * Unique slug of the team as it should be identified in URLs.
+     */
+    teamSlug: string;
+
+    /**
      * Theme colour of the environment. One must be set for each palette mode.
      */
     themeColours: { [key in PaletteMode]: string };
@@ -94,6 +99,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             environmentTitle: environment.teamTitle,
             teamName: environment.teamName,
             teamDescription: environment.teamDescription,
+            teamSlug: environment.teamSlug,
             themeColours: {
                 dark: environment.themeColourDark,
                 light: environment.themeColourLight,

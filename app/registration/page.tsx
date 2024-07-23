@@ -16,9 +16,9 @@ export default async function RegistrationPage() {
     if (!environment)
         notFound();
 
-    const { user } = await getAuthenticationContext();
+    const { access, user } = await getAuthenticationContext();
 
-    const events = await getEventsForUser(environment.environmentName, user);
+    const events = await getEventsForUser(environment.environmentName, access, user);
     for (const potentialEvent of events) {
         const potentialEventEnvironmentData =
             potentialEvent.getEnvironmentData(environment.environmentName);

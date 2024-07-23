@@ -10,15 +10,16 @@ import type { DBConnection } from '@lib/database/Connection';
 import { ActivityType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
+import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
     tContentCategories, tDisplaysRequests, tNardo, tRoles, tSchedule, tShifts, tStorage, tTeams,
     tUsers, tUsersEvents, tVendors, tVendorsSchedule } from '@lib/database';
 
-import { kPublicSchedule } from './PublicSchedule';
-import { getBlobUrl } from '@lib/database/BlobStore';
+import { kAnyTeam } from '@lib/auth/AccessList';
 import { kAvailabilityException } from '@app/api/admin/event/schedule/fn/determineAvailability';
+import { kPublicSchedule } from './PublicSchedule';
 
 /**
  * Interface definition for the public Schedule API, exposed through /api/event/schedule.
@@ -759,8 +760,10 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     if (!isLeader) {
         const eventAuthenticationContext = props.authenticationContext.events.get(event.slug);
-        if (!eventAuthenticationContext && !can(props.user, Privilege.EventScheduleOverride))
+        if (!eventAuthenticationContext &&
+                !access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam })) {
             notFound();
+        }
 
         isLeader = !!eventAuthenticationContext?.admin;
         team = eventAuthenticationContext?.team;

@@ -168,7 +168,7 @@ export async function application(request: Request, props: ActionProps): Promise
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 
             if (!environmentData.enableApplications &&
-                    !can(props.user, Privilege.EventApplicationOverride)) {
+                    !props.access.can('event.visible', { event: event.slug, team: team.slug })) {
                 throw new Error('Sorry, this event is not accepting applications right now.');
             }
         }
