@@ -12,6 +12,7 @@ import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
 
 import { kTargetToTypeId } from '@lib/subscriptions/drivers/HelpDriver';
+import { queryUsersWithPermission } from '@lib/auth/AccessQuery';
 
 /**
  * Row model for a subscription.
@@ -124,12 +125,14 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
         const subscriptionTypes = await getSubscriptionTypes();
         const subscriptionsJoin = tSubscriptions.forUseInLeftJoin();
 
+        const eligibleUsers = await queryUsersWithPermission('system.subscriptions.eligible');
+        const eligibleUserIds = eligibleUsers.map(user => user.id);
+
         const dbInstance = db;
         const volunteers = await dbInstance.selectFrom(tUsers)
             .leftJoin(subscriptionsJoin)
                 .on(subscriptionsJoin.subscriptionUserId.equals(tUsers.userId))
-            .where(tUsers.privileges.greaterOrEquals(1n))
-                .and(tUsers.activated.equals(/* true= */ 1))
+            .where(tUsers.userId.in(eligibleUserIds))
             .select({
                 id: tUsers.userId,
                 name: tUsers.name,

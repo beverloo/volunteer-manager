@@ -24,9 +24,6 @@ export enum Privilege {
     EventScheduleOverride               = 1 << 4,
     EventTrainingManagement             = 1 << 13,
     EventVolunteerApplicationOverrides  = 1 << 14,
-
-    // Privileges captured by SystemAdministrator:
-    SystemSubscriptionEligible          = 1 << 28,
 };
 
 /**
@@ -64,10 +61,6 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
         Privilege.EventScheduleOverride,
         Privilege.EventTrainingManagement,
         Privilege.EventVolunteerApplicationOverrides,
-    ],
-
-    [Privilege.SystemAdministrator]: [
-        Privilege.SystemSubscriptionEligible,
     ],
 };
 
@@ -109,7 +102,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
 
     [Privilege.SystemAdministrator]: 'Special access',
-    [Privilege.SystemSubscriptionEligible]: 'System access',
 
     [Privilege.VolunteerAdministrator]: 'Special access',
 };
@@ -129,7 +121,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
 
     [Privilege.SystemAdministrator]: 'System administrator',
-    [Privilege.SystemSubscriptionEligible]: 'Subscription eligibility',
 
     [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
 };

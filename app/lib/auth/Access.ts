@@ -216,6 +216,15 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'system.subscriptions.eligible': {
+        name: 'Subscription eligibility',
+        description:
+            'This permission controls whether the volunteer is eligible to be subscribed to ' +
+            'notifications from the Volunteer Manager, such as incoming applications and help ' +
+            'requests.',
+        type: 'boolean',
+    },
+
     'system.subscriptions.management': {
         name: 'Subscription management',
         description:
@@ -369,6 +378,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.shifts',
         'event.vendors',
         'event.visible',
+        'system.subscriptions.eligible',
         'volunteer.avatars',
     ],
 
@@ -378,6 +388,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.shifts:read',
         'event.vendors:read',
         'event.visible',
+        'system.subscriptions.eligible',
         'volunteer.avatars',
     ],
 
