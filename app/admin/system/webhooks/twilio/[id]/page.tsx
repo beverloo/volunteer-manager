@@ -41,7 +41,7 @@ function createOutboxLink(info: { id?: number; type?: TwilioOutboxType }): strin
 export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'system.internals.outbox',
     });
 
     const messageJoin = tOutboxTwilio.forUseInLeftJoinAs('mj');

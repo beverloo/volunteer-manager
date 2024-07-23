@@ -24,7 +24,6 @@ import Typography from '@mui/material/Typography';
 
 import type { User } from '@lib/auth/User';
 import { Avatar } from '@components/Avatar';
-import { Privilege, can } from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <AdminHeader> & related components.
@@ -67,6 +66,11 @@ interface AdminHeaderProps {
      * The events to display in the header, if any.
      */
     events: AdminHeaderEventEntry[];
+
+    /**
+     * Whether the signed in volunteer has access to the volunteers section.
+     */
+    canAccessVolunteersSection: boolean;
 
     /**
      * The user who is currently viewing the administration area.
@@ -137,20 +141,20 @@ export function AdminHeader(props: AdminHeaderProps) {
                             </ListItemText>
                         </MenuItem> )}
 
-                    { can(user, Privilege.Administrator) && <Divider /> }
-                    { can(user, Privilege.Administrator) &&
-                        <MenuItem component={Link} href="/admin/events" onClick={requestMenuClose}>
-                            <ListItemIcon>
-                                <SettingsIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>
-                                Manage events
-                            </ListItemText>
-                        </MenuItem> }
+                    <Divider />
+
+                    <MenuItem component={Link} href="/admin/events" onClick={requestMenuClose}>
+                        <ListItemIcon>
+                            <SettingsIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>
+                            Manage events
+                        </ListItemText>
+                    </MenuItem>
 
                 </Menu>
 
-                { can(user, Privilege.VolunteerAdministrator) &&
+                { props.canAccessVolunteersSection &&
                     <Button component={Link} href="/admin/volunteers" variant="text"
                             color="inherit">
                         Volunteers

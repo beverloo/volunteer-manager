@@ -46,7 +46,7 @@ type Response = ApiResponse<typeof kUpdateActivationDefinition>;
 export async function updateActivation(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: 'volunteer.account',
     });
 
     const affectedRows = await db.update(tUsers)

@@ -6,7 +6,6 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
@@ -54,7 +53,10 @@ type Response = ApiResponse<typeof kUpdateVolunteerDefinition>;
 export async function updateVolunteer(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: {
+            permission: 'volunteer.account.information',
+            operation: 'update',
+        },
     });
 
     const user = await db.selectFrom(tUsers)

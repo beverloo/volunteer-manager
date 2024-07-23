@@ -327,6 +327,11 @@ function ChangeTeamDialog(props: ChangeTeamDialogProps) {
  */
 interface VolunteerHeaderProps {
     /**
+     * Whether the signed in volunteer has the ability to access account information.
+     */
+    canAccessAccountInformation: boolean;
+
+    /**
      * Whether the signed in volunteer has the ability to update applications.
      */
     canUpdateApplications: boolean;
@@ -387,15 +392,15 @@ interface VolunteerHeaderProps {
  * to change their participation. The exact actions depend on the access level of the user.
  */
 export function VolunteerHeader(props: VolunteerHeaderProps) {
-    const { canUpdateApplications, event, team, volunteer, user } = props;
+    const { event, team, volunteer, user } = props;
 
     const allowSilent = props.canUpdateWithoutNotification;
 
     const router = useRouter();
     const showOptions =
         can(user, Privilege.EventAdministrator) ||
-        canUpdateApplications ||
-        can(user, Privilege.VolunteerAdministrator);
+        props.canAccessAccountInformation ||
+        props.canUpdateApplications;
 
     // ---------------------------------------------------------------------------------------------
     // Common (cancel & reinstate participation)
@@ -514,18 +519,18 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                 <Stack divider={ <Divider orientation="vertical" flexItem /> }
                        direction="row" spacing={1}>
 
-                    { can(user, Privilege.VolunteerAdministrator) &&
+                    { props.canAccessAccountInformation &&
                         <Button onClick={navigateToAccount} startIcon={ <AccountCircleIcon /> }>
                             Account
                         </Button> }
 
-                    { (canUpdateApplications &&
+                    { (props.canUpdateApplications &&
                            volunteer.registrationStatus === RegistrationStatus.Accepted) &&
                         <Button startIcon={ <DoNotDisturbIcon /> } onClick={handleCancelOpen}>
                             Cancel participation
                         </Button> }
 
-                    { (canUpdateApplications &&
+                    { (props.canUpdateApplications &&
                            volunteer.registrationStatus === RegistrationStatus.Cancelled) &&
                         <Button startIcon={ <SettingsBackupRestoreIcon /> }
                                 onClick={handleReinstateOpen}>

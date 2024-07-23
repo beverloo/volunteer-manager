@@ -123,7 +123,7 @@ export function toPermissionList(input: any, path?: string, permissions?: string
 async function updateVolunteerPermissions(userId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kVolunteerPermissionData, async (data, props) => {
-        if (!props.access.can('volunteer.permissions', 'update'))
+        if (!props.access.can('volunteer.account.permissions', 'update'))
             return { success: false, error: 'You are not able to update permissions' };
 
         let grants: string | null = null;

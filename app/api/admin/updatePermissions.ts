@@ -47,7 +47,10 @@ type Response = ApiResponse<typeof kUpdatePermissionsDefinition>;
 export async function updatePermissions(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: {
+            permission: 'volunteer.account.permissions',
+            operation: 'update',
+        }
     });
 
     await Log({

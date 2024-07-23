@@ -33,7 +33,10 @@ const kPhoneNumberRegex = /^\+[1-9]\d{1,14}$/;
 export default async function VolunteersPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: {
+            permission: 'volunteer.account.information',
+            operation: 'read',
+        },
     });
 
     const teamsJoin = tTeams.forUseInLeftJoin();

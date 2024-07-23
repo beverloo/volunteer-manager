@@ -147,7 +147,7 @@ export default async function PermissionsPage() {
     await requireAuthenticationContext({
         check: 'admin',
         permission: {
-            permission: 'volunteer.permissions',
+            permission: 'volunteer.account.permissions',
             operation: 'read',
         },
     });

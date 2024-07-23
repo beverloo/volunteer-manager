@@ -4,7 +4,6 @@
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentCreate } from '@app/admin/content/ContentCreate';
 import { ContentList } from '@app/admin/content/ContentList';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createEventScope } from '@app/admin/content/ContentScope';
@@ -16,9 +15,9 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * particular event. It includes a mixture of required (fixed) content and dynamic content.
  */
 export default async function EventContentPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
-    const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
+    const enableAuthorLink = access.can('volunteer.account.information', 'read');
     const pathPrefix = `/registration/${event.slug}/`;
     const scope = createEventScope(event.id, team.id);
 

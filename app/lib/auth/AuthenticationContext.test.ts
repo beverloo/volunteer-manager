@@ -201,7 +201,7 @@ describe('AuthenticationContext', () => {
 
         // Fail:
         try {
-            executeAccessCheck(authenticationContext, { privilege: Privilege.SystemAdministrator });
+            executeAccessCheck(authenticationContext, { privilege: Privilege.Administrator });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
             expect(isNotFoundError(error)).toBeTrue();

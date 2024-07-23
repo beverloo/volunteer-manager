@@ -22,7 +22,7 @@ import db, { tContentCategories } from '@lib/database';
  * answer any questions that they may receive from Staff, visitors and guests alike.
  */
 export default async function EventTeamFaqPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
 
@@ -41,7 +41,7 @@ export default async function EventTeamFaqPage(props: NextPageParams<'event' | '
     const expandCategories = await readUserSetting(
         user.userId, 'user-admin-knowledge-expand-categories');
 
-    const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
+    const enableAuthorLink = access.can('volunteer.account.information', 'read');
     const scope = createKnowledgeBaseScope(event.id);
 
     return (

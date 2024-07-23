@@ -6,7 +6,6 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -47,7 +46,7 @@ type Response = ApiResponse<typeof kSignInImpersonateDefinition>;
 export async function signInImpersonate(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'volunteer.account.impersonation',
     });
 
     const { user: impersonatedUser } =

@@ -26,7 +26,7 @@ import db, { tEventsTeams, tTeams } from '@lib/database';
  * name, slug, target team sizes and so on. These have an effect on the entire Volunteer Manager.
  */
 export default async function EventSettingsPage(props: NextPageParams<'event'>) {
-    const { event, user } = await verifyAccessAndFetchPageInfo(
+    const { access, event, user } = await verifyAccessAndFetchPageInfo(
         props.params, Privilege.EventAdministrator);
 
     const dbInstance = db;
@@ -60,7 +60,6 @@ export default async function EventSettingsPage(props: NextPageParams<'event'>) 
         .orderBy('team.name', 'asc')
         .executeSelectMany();
 
-    const isAdministrator = can(user, Privilege.Administrator);
     const leaders = await getLeadersForEvent(event.id);
 
     const link = 'https://www.yourticketprovider.nl/account/events/manage/myevents.aspx';
@@ -78,7 +77,7 @@ export default async function EventSettingsPage(props: NextPageParams<'event'>) 
             { teamSettings.map(({ settings, team }) =>
                 <EventTeamSettings key={team.id} event={event.id} settings={settings!} team={team}
                                    timezone={event.timezone} /> )}
-            { !!isAdministrator &&
+            { access.can('statistics.finances') &&
                 <Section title="Sales import">
                     <SectionIntroduction>
                         Aggregated information can be imported from our{' '}

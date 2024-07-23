@@ -89,7 +89,7 @@ type Response = ApiResponse<typeof kUpdateIntegrationDefinition>;
 export async function updateIntegration(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'system.internals.settings',
     });
 
     if (request.animecon) {

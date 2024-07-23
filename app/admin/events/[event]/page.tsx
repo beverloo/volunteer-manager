@@ -372,7 +372,7 @@ async function getSeniorVolunteers(eventId: number) {
  * which concisely displays the status and progress of organising an individual event.
  */
 export default async function EventPage(props: NextPageParams<'event'>) {
-    const { event, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const deadlines = await getEventDeadlines(event.id);
     const eventMetadata = await getEventMetadata(event.id);
@@ -381,7 +381,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
-    const isEventAdmin = can(user, Privilege.Administrator);  // TODO: Decide on the permission
+    const canAccessFinanceStatistics = access.can('statistics.finances');
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
@@ -403,7 +403,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                 <Stack direction="column" spacing={2}>
                     { deadlines.length > 0 &&
                         <EventDeadlines event={event} deadlines={deadlines} /> }
-                    { !!isEventAdmin &&
+                    { !!canAccessFinanceStatistics &&
                         <Card>
                             <CardHeader avatar={ <SsidChartIcon color="primary" /> }
                                         title={`${event.shortName} ticket sales`}
@@ -415,9 +415,9 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                                 </Suspense>
                             </CardContent>
                         </Card> }
-                    { (!isEventAdmin && recentVolunteers.length > 0) &&
+                    { (!canAccessFinanceStatistics && recentVolunteers.length > 0) &&
                         <EventRecentVolunteers event={event} volunteers={recentVolunteers} /> }
-                    { (!isEventAdmin && seniorVolunteers.length > 0) &&
+                    { (!canAccessFinanceStatistics && seniorVolunteers.length > 0) &&
                         <EventSeniors event={event} volunteers={seniorVolunteers} /> }
                 </Stack>
             </Grid>

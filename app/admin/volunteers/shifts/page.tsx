@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftCategoriesTable } from './ShiftCategoriesTable';
@@ -16,7 +15,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function ShiftCategoriesPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'volunteer.settings.shifts',
     });
 
     return (

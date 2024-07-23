@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege, can } from '@lib/auth/Privileges';
 import { ContentCreate } from './ContentCreate';
 import { ContentList } from './ContentList';
 import { Section } from '@app/admin/components/Section';
@@ -16,12 +15,12 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * deleted as applicable. This includes the privacy policy, e-mail messages, and so on.
  */
 export default async function ContentPage() {
-    const { user } = await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'system.content',
     });
 
-    const enableAuthorLink = can(user, Privilege.VolunteerAdministrator);
+    const enableAuthorLink = access.can('volunteer.account.information', 'read');
     const scope = createGlobalScope();
 
     return (

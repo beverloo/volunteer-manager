@@ -123,6 +123,18 @@ export const kPermissions = {
     },
 
     // ---------------------------------------------------------------------------------------------
+    // Statistics-associated permissions
+    // ---------------------------------------------------------------------------------------------
+
+    'statistics.finances': {
+        name: 'Financial statistics',
+        description:
+            'This permission determines whether they have access to financial statistics stored ' +
+            'in the Volunteer Manager, such as sales reports for individual events.',
+        type: 'boolean',
+    },
+
+    // ---------------------------------------------------------------------------------------------
     // System-associated permissions
     // ---------------------------------------------------------------------------------------------
 
@@ -239,6 +251,45 @@ export const kPermissions = {
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'volunteer.account': {
+        name: 'Account management',
+        description:
+            'This permission grants full account management capabilities, including the ability ' +
+            'update and reset passwords, impersonate users and disable their accounts.',
+        type: 'boolean',
+        warning: true,
+    },
+
+    'volunteer.account.impersonation': {
+        name: 'Impersonate account',
+        description:
+            'This permission allows the volunteer to impersonate other accounts by signing in ' +
+            'as them without needing their authentication information.',
+        type: 'boolean',
+    },
+
+    'volunteer.account.information': {
+        name: 'Volunteer account information',
+        description:
+            'This permission grants access to all volunteer accounts that have been created on ' +
+            'the Volunteer Manager, together with basic information in regards to their ' +
+            'participation in our events so far.',
+        hide: [ 'create', 'delete' ],  // we do not currently allow creating or deleting accounts
+        type: 'crud',
+        warning: true,
+    },
+
+    'volunteer.account.permissions': {
+        name: 'Volunteer account permissions',
+        description:
+            'This permission determines whether the volunteer is able to manage the permissions ' +
+            'of other volunteers. This is an extremely dangerous permission, as it enables them ' +
+            'to manage their own permissions as well.',
+        hide: [ 'create', 'delete' ],  // all mutations are considered updates
+        type: 'crud',
+        warning: true,
+    },
+
     'volunteer.avatars': {
         name: 'Avatar management',
         description:
@@ -257,23 +308,31 @@ export const kPermissions = {
         warning: true,
     },
 
-    'volunteer.permissions': {
-        name: 'Volunteer account permissions',
-        description:
-            'This permission determines whether the volunteer is able to manage the permissions ' +
-            'of other volunteers. This is an extremely dangerous permission, as it enables them ' +
-            'to manage their own permissions as well.',
-        hide: [ 'create', 'delete' ],  // all mutations are considered updates
-        type: 'crud',
-        warning: true,
-    },
-
     'volunteer.pii': {
         name: 'Volunteer contact information',
         description:
             'This permission determines whether this volunteer is able to access all contact ' +
             'information without their access being on demand. This is generally inadvisable as ' +
             'the confirmation is lightweight.',
+        type: 'boolean',
+        warning: true,
+    },
+
+    'volunteer.settings.shifts': {
+        name: 'Shift category settings',
+        description:
+            'This permission decides whether they have access to the shift category settings, ' +
+            'which are shared across events. Messing up these settings could potentially affect ' +
+            'mutability of past events in the scheduling app.',
+        type: 'boolean',
+    },
+
+    'volunteer.settings.teams': {
+        name: 'Team and role settings',
+        description:
+            'This permission decides whether they have access to settings regarding teams and ' +
+            'roles that existing within the Volunteer Manager. This is considered a dangerous ' +
+            'permission as this currently also contains environment configuration.',
         type: 'boolean',
         warning: true,
     },
@@ -344,6 +403,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'admin',  // reflection
 
         'event',
+        'statistics',
         'system',
         'volunteer',
     ],
@@ -351,6 +411,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         'admin',  // reflection
 
         'event',
+
+        'statistics',
 
         'system.content',
         'system.displays',
@@ -363,9 +425,13 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'volunteer.avatars',
         'volunteer.export',
-        // note: volunteer.permissions:update omitted
-        'volunteer.permissions:read',
+        // note: volunteer.account omitted
+        // note: volunteer.account.impersonate omitted
+        'volunteer.account.information',
+        // note: volunteer.account.permissions:update omitted
+        'volunteer.account.permissions:read',
         'volunteer.pii',
+        'volunteer.settings',
         'volunteer.silent',
     ],
 
@@ -378,7 +444,9 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.shifts',
         'event.vendors',
         'event.visible',
+        'statistics.finances',
         'system.subscriptions.eligible',
+        'volunteer.account.information:read',
         'volunteer.avatars',
     ],
 

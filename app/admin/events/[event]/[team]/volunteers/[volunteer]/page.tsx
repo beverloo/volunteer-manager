@@ -97,10 +97,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!volunteer)
         notFound();
 
-    const contactAccess =
-        access.can('volunteer.pii') ||
-        can(user, Privilege.VolunteerAdministrator);
-
+    const contactAccess = access.can('volunteer.pii') || access.can('volunteer.account');
     const contactInfo =
         contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
                       : undefined;
@@ -242,6 +239,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
+    const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
     const canUpdateApplications = access.can('event.applications', 'update', {
         event: event.slug,
         team: team.slug,
@@ -251,7 +249,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     return (
         <>
-            <VolunteerHeader canUpdateApplications={canUpdateApplications}
+            <VolunteerHeader canAccessAccountInformation={canAccessAccountInformation}
+                             canUpdateApplications={canUpdateApplications}
                              canUpdateWithoutNotification={canUpdateWithoutNotification}
                              event={event} team={team} volunteer={volunteer} user={user} />
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}

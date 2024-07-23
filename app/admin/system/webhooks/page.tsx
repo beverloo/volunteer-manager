@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { WebhookDataTable } from './WebhookDataTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -15,7 +14,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function WebhooksPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'system.internals.outbox',
     });
 
     return (

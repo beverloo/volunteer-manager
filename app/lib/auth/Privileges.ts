@@ -15,8 +15,6 @@ export enum Privilege {
 
     // Privileges regarding access in the administrative area.
     EventAdministrator                  = 1 << 7,
-    SystemAdministrator                 = 1 << 8,
-    VolunteerAdministrator              = 1 << 9,
 
     // Privileges captured by EventAdministrator:
     EventContentOverride                = 1 << 2,
@@ -50,8 +48,6 @@ export function can(user: Privileges | User | undefined, privilege: Privilege): 
 const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.Administrator]: [
         Privilege.EventAdministrator,
-        Privilege.SystemAdministrator,
-        Privilege.VolunteerAdministrator,
         Privilege.Refunds,
     ],
 
@@ -100,10 +96,6 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
     [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
-
-    [Privilege.SystemAdministrator]: 'Special access',
-
-    [Privilege.VolunteerAdministrator]: 'Special access',
 };
 
 /**
@@ -119,10 +111,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
     [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
-
-    [Privilege.SystemAdministrator]: 'System administrator',
-
-    [Privilege.VolunteerAdministrator]: 'Volunteer administrator',
 };
 
 /**
@@ -134,5 +122,4 @@ export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Refunds]: 'Grants access to financial information',
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
-    [Privilege.SystemAdministrator]: 'Grants all system-related privileges',
 };

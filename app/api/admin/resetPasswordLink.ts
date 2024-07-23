@@ -42,7 +42,7 @@ type Response = ApiResponse<typeof kResetPasswordLinkDefinition>;
 export async function resetPasswordLink(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.Administrator,
+        permission: 'volunteer.account',
     });
 
     const user = await db.selectFrom(tUsers)

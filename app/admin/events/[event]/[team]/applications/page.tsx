@@ -91,7 +91,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     // Whether the volunteer can respond to applications depends on their permissions - normal
     // application managers cannot, however, event administrators are allowed to. Similarly, only
     // event administrators are able to reverse the decision on rejections.
-    const canAccessAccounts = can(user, Privilege.VolunteerAdministrator);
+    const canAccessAccounts = access.can('volunteer.account.information', 'read');
     const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);  // fixme?
 
     const canCreateApplications = access.can('event.applications', 'create', permissionOptions);

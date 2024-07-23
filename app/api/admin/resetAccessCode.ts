@@ -41,7 +41,7 @@ type Response = ApiResponse<typeof kResetAccessCodeDefinition>;
 export async function resetAccessCode(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: 'volunteer.account',
     });
 
     await Log({

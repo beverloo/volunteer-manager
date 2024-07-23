@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { SubscriptionTable } from './SubscriptionTable';
@@ -15,13 +14,13 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * selectively sign up certain people to automated and/or privileged messaging.
  */
 export default async function SubscriptionPage() {
-    const { user } = await requireAuthenticationContext({
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'system.subscriptions.management',
     });
 
     let action: React.ReactNode;
-    if (can(user, Privilege.Administrator)) {
+    if (access.can('system.internals')) {
         action = (
             <SubscriptionTestAction userId={user.userId} name={user.firstName} />
         );

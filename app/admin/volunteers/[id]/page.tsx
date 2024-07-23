@@ -106,7 +106,10 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
 export default async function VolunteerPage(props: NextPageParams<'id'>) {
     const { access, user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: {
+            permission: 'volunteer.account.information',
+            operation: 'read',
+        },
     });
 
     const volunteerInfo = await fetchVolunteerInfo(props.params.id);
@@ -115,13 +118,15 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
 
     const { account, participation } = volunteerInfo;
 
+    const canImpersonate = access.can('volunteer.account.impersonation');
+
     const isAdmin = can(user, Privilege.Administrator);
 
-    const permissionsReadOnly = !access.can('volunteer.permissions', 'update');
+    const permissionsReadOnly = !access.can('volunteer.account.permissions', 'update');
 
     return (
         <>
-            <Header account={account} isAdmin={isAdmin} />
+            <Header account={account} canImpersonate={canImpersonate} isAdmin={isAdmin} />
             <Information account={account} />
 
             { !!participation.length &&
@@ -136,10 +141,10 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
                                    pageSize={10} />
                 </Paper> }
 
-            { access.can('volunteer.permissions', 'read') &&
+            { access.can('volunteer.account.permissions', 'read') &&
                 <VolunteerPermissions readOnly={permissionsReadOnly} userId={account.userId} /> }
 
-            { can(user, Privilege.Administrator) &&
+            { access.can('volunteer.account.permissions', 'read') &&
                 <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }
         </>
     );

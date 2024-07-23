@@ -10,17 +10,29 @@ import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
 import { AdminPageContainer } from '../AdminPageContainer';
-import { Privilege } from '@lib/auth/Privileges';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { or, requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function VolunteersLayout(props: React.PropsWithChildren) {
+
+    // Note: keep this in sync with //admin/layout.tsx
     const { access, user } = await requireAuthenticationContext({
         check: 'admin',
-        privilege: Privilege.VolunteerAdministrator,
+        permission: or(
+            'volunteer.export',
+            {
+                permission: 'volunteer.account.permissions',
+                operation: 'read',
+            },
+            'volunteer.settings.shifts',
+            'volunteer.settings.teams',
+            {
+                permission: 'volunteer.account.information',
+                operation: 'read',
+            }),
     });
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [
@@ -34,7 +46,7 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
             icon: <CategoryIcon />,
             label: 'Permissions',
             permission: {
-                permission: 'volunteer.permissions',
+                permission: 'volunteer.account.permissions',
                 operation: 'read',
             },
             url: '/admin/volunteers/permissions',
@@ -42,18 +54,22 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
         {
             icon: <WorkspacesIcon />,
             label: 'Shift categories',
-            privilege: Privilege.Administrator,
+            permission: 'volunteer.settings.shifts',
             url: '/admin/volunteers/shifts',
         },
         {
             icon: <GroupsIcon />,
             label: 'Teams & roles',
-            privilege: Privilege.Administrator,
+            permission: 'volunteer.settings.teams',
             url: '/admin/volunteers/teams',
         },
         {
             icon: <PersonIcon />,
             label: 'Volunteers',
+            permission: {
+                permission: 'volunteer.account.information',
+                operation: 'read',
+            },
             url: '/admin/volunteers',
         },
     ];
