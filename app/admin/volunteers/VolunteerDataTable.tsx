@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 
 import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
-import LocalPoliceIcon from '@mui/icons-material/LocalPolice';
 import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
@@ -34,7 +33,6 @@ interface VolunteerRowModel {
     phoneNumber?: string;
     teams?: string;
     activated: boolean;
-    admin: boolean;
 }
 
 /**
@@ -108,10 +106,6 @@ export function VolunteerDataTable(props: VolunteerDataTableProps) {
                     <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
                         {params.value}
                     </MuiLink>
-                    { !!params.row.admin &&
-                        <Tooltip title="Administrator">
-                            <LocalPoliceIcon color="success" fontSize="small" sx={{ ml: 1 }} />
-                        </Tooltip> }
                     { !params.row.activated &&
                         <Tooltip title="Pending activation">
                             <ReportGmailerrorredIcon color="error" fontSize="small"

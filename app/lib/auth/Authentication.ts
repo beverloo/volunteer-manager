@@ -125,7 +125,6 @@ export async function authenticateUser(params: AuthenticateUserParams)
             lastName: tUsers.lastName,
             displayName: tUsers.displayName,
             avatarFileHash: storageJoin.fileHash,
-            privileges: tUsers.privileges,
         });
 
     let authenticationQuery: ReturnType<typeof authenticationBaseSelect['executeSelectNoneOrOne']>;

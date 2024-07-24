@@ -51,7 +51,6 @@ export async function Publish(publication: Publication): Promise<number> {
             .on(tUsers.userId.equals(tSubscriptions.subscriptionUserId))
         .where(tSubscriptions.subscriptionType.equals(publication.type))
             .and(tSubscriptions.subscriptionTypeId.equalsIfValue(publication.typeId))
-            .and(tUsers.privileges.greaterOrEquals(1n))
         .select({
             user: {
                 userId: tSubscriptions.subscriptionUserId,

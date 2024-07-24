@@ -60,7 +60,6 @@ export default async function VolunteersPage() {
             birthdate: dbInstance.dateAsString(tUsers.birthdate),
             teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
             activated: tUsers.activated.equals(/* true= */ 1),
-            admin: tUsers.privileges.modulo(2n).equals(/* true= */ 1n),
         })
         .groupBy(tUsers.userId)
         .orderBy(tUsers.lastName, 'asc')

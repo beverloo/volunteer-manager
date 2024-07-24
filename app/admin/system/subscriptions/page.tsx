@@ -26,6 +26,8 @@ export default async function SubscriptionPage() {
         );
     }
 
+    // TODO: Add a warning section listing users who have subscriptions, but are no longer eligible.
+
     return (
         <Section action={action} title="Subscriptions">
             <SectionIntroduction>
