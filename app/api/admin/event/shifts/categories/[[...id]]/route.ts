@@ -73,7 +73,7 @@ export const { GET, DELETE, POST, PUT } =
 createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
+            check: 'admin',
             permission: 'volunteer.settings.shifts',
         });
     },

@@ -88,8 +88,10 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
     const permissionGroupsToExpand = useMemo(() => {
         const permissionGroupsToExpand = new Set<GridRowId>();
         for (const permission of props.permissions) {
-            //if (!kExplicitlySetPermissionStatuses.includes(permission.status.account))
-            //    continue;
+            if (!permission.status.account || typeof permission.status.account === 'string')
+                continue;  // this permission was not set for their account
+            if (!!permission.status.account.expanded)
+                continue;  // a parent permission led to this permission being granted
 
             const path = permission.id.split('.');
             do {

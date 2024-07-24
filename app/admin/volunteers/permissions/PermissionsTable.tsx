@@ -217,7 +217,7 @@ export function PermissionsTable(props: PermissionsTableProps) {
             field: 'permission',
             headerName: 'ID',
             sortable: false,
-            width: 250,
+            width: 300,
 
             renderCell: params => {
                 if (!params.row.operation)
