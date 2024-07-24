@@ -317,10 +317,10 @@ async function getRecentChanges(access: AccessControl, event: string, eventId: n
 /**
  * Returns the volunteers who most recently signed up to participate in the event.
  */
-async function getRecentVolunteers(eventId: number) {
+async function getRecentVolunteers(access: AccessControl, event: string, eventId: number) {
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    return await db.selectFrom(tEvents)
+    const volunteers = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.notIn([
@@ -341,8 +341,14 @@ async function getRecentVolunteers(eventId: number) {
         })
         .orderBy(tUsersEvents.registrationDate, 'desc')
         .orderBy(/* fallback for older events= */ tUsers.username, 'asc')
-        .limit(/* based on width of the component= */ 9)
-        .executeSelectMany();;
+        .executeSelectMany();
+
+    return volunteers.filter(volunteer => {
+        return access.can('event.visible', {
+            event,
+            team: volunteer.team,
+        });
+    }).slice(0, /* based on the width of the component= */ 9);
 }
 
 /**
@@ -390,7 +396,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
     const eventMetadata = await getEventMetadata(event.id);
     const participatingTeams = await getParticipatingTeams(event.id);
     const recentChanges = await getRecentChanges(access, event.slug, event.id);
-    const recentVolunteers = await getRecentVolunteers(event.id);
+    const recentVolunteers = await getRecentVolunteers(access, event.slug, event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
     const canAccessFinanceStatistics = access.can('statistics.finances');
