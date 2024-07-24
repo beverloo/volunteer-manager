@@ -85,8 +85,8 @@ export function RejectedApplications(props: RejectedApplicationsProps) {
             </Typography>
             { !editable &&
                 <Alert severity="warning" sx={{ mb: 2 }}>
-                    Talk to a <strong>Staff</strong>-level volunteer if you want to reconsider any
-                    of these applications.
+                    Talk to a <strong>Staff</strong>-level volunteer if you believe that we should
+                    reconsider any of these applications.
                 </Alert> }
             <Stack direction="column" spacing={2}>
                 { applications.map((application, index) =>
@@ -108,10 +108,11 @@ export function RejectedApplications(props: RejectedApplicationsProps) {
                                 </Typography>
                             </Box>
                         </Stack>
-                        <LoadingButton loading={loading} variant="outlined"
-                                       onClick={ () => handleSubmit(application.userId) }>
-                            Reconsider
-                        </LoadingButton>
+                        { !!editable &&
+                            <LoadingButton loading={loading} variant="outlined"
+                                           onClick={ () => handleSubmit(application.userId) }>
+                                Reconsider
+                            </LoadingButton> }
                     </Stack> )}
             </Stack>
         </Paper>
