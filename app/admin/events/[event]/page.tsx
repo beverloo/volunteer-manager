@@ -355,11 +355,11 @@ async function getRecentVolunteers(access: AccessControl, event: string, eventId
  * Returns the Senior-level engineers that participate in the event, which is defined as any role
  * that grants administrator access to the event.
  */
-async function getSeniorVolunteers(eventId: number) {
+async function getSeniorVolunteers(access: AccessControl, event: string, eventId: number) {
     const rolesJoin = tRoles.forUseInLeftJoin();
     const storageJoin = tStorage.forUseInLeftJoin();
 
-    return await db.selectFrom(tEvents)
+    const seniors = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
@@ -383,6 +383,14 @@ async function getSeniorVolunteers(eventId: number) {
         .orderBy(rolesJoin.roleOrder, 'asc')
         .orderBy(tUsers.username, 'asc')
         .executeSelectMany();
+
+    return seniors.map(senior => ({
+        ...senior,
+        accessible: access.can('event.visible', {
+            event,
+            team: senior.team,
+        }),
+    }));
 }
 
 /**
@@ -397,7 +405,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
     const participatingTeams = await getParticipatingTeams(event.id);
     const recentChanges = await getRecentChanges(access, event.slug, event.id);
     const recentVolunteers = await getRecentVolunteers(access, event.slug, event.id);
-    const seniorVolunteers = await getSeniorVolunteers(event.id);
+    const seniorVolunteers = await getSeniorVolunteers(access, event.slug, event.id);
 
     const canAccessFinanceStatistics = access.can('statistics.finances');
 

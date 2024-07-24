@@ -31,6 +31,11 @@ export interface EventRecentVolunteersProps {
         userId: number;
 
         /**
+         * Whether the volunteer is accessible. When set to `false`, no link will be created.
+         */
+        accessible?: boolean;
+
+        /**
          * Hash of their avatar, if any.
          */
         avatarHash?: string;
@@ -60,6 +65,19 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
     return (
         <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
             { volunteers.map((volunteer, index) => {
+                const avatarSrc = volunteer.avatarHash ? `/blob/${volunteer.avatarHash}.png`
+                                                       : undefined;
+
+                if (volunteer.accessible === false) {
+                    return (
+                        <Tooltip key={index} title={volunteer.name}>
+                            <Avatar size="medium" src={avatarSrc}>
+                                {volunteer.name}
+                            </Avatar>
+                        </Tooltip>
+                    );
+                }
+
                 const linkBase = `/admin/events/${event.slug}/${volunteer.team}`;
 
                 let link: string = '/applications';
@@ -69,9 +87,6 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
                         link = `/volunteers/${volunteer.userId}`;
                         break;
                 }
-
-                const avatarSrc = volunteer.avatarHash ? `/blob/${volunteer.avatarHash}.png`
-                                                        : undefined;
 
                 return (
                     <Tooltip key={index} title={volunteer.name}>
