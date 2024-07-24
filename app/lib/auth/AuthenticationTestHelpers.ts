@@ -39,7 +39,6 @@ export interface AuthenticationResult {
     lastName: string,
     displayName?: string,
     avatarFileHash?: string,
-    privileges: bigint,
 }
 
 /**
@@ -105,7 +104,6 @@ export function expectAuthenticationQuery(
         firstName: 'Joe',
         lastName: 'Example',
         avatarFileHash: undefined,
-        privileges: 0n,
 
         ...authenticationResult
     }));

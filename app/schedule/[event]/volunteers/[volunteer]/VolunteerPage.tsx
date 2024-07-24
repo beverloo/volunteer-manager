@@ -238,8 +238,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
     // Avatar management:
     // ---------------------------------------------------------------------------------------------
 
-    // Volunteers are able to edit their own avatar by default, and can be granted a privilege that
-    // will allow them to edit anyone's avatar. That privilege is conveyed as a config option.
+    // Volunteers are able to edit their own avatar by default, and can be granted a permission that
+    // will allow them to edit anyone's avatar. That permission is conveyed as a config option.
     const avatarEditable =
         schedule?.config.enableAvatarManagement || props.userId === `${schedule?.userId}`;
 

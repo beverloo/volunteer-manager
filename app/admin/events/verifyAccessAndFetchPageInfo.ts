@@ -197,7 +197,7 @@ type PageInfoWithTeamParams = { event: string; team: string; };
 /**
  * Verifies that the current user has access to the current page, and returns information about the
  * user and page appropriate to the amount of information passed in the `params` argument. The
- * page can optionally be guarded behind a given `privilege` as well.
+ * page can optionally be guarded behind a given `accessCheck` as well.
  */
 export async function verifyAccessAndFetchPageInfo(
     params: PageInfoWithTeamParams, accessCheck?: PermissionAccessCheck)

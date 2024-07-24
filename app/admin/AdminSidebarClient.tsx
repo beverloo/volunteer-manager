@@ -64,7 +64,7 @@ interface AdminSidebarMenuDivider extends AdminSidebarMenuCommon {
 
 /**
  * Base interface for an entry to the administration sidebar interface that applies to all kinds of
- * entries, which includes rendering properties and privilege checking.
+ * entries, which includes rendering properties and permission checking.
  */
 interface AdminSidebarMenuItemCommon extends AdminSidebarMenuCommon {
     /**

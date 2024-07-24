@@ -84,8 +84,8 @@ export type RefundRequestRowModel = z.infer<typeof kRefundRequestRowModel>;
 export type RefundRequestScope = z.infer<typeof kRefundRequestContext>['context'];
 
 /**
- * Implementation of the Refund Request API, which enables administrators with sufficient privileges
- * to list and update volunteer refund requests for a particular event.
+ * Implementation of the Refund Request API, which enables administrators with sufficient
+ * permissions to list and update volunteer refund requests for a particular event.
  *
  * The following endpoints are provided by this implementation:
  *

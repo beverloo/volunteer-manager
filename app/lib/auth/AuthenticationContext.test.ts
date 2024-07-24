@@ -83,7 +83,7 @@ describe('AuthenticationContext', () => {
             expect(isNotFoundError(error)).toBeTrue();
         }
 
-        // Case (2): Explicit administrators through a privilege
+        // Case (2): Explicit administrators through a permission
         const explicitAdminAuthenticationContext = buildAuthenticationContext({
             access: {
                 grants: 'event.visible',

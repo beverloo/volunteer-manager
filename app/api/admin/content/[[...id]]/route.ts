@@ -115,7 +115,7 @@ export type ContentScope = z.infer<typeof kContentContext>['context'];
 
 /**
  * The Content API is implemented as a regular, editable DataTable API. All operations are gated on
- * privileges specific to the content's context, and changes will be logged as appropriate.
+ * permissions specific to the content's context, and changes will be logged as appropriate.
  *
  * The following endpoints are provided by this implementation:
  *

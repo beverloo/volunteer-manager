@@ -68,17 +68,12 @@ export interface InjectPermissionTestsForActionParams<T extends ZodObject<ZodRaw
      * The request that should be issued when executing the action.
      */
     request: z.infer<T>['request'];
-
-    /**
-     * Privileges to be assigned to a user that are considered insufficient to call the API.
-     */
-    insufficientPrivileges: number;
 }
 
 /**
  * Injects a permission test for the given action. Two assertions will be made:
  *     1. Invoking the |action| without authentication yields a HTTP 404 Not Found,
- *     2. Invoking the |action| with the insufficient privileges yields a HTTP 404 Not Found
+ *     2. Invoking the |action| with the insufficient permissions yields a HTTP 404 Not Found
  *
  * @todo Ideally case (2) would throw a HTTP 403 Forbidden error, but we cannot distinguish between
  *       API and app calls in `executeAccessCheck`. Err on the side of sharing less information.
@@ -86,7 +81,7 @@ export interface InjectPermissionTestsForActionParams<T extends ZodObject<ZodRaw
 export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawShape, any, any>>(
     api: T, action: Action<T>, params: InjectPermissionTestsForActionParams<T>): Promise<void>
 {
-    it(`requires sufficient privileges (${action.name})`, async () => {
+    it(`requires sufficient permissions (${action.name})`, async () => {
         const guestResponse = await executeActionForTests(api, action, {
             request: params.request,
             user: /* guest= */ undefined,

@@ -23,7 +23,7 @@ type ServerActionProps = {
     access: AccessControl,
 
     /**
-     * Authentication context describing the privileges of the visitor.
+     * Authentication context describing the permissions of the visitor.
      */
     authenticationContext: AuthenticationContext;
 

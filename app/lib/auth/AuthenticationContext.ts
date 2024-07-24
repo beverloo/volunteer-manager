@@ -42,7 +42,7 @@ export interface UserEventAuthenticationContext {
  */
 export interface UserAuthenticationContext {
     /**
-     * Object that helps determine what permissions and privileges are granted to the visitor.
+     * Object that helps determine what permissions and permissions are granted to the visitor.
      */
     access: AccessControl;
 
@@ -68,7 +68,7 @@ export interface UserAuthenticationContext {
  */
 export interface VisitorAuthenticationContext {
     /**
-     * Object that helps determine what permissions and privileges are granted to the visitor.
+     * Object that helps determine what permissions and permissions are granted to the visitor.
      */
     access: AccessControl;
 
@@ -150,14 +150,14 @@ export function or(...permissions: PermissionAccessCheck[]): PermissionSet {
 type AuthenticationAccessCheckTypes =
     /**
      * Access to the administrative area. This is the case when either:
-     *   (1) The user has the EventAdministrator privilege,
+     *   (1) The user has permission to any event,
      *   (2) The user has admin access because of an active event.
      */
     { check: 'admin' } |
 
     /**
      * Access to the administrative area for a particular event. This is the case when either:
-     *   (1) The user has the Administrator privilege,
+     *   (1) The user has permission to access any event,
      *   (2) The user has admin access to the given `event`, which must be a slug.
      *   (3) Optionally, the user has admin access to the given `team`, which must be a slug.
      */
@@ -165,14 +165,14 @@ type AuthenticationAccessCheckTypes =
 
     /**
      * Access to the schedule for a particular event. This is the case when either:
-     *   (1) The user has the Administrator privilege,
+     *   (1) The user has permission to access any event,
      *   (2) The user has admin access to the given `event`, which must be active,
      *   (3) The event's schedule has been published by an event administrator.
      */
     { check: 'event', event: string } |
 
     /**
-     * Access checks may be omitted in favour of only checking for privileges.
+     * Access checks may be omitted in favour of only checking for permissions.
      */
     { };
 

@@ -16,7 +16,7 @@ type ThemeColour = { [key in PaletteMode]: string };
 
 /**
  * Add our own style, "hidden", which mimics disabled buttons while still allowing interaction. It
- * is used to highlight options that are only available through additional granted privileges.
+ * is used to highlight options that are only available through additional granted permissions.
  */
 declare module '@mui/material/Button' {
     interface ButtonPropsColorOverrides {

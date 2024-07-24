@@ -109,7 +109,7 @@ async function getSubscriptionTypes() {
 
 /**
  * The Subscription API is implemented as a regular, editable DataTable API. All operations are only
- * available to people with the SystemSubscriptionManagement privilege.
+ * available to people with the subscription management permissions.
  */
 export const { GET, PUT } =
 createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {

@@ -33,7 +33,6 @@ export interface VolunteerInfo {
         gender: string;
         birthdate?: string;  // YYYY-MM-DD
         phoneNumber?: string;
-        privileges: bigint;
         activated: number;
     };
 
@@ -63,7 +62,6 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             gender: tUsers.gender,
             birthdate: dbInstance.dateAsString(tUsers.birthdate),
             phoneNumber: tUsers.phoneNumber,
-            privileges: tUsers.privileges,
             activated: tUsers.activated,
         })
         .executeSelectNoneOrOne();

@@ -56,7 +56,7 @@ export type NardoRowModel = z.infer<typeof kNardoRowModel>;
 
 /**
  * The Del a Rie advies API is implemented as a regular, editable DataTable API. All operations are
- * gated on the `Privilege.SystemNardoAccess` privilege, and changes will be logged as appropriate.
+ * gated on Nardo permission, and mutations will be logged as appropriate.
  */
 export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNardoContext, {
     accessCheck(request, action, props) {

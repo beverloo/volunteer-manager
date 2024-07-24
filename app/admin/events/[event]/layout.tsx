@@ -120,7 +120,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
 
     // If the user has the ability to see any of the additional menu items, execute a single query
     // to understand how many outstanding items there are for hotels, refunds and trainings. Only
-    // the ones that the user is privileged to access will be populated.
+    // the ones that the user has permission to access will be populated.
     const canAccessHotels = access.can('event.hotels', { event });
     const canAccessRefunds = access.can('event.refunds', { event });
     const canAccessTrainings = access.can('event.trainings', { event });
