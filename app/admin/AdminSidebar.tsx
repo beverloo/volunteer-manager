@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import type { AdminSidebarMenuEntry, RenderSidebarMenuProps } from './AdminSidebarClient';
 import type { AccessControl } from '@lib/auth/AccessControl';
 import { RenderSidebarClient } from './AdminSidebarClient';
-import { checkPermission } from '@lib/auth/AuthenticationContext';
+import { checkPermission, or } from '@lib/auth/AuthenticationContext';
 
 /**
  * Re-export the types from the client file.
@@ -40,12 +40,10 @@ function filterMenuOptions(inputMenu: AdminSidebarMenuEntry[], access: AccessCon
 
         if (entry.permission) {
             const permissions =
-                Array.isArray(entry.permission) ? entry.permission : [ entry.permission ];
+                Array.isArray(entry.permission) ? or(...entry.permission) : entry.permission;
 
-            for (const permission of permissions) {
-                if (!checkPermission(access, permission))
-                    continue;  // permission has not been granted
-            }
+            if (!checkPermission(access, permissions))
+                continue;  // not all permissions have been granted
         }
 
         if ('menu' in entry)
