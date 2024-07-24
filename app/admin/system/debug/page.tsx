@@ -16,7 +16,6 @@ import Table from '@mui/material/Table';
 
 import { DebugOptions } from './DebugOptions';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { executeServerAction } from '@lib/serverAction';

@@ -11,7 +11,6 @@ import Stack from '@mui/material/Stack';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityWarning } from '../AvailabilityWarning';
 import { Markdown } from '@components/Markdown';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';

@@ -16,7 +16,6 @@ import { HotelPreferencesForm } from '@app/registration/[slug]/application/hotel
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
-import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationHotelPreferences> component.

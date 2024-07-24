@@ -8,9 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import type { AdminSidebarMenuEntry, RenderSidebarMenuProps } from './AdminSidebarClient';
 import type { AccessControl } from '@lib/auth/AccessControl';
-import type { User } from '@lib/auth/User';
 import { RenderSidebarClient } from './AdminSidebarClient';
-import { can } from '@lib/auth/Privileges';
 import { checkPermission } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -34,7 +32,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  * Filters the `menu` options based on permissions defined within the structure. When a permission
  * has not been granted, the menu options will be omitted instead.
  */
-function filterMenuOptions(inputMenu: AdminSidebarMenuEntry[], access: AccessControl, user: User) {
+function filterMenuOptions(inputMenu: AdminSidebarMenuEntry[], access: AccessControl) {
     const menu: AdminSidebarMenuEntry[] = [];
     for (const entry of inputMenu) {
         if (typeof entry.condition === 'boolean' && !entry.condition)
@@ -50,18 +48,8 @@ function filterMenuOptions(inputMenu: AdminSidebarMenuEntry[], access: AccessCon
             }
         }
 
-        if (entry.privilege) {
-            const privileges =
-                Array.isArray(entry.privilege) ? entry.privilege : [ entry.privilege ];
-
-            for (const privilege of privileges) {
-                if (!can(user, privilege))
-                    continue;  // privilege has not been granted
-            }
-        }
-
         if ('menu' in entry)
-            entry.menu = filterMenuOptions(entry.menu, access, user) as any;
+            entry.menu = filterMenuOptions(entry.menu, access) as any;
 
         menu.push(entry);
     }
@@ -82,11 +70,6 @@ interface AdminSidebarProps extends RenderSidebarMenuProps {
      * Title to display at the top of the sidebar.
      */
     title: string;
-
-    /**
-     * The user for whom the menu is being shown. Included for permission checking.
-     */
-    user: User;
 }
 
 /**
@@ -94,7 +77,7 @@ interface AdminSidebarProps extends RenderSidebarMenuProps {
  * through its props. Expected to render as a child of the <AdminContent> component.
  */
 export function AdminSidebar(props: AdminSidebarProps) {
-    const menu = filterMenuOptions(props.menu, props.access, props.user);
+    const menu = filterMenuOptions(props.menu, props.access);
     return (
         <Paper sx={{ alignSelf: 'flex-start', flexShrink: 0, width: '280px', overflow: 'hidden' }}>
             <Typography variant="h6" sx={kStyles.header}>

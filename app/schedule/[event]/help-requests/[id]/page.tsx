@@ -17,7 +17,6 @@ import { AcknowledgeForm } from './AcknowledgeForm';
 import { CloseForm } from './CloseForm';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../../components/HelpRequestTarget';
-import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../../components/SetTitle';
 import { formatDate, formatDuration } from '@lib/Temporal';
 import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';

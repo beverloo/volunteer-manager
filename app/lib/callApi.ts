@@ -48,7 +48,6 @@ import type { UpdateEventDefinition } from '@app/api/admin/updateEvent';
 import type { UpdateHelpRequestDefinition } from '@app/api/event/schedule/updateHelpRequest';
 import type { UpdateIntegrationDefinition } from '@app/api/admin/updateIntegration';
 import type { UpdateNotesDefinition } from '@app/api/event/schedule/updateNotes';
-import type { UpdatePermissionsDefinition } from '@app/api/admin/updatePermissions';
 import type { UpdateScheduleEntryDefinition } from '@app/api/admin/event/schedule/updateScheduleEntry';
 import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
@@ -166,7 +165,6 @@ export type ApiEndpoints = {
         '/api/admin/update-activation': UpdateActivationDefinition,
         '/api/admin/update-event': UpdateEventDefinition,
         '/api/admin/update-integration': UpdateIntegrationDefinition,
-        '/api/admin/update-permissions': UpdatePermissionsDefinition,
         '/api/admin/update-settings': UpdateSettingsDefinition,
         '/api/admin/update-team': UpdateTeamDefinition,
         '/api/admin/update-volunteer': UpdateVolunteerDefinition,

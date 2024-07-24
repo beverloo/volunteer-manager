@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { TwilioDataTable } from '../TwilioDataTable';
 import { TwilioOutboxType } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';

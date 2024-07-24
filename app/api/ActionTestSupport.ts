@@ -40,7 +40,6 @@ export async function executeActionForTests<T extends ZodObject<ZodRawShape, any
             firstName: 'Foo',
             lastName: 'Bar',
             avatarUrl: undefined,
-            privileges: 0n,
 
             ...params.user,
         };
@@ -99,7 +98,7 @@ export async function injectPermissionTestsForAction<T extends ZodObject<ZodRawS
         const userResponse = await executeActionForTests(api, action, {
             request: params.request,
             user: {
-                privileges: BigInt(params.insufficientPrivileges)
+                // default settings
             },
         });
 

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege, can  } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';

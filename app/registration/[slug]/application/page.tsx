@@ -8,7 +8,6 @@ import { type Content, getContent, getStaticContent } from '@lib/Content';
 import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
 import { ApplicationStatusPage, type ApplicationStatusPageProps } from './ApplicationStatusPage';
 import { Markdown } from '@components/Markdown';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';

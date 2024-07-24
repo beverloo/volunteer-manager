@@ -15,7 +15,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { formatDate, formatDuration } from '@lib/Temporal';

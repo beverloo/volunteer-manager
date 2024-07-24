@@ -31,7 +31,6 @@ describe('serverAction', () => {
             firstName: 'John',
             lastName: 'Doe',
             name: 'John Doe',
-            privileges: 0n,
         };
 
         return async (formData: unknown) => executeServerAction(formData, scheme, action, user);

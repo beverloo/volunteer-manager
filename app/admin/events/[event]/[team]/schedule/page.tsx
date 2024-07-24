@@ -8,7 +8,6 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { ScheduleContextImpl } from './ScheduleContext';
 import { ScheduleWarnings } from './ScheduleWarnings';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';

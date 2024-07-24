@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database';
 

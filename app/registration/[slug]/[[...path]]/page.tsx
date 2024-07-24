@@ -10,7 +10,6 @@ import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Markdown } from '@components/Markdown';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationAlert } from '@components/RegistrationAlert';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';

@@ -4,7 +4,6 @@
 import { notFound, redirect } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplaysRequests, tEvents, tTeams, tUsersEvents } from '@lib/database';

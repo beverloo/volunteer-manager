@@ -11,7 +11,6 @@ import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RefundsHeader } from './RefundsHeader';
 import { RefundsTable } from './RefundsTable';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';

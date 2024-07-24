@@ -21,13 +21,12 @@ import WebhookIcon from '@mui/icons-material/Webhook';
 import { AdminContent } from './AdminContent';
 import { AdminPageContainer } from './AdminPageContainer';
 import { type AdminSidebarMenuEntry, AdminSidebar } from './AdminSidebar';
-import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 
 export default async function TopLevelLayout(props: React.PropsWithChildren) {
-    const { access, user } = await requireAuthenticationContext();
+    const { access } = await requireAuthenticationContext();
 
     const dashboardMenu: AdminSidebarMenuEntry[] = [
         {
@@ -161,7 +160,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
 
     return (
         <AdminContent>
-            <AdminSidebar access={access} menu={dashboardMenu} title="Dashboard" user={user} />
+            <AdminSidebar access={access} menu={dashboardMenu} title="Dashboard" />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tHotels } from '@lib/database';

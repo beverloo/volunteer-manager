@@ -7,7 +7,6 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, noAccess } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';

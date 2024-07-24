@@ -12,9 +12,7 @@ import { Header } from './Header';
 import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { VolunteerPermissions } from './VolunteerPermissions';
-import { VolunteerPrivileges } from './VolunteerPrivileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -142,8 +140,6 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
             { access.can('volunteer.account.permissions', 'read') &&
                 <VolunteerPermissions readOnly={permissionsReadOnly} userId={account.userId} /> }
 
-            { access.can('volunteer.account.permissions', 'read') &&
-                <VolunteerPrivileges userId={account.userId} privileges={account.privileges} /> }
         </>
     );
 }

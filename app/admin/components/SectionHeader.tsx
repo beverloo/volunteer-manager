@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
-import type { Privilege } from '@lib/auth/Privileges';
 import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
@@ -39,11 +38,6 @@ export interface SectionHeaderProps {
      * The system prop that allows defining system overrides as well as additional CSS styles.
      */
     sx?: TypographyProps['sx'],
-
-    /**
-     * @todo Remove
-     */
-    privilege?: Privilege,
 }
 
 /**

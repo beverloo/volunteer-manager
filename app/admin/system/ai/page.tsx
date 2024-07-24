@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import { AiPromptContext, type AiPromptContextProps } from './AiPromptContext';
 import { AiPromptPersonality } from './AiPromptPersonality';
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { readSettings } from '@lib/Settings';

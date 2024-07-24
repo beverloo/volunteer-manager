@@ -11,7 +11,6 @@ import Collapse from '@mui/material/Collapse';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
 import { Markdown } from '@components/Markdown';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
 import { Temporal, formatDate } from '@lib/Temporal';

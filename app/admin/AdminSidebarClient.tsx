@@ -21,7 +21,6 @@ import ListItemText from '@mui/material/ListItemText';
 import { deepmerge } from '@mui/utils';
 
 import type { PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
-import type { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Custom styles applied to the <AdminSidebar> & related components.
@@ -51,12 +50,6 @@ interface AdminSidebarMenuCommon {
      * multiple permissions are provided, then this entry will be visible when any of them are set.
      */
     permission?: PermissionAccessCheck | PermissionAccessCheck[];
-
-    /**
-     * The privilege this entry is gated behind. Visibility control, not an access control. When
-     * multiple privileges are provided then this entry will be visible when either of them if set.
-     */
-    privilege?: Privilege | Privilege[];
 }
 
 /**

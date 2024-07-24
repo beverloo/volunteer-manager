@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import { type ActionProps, noAccess } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';

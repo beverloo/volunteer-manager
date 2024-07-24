@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentEditor } from '@app/admin/content/ContentEditor';
-import { Privilege } from '@lib/auth/Privileges';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createGlobalScope } from '@app/admin/content/ContentScope';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';

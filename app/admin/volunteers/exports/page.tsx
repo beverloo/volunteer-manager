@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 
 import { ExportCreatePanel } from './ExportCreatePanel';
 import { ExportTable } from './ExportTable';
-import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents } from '@lib/database';
 

@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Privilege } from '@lib/auth/Privileges';
 import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';

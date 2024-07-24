@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 
 import type { AccessControl } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
-import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus, type EventAvailabilityStatus } from '@lib/database/Types';
 import { requireAuthenticationContext, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
@@ -201,17 +200,16 @@ type PageInfoWithTeamParams = { event: string; team: string; };
  * page can optionally be guarded behind a given `privilege` as well.
  */
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoWithTeamParams, accessCheck?: PermissionAccessCheck | Privilege)
+    params: PageInfoWithTeamParams, accessCheck?: PermissionAccessCheck)
         : Promise<PageInfoWithTeam | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoParams, accessCheck?: PermissionAccessCheck | Privilege)
+    params: PageInfoParams, accessCheck?: PermissionAccessCheck)
         : Promise<PageInfo | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: { event: string, team?: string }, accessCheck?: PermissionAccessCheck | Privilege)
+    params: { event: string, team?: string }, accessCheck?: PermissionAccessCheck)
         : Promise<(PageInfo | PageInfoWithTeam) | never>
 {
     const permission = typeof accessCheck === 'object' ? accessCheck : undefined;
-    const privilege = typeof accessCheck === 'number' ? accessCheck : undefined;
 
     const { access, user } = await requireAuthenticationContext({
         check: 'admin-event',
@@ -219,7 +217,6 @@ export async function verifyAccessAndFetchPageInfo(
         team: params.team,
 
         permission,
-        privilege,
     });
 
     // ---------------------------------------------------------------------------------------------

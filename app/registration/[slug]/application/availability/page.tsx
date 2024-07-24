@@ -11,7 +11,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityExpectations, type AvailabilityDayInfo, type AvailabilityExpectation } from './AvailabilityExpectations';
 import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 import { contextForRegistrationPage } from '../../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';

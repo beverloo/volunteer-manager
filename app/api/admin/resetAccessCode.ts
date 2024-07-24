@@ -7,7 +7,6 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { AuthType } from '@lib/database/Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsersAuth } from '@lib/database';
 

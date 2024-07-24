@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tSchedule } from '@lib/database';
 

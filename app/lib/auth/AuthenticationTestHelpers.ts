@@ -75,7 +75,6 @@ export function buildAuthenticationContext(params?: BuildAuthenticationContextPa
             firstName: 'Joe',
             lastName: 'Example',
             avatarUrl: undefined,
-            privileges: 0n,
 
             ...params.user,
         },

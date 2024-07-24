@@ -42,10 +42,4 @@ export interface User {
      * URL using which this user's avatar can be retrieved.
      */
     avatarUrl?: string;
-
-    /**
-     * The privileges the user has access to, fresh from the database for the current request. The
-     * privileges will have been expanded already.
-     */
-    privileges: bigint;
 }

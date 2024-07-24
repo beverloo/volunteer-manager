@@ -9,7 +9,6 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
 import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
 import { ChangeTeamPromptBuilder } from './prompts/ChangeTeamPromptBuilder';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';

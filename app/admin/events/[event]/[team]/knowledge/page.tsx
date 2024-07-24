@@ -7,7 +7,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { CreateQuestionForm } from './CreateQuestionForm';
 import { KnowledgeCategories } from './KnowledgeCategories';
 import { KnowledgeList } from './KnowledgeList';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';

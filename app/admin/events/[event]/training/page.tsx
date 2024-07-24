@@ -7,7 +7,6 @@ import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
-import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { TrainingAssignments } from './TrainingAssignments';

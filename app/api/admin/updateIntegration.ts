@@ -6,7 +6,6 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { TwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';

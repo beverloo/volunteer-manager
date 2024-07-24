@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { ContentType } from '@lib/database/Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tContent, tEventsTeams, tTeams } from '@lib/database';

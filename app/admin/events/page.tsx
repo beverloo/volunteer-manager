@@ -6,7 +6,6 @@ import type { Metadata } from 'next';
 import { default as TopLevelLayout } from '../TopLevelLayout';
 import { EventCreate } from './EventCreate';
 import { EventList } from './EventList';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams } from '@lib/database';
 

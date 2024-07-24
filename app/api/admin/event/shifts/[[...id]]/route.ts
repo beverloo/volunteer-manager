@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { validateContext } from '../../validateContext';

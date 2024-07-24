@@ -4,7 +4,6 @@
 import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Privilege } from '@lib/auth/Privileges';
 import { TwilioDetailsPage } from '../../TwilioDetailsPage';
 import { TwilioOutboxType } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';

@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 
-import type { Privilege } from '@lib/auth/Privileges';
 import Box, { type BoxProps } from '@mui/material/Box';
 import ClearIcon from '@mui/icons-material/Clear';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -89,11 +88,6 @@ interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, '
     permission?: string;
 
     /**
-     * Whether it should be flagged that access is restricted to a privilege.
-     */
-    privilege?: Privilege;
-
-    /**
      * Callback to invoke when this section should be exported.
      */
     onExport?: () => Promise<void> | void;
@@ -104,7 +98,7 @@ interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, '
  * actions available to a particular section, hosted in the parenting <Paper> component.
  */
 export const PaperHeader = styled((props: PaperHeaderProps) => {
-    const { title, subtitle, permission, privilege, onClear, onExport, ...containerProps } = props;
+    const { title, subtitle, permission, onClear, onExport, ...containerProps } = props;
     const subject = props.subject ?? 'section';
 
     return (
@@ -117,9 +111,9 @@ export const PaperHeader = styled((props: PaperHeaderProps) => {
                         ({subtitle})
                     </Typography> }
             </Typography>
-            { ((!!privilege || !!permission) || !!onClear || !!onExport) &&
+            { (!!permission || !!onClear || !!onExport) &&
                 <Stack direction="row" spacing={1}>
-                    { (!!privilege || !!permission) &&
+                    { !!permission &&
                         <Stack justifyContent="center" component={Tooltip} sx={{ px: 0.5 }}
                                title="You have a permission granting you access">
                             <Box>

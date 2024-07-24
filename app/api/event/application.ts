@@ -7,7 +7,6 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentName } from '@lib/Environment';
 import { Log, LogSeverity, LogType } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Publish, SubscriptionType } from '@lib/subscriptions';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';

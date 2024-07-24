@@ -11,7 +11,6 @@ import { serviceHealth, kServiceHealthDefinition } from '../serviceHealth';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
 import { updateEvent, kUpdateEventDefinition } from '../updateEvent';
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
-import { updatePermissions, kUpdatePermissionsDefinition } from '../updatePermissions';
 import { updateSettings, kUpdateSettingsDefinition } from '../updateSettings';
 import { updateTeam, kUpdateTeamDefinition } from '../updateTeam';
 import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
@@ -47,8 +46,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
             return executeAction(request, kUpdateEventDefinition, updateEvent);
         case 'update-integration':
             return executeAction(request, kUpdateIntegrationDefinition, updateIntegration);
-        case 'update-permissions':
-            return executeAction(request, kUpdatePermissionsDefinition, updatePermissions);
         case 'update-settings':
             return executeAction(request, kUpdateSettingsDefinition, updateSettings);
         case 'update-team':

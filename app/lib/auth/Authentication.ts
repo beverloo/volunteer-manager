@@ -8,7 +8,6 @@ import type { User } from './User';
 import { AccessControl, type Grant } from './AccessControl';
 import { AuthType, RegistrationStatus } from '../database/Types';
 import { Temporal } from '@lib/Temporal';
-import { expand } from './Privileges';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
 
@@ -188,8 +187,6 @@ export async function authenticateUser(params: AuthenticateUserParams)
         avatarUrl:
             authenticationResult.avatarFileHash ? getBlobUrl(authenticationResult.avatarFileHash)
                                                 : undefined,
-
-        privileges: expand(authenticationResult.privileges),
     };
 
     const grants: Grant[] = [ /* no grants */ ];

@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ExportAccess } from './ExportAccess';
 import { ExportMetadata } from './ExportMetadata';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { hasAccessToExport } from '../ExportPrivileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';

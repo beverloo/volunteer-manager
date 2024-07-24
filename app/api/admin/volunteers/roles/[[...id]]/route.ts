@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { RoleBadge } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles } from '@lib/database';

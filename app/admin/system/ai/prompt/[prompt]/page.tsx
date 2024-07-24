@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AiExplorer } from './AiExplorer';
-import { Privilege } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { readSetting } from '@lib/Settings';

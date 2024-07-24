@@ -8,7 +8,6 @@ import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
 import { LogType, Log, LogSeverity } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';

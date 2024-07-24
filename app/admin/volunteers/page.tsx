@@ -12,7 +12,6 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { ExpandableSection } from '../components/ExpandableSection';
-import { Privilege } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';

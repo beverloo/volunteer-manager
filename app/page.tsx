@@ -17,7 +17,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { RegistrationStatus } from '@lib/database/Types';

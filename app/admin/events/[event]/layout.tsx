@@ -27,7 +27,6 @@ import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSidebar }
     from '../../AdminSidebar';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -378,8 +377,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
 
     return (
         <AdminContent>
-            <AdminSidebar access={access} menu={volunteersMenu} title={info.event.name}
-                          user={user} />
+            <AdminSidebar access={access} menu={volunteersMenu} title={info.event.name} />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>

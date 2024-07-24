@@ -10,7 +10,6 @@ import { HotelAssignment } from './HotelAssignment';
 import { HotelConfiguration } from './HotelConfiguration';
 import { HotelPendingAssignment } from './HotelPendingAssignment';
 import { HotelProcessor } from './HotelProcessor';
-import { Privilege } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 

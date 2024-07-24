@@ -8,7 +8,6 @@ import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { ExportType, LogSeverity } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck, type AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';

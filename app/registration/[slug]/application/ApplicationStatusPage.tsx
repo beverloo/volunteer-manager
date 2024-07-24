@@ -24,7 +24,6 @@ import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
 import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 
 type WindowStatus =

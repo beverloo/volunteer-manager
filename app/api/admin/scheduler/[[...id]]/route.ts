@@ -6,7 +6,6 @@ import { executeAction } from '@app/api/Action';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { Privilege } from '@lib/auth/Privileges';
 import { TaskResult } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { kTaskFormatFn } from '@lib/scheduler/TaskRegistry';

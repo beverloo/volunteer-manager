@@ -4,7 +4,6 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { Privilege } from '@lib/auth/Privileges';
 import { TwilioOutboxType } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tOutboxTwilio, tUsers } from '@lib/database';

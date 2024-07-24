@@ -11,7 +11,6 @@ import Stack from '@mui/material/Stack';
 
 import { ApplicationBar } from './components/ApplicationBar';
 import { DesktopNavigation } from './components/DesktopNavigation';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { MobileNavigation } from './components/MobileNavigation';
 import { ScheduleContextManager } from './ScheduleContextManager';
 import { ScheduleTheme } from './ScheduleTheme';

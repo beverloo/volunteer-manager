@@ -11,7 +11,6 @@ import { EventParticipatingTeams } from './EventParticipatingTeams';
 import { EventSales } from './EventSales';
 import { EventSettings } from './EventSettings';
 import { EventTeamSettings } from './EventTeamSettings';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { SettingsHeader } from './SettingsHeader';

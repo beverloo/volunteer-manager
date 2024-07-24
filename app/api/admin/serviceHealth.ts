@@ -6,7 +6,6 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { User } from '@lib/auth/User';
-import { Privilege } from '@lib/auth/Privileges';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { TaskResult } from '@lib/database/Types';
 import { createAnimeConClient } from '@lib/integrations/animecon';

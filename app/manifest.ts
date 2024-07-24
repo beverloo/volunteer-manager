@@ -3,7 +3,6 @@
 
 import type { MetadataRoute } from 'next';
 
-import { Privilege, can } from '@lib/auth/Privileges';
 import { determineEnvironment } from '@lib/Environment';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents } from '@lib/database';

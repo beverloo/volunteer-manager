@@ -4,7 +4,6 @@
 import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import { AccessControl } from './AccessControl';
-import { Privilege } from './Privileges';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { executeAccessCheck, or, and, getAuthenticationContextFromHeaders } from './AuthenticationContext';
 import { buildAuthenticationContext, expectAuthenticationQuery } from './AuthenticationTestHelpers';
@@ -57,14 +56,14 @@ describe('AuthenticationContext', () => {
 
         // Case (2): Implicit administrators through a role assignment
         const implicitAdminAuthenticationContext = buildAuthenticationContext({
-            events: new Map([
-                [ '2024', { admin: true, event: '2024', team: 'stewards.team' }],
-            ]),
+            access: {
+                grants: 'event.visible',
+            },
         });
 
         executeAccessCheck(implicitAdminAuthenticationContext, { check: 'admin' });
 
-        // Case (4): Users without either are not administrators
+        // Case (3): Users without either are not administrators
         const userAuthenticationContext = buildAuthenticationContext();
         try {
             executeAccessCheck(userAuthenticationContext, { check: 'admin' });

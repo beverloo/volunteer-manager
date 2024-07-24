@@ -9,7 +9,6 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
@@ -248,12 +247,14 @@ export default async function EventVolunteerPage(props: RouterParams) {
     const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
     const canAccessOverrides = access.can('event.volunteers.overrides', accessScope);
     const canUpdateApplications = access.can('event.applications', 'update', accessScope);
+    const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
     const canUpdateWithoutNotification = access.can('volunteer.silent');
 
     return (
         <>
             <VolunteerHeader canAccessAccountInformation={canAccessAccountInformation}
                              canUpdateApplications={canUpdateApplications}
+                             canUpdateParticipation={canUpdateParticipation}
                              canUpdateWithoutNotification={canUpdateWithoutNotification}
                              event={event} team={team} volunteer={volunteer} user={user} />
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}

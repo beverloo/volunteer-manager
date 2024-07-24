@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { EmailMessage } from './EmailMessage';
-import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**

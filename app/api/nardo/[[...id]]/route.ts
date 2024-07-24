@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../createDataTableApi';
 import { LogType, Log } from '@lib/Log';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tNardo, tUsers } from '@lib/database';

@@ -21,7 +21,6 @@ import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSales, EventSalesLoading } from './EventSales';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, isAfter } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';

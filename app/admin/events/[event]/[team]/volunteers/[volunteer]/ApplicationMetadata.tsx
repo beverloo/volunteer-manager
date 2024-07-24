@@ -17,7 +17,6 @@ import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { Temporal } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
-import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Options for a binary select box. They look better on the page than checkboxes.

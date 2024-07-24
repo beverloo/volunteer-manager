@@ -111,7 +111,6 @@ export class PlaywrightHooks {
                     firstName: 'PWUSER',
                     lastName: 'Example',
                     avatarUrl: undefined,
-                    privileges: 0n,
 
                     ...playwrightUser,  // expand the partial user configuration
                 },

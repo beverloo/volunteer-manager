@@ -8,7 +8,6 @@ import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
 import { ActivityType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';

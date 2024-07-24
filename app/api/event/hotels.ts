@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 import db, { tEvents, tHotels } from '@lib/database';
 
 /**

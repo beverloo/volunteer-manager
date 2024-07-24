@@ -3,7 +3,6 @@
 
 import type { Metadata } from 'next';
 
-import { Privilege } from '@lib/auth/Privileges';
 import { SchedulerCreateTaskPanel } from './SchedulerCreateTaskPanel';
 import { SchedulerTaskTable } from './SchedulerTaskTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';

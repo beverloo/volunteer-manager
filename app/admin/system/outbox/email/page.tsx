@@ -4,7 +4,6 @@
 import type { Metadata } from 'next';
 
 import { EmailDataTable } from './EmailDataTable';
-import { Privilege } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**

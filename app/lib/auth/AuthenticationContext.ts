@@ -9,7 +9,6 @@ import type { SessionData } from './Session';
 import type { User } from './User';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessScope } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
-import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 
@@ -133,25 +132,16 @@ export type PermissionAccessCheck =
     };
 
 /**
- * A set of privileges that should be checked in a particular manner.
- */
-type PrivilegeSet = { type: 'and' | 'or', checks: Privilege[] };
-
-/**
  * A set of permissions that should be checked in a particular manner.
  */
 type PermissionSet = { type: 'and' | 'or', checks: PermissionAccessCheck[] };
 
-export function and(...privileges: Privilege[]): PrivilegeSet;
-export function and(...permissions: PermissionAccessCheck[]): PermissionSet;
-export function and(...input: any) {
-    return { type: 'and', checks: input };
+export function and(...permissions: PermissionAccessCheck[]): PermissionSet {
+    return { type: 'and', checks: permissions };
 }
 
-export function or(...privileges: Privilege[]): PrivilegeSet;
-export function or(...permissions: PermissionAccessCheck[]): PermissionSet;
-export function or(...input: any) {
-    return { type: 'or', checks: input };
+export function or(...permissions: PermissionAccessCheck[]): PermissionSet {
+    return { type: 'or', checks: permissions };
 }
 
 /**
@@ -191,7 +181,6 @@ type AuthenticationAccessCheckTypes =
  */
 type AuthenticationAccessCheck = AuthenticationAccessCheckTypes & {
     permission?: PermissionAccessCheck | PermissionSet;
-    privilege?: Privilege | PrivilegeSet;
 };
 
 /**
@@ -235,21 +224,6 @@ export function checkPermission(
 }
 
 /**
- * Checks whether the `user` has been granted the given `privilege`, which may be a privilege set.
- */
-function checkPrivilege(user: User | undefined, privilege: Privilege | PrivilegeSet): boolean {
-    if (typeof privilege !== 'object')
-        return can(user, privilege);
-
-    let count = 0;
-    for (const individualPrivilege of privilege.checks)
-        count += can(user, individualPrivilege) ? 1 : 0;
-
-    return privilege.type === 'and' ? /* && */ count === privilege.checks.length
-                                    : /* || */ count > 0;
-}
-
-/**
  * Executes the given `access` check. The `type` determines what should be checked for, optionally
  * with additional parameters, and permissions can always be checked for. A HTTP 404 Not Found error
  * will be thrown when the access check fails.
@@ -261,11 +235,6 @@ export function executeAccessCheck(
 {
     if (access.permission) {
         if (!checkPermission(context.access, access.permission))
-            notFound();
-    }
-
-    if (access.privilege) {
-        if (!checkPrivilege(context.user, access.privilege))
             notFound();
     }
 

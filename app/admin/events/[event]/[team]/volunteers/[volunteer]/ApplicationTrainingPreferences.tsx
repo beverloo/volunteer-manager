@@ -13,7 +13,6 @@ import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { TrainingPreferencesForm } from '@app/registration/[slug]/application/training/TrainingPreferencesForm';
 import { callApi } from '@lib/callApi';
-import { Privilege } from '@lib/auth/Privileges';
 
 /**
  * Props accepted by the <ApplicationTrainingPreferences> component.

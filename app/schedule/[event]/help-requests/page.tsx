@@ -27,7 +27,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { Alert } from '../components/Alert';
 import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../components/HelpRequestTarget';
-import { Privilege } from '@lib/auth/Privileges';
 import { SetTitle } from '../components/SetTitle';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';

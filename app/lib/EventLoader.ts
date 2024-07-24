@@ -3,7 +3,6 @@
 
 import type { User } from './auth/User';
 import { Event } from './Event';
-import { Privilege, can } from './auth/Privileges';
 
 import { RegistrationStatus } from './database/Types';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
@@ -13,9 +12,7 @@ import { kAnyTeam, type AccessControl } from './auth/AccessControl';
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
  */
-export async function getEventBySlug(slug: string)
-    : Promise<Event | undefined>
-{
+export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
 

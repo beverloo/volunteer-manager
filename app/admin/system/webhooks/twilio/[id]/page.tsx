@@ -17,7 +17,6 @@ import Tooltip from '@mui/material/Tooltip';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TwilioOutboxType } from '@lib/database/Types';
-import { Privilege } from '@lib/auth/Privileges';
 import { SectionHeader } from '@app/admin/components/SectionHeader';
 import { Temporal } from '@lib/Temporal';
 import { formatDate } from '@lib/Temporal';

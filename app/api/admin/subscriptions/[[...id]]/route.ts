@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { LogSeverity, SubscriptionType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { Privilege } from '@lib/auth/Privileges';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
 
