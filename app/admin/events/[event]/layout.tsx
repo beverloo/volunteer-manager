@@ -217,7 +217,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             condition: info.event.hotelEnabled,
             permission: {
                 permission: 'event.hotels',
-                options: { event },
+                scope: { event },
             },
             url: `/admin/events/${event}/hotels`,
             badge: hotelBadge,
@@ -229,7 +229,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             condition: info.event.refundEnabled,
             permission: {
                 permission: 'event.refunds',
-                options: { event },
+                scope: { event },
             },
             url: `/admin/events/${event}/refunds`,
             badge: refundsBadge,
@@ -241,7 +241,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             condition: info.event.trainingEnabled,
             permission: {
                 permission: 'event.trainings',
-                options: { event },
+                scope: { event },
             },
             url: `/admin/events/${event}/training`,
             badge: trainingsBadge,
@@ -251,7 +251,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             label: 'Settings',
             permission: {
                 permission: 'event.settings',
-                options: { event },
+                scope: { event },
             },
             url: `/admin/events/${event}/settings`,
         },
@@ -287,7 +287,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 permission: {
                     permission: 'event.vendors',
                     operation: 'read',
-                    options: teamPermissionScope,
+                    scope: teamPermissionScope,
                 },
             });
         }
@@ -301,7 +301,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 permission: {
                     permission: 'event.vendors',
                     operation: 'read',
-                    options: teamPermissionScope,
+                    scope: teamPermissionScope,
                 },
             });
         }
@@ -318,7 +318,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     permission: {
                         permission: 'event.applications',
                         operation: 'read',
-                        options: teamPermissionScope,
+                        scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/applications`,
                     badge: team.pendingApplications,
@@ -336,7 +336,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     label: 'Retention',
                     permission: {
                         permission: 'event.retention',
-                        options: teamPermissionScope,
+                        scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/retention`,
                 },
@@ -346,7 +346,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     permission: {
                         permission: 'event.schedules',
                         operation: 'read',
-                        options: teamPermissionScope,
+                        scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/schedule`,
                 },
@@ -357,7 +357,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     permission: {
                         permission: 'event.shifts',
                         operation: 'read',
-                        options: teamPermissionScope,
+                        scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/shifts`,
                 },
@@ -367,7 +367,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     permission: {
                         permission: 'event.volunteers.information',
                         operation: 'read',
-                        options: teamPermissionScope,
+                        scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/volunteers`,
                 },

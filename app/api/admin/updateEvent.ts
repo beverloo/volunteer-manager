@@ -68,7 +68,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         event: request.event,
         permission: {
             permission: 'event.settings',
-            options: {
+            scope: {
                 event: request.event,
             },
         },

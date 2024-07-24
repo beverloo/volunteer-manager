@@ -23,7 +23,7 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
 export default async function EventTrainingPage(props: NextPageParams<'event'>) {
     const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.trainings',
-        options: {
+        scope: {
             event: props.params.event,
         },
     });

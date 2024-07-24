@@ -152,7 +152,7 @@ export async function application(request: Request, props: ActionProps): Promise
                 permission: {
                     permission: 'event.applications',
                     operation: 'create',
-                    options: {
+                    scope: {
                         event: event.slug,
                         team: team.slug,
                     },

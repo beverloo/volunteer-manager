@@ -153,7 +153,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             permission: {
                 permission: 'event.volunteers.information',
                 operation: 'update',
-                options: {
+                scope: {
                     event: request.event,
                     team: request.team,
                 },
@@ -183,7 +183,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             event: request.event,
             permission: {
                 permission: 'event.volunteers.overrides',
-                options: {
+                scope: {
                     event: request.event,
                     team: request.team,
                 },
@@ -252,7 +252,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                     permission: {
                         permission: 'event.applications',
                         operation: 'update',
-                        options: {
+                        scope: {
                             event: request.event,
                             team: request.team,
                         },
@@ -269,7 +269,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                     permission: {
                         permission: 'event.applications',
                         operation: 'create',
-                        options: {
+                        scope: {
                             event: request.event,
                             team: request.team,
                         },

@@ -68,7 +68,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
             event: request.event,
             permission: {
                 permission: 'event.refunds',
-                options: {
+                scope: {
                     event: request.event,
                 },
             },

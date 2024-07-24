@@ -123,12 +123,12 @@ export type PermissionAccessCheck =
     BooleanPermission |
     {
         permission: BooleanPermission;
-        options?: AccessScope;
+        scope?: AccessScope;
     } |
     {
         permission: CRUDPermission;
         operation: AccessOperation;
-        options?: AccessScope;
+        scope?: AccessScope;
     };
 
 /**
@@ -192,12 +192,12 @@ function checkIndividualPermission(access: AccessControl, check: PermissionAcces
 
     if ('operation' in check) {
         const permission = check.permission as CRUDPermission;
-        if (access.can(permission, check.operation, check.options))
+        if (access.can(permission, check.operation, check.scope))
             return true;  // permission has been granted
 
     } else {
         const permission = check.permission as BooleanPermission;
-        if (access.can(permission, check.options))
+        if (access.can(permission, check.scope))
             return true;  // permission has been granted
     }
 

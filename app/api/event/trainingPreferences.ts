@@ -71,7 +71,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
             event: request.event,
             permission: {
                 permission: 'event.trainings',
-                options: {
+                scope: {
                     event: request.event,
                 },
             },

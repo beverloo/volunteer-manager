@@ -61,7 +61,7 @@ export async function volunteerList(request: Request, props: ActionProps): Promi
         permission: {
             permission: 'event.applications',
             operation: 'create',
-            options: {
+            scope: {
                 event: kAnyEvent,
                 team: kAnyTeam,
             },

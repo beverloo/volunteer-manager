@@ -108,7 +108,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
         event: request.event,
         permission: {
             permission: 'event.volunteers.participation',
-            options: {
+            scope: {
                 event: request.event,
             },
         },

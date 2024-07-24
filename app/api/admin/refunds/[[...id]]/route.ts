@@ -99,7 +99,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
             event: context.event,
             permission: {
                 permission: 'event.refunds',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

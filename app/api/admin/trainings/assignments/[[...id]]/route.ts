@@ -95,7 +95,7 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
             event: context.event,
             permission: {
                 permission: 'event.trainings',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

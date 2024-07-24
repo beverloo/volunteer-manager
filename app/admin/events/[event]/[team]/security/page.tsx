@@ -22,7 +22,7 @@ export default async function EventTeamSecurityPage(props: NextPageParams<'event
     const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.vendors',
         operation: 'read',
-        options: {
+        scope: {
             event: props.params.event,
             team: props.params.team,
         },

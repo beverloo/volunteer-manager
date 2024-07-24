@@ -163,7 +163,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
             event: context.event,
             permission: {
                 permission: 'event.hotels',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

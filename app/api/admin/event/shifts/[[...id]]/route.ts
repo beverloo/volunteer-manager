@@ -147,7 +147,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
         const permission: PermissionAccessCheck = {
             permission: 'event.shifts',
             operation: 'read',  // to be updated
-            options: {
+            scope: {
                 event: context.event,
                 team: context.team,
             },

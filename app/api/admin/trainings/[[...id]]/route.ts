@@ -81,7 +81,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kTrainingRowModel, 
             event: context.event,
             permission: {
                 permission: 'event.trainings',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

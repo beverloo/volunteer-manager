@@ -27,7 +27,7 @@ import db, { tEventsTeams, tTeams } from '@lib/database';
 export default async function EventSettingsPage(props: NextPageParams<'event'>) {
     const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.settings',
-        options: {
+        scope: {
             event: props.params.event,
         },
     });

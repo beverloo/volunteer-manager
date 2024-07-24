@@ -52,7 +52,7 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             label: 'Events',
             permission: {
                 permission: 'event.visible',
-                options: {
+                scope: {
                     event: kAnyEvent,
                     team: kAnyTeam,
                 },

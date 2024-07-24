@@ -28,7 +28,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.applications',
         operation: 'read',
-        options: accessScope,
+        scope: accessScope,
     });
 
     const dbInstance = db;

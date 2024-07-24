@@ -115,7 +115,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             permission: {
                 permission: 'event.volunteers.information',
                 operation: 'update',
-                options: {
+                scope: {
                     event: request.event,
                     team: request.team,
                 },

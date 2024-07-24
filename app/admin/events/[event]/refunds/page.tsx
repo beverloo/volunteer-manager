@@ -78,7 +78,7 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
 export default async function EventRefundsPage(props: NextPageParams<'event'>) {
     const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.refunds',
-        options: {
+        scope: {
             event: props.params.event,
         },
     });

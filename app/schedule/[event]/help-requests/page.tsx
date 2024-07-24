@@ -147,7 +147,7 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
         event: props.params.event,
         permission: {
             permission: 'event.help-requests',
-            options: {
+            scope: {
                 event: props.params.event,
             },
         },

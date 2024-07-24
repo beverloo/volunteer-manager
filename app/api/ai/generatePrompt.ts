@@ -162,7 +162,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                 permission: or('system.internals.ai', {
                     permission: 'event.applications',
                     operation: 'update',
-                    options: {
+                    scope: {
                         event: request.approveVolunteer?.event,
                         team: request.approveVolunteer?.team,
                     },
@@ -192,7 +192,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                 permission: or('system.internals.ai', {
                     permission: 'event.applications',
                     operation: 'update',
-                    options: {
+                    scope: {
                         event: request.approveVolunteer?.event,
                         team: request.approveVolunteer?.team,
                     },

@@ -82,7 +82,7 @@ export async function volunteerRoles(request: Request, props: ActionProps): Prom
         check: 'admin-event',
         permission: {
             permission: 'event.volunteers.participation',
-            options: {
+            scope: {
                 event: request.event,
             },
         },

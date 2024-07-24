@@ -114,7 +114,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
 
                     permission: {
                         permission: 'event.requests',
-                        options: {
+                        scope: {
                             event: context.event,
                         },
                     }

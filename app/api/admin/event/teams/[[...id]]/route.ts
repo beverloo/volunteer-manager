@@ -89,7 +89,7 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
             event: context.event,
             permission: {
                 permission: 'event.settings',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

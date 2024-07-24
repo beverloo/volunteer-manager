@@ -103,7 +103,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
             event: request.event,
             permission: {
                 permission: 'event.hotels',
-                options: {
+                scope: {
                     event: request.event,
                 },
             },

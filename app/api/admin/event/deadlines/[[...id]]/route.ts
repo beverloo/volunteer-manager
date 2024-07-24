@@ -86,7 +86,7 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
             event: context.event,
             permission: {
                 permission: 'event.settings',
-                options: {
+                scope: {
                     event: context.event,
                 },
             },

@@ -20,7 +20,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 export default async function EventHotelsPage(props: NextPageParams<'event'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.hotels',
-        options: {
+        scope: {
             event: props.params.event,
         },
     });

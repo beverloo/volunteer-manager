@@ -21,7 +21,7 @@ export default async function EventsPage() {
         check: 'admin',
         permission: {
             permission: 'event.visible',
-            options: {
+            scope: {
                 event: kAnyEvent,
                 team: kAnyTeam,
             },

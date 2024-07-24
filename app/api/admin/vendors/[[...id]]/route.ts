@@ -112,7 +112,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                     permission: {
                         permission: 'event.vendors',
                         operation: 'update',
-                        options: {
+                        scope: {
                             event: context.event,
                             team: kAnyTeam,
                         },
@@ -130,7 +130,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                     permission: {
                         permission: 'event.vendors',
                         operation: 'read',
-                        options: {
+                        scope: {
                             event: context.event,
                             team: kAnyTeam,
                         },
