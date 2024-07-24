@@ -29,6 +29,7 @@ import { generatePortalMetadataFn } from './registration/generatePortalMetadataF
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventsForUser } from './lib/EventLoader';
 import { getRegistration } from './lib/RegistrationLoader';
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
 /**
  * Styles that apply to the photo card, displaying the environment's impression image.
@@ -58,42 +59,23 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     // ---------------------------------------------------------------------------------------------
 
-    // Users can be granted overrides for being able to access the registration and schedule apps
-    // events that haven't formally published them yet. Incorporate this in the decisions.
-    const registrationOverride = can(user, Privilege.EventContentOverride);
-    const scheduleOverride = can(user, Privilege.EventScheduleOverride);
-
     // Load all events accessible to the |user|, and filter them for events that should be shown on
     // the overview page. Either registration or schedule access is required.
     const unfilteredEvents = await getEventsForUser(environment.environmentName, access, user);
     const events = unfilteredEvents.filter(event => {
+        const accessScope = { event: event.slug, team: environment.teamSlug };
+
         const data = event.getEnvironmentData(environment.environmentName);
-        if (data?.enableRegistration || registrationOverride)
+        if (data?.enableRegistration || access.can('event.visible', accessScope))
             return true;  // access to the registration section
 
-        if (data?.enableSchedule || scheduleOverride)
+        if (data?.enableSchedule || access.can('event.schedules', 'read', accessScope))
             return true;  // access to the volunteering schedule
 
         return false;
     });
 
     // ---------------------------------------------------------------------------------------------
-
-    // Determine whether the user has access to the administration area. This is the case when they
-    // either are an event adminstrator, or have senior-level access to any active event.
-    const administratorAccess: Set<string> = new Set;
-    if (!!authenticationContext.user) {
-        if (can(user, Privilege.EventAdministrator)) {
-            for (const event of events)
-                administratorAccess.add(event.slug);
-
-        } else {
-            for (const { event, admin } of authenticationContext.events.values()) {
-                if (!!admin)
-                    administratorAccess.add(event);
-            }
-        }
-    }
 
     const primaryEvent = events.shift();
     const primaryEventRegistration = primaryEvent && user && await getRegistration(
@@ -125,7 +107,13 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         if (!!registration && !!registrationEvent) {
             const registrationEventData =
                 registrationEvent.toEventData(environment.environmentName);
-            const scheduleAccess = registrationEventData.enableSchedule || scheduleOverride;
+
+            const scheduleAccess =
+                registrationEventData.enableSchedule ||
+                access.can('event.schedules', 'read', {
+                    event: registrationEvent.slug,
+                    team: environment.teamSlug,
+                });
 
             if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
                 redirect(`/schedule/${registrationEvent.slug}`);
@@ -147,13 +135,17 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         if (!event)
             continue;
 
+        const accessScope = { event: event.slug, team: environment.teamSlug };
+
         const eventData = event.toEventData(environment.environmentName);
         const eventRegistration = event === primaryEvent ? primaryEventRegistration
                                                          : secondaryEventRegistration;
 
-        const displayRegistrationButton = eventData.enableRegistration || registrationOverride;
+        const displayRegistrationButton =
+            eventData.enableRegistration || access.can('event.visible', accessScope);
         const displayScheduleButton =
-            (eventData.enableSchedule && eventRegistration) || scheduleOverride;
+            (eventData.enableSchedule && eventRegistration) ||
+                access.can('event.schedules', 'read', accessScope);
 
         const highlightRegistration =
             eventData.enableRegistration && isBefore(currentTime, event.temporalStartTime);
@@ -192,6 +184,11 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         backgroundImage: `url('/images/${environment.environmentName}/landing.jpg')`
     };
 
+    const enableAdministrationAccess = access.can('event.visible', {
+        event: kAnyEvent,
+        team: kAnyTeam,
+    });
+
     // TODO: Reintroduce the statistics sub-app
     const enableStatistics: boolean = false;
 
@@ -219,7 +216,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                     <Card elevation={2} sx={ deepmerge(kPhotoCardStyles, landingStyle) } />
                 </Grid>
 
-                { !!administratorAccess.size &&
+                { enableAdministrationAccess &&
                     <Grid xs={12} md={4}>
                         <AdministrationCard />
                     </Grid> }
@@ -230,13 +227,14 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                     </Grid> }
 
                 { events.map(event => {
-                    const admin = administratorAccess.has(event.slug);
+                    const accessScope = { event: event.slug, team: environment.teamSlug };
                     const data = event.getEnvironmentData(environment.environmentName);
 
                     const enableRegistration =
-                        data?.enableRegistration || admin || registrationOverride;
+                        data?.enableRegistration || access.can('event.visible', accessScope);
 
-                    const enableSchedule = data?.enableSchedule || admin || scheduleOverride;
+                    const enableSchedule =
+                        data?.enableSchedule || access.can('event.schedules', 'read', accessScope);
 
                     return (
                         <Grid key={event.slug} xs={12} md={4}>

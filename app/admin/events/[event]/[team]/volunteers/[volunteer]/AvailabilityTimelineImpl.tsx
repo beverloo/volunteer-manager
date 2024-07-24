@@ -65,6 +65,11 @@ interface AvailabilityTimelineImplProps {
     event: PageInfo['event'];
 
     /**
+     * Whether the timeline should be displayed in a read-only manner.
+     */
+    readOnly?: boolean;
+
+    /**
      * Time step, in minutes, defining the granularity of events in the exception view.
      */
     step?: number;
@@ -81,7 +86,7 @@ interface AvailabilityTimelineImplProps {
  * specific to the AnimeCon Volunteer Manager, integrated with MUI.
  */
 export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
-    const { onChange, event, step, timeslots } = props;
+    const { onChange, event, readOnly, step, timeslots } = props;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -149,7 +154,7 @@ export function AvailabilityTimelineImpl(props: AvailabilityTimelineImplProps) {
             <Timeline min={min} max={max} step={step} displayTimezone={event.timezone}
                       events={timeslots} onChange={onChange} onDoubleClick={handleSettings}
                       disableGutters eventDefaults={eventDefaults} eventOverlap={false}
-                      subject="exception" />
+                      readOnly={readOnly} subject="exception" />
             <SettingDialog title="Availability exception" delete open={!!selectedEvent}
                            onClose={handleSettingsClose} onDelete={handleSettingsDelete}
                            onSubmit={handleSettingsUpdate} defaultValues={ selectedEvent ?? {} }>

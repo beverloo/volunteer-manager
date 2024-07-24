@@ -548,6 +548,11 @@ export interface ApplicationStatusPageProps {
     };
 
     /**
+     * Whether the volunteer is able to access the schedule regardless of publication status.
+     */
+    canAccessSchedule: boolean;
+
+    /**
      * The event for which data is being displayed on this page.
      */
     event: EventDataWithEnvironment;
@@ -611,7 +616,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     const displayTraining = registration.trainingEligible || !!registration.training;
 
     const enableSchedule = event.enableSchedule;
-    const enableScheduleWithOverride = enableSchedule || can(user, Privilege.EventScheduleOverride);
+    const enableScheduleWithOverride = enableSchedule || props.canAccessSchedule;
 
     // The current moment in time as an instant, at the time of the component being mounted.
     const now = useMemo(() => Temporal.Now.instant(), [ /* no dependencies */ ]);

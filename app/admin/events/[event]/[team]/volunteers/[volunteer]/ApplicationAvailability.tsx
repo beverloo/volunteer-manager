@@ -77,6 +77,11 @@ interface ApplicationAvailabilityProps {
     team: string;
 
     /**
+     * Whether the form should be in read-only mode.
+     */
+    readOnly: boolean;
+
+    /**
      * Information about the volunteer for whom this page is being displayed.
      */
     volunteer: {
@@ -96,7 +101,7 @@ interface ApplicationAvailabilityProps {
  * allows the senior to modify it. All modifications will be logged.
  */
 export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
-    const { event, step, team, volunteer } = props;
+    const { event, step, team, readOnly, volunteer } = props;
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
@@ -180,6 +185,9 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         setLoading(true);
         try {
+            if (readOnly)
+                throw new Error('You are not able to update this information.');
+
             const eventPreferences: number[] = [];
             for (let index = 0; index < volunteer.actualAvailableEventLimit; ++index) {
                 if (!Object.hasOwn(data, `preference_${index}`))
@@ -226,7 +234,8 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
         } finally {
             setLoading(false);
         }
-    }, [ event.slug, team, timeslots, volunteer.actualAvailableEventLimit, volunteer.userId ]);
+    }, [ event.slug, readOnly, team, timeslots, volunteer.actualAvailableEventLimit,
+         volunteer.userId ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -237,7 +246,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <ApplicationAvailabilityForm onChange={handleChange} />
+                    <ApplicationAvailabilityForm readOnly={readOnly} onChange={handleChange} />
                 </Grid>
                 <Accordion disableGutters elevation={0} square sx={kStyles.section}>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
@@ -254,6 +263,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                                                          autocompleteProps={{
                                                              fullWidth: true,
                                                              onChange: handleChange,
+                                                             readOnly,
                                                              size: 'small',
                                                          }}
                                                          options={props.events} matchId />
@@ -270,6 +280,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                     </AccordionSummary>
                     <AccordionDetails sx={kStyles.sectionContent}>
                         <AvailabilityTimelineImpl event={event} step={step} timeslots={timeslots}
+                                                  readOnly={readOnly}
                                                   onChange={handleTimelineChange} />
                     </AccordionDetails>
                 </Accordion>

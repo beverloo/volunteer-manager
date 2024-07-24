@@ -113,6 +113,14 @@ export async function availabilityPreferences(request: Request, props: ActionPro
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
+            permission: {
+                permission: 'event.volunteers.information',
+                operation: 'update',
+                options: {
+                    event: request.event,
+                    team: request.team,
+                },
+            },
         });
 
         subjectUserId = request.adminOverrideUserId;

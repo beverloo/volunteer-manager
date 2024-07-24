@@ -27,6 +27,8 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
 
     const accessScope = { event: event.slug, team: environment.teamSlug };
 
+    const canAccessSchedule = access.can('event.schedules', 'read', accessScope);
+
     let content: Content | undefined = undefined;
     let state: 'status' | 'application' | 'unavailable';
 
@@ -92,7 +94,8 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
                                  user={user} partnerApplications={partnerApplications}
                                  event={event.toEventData(environment.environmentName)} /> }
             { (state === 'status' && (registration && user)) &&
-                <ApplicationStatusPage availabilityWindows={availabilityWindows} user={user}
+                <ApplicationStatusPage availabilityWindows={availabilityWindows}
+                                       canAccessSchedule={canAccessSchedule} user={user}
                                        event={event.toEventData(environment.environmentName)}
                                        registration={registration.toRegistrationData()} /> }
             { state === 'unavailable' &&

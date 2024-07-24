@@ -331,17 +331,32 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 {
                     icon: <ScheduleIcon />,
                     label: 'Schedule',
+                    permission: {
+                        permission: 'event.schedules',
+                        operation: 'read',
+                        options: teamPermissionScope,
+                    },
                     url: `/admin/events/${event}/${team.slug}/schedule`,
                 },
                 ...securityEntry,
                 {
                     icon: <PendingActionsIcon />,
                     label: 'Shifts',
+                    permission: {
+                        permission: 'event.shifts',
+                        operation: 'read',
+                        options: teamPermissionScope,
+                    },
                     url: `/admin/events/${event}/${team.slug}/shifts`,
                 },
                 {
                     icon: <PersonIcon />,
                     label: 'Volunteers',
+                    permission: {
+                        permission: 'event.volunteers.information',
+                        operation: 'read',
+                        options: teamPermissionScope,
+                    },
                     url: `/admin/events/${event}/${team.slug}/volunteers`,
                 },
             ],

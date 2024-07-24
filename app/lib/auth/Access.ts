@@ -122,6 +122,29 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'event.volunteers.information': {
+        name: 'Volunteer information',
+        description:
+            'This permission controls whether the volunteer is able to read or update the ' +
+            'basic information associated with a participant in the event, for example their ' +
+            'availability preferences',
+        hide: [ 'create', 'delete' ],  // information can only be read or updated
+        requireEvent: true,
+        requireTeam: true,
+        type: 'crud',
+    },
+
+    'event.volunteers.overrides': {
+        name: 'Volunteer overrides',
+        description:
+            'This permission controls whether the volunteer is able to override the settings for ' +
+            'a particular volunteer during a particular event. Examples of this include whether ' +
+            'they are eligible to book a hotel room or participate in the training.',
+        requireEvent: true,
+        requireTeam: true,
+        type: 'boolean',
+    },
+
     // ---------------------------------------------------------------------------------------------
     // Statistics-associated permissions
     // ---------------------------------------------------------------------------------------------
@@ -444,6 +467,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.shifts',
         'event.vendors',
         'event.visible',
+        'event.volunteers.information',
+        'event.volunteers.overrides',
         'statistics.finances',
         'system.subscriptions.eligible',
         'volunteer.account.information:read',
@@ -456,6 +481,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.shifts:read',
         'event.vendors:read',
         'event.visible',
+        'event.volunteers.information',
         'system.subscriptions.eligible',
         'volunteer.avatars',
     ],

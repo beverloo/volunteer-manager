@@ -38,6 +38,11 @@ interface ApplicationPreferencesProps {
     team: string;
 
     /**
+     * Whether the form should be in read-only mode.
+     */
+    readOnly: boolean;
+
+    /**
      * Information about the volunteer for whom this page is being displayed.
      */
     volunteer: {
@@ -54,7 +59,7 @@ interface ApplicationPreferencesProps {
  * they requested to join the team, which can be editted by volunteers with access to this page.
  */
 export function ApplicationPreferences(props: ApplicationPreferencesProps) {
-    const { event, team, volunteer } = props;
+    const { event, team, readOnly, volunteer } = props;
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
@@ -93,16 +98,16 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
             </Typography>
             <FormContainer defaultValues={volunteer} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <ApplicationParticipationForm onChange={handleChange} />
+                    <ApplicationParticipationForm readOnly={readOnly} onChange={handleChange} />
                     <Grid xs={6}>
                         <SelectElement name="credits" label="Include on the credit reel?"
                                        options={kSelectOptions} size="small" fullWidth
-                                       onChange={handleChange} />
+                                       disabled={readOnly} onChange={handleChange} />
                     </Grid>
                     <Grid xs={6}>
                         <SelectElement name="socials" label="Include on WhatsApp/social channels?"
                                        options={kSelectOptions} size="small" fullWidth
-                                       onChange={handleChange} />
+                                       disabled={readOnly} onChange={handleChange} />
                     </Grid>
                 </Grid>
                 <SubmitCollapse error={error} open={invalidated} loading={loading} sx={{ mt: 2 }} />

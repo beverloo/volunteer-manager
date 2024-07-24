@@ -17,11 +17,8 @@ export enum Privilege {
     EventAdministrator                  = 1 << 7,
 
     // Privileges captured by EventAdministrator:
-    EventContentOverride                = 1 << 2,
     EventHotelManagement                = 1 << 12,
-    EventScheduleOverride               = 1 << 4,
     EventTrainingManagement             = 1 << 13,
-    EventVolunteerApplicationOverrides  = 1 << 14,
 };
 
 /**
@@ -52,11 +49,8 @@ const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     ],
 
     [Privilege.EventAdministrator]: [
-        Privilege.EventContentOverride,
         Privilege.EventHotelManagement,
-        Privilege.EventScheduleOverride,
         Privilege.EventTrainingManagement,
-        Privilege.EventVolunteerApplicationOverrides,
     ],
 };
 
@@ -91,11 +85,8 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Refunds]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
-    [Privilege.EventContentOverride]: 'Event access',
     [Privilege.EventHotelManagement]: 'Event access',
-    [Privilege.EventScheduleOverride]: 'Event access',
     [Privilege.EventTrainingManagement]: 'Event access',
-    [Privilege.EventVolunteerApplicationOverrides]: 'Event access',
 };
 
 /**
@@ -106,11 +97,8 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Refunds]: 'Refund requests',
 
     [Privilege.EventAdministrator]: 'Event administrator',
-    [Privilege.EventContentOverride]: 'Always allow access to event content',
     [Privilege.EventHotelManagement]: 'Manage hotel rooms',
-    [Privilege.EventScheduleOverride]: 'Always allow access to the volunteer portal',
     [Privilege.EventTrainingManagement]: 'Manage trainings',
-    [Privilege.EventVolunteerApplicationOverrides]: 'Manage application overrides',
 };
 
 /**

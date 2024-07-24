@@ -84,6 +84,11 @@ interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, '
     subtitle?: string;
 
     /**
+     * The permission that access to this section is gated behind.
+     */
+    permission?: string;
+
+    /**
      * Whether it should be flagged that access is restricted to a privilege.
      */
     privilege?: Privilege;
@@ -99,7 +104,7 @@ interface PaperHeaderProps extends PaperHeaderClearButtonProps, Omit<BoxProps, '
  * actions available to a particular section, hosted in the parenting <Paper> component.
  */
 export const PaperHeader = styled((props: PaperHeaderProps) => {
-    const { title, subtitle, privilege, onClear, onExport, ...containerProps } = props;
+    const { title, subtitle, permission, privilege, onClear, onExport, ...containerProps } = props;
     const subject = props.subject ?? 'section';
 
     return (
@@ -112,9 +117,9 @@ export const PaperHeader = styled((props: PaperHeaderProps) => {
                         ({subtitle})
                     </Typography> }
             </Typography>
-            { (!!privilege || !!onClear || !!onExport) &&
+            { ((!!privilege || !!permission) || !!onClear || !!onExport) &&
                 <Stack direction="row" spacing={1}>
-                    { !!privilege &&
+                    { (!!privilege || !!permission) &&
                         <Stack justifyContent="center" component={Tooltip} sx={{ px: 0.5 }}
                                title="You have a permission granting you access">
                             <Box>

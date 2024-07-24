@@ -43,6 +43,12 @@ type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
 export default async function EventVolunteerPage(props: RouterParams) {
     const { access, user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
+    const accessScope = { event: event.slug, team: team.slug };
+    if (!access.can('event.volunteers.information', 'read', accessScope))
+        notFound();
+
+    const readOnly = true;//!access.can('event.volunteers.information', 'update', accessScope);
+
     const storageJoin = tStorage.forUseInLeftJoin();
 
     // ---------------------------------------------------------------------------------------------
@@ -240,11 +246,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
     const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
     const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
-    const canUpdateApplications = access.can('event.applications', 'update', {
-        event: event.slug,
-        team: team.slug,
-    });
-
+    const canAccessOverrides = access.can('event.volunteers.overrides', accessScope);
+    const canUpdateApplications = access.can('event.applications', 'update', accessScope);
     const canUpdateWithoutNotification = access.can('volunteer.silent');
 
     return (
@@ -266,13 +269,14 @@ export default async function EventVolunteerPage(props: RouterParams) {
                                    setting="user-admin-volunteers-expand-shifts">
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
-            <ApplicationPreferences event={event.slug} team={team.slug} volunteer={volunteer} />
+            <ApplicationPreferences event={event.slug} team={team.slug} readOnly={readOnly}
+                                    volunteer={volunteer} />
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
-                                     team={team.slug} volunteer={volunteer} />
+                                     team={team.slug} readOnly={readOnly} volunteer={volunteer} />
             {hotelManagement}
             {refundRequest}
             {trainingManagement}
-            { can(user, Privilege.EventVolunteerApplicationOverrides) &&
+            { canAccessOverrides &&
                 <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
         </>
     );

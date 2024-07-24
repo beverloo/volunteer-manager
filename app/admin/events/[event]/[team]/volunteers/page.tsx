@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
@@ -17,6 +19,9 @@ import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, t
  */
 export default async function VolunteersPage(props: NextPageParams<'event' | 'team'>) {
     const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params);
+
+    if (!access.can('event.volunteers.information', 'read', { event: event.slug, team: team.slug }))
+        notFound();
 
     const dbInstance = db;
 

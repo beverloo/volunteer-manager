@@ -102,6 +102,11 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
  */
 interface ApplicationParticipationFormProps {
     /**
+     * Whether the form should be in read-only mode.
+     */
+    readOnly?: boolean;
+
+    /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
     onChange?: () => void;
@@ -113,18 +118,18 @@ interface ApplicationParticipationFormProps {
  * between the registration front-end and the application management section for admins.
  */
 export function ApplicationParticipationForm(props: ApplicationParticipationFormProps) {
-    const { onChange } = props;
+    const { readOnly, onChange } = props;
     return (
         <>
             <Grid xs={6}>
                 <SelectElement name="tshirtSize" label="T-shirt size" required
                                options={kTShirtSizeOptions} fullWidth size="small"
-                               onChange={onChange} />
+                               disabled={readOnly} onChange={onChange} />
             </Grid>
             <Grid xs={6}>
                 <SelectElement name="tshirtFit" label="T-shirt fit" required
                                options={kTShirtFitOptions} fullWidth size="small"
-                               onChange={onChange} />
+                               disabled={readOnly} onChange={onChange} />
             </Grid>
         </>
     );

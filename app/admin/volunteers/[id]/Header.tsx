@@ -224,11 +224,6 @@ interface HeaderProps {
      * Whether the signed in user is able to impersonate this user.
      */
     canImpersonate: boolean;
-
-    /**
-     * Whether the signed in user is an administrator.
-     */
-    isAdmin: boolean;
 }
 
 /**
@@ -237,7 +232,7 @@ interface HeaderProps {
  * passport or access code.
  */
 export function Header(props: HeaderProps) {
-    const { account, canImpersonate, isAdmin } = props;
+    const { account, canImpersonate } = props;
 
     const [ accessCodeOpen, setAccessCodeOpen ] = useState(false);
     const [ activateOpen, setActivateOpen ] = useState(false);
@@ -284,11 +279,10 @@ export function Header(props: HeaderProps) {
                             Activate
                         </Button> }
 
-                    { isAdmin &&
-                        <Button variant="text" startIcon={ <LockResetIcon /> }
-                                onClick={ () => setResetOpen(true) }>
-                            Reset password
-                        </Button> }
+                    <Button variant="text" startIcon={ <LockResetIcon /> }
+                            onClick={ () => setResetOpen(true) }>
+                        Reset password
+                    </Button>
 
                     <Button variant="text" startIcon={ <PinIcon /> }
                             onClick={ () => setAccessCodeOpen(true) }>

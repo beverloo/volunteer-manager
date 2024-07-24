@@ -151,6 +151,14 @@ export async function updateApplication(request: Request, props: ActionProps): P
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
+            permission: {
+                permission: 'event.volunteers.information',
+                operation: 'update',
+                options: {
+                    event: request.event,
+                    team: request.team,
+                },
+            },
         });
 
         affectedRows = await db.update(tUsersEvents)
@@ -174,7 +182,13 @@ export async function updateApplication(request: Request, props: ActionProps): P
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
-            privilege: Privilege.EventVolunteerApplicationOverrides,
+            permission: {
+                permission: 'event.volunteers.overrides',
+                options: {
+                    event: request.event,
+                    team: request.team,
+                },
+            },
         });
 
         affectedRows = await db.update(tUsersEvents)

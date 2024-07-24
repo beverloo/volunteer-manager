@@ -138,7 +138,7 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
     return (
         <Paper sx={{ p: 2 }}>
             <PaperHeader title="Application information" sx={{ mb: 1 }}
-                         privilege={Privilege.EventVolunteerApplicationOverrides} />
+                         permission="event.volunteers.overrides" />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
                     <Grid xs={6}>
