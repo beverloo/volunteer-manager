@@ -33,7 +33,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
     const bookings = registration.hotelBookings;
     const eligible = registration.hotelEligible;
-    const override = can(user, Privilege.EventHotelManagement);
+    const override = context.access.can('event.hotels', { event: event.slug });
     const enabled = registration.hotelInformationPublished || override;
 
     const preferences = registration.hotelPreferences;

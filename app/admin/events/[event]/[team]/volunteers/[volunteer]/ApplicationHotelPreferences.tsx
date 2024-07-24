@@ -140,7 +140,7 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
 
     return (
         <Paper sx={{ p: 2 }}>
-            <PaperHeader title="Hotel preferences" privilege={Privilege.EventHotelManagement}
+            <PaperHeader title="Hotel preferences" permission="event.hotels"
                          onClear={handleClear} subject="hotel preferences" sx={{ mb: 2 }} />
             <FormContainer formContext={form} onSuccess={handleSubmit}>
                 <HotelPreferencesForm eventDate={eventDate} form={form as any}

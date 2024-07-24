@@ -77,12 +77,12 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
  * access to the volunteering refunds to see the overview of requested refunds for a given event.
  */
 export default async function EventRefundsPage(props: NextPageParams<'event'>) {
-    const { access, user, event } = await verifyAccessAndFetchPageInfo(props.params);
-
-    // Access to event settings is restricted to event administrators who also have the volunteer
-    // refund permission, since this deals with particularly sensitive information.
-    if (!can(user, Privilege.EventAdministrator) || !can(user, Privilege.Refunds))
-        notFound();
+    const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.refunds',
+        options: {
+            event: props.params.event,
+        },
+    });
 
     // If refund management has not been enabled for this event, the page is not accessible.
     if (!event.refundEnabled)

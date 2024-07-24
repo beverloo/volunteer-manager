@@ -102,7 +102,12 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
-            privilege: Privilege.EventHotelManagement,
+            permission: {
+                permission: 'event.hotels',
+                options: {
+                    event: request.event,
+                },
+            },
         });
 
         subjectUserId = request.adminOverrideUserId;
@@ -136,8 +141,10 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!registration.hotelEligible && !registration.hotelPreferences)
         return { success: false, error: 'You are not eligible to book a hotel room' };
 
-    if (!registration.hotelInformationPublished && !can(props.user, Privilege.EventHotelManagement))
-        return { success: false, error: 'Hotel rooms cannot be booked yet, sorry!' };
+    if (!registration.hotelInformationPublished) {
+        if (!props.access.can('event.hotels', { event: event.slug }))
+            return { success: false, error: 'Hotel rooms cannot be booked yet, sorry!' };
+    }
 
     // TODO: Disallow updates when the room has been confirmed
 

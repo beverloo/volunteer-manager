@@ -165,7 +165,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     let hotelManagement: React.ReactNode = undefined;
-    if (can(user, Privilege.EventHotelManagement) && !!volunteer.isHotelEligible) {
+    if (access.can('event.hotels', { event: event.slug }) && !!volunteer.isHotelEligible) {
         const hotelOptions = await getHotelRoomOptions(event.id);
         const hotelPreferences = await dbInstance.selectFrom(tHotelsPreferences)
             .where(tHotelsPreferences.userId.equals(volunteer.userId))
@@ -193,7 +193,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     let refundRequest: React.ReactNode = undefined;
-    if (can(user, Privilege.Refunds)) {
+    if (access.can('event.refunds', { event: event.slug })) {
         const refund = await db.selectFrom(tRefunds)
             .where(tRefunds.userId.equals(volunteer.userId))
                 .and(tRefunds.eventId.equals(event.id))
@@ -215,7 +215,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // ---------------------------------------------------------------------------------------------
 
     let trainingManagement: React.ReactNode = undefined;
-    if (can(user, Privilege.EventTrainingManagement) && !!volunteer.isTrainingEligible) {
+    if (access.can('event.trainings', { event: event.slug }) && !!volunteer.isTrainingEligible) {
         const trainingOptions = await getTrainingOptions(event.id);
         const training = await db.selectFrom(tTrainingsAssignments)
             .where(tTrainingsAssignments.eventId.equals(event.id))

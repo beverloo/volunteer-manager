@@ -4,14 +4,13 @@
 import type { AccessControl } from '@lib/auth/AccessControl';
 import type { User } from '@lib/auth/User';
 import { ExportType } from '@lib/database/Types';
-import { Privilege, can } from '@lib/auth/Privileges';
 
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
  * Returns whether the visitor has access to exports of the given `type`.
  */
-export function hasAccessToExport(type: ExportType, access: AccessControl, user?: User): boolean {
+export function hasAccessToExport(type: ExportType, access: AccessControl): boolean {
     switch (type) {
         case ExportType.Credits:
         case ExportType.Volunteers:
@@ -21,10 +20,10 @@ export function hasAccessToExport(type: ExportType, access: AccessControl, user?
             });
 
         case ExportType.Refunds:
-            return can(user, Privilege.Refunds);
+            return access.can('event.refunds', { event: kAnyEvent });
 
         case ExportType.Trainings:
-            return can(user, Privilege.EventTrainingManagement);
+            return access.can('event.trainings', { event: kAnyEvent });
     }
 
     throw new Error(`Unrecognised export type: "${type}"`);

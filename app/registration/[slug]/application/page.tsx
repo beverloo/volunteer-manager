@@ -25,9 +25,13 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
 
     const { access, environment, event, registration, user } = context;
 
-    const accessScope = { event: event.slug, team: environment.teamSlug };
+    const eventAccessScope = { event: event.slug };
+    const teamAccessScope = { event: event.slug, team: environment.teamSlug };
 
-    const canAccessSchedule = access.can('event.schedules', 'read', accessScope);
+    const canAccessHotels = access.can('event.hotels', eventAccessScope);
+    const canAccessRefunds = access.can('event.refunds', eventAccessScope);
+    const canAccessSchedule = access.can('event.schedules', 'read', teamAccessScope);
+    const canAccessTrainings = access.can('event.trainings', eventAccessScope);
 
     let content: Content | undefined = undefined;
     let state: 'status' | 'application' | 'unavailable';
@@ -37,7 +41,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     } else {
         const environmentData = event.getEnvironmentData(environment.environmentName);
         if (environmentData?.enableApplications ||
-                access.can('event.applications', 'create', accessScope)) {
+                access.can('event.applications', 'create', teamAccessScope)) {
             content = await getContent(environment.environmentName, event, [ 'application' ]);
             state = 'application';
         } else {
@@ -95,7 +99,10 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
                                  event={event.toEventData(environment.environmentName)} /> }
             { (state === 'status' && (registration && user)) &&
                 <ApplicationStatusPage availabilityWindows={availabilityWindows}
-                                       canAccessSchedule={canAccessSchedule} user={user}
+                                       canAccessHotels={canAccessHotels}
+                                       canAccessRefunds={canAccessRefunds}
+                                       canAccessSchedule={canAccessSchedule}
+                                       canAccessTrainings={canAccessTrainings} user={user}
                                        event={event.toEventData(environment.environmentName)}
                                        registration={registration.toRegistrationData()} /> }
             { state === 'unavailable' &&

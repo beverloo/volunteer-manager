@@ -122,14 +122,15 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     // If the user has the ability to see any of the additional menu items, execute a single query
     // to understand how many outstanding items there are for hotels, refunds and trainings. Only
     // the ones that the user is privileged to access will be populated.
+    const canAccessHotels = access.can('event.hotels', { event });
+    const canAccessRefunds = access.can('event.refunds', { event });
+    const canAccessTrainings = access.can('event.trainings', { event });
+
     let hotelBadge: number | undefined;
     let refundsBadge: number | undefined;
     let trainingsBadge: number | undefined;
 
-    if (can(user, Privilege.EventHotelManagement) ||
-            can(user, Privilege.EventTrainingManagement) ||
-            can(user, Privilege.Refunds))
-    {
+    if (canAccessHotels || canAccessRefunds || canAccessTrainings) {
         const hotelsAssignmentsJoin = tHotelsAssignments.forUseInLeftJoin();
         const hotelsBookingsJoin = tHotelsBookings.forUseInLeftJoin();
 
@@ -169,11 +170,11 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             })
             .executeSelectNoneOrOne();
 
-        if (can(user, Privilege.EventHotelManagement))
+        if (canAccessHotels)
             hotelBadge = badgeValues?.unconfirmedHotelRequests;
-        if (can(user, Privilege.Refunds))
+        if (canAccessRefunds)
             refundsBadge = badgeValues?.unconfirmedRefunds;
-        if (can(user, Privilege.EventTrainingManagement))
+        if (canAccessTrainings)
             trainingsBadge = badgeValues?.unconfirmedTrainings;
     }
 
@@ -215,7 +216,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             icon: <HotelIcon />,
             label: 'Hotels',
             condition: info.event.hotelEnabled,
-            privilege: Privilege.EventHotelManagement,
+            permission: {
+                permission: 'event.hotels',
+                options: { event },
+            },
             url: `/admin/events/${event}/hotels`,
             badge: hotelBadge,
         },
@@ -224,7 +228,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             icon: <MonetizationOnIcon />,
             label: 'Refunds',
             condition: info.event.refundEnabled,
-            privilege: Privilege.Refunds,
+            permission: {
+                permission: 'event.refunds',
+                options: { event },
+            },
             url: `/admin/events/${event}/refunds`,
             badge: refundsBadge,
             badgeSeverity: 'error',
@@ -233,7 +240,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             icon: <HistoryEduIcon />,
             label: 'Trainings',
             condition: info.event.trainingEnabled,
-            privilege: Privilege.EventTrainingManagement,
+            permission: {
+                permission: 'event.trainings',
+                options: { event },
+            },
             url: `/admin/events/${event}/training`,
             badge: trainingsBadge,
         },

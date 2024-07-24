@@ -548,9 +548,24 @@ export interface ApplicationStatusPageProps {
     };
 
     /**
+     * Whether the volunteer is able to access hotels regardless of publication status.
+     */
+    canAccessHotels: boolean;
+
+    /**
+     * Whether the volunteer is able to access refunds regardless of publication status.
+     */
+    canAccessRefunds: boolean;
+
+    /**
      * Whether the volunteer is able to access the schedule regardless of publication status.
      */
     canAccessSchedule: boolean;
+
+    /**
+     * Whether the volunteer is able to access trainings regardless of publication status.
+     */
+    canAccessTrainings: boolean;
 
     /**
      * The event for which data is being displayed on this page.
@@ -609,8 +624,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
 
     // Display and enablement of the ticket refund option.
     const displayRefundWithOverride =
-        registration.refund || registration.refundInformationPublished ||
-        can(user, Privilege.Refunds);
+        registration.refund || registration.refundInformationPublished || props.canAccessRefunds;
 
     // Display and enablement of training preferences.
     const displayTraining = registration.trainingEligible || !!registration.training;
@@ -654,23 +668,21 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                             <HotelStatusButton availabilityWindow={aw.hotelPreferences}
                                                bookings={registration.hotelBookings} now={now}
                                                enabled={registration.hotelInformationPublished}
-                                               override={can(user, Privilege.EventHotelManagement)}
+                                               override={props.canAccessHotels}
                                                preferences={registration.hotelPreferences} /> }
 
                         { (event.trainingEnabled && displayTraining) &&
                             <TrainingStatusButton availabilityWindow={aw.trainingPreferences}
                                                   enabled={
                                                       registration.trainingInformationPublished}
-                                                  override={
-                                                      can(user, Privilege.EventTrainingManagement)
-                                                  }
+                                                  override={props.canAccessTrainings}
                                                   timezone={event.timezone} now={now}
                                                   training={registration.training} /> }
 
                         { (event.refundEnabled && displayRefundWithOverride) &&
                             <RefundStatusButton availabilityWindow={aw.refundRequests} now={now}
                                                 enabled={registration.refundInformationPublished}
-                                                override={can(user, Privilege.Refunds)}
+                                                override={props.canAccessRefunds}
                                                 refund={registration.refund}
                                                 timezone={event.timezone} /> }
 

@@ -22,8 +22,12 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
     tUsers } from '@lib/database';
 
 export default async function EventTrainingPage(props: NextPageParams<'event'>) {
-    const { access, event } = await verifyAccessAndFetchPageInfo(
-        props.params, Privilege.EventTrainingManagement);
+    const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.trainings',
+        options: {
+            event: props.params.event,
+        },
+    });
 
     if (!event.trainingEnabled)
         notFound();

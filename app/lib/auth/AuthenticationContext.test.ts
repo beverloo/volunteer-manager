@@ -184,36 +184,4 @@ describe('AuthenticationContext', () => {
 
         executeAccessCheck(administratorAuthenticationContext, { check: 'event', event: '2025' });
     });
-
-    it('is able to execute privilege-based access checks, including OR and AND sets', () => {
-        const authenticationContext = buildAuthenticationContext({
-            user: {
-                privileges: BigInt(Privilege.EventHotelManagement),
-            }
-        });
-
-        // Pass:
-        executeAccessCheck(authenticationContext, { privilege: 0n as any as Privilege });
-        executeAccessCheck(authenticationContext, { privilege: Privilege.EventHotelManagement });
-        executeAccessCheck(authenticationContext, {
-            privilege: or(Privilege.EventHotelManagement, Privilege.Refunds),
-        });
-
-        // Fail:
-        try {
-            executeAccessCheck(authenticationContext, { privilege: Privilege.Administrator });
-            fail('executeAccessCheck was expected to throw');
-        } catch (error: any) {
-            expect(isNotFoundError(error)).toBeTrue();
-        }
-
-        try {
-            executeAccessCheck(authenticationContext, {
-                privilege: and(Privilege.EventHotelManagement, Privilege.Refunds),
-            });
-            fail('executeAccessCheck was expected to throw');
-        } catch (error: any) {
-            expect(isNotFoundError(error)).toBeTrue();
-        }
-    });
 });

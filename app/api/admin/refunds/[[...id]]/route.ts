@@ -98,7 +98,12 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
-            privilege: Privilege.Refunds,
+            permission: {
+                permission: 'event.refunds',
+                options: {
+                    event: context.event,
+                },
+            },
         });
     },
 

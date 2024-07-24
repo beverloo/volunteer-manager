@@ -57,6 +57,16 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'event.hotels': {
+        name: 'Hotel management',
+        description:
+            'This permission grants access to the hotel management tool for this particular ' +
+            'event, in which hotel room availability can be changed and preferences can be ' +
+            'tracked.',
+        requireEvent: true,
+        type: 'boolean',
+    },
+
     'event.requests': {
         name: 'Program request management',
         description:
@@ -90,6 +100,17 @@ export const kPermissions = {
         type: 'crud',
     },
 
+    'event.refunds': {
+        name: 'Refund management',
+        description:
+            'This permission grants them access to see and process refunds requested by the ' +
+            'volunteers. This potentially includes personal information such as their bank ' +
+            'account details, and should therefore be rarely granted.',
+        requireEvent: true,
+        type: 'boolean',
+        warning: true,
+    },
+
     'event.retention': {
         name: 'Retention management',
         description:
@@ -98,6 +119,15 @@ export const kPermissions = {
             'people who helped us out in the past to them.',
         requireEvent: true,
         requireTeam: true,
+        type: 'boolean',
+    },
+
+    'event.trainings': {
+        name: 'Training management',
+        description:
+            'This permission grants access to the training management tool for this particular ' +
+            'event, in which training availability and preferences can be tracked',
+        requireEvent: true,
         type: 'boolean',
     },
 
@@ -461,10 +491,12 @@ export const kPermissionGroups: Record<string, string[]> = {
     staff: [
         'event.applications',
         'event.help-requests',
+        'event.hotels',
         'event.requests',
         'event.retention',
         'event.schedules',
         'event.shifts',
+        'event.trainings',
         'event.vendors',
         'event.visible',
         'event.volunteers.information',

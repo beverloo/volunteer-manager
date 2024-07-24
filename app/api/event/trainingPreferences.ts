@@ -70,7 +70,12 @@ export async function trainingPreferences(request: Request, props: ActionProps):
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
-            privilege: Privilege.EventTrainingManagement,
+            permission: {
+                permission: 'event.trainings',
+                options: {
+                    event: request.event,
+                },
+            },
         });
 
         subjectUserId = request.adminOverrideUserId;
@@ -105,7 +110,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
         return { success: false, error: 'You are not eligible to participate in the training' };
 
     if (!registration.trainingInformationPublished
-            && !can(props.user, Privilege.EventTrainingManagement)) {
+            && !props.access.can('event.trainings', { event: event.slug })) {
         return { success: false, error: 'Trainings cannot be booked yet, sorry!' };
     }
 

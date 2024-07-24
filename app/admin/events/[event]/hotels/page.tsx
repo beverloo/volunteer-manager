@@ -19,8 +19,12 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * situation for a particular event, including assigning rooms (and roommates!) to volunteers.
  */
 export default async function EventHotelsPage(props: NextPageParams<'event'>) {
-    const { event } = await verifyAccessAndFetchPageInfo(
-        props.params, Privilege.EventHotelManagement);
+    const { event } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.hotels',
+        options: {
+            event: props.params.event,
+        },
+    });
 
     if (!event.hotelEnabled)
         notFound();

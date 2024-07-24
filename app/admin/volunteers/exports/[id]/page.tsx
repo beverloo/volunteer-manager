@@ -22,7 +22,7 @@ import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
  * a particular data export. This includes both metadata and access logs.
  */
 export default async function VolunteersExportDetailsPage(props: NextPageParams<'id'>) {
-    const { access, user } = await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'volunteer.export',
     });
@@ -53,7 +53,7 @@ export default async function VolunteersExportDetailsPage(props: NextPageParams<
         .groupBy(tExports.exportId)
         .executeSelectNoneOrOne();
 
-    if (!data || !hasAccessToExport(data.type, access, user))
+    if (!data || !hasAccessToExport(data.type, access))
         notFound();
 
     const usersJoin = tUsers.forUseInLeftJoin();

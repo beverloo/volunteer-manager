@@ -94,7 +94,12 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
-            privilege: Privilege.EventTrainingManagement,
+            permission: {
+                permission: 'event.trainings',
+                options: {
+                    event: context.event,
+                },
+            },
         });
     },
 

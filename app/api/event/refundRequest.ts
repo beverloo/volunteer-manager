@@ -67,7 +67,12 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: request.event,
-            privilege: Privilege.Refunds,
+            permission: {
+                permission: 'event.refunds',
+                options: {
+                    event: request.event,
+                },
+            },
         });
 
         subjectUserId = request.adminOverrideUserId;
@@ -77,7 +82,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
     if (!event)
         return { success: false, error: 'The event no longer exists' };
 
-    if (!can(props.user, Privilege.Refunds)) {
+    if (!props.access.can('event.refunds', { event: event.slug })) {
         const refundAvailability = await db.selectFrom(tEvents)
             .where(tEvents.eventId.equals(event.eventId))
             .select({

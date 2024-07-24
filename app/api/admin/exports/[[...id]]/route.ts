@@ -102,7 +102,7 @@ export type ExportsRowModel = z.infer<typeof kExportRowModel>;
 function executeActionCheckForEventAndType(
     authenticationContext: AuthenticationContext, event: Event, type: ExportType): void | never
 {
-    if (!hasAccessToExport(type, authenticationContext.access, authenticationContext.user))
+    if (!hasAccessToExport(type, authenticationContext.access))
         notFound();
 
     executeAccessCheck(authenticationContext, {
@@ -227,7 +227,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
             .executeSelectPage();
 
         // Only make available exports of data types that the volunteer is allowed to access.
-        const exportData = data.filter(row => hasAccessToExport(row.type, props.access, props.user))
+        const exportData = data.filter(row => hasAccessToExport(row.type, props.access))
 
         return {
             success: true,

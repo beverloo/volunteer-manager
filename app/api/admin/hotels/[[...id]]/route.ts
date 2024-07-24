@@ -85,7 +85,12 @@ createDataTableApi(kHotelRowModel, kHotelContext, {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
-            privilege: Privilege.EventHotelManagement,
+            permission: {
+                permission: 'event.hotels',
+                options: {
+                    event: context.event,
+                },
+            },
         });
     },
 

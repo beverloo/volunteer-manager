@@ -109,7 +109,7 @@ export function ApplicationRefundRequest(props: ApplicationRefundRequestProps) {
 
     return (
         <Paper sx={{ p: 2 }}>
-            <PaperHeader title="Refund request" privilege={Privilege.Refunds}
+            <PaperHeader title="Refund request" permission="event.refunds"
                          onClear={handleClear} subject="refund request" sx={{ mb: 2 }} />
             <FormContainer formContext={form} onSuccess={handleSubmit}>
                 <RefundRequestForm onChange={handleChange} />

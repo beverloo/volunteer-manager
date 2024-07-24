@@ -11,14 +11,7 @@ import type { User } from './User';
  */
 export enum Privilege {
     Administrator                       = 1 << 0,
-    Refunds                             = 1 << 23,
-
-    // Privileges regarding access in the administrative area.
     EventAdministrator                  = 1 << 7,
-
-    // Privileges captured by EventAdministrator:
-    EventHotelManagement                = 1 << 12,
-    EventTrainingManagement             = 1 << 13,
 };
 
 /**
@@ -45,12 +38,6 @@ export function can(user: Privileges | User | undefined, privilege: Privilege): 
 const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
     [Privilege.Administrator]: [
         Privilege.EventAdministrator,
-        Privilege.Refunds,
-    ],
-
-    [Privilege.EventAdministrator]: [
-        Privilege.EventHotelManagement,
-        Privilege.EventTrainingManagement,
     ],
 };
 
@@ -82,11 +69,8 @@ export function expand(privileges: Privileges): Privileges {
  */
 export const PrivilegeGroups: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Special access',
-    [Privilege.Refunds]: 'Special access',
 
     [Privilege.EventAdministrator]: 'Special access',
-    [Privilege.EventHotelManagement]: 'Event access',
-    [Privilege.EventTrainingManagement]: 'Event access',
 };
 
 /**
@@ -94,11 +78,8 @@ export const PrivilegeGroups: { [key in Privilege]: string } = {
  */
 export const PrivilegeNames: { [key in Privilege]: string } = {
     [Privilege.Administrator]: 'Administrator',
-    [Privilege.Refunds]: 'Refund requests',
 
     [Privilege.EventAdministrator]: 'Event administrator',
-    [Privilege.EventHotelManagement]: 'Manage hotel rooms',
-    [Privilege.EventTrainingManagement]: 'Manage trainings',
 };
 
 /**
@@ -106,8 +87,6 @@ export const PrivilegeNames: { [key in Privilege]: string } = {
  */
 export const PrivilegeWarnings: { [key in Privilege]?: string } = {
     [Privilege.Administrator]: 'Grants all privileges',
-
-    [Privilege.Refunds]: 'Grants access to financial information',
 
     [Privilege.EventAdministrator]: 'Grants all event-related privileges',
 };

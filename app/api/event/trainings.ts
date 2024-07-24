@@ -53,7 +53,7 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
 
     const trainings: Response['trainings'] = [];
     for (const row of configuration) {
-        if (!row.published && !can(props.user, Privilege.EventTrainingManagement))
+        if (!row.published && !props.access.can('event.trainings', { event: request.event }))
             continue;  // this `row` has not yet been published
 
         const date = formatDate(row.start.withTimeZone(row.timezone), 'dddd, MMMM D');

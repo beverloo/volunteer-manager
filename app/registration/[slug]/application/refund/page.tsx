@@ -32,7 +32,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     const { event, registration, user } = context;
 
     if (registration.refundAvailabilityWindow.status === 'pending') {
-        if (!can(user, Privilege.Refunds))
+        if (!context.access.can('event.refunds', { event: event.slug }))
             notFound();  // the availability window has not opened yet
     }
 
