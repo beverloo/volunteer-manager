@@ -493,7 +493,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: system.logs:delete omitted
         'system.logs:read',
         'system.nardo',
-        'system.subscriptions.management',
+        'system.subscriptions',
 
         'volunteer.avatars',
         'volunteer.export',
