@@ -27,6 +27,7 @@ export interface AuthenticationResult {
     events: {
         event?: string;
         team?: string;
+        teamSlug?: string;
 
         isEventHidden?: number;
         isRoleAdmin?: number;
