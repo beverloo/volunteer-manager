@@ -11,6 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 
+import type { AccessControl } from '@lib/auth/AccessControl';
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { EventDeadlines } from './EventDeadlines';
@@ -167,7 +168,7 @@ async function getParticipatingTeams(eventId: number) {
  * Returns the most recent changes made by volunteers who are part of the event, for example when
  * they share their preferences. This helps volunteers look out for potential changes.
  */
-async function getRecentChanges(eventId: number) {
+async function getRecentChanges(access: AccessControl, event: string, eventId: number) {
     const hotelsPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
     const refundsJoin = tRefunds.forUseInLeftJoin();
     const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
@@ -202,8 +203,20 @@ async function getRecentChanges(eventId: number) {
         })
         .executeSelectMany();
 
+    const teamAccess: Map<string, boolean> = new Map;
+
     const changes: EventRecentChangesProps['changes'] = [];
     for (const preferenceUpdate of preferenceUpdates) {
+        if (!teamAccess.has(preferenceUpdate.team)) {
+            teamAccess.set(preferenceUpdate.team, access.can('event.visible', {
+                event,
+                team: preferenceUpdate.team,
+            }));
+        }
+
+        if (!teamAccess.get(preferenceUpdate.team))
+            continue;  // the volunteer is not able to see volunteers from this team
+
         const commonChange = {
             name: preferenceUpdate.name,
             userId: preferenceUpdate.userId,
@@ -376,7 +389,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
     const deadlines = await getEventDeadlines(event.id);
     const eventMetadata = await getEventMetadata(event.id);
     const participatingTeams = await getParticipatingTeams(event.id);
-    const recentChanges = await getRecentChanges(event.id);
+    const recentChanges = await getRecentChanges(access, event.slug, event.id);
     const recentVolunteers = await getRecentVolunteers(event.id);
     const seniorVolunteers = await getSeniorVolunteers(event.id);
 
