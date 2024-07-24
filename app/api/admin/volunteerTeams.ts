@@ -107,7 +107,12 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
     executeAccessCheck(props.authenticationContext, {
         check: 'admin-event',
         event: request.event,
-        privilege: Privilege.EventAdministrator,
+        permission: {
+            permission: 'event.volunteers.participation',
+            options: {
+                event: request.event,
+            },
+        },
     });
 
     const event = await getEventBySlug(request.event);

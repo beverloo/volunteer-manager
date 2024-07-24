@@ -21,7 +21,7 @@ import { RejectedApplications } from './RejectedApplications';
  * new applications on this page themselves.
  */
 export default async function EventApplicationsPage(props: NextPageParams<'event' | 'team'>) {
-    const permissionOptions = {
+    const accessScope = {
         event: props.params.event,
         team: props.params.team,
     };
@@ -29,7 +29,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.applications',
         operation: 'read',
-        options: permissionOptions,
+        options: accessScope,
     });
 
     const dbInstance = db;
@@ -88,14 +88,11 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     // affected volunteer. This is guarded behind a separate permission.
     const allowSilent = access.can('volunteer.silent');
 
-    // Whether the volunteer can respond to applications depends on their permissions - normal
-    // application managers cannot, however, event administrators are allowed to. Similarly, only
-    // event administrators are able to reverse the decision on rejections.
     const canAccessAccounts = access.can('volunteer.account.information', 'read');
-    const canApproveRejectedVolunteers = can(user, Privilege.EventAdministrator);  // fixme?
 
-    const canCreateApplications = access.can('event.applications', 'create', permissionOptions);
-    const canUpdateApplications = access.can('event.applications', 'update', permissionOptions);
+    // Whether the volunteer can respond to applications depends on their permissions.
+    const canCreateApplications = access.can('event.applications', 'create', accessScope);
+    const canUpdateApplications = access.can('event.applications', 'update', accessScope);
 
     return (
         <>
@@ -107,8 +104,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
                 <CreateApplication event={event} team={team} user={user} /> }
             <Collapse in={!!rejections.length}>
                 <RejectedApplications applications={rejections} event={event.slug}
-                                      team={team.slug}
-                                      editable={canApproveRejectedVolunteers} />
+                                      team={team.slug} editable={canCreateApplications} />
             </Collapse>
         </>
     );

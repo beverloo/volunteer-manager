@@ -55,16 +55,7 @@ describe('AuthenticationContext', () => {
             expect(isNotFoundError(error)).toBeTrue();
         }
 
-        // Case (2): Explicit administrators through a privilege
-        const explicitAdminAuthenticationContext = buildAuthenticationContext({
-            user: {
-                privileges: BigInt(Privilege.EventAdministrator),
-            },
-        });
-
-        executeAccessCheck(explicitAdminAuthenticationContext, { check: 'admin' });
-
-        // Case (3): Implicit administrators through a role assignment
+        // Case (2): Implicit administrators through a role assignment
         const implicitAdminAuthenticationContext = buildAuthenticationContext({
             events: new Map([
                 [ '2024', { admin: true, event: '2024', team: 'stewards.team' }],

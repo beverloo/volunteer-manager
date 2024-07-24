@@ -755,18 +755,19 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     const { access } = props;
 
-    let isLeader: boolean = can(props.user, Privilege.EventAdministrator);
+    let isLeader: boolean = false;
     let team: string | undefined;
 
-    if (!isLeader) {
+    {
         const eventAuthenticationContext = props.authenticationContext.events.get(event.slug);
-        if (!eventAuthenticationContext &&
-                !access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam })) {
-            notFound();
+        if (!!eventAuthenticationContext) {
+            isLeader = !!eventAuthenticationContext?.admin;
+            team = eventAuthenticationContext?.team;
         }
 
-        isLeader = !!eventAuthenticationContext?.admin;
-        team = eventAuthenticationContext?.team;
+        isLeader ||= access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam });
+        if (!eventAuthenticationContext && !isLeader)
+            notFound();
     }
 
     // ---------------------------------------------------------------------------------------------

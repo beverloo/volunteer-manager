@@ -88,7 +88,12 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: context.event,
-            privilege: Privilege.EventAdministrator,
+            permission: {
+                permission: 'event.settings',
+                options: {
+                    event: context.event,
+                },
+            },
         });
     },
 

@@ -10,7 +10,7 @@ import { Privilege, can } from '@lib/auth/Privileges';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams } from '@lib/database';
 
-import { kAnyTeam } from '@lib/auth/AccessControl';
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 
 /**
  * The <EventsPage> component displays an overview of the available events within the portal, even
@@ -18,7 +18,16 @@ import { kAnyTeam } from '@lib/auth/AccessControl';
  * events. Events cannot be removed through the portal, although they can be hidden.
  */
 export default async function EventsPage() {
-    const { access, user } = await requireAuthenticationContext({ check: 'admin' });
+    const { access, user } = await requireAuthenticationContext({
+        check: 'admin',
+        permission: {
+            permission: 'event.visible',
+            options: {
+                event: kAnyEvent,
+                team: kAnyTeam,
+            },
+        },
+    });
 
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
@@ -47,7 +56,6 @@ export default async function EventsPage() {
         .orderBy(tEvents.eventStartTime, 'desc')
         .executeSelectMany();
 
-    const eventAdministrator = can(user, Privilege.EventAdministrator);
     const filteredEvents = unfilteredEvents.filter(event => {
         return access.can('event.visible', {
             event: event.slug,
@@ -58,7 +66,7 @@ export default async function EventsPage() {
     return (
         <TopLevelLayout>
             <EventList events={filteredEvents} />
-            { eventAdministrator && <EventCreate /> }
+            { access.can('admin') && <EventCreate /> }
         </TopLevelLayout>
     );
 }

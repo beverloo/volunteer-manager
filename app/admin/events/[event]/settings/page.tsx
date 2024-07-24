@@ -26,8 +26,12 @@ import db, { tEventsTeams, tTeams } from '@lib/database';
  * name, slug, target team sizes and so on. These have an effect on the entire Volunteer Manager.
  */
 export default async function EventSettingsPage(props: NextPageParams<'event'>) {
-    const { access, event, user } = await verifyAccessAndFetchPageInfo(
-        props.params, Privilege.EventAdministrator);
+    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.settings',
+        options: {
+            event: props.params.event,
+        },
+    });
 
     const dbInstance = db;
     const teamSettings = await dbInstance.selectFrom(tEventsTeams)

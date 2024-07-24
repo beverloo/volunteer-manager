@@ -141,6 +141,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             id: tTeams.teamId,
             enabled: eventsTeamsJoin.enableTeam,
             environment: tTeams.teamEnvironment,
+            slug: tTeams.teamSlug,
         })
         .executeSelectNoneOrOne();
 
@@ -152,7 +153,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
         return { success: false, error: 'Something seems to be wrong with your application…' };
 
     if (registration.availabilityStatus !== EventAvailabilityStatus.Available
-            && !can(props.user, Privilege.EventAdministrator)) {
+            && !props.access.can('event.visible', { event: event.slug, team: team.slug })) {
         return { success: false, error: 'Preferences cannot be shared yet, sorry!' };
     }
 

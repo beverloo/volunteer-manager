@@ -38,14 +38,20 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { environment, event, registration, user } = context;
+    const { access, environment, event, registration, user } = context;
 
     const enabled = [
         EventAvailabilityStatus.Available,
         EventAvailabilityStatus.Locked
     ].includes(registration.availabilityStatus);
 
-    const enabledWithOverride = enabled || can(user, Privilege.EventAdministrator);
+    const enabledWithOverride =
+        enabled ||
+        access.can('event.visible', {
+            event: event.slug,
+            team: environment.teamSlug
+        });
+
     const preferences = null;
 
     if (!enabledWithOverride && !preferences)

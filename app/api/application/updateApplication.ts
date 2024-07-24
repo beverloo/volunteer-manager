@@ -267,7 +267,14 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: request.event,
-                    privilege: Privilege.EventAdministrator,  // fixme?
+                    permission: {
+                        permission: 'event.applications',
+                        operation: 'create',
+                        options: {
+                            event: request.event,
+                            team: request.team,
+                        },
+                    },
                 });
 
                 break;

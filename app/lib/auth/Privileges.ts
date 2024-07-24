@@ -9,10 +9,7 @@ import type { User } from './User';
  *
  * Next setting: 1 << 32
  */
-export enum Privilege {
-    Administrator                       = 1 << 0,
-    EventAdministrator                  = 1 << 7,
-};
+export enum Privilege {};
 
 /**
  * Type definition for multiple privileges. They are stored as a singular integer in which each of
@@ -35,11 +32,7 @@ export function can(user: Privileges | User | undefined, privilege: Privilege): 
  * The privilege expansion rules. Certain privileges implicitly grant other privileges, which will
  * be propagated according to the following rules.
  */
-const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {
-    [Privilege.Administrator]: [
-        Privilege.EventAdministrator,
-    ],
-};
+const PrivilegeExpansion: { [key in Privilege]?: Privilege[] } = {};
 
 /**
  * Maximum depth of privilege expansion rules. I.e. Administrator -> EventAdministrator ->
@@ -67,26 +60,14 @@ export function expand(privileges: Privileges): Privileges {
 /**
  * Grouping of the privileges as they should be rendered in the administrative area
  */
-export const PrivilegeGroups: { [key in Privilege]: string } = {
-    [Privilege.Administrator]: 'Special access',
-
-    [Privilege.EventAdministrator]: 'Special access',
-};
+export const PrivilegeGroups: { [key in Privilege]: string } = {};
 
 /**
  * Names of each of the privileges.
  */
-export const PrivilegeNames: { [key in Privilege]: string } = {
-    [Privilege.Administrator]: 'Administrator',
-
-    [Privilege.EventAdministrator]: 'Event administrator',
-};
+export const PrivilegeNames: { [key in Privilege]: string } = {};
 
 /**
  * Warnings associated with each of the Privileges.
  */
-export const PrivilegeWarnings: { [key in Privilege]?: string } = {
-    [Privilege.Administrator]: 'Grants all privileges',
-
-    [Privilege.EventAdministrator]: 'Grants all event-related privileges',
-};
+export const PrivilegeWarnings: { [key in Privilege]?: string } = {};

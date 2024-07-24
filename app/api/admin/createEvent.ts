@@ -68,7 +68,7 @@ type Response = ApiResponse<typeof kCreateEventDefinition>;
 export async function createEvent(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        privilege: Privilege.EventAdministrator,
+        permission: 'admin',
     });
 
     if (request.slug.length < 4 || request.slug.length > 12)

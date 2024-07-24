@@ -89,6 +89,15 @@ export const kPermissions = {
         type: 'crud',
     },
 
+    'event.settings': {
+        name: 'Event settings',
+        description:
+            'This permission controls whether they have access to event settings, such as its ' +
+            'name, deadlines and participating teams.',
+        requireEvent: true,
+        type: 'boolean',
+    },
+
     'event.shifts': {
         name: 'Event shift planning',
         description:
@@ -172,6 +181,16 @@ export const kPermissions = {
             'they are eligible to book a hotel room or participate in the training.',
         requireEvent: true,
         requireTeam: true,
+        type: 'boolean',
+    },
+
+    'event.volunteers.participation': {
+        name: 'Participation management',
+        description:
+            'This permission controls whether the volunteer is able to change the participation ' +
+            'of other volunteers in an event, i.e. which team they participate in and what their ' +
+            'role within that team is.',
+        requireEvent: true,
         type: 'boolean',
     },
 
@@ -495,12 +514,14 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.requests',
         'event.retention',
         'event.schedules',
+        'event.settings',
         'event.shifts',
         'event.trainings',
         'event.vendors',
         'event.visible',
         'event.volunteers.information',
         'event.volunteers.overrides',
+        'event.volunteers.participation',
         'statistics.finances',
         'system.subscriptions.eligible',
         'volunteer.account.information:read',

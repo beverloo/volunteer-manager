@@ -7,7 +7,7 @@ import type { AccessOperation } from '@lib/auth/AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { SessionData } from './Session';
 import type { User } from './User';
-import { AccessControl, kAnyTeam, type AccessScope } from './AccessControl';
+import { AccessControl, kAnyEvent, kAnyTeam, type AccessScope } from './AccessControl';
 import { AuthType } from '@lib/database/Types';
 import { Privilege, can } from './Privileges';
 import { authenticateUser } from './Authentication';
@@ -275,16 +275,11 @@ export function executeAccessCheck(
 
         switch (access.check) {
             case 'admin':
-                if (!can(context.user, Privilege.EventAdministrator)) {
-                    let eventsWithAdminAccess = 0;
-                    for (const { admin } of context.events.values()) {
-                        if (!!admin)
-                            eventsWithAdminAccess++;
-                    }
+                context.access.require('event.visible', {
+                    event: kAnyEvent,
+                    team: kAnyTeam,
+                });
 
-                    if (!eventsWithAdminAccess)
-                        notFound();
-                }
                 break;
 
             case 'admin-event':

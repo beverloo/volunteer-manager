@@ -67,7 +67,12 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
     executeAccessCheck(props.authenticationContext, {
         check: 'admin-event',
         event: request.event,
-        privilege: Privilege.EventAdministrator,
+        permission: {
+            permission: 'event.settings',
+            options: {
+                event: request.event,
+            },
+        },
     });
 
     const event = await getEventBySlug(request.event);

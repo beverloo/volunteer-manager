@@ -57,6 +57,11 @@ interface ChangeRoleDialogProps {
     eventId: number;
 
     /**
+     * URL-safe slug of the event for which the role might be changed.
+     */
+    event: string;
+
+    /**
      * Whether the dialog is currently open.
      */
     open?: boolean;
@@ -82,7 +87,7 @@ interface ChangeRoleDialogProps {
  * The list of available roles will be fetched on first load.
  */
 function ChangeRoleDialog(props: ChangeRoleDialogProps) {
-    const { eventId, onClose, open, roles, teamId, volunteer } = props;
+    const { eventId, event, onClose, open, roles, teamId, volunteer } = props;
 
     const options = useMemo(() => {
         return roles ? roles.map(role => ({ id: role.roleId, label: role.roleName })) : [];
@@ -95,6 +100,7 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
     const handleSubmit = useCallback(async (data: FieldValues) => {
         const response = await callApi('post', '/api/admin/volunteer-roles', {
             eventId,
+            event,
             roleId: data.role,
             teamId,
             userId: volunteer.userId,
@@ -105,7 +111,7 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
         else
             return { error: `${volunteer.firstName}'s role could not be updated right now.` };
 
-    }, [ eventId, teamId, volunteer ]);
+    }, [ eventId, event, teamId, volunteer ]);
 
     useEffect(() => {
         setSelectedRole(volunteer.roleId);
@@ -337,6 +343,11 @@ interface VolunteerHeaderProps {
     canUpdateApplications: boolean;
 
     /**
+     * Whether the signed in volunteer is able to update their participation in this event.
+     */
+    canUpdateParticipation: boolean;
+
+    /**
      * Whether the signed in volunteer is able to make silent changes to their participation.
      */
     canUpdateWithoutNotification: boolean;
@@ -398,9 +409,9 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
 
     const router = useRouter();
     const showOptions =
-        can(user, Privilege.EventAdministrator) ||
         props.canAccessAccountInformation ||
-        props.canUpdateApplications;
+        props.canUpdateApplications ||
+        props.canUpdateParticipation;
 
     // ---------------------------------------------------------------------------------------------
     // Common (cancel & reinstate participation)
@@ -537,13 +548,13 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                             Reinstate volunteer
                         </Button> }
 
-                    { can(user, Privilege.EventAdministrator) &&
+                    { props.canUpdateParticipation &&
                         <LoadingButton startIcon={ <ManageAccountsIcon /> }
                                        onClick={handleRolesOpen} loading={rolesLoading}>
                             Change role
                         </LoadingButton> }
 
-                    { can(user, Privilege.EventAdministrator) &&
+                    { props.canUpdateParticipation &&
                         <LoadingButton startIcon={ <PeopleIcon /> }
                                        onClick={handleTeamsOpen} loading={teamsLoading}>
                             Change team
@@ -587,7 +598,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
 
             <ChangeRoleDialog onClose={handleRolesClose} open={roles && rolesOpen}
                               roles={roles!} volunteer={volunteer} eventId={event.id}
-                              teamId={team.id} />
+                              event={event.slug} teamId={team.id} />
 
             <ChangeTeamDialog onClose={handleTeamsClose} open={teamsForVolunteer && teamsOpen}
                               teams={teamsForVolunteer!} allowSilent={allowSilent}

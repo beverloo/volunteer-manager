@@ -548,6 +548,11 @@ export interface ApplicationStatusPageProps {
     };
 
     /**
+     * Whether the volunteer is able to access availability regardless of publication status.
+     */
+    canAccessAvailability: boolean;
+
+    /**
      * Whether the volunteer is able to access hotels regardless of publication status.
      */
     canAccessHotels: boolean;
@@ -662,7 +667,7 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                         </ListItem>
 
                         <AvailabilityButton status={registration.availabilityStatus}
-                                            override={can(user, Privilege.EventAdministrator)} />
+                                            override={props.canAccessAvailability} />
 
                         { (event.hotelEnabled && displayHotel) &&
                             <HotelStatusButton availabilityWindow={aw.hotelPreferences}

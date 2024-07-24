@@ -250,7 +250,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <SettingsIcon />,
             label: 'Settings',
-            privilege: Privilege.EventAdministrator,
+            permission: {
+                permission: 'event.settings',
+                options: { event },
+            },
             url: `/admin/events/${event}/settings`,
         },
         {
