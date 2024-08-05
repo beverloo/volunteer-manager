@@ -6,9 +6,12 @@ import { notFound } from 'next/navigation';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 
 import type { NextSearchParams } from '@lib/NextRouterParams';
+import { LineGraph } from './components/LineGraph';
 import { StatisticsFilters } from './components/StatisticsFilters';
 import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
+
+import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
 
 /**
  * Detailed descriptions of the KPIs displayed on the statistics overview page. Not everyone is well
@@ -49,7 +52,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
             <StatisticsFilters searchParams={searchParams} />
             <Grid container spacing={2}>
                 <StatisticsSection title="Number of volunteers">
-                    TODO
+                    <LineGraph filters={filters} query={getNumberOfVolunteers} />
                 </StatisticsSection>
                 <StatisticsSection title="Shifts per volunteer (average)" kpi
                                    description={kDescriptions.shifts}>
