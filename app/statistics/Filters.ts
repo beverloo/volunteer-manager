@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEvents, tTeams } from '@lib/database';
 
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
@@ -19,14 +20,14 @@ export interface Filters {
     },
 
     /**
-     * Events that the signed in user has access to. `undefined` signals access to all events.
+     * Event IDs that the signed in user has access to. `undefined` signals access to all events.
      */
-    events?: string[];
+    events?: number[];
 
     /**
-     * Teams that the signed in user has access to. `undefined` signals access to all teams.
+     * Team IDs that the signed in user has access to. `undefined` signals access to all teams.
      */
-    teams?: string[];
+    teams?: number[];
 }
 
 /**
@@ -36,16 +37,35 @@ export interface Filters {
 export async function determineFilters(params: URLSearchParams): Promise<Filters> {
     const { access } = await getAuthenticationContext();
 
-    const events = access.events;
-    const teams = access.teams;
-
     // TODO: Consider `params` in limiting down visibility of the metrics.
+    // TODO: Include `event.visible` access for the metrics.
+
+    let events: number[] | undefined;
+    if (!access.events.length) {
+        events = [ /* no events */ ];
+    } else if (!access.events.includes(kAnyEvent)) {
+        events = await db.selectFrom(tEvents)
+            .where(tEvents.eventSlug.in(access.events))
+            .selectOneColumn(tEvents.eventId)
+            .executeSelectMany();
+    }
+
+    let teams: number[] | undefined;
+    if (!access.teams.length) {
+        teams = [ /* no teams */ ];
+    } else if (!access.teams.includes(kAnyTeam)) {
+        teams = await db.selectFrom(tTeams)
+            .where(tTeams.teamSlug.in(access.teams))
+            .selectOneColumn(tTeams.teamId)
+            .executeSelectMany();
+    }
+
     return {
         access: {
             basic: access.can('statistics.basic'),
             finances: access.can('statistics.finances'),
         },
-        events: events.includes(kAnyEvent) ? undefined : events,
-        teams: teams.includes(kAnyTeam) ? undefined : teams,
+        events,
+        teams,
     };
 }

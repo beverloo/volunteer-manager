@@ -13,6 +13,11 @@ import type { Filters } from '../Filters';
  */
 export interface LineGraphData {
     /**
+     * The data set that should be displayed on the graph.
+     */
+    dataset?: LineChartProps['dataset'];
+
+    /**
      * Data series that should be displayed on the graph.
      */
     series: LineChartProps['series'];
@@ -48,6 +53,7 @@ async function LineGraphImpl(props: LineGraphProps) {
     return <LineChart {...data}
                       grid={{ horizontal: true, vertical: true }}
                       margin={{ left: 32, right: 16, top: 16, bottom: 32 }}
+                      slotProps={{ legend: { hidden: true } }}
                       height={200} />;
 }
 
