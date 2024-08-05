@@ -8,7 +8,11 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import StarIcon from '@mui/icons-material/Star';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+
+import { StatisticsDetails } from './StatisticsDetails';
 
 /**
  * Props accepted by the <StatisticsSection> component when a "read more" button should be shown.
@@ -29,6 +33,16 @@ type StatisticsSectionWithUrlProps = {
  * Props accepted by the <StatisticsSection> component.
  */
 type StatisticsSectionProps = {
+    /**
+     * Optional description of this metric that will be shown in an informative alert dialog.
+     */
+    description?: string;
+
+    /**
+     * Whether this section describes one of our Key Performance Indicators (KPIs).
+     */
+    kpi?: boolean;
+
     /**
      * Title of the graph, that will be prominently displayed.
      */
@@ -51,9 +65,21 @@ export function StatisticsSection(props: React.PropsWithChildren<StatisticsSecti
     return (
         <Grid xs={12} lg={6}>
             <Paper component={Stack} elevation={2} sx={{ p: 2 }} spacing={1}>
-                <Typography variant="h6">
-                    {props.title}
-                </Typography>
+                <Stack direction="row" alignItems="center" justifyContent="space-between"
+                       spacing={2}>
+                    <Typography variant="h6" noWrap>
+                        {props.title}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        { !!props.kpi &&
+                            <Tooltip title="Key Performance Indicator">
+                                <StarIcon fontSize="small" htmlColor="#ffa000" />
+                            </Tooltip> }
+                        { !!props.description &&
+                            <StatisticsDetails title={props.title}
+                                               description={props.description} /> }
+                    </Stack>
+                </Stack>
                 <Box>{props.children}</Box>
                 { !!moreDetailsLink &&
                     <Stack alignItems="flex-end" sx={{ margin: '8px -8px -8px 0 !important' }}>
