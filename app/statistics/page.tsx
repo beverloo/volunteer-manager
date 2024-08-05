@@ -19,6 +19,10 @@ import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
  * vested in what the graph titles may mean, so
  */
 const kDescriptions = {
+    count:
+        'This statistic describes the total number of volunteers within each of the teams, ' +
+        'including Senior and Staff-level volunteers.',
+
     gender:
         'This statistic describes the gender balance in each of the teams. Our thesis is that ' +
         'balanced teams create for a more welcoming environment, where unbalanced teams ' +
@@ -32,7 +36,8 @@ const kDescriptions = {
     shifts:
         'This statistic describes the average number of hours volunteers helped us out. We aim ' +
         'for about 12 hours of shifts for Crew and Hosts, and about 16 hours of shifts for ' +
-        'Stewards, as they receive additional training.',
+        'Stewards, as they receive additional training. Senior and Staff-level volunteers are ' +
+        'excluded, as are shifts such as the group photo.',
 
 } as const;
 
@@ -52,7 +57,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
         <>
             <StatisticsFilters searchParams={searchParams} />
             <Grid container spacing={2}>
-                <StatisticsSection title="Number of volunteers">
+                <StatisticsSection title="Number of volunteers" description={kDescriptions.count}>
                     <LineGraph filters={filters} query={getNumberOfVolunteers} />
                 </StatisticsSection>
                 <StatisticsSection title="Shifts per volunteer (average)" kpi

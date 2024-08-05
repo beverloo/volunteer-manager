@@ -19,9 +19,6 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
     const shiftsJoin = tShifts.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
-    // TODO: Exclude Senior and Staff volunteers
-    // TODO: Exclude "free" shifts
-
     const data = await db.selectFrom(tEvents)
         .innerJoin(tTeams)
             .on(tTeams.teamId.inIfValue(filters.teams))
@@ -29,10 +26,16 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
                 .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+        .leftJoin(rolesJoin)
+            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(scheduleJoin)
             .on(scheduleJoin.userId.equals(usersEventsJoin.userId))
                 .and(scheduleJoin.eventId.equals(usersEventsJoin.eventId))
                 .and(scheduleJoin.scheduleDeleted.isNull())
+        .leftJoin(shiftsJoin)
+            .on(shiftsJoin.shiftId.equals(scheduleJoin.shiftId))
+        .leftJoin(shiftsCategoriesJoin)
+            .on(shiftsCategoriesJoin.shiftCategoryId.equals(shiftsJoin.shiftCategoryId))
         .where(tEvents.eventId.inIfValue(filters.events))
         .select({
             event: {
@@ -43,6 +46,12 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
                 label: tTeams.teamName,
                 slug: tTeams.teamSlug,
             },
+
+            hasPermissionGrant: rolesJoin.rolePermissionGrant.isNotNull(),
+            hasContributionCounted:
+                shiftsCategoriesJoin.shiftCategoryCountContribution.isNull().or(
+                    shiftsCategoriesJoin.shiftCategoryCountContribution.equals(/* true= */ 1)),
+
             volunteers: db.countDistinct(usersEventsJoin.userId),
             shifts: db.sum(
                 db.fragmentWithType('double', 'required').sql`
@@ -51,12 +60,16 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
             )
         })
         .groupBy(tEvents.eventId, tTeams.teamId)
+            .groupBy('hasPermissionGrant', 'hasContributionCounted')
         .orderBy(tEvents.eventStartTime)
         .executeSelectMany();
 
-    console.log(data.length);
+    const normalisedData = data.filter(entry => {
+        // Volunteers with a permission grant (Senior and Staff-level) are excluded from this metric
+        // as are scheduled shifts for tasks such as the group photo, which we don't count.
+        return !entry.hasPermissionGrant && entry.hasContributionCounted;
 
-    const normalisedData = data.map(entry => {
+    }).map(entry => {
         let averageHours: number = 0;
         if (entry.shifts) {
             averageHours = entry.shifts;
