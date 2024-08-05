@@ -11,6 +11,7 @@ import { StatisticsFilters } from './components/StatisticsFilters';
 import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
 
+import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
 import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
 
 /**
@@ -56,7 +57,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
                 </StatisticsSection>
                 <StatisticsSection title="Shifts per volunteer (average)" kpi
                                    description={kDescriptions.shifts}>
-                    TODO
+                    <LineGraph filters={filters} query={getAverageShiftsPerVolunteer} />
                 </StatisticsSection>
                 <StatisticsSection title="Volunteer Retention" kpi
                                    description={kDescriptions.retention}>
