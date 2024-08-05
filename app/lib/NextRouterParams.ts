@@ -2,6 +2,16 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
+ * Props accepted by pages using the NextJS router component, without having path-based parameters.
+ */
+export interface NextSearchParams {
+    /**
+     * Search parameters given in the URL.
+     */
+    searchParams: Record<string, string>;
+}
+
+/**
  * Props accepted by layouts using the NextJS router component.
  */
 export interface NextLayoutParams<SingleComponentParams extends string,
@@ -28,10 +38,4 @@ export interface NextLayoutParams<SingleComponentParams extends string,
  */
 export interface NextPageParams<SingleComponentParams extends string,
                                 MultiComponentParams extends string = never>
-    extends NextLayoutParams<SingleComponentParams, MultiComponentParams>
-{
-    /**
-     * Search parameters given in the URL.
-     */
-    searchParams: Record<string, string>;
-}
+    extends NextLayoutParams<SingleComponentParams, MultiComponentParams>, NextSearchParams {}

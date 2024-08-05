@@ -1,8 +1,6 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
-
 import Link from 'next/link';
 
 import Button from '@mui/material/Button';
@@ -16,20 +14,10 @@ import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 /**
- * Props accepted by the <StatisticsCard> component.
- */
-interface StatisticsCardProps {
-    /**
-     * Title of the team for which the card is being shown.
-     */
-    title: string;
-}
-
-/**
  * Card that links the signed in user through to the statistics page, which will tell them about the
  * multi-year statistics of the AnimeCon volunteering organisation.
  */
-export function StatisticsCard(props: StatisticsCardProps) {
+export function StatisticsCard() {
     return (
         <Card elevation={2}>
             <CardContent sx={{ pb: 0 }}>
@@ -43,7 +31,7 @@ export function StatisticsCard(props: StatisticsCardProps) {
                 </Stack>
                 <Typography variant="body2">
                     Multi-year statistics about the demographics, scope and
-                    performance of the {props.title}.
+                    performance of the volunteering teams.
                 </Typography>
             </CardContent>
             <CardActions sx={{ '& > a > :first-of-type': { px: 1 } }}>

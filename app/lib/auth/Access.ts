@@ -198,6 +198,12 @@ export const kPermissions = {
     // Statistics-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'statistics.basic': {
+        name: 'Basic statistics',
+        description: 'This permission grants access to basic statistics across events and teams.',
+        type: 'boolean',
+    },
+
     'statistics.finances': {
         name: 'Financial statistics',
         description:
@@ -522,6 +528,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.volunteers.information',
         'event.volunteers.overrides',
         'event.volunteers.participation',
+        'statistics.basic',
         'statistics.finances',
         'system.subscriptions.eligible',
         'volunteer.account.information:read',
@@ -535,6 +542,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.vendors:read',
         'event.visible',
         'event.volunteers.information',
+        // statistics.basic -- when the tool is ready-ish
         'system.subscriptions.eligible',
         'volunteer.avatars',
     ],

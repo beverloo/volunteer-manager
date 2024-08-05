@@ -190,8 +190,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         team: kAnyTeam,
     });
 
-    // TODO: Reintroduce the statistics sub-app
-    const enableStatistics: boolean = false;
+    const enableStatistics = access.can('statistics.basic');
 
     return (
         <RegistrationLayout environment={environment}>
@@ -222,9 +221,9 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                         <AdministrationCard />
                     </Grid> }
 
-                { (!!environment && !!enableStatistics) &&
+                { enableStatistics &&
                     <Grid xs={12} md={4}>
-                        <StatisticsCard title={environment.environmentTitle} />
+                        <StatisticsCard />
                     </Grid> }
 
                 { events.map(event => {
