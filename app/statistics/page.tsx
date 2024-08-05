@@ -1,11 +1,14 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import Grid from '@mui/material/Unstable_Grid2/Grid2';
 
 import type { NextSearchParams } from '@lib/NextRouterParams';
 import { StatisticsFilters } from './components/StatisticsFilters';
 import { StatisticsSection } from './components/StatisticsSection';
+import { determineFilters } from './Filters';
 
 /**
  * Detailed descriptions of the KPIs displayed on the statistics overview page. Not everyone is well
@@ -36,6 +39,10 @@ const kDescriptions = {
  */
 export default async function StatisticsPage(params: NextSearchParams) {
     const searchParams = new URLSearchParams(params.searchParams);
+
+    const filters = await determineFilters(searchParams);
+    if (!filters.access.basic)
+        notFound();
 
     return (
         <>

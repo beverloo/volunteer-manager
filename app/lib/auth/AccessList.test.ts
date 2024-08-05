@@ -574,4 +574,28 @@ describe('AccessList', () => {
         expect(requiredScopeAccessList.query('test', { event: '2024' })).not.toBeUndefined();
         expect(requiredScopeAccessList.query('test', { event: '2025' })).toBeUndefined();
     });
+
+    it('should be able to reflect the events and teams access is granted for', () => {
+        const defaultAccessList = new AccessList();
+        expect(defaultAccessList.events).toHaveLength(0);
+        expect(defaultAccessList.teams).toHaveLength(0);
+
+        const specificAccessList = new AccessList({
+            events: '2024,2025',
+            teams: 'crew,hosts',
+        });
+
+        expect(specificAccessList.events).toContainValues([ '2024', '2025' ]);
+        expect(specificAccessList.events).not.toContainValues([ '2023', kAnyEvent ]);
+        expect(specificAccessList.teams).toContainValues([ 'crew', 'hosts' ]);
+        expect(specificAccessList.teams).not.toContainValues([ 'stewards', kAnyTeam ]);
+
+        const allAccessList = new AccessList({
+            events: '*',
+            teams: '*',
+        });
+
+        expect(allAccessList.events).toContainValue(kAnyEvent);
+        expect(allAccessList.teams).toContainValue(kAnyTeam);
+    });
 });

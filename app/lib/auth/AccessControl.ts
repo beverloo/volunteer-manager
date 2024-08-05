@@ -106,6 +106,16 @@ export class AccessControl {
     }
 
     /**
+     * Gets the events that access should be granted to.
+     */
+    get events(): string[] { return this.#grants.events; }
+
+    /**
+     * Gets the teams that access should be granted to.
+     */
+    get teams(): string[] { return this.#grants.teams; }
+
+    /**
      * Checks whether the given `permission` has been granted. Optionally, a `scope` may be given
      * which adds additional granularity to the check, as permissions don't have to be granted for
      * every event and team. CRUD-based permissions require an `operation` to be specified.

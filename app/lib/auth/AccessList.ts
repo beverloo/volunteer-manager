@@ -175,6 +175,16 @@ export class AccessList {
     }
 
     /**
+     * Gets the events that access should be granted to.
+     */
+    get events(): string[] { return [ ...this.#events.values() ]; }
+
+    /**
+     * Gets the teams that access should be granted to.
+     */
+    get teams(): string[] { return [ ...this.#teams.values() ]; }
+
+    /**
      * Queries whether the `permission` is included in this access list, optionally with the given
      * `scope` that can further scope the check. This is a fast O(k) operation, where `k` is the
      * number of grants that were issued for the given `permission`.
