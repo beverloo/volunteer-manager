@@ -80,7 +80,8 @@ export default async function StatisticsPage(params: NextSearchParams) {
                 </StatisticsSection>
                 <StatisticsSection title="Shifts per volunteer (average)" kpi
                                    description={kDescriptions.shifts}>
-                    <LineGraph filters={filters} query={getAverageShiftsPerVolunteer} />
+                    <LineGraph filters={filters} query={getAverageShiftsPerVolunteer}
+                               suffix="hours" />
                 </StatisticsSection>
                 <StatisticsSection title="Application status"
                                    description={kDescriptions.application}>
@@ -90,7 +91,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
                     <LineGraph filters={filters} query={getRetention} percentage />
                 </StatisticsSection>
                 <StatisticsSection title="Age distribution" description={kDescriptions.age}>
-                    <LineGraph filters={filters} query={getAgeDistribution} />
+                    <LineGraph filters={filters} query={getAgeDistribution} suffix="years"/>
                 </StatisticsSection>
                 <StatisticsSection title="Gender distribution" kpi
                                    description={kDescriptions.gender}>

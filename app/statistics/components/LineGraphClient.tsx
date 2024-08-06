@@ -15,6 +15,11 @@ type LineGraphClientProps = LineChartProps & {
      * Whether the values (0-1) should be formatted as percentages.
      */
     percentage?: boolean;
+
+    /**
+     * Suffix for the values to display in the tooltips.
+     */
+    suffix?: string;
 };
 
 /**
@@ -23,24 +28,35 @@ type LineGraphClientProps = LineChartProps & {
  * displayed as - for example to format values for the tooltip.
  */
 export function LineGraphClient(props: LineGraphClientProps) {
-    const { percentage, series, ...rest } = props;
+    const { percentage, series, suffix, ...rest } = props;
 
     const seriesMutated = useMemo(() => {
-        if (percentage) {
+        if (percentage || suffix) {
             return series.map(serie => ({
                 ...serie,
                 valueFormatter: (v: any) => {
-                    if (!v)
-                        return '0%';
+                    if (percentage) {
+                        if (!v)
+                            return '0%';
 
-                    return `${Math.round(v * 100 * 10) / 10}%`;
+                        return `${Math.round(v * 100 * 10) / 10}%`;
+
+                    } else if (suffix) {
+                        if (!v)
+                            return `0 ${suffix}`;
+
+                        return `${Math.round(v * 10) / 10} ${suffix}`;
+
+                    } else {
+                        throw new Error('Value formatter is not sure what to do');
+                    }
                 },
             }));
         }
 
         return series;
 
-    }, [ percentage, series ]);
+    }, [ percentage, series, suffix ]);
 
     return (
         <LineChart {...rest} series={seriesMutated} />

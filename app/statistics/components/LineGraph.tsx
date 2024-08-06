@@ -44,6 +44,11 @@ export interface LineGraphProps {
     percentage?: boolean;
 
     /**
+     * Suffix for the values to display in the tooltips.
+     */
+    suffix?: string;
+
+    /**
      * Query that should be executed in order to compute this graph's data.
      */
     query: (filters: Filters) => Promise<LineGraphData>;
@@ -60,7 +65,7 @@ async function LineGraphImpl(props: LineGraphProps) {
                             grid={{ horizontal: true, vertical: true }}
                             margin={{ left: 32, right: 16, top: 16, bottom: 32 }}
                             slotProps={{ legend: { hidden: true } }}
-                            height={200} percentage={props.percentage} />;
+                            height={200} percentage={props.percentage} suffix={props.suffix} />;
 }
 
 /**
