@@ -41,10 +41,10 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
             event: {
                 slug: tEvents.eventSlug,
             },
-            team: {
+            series: {
+                id: tTeams.teamSlug,
                 color: tTeams.teamColourLightTheme,
                 label: tTeams.teamName,
-                slug: tTeams.teamSlug,
             },
 
             hasPermissionGrant: rolesJoin.rolePermissionGrant.isNotNull(),

@@ -12,6 +12,7 @@ import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
 
 import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
+import { getGenderDistribution } from './queries/getGenderDistribution';
 import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
 
 /**
@@ -76,7 +77,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
                 </StatisticsSection>
                 <StatisticsSection title="Gender distribution" kpi
                                    description={kDescriptions.gender}>
-                    TODO
+                    <LineGraph filters={filters} query={getGenderDistribution} />
                 </StatisticsSection>
             </Grid>
         </>

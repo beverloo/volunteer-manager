@@ -10,10 +10,10 @@ type DatabaseResult = {
     event: {
         slug: string;
     };
-    team: {
+    series: {
+        id: string;
         color: string;
         label: string;
-        slug: string;
     };
     value: number;
 };
@@ -36,14 +36,14 @@ export function toLineGraphData(input: DatabaseResult[]): LineGraphData {
             });
         }
 
-        dataset.get(entry.event.slug)![entry.team.slug] = entry.value || null;
+        dataset.get(entry.event.slug)![entry.series.id] = entry.value || null;
 
-        if (!series.has(entry.team.slug)) {
-            series.set(entry.team.slug, {
-                dataKey: entry.team.slug,
+        if (!series.has(entry.series.id)) {
+            series.set(entry.series.id, {
+                dataKey: entry.series.id,
 
-                color: entry.team.color,
-                label: entry.team.label,
+                color: entry.series.color,
+                label: entry.series.label,
             });
         }
 

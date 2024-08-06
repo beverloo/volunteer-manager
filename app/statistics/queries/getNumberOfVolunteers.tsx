@@ -26,10 +26,10 @@ export async function getNumberOfVolunteers(filters: Filters): Promise<LineGraph
             event: {
                 slug: tEvents.eventSlug,
             },
-            team: {
+            series: {
+                id: tTeams.teamSlug,
                 color: tTeams.teamColourLightTheme,
                 label: tTeams.teamName,
-                slug: tTeams.teamSlug,
             },
             value: db.count(usersEventsJoin.userId),
         })
