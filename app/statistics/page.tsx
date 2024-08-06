@@ -11,8 +11,8 @@ import { StatisticsFilters } from './components/StatisticsFilters';
 import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
 
+import { getApplicationStatus } from './queries/getApplicationStatus';
 import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
-import { getCancelledApplications } from './queries/getCancelledApplications';
 import { getGenderDistribution } from './queries/getGenderDistribution';
 import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
 
@@ -21,6 +21,12 @@ import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
  * vested in what the graph titles may mean, so
  */
 const kDescriptions = {
+    application:
+        'This statistic describes the status of received applications across the selected teams, ' +
+        'indicating the acceptance, rejection and cancellation rates. This is not a KPI as much ' +
+        'of this is outside of our control, although high cancellation rates should be ' +
+        'considered as a cause for concern.',
+
     count:
         'This statistic describes the total number of volunteers within each of the teams, ' +
         'including Senior and Staff-level volunteers.',
@@ -66,12 +72,12 @@ export default async function StatisticsPage(params: NextSearchParams) {
                                    description={kDescriptions.shifts}>
                     <LineGraph filters={filters} query={getAverageShiftsPerVolunteer} />
                 </StatisticsSection>
-                <StatisticsSection title="Volunteer Retention" kpi
-                                   description={kDescriptions.retention}>
-                    TODO
+                <StatisticsSection title="Application status"
+                                   description={kDescriptions.application}>
+                    <LineGraph filters={filters} query={getApplicationStatus} />
                 </StatisticsSection>
-                <StatisticsSection title="Cancelled application rate">
-                    <LineGraph filters={filters} query={getCancelledApplications} />
+                <StatisticsSection title="Retention" kpi description={kDescriptions.retention}>
+                    TODO
                 </StatisticsSection>
                 <StatisticsSection title="Age distribution">
                     TODO
