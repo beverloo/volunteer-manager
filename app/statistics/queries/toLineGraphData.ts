@@ -36,7 +36,7 @@ export function toLineGraphData(input: DatabaseResult[]): LineGraphData {
             });
         }
 
-        dataset.get(entry.event.slug)![entry.series.id] = entry.value || null;
+        dataset.get(entry.event.slug)![entry.series.id] = entry.value;
 
         if (!series.has(entry.series.id)) {
             series.set(entry.series.id, {
