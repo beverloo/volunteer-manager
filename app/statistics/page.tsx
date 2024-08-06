@@ -16,12 +16,19 @@ import { getApplicationStatus } from './queries/getApplicationStatus';
 import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
 import { getGenderDistribution } from './queries/getGenderDistribution';
 import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
+import { getRetention } from './queries/getRetention';
 
 /**
  * Detailed descriptions of the KPIs displayed on the statistics overview page. Not everyone is well
  * vested in what the graph titles may mean, so
  */
 const kDescriptions = {
+    age:
+        'This statistic describes the average age of volunteers across the selected teams. The ' +
+        'average age of our visitors is in the low 20s, and while we expect volunteers to be a ' +
+        'little bit older—many people won\'t help out in their first year, too large a ' +
+        'difference could be a barrier for new volunteers to sign up.',
+
     application:
         'This statistic describes the status of received applications across the selected teams, ' +
         'indicating the acceptance, rejection and cancellation rates. This is not a KPI as much ' +
@@ -79,9 +86,9 @@ export default async function StatisticsPage(params: NextSearchParams) {
                     <LineGraph filters={filters} query={getApplicationStatus} />
                 </StatisticsSection>
                 <StatisticsSection title="Retention" kpi description={kDescriptions.retention}>
-                    TODO
+                    <LineGraph filters={filters} query={getRetention} />
                 </StatisticsSection>
-                <StatisticsSection title="Age distribution">
+                <StatisticsSection title="Age distribution" description={kDescriptions.age}>
                     <LineGraph filters={filters} query={getAgeDistribution} />
                 </StatisticsSection>
                 <StatisticsSection title="Gender distribution" kpi
