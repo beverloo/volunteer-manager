@@ -8,37 +8,35 @@ import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
 
 /**
- * Query that gathers the percentage of the team that was retained from previous events. Retention
- * is one of our key metrics as unhappy volunteers are rather unlikely to help out again.
- *
- * We consider a volunteer to be "retained" when they have helped out in one of the two events prior
- * to the one being displayed. This allows them to skip one for personal reasons, which happens
- * quite a lot and would just add noise to the KPI.
+ * Query that gathers the percentage of the team that decided to participate again in the following
+ * event, or the event following that one. This means that retention for 2023 would be considered at
+ * 50% if half the volunteers participated again in either 2024 or 2025. Two years are considered as
+ * volunteers frequently miss a year due to personal circumstances.
  */
 export async function getRetention(filters: Filters): Promise<LineGraphData> {
     const dbInstance = db;
 
-    const firstPriorEvent = tEvents.as('fpe');
-    const secondPriorEvent = tEvents.as('spe');
+    const firstSubsequentEvent = tEvents.as('fse');
+    const secondSunsequentEvent = tEvents.as('sse');
 
     const priorUserEventsJoin = tUsersEvents.forUseInLeftJoinAs('puej');
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
-    // Select the Event ID of the event immediately prior to the one being considered:
-    const selectFirstPriorEvent = dbInstance.subSelectUsing(tEvents)
-        .from(firstPriorEvent)
-        .where(firstPriorEvent.eventStartTime.lessThan(tEvents.eventStartTime))
-        .selectOneColumn(firstPriorEvent.eventId)
-        .orderBy(firstPriorEvent.eventStartTime, 'desc')
+    // Select the Event ID of the event immediately after to the one being considered:
+    const selectFirstSubsequentEvent = dbInstance.subSelectUsing(tEvents)
+        .from(firstSubsequentEvent)
+        .where(firstSubsequentEvent.eventStartTime.greaterThan(tEvents.eventStartTime))
+        .selectOneColumn(firstSubsequentEvent.eventId)
+        .orderBy(firstSubsequentEvent.eventStartTime, 'asc')
         .limit(1)
         .forUseAsInlineQueryValue();
 
-    // Select the Event ID of the event that happened two instances ago:
-    const selectSecondPriorEvent = dbInstance.subSelectUsing(tEvents)
-        .from(secondPriorEvent)
-        .where(secondPriorEvent.eventStartTime.lessThan(tEvents.eventStartTime))
-        .selectOneColumn(secondPriorEvent.eventId)
-        .orderBy(secondPriorEvent.eventStartTime, 'desc')
+    // Select the Event ID of the event two festivals after the one being considered:
+    const selectSecondSubsequentEvent = dbInstance.subSelectUsing(tEvents)
+        .from(secondSunsequentEvent)
+        .where(secondSunsequentEvent.eventStartTime.greaterThan(tEvents.eventStartTime))
+        .selectOneColumn(secondSunsequentEvent.eventId)
+        .orderBy(secondSunsequentEvent.eventStartTime, 'asc')
         .limit(1).offset(1)
         .forUseAsInlineQueryValue();
 
@@ -50,8 +48,8 @@ export async function getRetention(filters: Filters): Promise<LineGraphData> {
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
                 .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .leftJoin(priorUserEventsJoin)
-            .on(priorUserEventsJoin.eventId.equals(selectFirstPriorEvent).or(
-                priorUserEventsJoin.eventId.equals(selectSecondPriorEvent)))
+            .on(priorUserEventsJoin.eventId.equals(selectFirstSubsequentEvent).or(
+                priorUserEventsJoin.eventId.equals(selectSecondSubsequentEvent)))
                 .and(priorUserEventsJoin.userId.equals(usersEventsJoin.userId))
                 .and(priorUserEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
         .where(tEvents.eventId.inIfValue(filters.events))

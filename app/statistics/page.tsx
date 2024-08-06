@@ -45,10 +45,11 @@ const kDescriptions = {
         'discourage especially new volunteers from participating.',
 
     retention:
-        'This statistic describes the percentage of volunteers who participated in one of the ' +
-        'two previous years, and decided to participate again this year. Our thesis is that ' +
-        'volunteers who are treated well and enjoy what they are doing are more likely to ' +
-        'participate again.',
+        'This statistic describes the percentage of volunteers who decided to participate again ' +
+        'in the following event, or the event following that one. This means that retention for ' +
+        '2023 would be considered at 50% if half the volunteers participated again in either ' +
+        '2024 or 2025. Our thesis is that volunteers who are treated well and enjoy what they ' +
+        'are doing are more likely to participate again.',
 
     shifts:
         'This statistic describes the average number of hours volunteers helped us out. We aim ' +
