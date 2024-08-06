@@ -8,14 +8,14 @@ import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
 
 /**
- * Computes the percentage (0-100) that the `share` represents of the `total`. Safely deals with
+ * Computes the fraction (0-1) that the `share` represents of the `total`. Safely deals with
  * zero values for either argument.
  */
-function safePercentage(share: number, total: number): number {
+function safeFraction(share: number, total: number): number {
     if (share === 0 || total === 0)
         return 0;
 
-    return (share / total) * 100;
+    return share / total;
 }
 
 /**
@@ -82,7 +82,7 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
                     color: '#8BC34A',
                     label: RegistrationStatus.Accepted,
                 },
-                value: safePercentage(statuses[RegistrationStatus.Accepted], total),
+                value: safeFraction(statuses[RegistrationStatus.Accepted], total),
             },
             {
                 event: { slug },
@@ -91,7 +91,7 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
                     color: '#FF7043',
                     label: RegistrationStatus.Cancelled,
                 },
-                value: safePercentage(statuses[RegistrationStatus.Cancelled], total),
+                value: safeFraction(statuses[RegistrationStatus.Cancelled], total),
             },
             {
                 event: { slug },
@@ -100,7 +100,7 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
                     color: '#BDBDBD',
                     label: RegistrationStatus.Registered,
                 },
-                value: safePercentage(statuses[RegistrationStatus.Registered], total),
+                value: safeFraction(statuses[RegistrationStatus.Registered], total),
             },
             {
                 event: { slug },
@@ -109,7 +109,7 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
                     color: '#8D6E63',
                     label: RegistrationStatus.Rejected,
                 },
-                value: safePercentage(statuses[RegistrationStatus.Rejected], total),
+                value: safeFraction(statuses[RegistrationStatus.Rejected], total),
             },
         ];
 

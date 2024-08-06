@@ -8,14 +8,14 @@ import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 /**
- * Computes the percentage (0-100) that the `share` represents of the `total`. Safely deals with
+ * Computes the fraction (0-1) that the `share` represents of the `total`. Safely deals with
  * zero values for either argument.
  */
-function safePercentage(share: number, total: number): number {
+function safeFraction(share: number, total: number): number {
     if (share === 0 || total === 0)
         return 0;
 
-    return (share / total) * 100;
+    return share / total;
 }
 
 /**
@@ -96,7 +96,7 @@ export async function getGenderDistribution(filters: Filters): Promise<LineGraph
                     color: '#E91E63',
                     label: 'Female',
                 },
-                value: safePercentage(female, total),
+                value: safeFraction(female, total),
             },
             {
                 event: { slug },
@@ -105,7 +105,7 @@ export async function getGenderDistribution(filters: Filters): Promise<LineGraph
                     color: '#3F51B5',
                     label: 'Male',
                 },
-                value: safePercentage(male, total),
+                value: safeFraction(male, total),
             },
             {
                 event: { slug },
@@ -114,7 +114,7 @@ export async function getGenderDistribution(filters: Filters): Promise<LineGraph
                     color: '#8BC34A',
                     label: 'Other',
                 },
-                value: safePercentage(other, total),
+                value: safeFraction(other, total),
             }
         ];
     }).flat());
