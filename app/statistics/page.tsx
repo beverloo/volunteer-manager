@@ -12,6 +12,7 @@ import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
 
 import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
+import { getCancelledApplications } from './queries/getCancelledApplications';
 import { getGenderDistribution } from './queries/getGenderDistribution';
 import { getNumberOfVolunteers } from './queries/getNumberOfVolunteers';
 
@@ -70,7 +71,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
                     TODO
                 </StatisticsSection>
                 <StatisticsSection title="Cancelled application rate">
-                    TODO
+                    <LineGraph filters={filters} query={getCancelledApplications} />
                 </StatisticsSection>
                 <StatisticsSection title="Age distribution">
                     TODO
