@@ -11,6 +11,7 @@ import { StatisticsFilters } from './components/StatisticsFilters';
 import { StatisticsSection } from './components/StatisticsSection';
 import { determineFilters } from './Filters';
 
+import { getAgeDistribution } from './queries/getAgeDistribution';
 import { getApplicationStatus } from './queries/getApplicationStatus';
 import { getAverageShiftsPerVolunteer } from './queries/getAverageShiftsPerVolunteer';
 import { getGenderDistribution } from './queries/getGenderDistribution';
@@ -37,9 +38,10 @@ const kDescriptions = {
         'discourage especially new volunteers from participating.',
 
     retention:
-        'This statistic describes the percentage of volunteers who participated in the previous ' +
-        'year, and decided to participate again this year. Our thesis is that volunteers who ' +
-        'are treated well and enjoy what they are doing are more likely to participate again.',
+        'This statistic describes the percentage of volunteers who participated in one of the ' +
+        'two previous years, and decided to participate again this year. Our thesis is that ' +
+        'volunteers who are treated well and enjoy what they are doing are more likely to ' +
+        'participate again.',
 
     shifts:
         'This statistic describes the average number of hours volunteers helped us out. We aim ' +
@@ -80,7 +82,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
                     TODO
                 </StatisticsSection>
                 <StatisticsSection title="Age distribution">
-                    TODO
+                    <LineGraph filters={filters} query={getAgeDistribution} />
                 </StatisticsSection>
                 <StatisticsSection title="Gender distribution" kpi
                                    description={kDescriptions.gender}>
