@@ -84,17 +84,17 @@ export default async function StatisticsPage(params: NextSearchParams) {
                 </StatisticsSection>
                 <StatisticsSection title="Application status"
                                    description={kDescriptions.application}>
-                    <LineGraph filters={filters} query={getApplicationStatus} />
+                    <LineGraph filters={filters} query={getApplicationStatus} percentage />
                 </StatisticsSection>
                 <StatisticsSection title="Retention" kpi description={kDescriptions.retention}>
-                    <LineGraph filters={filters} query={getRetention} />
+                    <LineGraph filters={filters} query={getRetention} percentage />
                 </StatisticsSection>
                 <StatisticsSection title="Age distribution" description={kDescriptions.age}>
                     <LineGraph filters={filters} query={getAgeDistribution} />
                 </StatisticsSection>
                 <StatisticsSection title="Gender distribution" kpi
                                    description={kDescriptions.gender}>
-                    <LineGraph filters={filters} query={getGenderDistribution} />
+                    <LineGraph filters={filters} query={getGenderDistribution} percentage />
                 </StatisticsSection>
             </Grid>
         </>

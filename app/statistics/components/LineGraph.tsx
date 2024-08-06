@@ -3,10 +3,11 @@
 
 import { Suspense } from 'react';
 
-import { LineChart, type LineChartProps } from './LineChartProxy';
+import type { LineChartProps } from './LineChartProxy';
 import Skeleton from '@mui/material/Skeleton';
 
 import type { Filters } from '../Filters';
+import { LineGraphClient } from './LineGraphClient';
 
 /**
  * Data that's intended to be displayed in a line graph. Will be fetched asynchronously.
@@ -38,6 +39,11 @@ export interface LineGraphProps {
     filters: Filters;
 
     /**
+     * Whether the values (0-1) should be formatted as percentages.
+     */
+    percentage?: boolean;
+
+    /**
      * Query that should be executed in order to compute this graph's data.
      */
     query: (filters: Filters) => Promise<LineGraphData>;
@@ -50,11 +56,11 @@ export interface LineGraphProps {
 async function LineGraphImpl(props: LineGraphProps) {
     const data = await props.query(props.filters);
 
-    return <LineChart {...data}
-                      grid={{ horizontal: true, vertical: true }}
-                      margin={{ left: 32, right: 16, top: 16, bottom: 32 }}
-                      slotProps={{ legend: { hidden: true } }}
-                      height={200} />;
+    return <LineGraphClient {...data}
+                            grid={{ horizontal: true, vertical: true }}
+                            margin={{ left: 32, right: 16, top: 16, bottom: 32 }}
+                            slotProps={{ legend: { hidden: true } }}
+                            height={200} percentage={props.percentage} />;
 }
 
 /**
