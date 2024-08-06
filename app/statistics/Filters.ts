@@ -20,14 +20,14 @@ export interface Filters {
     },
 
     /**
-     * Event IDs that the signed in user has access to. `undefined` signals access to all events.
+     * Event IDs that the signed in user has access to.
      */
-    events?: number[];
+    events: number[];
 
     /**
-     * Team IDs that the signed in user has access to. `undefined` signals access to all teams.
+     * Team IDs that the signed in user has access to.
      */
-    teams?: number[];
+    teams: number[];
 }
 
 /**
@@ -37,35 +37,74 @@ export interface Filters {
 export async function determineFilters(params: URLSearchParams): Promise<Filters> {
     const { access } = await getAuthenticationContext();
 
-    // TODO: Consider `params` in limiting down visibility of the metrics.
-    // TODO: Include `event.visible` access for the metrics.
+    // ---------------------------------------------------------------------------------------------
 
-    let events: number[] | undefined;
-    if (!access.events.length) {
-        events = [ /* no events */ ];
-    } else if (!access.events.includes(kAnyEvent)) {
-        events = await db.selectFrom(tEvents)
-            .where(tEvents.eventSlug.in(access.events))
-            .selectOneColumn(tEvents.eventId)
-            .executeSelectMany();
-    }
+    let requestedEvents: Set<string> | undefined;
+    if (params.has('events'))
+        requestedEvents = new Set(params.get('events')!.split(','));
 
-    let teams: number[] | undefined;
-    if (!access.teams.length) {
-        teams = [ /* no teams */ ];
-    } else if (!access.teams.includes(kAnyTeam)) {
-        teams = await db.selectFrom(tTeams)
-            .where(tTeams.teamSlug.in(access.teams))
-            .selectOneColumn(tTeams.teamId)
-            .executeSelectMany();
-    }
+    let requestedTeams: Set<string> | undefined;
+    if (params.has('teams'))
+        requestedTeams = new Set(params.get('teams')!.split(','));
 
-    return {
+    const filters: Filters = {
         access: {
             basic: access.can('statistics.basic'),
             finances: access.can('statistics.finances'),
         },
-        events,
-        teams,
+        events: [ /* none */ ],
+        teams: [ /* none */ ],
     };
+
+    if (!filters.access.basic)
+        return filters;
+
+    // ---------------------------------------------------------------------------------------------
+
+    const dbInstance = db;
+
+    const eventsSubQuery = dbInstance.selectFrom(tEvents)
+        .select({
+            id: tEvents.eventId,
+            slug: tEvents.eventSlug,
+        })
+        .forUseAsInlineAggregatedArrayValue();
+
+    const teamsSubQuery = dbInstance.selectFrom(tTeams)
+        .select({
+            id: tTeams.teamId,
+            slug: tTeams.teamSlug,
+        })
+        .forUseAsInlineAggregatedArrayValue();
+
+    const { events, teams } = await dbInstance.selectFromNoTable()
+        .select({
+            events: eventsSubQuery,
+            teams: teamsSubQuery,
+        })
+        .executeSelectOne();
+
+    // ---------------------------------------------------------------------------------------------
+
+    for (const { id, slug } of events) {
+        if (!access.can('event.visible', { event: slug, team: kAnyTeam }))
+            continue;  // this event is not accessible by the volunteer
+
+        if (requestedEvents && !requestedEvents.has(slug))
+            continue;  // this event has not been selected
+
+        filters.events.push(id);
+    }
+
+    for (const { id, slug } of teams) {
+        if (!access.can('event.visible', { event: kAnyEvent, team: slug }))
+            continue;  // this team is not accessible by the volunteer
+
+        if (requestedTeams && !requestedTeams.has(slug))
+            continue;  // this team has not been selected
+
+        filters.teams.push(id);
+    }
+
+    return filters;
 }
