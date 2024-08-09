@@ -109,29 +109,6 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
 }
 
 /**
- * Returns the environment identified by the given `environmentName`, or `undefined` when no such
- * environment could be found. May result in a database query, although results are cached.
- */
-export async function getEnvironment(environmentName: EnvironmentName)
-    : Promise<Environment | undefined>
-{
-    if (!globalThis.animeConEnvironmentCache)
-        await loadEnvironmentsFromDatabase();
-
-    return globalThis.animeConEnvironmentCache!.get(environmentName);
-}
-
-/**
- * Returns an iterator containing all environments that are known to the Volunteer Manager.
- */
-export async function getEnvironmentIterator(): Promise<Iterable<Environment>> {
-    if (!globalThis.animeConEnvironmentCache)
-        await loadEnvironmentsFromDatabase();
-
-    return globalThis.animeConEnvironmentCache!.values();
-}
-
-/**
  * Determines what the current environment is based on the origin that content is being served from.
  * Will return "undefined" in case no appropriate environment can be found.
  */

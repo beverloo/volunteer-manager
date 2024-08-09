@@ -7,9 +7,10 @@ import { z } from 'zod';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { getEnvironmentIterator } from '@lib/Environment';
 import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
+
+import db, { tTeams } from '@lib/database';
 
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
@@ -56,6 +57,18 @@ export const kLocalDevelopmentDomain = 'localhost';
 export const kLocalDevelopmentOrigin = 'http://localhost:3000';
 
 /**
+ * Function that queries the database to get all origins that represent environments for the
+ * AnimeCon volunteer manager.
+ */
+export async function getAllEnvironmentOrigins(): Promise<string[]> {
+    const environments = await db.selectFrom(tTeams)
+        .selectOneColumn(tTeams.teamEnvironment)
+        .executeSelectMany();
+
+    return environments.map(environment => `https://${environment}`);
+}
+
+/**
  * Verifies the registration response and registers the new passkey when sound.
  */
 export async function registerPasskey(request: Request, props: ActionProps): Promise<Response> {
@@ -68,9 +81,7 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
 
     const rpID = determineRpID(props);
 
-    const environments = [ ...await getEnvironmentIterator() ];
-    const environmentOrigins = environments.map(environment =>
-        `https://${environment.environmentName}`);
+    const environmentOrigins = await getAllEnvironmentOrigins();
 
     try {
         const verification = await verifyRegistrationResponse({

@@ -9,14 +9,13 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, LogType, LogSeverity } from '@lib/Log';
-import { getEnvironmentIterator } from '@lib/Environment';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
     from './passkeys/PasskeyUtils';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
-import { kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
+import { getAllEnvironmentOrigins, kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
 
 /**
  * Interface definition for the SignIn API, exposed through /api/auth/sign-in-passkey.
@@ -84,9 +83,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     if (!challenge || !credentials.length || !sessionToken)
         return { success: false, error: 'Unable to load the challenge and credential' };
 
-    const environments = [ ...await getEnvironmentIterator() ];
-    const environmentOrigins = environments.map(environment =>
-        `https://${environment.environmentName}`);
+    const environmentOrigins = await getAllEnvironmentOrigins();
 
     try {
         const requestedCredentialId = Buffer.from(request.verification.id, 'base64url');
