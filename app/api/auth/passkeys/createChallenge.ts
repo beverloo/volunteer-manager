@@ -57,7 +57,7 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
     const credentials = await retrieveCredentials(props.user, rpID) ?? [];
 
     const options = await generateRegistrationOptions({
-        rpName: `AnimeCon ${environment.environmentTitle}`,
+        rpName: `AnimeCon ${environment.title}`,
         rpID,
         userID: isoUint8Array.fromUTF8String(`${props.user.userId}`),
         userName: props.user.username,

@@ -1,13 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { AccessControl } from './auth/AccessControl';
+import type { EnvironmentDomain } from './Environment';
 import type { User } from './auth/User';
 import { Event } from './Event';
-
 import { RegistrationStatus } from './database/Types';
-import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
-import { kAnyTeam, type AccessControl } from './auth/AccessControl';
+import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -88,8 +88,8 @@ export async function getEventSlugForId(eventId: number): Promise<string | undef
  * Returns all events that are publicly visible, limited to the |user| when they are signed in to
  * their account. This function issues a database query specific to the current environment.
  */
-export async function getEventsForUser(environmentName: string, access: AccessControl, user?: User)
-    : Promise<Event[]>
+export async function getEventsForUser(
+    environment: EnvironmentDomain, access: AccessControl, user?: User): Promise<Event[]>
 {
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const rolesJoin = tRoles.forUseInLeftJoin();
@@ -158,7 +158,7 @@ export async function getEventsForUser(environmentName: string, access: AccessCo
         let environmentAccessible = false;
 
         for (const eventEnvironmentInfo of eventInfo.environments) {
-            if (eventEnvironmentInfo.environment !== environmentName)
+            if (eventEnvironmentInfo.environment !== environment)
                 continue;
 
             environmentAccessible =

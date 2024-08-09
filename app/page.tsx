@@ -60,11 +60,11 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     // Load all events accessible to the |user|, and filter them for events that should be shown on
     // the overview page. Either registration or schedule access is required.
-    const unfilteredEvents = await getEventsForUser(environment.environmentName, access, user);
+    const unfilteredEvents = await getEventsForUser(environment.domain, access, user);
     const events = unfilteredEvents.filter(event => {
         const accessScope = { event: event.slug, team: environment.teamSlug };
 
-        const data = event.getEnvironmentData(environment.environmentName);
+        const data = event.getEnvironmentData(environment.domain);
         if (data?.enableRegistration || access.can('event.visible', accessScope))
             return true;  // access to the registration section
 
@@ -78,11 +78,11 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     const primaryEvent = events.shift();
     const primaryEventRegistration = primaryEvent && user && await getRegistration(
-        environment.environmentName, primaryEvent, user.userId);
+        environment.domain, primaryEvent, user.userId);
 
     const secondaryEvent = events.shift();
     const secondaryEventRegistration = secondaryEvent && user && await getRegistration(
-        environment.environmentName, secondaryEvent, user.userId);
+        environment.domain, secondaryEvent, user.userId);
 
     // Determine the event for which the signed in user has registered, if any. This will consider
     // both the primary and secondary event, but only when they have not finished yet.
@@ -105,7 +105,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
     if (Object.hasOwn(props.searchParams, 'app')) {
         if (!!registration && !!registrationEvent) {
             const registrationEventData =
-                registrationEvent.toEventData(environment.environmentName);
+                registrationEvent.toEventData(environment.domain);
 
             const scheduleAccess =
                 registrationEventData.enableSchedule ||
@@ -138,7 +138,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
         const accessScope = { event: event.slug, team: environment.teamSlug };
 
-        const eventData = event.toEventData(environment.environmentName);
+        const eventData = event.toEventData(environment.domain);
         const eventRegistration = event === primaryEvent ? primaryEventRegistration
                                                          : secondaryEventRegistration;
 
@@ -170,7 +170,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                         href={`/registration/${event.slug}`}
                         color={ eventData.enableRegistration ? 'primary' : 'hidden' }
                         variant={ highlightRegistration ? 'contained' : 'outlined' }>
-                    Join the {event.shortName} {environment.environmentTitle}!
+                    Join the {event.shortName} {environment.title}!
                 </Button>
             );
         }
@@ -178,11 +178,11 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const registrationEventData = registrationEvent?.toEventData(environment.environmentName);
+    const registrationEventData = registrationEvent?.toEventData(environment.domain);
     const registrationData = registration?.toRegistrationData();
 
     const landingStyle: SxProps<Theme> = {
-        backgroundImage: `url('/images/${environment.environmentName}/landing.jpg')`
+        backgroundImage: `url('/images/${environment.domain}/landing.jpg')`
     };
 
     const enableAdministrationAccess = access.can('event.visible', {
@@ -194,7 +194,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer title={`AnimeCon ${environment.environmentTitle}`}
+            <RegistrationContentContainer title={`AnimeCon ${environment.title}`}
                                           event={registrationEventData}
                                           registration={registrationData}
                                           user={user}>
@@ -228,7 +228,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
                 { events.map(event => {
                     const accessScope = { event: event.slug, team: environment.teamSlug };
-                    const data = event.getEnvironmentData(environment.environmentName);
+                    const data = event.getEnvironmentData(environment.domain);
 
                     const enableRegistration =
                         data?.enableRegistration || access.can('event.visible', accessScope);

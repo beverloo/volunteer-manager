@@ -80,7 +80,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     if (!event)
         notFound();  // the requested |event| does not exist
 
-    const eventData = event.getEnvironmentData(environment.environmentName);
+    const eventData = event.getEnvironmentData(environment.domain);
     if (!eventData) {
         notFound();  // the |environment| does not participate in the |event|
 

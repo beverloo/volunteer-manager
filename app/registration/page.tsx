@@ -18,10 +18,10 @@ export default async function RegistrationPage() {
 
     const { access, user } = await getAuthenticationContext();
 
-    const events = await getEventsForUser(environment.environmentName, access, user);
+    const events = await getEventsForUser(environment.domain, access, user);
     for (const potentialEvent of events) {
         const potentialEventEnvironmentData =
-            potentialEvent.getEnvironmentData(environment.environmentName);
+            potentialEvent.getEnvironmentData(environment.domain);
 
         if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableRegistration)
             redirect(`/registration/${potentialEvent.slug}/`);

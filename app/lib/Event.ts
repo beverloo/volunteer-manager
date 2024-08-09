@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { EnvironmentName } from './Environment';
+import type { EnvironmentDomain } from './Environment';
 import { Temporal } from '@lib/Temporal';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
 
@@ -178,11 +178,11 @@ export class Event implements EventData {
     get temporalEndTime() { return this.#event.eventEndTime;}
 
     /**
-     * Returns the environment information for the given |environmentName| when it exists, or
+     * Returns the environment information for the given |environment| domain when it exists, or
      * `undefined` in all other cases.
      */
-    getEnvironmentData(environmentName: EnvironmentName): EventEnvironmentData | undefined {
-        return this.#environments.get(environmentName);
+    getEnvironmentData(environment: EnvironmentDomain): EventEnvironmentData | undefined {
+        return this.#environments.get(environment);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -209,8 +209,8 @@ export class Event implements EventData {
      * Returns a plain JavaScript object that conforms to the EventData interface.
      */
     toEventData(): EventData;
-    toEventData(environmentName: EnvironmentName): EventDataWithEnvironment;
-    toEventData(environmentName?: EnvironmentName) {
+    toEventData(environment: EnvironmentDomain): EventDataWithEnvironment;
+    toEventData(environment?: EnvironmentDomain) {
         const eventData: EventData = {
             id: this.id,
             name: this.name,
@@ -225,12 +225,12 @@ export class Event implements EventData {
             trainingEnabled: this.trainingEnabled,
         };
 
-        if (!environmentName)
+        if (!environment)
             return eventData;
 
-        const environmentData = this.getEnvironmentData(environmentName);
+        const environmentData = this.getEnvironmentData(environment);
         if (!environmentData)
-            throw new Error(`This event does not have this environment: ${environmentName}`);
+            throw new Error(`This event does not have this environment: ${environment}`);
 
         return {
             ...eventData,

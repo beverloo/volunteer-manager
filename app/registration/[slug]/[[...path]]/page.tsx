@@ -36,8 +36,8 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
 
     const { access, event, environment, registration, user } = context;
 
-    const content = await getContent(environment.environmentName, event, path ?? []);
-    const environmentData = event.getEnvironmentData(environment.environmentName);
+    const content = await getContent(environment.domain, event, path ?? []);
+    const environmentData = event.getEnvironmentData(environment.domain);
 
     if (!content || !environmentData)
         notFound();
@@ -62,7 +62,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
                 .on(usersEventsJoin.teamId.equals(tTeams.teamId))
                     .and(usersEventsJoin.eventId.equals(event.id))
                     .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
-            .where(tTeams.teamEnvironment.equals(environment.environmentName))
+            .where(tTeams.teamEnvironment.equals(environment.domain))
             .selectCountAll()
             .groupBy(tTeams.teamId)
             .executeSelectNoneOrOne() || 0;

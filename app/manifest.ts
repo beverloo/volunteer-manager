@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { MetadataRoute } from 'next';
+import { notFound } from 'next/navigation';
 
 import { determineEnvironment } from '@lib/Environment';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -13,7 +14,10 @@ import db, { tEvents } from '@lib/database';
  */
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
     const authenticationContext = await getAuthenticationContext();
+
     const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
 
     const dbInstance = db;
     const event = await dbInstance.selectFrom(tEvents)
@@ -55,30 +59,30 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         start_url: '/?app',
         display: 'standalone',
         background_color: '#ffffff',
-        theme_color: environment?.themeColours.light || '#303f9f',
+        theme_color: environment.themeColours.light || '#303f9f',
         icons: [
             {
-                src: `/images/${environment?.environmentName}/launchericon-512.png`,
+                src: `/images/${environment.domain}/launchericon-512.png`,
                 sizes: '512x512',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/launchericon-256.png`,
+                src: `/images/${environment.domain}/launchericon-256.png`,
                 sizes: '256x256',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/launchericon-192.png`,
+                src: `/images/${environment.domain}/launchericon-192.png`,
                 sizes: '192x192',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/launchericon-144.png`,
+                src: `/images/${environment.domain}/launchericon-144.png`,
                 sizes: '144x144',
                 type: 'image/png',
             },
             {
-                src: `/images/${environment?.environmentName}/launchericon-96.png`,
+                src: `/images/${environment.domain}/launchericon-96.png`,
                 sizes: '96x96',
                 type: 'image/png',
             },

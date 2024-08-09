@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import type { EnvironmentName } from '@lib/Environment';
+import type { EnvironmentDomain } from '@lib/Environment';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { Publish, SubscriptionType } from '@lib/subscriptions';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
@@ -162,7 +162,7 @@ export async function application(request: Request, props: ActionProps): Promise
             userId = request.adminOverride.userId;
 
         } else {
-            const environmentData = event.getEnvironmentData(team.environment as EnvironmentName);
+            const environmentData = event.getEnvironmentData(team.environment as EnvironmentDomain);
             if (!environmentData)
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 

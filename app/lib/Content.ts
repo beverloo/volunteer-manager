@@ -1,6 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { EnvironmentDomain } from './Environment';
 import type { Event } from './Event';
 import db, { tContent, tTeams } from './database';
 
@@ -38,7 +39,8 @@ type ContentSubstitutions = Record<string, string>;
  * @return Content object with the content when found, or undefined in all other cases.
  */
 export async function getContent(
-    environmentName: string, event: Event, path: string[], substitutions?: ContentSubstitutions)
+    environment: EnvironmentDomain, event: Event, path: string[],
+    substitutions?: ContentSubstitutions)
         : Promise<Content | undefined>
 {
     const teamsJoin = tTeams.forUseInLeftJoin();
@@ -49,7 +51,7 @@ export async function getContent(
         .where(tContent.eventId.equals(event.eventId))
             .and(tContent.contentPath.equals(path.join('/')))
             .and(tContent.revisionVisible.equals(/* true= */ 1))
-            .and(teamsJoin.teamEnvironment.equals(environmentName))
+            .and(teamsJoin.teamEnvironment.equals(environment))
         .select({
             title: tContent.contentTitle,
             markdown: tContent.content,

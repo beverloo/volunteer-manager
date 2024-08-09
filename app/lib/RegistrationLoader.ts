@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { ApplicationDefinition } from '@app/api/event/application';
+import type { EnvironmentDomain } from './Environment';
 import type { Event } from './Event';
 import { Registration } from './Registration';
 import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
@@ -15,7 +16,7 @@ type ApplicationData = Omit<ApplicationDefinition['request'], 'event'>;
  * Retrieves the registration associated with the given `userId` at the given `event`. When no such
  * registration exists, `undefined` will be returned instead.
  */
-export async function getRegistration(environmentName: string, event: Event, userId?: number)
+export async function getRegistration(environment: EnvironmentDomain, event: Event, userId?: number)
     : Promise<Registration | undefined>
 {
     if (!userId)
@@ -34,7 +35,7 @@ export async function getRegistration(environmentName: string, event: Event, use
             .on(tEvents.eventId.equals(tUsersEvents.eventId))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .and(tTeams.teamEnvironment.equals(environmentName))
+            .and(tTeams.teamEnvironment.equals(environment))
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tUsersEvents.eventId))
             .and(tEventsTeams.teamId.equals(tUsersEvents.teamId))

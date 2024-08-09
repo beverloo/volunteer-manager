@@ -21,7 +21,7 @@ async function generateMetadata(props: NextLayoutParams<'slug'>, title?: string)
     const { slug } = props.params;
 
     const environment = await determineEnvironment();
-    const product = `AnimeCon ${environment?.environmentTitle ?? 'Volunteering Teams'}`;
+    const product = `AnimeCon ${environment?.title ?? 'Volunteering Teams'}`;
 
     if (slug && slug.length > 0 && !kTitleCache.has(slug)) {
         const event = await db.selectFrom(tEvents)

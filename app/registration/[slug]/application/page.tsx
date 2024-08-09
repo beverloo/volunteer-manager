@@ -39,10 +39,10 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     if (registration && user) {
         state = 'status';
     } else {
-        const environmentData = event.getEnvironmentData(environment.environmentName);
+        const environmentData = event.getEnvironmentData(environment.domain);
         if (environmentData?.enableApplications ||
                 access.can('event.applications', 'create', teamAccessScope)) {
-            content = await getContent(environment.environmentName, event, [ 'application' ]);
+            content = await getContent(environment.domain, event, [ 'application' ]);
             state = 'application';
         } else {
             content = await getStaticContent([ 'registration', 'application', 'unavailable' ]);
@@ -96,7 +96,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             { state === 'application' &&
                 <ApplicationPage content={content} team={environment.environmentTeamDoNotUse}
                                  user={user} partnerApplications={partnerApplications}
-                                 event={event.toEventData(environment.environmentName)} /> }
+                                 event={event.toEventData(environment.domain)} /> }
             { (state === 'status' && (registration && user)) &&
                 <ApplicationStatusPage availabilityWindows={availabilityWindows}
                                        canAccessAvailability={canAccessAvailability}
@@ -104,7 +104,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
                                        canAccessRefunds={canAccessRefunds}
                                        canAccessSchedule={canAccessSchedule}
                                        canAccessTrainings={canAccessTrainings} user={user}
-                                       event={event.toEventData(environment.environmentName)}
+                                       event={event.toEventData(environment.domain)}
                                        registration={registration.toRegistrationData()} /> }
             { state === 'unavailable' &&
                 <Markdown sx={{ p: 2 }}>{content?.markdown}</Markdown> }

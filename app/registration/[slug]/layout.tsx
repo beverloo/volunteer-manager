@@ -22,7 +22,7 @@ export default async function RegistrationEventLayout(props: RegistrationEventLa
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer event={event.toEventData(environment.environmentName)}
+            <RegistrationContentContainer event={event.toEventData(environment.domain)}
                                           title={event.name}
                                           redirectUrl={`/registration/${event.slug}/application`}
                                           registration={registration?.toRegistrationData()}

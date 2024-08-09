@@ -99,11 +99,11 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
         data: { ip: props.ip },
     });
 
-    const availableEvents = await getEventsForUser(environment.environmentName, access, user);
+    const availableEvents = await getEventsForUser(environment.domain, access, user);
 
     let applicationUrl: string | undefined;
     for (const availableEvent of availableEvents) {
-        const eventEnvironmentData = availableEvent.getEnvironmentData(environment.environmentName);
+        const eventEnvironmentData = availableEvent.getEnvironmentData(environment.domain);
         if (!eventEnvironmentData)
             continue;  // the current team does not participate in this event
 
@@ -116,7 +116,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     return {
         success: true,
         firstName: user.firstName,
-        teamName: environment?.environmentTitle,
+        teamName: environment.title,
         redirectUrl: applicationUrl ?? registrationRequest.redirectUrl,
     };
 }

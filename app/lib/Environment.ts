@@ -12,10 +12,9 @@ declare module globalThis {
 }
 
 /**
- * Type that describes the name of an environment. Environment names are domain names, so must end
- * with a top-level domain such as ".team" or ".com".
+ * Type to narrow the domain of an environment, which must have a TLD.
  */
-export type EnvironmentName = `${string}.${string}`;
+export type EnvironmentDomain = `${string}.${string}`;
 
 /**
  * Describes the environment in which the Volunteer Manager has been loaded. Only applicable for the
@@ -23,25 +22,24 @@ export type EnvironmentName = `${string}.${string}`;
  */
 export interface Environment {
     /**
-     * Internal ID of the environment.
+     * Domain name (e.g. "animecon.team") that represents this environment.
      */
-    id: number;
+    domain: EnvironmentDomain;
 
     /**
-     * Name of the environment that this instance represents. (E.g. "animecon.team".)
+     * Title of the environment (e.g. "Volunteering Crew") representing its purpose.
      */
-    environmentName: EnvironmentName;
+    title: string;
+
+    // ---------------------------------------------------------------------------------------------
+    // TODO: Clean up the following members to support 1:N environment:team relationships
+    // ---------------------------------------------------------------------------------------------
 
     /**
      * Team that is associated with this environment. (E.g. "crew".)
      * @deprecated There isn't a 1:1 mapping between environments and teams, don't rely on this.
      */
     environmentTeamDoNotUse: string;
-
-    /**
-     * Title of the environment that this instance represents. (E.g. "Volunteering Crew".)
-     */
-    environmentTitle: string;
 
     /**
      * Name of the team that the environment represents. (E.g. "Crew".)
@@ -93,10 +91,10 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
     globalThis.animeConEnvironmentCache = new Map();
     for (const environment of environments) {
         globalThis.animeConEnvironmentCache.set(environment.teamEnvironment, {
-            id: environment.id,
-            environmentName: environment.teamEnvironment as EnvironmentName,
+            domain: environment.teamEnvironment as EnvironmentDomain,
+            title: environment.teamTitle,
+
             environmentTeamDoNotUse: environment.teamSlug,
-            environmentTitle: environment.teamTitle,
             teamName: environment.teamName,
             teamDescription: environment.teamDescription,
             teamSlug: environment.teamSlug,

@@ -59,12 +59,12 @@ export async function contextForRegistrationPage(slug: string)
     const authenticationContext = await getAuthenticationContext();
     const { access, user } = authenticationContext;
 
-    const registration = await getRegistration(environment.environmentName, event, user?.userId);
+    const registration = await getRegistration(environment.domain, event, user?.userId);
     if (!access.can('event.visible', { event: slug, team: environment.teamSlug })) {
         // Note that we deliberately skip checking whether the `user` has administration access to
         // the event, as (a) it being active and (b) them participating in it satisfies our bar.
         if (!authenticationContext.user || !authenticationContext.events.has(slug)) {
-            const environmentData = event.getEnvironmentData(environment.environmentName);
+            const environmentData = event.getEnvironmentData(environment.domain);
             if (!environmentData?.enableRegistration)
                 return undefined;  // no access to the event
         }

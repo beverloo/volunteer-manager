@@ -131,7 +131,7 @@ export abstract class Driver<MessageType extends Message> {
      */
     protected getSubstitutions(recipient: Recipient, message: MessageType) {
         const substitutions: Record<string, string | number> = {
-            environment: this.environment?.environmentName ?? 'animecon.team',
+            environment: this.environment?.domain ?? 'animecon.team',
         };
 
         for (const [ key, value ] of Object.entries(recipient))

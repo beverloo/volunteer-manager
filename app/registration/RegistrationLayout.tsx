@@ -11,7 +11,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
 
-import type { Environment } from '@lib/Environment';
+import type { Environment, EnvironmentDomain } from '@lib/Environment';
 import { AuthenticationContext, AuthenticationContextManager } from './AuthenticationContext';
 
 /**
@@ -30,7 +30,7 @@ export const kLogoContainerStyles: React.CSSProperties = {
  * Generates the background styles for the given `environment`, which determines the resources that
  * will be used for the background images across both mobile and desktop.
  */
-const generateBackgroundStylesForEnvironment = (environment: string) => ({
+const generateBackgroundStylesForEnvironment = (environment: EnvironmentDomain) => ({
     position: 'fixed',
     zIndex: -1,
 
@@ -68,17 +68,17 @@ export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLa
     const logoUrl = useMemo(() => {
         const params = new URLSearchParams([
             [ 'color', darken(environment.themeColours.light, .3) ],
-            [ 'title', environment.environmentTitle ],
+            [ 'title', environment.title ],
         ]);
 
         return '/images/logo.svg?' + params.toString();
-    }, [ environment.environmentTitle, environment.themeColours.light ]);
+    }, [ environment.title, environment.themeColours.light ]);
 
     const [ authenticationContext ] = useState(new AuthenticationContextManager);
 
     return (
         <>
-            <Box sx={generateBackgroundStylesForEnvironment(environment.environmentName)} />
+            <Box sx={ generateBackgroundStylesForEnvironment(environment.domain) } />
             <Container sx={{ pb: 2 }}>
                 <Container sx={{ py: 2, textAlign: 'center' }}>
                     <Link href="/" style={{ display: 'inline-block' }}>
