@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 
 import type { PaletteMode } from '@mui/material';
 
-import db, { tTeams } from '@lib/database';
+import db, { tEnvironments, tTeams } from '@lib/database';
 
 declare module globalThis {
     let animeConEnvironmentCache: Map<string, Environment> | undefined;
@@ -21,6 +21,17 @@ export type EnvironmentDomain = `${string}.${string}`;
  * front-end, as the other sub applications are shared among the environments.
  */
 export interface Environment {
+    /**
+     * Theme colours assigned to the environment, which decide the manager's appearance.
+     */
+    colours: { [key in PaletteMode]: string };
+
+    /**
+     * Description of the environment representing its purpose in slightly more words than its
+     * title. Will be presented to visitors on the landing page.
+     */
+    description: string;
+
     /**
      * Domain name (e.g. "animecon.team") that represents this environment.
      */
@@ -76,32 +87,34 @@ export interface Environment {
  */
 async function loadEnvironmentsFromDatabase(): Promise<void> {
     const environments = await db.selectFrom(tTeams)
+        .innerJoin(tEnvironments)
+            .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
         .select({
-            id: tTeams.teamId,
+            colours: {
+                dark: tEnvironments.environmentColourDarkMode,
+                light: tEnvironments.environmentColourLightMode,
+            },
+            description: tEnvironments.environmentDescription,
+            domain: tEnvironments.environmentDomain,
+            title: tEnvironments.environmentTitle,
+
+            // TODO: Categorise the following fields once we support 1:N environment -> team mapping
+            environmentTeamDoNotUse: tTeams.teamSlug,
             teamName: tTeams.teamName,
             teamDescription: tTeams.teamDescription,
-            teamEnvironment: tTeams.teamEnvironment,
             teamSlug: tTeams.teamSlug,
-            teamTitle: tTeams.teamTitle,
-            themeColourDark: tTeams.teamColourDarkTheme,
-            themeColourLight: tTeams.teamColourLightTheme,
+            themeColours: {
+                dark: tTeams.teamColourDarkTheme,
+                light: tTeams.teamColourLightTheme,
+            },
         })
         .executeSelectMany();
 
     globalThis.animeConEnvironmentCache = new Map();
     for (const environment of environments) {
-        globalThis.animeConEnvironmentCache.set(environment.teamEnvironment, {
-            domain: environment.teamEnvironment as EnvironmentDomain,
-            title: environment.teamTitle,
-
-            environmentTeamDoNotUse: environment.teamSlug,
-            teamName: environment.teamName,
-            teamDescription: environment.teamDescription,
-            teamSlug: environment.teamSlug,
-            themeColours: {
-                dark: environment.themeColourDark,
-                light: environment.themeColourLight,
-            },
+        globalThis.animeConEnvironmentCache.set(environment.domain, {
+            ...environment,
+            domain: environment.domain as EnvironmentDomain,
         });
     }
 }

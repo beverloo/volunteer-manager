@@ -1,6 +1,69 @@
 name: anime
 desc: ""
 tables:
+- name: environments
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: environment_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: environment_colour_dark_mode
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: environment_colour_light_mode
+    type: varchar(16)
+    nullable: false
+    default: null
+    comment: ""
+  - name: environment_description
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  - name: environment_domain
+    type: varchar(64)
+    nullable: false
+    default: null
+    comment: ""
+  - name: environment_title
+    type: text
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (environment_id) USING BTREE
+    table: environments
+    columns:
+    - environment_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (environment_id)
+    table: environments
+    referencedTable: null
+    columns:
+    - environment_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `environments` (
+      `environment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `environment_colour_dark_mode` varchar(16) NOT NULL,
+      `environment_colour_light_mode` varchar(16) NOT NULL,
+      `environment_description` text NOT NULL,
+      `environment_domain` varchar(64) NOT NULL,
+      `environment_title` text NOT NULL,
+      PRIMARY KEY (`environment_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_teams
   type: BASE TABLE
   comment: ""
@@ -2312,6 +2375,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_environment_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    comment: ""
   - name: team_manages_faq
     type: tinyint(1) unsigned
     nullable: false
@@ -2370,6 +2438,7 @@ tables:
       `team_title` varchar(128) NOT NULL,
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
+      `team_environment_id` int(8) unsigned NOT NULL,
       `team_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
