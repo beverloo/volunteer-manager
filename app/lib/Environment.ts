@@ -42,6 +42,11 @@ export interface Environment {
     domain: EnvironmentDomain;
 
     /**
+     * URL-safe slugs of the teams that are hosted by this environment. Any number (0-...) is valid.
+     */
+    teams: string[];
+
+    /**
      * Title of the environment (e.g. "Volunteering Crew") representing its purpose.
      */
     title: string;
@@ -70,9 +75,12 @@ export interface Environment {
  * to be triggered manually when changing the database directly.
  */
 async function loadEnvironmentsFromDatabase(): Promise<void> {
-    const environments = await db.selectFrom(tTeams)
-        .innerJoin(tEnvironments)
-            .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+    const teamsJoin = tTeams.forUseInLeftJoin();
+
+    const dbInstance = db;
+    const environments = await dbInstance.selectFrom(tEnvironments)
+        .leftJoin(teamsJoin)
+            .on(teamsJoin.teamEnvironmentId.equals(tEnvironments.environmentId))
         .select({
             colours: {
                 dark: tEnvironments.environmentColourDarkMode,
@@ -80,11 +88,10 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             },
             description: tEnvironments.environmentDescription,
             domain: tEnvironments.environmentDomain,
+            teams: dbInstance.aggregateAsArrayOfOneColumn(teamsJoin.teamSlug),
             title: tEnvironments.environmentTitle,
-
-            // TODO: Categorise the following field once we support 1:N environment -> team mapping
-            teamSlug: tTeams.teamSlug,
         })
+        .groupBy(tEnvironments.environmentId)
         .executeSelectMany();
 
     globalThis.animeConEnvironmentCache = new Map();
@@ -92,6 +99,9 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
         globalThis.animeConEnvironmentCache.set(environment.domain, {
             ...environment,
             domain: environment.domain as EnvironmentDomain,
+
+            // TODO: Remove the following property once everything has migrated away from it:
+            teamSlug: environment.teams[0] || 'crew',
         });
     }
 }
