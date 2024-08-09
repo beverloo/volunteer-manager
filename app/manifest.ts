@@ -59,7 +59,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         start_url: '/?app',
         display: 'standalone',
         background_color: '#ffffff',
-        theme_color: environment.themeColours.light || '#303f9f',
+        theme_color: environment.colours.light || '#303f9f',
         icons: [
             {
                 src: `/images/${environment.domain}/launchericon-512.png`,

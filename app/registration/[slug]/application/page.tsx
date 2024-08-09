@@ -94,7 +94,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     return (
         <>
             { state === 'application' &&
-                <ApplicationPage content={content} team={environment.environmentTeamDoNotUse}
+                <ApplicationPage content={content} team={environment.teamSlug}
                                  user={user} partnerApplications={partnerApplications}
                                  event={event.toEventData(environment.domain)} /> }
             { (state === 'status' && (registration && user)) &&

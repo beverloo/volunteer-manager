@@ -258,7 +258,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
             { expectations.length > 0 &&
                 <AvailabilityExpectations expectations={expectations} /> }
 
-            <AvailabilityPreferences event={event.slug} team={environment.environmentTeamDoNotUse}
+            <AvailabilityPreferences event={event.slug} team={environment.teamSlug}
                                      events={strippedEventInformation}
                                      limit={registration.availabilityEventLimit}
                                      preferences={registration.availability} readOnly={readOnly} />

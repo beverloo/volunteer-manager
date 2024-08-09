@@ -17,8 +17,12 @@ declare module globalThis {
 export type EnvironmentDomain = `${string}.${string}`;
 
 /**
- * Describes the environment in which the Volunteer Manager has been loaded. Only applicable for the
- * front-end, as the other sub applications are shared among the environments.
+ * Describes the environment in which the Volunteer Manager has been loaded, as determined by its
+ * domain name. The environment contains basic display information, and hosts any number of teams.
+ *
+ * The AnimeCon Volunteer Manager is a multi-tenant system that hosts individual portals for certain
+ * teams, or groups of teams, as it's important for some groups to either maintain their identity,
+ * or maintain separation from other groups for organsiational reasons.
  */
 export interface Environment {
     /**
@@ -43,34 +47,14 @@ export interface Environment {
     title: string;
 
     // ---------------------------------------------------------------------------------------------
-    // TODO: Clean up the following members to support 1:N environment:team relationships
+    // TODO: Clean up the following member to support 1:N environment:team relationships
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Team that is associated with this environment. (E.g. "crew".)
+     * Unique slug of the team as it should be identified in URLs.
      * @deprecated There isn't a 1:1 mapping between environments and teams, don't rely on this.
      */
-    environmentTeamDoNotUse: string;
-
-    /**
-     * Name of the team that the environment represents. (E.g. "Crew".)
-     */
-    teamName: string;
-
-    /**
-     * Description of the team that this environment represents. May contain Markdown.
-     */
-    teamDescription: string;
-
-    /**
-     * Unique slug of the team as it should be identified in URLs.
-     */
     teamSlug: string;
-
-    /**
-     * Theme colour of the environment. One must be set for each palette mode.
-     */
-    themeColours: { [key in PaletteMode]: string };
 }
 
 /**
@@ -98,15 +82,8 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             domain: tEnvironments.environmentDomain,
             title: tEnvironments.environmentTitle,
 
-            // TODO: Categorise the following fields once we support 1:N environment -> team mapping
-            environmentTeamDoNotUse: tTeams.teamSlug,
-            teamName: tTeams.teamName,
-            teamDescription: tTeams.teamDescription,
+            // TODO: Categorise the following field once we support 1:N environment -> team mapping
             teamSlug: tTeams.teamSlug,
-            themeColours: {
-                dark: tTeams.teamColourDarkTheme,
-                light: tTeams.teamColourLightTheme,
-            },
         })
         .executeSelectMany();
 

@@ -144,6 +144,8 @@ export async function application(request: Request, props: ActionProps): Promise
         if (!team)
             throw new Error('Sorry, something went wrong (unable to find the right team)...');
 
+        const environmentDomain = team.environment as EnvironmentDomain;
+
         let userId: number = props.user.userId;
         if (request.adminOverride) {
             executeAccessCheck(props.authenticationContext, {
@@ -162,7 +164,7 @@ export async function application(request: Request, props: ActionProps): Promise
             userId = request.adminOverride.userId;
 
         } else {
-            const environmentData = event.getEnvironmentData(team.environment as EnvironmentDomain);
+            const environmentData = event.getEnvironmentData(environmentDomain);
             if (!environmentData)
                 throw new Error('Sorry, something went wrong (unable to find the environment)...');
 
@@ -172,11 +174,11 @@ export async function application(request: Request, props: ActionProps): Promise
             }
         }
 
-        const registration = await getRegistration(team.environment, event, userId);
+        const registration = await getRegistration(environmentDomain, event, userId);
         if (registration)
             throw new Error('Sorry, you have already applied to participate in this event.');
 
-        await createRegistration(team.environment, event, userId, request);
+        await createRegistration(environmentDomain, event, userId, request);
         if (request.adminOverride) {
             await Log({
                 type: LogType.AdminEventApplication,

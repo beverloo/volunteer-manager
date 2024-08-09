@@ -198,8 +198,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                                           event={registrationEventData}
                                           registration={registrationData}
                                           user={user}>
-                <WelcomeCard description={environment.teamDescription}
-                             landingStyle={landingStyle}>
+                <WelcomeCard description={environment.description} landingStyle={landingStyle}>
 
                     { buttons }
                     { buttons.length === 0 &&

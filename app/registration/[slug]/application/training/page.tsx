@@ -67,7 +67,7 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
             { (!!registration.training && !!registration.training.confirmed) &&
                 <TrainingConfirmation timezone={event.timezone}
                                       training={registration.training} /> }
-            <TrainingPreferences event={event.slug} team={environment.environmentTeamDoNotUse}
+            <TrainingPreferences event={event.slug} team={environment.teamSlug}
                                  readOnly={readOnly} training={registration.training}
                                  trainingOptions={trainingOptions} />
             <MuiLink component={Link} href={`/registration/${event.slug}/application`}>

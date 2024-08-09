@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import type { EnvironmentDomain } from '@lib/Environment';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -133,7 +134,8 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!team || !team.enabled)
         return { success: false, error: 'This team does not participate in this event' };
 
-    const registration = await getRegistration(team.environment, event, subjectUserId);
+    const registration =
+        await getRegistration(team.environment as EnvironmentDomain, event, subjectUserId);
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application' };
 

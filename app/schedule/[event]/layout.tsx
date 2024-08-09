@@ -96,7 +96,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     }
 
     return (
-        <ScheduleTheme palette={environment.themeColours}>
+        <ScheduleTheme palette={environment.colours}>
             <ScheduleContextManager event={event.slug}>
                 <ApplicationBar />
                 <Stack direction="row" sx={kStyles.container}>

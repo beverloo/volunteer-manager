@@ -67,12 +67,13 @@ export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLa
     const year = useMemo(() => (new Date).getFullYear(), [ /* no dependencies */ ]);
     const logoUrl = useMemo(() => {
         const params = new URLSearchParams([
-            [ 'color', darken(environment.themeColours.light, .3) ],
+            [ 'color', darken(environment.colours.light, .3) ],
             [ 'title', environment.title ],
         ]);
 
         return '/images/logo.svg?' + params.toString();
-    }, [ environment.title, environment.themeColours.light ]);
+
+    }, [ environment.title, environment.colours.light ]);
 
     const [ authenticationContext ] = useState(new AuthenticationContextManager);
 

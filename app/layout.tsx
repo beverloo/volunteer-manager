@@ -46,7 +46,7 @@ export default async function RootLayout(props: React.PropsWithChildren) {
             <head></head>
             <body>
                 <AppRouterCacheProvider>
-                    <ClientProviders paletteMode="auto" themeColours={environment?.themeColours}>
+                    <ClientProviders paletteMode="auto" themeColours={environment?.colours}>
                         {props.children}
                     </ClientProviders>
                 </AppRouterCacheProvider>

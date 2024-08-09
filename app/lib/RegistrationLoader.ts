@@ -174,14 +174,14 @@ export async function getRegistration(environment: EnvironmentDomain, event: Eve
  * that they added through the registration portal. Throws an exception when an error occurs.
  */
 export async function createRegistration(
-    environmentName: string, event: Event, userId: number,
+    environment: EnvironmentDomain, event: Event, userId: number,
     application: ApplicationData): Promise<void>
 {
     const teamDefaultRole = await db.selectFrom(tTeams)
         .innerJoin(tTeamsRoles)
             .on(tTeamsRoles.teamId.equals(tTeams.teamId))
             .and(tTeamsRoles.roleDefault.equals(/* true= */ 1))
-        .where(tTeams.teamEnvironment.equals(environmentName))
+        .where(tTeams.teamEnvironment.equals(environment))
         .select({
             teamId: tTeams.teamId,
             roleId: tTeamsRoles.roleId,
