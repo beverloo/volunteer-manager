@@ -10,6 +10,7 @@ import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import ForumIcon from '@mui/icons-material/Forum';
 import GridViewIcon from '@mui/icons-material/GridView';
+import LanguageIcon from '@mui/icons-material/Language';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import OutboxIcon from '@mui/icons-material/Outbox';
@@ -120,6 +121,12 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
                     label: 'Displays',
                     permission: 'system.displays',
                     url: '/admin/system/displays',
+                },
+                {
+                    icon: <LanguageIcon />,
+                    label: 'Environments',
+                    permission: 'system.internals',
+                    url: '/admin/system/environments',
                 },
                 {
                     icon: <ModelTrainingIcon />,

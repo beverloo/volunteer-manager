@@ -62,6 +62,7 @@ export enum LogType {
     AdminUpdateAiSetting = 'admin-update-ai-settings',
     AdminUpdateAvailabilityPreferences = 'admin-update-availability-preferences',
     AdminUpdateAvatar = 'admin-update-avatar',
+    AdminUpdateEnvironment = 'admin-update-environment',
     AdminUpdateEvent = 'admin-update-event',
     AdminUpdateHotelPreferences = 'admin-update-hotel-preferences',
     AdminUpdateIntegration = 'admin-update-integration',

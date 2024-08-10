@@ -37,7 +37,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  * The <ColorFieldElement> component is a regular text field element, but with a previous of the
  * configured color displayed right next to it.
  */
-function ColorFieldElement(props: TextFieldElementProps) {
+export function ColorFieldElement(props: TextFieldElementProps) {
     const { watch } = useFormContext();
 
     return (

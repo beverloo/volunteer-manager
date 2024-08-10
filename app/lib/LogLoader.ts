@@ -208,6 +208,7 @@ const kLogMessageFormatter: {
         return `Updated ${action ?? 'settings'} for ${event}`;
     },
     [LogType.AdminUpdateAvatar]: (source, target) => `Updated ${target?.name}'s avatar`,
+    [LogType.AdminUpdateEnvironment]: 'Updated Volunteer Manager environment configuration',
     [LogType.AdminUpdateHotelPreferences]: (source, target, { event }) => {
         return `Updated their hotel preferences for ${event}`;
     },
