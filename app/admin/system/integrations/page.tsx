@@ -94,7 +94,8 @@ export default async function IntegrationsPage() {
     };
 
     const vertexSettings: VertexAISettings = {
-        model: settings['integration-vertex-model'] ?? VertexSupportedModels['text-bison'],
+        model:
+            settings['integration-vertex-model'] ?? VertexSupportedModels['gemini-1.5-flash-001'],
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
         tokenLimit: settings['integration-vertex-token-limit'] ?? 256,
         topK: settings['integration-vertex-top-k'] ?? 40,
