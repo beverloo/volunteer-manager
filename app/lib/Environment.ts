@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 
 import type { PaletteMode } from '@mui/material';
 
+import type { EnvironmentPurpose } from './database/Types';
 import db, { tEnvironments, tTeams } from '@lib/database';
 
 declare module globalThis {
@@ -40,6 +41,11 @@ export interface Environment {
      * Domain name (e.g. "animecon.team") that represents this environment.
      */
     domain: EnvironmentDomain;
+
+    /**
+     * Purpose that the environment fulfils, i.e. what should happen when you visit the domain?
+     */
+    purpose: EnvironmentPurpose;
 
     /**
      * URL-safe slugs of the teams that are hosted by this environment. Any number (0-...) is valid.
@@ -78,6 +84,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
             },
             description: tEnvironments.environmentDescription,
             domain: tEnvironments.environmentDomain,
+            purpose: tEnvironments.environmentPurpose,
             teams: dbInstance.aggregateAsArrayOfOneColumn(teamsJoin.teamSlug),
             title: tEnvironments.environmentTitle,
         })

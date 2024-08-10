@@ -3,7 +3,8 @@
 
 import { z } from 'zod';
 
-import { TextFieldElement, TextareaAutosizeElement } from '@components/proxy/react-hook-form-mui';
+import { SelectElement, TextFieldElement, TextareaAutosizeElement }
+    from '@components/proxy/react-hook-form-mui';
 
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -13,6 +14,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { ColorFieldElement } from '@app/admin/volunteers/teams/Team';
+import { EnvironmentPurpose } from '@lib/database/Types';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogSeverity, LogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
@@ -36,6 +38,11 @@ const kEnvironmentSettings = z.object({
     description: z.string().min(1),
 
     /**
+     * Purpose that the environment fulfils, i.e. what should happen when you visit the domain?
+     */
+    purpose: z.nativeEnum(EnvironmentPurpose),
+
+    /**
      * Title that briefly details what this environment is used for.
      */
     title: z.string().min(1),
@@ -54,6 +61,7 @@ async function updateEnvironmentSettings(id: number, formData: unknown) {
                 environmentColourDarkMode: data.colours.dark,
                 environmentColourLightMode: data.colours.light,
                 environmentDescription: data.description,
+                environmentPurpose: data.purpose,
                 environmentTitle: data.title,
             })
             .where(tEnvironments.environmentId.equals(id))
@@ -72,36 +80,25 @@ async function updateEnvironmentSettings(id: number, formData: unknown) {
 }
 
 /**
+ * Options that will be presented to the user regarding the purpose of this environment.
+ */
+const kEnvironmentPurposeOptions = [
+    { id: EnvironmentPurpose.LandingPage, label: 'Landing page (default)' },
+];
+
+/**
  * Props accepted by the <EnvironmentSection> component.
  */
-interface EnvironmentSectionProps {
+interface EnvironmentSectionProps extends z.infer<typeof kEnvironmentSettings> {
     /**
      * Unique ID of this environment as it exists in the database.
      */
     id: number;
 
     /**
-     * Colours that decide the appearance of this environment, both in dark- and light mode.
-     */
-    colours: {
-        dark: string;
-        light: string;
-    };
-
-    /**
-     * Description that details what this environment is used for. Presented to users.
-     */
-    description: string;
-
-    /**
      * Domain name that this environment is represented by.
      */
     domain: string;
-
-    /**
-     * Title that briefly details what this environment is used for.
-     */
-    title: string;
 
     /**
      * The teams that are part of this environment. There may be none.
@@ -126,13 +123,17 @@ export function EnvironmentSection(props: EnvironmentSectionProps) {
                 <TextFieldElement name="domain" label="Domain" fullWidth size="small" disabled />
             </Grid>
             <Grid xs={6}>
-                <TextFieldElement name="title" label="Title" fullWidth size="small" />
+                <SelectElement name="purpose" label="Purpose" fullWidth size="small"
+                               options={kEnvironmentPurposeOptions} />
             </Grid>
             <Grid xs={6}>
                 <ColorFieldElement name="colours.dark" title="Dark mode colour" size="small" />
             </Grid>
             <Grid xs={6}>
                 <ColorFieldElement name="colours.light" title="Light mode colour" size="small" />
+            </Grid>
+            <Grid xs={12}>
+                <TextFieldElement name="title" label="Title" fullWidth size="small" />
             </Grid>
             <Grid xs={12}>
                 <TextareaAutosizeElement name="description" label="Description"

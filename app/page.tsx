@@ -56,6 +56,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
 
+    // TODO: Handle |environment| instances with non-LandingPage purposes
     // TODO: Handle |environment| instances with no teams
     // TODO: Handle |environment| instances with more than one team
 

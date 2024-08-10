@@ -221,6 +221,7 @@ do {
                     field: [ 'displays_requests', 'request_received_target' ],
                     type: 'DisplayHelpRequestTarget',
                 },
+                { field: [ 'environments', 'environment_purpose' ], type: 'EnvironmentPurpose' },
                 {
                     field: [ 'events', 'event_availability_status' ],
                     type: 'EventAvailabilityStatus'

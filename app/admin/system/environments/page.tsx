@@ -34,6 +34,7 @@ export default async function EnvironmentsPage() {
             },
             description: tEnvironments.environmentDescription,
             domain: tEnvironments.environmentDomain,
+            purpose: tEnvironments.environmentPurpose,
             title: tEnvironments.environmentTitle,
             teams: dbInstance.aggregateAsArray({
                 name: teamsJoin.teamName,

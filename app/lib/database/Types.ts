@@ -50,6 +50,14 @@ export enum DisplayHelpRequestTarget {
 }
 
 /**
+ * Purpose of an environment that defines what happens when someone visits them.
+ * @see Table `environments`
+ */
+export enum EnvironmentPurpose {
+    LandingPage = 'LandingPage',
+}
+
+/**
  * Status indicating whether volunteers can share their availability preferences.
  * @see Table `events`
  */
