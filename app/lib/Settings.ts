@@ -55,6 +55,7 @@ type SettingsMap = {
 
     // Personality:
     'gen-ai-personality': string;
+    'gen-ai-system-instruction': string;
 
     // Prompts:
     'gen-ai-prompt-approve-volunteer': string;

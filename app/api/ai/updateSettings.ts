@@ -20,6 +20,11 @@ export const kUpdateAiSettingsDefinition = z.object({
         personality: z.string().optional(),
 
         /**
+         * System instruction(s) that should be updated.
+         */
+        systemInstruction: z.string().optional(),
+
+        /**
          * Prompts that should be updated.
          */
         prompts: z.object({
@@ -52,8 +57,12 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
         permission: 'system.internals.ai',
     });
 
-    if (request.personality) {
-        await writeSetting('gen-ai-personality', request.personality);
+    if (request.personality || request.systemInstruction) {
+        await writeSettings({
+            'gen-ai-personality': request.personality,
+            'gen-ai-system-instruction': request.systemInstruction,
+        });
+
         await Log({
             type: LogType.AdminUpdateAiSetting,
             severity: LogSeverity.Warning,

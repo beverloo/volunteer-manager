@@ -24,6 +24,7 @@ export default async function AiPage() {
     const settings = await readSettings([
         // <AiPromptPersonality>:
         'gen-ai-personality',
+        'gen-ai-system-instruction',
 
         // <AiPromptContext>:
         'gen-ai-prompt-approve-volunteer',
@@ -72,7 +73,8 @@ export default async function AiPage() {
                     added programmatically.
                 </SectionIntroduction>
             </Section>
-            <AiPromptPersonality personality={settings['gen-ai-personality'] ?? ''} />
+            <AiPromptPersonality personality={settings['gen-ai-personality'] ?? ''}
+                                 systemInstruction={settings['gen-ai-system-instruction'] ?? ''} />
             <AiPromptContext prompts={prompts} />
         </>
     );

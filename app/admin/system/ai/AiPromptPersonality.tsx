@@ -7,6 +7,8 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
+import Grid from '@mui/material/Unstable_Grid2';
+
 import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
@@ -19,6 +21,11 @@ interface AiPromptPersonalityProps {
      * Base personality shared across the different prompts.
      */
     personality: string;
+
+    /**
+     * The system instruction(s) that should be shared with the API.
+     */
+    systemInstruction: string;
 }
 
 /**
@@ -36,7 +43,8 @@ export function AiPromptPersonality(props: AiPromptPersonalityProps) {
         setError(undefined);
         try {
             const response = await callApi('put', '/api/ai/settings', {
-                personality: data.personality
+                personality: data.personality,
+                systemInstruction: data.systemInstruction,
             });
 
             if (response.success)
@@ -50,17 +58,27 @@ export function AiPromptPersonality(props: AiPromptPersonalityProps) {
 
     const defaultValues = useMemo(() => ({
         personality: props.personality,
+        systemInstruction: props.systemInstruction,
     }), [ props.personality ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-            <Section title="Personality">
-
-                <TextareaAutosizeElement size="small" fullWidth name="personality"
-                                         onChange={handleChange} />
-
-                <SubmitCollapse error={error} loading={loading} open={invalidated} />
-
+            <Section title="Personality and context">
+                <Grid container rowSpacing={2}>
+                    <Grid xs={12}>
+                        <TextareaAutosizeElement size="small" fullWidth name="personality"
+                                                 label="Personality"
+                                                 onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={12}>
+                        <TextareaAutosizeElement size="small" fullWidth name="systemInstruction"
+                                                 label="System instructions"
+                                                 onChange={handleChange} />
+                    </Grid>
+                    <Grid xs={12}>
+                        <SubmitCollapse error={error} loading={loading} open={invalidated} />
+                    </Grid>
+                </Grid>
             </Section>
         </FormContainer>
     );
