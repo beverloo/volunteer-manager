@@ -146,7 +146,9 @@ async function runGoogleHealthCheck(): Promise<Response> {
 async function runVertexAIHealthCheck(): Promise<Response> {
     try {
         const client = await createVertexAIClient();
-        const prediction = await client.predictText('Who is your favourite artist?');
+        const prediction = await client.predictText({
+            prompt: 'Who is your favourite artist?'
+        });
 
         if (typeof prediction === 'string') {
             return {

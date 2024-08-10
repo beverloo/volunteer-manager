@@ -7,11 +7,6 @@ import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient'
 import { VertexSupportedModels } from './VertexSupportedModels';
 
 /**
- * Publisher of the PaLM 2 model, as it makes no sense to train our own.
- */
-const kPublisher = 'google';
-
-/**
  * Settings required by the Vertex AI client.
  */
 export interface VertexAISettings {
@@ -68,6 +63,24 @@ export interface VertexAISettings {
 export type VertexAIClientSettings = VertexAISettings & GoogleClientSettings;
 
 /**
+ * Interface that describes an input prompt to use with the Vertex AI APIs, now that this can be
+ * richer than a simple string.
+ */
+export interface VertexPrompt {
+    /**
+     * The prompt that should be executed by the generative model.
+     */
+    prompt: string;
+
+    /**
+     * Instructions to share with the system before the LLM gets exposed to any instructions from
+     * the model. This can be used to define the persona, output formats, and so on.
+     * @see https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/system-instructions
+     */
+    systemInstruction?: string;
+}
+
+/**
  * The Vertex AI client allows convenient access to the Google Vertex AI. It builds on top of the
  * Google client for authentication purposes.
  */
@@ -81,28 +94,11 @@ export class VertexAIClient {
     }
 
     /**
-     * Predicts responses to the given `prompt`, which is the full string that should be fed to the
-     * LLM, including instructions towards the answer that is expected from the model.
+     * Predicts responses to the given `prompt` using the configured Google Gemini model. The
+     * response will be returned as a string when successful; `undefined` will be returned in all
+     * other cases.
      */
-    async predictText(prompt: string): Promise<string | undefined> {
-        switch (this.#settings.model) {
-            case 'text-bison':
-            case 'text-bison@001':
-            case 'text-bison@002':
-                throw new Error('The PaLM models are no longer supported.');
-
-            case 'gemini-pro':
-                return this.predictTextGemini(prompt);
-        }
-
-        throw new Error(`Unrecognised model specified for prediction: ${this.#settings.model}`);
-    }
-
-    /**
-     * Predicts responses to the given `prompt` using the Google Gemini model. The response will be
-     * returned as a string when successful; `undefined` will be returned in all other cases.
-     */
-    private async predictTextGemini(prompt: string): Promise<string | undefined> {
+    async predictText(prompt: VertexPrompt): Promise<string | undefined> {
         const client = new VertexAI({
             project: this.#googleClient.projectId,
             location: this.#googleClient.location,
@@ -121,6 +117,7 @@ export class VertexAIClient {
                 topP: this.#settings.topP,
             },
             // TODO: `safetySettings`
+            systemInstruction: prompt.systemInstruction,
         });
 
         const result = await model.generateContent({
@@ -129,7 +126,7 @@ export class VertexAIClient {
                     role: 'USER',
                     parts: [
                         {
-                            text: prompt,
+                            text: prompt.prompt,
                         }
                     ]
                 }

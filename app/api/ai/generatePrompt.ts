@@ -215,7 +215,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     const client = await createVertexAIClient();
 
-    const rawMessage = await client.predictText(prompt) ?? '[unable to generate message]';
+    const rawMessage = await client.predictText({ prompt }) ?? '[unable to generate message]';
     const message = rawMessage.replaceAll(/\n>[ ]*/g, '\n').replace(/^>\s*/, '');
 
     return { success: true, context, prompt, result: { subject, message } };

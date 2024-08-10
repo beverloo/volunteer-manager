@@ -18,12 +18,11 @@ import { callApi } from '@lib/callApi';
 
 /**
  * Google endpoint locations that are available in the Volunteer Manager.
- *
- * @todo Update the locations once PaLM rolls out beyond us-central1.
+ * @see https://cloud.google.com/vertex-ai/docs/general/locations#europe
  */
 const kLocationOptions = [
-    //{ id: 'europe-west2', label: 'London (europe-west2)' },
-    //{ id: 'europe-west4', label: 'Amsterdam (europe-west4)' },
+    { id: 'europe-west2', label: 'London (europe-west2)' },
+    { id: 'europe-west4', label: 'Amsterdam (europe-west4)' },
     { id: 'us-central1', label: 'Iowa (us-central1)' },
     { id: 'us-west1', label: 'Oregon (us-west1)' },
 ];

@@ -90,5 +90,7 @@ export async function vertexAi(request: Request, props: ActionProps): Promise<Re
         topP: settings?.topP ?? defaultSettings['integration-vertex-top-p']!,
     });
 
-    return { result: await client.predictText(request.prompt) };
+    return {
+        result: await client.predictText({ prompt: request.prompt })
+    };
 }
