@@ -56,13 +56,18 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
 
+    // TODO: Handle |environment| instances with no teams
+    // TODO: Handle |environment| instances with more than one team
+
+    const defaultTeamSlug = environment.teams[0];
+
     // ---------------------------------------------------------------------------------------------
 
     // Load all events accessible to the |user|, and filter them for events that should be shown on
     // the overview page. Either registration or schedule access is required.
     const unfilteredEvents = await getEventsForUser(environment.domain, access, user);
     const events = unfilteredEvents.filter(event => {
-        const accessScope = { event: event.slug, team: environment.teamSlug };
+        const accessScope = { event: event.slug, team: defaultTeamSlug };
 
         const data = event.getEnvironmentData(environment.domain);
         if (data?.enableRegistration || access.can('event.visible', accessScope))
@@ -111,7 +116,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                 registrationEventData.enableSchedule ||
                 access.can('event.schedules', 'read', {
                     event: registrationEvent.slug,
-                    team: environment.teamSlug,
+                    team: defaultTeamSlug,
                 });
 
             if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
@@ -136,7 +141,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         if (!event)
             continue;
 
-        const accessScope = { event: event.slug, team: environment.teamSlug };
+        const accessScope = { event: event.slug, team: defaultTeamSlug };
 
         const eventData = event.toEventData(environment.domain);
         const eventRegistration = event === primaryEvent ? primaryEventRegistration
@@ -226,7 +231,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                     </Grid> }
 
                 { events.map(event => {
-                    const accessScope = { event: event.slug, team: environment.teamSlug };
+                    const accessScope = { event: event.slug, team: defaultTeamSlug };
                     const data = event.getEnvironmentData(environment.domain);
 
                     const enableRegistration =

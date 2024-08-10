@@ -37,7 +37,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { access, environment, event, registration, slug, user } = context;
+    const { access, event, registration, slug, teamSlug, user } = context;
 
     const enabled = [
         EventAvailabilityStatus.Available,
@@ -48,7 +48,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
         enabled ||
         access.can('event.visible', {
             event: event.slug,
-            team: environment.teamSlug
+            team: teamSlug
         });
 
     const preferences = null;
@@ -258,7 +258,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
             { expectations.length > 0 &&
                 <AvailabilityExpectations expectations={expectations} /> }
 
-            <AvailabilityPreferences event={event.slug} team={environment.teamSlug}
+            <AvailabilityPreferences event={event.slug} team={teamSlug}
                                      events={strippedEventInformation}
                                      limit={registration.availabilityEventLimit}
                                      preferences={registration.availability} readOnly={readOnly} />

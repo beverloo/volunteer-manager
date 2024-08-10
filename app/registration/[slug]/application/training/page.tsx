@@ -28,7 +28,7 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
     if (!context || !context.registration || !context.user || !context.event.trainingEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { access, environment, event, registration, slug, user } = context;
+    const { access, environment, event, registration, slug, teamSlug, user } = context;
 
     const eligible = registration.trainingEligible;
     const override = access.can('event.trainings', { event: event.slug });
@@ -67,7 +67,7 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
             { (!!registration.training && !!registration.training.confirmed) &&
                 <TrainingConfirmation timezone={event.timezone}
                                       training={registration.training} /> }
-            <TrainingPreferences event={event.slug} team={environment.teamSlug}
+            <TrainingPreferences event={event.slug} team={teamSlug}
                                  readOnly={readOnly} training={registration.training}
                                  trainingOptions={trainingOptions} />
             <MuiLink component={Link} href={`/registration/${slug}/application`}>

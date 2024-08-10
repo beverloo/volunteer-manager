@@ -41,6 +41,11 @@ export interface RegistrationPageContext {
     slug: string;
 
     /**
+     * Slug of the team that should be used for this registration page context.
+     */
+    teamSlug: string;
+
+    /**
      * The user for whom this page is being loaded, if any.
      */
     user?: User;
@@ -93,5 +98,5 @@ export async function contextForRegistrationPage(slug: string)
         }
     }
 
-    return { access, environment, event, registration, slug, user };
+    return { access, environment, event, registration, slug, teamSlug, user };
 }

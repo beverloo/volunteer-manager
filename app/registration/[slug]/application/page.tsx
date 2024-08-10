@@ -22,10 +22,10 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     if (!context)
         notFound();
 
-    const { access, environment, event, registration, user } = context;
+    const { access, environment, event, registration, teamSlug, user } = context;
 
     const eventAccessScope = { event: event.slug };
-    const teamAccessScope = { event: event.slug, team: environment.teamSlug };
+    const teamAccessScope = { event: event.slug, team: teamSlug };
 
     const canAccessAvailability = access.can('event.visible', teamAccessScope);
     const canAccessHotels = access.can('event.hotels', eventAccessScope);
@@ -94,7 +94,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     return (
         <>
             { state === 'application' &&
-                <ApplicationPage content={content} team={environment.teamSlug}
+                <ApplicationPage content={content} team={teamSlug}
                                  user={user} partnerApplications={partnerApplications}
                                  event={event.toEventData(environment.domain)} /> }
             { (state === 'status' && (registration && user)) &&

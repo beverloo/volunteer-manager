@@ -34,7 +34,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
     if (!context)
         notFound();
 
-    const { access, event, environment, registration, slug } = context;
+    const { access, event, environment, registration, slug, teamSlug } = context;
 
     const content = await getContent(environment.domain, event, path ?? []);
     const environmentData = event.getEnvironmentData(environment.domain);
@@ -77,7 +77,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
         (
             environmentData.enableApplications ||
             access.can('event.applications', 'create', {
-                event: event.slug, team: environment.teamSlug
+                event: event.slug, team: teamSlug
             })
         ) &&
         capacity !== 'none';

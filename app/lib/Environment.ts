@@ -50,16 +50,6 @@ export interface Environment {
      * Title of the environment (e.g. "Volunteering Crew") representing its purpose.
      */
     title: string;
-
-    // ---------------------------------------------------------------------------------------------
-    // TODO: Clean up the following member to support 1:N environment:team relationships
-    // ---------------------------------------------------------------------------------------------
-
-    /**
-     * Unique slug of the team as it should be identified in URLs.
-     * @deprecated There isn't a 1:1 mapping between environments and teams, don't rely on this.
-     */
-    teamSlug: string;
 }
 
 /**
@@ -99,9 +89,6 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
         globalThis.animeConEnvironmentCache.set(environment.domain, {
             ...environment,
             domain: environment.domain as EnvironmentDomain,
-
-            // TODO: Remove the following property once everything has migrated away from it:
-            teamSlug: environment.teams[0] || 'crew',
         });
     }
 }

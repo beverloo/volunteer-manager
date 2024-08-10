@@ -28,7 +28,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
     if (!context || !context.registration || !context.user || !context.event.hotelEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { environment, event, registration, slug, user } = context;
+    const { event, registration, slug, teamSlug, user } = context;
 
     const bookings = registration.hotelBookings;
     const eligible = registration.hotelEligible;
@@ -76,7 +76,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
             { bookings.length > 0 &&
                 <HotelConfirmation bookings={bookings} /> }
             { (eligible || !!registration.hotelPreferences) &&
-                <HotelPreferences event={event.slug} team={environment.teamSlug}
+                <HotelPreferences event={event.slug} team={teamSlug}
                                   eventDate={event.startTime} hotelOptions={options}
                                   hotelPreferences={hotelPreferences} readOnly={readOnly} /> }
 
