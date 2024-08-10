@@ -127,10 +127,10 @@ export function EnvironmentSection(props: EnvironmentSectionProps) {
                                options={kEnvironmentPurposeOptions} />
             </Grid>
             <Grid xs={6}>
-                <ColorFieldElement name="colours.dark" title="Dark mode colour" size="small" />
+                <ColorFieldElement name="colours.dark" label="Dark mode colour" size="small" />
             </Grid>
             <Grid xs={6}>
-                <ColorFieldElement name="colours.light" title="Light mode colour" size="small" />
+                <ColorFieldElement name="colours.light" label="Light mode colour" size="small" />
             </Grid>
             <Grid xs={12}>
                 <TextFieldElement name="title" label="Title" fullWidth size="small" />
