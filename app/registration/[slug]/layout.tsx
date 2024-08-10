@@ -18,13 +18,13 @@ export default async function RegistrationEventLayout(props: RegistrationEventLa
     if (!context)
         notFound();
 
-    const { environment, event, registration, user } = context;
+    const { environment, event, registration, slug, user } = context;
 
     return (
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer event={event.toEventData(environment.domain)}
                                           title={event.name}
-                                          redirectUrl={`/registration/${event.slug}/application`}
+                                          redirectUrl={`/registration/${slug}/application`}
                                           registration={registration?.toRegistrationData()}
                                           user={user}>
                 {props.children}

@@ -37,7 +37,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { access, environment, event, registration, user } = context;
+    const { access, environment, event, registration, slug, user } = context;
 
     const enabled = [
         EventAvailabilityStatus.Available,
@@ -263,7 +263,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
                                      limit={registration.availabilityEventLimit}
                                      preferences={registration.availability} readOnly={readOnly} />
 
-            <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
+            <MuiLink component={Link} href={`/registration/${slug}/application`}>
                 « Back to your registration
             </MuiLink>
         </Box>

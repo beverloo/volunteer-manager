@@ -28,7 +28,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     if (!context || !context.registration || !context.user || !context.event.refundEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { event, registration, user } = context;
+    const { event, registration, slug, user } = context;
 
     if (registration.refundAvailabilityWindow.status === 'pending') {
         if (!context.access.can('event.refunds', { event: event.slug }))
@@ -91,7 +91,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
                                readOnly={state !== 'available'}
                                refund={registration.refund} /> }
             <Box sx={{ pt: 2 }}>
-                <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
+                <MuiLink component={Link} href={`/registration/${slug}/application`}>
                     « Back to your registration
                 </MuiLink>
             </Box>

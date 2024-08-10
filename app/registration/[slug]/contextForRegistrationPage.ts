@@ -36,6 +36,11 @@ export interface RegistrationPageContext {
     registration?: Registration;
 
     /**
+     * The canonical slug that should be used for this registration page context.
+     */
+    slug: string;
+
+    /**
      * The user for whom this page is being loaded, if any.
      */
     user?: User;
@@ -43,7 +48,9 @@ export interface RegistrationPageContext {
 
 /**
  * This function will load the common context requires for one of the pages part of the registration
- * sub-app. This involves potentially running multiple database queries.
+ * sub-app. This involves potentially running multiple database queries. The `slug` can either be
+ * the year (e.g. "2025") in single-team environments, or a combination of the year and the team's
+ * slug (e.g. "2025-crew") to disambiguate for multi-team contexts.
  */
 export async function contextForRegistrationPage(slug: string)
     : Promise<RegistrationPageContext | undefined>
@@ -52,7 +59,23 @@ export async function contextForRegistrationPage(slug: string)
     if (!environment)
         return undefined;  // invalid environment
 
-    const event = await getEventBySlug(slug);
+    let eventSlug: string;
+    let teamSlug: string;
+
+    if (slug.includes('-')) {
+        [ eventSlug, teamSlug ] = slug.split('-', /* limit= */ 2);
+        if (!environment.teams.includes(teamSlug))
+            return undefined;  // this |environment| does not host the requested team
+
+    } else {
+        if (!environment.teams.length)
+            return undefined;  // this |environment| does not hots any teams
+
+        eventSlug = slug;
+        teamSlug = environment.teams[0];  // primary
+    }
+
+    const event = await getEventBySlug(eventSlug);
     if (!event)
         return undefined;  // invalid event
 
@@ -60,7 +83,7 @@ export async function contextForRegistrationPage(slug: string)
     const { access, user } = authenticationContext;
 
     const registration = await getRegistration(environment.domain, event, user?.userId);
-    if (!access.can('event.visible', { event: slug, team: environment.teamSlug })) {
+    if (!access.can('event.visible', { event: eventSlug, team: teamSlug })) {
         // Note that we deliberately skip checking whether the `user` has administration access to
         // the event, as (a) it being active and (b) them participating in it satisfies our bar.
         if (!authenticationContext.user || !authenticationContext.events.has(slug)) {
@@ -70,5 +93,5 @@ export async function contextForRegistrationPage(slug: string)
         }
     }
 
-    return { access, environment, event, registration, user };
+    return { access, environment, event, registration, slug, user };
 }

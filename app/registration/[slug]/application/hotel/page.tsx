@@ -28,7 +28,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
     if (!context || !context.registration || !context.user || !context.event.hotelEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { environment, event, registration, user } = context;
+    const { environment, event, registration, slug, user } = context;
 
     const bookings = registration.hotelBookings;
     const eligible = registration.hotelEligible;
@@ -80,7 +80,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
                                   eventDate={event.startTime} hotelOptions={options}
                                   hotelPreferences={hotelPreferences} readOnly={readOnly} /> }
 
-            <MuiLink component={Link} href={`/registration/${event.slug}/application`}>
+            <MuiLink component={Link} href={`/registration/${slug}/application`}>
                 « Back to your registration
             </MuiLink>
         </Stack>
