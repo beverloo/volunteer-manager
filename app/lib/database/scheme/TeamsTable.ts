@@ -18,6 +18,7 @@ export class TeamsTable extends Table<DBConnection, 'TeamsTable'> {
     teamDescription = this.column('team_description', 'string');
     teamEnvironment = this.column('team_environment', 'string');
     teamEnvironmentId = this.column('team_environment_id', 'int');
+    teamRequestConfirmation = this.columnWithDefaultValue('team_request_confirmation', 'int');
     teamManagesFaq = this.columnWithDefaultValue('team_manages_faq', 'int');
     teamManagesFirstAid = this.columnWithDefaultValue('team_manages_first_aid', 'int');
     teamManagesSecurity = this.columnWithDefaultValue('team_manages_security', 'int');

@@ -15,6 +15,7 @@ import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBui
 import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 
 import { createVertexAIClient } from '@lib/integrations/vertexai';
+import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -104,6 +105,28 @@ export const kGeneratePromptDefinition = z.object({
         // -----------------------------------------------------------------------------------------
 
         /**
+         * Information that went into the prompt that is about to be executed. Will only be in the
+         * response when explicitly requested for it to be included.
+         */
+        newPrompt: z.object({
+            /**
+             * Context that was collected in order to power the prompt.
+             */
+            context: z.record(z.string(), z.any()),
+
+            /**
+             * Message that was compiled to be shared with the Vertex AI API.
+             */
+            message: z.array(z.string()),
+
+            /**
+             * Parameters that were given in order to power the prompt.
+             */
+            params: z.record(z.string(), z.any()),
+
+        }).optional(),
+
+        /**
          * In case of success, the context that was considered in this generated prompt.
          */
         context: z.array(z.string()).optional(),
@@ -156,21 +179,31 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
-        case 'approve-volunteer':
-            executeAccessCheck(props.authenticationContext, {
-                check: 'admin',
-                permission: or('system.internals.ai', {
-                    permission: 'event.applications',
-                    operation: 'update',
-                    scope: {
-                        event: request.approveVolunteer?.event,
-                        team: request.approveVolunteer?.team,
-                    },
-                }),
+        case 'approve-volunteer': {
+            if (!request.approveVolunteer)
+                notFound();
+
+            const prompt = new ApproveApplicationPrompt({
+                event: request.approveVolunteer.event,
+                sourceUserId: props.user.userId,
+                targetUserId: request.approveVolunteer.userId,
+                team: request.approveVolunteer.team,
             });
 
-            generator = new ApproveVolunteerPromptBuilder(userId, request.approveVolunteer);
-            break;
+            const client = await createVertexAIClient();
+
+            const newPrompt = await prompt.generateInput();
+            const result = await prompt.generate(client);
+
+            return {
+                success: true,
+                newPrompt,  // TODO: Rename to `prompt`
+                result: {
+                    subject: 'unknown',
+                    message: result,
+                },
+            };
+        }
 
         case 'cancel-participation':
             generator = new CancelParticipationVolunteerPromptBuilder(

@@ -2392,6 +2392,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: team_request_confirmation
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+    comment: ""
   - name: team_manages_faq
     type: tinyint(1) unsigned
     nullable: false
@@ -2451,6 +2456,7 @@ tables:
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
       `team_environment_id` int(8) unsigned NOT NULL,
+      `team_request_confirmation` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,

@@ -3,13 +3,14 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement }
     from '@proxy/react-hook-form-mui';
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -22,6 +23,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { callApi } from '@lib/callApi';
+import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 
 /**
  * Options available for the language selection box.
@@ -63,8 +65,11 @@ export function AiExplorer(props: AiExplorerProps) {
     const [ error, setError ] = useState<string>();
     const [ loading, setLoading ] = useState<boolean>(false);
 
+    type Prompt = GeneratePromptDefinition['response']['newPrompt'];
+    const [ generatedPrompt, setGeneratedPrompt ] = useState<Prompt>();
+
     const [ generatedContext, setGeneratedContext ] = useState<string[] | undefined>();
-    const [ generatedPrompt, setGeneratedPrompt ] = useState<string | undefined>();
+    const [ xxgeneratedPrompt, xxsetGeneratedPrompt ] = useState<string | undefined>();
     const [ generatedResult, setGeneratedResult ] =
         useState<{ subject?: string; message: string } | undefined>();
 
@@ -76,6 +81,12 @@ export function AiExplorer(props: AiExplorerProps) {
                 type: props.type as any,
                 language: data.language,
 
+                approveVolunteer: {
+                    userId: /* Ferdi= */ 3,
+                    event: '2025',
+                    team: 'stewards',
+                },
+
                 overrides: {
                     personality: data.personality,
                     prompt: data.prompt,
@@ -83,9 +94,11 @@ export function AiExplorer(props: AiExplorerProps) {
             });
 
             if (response.success) {
-                setGeneratedContext(response.context);
-                setGeneratedPrompt(response.prompt);
+                setGeneratedPrompt(response.newPrompt);
                 setGeneratedResult(response.result);
+
+                setGeneratedContext(response.context);
+                xxsetGeneratedPrompt(response.prompt);
             } else {
                 setError(response.error);
             }
@@ -160,6 +173,64 @@ export function AiExplorer(props: AiExplorerProps) {
                     </Typography>
                 </Paper>
             </Collapse>
+            <Collapse in={!!generatedPrompt && !!generatedPrompt.params}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                        Prompt input parameters
+                    </Typography>
+                    <Grid container rowSpacing={2}>
+                        { Object.entries(generatedPrompt?.params || {}).map(([ key, value ]) =>
+                            <React.Fragment key={key}>
+                                <Grid xs={2}>
+                                    <strong>{key}</strong>:
+                                </Grid>
+                                <Grid xs={10}>
+                                    {value}
+                                </Grid>
+                            </React.Fragment> )}
+                    </Grid>
+                </Paper>
+            </Collapse>
+            <Collapse in={!!generatedPrompt && !!generatedPrompt.context}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                        Prompt generated context
+                    </Typography>
+                    <Grid container rowSpacing={2}>
+                        { Object.entries(generatedPrompt?.context || {}).map(([ key, value ]) =>
+                            <React.Fragment key={key}>
+                                <Grid xs={2}>
+                                    <strong>{key}</strong>:
+                                </Grid>
+                                <Grid xs={10} sx={{ whiteSpace: 'pre-wrap',
+                                                    overflowWrap: 'anyhere' }}>
+                                    { JSON.stringify(value, undefined, /* space= */ 4) }
+                                </Grid>
+                            </React.Fragment> )}
+                    </Grid>
+                </Paper>
+            </Collapse>
+            <Collapse in={!!generatedPrompt && !!generatedPrompt.message.length}>
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                        Prompt
+                    </Typography>
+                    <List dense>
+                        {generatedPrompt?.message.map((line, index) =>
+                            <ListItem key={index} disablePadding>
+                                <ListItemIcon sx={{ minWidth: '40px' }}>
+                                    <ArrowRightIcon />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {line}
+                                </ListItemText>
+                            </ListItem> )}
+                    </List>
+                </Paper>
+            </Collapse>
+
+            { /* TODO: Remove ----------------------------------------------------------------- */ }
+
             <Collapse in={!!generatedContext && generatedContext.length > 0}>
                 <Paper sx={{ p: 2, mt: 2 }}>
                     <Typography variant="h5" sx={{ mb: 1 }}>
@@ -178,13 +249,13 @@ export function AiExplorer(props: AiExplorerProps) {
                     </List>
                 </Paper>
             </Collapse>
-            <Collapse in={!!generatedPrompt}>
+            <Collapse in={!!xxgeneratedPrompt}>
                 <Paper sx={{ p: 2, mt: 2 }}>
                     <Typography variant="h5" sx={{ mb: 1 }}>
                         Generated prompt
                     </Typography>
                     <Typography sx={{ whiteSpace: 'pre-wrap', lineBreak: 'loose' }}>
-                        {generatedPrompt}
+                        {xxgeneratedPrompt}
                     </Typography>
                 </Paper>
             </Collapse>
