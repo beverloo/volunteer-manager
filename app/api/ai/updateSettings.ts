@@ -28,11 +28,11 @@ export const kUpdateAiSettingsDefinition = z.object({
          * Prompts that should be updated.
          */
         prompts: z.object({
-            'gen-ai-prompt-approve-volunteer': z.string(),
-            'gen-ai-prompt-cancel-participation': z.string(),
-            'gen-ai-prompt-change-team': z.string(),
-            'gen-ai-prompt-reinstate-participation': z.string(),
-            'gen-ai-prompt-reject-volunteer': z.string(),
+            'gen-ai-intention-approve-volunteer': z.string(),
+            'gen-ai-intention-cancel-participation': z.string(),
+            'gen-ai-intention-change-team': z.string(),
+            'gen-ai-intention-reinstate-participation': z.string(),
+            'gen-ai-intention-reject-volunteer': z.string(),
         }).optional(),
     }),
     response: z.strictObject({
@@ -75,13 +75,16 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
 
     if (request.prompts) {
         await writeSettings({
-            'gen-ai-prompt-approve-volunteer': request.prompts['gen-ai-prompt-approve-volunteer'],
-            'gen-ai-prompt-cancel-participation':
-                request.prompts['gen-ai-prompt-cancel-participation'],
-            'gen-ai-prompt-change-team': request.prompts['gen-ai-prompt-change-team'],
-            'gen-ai-prompt-reinstate-participation':
-                request.prompts['gen-ai-prompt-reinstate-participation'],
-            'gen-ai-prompt-reject-volunteer': request.prompts['gen-ai-prompt-reject-volunteer'],
+            'gen-ai-intention-approve-volunteer':
+                request.prompts['gen-ai-intention-approve-volunteer'],
+            'gen-ai-intention-cancel-participation':
+                request.prompts['gen-ai-intention-cancel-participation'],
+            'gen-ai-intention-change-team':
+                request.prompts['gen-ai-intention-change-team'],
+            'gen-ai-intention-reinstate-participation':
+                request.prompts['gen-ai-intention-reinstate-participation'],
+            'gen-ai-intention-reject-volunteer':
+                request.prompts['gen-ai-intention-reject-volunteer'],
         });
 
         await Log({
@@ -89,7 +92,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
-                setting: 'prompts',
+                setting: 'intentions',
             },
         });
     }

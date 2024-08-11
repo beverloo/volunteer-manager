@@ -2,13 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AiExplorer } from './AiExplorer';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { readSetting } from '@lib/Settings';
+import { readSettings, type Setting } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -21,10 +20,12 @@ export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) 
         permission: 'system.internals.ai',
     });
 
-    const personality = await readSetting('gen-ai-personality') ?? '';
-    const requestedPrompt = await readSetting(`gen-ai-prompt-${props.params.prompt}` as any);
-    if (!requestedPrompt)
-        notFound();
+    const intentionSetting: Setting = `gen-ai-intention-${props.params.prompt}` as Setting;
+    const settings = await readSettings([
+        'gen-ai-personality',
+        'gen-ai-system-instruction',
+        intentionSetting,
+    ]);
 
     return (
         <>
@@ -35,7 +36,9 @@ export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) 
                     not be saved, and that fake context is generated to complete the prompts.
                 </SectionIntroduction>
             </Section>
-            <AiExplorer personality={personality} prompt={requestedPrompt}
+            <AiExplorer intention={settings[intentionSetting] as string}
+                        personality={settings['gen-ai-personality'] || ''}
+                        systemInstructions={settings['gen-ai-system-instruction'] || ''}
                         type={props.params.prompt} />
         </>
     );

@@ -10,12 +10,14 @@ import type { TeamEventPromptContext, TeamEventPromptParams } from './TeamEventP
  */
 export class ApproveApplicationPrompt extends ApplicationPrompt {
     constructor(params: TeamEventPromptParams) {
-        super('gen-ai-prompt-approve-volunteer', params);
+        super('gen-ai-intention-approve-volunteer', params);
     }
 
     override async composeMessage(context: TeamEventPromptContext): Promise<string[]> {
         const message = await super.composeMessage(context);
-        message.push('Their application has been accepted, and we are happy to work with them.');
+
+        if (context.intention?.length)
+            message.push(...context.intention.split('\n'));
 
         if (context.targetUser.role) {
             message.push(

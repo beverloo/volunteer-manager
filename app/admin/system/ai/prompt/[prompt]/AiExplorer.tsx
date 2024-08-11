@@ -42,14 +42,19 @@ const kLanguageOptions = [
  */
 interface AiExplorerProps {
     /**
-     * The personality common across all prompts.
+     * Intention of this particular prompt, which will be added to the generated context.
+     */
+    intention: string;
+
+    /**
+     * Personality of the agent that will be writing the message.
      */
     personality: string;
 
     /**
-     * The prompt this explorer should service.
+     * System instructions that define what the prompt should do in the first place.
      */
-    prompt: string;
+    systemInstructions: string;
 
     /**
      * The type of prompt that should be generated; passed to the API.
@@ -65,11 +70,8 @@ export function AiExplorer(props: AiExplorerProps) {
     const [ error, setError ] = useState<string>();
     const [ loading, setLoading ] = useState<boolean>(false);
 
-    type Prompt = GeneratePromptDefinition['response']['newPrompt'];
+    type Prompt = GeneratePromptDefinition['response']['prompt'];
     const [ generatedPrompt, setGeneratedPrompt ] = useState<Prompt>();
-
-    const [ generatedContext, setGeneratedContext ] = useState<string[] | undefined>();
-    const [ xxgeneratedPrompt, xxsetGeneratedPrompt ] = useState<string | undefined>();
     const [ generatedResult, setGeneratedResult ] =
         useState<{ subject?: string; message: string } | undefined>();
 
@@ -88,17 +90,14 @@ export function AiExplorer(props: AiExplorerProps) {
                 },
 
                 overrides: {
-                    personality: data.personality,
-                    prompt: data.prompt,
+                    intention: data.intention,
+                    systemInstructions: data.systemInstructions,
                 },
             });
 
             if (response.success) {
-                setGeneratedPrompt(response.newPrompt);
+                setGeneratedPrompt(response.prompt);
                 setGeneratedResult(response.result);
-
-                setGeneratedContext(response.context);
-                xxsetGeneratedPrompt(response.prompt);
             } else {
                 setError(response.error);
             }
@@ -110,45 +109,55 @@ export function AiExplorer(props: AiExplorerProps) {
     }, [ props.type ]);
 
     const defaultValues = useMemo(() => ({
+        intention: props.intention,
         language: 'English',
         personality: props.personality,
-        prompt: props.prompt,
+        systemInstructions: props.systemInstructions,
     }), [ props ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleGenerate}>
             <Paper sx={{ p: 2 }}>
                 <Grid container spacing={2}>
-                    <Grid xs={3}>
+                    <Grid xs={2}>
                         <Typography variant="subtitle2">
                             Personality
                         </Typography>
                     </Grid>
-                    <Grid xs={9}>
+                    <Grid xs={10}>
                         <TextareaAutosizeElement name="personality" size="small" fullWidth />
                     </Grid>
 
-                    <Grid xs={3}>
+                    <Grid xs={2}>
                         <Typography variant="subtitle2">
-                            Prompt
+                            System instructions
                         </Typography>
                     </Grid>
-                    <Grid xs={9}>
-                        <TextareaAutosizeElement name="prompt" size="small" fullWidth />
+                    <Grid xs={10}>
+                        <TextareaAutosizeElement name="systemInstructions" size="small" fullWidth />
                     </Grid>
 
-                    <Grid xs={3}>
+                    <Grid xs={2}>
+                        <Typography variant="subtitle2">
+                            Intention
+                        </Typography>
+                    </Grid>
+                    <Grid xs={10}>
+                        <TextareaAutosizeElement name="intention" size="small" fullWidth />
+                    </Grid>
+
+                    <Grid xs={2}>
                         <Typography variant="subtitle2">
                             Language
                         </Typography>
                     </Grid>
-                    <Grid xs={9}>
+                    <Grid xs={10}>
                         <SelectElement name="language" size="small" fullWidth
                                        options={kLanguageOptions} />
                     </Grid>
 
-                    <Grid xs={3}>{ /* ... */ }</Grid>
-                    <Grid xs={9}>
+                    <Grid xs={2}>{ /* ... */ }</Grid>
+                    <Grid xs={10}>
                         <Stack direction="row" spacing={2} alignItems="center">
                             <LoadingButton startIcon={ <SmartToyIcon /> } loading={loading}
                                            type="submit" variant="outlined">
@@ -226,37 +235,6 @@ export function AiExplorer(props: AiExplorerProps) {
                                 </ListItemText>
                             </ListItem> )}
                     </List>
-                </Paper>
-            </Collapse>
-
-            { /* TODO: Remove ----------------------------------------------------------------- */ }
-
-            <Collapse in={!!generatedContext && generatedContext.length > 0}>
-                <Paper sx={{ p: 2, mt: 2 }}>
-                    <Typography variant="h5" sx={{ mb: 1 }}>
-                        Generated context
-                    </Typography>
-                    <List dense>
-                        { generatedContext?.map((context, index) =>
-                            <ListItem key={index} disablePadding>
-                                <ListItemIcon sx={{ minWidth: '40px' }}>
-                                    <ArrowRightIcon />
-                                </ListItemIcon>
-                                <ListItemText>
-                                    {context}
-                                </ListItemText>
-                            </ListItem> )}
-                    </List>
-                </Paper>
-            </Collapse>
-            <Collapse in={!!xxgeneratedPrompt}>
-                <Paper sx={{ p: 2, mt: 2 }}>
-                    <Typography variant="h5" sx={{ mb: 1 }}>
-                        Generated prompt
-                    </Typography>
-                    <Typography sx={{ whiteSpace: 'pre-wrap', lineBreak: 'loose' }}>
-                        {xxgeneratedPrompt}
-                    </Typography>
                 </Paper>
             </Collapse>
         </FormContainer>

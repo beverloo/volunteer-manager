@@ -27,39 +27,39 @@ export default async function AiPage() {
         'gen-ai-system-instruction',
 
         // <AiPromptContext>:
-        'gen-ai-prompt-approve-volunteer',
-        'gen-ai-prompt-cancel-participation',
-        'gen-ai-prompt-change-team',
-        'gen-ai-prompt-reinstate-participation',
-        'gen-ai-prompt-reject-volunteer',
+        'gen-ai-intention-approve-volunteer',
+        'gen-ai-intention-cancel-participation',
+        'gen-ai-intention-change-team',
+        'gen-ai-intention-reinstate-participation',
+        'gen-ai-intention-reject-volunteer',
     ]);
 
-    // <AiPromptContext> prompts:
-    const prompts: AiPromptContextProps['prompts'] = [
+    // <AiPromptContext> intentions:
+    const intentions: AiPromptContextProps['intentions'] = [
         {
             label: 'Application (approve)',
-            prompt: settings['gen-ai-prompt-approve-volunteer'] ?? '',
-            setting: 'gen-ai-prompt-approve-volunteer',
+            intention: settings['gen-ai-intention-approve-volunteer'] ?? '',
+            setting: 'gen-ai-intention-approve-volunteer',
         },
         {
             label: 'Application (reject)',
-            prompt: settings['gen-ai-prompt-reject-volunteer'] ?? '',
-            setting: 'gen-ai-prompt-reject-volunteer',
+            intention: settings['gen-ai-intention-reject-volunteer'] ?? '',
+            setting: 'gen-ai-intention-reject-volunteer',
         },
         {
             label: ' Participation (change team)',
-            prompt: settings['gen-ai-prompt-change-team'] ?? '',
-            setting: 'gen-ai-prompt-change-team',
+            intention: settings['gen-ai-intention-change-team'] ?? '',
+            setting: 'gen-ai-intention-change-team',
         },
         {
             label: 'Participation (cancel)',
-            prompt: settings['gen-ai-prompt-cancel-participation'] ?? '',
-            setting: 'gen-ai-prompt-cancel-participation',
+            intention: settings['gen-ai-intention-cancel-participation'] ?? '',
+            setting: 'gen-ai-intention-cancel-participation',
         },
         {
             label: 'Participation (reinstate)',
-            prompt: settings['gen-ai-prompt-reinstate-participation'] ?? '',
-            setting: 'gen-ai-prompt-reinstate-participation',
+            intention: settings['gen-ai-intention-reinstate-participation'] ?? '',
+            setting: 'gen-ai-intention-reinstate-participation',
         },
     ];
 
@@ -75,7 +75,7 @@ export default async function AiPage() {
             </Section>
             <AiPromptPersonality personality={settings['gen-ai-personality'] ?? ''}
                                  systemInstruction={settings['gen-ai-system-instruction'] ?? ''} />
-            <AiPromptContext prompts={prompts} />
+            <AiPromptContext intentions={intentions} />
         </>
     );
 }

@@ -22,7 +22,7 @@ export interface PromptContext {
     /**
      * The system instruction(s) that should be shared with the API.
      */
-    systemInstruction: string;
+    systemInstructions: string;
 }
 
 /**
@@ -49,7 +49,7 @@ export interface PromptInput<Context, Params> {
 /**
  * Parameters that are expected to be available for the prompt.
  */
-export interface PromptParams {
+export interface PromptParams extends Partial<PromptContext> {
     /**
      * Language in which the prompt should be written. Defaults to "English".
      */
@@ -93,9 +93,11 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
         ]);
 
         return {
-            intention: settings[this.#prompt] as string | undefined,
-            personality: settings['gen-ai-personality'] || '',
-            systemInstruction: settings['gen-ai-system-instruction'] || '',
+            intention: this.#params.intention ?? settings[this.#prompt] as string | undefined,
+            personality:
+                this.#params.personality ?? (settings['gen-ai-personality'] || ''),
+            systemInstructions:
+                this.#params.systemInstructions ?? (settings['gen-ai-system-instruction'] || ''),
         };
     }
 
@@ -131,7 +133,8 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
         const result = await client.predictText({
             prompt: input.message.join('\n'),
             systemInstruction:
-                input.context.systemInstruction.replace(
+                input.context.personality + '\n' +
+                input.context.systemInstructions.replace(
                     '{language}', this.#params.language || 'English'),
         });
 

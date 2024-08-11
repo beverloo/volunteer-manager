@@ -57,6 +57,13 @@ type SettingsMap = {
     'gen-ai-personality': string;
     'gen-ai-system-instruction': string;
 
+    // Intentions:
+    'gen-ai-intention-approve-volunteer': string;
+    'gen-ai-intention-cancel-participation': string;
+    'gen-ai-intention-change-team': string;
+    'gen-ai-intention-reinstate-participation': string;
+    'gen-ai-intention-reject-volunteer': string;
+
     // Prompts:
     'gen-ai-prompt-approve-volunteer': string;
     'gen-ai-prompt-cancel-participation': string;

@@ -21,18 +21,18 @@ import { callApi } from '@lib/callApi';
  */
 export interface AiPromptContextProps {
     /**
-     * The prompts that should be dispalyed on this page.
+     * The intentions that should be displayed on this page.
      */
-    prompts: {
+    intentions: {
         /**
          * Label, through which it should be indicated to the volunteer.
          */
         label: string;
 
         /**
-         * The prompt that's configured for this particular case.
+         * The intention that's configured for this particular case.
          */
-        prompt: string;
+        intention: string;
 
         /**
          * Name of the setting, as it will be uploaded to the server.
@@ -46,7 +46,7 @@ export interface AiPromptContextProps {
  * generative AI to generate messages.
  */
 export function AiPromptContext(props: AiPromptContextProps) {
-    const { prompts } = props;
+    const { intentions } = props;
 
     const [ error, setError ] = useState<string>();
     const [ invalidated, setInvalidated ] = useState<boolean>(false);
@@ -57,9 +57,9 @@ export function AiPromptContext(props: AiPromptContextProps) {
         setLoading(true);
         setError(undefined);
         try {
-            const updates = Object.fromEntries(prompts.map(prompt => ([
-                prompt.setting,
-                data[prompt.setting] ?? prompt.prompt ?? '',
+            const updates = Object.fromEntries(intentions.map(intention => ([
+                intention.setting,
+                data[intention.setting] ?? intention.intention ?? '',
             ])));
 
             const response = await callApi('put', '/api/ai/settings', {
@@ -73,32 +73,33 @@ export function AiPromptContext(props: AiPromptContextProps) {
         } finally {
             setLoading(false);
         }
-    }, [ prompts ]);
+    }, [ intentions ]);
 
-    const defaultValues = useMemo(() => Object.fromEntries(prompts.map(prompt => ([
-        prompt.setting,
-        prompt.prompt,
-    ]))), [ prompts ]);
+    const defaultValues = useMemo(() => Object.fromEntries(intentions.map(intention => ([
+        intention.setting,
+        intention.intention,
+    ]))), [ intentions ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
-            <Section title="Prompts">
+            <Section title="Intentions">
                 <Grid container spacing={2}>
-                    { prompts.map(prompt =>
-                        <React.Fragment key={prompt.setting}>
+                    { intentions.map(intention =>
+                        <React.Fragment key={intention.setting}>
                             <Grid xs={3}>
                                 <Typography variant="subtitle2">
-                                    {prompt.label}
+                                    {intention.label}
                                 </Typography>
                                 <Typography variant="body2">
-                                    <MuiLink component={Link}
-                                             href={`./ai/prompt/${prompt.setting.substring(14)}`}>
+                                    <MuiLink
+                                        component={Link}
+                                        href={`./ai/prompt/${intention.setting.substring(17)}`}>
                                         Explore prompt
                                     </MuiLink>
                                 </Typography>
                             </Grid>
                             <Grid xs={9}>
-                                <TextareaAutosizeElement name={prompt.setting} size="small"
+                                <TextareaAutosizeElement name={intention.setting} size="small"
                                                          onChange={handleChange} fullWidth />
                             </Grid>
                         </React.Fragment> )}

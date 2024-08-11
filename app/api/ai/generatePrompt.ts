@@ -43,8 +43,8 @@ export const kGeneratePromptDefinition = z.object({
          * exploration pages, to make testing new prompts easier.
          */
         overrides: z.object({
-            personality: z.string(),
-            prompt: z.string(),
+            intention: z.string(),
+            systemInstructions: z.string(),
         }).optional(),
 
         /**
@@ -108,7 +108,7 @@ export const kGeneratePromptDefinition = z.object({
          * Information that went into the prompt that is about to be executed. Will only be in the
          * response when explicitly requested for it to be included.
          */
-        newPrompt: z.object({
+        prompt: z.object({
             /**
              * Context that was collected in order to power the prompt.
              */
@@ -125,16 +125,6 @@ export const kGeneratePromptDefinition = z.object({
             params: z.record(z.string(), z.any()),
 
         }).optional(),
-
-        /**
-         * In case of success, the context that was considered in this generated prompt.
-         */
-        context: z.array(z.string()).optional(),
-
-        /**
-         * In case of success, the prompt that was used to generate the message.
-         */
-        prompt: z.string().optional(),
 
         /**
          * Result of the generated prompt. Split between an optional subject and a message.
@@ -177,6 +167,16 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     const userId = props.user.userId;
 
+    let intention: string | undefined;
+    let systemInstructions: string | undefined;
+
+    // Apply overrides when this prompt has been powered through the internal AI Explorer pages,
+    // which exist for purposes of finetuning specific prompts.
+    if (request.overrides && props.access.can('system.internals.ai')) {
+        intention = request.overrides.intention;
+        systemInstructions = request.overrides.systemInstructions;
+    }
+
     let generator: PromptBuilder<any, any>;
     switch (request.type) {
         case 'approve-volunteer': {
@@ -185,8 +185,10 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
             const prompt = new ApproveApplicationPrompt({
                 event: request.approveVolunteer.event,
+                intention,
                 language: request.language,
                 sourceUserId: props.user.userId,
+                systemInstructions,
                 targetUserId: request.approveVolunteer.userId,
                 team: request.approveVolunteer.team,
             });
@@ -198,7 +200,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
             return {
                 success: true,
-                newPrompt,  // TODO: Rename to `prompt`
+                prompt: newPrompt,
                 result: {
                     subject: 'unknown',
                     message: result,
@@ -240,11 +242,6 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    // Install personality and prompt overrides when provided. This feature is only accessible
-    // through the Generative AI Explorer pages, and relies on a special permission.
-    if (request.overrides && props.access.can('system.internals.ai'))
-        generator.setOverrides(request.overrides.personality, request.overrides.prompt);
-
     const { context, prompt, subject } = await generator.build(request.language);
 
     const client = await createVertexAIClient();
@@ -252,5 +249,5 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
     const rawMessage = await client.predictText({ prompt }) ?? '[unable to generate message]';
     const message = rawMessage.replaceAll(/\n>[ ]*/g, '\n').replace(/^>\s*/, '');
 
-    return { success: true, context, prompt, result: { subject, message } };
+    return { success: true, result: { subject, message } };
 }
