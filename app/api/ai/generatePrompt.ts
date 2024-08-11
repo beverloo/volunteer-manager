@@ -18,6 +18,7 @@ import { kSupportedLanguages } from './languages';
 import type { Prompt } from './prompts/Prompt';
 import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
 import { CancelParticipationPrompt } from './prompts/CancelParticipationPrompt';
+import { ReinstateParticipationPrompt } from './prompts/ReinstateParticipationPrompt';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -221,8 +222,19 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'reinstate-participation':
-            generator = new ReinstateParticipationVolunteerPromptBuilder(
-                userId, request.reinstateParticipation);
+            if (!request.reinstateParticipation)
+                notFound();
+
+            prompt = new ReinstateParticipationPrompt({
+                event: request.reinstateParticipation.event,
+                intention,
+                language: request.language,
+                sourceUserId: props.user.userId,
+                systemInstructions,
+                targetUserId: request.reinstateParticipation.userId,
+                team: request.reinstateParticipation.team,
+            });
+
             break;
 
         case 'reject-volunteer':

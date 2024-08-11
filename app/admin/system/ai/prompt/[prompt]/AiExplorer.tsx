@@ -89,6 +89,12 @@ export function AiExplorer(props: AiExplorerProps) {
                     team: 'hosts',
                 },
 
+                reinstateParticipation: {
+                    userId: /* Marciano= */ 30,
+                    event: '2024',
+                    team: 'stewards',
+                },
+
                 rejectVolunteer: {
                     userId: /* Björk= */ 396,
                     event: '2024',
