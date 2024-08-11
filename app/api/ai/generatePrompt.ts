@@ -193,16 +193,18 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             });
 
             const client = await createVertexAIClient();
-
-            const newPrompt = await prompt.generateInput();
             const result = await prompt.generate(client);
 
             return {
                 success: true,
-                prompt: newPrompt,
+                prompt: {
+                    context: result.context,
+                    message: result.message,
+                    params: result.params,
+                },
                 result: {
-                    subject: 'unknown',
-                    message: result,
+                    subject: result.subject,
+                    message: result.result,
                 },
             };
         }

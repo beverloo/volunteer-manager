@@ -13,8 +13,17 @@ export class ApproveApplicationPrompt extends ApplicationPrompt {
         super('gen-ai-intention-approve-volunteer', params);
     }
 
-    override async composeMessage(context: TeamEventPromptContext): Promise<string[]> {
-        const message = await super.composeMessage(context);
+    override composeSubject(context: TeamEventPromptContext, language: string): string {
+        switch (language) {
+            case 'Dutch':
+                return `Aanmelding voor ${context.event.name}`;
+        }
+
+        return `Your ${context.event.name} application`;
+    }
+
+    override composeMessage(context: TeamEventPromptContext): string[] {
+        const message = super.composeMessage(context);
 
         if (context.intention?.length)
             message.push(...context.intention.split('\n'));

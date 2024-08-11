@@ -8,8 +8,8 @@ import { formatDate } from '@lib/Temporal';
  * Prompt that can be used to convey to a volunteer that their application has been updated.
  */
 export class ApplicationPrompt extends TeamEventPrompt {
-    override async composeMessage(context: TeamEventPromptContext): Promise<string[]> {
-        const message = await super.composeMessage(context);
+    override composeMessage(context: TeamEventPromptContext): string[] {
+        const message = super.composeMessage(context);
         message.push(
             `They signed up to help out with the ${context.event.shortName} festival, requesting ` +
                 `to join the ${context.team.name} team.`);

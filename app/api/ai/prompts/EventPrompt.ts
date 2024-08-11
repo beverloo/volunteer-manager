@@ -156,8 +156,8 @@ export abstract class EventPrompt<Context extends EventPromptContext,
      * Include the e-mail's addressee and signaturee in the composed message. This avoids having to
      * repeat it for each message that the Volunteer Manager is able to generate.
      */
-    override async composeMessage(context: Context): Promise<string[]> {
-        const message = await super.composeMessage(context);
+    override composeMessage(context: Context): string[] {
+        const message = super.composeMessage(context);
         message.push(`Address the e-mail to ${context.targetUser.firstName}, say hi`);
 
         if (context.sourceUser.team) {

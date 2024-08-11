@@ -26,10 +26,20 @@ export interface PromptContext {
 }
 
 /**
- * Input given to the Vertex AI API when we were to execute this prompt. Allows debugging interfaces
+ * Parameters that are expected to be available for the prompt.
+ */
+export interface PromptParams extends Partial<PromptContext> {
+    /**
+     * Language in which the prompt should be written. Defaults to "English".
+     */
+    language?: string;
+}
+
+/**
+ * Result from to the Vertex AI API when we were to execute this prompt. Allows debugging interfaces
  * to output all known information to an administrator, to see what's going on.
  */
-export interface PromptInput<Context, Params> {
+export interface PromptResult<Context, Params> {
     /**
      * Context that was gathered in order to power the prompt.
      */
@@ -44,16 +54,16 @@ export interface PromptInput<Context, Params> {
      * Parameters that were given as input to the prompt.
      */
     params: Params;
-}
 
-/**
- * Parameters that are expected to be available for the prompt.
- */
-export interface PromptParams extends Partial<PromptContext> {
     /**
-     * Language in which the prompt should be written. Defaults to "English".
+     * The resulting answer received from the Vertex AI API.
      */
-    language?: string;
+    result: string;
+
+    /**
+     * The subject line that should be used for the e-mail message.
+     */
+    subject: string;
 }
 
 /**
@@ -106,30 +116,30 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
      * that the model is free to phase in any way it likes, in accordance to personality settings.
      * Overrides of this method are expected to call the parent method.
      */
-    async composeMessage(context: Context): Promise<string[]> {
+    composeMessage(context: Context): string[] {
         return [ /* no message yet */ ];
     }
 
     /**
-     * Generates the input data that will be shared with the Vertex AI API. Separated out from the
-     * regular `generate()` method to enable introspection of the prompts in debugging UI.
+     * Composes the subject line for this e-mail message. This should be a single line of text,
+     * ideally in the language that was requested.
      */
-    async generateInput(): Promise<PromptInput<Context, Params>> {
-        const context = await this.collectContext(this.#params) as Context;
-        return {
-            context,
-            message: await this.composeMessage(context),
-            params: this.#params as Params,
-        };
-    }
+    abstract composeSubject(context: Context, language: string): string;
 
     /**
      * Generates the input data that is to be shared with the Vertex AI API, and then sends off the
      * request. The prompt's result will be returned by calling this method, or an exception when
      * anything went wrong or the model is temporarily unavailable.
      */
-    async generate(client: VertexAIClient): Promise<string> {
-        const input = await this.generateInput();
+    async generate(client: VertexAIClient): Promise<PromptResult<Context, Params>> {
+        const context = await this.collectContext(this.#params) as Context;
+        const input: Omit<PromptResult<Context, Params>, 'result'> = {
+            context,
+            message: this.composeMessage(context),
+            params: this.#params as Params,
+            subject: this.composeSubject(context, this.#params.language || 'English'),
+        };
+
         const result = await client.predictText({
             prompt: input.message.join('\n'),
             systemInstruction:
@@ -138,6 +148,9 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
                     '{language}', this.#params.language || 'English'),
         });
 
-        return result || 'Something went wrong';
+        return {
+            ...input,
+            result: result || 'Something went wrong',
+        };
     }
 }
