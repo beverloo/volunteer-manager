@@ -185,6 +185,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
             const prompt = new ApproveApplicationPrompt({
                 event: request.approveVolunteer.event,
+                language: request.language,
                 sourceUserId: props.user.userId,
                 targetUserId: request.approveVolunteer.userId,
                 team: request.approveVolunteer.team,

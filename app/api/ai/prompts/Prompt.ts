@@ -12,7 +12,7 @@ export interface PromptContext {
     /**
      * The intention of the message, as predefined for this particular kind of prompt.
      */
-    intention: string;
+    intention?: string;
 
     /**
      * The personality associated with the agent that will be shared with the API.
@@ -49,14 +49,18 @@ export interface PromptInput<Context, Params> {
 /**
  * Parameters that are expected to be available for the prompt.
  */
-export interface PromptParams {}
+export interface PromptParams {
+    /**
+     * Language in which the prompt should be written. Defaults to "English".
+     */
+    language?: string;
+}
 
 /**
  * The `Prompt` class is the base class for each of the prompts supported by the AnimeCon Volunteer
  * Manager. Prompts use a "system instruction" to define personality and what has to happen, and
  * then a list of items that should be conveyed in a message.
  *
- * @todo Support multiple languages.
  * @todo Support multiple personalities.
  */
 export abstract class Prompt<Context extends PromptContext, Params extends PromptParams> {
@@ -89,7 +93,7 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
         ]);
 
         return {
-            intention: settings[this.#prompt] as string || '',
+            intention: settings[this.#prompt] as string | undefined,
             personality: settings['gen-ai-personality'] || '',
             systemInstruction: settings['gen-ai-system-instruction'] || '',
         };
@@ -126,7 +130,9 @@ export abstract class Prompt<Context extends PromptContext, Params extends Promp
         const input = await this.generateInput();
         const result = await client.predictText({
             prompt: input.message.join('\n'),
-            systemInstruction: input.context.systemInstruction,
+            systemInstruction:
+                input.context.systemInstruction.replace(
+                    '{language}', this.#params.language || 'English'),
         });
 
         return result || 'Something went wrong';
