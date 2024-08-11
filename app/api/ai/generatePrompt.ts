@@ -6,16 +6,15 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { ApproveVolunteerPromptBuilder } from './prompts/ApproveVolunteerPromptBuilder';
+import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
 import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
 import { ChangeTeamPromptBuilder } from './prompts/ChangeTeamPromptBuilder';
 import { PromptBuilder } from './prompts/PromptBuilder';
 import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
 import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
-
 import { createVertexAIClient } from '@lib/integrations/vertexai';
-import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
+import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
+import { kSupportedLanguages } from './languages';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -36,7 +35,7 @@ export const kGeneratePromptDefinition = z.object({
         /**
          * In which language should the prompt be written?
          */
-        language: z.enum([ 'Dutch', 'English', 'French', 'German', 'Japanese', 'Spanish' ]),
+        language: z.enum(kSupportedLanguages),
 
         /**
          * Optional overrides that may be provided by Ai administrators. Only used for the prompt
@@ -242,7 +241,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    const { context, prompt, subject } = await generator.build(request.language);
+    const { context, prompt, subject } = await generator.build(request.language as any);
 
     const client = await createVertexAIClient();
 

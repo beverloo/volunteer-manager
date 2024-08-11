@@ -10,7 +10,6 @@ import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Collapse from '@mui/material/Collapse';
-import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -22,20 +21,15 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { callApi } from '@lib/callApi';
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
+import { callApi } from '@lib/callApi';
+
+import { kSupportedLanguages } from '@app/api/ai/languages';
 
 /**
  * Options available for the language selection box.
  */
-const kLanguageOptions = [
-    { id: 'Dutch', label: 'Dutch' },
-    { id: 'English', label: 'English' },
-    { id: 'French', label: 'French' },
-    { id: 'German', label: 'German' },
-    { id: 'Japanese', label: 'Japanese' },
-    { id: 'Spanish', label: 'Spanish' },
-];
+const kLanguageOptions = kSupportedLanguages.map(language => ({ id: language, label: language }));
 
 /**
  * Props accepted by the <AiExplorer> component.
