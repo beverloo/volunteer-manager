@@ -83,6 +83,12 @@ export function AiExplorer(props: AiExplorerProps) {
                     team: 'stewards',
                 },
 
+                rejectVolunteer: {
+                    userId: /* Björk= */ 396,
+                    event: '2024',
+                    team: 'crew',
+                },
+
                 overrides: {
                     intention: data.intention,
                     systemInstructions: data.systemInstructions,

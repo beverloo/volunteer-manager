@@ -15,6 +15,8 @@ import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBui
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 import { kSupportedLanguages } from './languages';
+import type { Prompt } from './prompts/Prompt';
+import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -176,13 +178,16 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
         systemInstructions = request.overrides.systemInstructions;
     }
 
-    let generator: PromptBuilder<any, any>;
+    // The prompt that should be executed, which is specific to the |request|'s type.
+    let prompt: Prompt<any, any> | undefined;
+    let generator: PromptBuilder<any, any> | undefined;
+
     switch (request.type) {
-        case 'approve-volunteer': {
+        case 'approve-volunteer':
             if (!request.approveVolunteer)
                 notFound();
 
-            const prompt = new ApproveApplicationPrompt({
+            prompt = new ApproveApplicationPrompt({
                 event: request.approveVolunteer.event,
                 intention,
                 language: request.language,
@@ -192,22 +197,7 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
                 team: request.approveVolunteer.team,
             });
 
-            const client = await createVertexAIClient();
-            const result = await prompt.generate(client);
-
-            return {
-                success: true,
-                prompt: {
-                    context: result.context,
-                    message: result.message,
-                    params: result.params,
-                },
-                result: {
-                    subject: result.subject,
-                    message: result.result,
-                },
-            };
-        }
+            break;
 
         case 'cancel-participation':
             generator = new CancelParticipationVolunteerPromptBuilder(
@@ -224,31 +214,53 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'reject-volunteer':
-            executeAccessCheck(props.authenticationContext, {
-                check: 'admin',
-                permission: or('system.internals.ai', {
-                    permission: 'event.applications',
-                    operation: 'update',
-                    scope: {
-                        event: request.approveVolunteer?.event,
-                        team: request.approveVolunteer?.team,
-                    },
-                }),
+            if (!request.rejectVolunteer)
+                notFound();
+
+            prompt = new RejectApplicationPrompt({
+                event: request.rejectVolunteer.event,
+                intention,
+                language: request.language,
+                sourceUserId: props.user.userId,
+                systemInstructions,
+                targetUserId: request.rejectVolunteer.userId,
+                team: request.rejectVolunteer.team,
             });
 
-            generator = new RejectVolunteerPromptBuilder(userId, request.rejectVolunteer);
             break;
 
         default:
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    const { context, prompt, subject } = await generator.build(request.language as any);
+    if (!!prompt) {
+        const client = await createVertexAIClient();
+        const result = await prompt.generate(client);
 
-    const client = await createVertexAIClient();
+        return {
+            success: true,
+            prompt: {
+                context: result.context,
+                message: result.message,
+                params: result.params,
+            },
+            result: {
+                subject: result.subject,
+                message: result.result,
+            },
+        };
 
-    const rawMessage = await client.predictText({ prompt }) ?? '[unable to generate message]';
-    const message = rawMessage.replaceAll(/\n>[ ]*/g, '\n').replace(/^>\s*/, '');
+    } else if (!!generator) {
+        const { prompt, subject } = await generator.build(request.language as any);
 
-    return { success: true, result: { subject, message } };
+        const client = await createVertexAIClient();
+
+        const rawMessage = await client.predictText({ prompt }) ?? '[unable to generate message]';
+        const message = rawMessage.replaceAll(/\n>[ ]*/g, '\n').replace(/^>\s*/, '');
+
+        return { success: true, result: { subject, message } };
+
+    } else {
+        return { success: false };
+    }
 }
