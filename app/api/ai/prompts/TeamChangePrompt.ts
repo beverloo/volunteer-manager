@@ -82,7 +82,7 @@ export class TeamChangePrompt extends TeamEventPrompt<TeamChangePromptContext,
 
         if (context.updatedTeam.whatsApp) {
             message.push(
-                `They are welcome to join our private WhatsApp group on ` +
+                'They are welcome to join our private WhatsApp group on ' +
                 context.updatedTeam.whatsApp);
         }
 

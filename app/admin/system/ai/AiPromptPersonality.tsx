@@ -59,7 +59,8 @@ export function AiPromptPersonality(props: AiPromptPersonalityProps) {
     const defaultValues = useMemo(() => ({
         personality: props.personality,
         systemInstruction: props.systemInstruction,
-    }), [ props.personality ]);
+
+    }), [ props.personality, props.systemInstruction ]);
 
     return (
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
