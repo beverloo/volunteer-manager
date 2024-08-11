@@ -50,7 +50,19 @@ export abstract class TeamEventPrompt
      */
     override async collectContext(params: Params): Promise<TeamEventPromptContext> {
         const base = await super.collectContext(params);
+        return {
+            ...base,
+            team: await this.fetchTeamInfo(base, params.team),
+        };
+    }
 
+    /**
+     * Fetches the team info for the given team, identified by the `teamSlug`, from the database
+     * using the given `context` to specify the relevant event.
+     */
+    protected async fetchTeamInfo(context: EventPromptContext, teamSlug: string)
+        : Promise<TeamEventPromptContext['team']>
+    {
         const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
 
         const numberOfTeamsForEnvironment = this.db.subSelectUsing(tTeams)
@@ -63,10 +75,10 @@ export abstract class TeamEventPrompt
             .innerJoin(tEnvironments)
                 .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
             .leftJoin(eventsTeamsJoin)
-                .on(eventsTeamsJoin.eventId.equals(base.event.id))
+                .on(eventsTeamsJoin.eventId.equals(context.event.id))
                     .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
                     .and(eventsTeamsJoin.enableTeam.equals(/* true= */ 1))
-            .where(tTeams.teamSlug.equals(params.team))
+            .where(tTeams.teamSlug.equals(teamSlug))
             .select({
                 name: tTeams.teamTitle,
                 shortName: tTeams.teamName,
@@ -82,15 +94,13 @@ export abstract class TeamEventPrompt
             .executeSelectOne();
 
         return {
-            ...base,
-            team: {
-                ...team,
+            ...team,
 
-                // The registration portal's slug to use on the given environment depends on the
-                // number of team tenants on that environment.
-                domainSlug:
-                    team.domainOccupants === 1 ? base.event.slug : `${base.event.slug}-${team.slug}`
-            },
+            // The registration portal's slug to use on the given environment depends on the
+            // number of team tenants on that environment.
+            domainSlug:
+                team.domainOccupants === 1 ? context.event.slug
+                                           : `${context.event.slug}-${team.slug}`
         };
     }
 }

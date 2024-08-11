@@ -6,19 +6,15 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
-import { CancelParticipationVolunteerPromptBuilder } from './prompts/CancelParticipationPromptBuilder';
-import { ChangeTeamPromptBuilder } from './prompts/ChangeTeamPromptBuilder';
-import { PromptBuilder } from './prompts/PromptBuilder';
-import { ReinstateParticipationVolunteerPromptBuilder } from './prompts/ReinstateParticipationPromptBuilder';
-import { RejectVolunteerPromptBuilder } from './prompts/RejectVolunteerPromptBuilder';
-import { createVertexAIClient } from '@lib/integrations/vertexai';
-import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
-import { kSupportedLanguages } from './languages';
 import type { Prompt } from './prompts/Prompt';
-import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
+import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
 import { CancelParticipationPrompt } from './prompts/CancelParticipationPrompt';
 import { ReinstateParticipationPrompt } from './prompts/ReinstateParticipationPrompt';
+import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
+import { TeamChangePrompt } from './prompts/TeamChangePrompt';
+import { createVertexAIClient } from '@lib/integrations/vertexai';
+
+import { kSupportedLanguages } from './languages';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -168,8 +164,6 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
     if (!props.user)
         notFound();
 
-    const userId = props.user.userId;
-
     let intention: string | undefined;
     let systemInstructions: string | undefined;
 
@@ -182,7 +176,6 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
     // The prompt that should be executed, which is specific to the |request|'s type.
     let prompt: Prompt<any, any> | undefined;
-    let generator: PromptBuilder<any, any> | undefined;
 
     switch (request.type) {
         case 'approve-volunteer':
@@ -218,7 +211,20 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'change-team':
-            generator = new ChangeTeamPromptBuilder(userId, request.changeTeam);
+            if (!request.changeTeam)
+                notFound();
+
+            prompt = new TeamChangePrompt({
+                event: request.changeTeam.event,
+                intention,
+                language: request.language,
+                sourceUserId: props.user.userId,
+                systemInstructions,
+                targetUserId: request.changeTeam.userId,
+                team: request.changeTeam.currentTeam,
+                updatedTeam: request.changeTeam.updatedTeam,
+            });
+
             break;
 
         case 'reinstate-participation':
@@ -257,34 +263,19 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
-    if (!!prompt) {
-        const client = await createVertexAIClient();
-        const result = await prompt.generate(client);
+    const client = await createVertexAIClient();
+    const result = await prompt.generate(client);
 
-        return {
-            success: true,
-            prompt: {
-                context: result.context,
-                message: result.message,
-                params: result.params,
-            },
-            result: {
-                subject: result.subject,
-                message: result.result,
-            },
-        };
-
-    } else if (!!generator) {
-        const { prompt, subject } = await generator.build(request.language as any);
-
-        const client = await createVertexAIClient();
-
-        const rawMessage = await client.predictText({ prompt }) ?? '[unable to generate message]';
-        const message = rawMessage.replaceAll(/\n>[ ]*/g, '\n').replace(/^>\s*/, '');
-
-        return { success: true, result: { subject, message } };
-
-    } else {
-        return { success: false };
-    }
+    return {
+        success: true,
+        prompt: {
+            context: result.context,
+            message: result.message,
+            params: result.params,
+        },
+        result: {
+            subject: result.subject,
+            message: result.result,
+        },
+    };
 }
