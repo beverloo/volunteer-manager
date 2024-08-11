@@ -83,6 +83,12 @@ export function AiExplorer(props: AiExplorerProps) {
                     team: 'stewards',
                 },
 
+                cancelParticipation: {
+                    userId: /* Dylan= */ 100,
+                    event: '2023',
+                    team: 'hosts',
+                },
+
                 rejectVolunteer: {
                     userId: /* Björk= */ 396,
                     event: '2024',

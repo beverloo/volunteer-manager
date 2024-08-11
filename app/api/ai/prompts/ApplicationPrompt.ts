@@ -7,7 +7,7 @@ import { formatDate } from '@lib/Temporal';
 /**
  * Prompt that can be used to convey to a volunteer that their application has been updated.
  */
-export class ApplicationPrompt extends TeamEventPrompt {
+export abstract class ApplicationPrompt extends TeamEventPrompt {
     override composeMessage(context: TeamEventPromptContext): string[] {
         const message = super.composeMessage(context);
         message.push(

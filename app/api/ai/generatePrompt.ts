@@ -17,6 +17,7 @@ import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
 import { kSupportedLanguages } from './languages';
 import type { Prompt } from './prompts/Prompt';
 import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
+import { CancelParticipationPrompt } from './prompts/CancelParticipationPrompt';
 
 /**
  * Interface definition for the Generative AI API, exposed through /api/ai.
@@ -200,8 +201,19 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
             break;
 
         case 'cancel-participation':
-            generator = new CancelParticipationVolunteerPromptBuilder(
-                userId, request.cancelParticipation);
+            if (!request.cancelParticipation)
+                notFound();
+
+            prompt = new CancelParticipationPrompt({
+                event: request.cancelParticipation.event,
+                intention,
+                language: request.language,
+                sourceUserId: props.user.userId,
+                systemInstructions,
+                targetUserId: request.cancelParticipation.userId,
+                team: request.cancelParticipation.team,
+            });
+
             break;
 
         case 'change-team':
