@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryState, parseAsInteger } from 'nuqs';
 import { useRouter } from 'next/navigation';
 
 import type {
@@ -102,6 +103,13 @@ type RemoteDataTableProps<Endpoint extends keyof ApiEndpoints['get'],
     enableDelete?: `${Endpoint}/:id` extends keyof ApiEndpoints['delete'] ? boolean : false;
 
     /**
+     * Whether pagination state should be stored in the URL's query parameters. This helps the
+     * browser's back and forward operations to navigate across pages, and offset within the table
+     * as part of those navigations.
+     */
+    enableQueryParams?: boolean;
+
+    /**
      * Whether rows can be reordered. An extra column will automatically be added to the table with
      * drag handles, that the user is able to freely move upwards and downwards.
      *
@@ -174,6 +182,7 @@ export function RemoteDataTable<
     props: RemoteDataTableProps<Endpoint, RowModel>)
 {
     const { enableCreate, enableDelete, enableReorder, enableUpdate, refreshOnUpdate } = props;
+    const { enableQueryParams } = props;
 
     const subject = props.subject ?? 'item';
     const context = useMemo(() =>
@@ -305,14 +314,38 @@ export function RemoteDataTable<
     // Capability: (R)ead existing rows
     // ---------------------------------------------------------------------------------------------
 
-    const [ paginationModel, setPaginationModel ] = useState<GridPaginationModel>({
-        page: 0,
-        pageSize: props.pageSize ?? 50,
-    });
+    const [ statePage, setStatePage ] = useState<number>(0);
+    const [ queryPage, setQueryPage ] = useQueryState(
+        'page', parseAsInteger.withDefault(0).withOptions({ history: 'push' }));
+
+    const [ statePageSize, setStatePageSize ] = useState<number>(props.pageSize ?? 50);
+    const [ queryPageSize, setQueryPageSize ] =
+        useQueryState('pageSize', parseAsInteger.withDefault(props.pageSize ?? 50));
+
+    const paginationModel = useMemo((): GridPaginationModel => {
+        if (enableQueryParams) {
+            return {
+                page: queryPage,
+                pageSize: queryPageSize,
+            };
+        } else {
+            return {
+                page: statePage,
+                pageSize: statePageSize,
+            };
+        }
+
+    }, [ enableQueryParams, queryPage, queryPageSize, statePage, statePageSize ]);
 
     const handlePaginationModelChange = useCallback((model: GridPaginationModel) => {
-        setPaginationModel(model);
-    }, [ /* no deps */ ]);
+        if (enableQueryParams) {
+            setQueryPage(model.page);
+            setQueryPageSize(model.pageSize);
+        } else {
+            setStatePage(model.page);
+            setStatePageSize(model.pageSize);
+        }
+    }, [ enableQueryParams, setQueryPage, setQueryPageSize ]);
 
     const [ sortModelDefault, setSortModelDefault ] = useState<boolean>(true);
     const [ sortModel, setSortModel ] =

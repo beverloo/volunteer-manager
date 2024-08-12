@@ -61,5 +61,6 @@ export function NardoDataTable() {
 
     return <RemoteDataTable columns={columns} endpoint="/api/nardo"
                             defaultSort={{ field: 'date', sort: 'desc' }}
-                            enableCreate enableDelete enableUpdate subject="piece of advice" />;
+                            enableCreate enableDelete enableUpdate enableQueryParams
+                            subject="piece of advice" />;
 }

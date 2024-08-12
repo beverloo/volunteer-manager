@@ -170,6 +170,6 @@ export function WebhookDataTable(props: WebhookDataTableProps) {
     ];
 
     return <RemoteDataTable columns={columns} endpoint="/api/admin/webhooks"
-                            context={{ foo: 'bar', ...props }}
+                            context={{ foo: 'bar', ...props }} enableQueryParams
                             defaultSort={{ field: 'id', sort: 'desc' }} pageSize={50} />;
 }

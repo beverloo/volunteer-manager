@@ -52,6 +52,6 @@ export function FeedbackDataTable() {
         }
     ];
 
-    return <RemoteDataTable columns={columns} endpoint="/api/admin/feedback"
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/feedback" enableQueryParams
                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }

@@ -105,6 +105,6 @@ export function EmailDataTable() {
         },
     ];
 
-    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/email"
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/email" enableQueryParams
                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }

@@ -126,6 +126,6 @@ export function TwilioDataTable(props: TwilioDataTableProps) {
     ];
 
     return <RemoteDataTable columns={columns} endpoint="/api/admin/outbox/twilio"
-                            context={{ type: props.type }}
+                            context={{ type: props.type }} enableQueryParams
                             defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
 }

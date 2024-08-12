@@ -133,6 +133,6 @@ export function LogsDataTable(props: LogsDataTableProps) {
 
     return <RemoteDataTable columns={columns} endpoint="/api/admin/logs" context={context}
                             defaultSort={{ field: 'date', sort: 'desc' }}
-                            enableDelete={enableDelete} subject="log entry"
+                            enableDelete={enableDelete} enableQueryParams subject="log entry"
                             pageSize={ pageSize ?? 50 } />;
 }

@@ -102,6 +102,7 @@ export function ExportTable() {
 
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/exports" enableDelete
-                         defaultSort={{ field: 'createdOn', sort: 'desc' }} pageSize={25} />
+                         enableQueryParams defaultSort={{ field: 'createdOn', sort: 'desc' }}
+                         pageSize={25} />
     );
 }

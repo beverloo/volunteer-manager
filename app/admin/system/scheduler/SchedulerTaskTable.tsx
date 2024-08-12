@@ -161,7 +161,7 @@ export function SchedulerTaskTable() {
                 The <strong>system scheduler</strong> is the component to run tasks (such as sending
                 an e-mail) in the background, either as a one-off or at a configured interval.
             </Alert>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/scheduler"
+            <RemoteDataTable columns={columns} endpoint="/api/admin/scheduler" enableQueryParams
                              defaultSort={{ field: 'date', sort: 'desc' }} pageSize={25} />
         </Paper>
     );
