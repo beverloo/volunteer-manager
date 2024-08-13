@@ -397,7 +397,8 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                     permission.status.roles, childPermission.status.roles);
 
                 if (typeof childPermission.status.account === 'object' &&
-                        childPermission.status.account?.expanded === false)
+                        (childPermission.status.account.expanded === false ||
+                         childPermission.status.account.crud === false))
                 {
                     if (childPermission.status.account.result === 'granted') {
                         if (childPermission.status.account.crud)
