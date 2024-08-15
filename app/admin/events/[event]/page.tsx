@@ -372,7 +372,7 @@ async function getSeniorVolunteers(access: AccessControl, event: string, eventId
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(tUsersEvents.roleId))
         .where(tUsersEvents.eventId.equals(eventId))
-            .and(rolesJoin.roleAdminAccess.equals(/* true= */ 1))
+            .and(rolesJoin.rolePermissionGrant.isNotNull())
         .select({
             userId: tUsers.userId,
             avatarHash: storageJoin.fileHash,

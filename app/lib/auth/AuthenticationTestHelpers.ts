@@ -26,6 +26,7 @@ export interface AuthenticationResult {
     // UserAuthenticationContext.events:
     events: {
         event?: string;
+        grant?: string;
         team?: string;
         teamSlug?: string;
 

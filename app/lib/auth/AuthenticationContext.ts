@@ -22,6 +22,7 @@ const headers = import('next/headers');
 export interface UserEventAuthenticationContext {
     /**
      * Whether the user has admin access to this event, as opposed to regular participation.
+     * @todo Deprecate and remove this property.
      */
     admin: boolean;
 

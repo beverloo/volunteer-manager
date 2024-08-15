@@ -142,9 +142,6 @@ export async function getEventsForUser(
 
                 maximumVolunteers: eventsTeamsJoin.teamMaximumSize,
             }),
-
-            // Internal use:
-            adminAccess: rolesJoin.roleAdminAccess,
         })
         .groupBy(tEvents.eventId)
         .orderBy(tEvents.eventStartTime, 'desc')

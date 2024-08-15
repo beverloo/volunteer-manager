@@ -111,12 +111,12 @@ export async function authenticateUser(params: AuthenticateUserParams)
             // UserAuthenticationContext.events:
             events: dbInstance.aggregateAsArray({
                 event: eventsJoin.eventSlug,
+                grant: rolesJoin.rolePermissionGrant,
                 team: teamsJoin.teamEnvironment,  /// @todo: remove?
                 teamSlug: teamsJoin.teamSlug,
 
                 // TODO: Figure out if we can do this filtering in the query somehow...
                 isEventHidden: eventsJoin.eventHidden,
-                isRoleAdmin: rolesJoin.roleAdminAccess,
             }),
 
             // UserAuthenticationContext.user:
@@ -201,15 +201,16 @@ export async function authenticateUser(params: AuthenticateUserParams)
         if (entry.isEventHidden)
             continue;  // the event has been suspended
 
-        // TODO: Distinguish between Senior and Staff
-        grants.push({
-            permission: 'senior',
-            event: entry.event,
-            team: entry.teamSlug,
-        });
+        if (!!entry.grant) {
+            grants.push({
+                permission: entry.grant,
+                event: entry.event,
+                team: entry.teamSlug,
+            });
+        }
 
         events.set(entry.event, {
-            admin: !!entry.isRoleAdmin,
+            admin: !!entry.grant,
             event: entry.event,
             team: entry.team,
         });
