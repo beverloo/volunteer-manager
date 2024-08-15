@@ -8,6 +8,8 @@ import { determineEnvironment } from '@lib/Environment';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents } from '@lib/database';
 
+import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
+
 /**
  * Generates the Web App Manifest file for the Volunteer Manager. We'll consider both the site's
  * environment and the upcoming event in determining what to generate.
@@ -31,25 +33,18 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         .executeSelectNoneOrOne();
 
     const administrationShortcut: MetadataRoute.Manifest['shortcuts'] = [];
-    if (!!authenticationContext.user) {
-        for (const event of authenticationContext.events.values()) {
-            if (!event.admin)
-                continue;  // the `user` does not have admin access to this event
-
-            administrationShortcut.push({
-                name: 'Administration',
-                url: '/admin',
-                icons: [
-                    {
-                        src: '/images/icon-admin.png',
-                        sizes: '192x192',
-                        type: 'image/png',
-                    }
-                ],
-            });
-
-            break;
-        }
+    if (authenticationContext.access.can('event.visible', { event: kAnyEvent, team: kAnyTeam })) {
+        administrationShortcut.push({
+            name: 'Administration',
+            url: '/admin',
+            icons: [
+                {
+                    src: '/images/icon-admin.png',
+                    sizes: '192x192',
+                    type: 'image/png',
+                }
+            ],
+        });
     }
 
     return {

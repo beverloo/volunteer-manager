@@ -18,14 +18,9 @@ const headers = import('next/headers');
 /**
  * Authentication Context describing a particular user's access to a particular event. Senior
  * volunteering roles grant administrative access. Only active events will be considered.
+ * @todo Change this to be a Map<string, string>.
  */
 export interface UserEventAuthenticationContext {
-    /**
-     * Whether the user has admin access to this event, as opposed to regular participation.
-     * @todo Deprecate and remove this property.
-     */
-    admin: boolean;
-
     /**
      * Unique slug of the event ("2024"), through which it is identified in URLs.
      */

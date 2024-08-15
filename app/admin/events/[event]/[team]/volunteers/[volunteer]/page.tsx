@@ -46,7 +46,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!access.can('event.volunteers.information', 'read', accessScope))
         notFound();
 
-    const readOnly = true;//!access.can('event.volunteers.information', 'update', accessScope);
+    const readOnly = access.can('event.volunteers.information', 'update', accessScope);
 
     const storageJoin = tStorage.forUseInLeftJoin();
 

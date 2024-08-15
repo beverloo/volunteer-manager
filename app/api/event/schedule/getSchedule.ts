@@ -336,16 +336,16 @@ async function populateProgram(
 
 /**
  * Populates the vendor information in the given `schedule`. Not all vendors are required, however,
- * the `isLeader` boolean overrides that behaviour as a more substantial calendar will be included
+ * the `fullAccess` boolean overrides that behaviour as a more substantial calendar will be included
  * in addition to bare information for the overview card.
  */
 async function populateVendors(
     dbInstance: DBConnection, schedule: Response, currentTime: Temporal.ZonedDateTime,
-    eventId: number, includeFirstAid: boolean, includeSecurity: boolean, isLeader: boolean)
+    eventId: number, includeFirstAid: boolean, includeSecurity: boolean, fullAccess: boolean)
 {
-    if (isLeader || includeFirstAid)
+    if (fullAccess || includeFirstAid)
         schedule.vendors[VendorTeam.FirstAid] = { active: [ /* empty */ ], schedule: [] };
-    if (isLeader || includeSecurity)
+    if (fullAccess || includeSecurity)
         schedule.vendors[VendorTeam.Security] = { active: [ /* empty */ ], schedule: [] };
 
     const vendorsScheduleJoin = tVendorsSchedule.forUseInLeftJoin();
@@ -370,7 +370,7 @@ async function populateVendors(
         .executeSelectMany();
 
     for (const vendor of vendors) {
-        if (isLeader) {
+        if (fullAccess) {
             schedule.vendors[vendor.team]!.schedule.push({
                 id: vendor.id,
                 name: vendor.firstName,
@@ -397,12 +397,12 @@ async function populateVendors(
 
 /**
  * Populates the volunteers who participate in this event in the given `schedule`. All information
- * relevant for the given `eventId` will be fetched. When `isLeader` is set, all teams will be
- * returned, otherwise `team` will be used to limit the scope of the returned information.
+ * relevant for the given `eventId` will be fetched.
  */
 async function populateVolunteers(
     dbInstance: DBConnection, schedule: Response, currentTime: Temporal.ZonedDateTime,
-    eventId: number, unavailabilityFn: UnavailabilityFn, isLeader: boolean, team?: string)
+    eventId: number, unavailabilityFn: UnavailabilityFn, notesAccess: boolean,
+    phoneNumberAccess: boolean, teamAccess: boolean, team?: string)
 {
     const storageJoin = tStorage.forUseInLeftJoin();
 
@@ -417,7 +417,7 @@ async function populateVolunteers(
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .where(tUsersEvents.eventId.equals(eventId))
             .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
-            .and(tTeams.teamSlug.equalsIfValue(team).ignoreWhen(isLeader))
+            .and(tTeams.teamSlug.equalsIfValue(team).ignoreWhen(teamAccess))
         .select({
             id: tUsers.userId,
             user: {
@@ -462,7 +462,7 @@ async function populateVolunteers(
         // Phone numbers are included and available in the app when the signed in user is a leader,
         // or when the displayed volunteer is a leader. Their phone number will be shared with the
         // other volunteers via the WhatsApp group anyway.
-        const includePhoneNumber = isLeader || volunteer.user.role.isLeader;
+        const includePhoneNumber = phoneNumberAccess || volunteer.user.role.isLeader;
 
         schedule.volunteers[volunteerId] = {
             id: volunteerId,
@@ -472,7 +472,7 @@ async function populateVolunteers(
             roleBadge: volunteer.user.role.badge,
             roleLeader: !!volunteer.user.role.isLeader ? true : undefined,
             team: `${volunteer.user.team.id}`,
-            notes: isLeader ? volunteer.user.notes : undefined,
+            notes: notesAccess ? volunteer.user.notes : undefined,
             phoneNumber: includePhoneNumber ? volunteer.user.phoneNumber : undefined,
             schedule: [ /* empty */ ],
             unavailableUntil: unavailabilityFn(volunteer.user),
@@ -754,20 +754,25 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     const { access } = props;
 
-    let isLeader: boolean = false;
     let team: string | undefined;
 
-    {
-        const eventAuthenticationContext = props.authenticationContext.events.get(event.slug);
-        if (!!eventAuthenticationContext) {
-            isLeader = !!eventAuthenticationContext?.admin;
-            team = eventAuthenticationContext?.team;
-        }
-
-        isLeader ||= access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam });
-        if (!eventAuthenticationContext && !isLeader)
+    if (props.authenticationContext.events.has(event.slug)) {
+        team = props.authenticationContext.events.get(event.slug)!.team;
+    } else {
+        if (!access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam }))
             notFound();
     }
+
+    const notesAccess = access.can('event.volunteers.information', 'read', {
+        event: event.slug,
+        team: kAnyTeam,
+    });
+
+    const phoneNumberAccess = notesAccess;  // should this be a separate permission?
+    const teamAccess = access.can('event.visible', {
+        event: event.slug,
+        team: kAnyTeam,  // TODO: team visibility should be configurable
+    });
 
     // ---------------------------------------------------------------------------------------------
 
@@ -799,7 +804,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
             enableLogicalDays: settings['schedule-logical-days'] ?? false,
-            enableNotesEditor: isLeader,
+            enableNotesEditor: notesAccess,
             searchResultFuzziness: settings['schedule-search-candidate-fuzziness'] ?? 0.04,
             searchResultLimit: settings['schedule-search-result-limit'] ?? 5,
             searchResultMinimumScore: settings['schedule-search-candidate-minimum-score'] ?? 0.37,
@@ -846,13 +851,18 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     await populateProgram(dbInstance, schedule, currentTime, event.festivalId);
 
+    const fullVendorAccess = access.can('event.vendors', 'read', {
+        event: event.slug,
+        team: kAnyTeam
+    });
+
     const includeFirstAidVendors = !!settings['schedule-vendor-first-aid-card'];
     const includeSecurityVendors = !!settings['schedule-vendor-security-card'];
 
-    if (isLeader || includeFirstAidVendors || includeSecurityVendors) {
+    if (fullVendorAccess || includeFirstAidVendors || includeSecurityVendors) {
         await populateVendors(
             dbInstance, schedule, currentTime, event.id, includeFirstAidVendors,
-            includeSecurityVendors, isLeader);
+            includeSecurityVendors, fullVendorAccess);
     }
 
     const unavailabilityFn = determineVolunteerUnavailability.bind(null, {
@@ -867,7 +877,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     });
 
     await populateVolunteers(
-        dbInstance, schedule, currentTime, event.id, unavailabilityFn, isLeader, team);
+        dbInstance, schedule, currentTime, event.id, unavailabilityFn, notesAccess,
+        phoneNumberAccess, teamAccess, team);
 
     // ---------------------------------------------------------------------------------------------
 

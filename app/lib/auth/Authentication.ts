@@ -210,7 +210,6 @@ export async function authenticateUser(params: AuthenticateUserParams)
         }
 
         events.set(entry.event, {
-            admin: !!entry.grant,
             event: entry.event,
             team: entry.team,
         });
