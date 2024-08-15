@@ -754,10 +754,10 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     const { access } = props;
 
-    let team: string | undefined;
+    let team: string | undefined;  // slug
 
     if (props.authenticationContext.events.has(event.slug)) {
-        team = props.authenticationContext.events.get(event.slug)!.team;
+        team = props.authenticationContext.events.get(event.slug)!;
     } else {
         if (!access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam }))
             notFound();

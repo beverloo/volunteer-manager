@@ -209,10 +209,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             });
         }
 
-        events.set(entry.event, {
-            event: entry.event,
-            team: entry.team,
-        });
+        events.set(entry.event, entry.team);
     }
 
     const accessControl = new AccessControl({

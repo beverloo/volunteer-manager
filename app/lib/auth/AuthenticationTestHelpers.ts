@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { AuthenticationContext, UserEventAuthenticationContext } from './AuthenticationContext';
+import type { AuthenticationContext } from './AuthenticationContext';
 import type { User } from './User';
 import type { useMockConnection } from '@lib/database/Connection';
 import { AccessControl } from './AccessControl';
@@ -56,7 +56,7 @@ interface BuildAuthenticationContextParams {
     }>;
     user?: Partial<User>;
     authType?: AuthType;
-    events?: Map<string, UserEventAuthenticationContext>;
+    events?: Map</* eventSlug= */ string, /* teamSlug= */ string>;
 }
 
 /**
