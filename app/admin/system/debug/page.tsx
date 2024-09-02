@@ -8,7 +8,7 @@ import { cookies, headers } from 'next/headers';
 
 import { DateTimePickerElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
@@ -83,14 +83,14 @@ export default async function DebugPage() {
             <DebugOptions />
             <FormGridSection action={debugAction} defaultValues={values} title="Form section demo"
                              timezone="Europe/Amsterdam">
-                <Grid xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <TextFieldElement name="username" label="Username" size="small" fullWidth
                                       required />
                 </Grid>
-                <Grid xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <TextFieldElement name="notes" label="Notes" size="small" fullWidth />
                 </Grid>
-                <Grid xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <DateTimePickerElement name="date" label="Date and time" required
                                            inputProps={{ size: 'small', fullWidth: true }} />
                 </Grid>

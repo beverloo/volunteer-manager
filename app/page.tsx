@@ -9,7 +9,7 @@ import type { Theme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { deepmerge } from '@mui/utils';
 
 import type { Event } from '@lib/Event';
@@ -217,17 +217,17 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             </RegistrationContentContainer>
 
             <Grid container spacing={2} sx={{ mt: 2 }}>
-                <Grid xs={12} md={0} sx={{ display: { xs: 'block', md: 'none' } }}>
+                <Grid size={{ xs: 12, md: 0 }} sx={{ display: { xs: 'block', md: 'none' } }}>
                     <Card elevation={2} sx={ deepmerge(kPhotoCardStyles, landingStyle) } />
                 </Grid>
 
                 { enableAdministrationAccess &&
-                    <Grid xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <AdministrationCard />
                     </Grid> }
 
                 { enableStatistics &&
-                    <Grid xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <StatisticsCard />
                     </Grid> }
 
@@ -242,7 +242,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                         data?.enableSchedule || access.can('event.schedules', 'read', accessScope);
 
                     return (
-                        <Grid key={event.slug} xs={12} md={4}>
+                        <Grid key={event.slug} size={{ xs: 12, md: 4 }}>
                             <AdditionalEventCard name={event.name} slug={event.slug}
                                                  enableRegistration={enableRegistration}
                                                  enableSchedule={enableSchedule} />

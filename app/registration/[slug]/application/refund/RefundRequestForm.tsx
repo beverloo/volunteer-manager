@@ -5,7 +5,7 @@
 
 import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 /**
  * Props accepted by the <RefundRequestForm> component.
@@ -36,16 +36,16 @@ export function RefundRequestForm(props: RefundRequestFormProps) {
 
     return (
         <Grid container spacing={2}>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="ticketNumber" label="What was your ticket number?"
                                   fullWidth size="small" disabled={readOnly} onChange={onChange}
                                   required={!!props.requireTicketNumber} />
             </Grid>
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="accountIban" label="Bank account IBAN" required
                                   fullWidth size="small" disabled={readOnly} onChange={onChange} />
             </Grid>
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="accountName" label="Bank account holder name" required
                                   fullWidth size="small" disabled={readOnly} onChange={onChange} />
             </Grid>

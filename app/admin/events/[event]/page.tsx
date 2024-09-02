@@ -7,7 +7,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import SsidChartIcon from '@mui/icons-material/SsidChart';
 
@@ -411,21 +411,21 @@ export default async function EventPage(props: NextPageParams<'event'>) {
 
     return (
         <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
-            <Grid xs={3}>
+            <Grid size={{ xs: 3 }}>
                 <EventIdentityCard event={event} />
             </Grid>
             { participatingTeams.map((team, index) =>
-                <Grid key={`team-${index}`} xs={3}>
+                <Grid key={`team-${index}`} size={{ xs: 3 }}>
                     <EventTeamCard {...team} />
                 </Grid> ) }
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="column" spacing={2}>
                     <EventMetadata event={event} metadata={eventMetadata} />
                     { recentChanges.length > 0 &&
                         <EventRecentChanges changes={recentChanges} event={event} /> }
                 </Stack>
             </Grid>
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="column" spacing={2}>
                     { deadlines.length > 0 &&
                         <EventDeadlines event={event} deadlines={deadlines} /> }

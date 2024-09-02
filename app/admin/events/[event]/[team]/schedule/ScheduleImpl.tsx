@@ -8,7 +8,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SelectElement } from '@proxy/react-hook-form-mui';
 
 import type { PopoverPosition } from '@mui/material/Popover';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
@@ -317,14 +317,14 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                            onClose={handleDialogClose} onDelete={handleDialogDelete}
                            onSubmit={handleDialogUpdate} defaultValues={dialogDefaultValues}>
                 <Grid container>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
                     </Grid>
-                    <Grid xs={6} sx={{ pt: 1, pr: 0.5 }}>
+                    <Grid size={{ xs: 6 }} sx={{ pt: 1, pr: 0.5 }}>
                         <TimePickerElement name="startTime"
                                            inputProps={{ size: 'small', fullWidth: true }} />
                     </Grid>
-                    <Grid xs={6} sx={{ pt: 1, pl: 0.5 }}>
+                    <Grid size={{ xs: 6 }} sx={{ pt: 1, pl: 0.5 }}>
                         <TimePickerElement name="endTime"
                                            inputProps={{ size: 'small', fullWidth: true }} />
                     </Grid>

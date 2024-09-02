@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -37,7 +37,7 @@ interface AvailabilityToggleProps {
  */
 export function AvailabilityToggle(props: AvailabilityToggleProps) {
     return (
-        <Grid xs={12}>
+        <Grid size={{ xs: 12 }}>
             <Stack direction="row" alignItems="center" spacing={2}>
                 <Typography variant="body2" sx={{ flexShrink: 0, width: '150px' }}>
                     {props.label}:

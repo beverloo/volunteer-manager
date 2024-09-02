@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import CardActionArea from '@mui/material/CardActionArea';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import Paper from '@mui/material/Paper';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
@@ -104,7 +104,7 @@ export function FutureVolunteersCard(props: FutureVolunteersCardProps) {
                         </Typography>
                         <Grid container flexGrow={1} spacing={2}>
                             { upcoming.volunteers.map(volunteer =>
-                                <Grid key={volunteer.id} xs={4}>
+                                <Grid key={volunteer.id} size={{ xs: 4 }}>
                                     <Paper variant="outlined"
                                            sx={{ p: 1, borderColor: 'transparent '}}>
                                         <Stack direction="row" justifyContent="space-between">

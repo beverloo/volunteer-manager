@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, type FieldValue, FormContainer, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -81,11 +81,11 @@ export function ContentCreate(props: ContentCreateProps) {
     return (
         <FormContainer onSuccess={handleSubmit}>
             <Grid container spacing={2}>
-                <Grid xs={12}>
+                <Grid size={{ xs: 12 }}>
                     <TextFieldElement name="title" label="Content title" fullWidth size="small"
                                       onChange={handleChange} required />
                 </Grid>
-                <Grid xs={12}>
+                <Grid size={{ xs: 12 }}>
                     <Stack direction="row" spacing={1}>
                         { props.pathPrefix &&
                             <Typography sx={{ pt: '9px' }}>

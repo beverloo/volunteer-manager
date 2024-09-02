@@ -8,7 +8,7 @@ import { useCallback, useState } from 'react';
 import { type FieldValues, FormContainer, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -70,19 +70,19 @@ export function Email(props: EmailProps) {
             </Alert>
             <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="hostname" label="Hostname" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="port" label="Port" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="username" label="Username" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="password" label="Password" fullWidth size="small"
                                           type="password" onChange={handleInvalidate} />
                     </Grid>

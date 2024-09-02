@@ -13,7 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
@@ -108,12 +108,12 @@ export function RegisterDialog(props: RegisterDialogProps) {
                 </Collapse>
                 <Grid container spacing={2} sx={{ pt: 2 }}>
                     <RegisterForm />
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <PasswordField name="password" label="Password" type="password"
                                        fullWidth size="small" required
                                        autoComplete="new-password" />
                     </Grid>
-                    <Grid xs={12} sx={{ pt: 0 }}>
+                    <Grid size={{ xs: 12 }} sx={{ pt: 0 }}>
                         <CheckboxElement name="gdpr" size="small" label={gdprLabel} required />
                     </Grid>
                 </Grid>

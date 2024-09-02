@@ -13,7 +13,7 @@ import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
@@ -170,16 +170,16 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                     {children}
                     <Grid container spacing={2} sx={{ margin: '8px -8px -8px -8px !important' }}>
                         { !!categories &&
-                            <Grid xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <SelectElement name="categoryId" label="Category" fullWidth
                                                size="small" options={categories} required />
                             </Grid> }
-                        <Grid xs={12} md={ !!categories ? 8 : 12 }>
+                        <Grid size={{ xs: 12, md: !!categories ? 8 : 12 }}>
                             <TextFieldElement name="title" label="Content title" fullWidth
                                               size="small" required />
                         </Grid>
                         { !pathHidden &&
-                            <Grid xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Stack direction="row" spacing={1}>
                                     { pathPrefix &&
                                         <Typography sx={{ pt: '9px' }}>

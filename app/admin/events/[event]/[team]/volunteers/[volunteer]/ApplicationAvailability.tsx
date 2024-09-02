@@ -13,7 +13,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { darken, lighten } from '@mui/system/colorManipulator';
@@ -258,7 +258,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                     <AccordionDetails sx={kStyles.sectionContent}>
                         <Grid container spacing={2}>
                             { [ ...Array(volunteer.actualAvailableEventLimit) ].map((_, index) =>
-                                <Grid key={index} xs={12}>
+                                <Grid key={index} size={{ xs: 12 }}>
                                     <AutocompleteElement name={`preference_${index}`}
                                                          autocompleteProps={{
                                                              fullWidth: true,

@@ -5,7 +5,7 @@
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import { deepmerge } from '@mui/utils';
 
@@ -58,7 +58,7 @@ export function WelcomeCard(props: React.PropsWithChildren<WelcomeCardProps>) {
 
     return (
         <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
-            <Grid xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
                 <Markdown sx={{ px: 2 }}>
                     {description}
                 </Markdown>
@@ -66,7 +66,7 @@ export function WelcomeCard(props: React.PropsWithChildren<WelcomeCardProps>) {
                     {props.children}
                 </Stack>
             </Grid>
-            <Grid xs={0} md={7} sx={deepmerge(kStyles.photoInline, landingStyle)}>
+            <Grid size={{ xs: 0, md: 7 }} sx={deepmerge(kStyles.photoInline, landingStyle)}>
                 { /* TODO: Multiple photos per environment */ }
             </Grid>
         </Grid>

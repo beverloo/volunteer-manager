@@ -4,7 +4,7 @@
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 /**
  * The options we'll present to users when having to pick their gender.
@@ -22,30 +22,30 @@ export const kGenderOptions = [
 export function RegisterForm() {
     return (
         <>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="firstName" label="First name" type="text"
                                   fullWidth size="small" required
                                   autoFocus autoComplete="given-name" />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="lastName" label="Last name" type="text"
                                   fullWidth size="small" required
                                   autoComplete="family-name" />
             </Grid>
 
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <SelectElement name="gender" label="Gender" options={kGenderOptions}
                                fullWidth size="small" required />
             </Grid>
 
-            <Grid xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <DatePickerElement name="rawBirthdate" label="Date of birth"
                                    disableFuture disableHighlightToday openTo="year"
                                    inputProps={{ fullWidth: true, size: 'small' }}
                                    required />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
                                   fullWidth size="small" required
                                   autoComplete="tel" />

@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, TextareaAutosizeElement, SelectElement
 
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
@@ -115,28 +115,28 @@ function ServiceSettings(props: ServiceSettingsProps) {
     return (
         <FormContainer defaultValues={settings} onSuccess={onRequestSave}>
             <Grid container spacing={2}>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     <SelectElement name="model" label="Model" size="small" fullWidth
                                    onChange={onModelChange} options={modelOptions} />
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     { /* safety settings? */ }
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     <SliderElement name="temperature" label="Temperature" size="small"
                                    min={0} max={1} step={0.05}
                                    onChangeCommitted={onTemperatureChange} />
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     <SliderElement name="tokenLimit" label="Token limit" size="small"
                                    min={1} max={1024} step={1}
                                    onChangeCommitted={onTokenLimitChange} />
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     <SliderElement name="topK" label="Top K" size="small"
                                    min={1} max={40} onChangeCommitted={onTopKChange} />
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={{ xs: 6 }}>
                     <SliderElement name="topP" label="Top P" size="small"
                                    min={0} max={1} step={0.05} onChangeCommitted={onTopPChange} />
                 </Grid>

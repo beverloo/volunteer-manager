@@ -10,7 +10,7 @@ import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -85,46 +85,46 @@ export function Information(props: InformationProps) {
                     Information
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid xs={6} md={3}>
+                    <Grid size={{ xs: 6, md: 3 }}>
                         <TextFieldElement name="firstName" label="First name" type="text"
                                           fullWidth size="small" required
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
-                    <Grid xs={6} md={3}>
+                    <Grid size={{ xs: 6, md: 3 }}>
                         <TextFieldElement name="lastName" label="Last name" type="text"
                                           fullWidth size="small" required
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
-                    <Grid xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <TextFieldElement name="displayName" label="Display name" type="text"
                                           fullWidth size="small"
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="username" label="E-mail address" type="email"
                                           fullWidth size="small"
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="gender" label="Gender" options={kGenderOptions}
                                        fullWidth size="small" required
                                        onChange={ () => setInvalidated(true) } />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <DatePickerElement name="rawBirthdate" label="Date of birth"
                                            disableFuture disableHighlightToday openTo="year"
                                            inputProps={{ fullWidth: true, size: 'small' }}
                                            onChange={ () => setInvalidated(true) } />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
                                           fullWidth size="small"
                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
 
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <SubmitCollapse error={error} loading={loading} open={invalidated} />
                     </Grid>
                 </Grid>

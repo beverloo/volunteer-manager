@@ -9,7 +9,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -168,10 +168,10 @@ export function AvailabilityExpectations(props: AvailabilityExpectationsProps) {
             <Grid container spacing={2} sx={{ my: 1 }}>
                 { props.expectations.map((info, index) =>
                     <React.Fragment key={index}>
-                        <Grid xs={12} lg={2}>
+                        <Grid size={{ xs: 12, lg: 2 }}>
                             {info.label}
                         </Grid>
-                        <Grid xs={12} lg={10}>
+                        <Grid size={{ xs: 12, lg: 10 }}>
                             <AvailabilityExpectationDay info={info} />
                         </Grid>
                     </React.Fragment> )}

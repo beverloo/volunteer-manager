@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
@@ -140,23 +140,23 @@ export function ApplicationMetadata(props: ApplicationMetadataProps) {
                          permission="event.volunteers.overrides" />
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2} sx={{ pt: 1 }}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <DateTimePickerElement name="registrationDate" label="Registration date"
                                                inputProps={{ fullWidth: true, size: 'small' }}
                                                onChange={handleChange} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="availabilityEventLimit" type="number"
                                           label="Availability event limit override"
                                           fullWidth size="small" onChange={handleChange} />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="hotelEligible" label="Hotel eligibility override"
                                        options={kSelectOptions} fullWidth size="small"
                                        onChange={handleChange} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="trainingEligible" label="Training eligibility override"
                                        options={kSelectOptions} fullWidth size="small"
                                        onChange={handleChange} />

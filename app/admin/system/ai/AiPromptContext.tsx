@@ -9,7 +9,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import { Section } from '@app/admin/components/Section';
@@ -86,7 +86,7 @@ export function AiPromptContext(props: AiPromptContextProps) {
                 <Grid container spacing={2}>
                     { intentions.map(intention =>
                         <React.Fragment key={intention.setting}>
-                            <Grid xs={3}>
+                            <Grid size={{ xs: 3 }}>
                                 <Typography variant="subtitle2">
                                     {intention.label}
                                 </Typography>
@@ -98,7 +98,7 @@ export function AiPromptContext(props: AiPromptContextProps) {
                                     </MuiLink>
                                 </Typography>
                             </Grid>
-                            <Grid xs={9}>
+                            <Grid size={{ xs: 9 }}>
                                 <TextareaAutosizeElement name={intention.setting} size="small"
                                                          onChange={handleChange} fullWidth />
                             </Grid>

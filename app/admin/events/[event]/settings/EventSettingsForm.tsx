@@ -6,7 +6,7 @@
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
 import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 /**
  * Props accepted by the <EventSettingsForm> component.
@@ -31,27 +31,27 @@ export function EventSettingsForm(props: EventSettingsFormProps) {
 
     return (
         <>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="name" label="Full event name" required fullWidth
                                   size="small" onChange={onChange} />
             </Grid>
 
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="shortName" label="Short event name" required
                                   fullWidth size="small" onChange={onChange} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="slug" label="Event slug" required fullWidth
                                   size="small" InputProps={{ readOnly: !mutableSlug }}
                                   onChange={onChange} />
             </Grid>
 
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <DateTimePickerElement name="startTime" label="Start time" required
                                        inputProps={{ fullWidth: true, size: 'small' }}
                                        onChange={onChange} textReadOnly />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <DateTimePickerElement name="endTime" label="End time" required
                                        inputProps={{ fullWidth: true, size: 'small' }}
                                        onChange={onChange} textReadOnly />

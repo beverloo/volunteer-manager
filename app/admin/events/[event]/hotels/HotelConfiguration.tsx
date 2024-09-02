@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
@@ -102,7 +102,7 @@ export async function HotelConfiguration(props: HotelConfigurationProps) {
     return (
         <FormGridSection action={action} defaultValues={configuration}
                          timezone={props.event.timezone} title="Hotel room configuration">
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <SectionIntroduction>
                     This section allows you to specify which hotel rooms are available, and to
                     decide whether this information should be publicly accessible. Additionally, you
@@ -112,10 +112,10 @@ export async function HotelConfiguration(props: HotelConfigurationProps) {
             <AvailabilityToggle label="Publish information" name="hotelInformationPublished" />
             <AvailabilityWindow label="Accept preferences" start="hotelPreferencesStart"
                                 end="hotelPreferencesEnd" timezone={props.event.timezone} />
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <Divider />
             </Grid>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <HotelConfigurationTable event={props.event.slug} />
             </Grid>
         </FormGridSection>

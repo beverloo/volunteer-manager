@@ -8,7 +8,7 @@ import React, { useCallback, useState } from 'react';
 import { type FieldValues, FormContainer, CheckboxElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import type { Setting } from '@lib/Settings';
@@ -92,7 +92,7 @@ export function SettingSection(props: SettingSectionProps) {
                 <Grid container spacing={2}>
                     { props.settings.map((setting, index) =>
                         <React.Fragment key={index}>
-                            <Grid xs={4}>
+                            <Grid size={{ xs: 4 }}>
                                 <Typography variant="subtitle2">
                                     {setting.label}
                                 </Typography>
@@ -101,7 +101,7 @@ export function SettingSection(props: SettingSectionProps) {
                                         {setting.description}
                                     </Typography> }
                             </Grid>
-                            <Grid xs={8} alignSelf="center">
+                            <Grid size={{ xs: 8 }} alignSelf="center">
                                 { setting.type === 'boolean' &&
                                     <CheckboxElement name={setting.setting} size="small"
                                                      onChange={handleChange} /> }

@@ -8,7 +8,7 @@ import { SelectElement, TextFieldElement, TextareaAutosizeElement }
 
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import PublicIcon from '@mui/icons-material/Public';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -119,32 +119,32 @@ export function EnvironmentSection(props: EnvironmentSectionProps) {
     return (
         <FormGridSection action={action} defaultValues={props} title={props.domain}
                          icon={ <PublicIcon htmlColor={props.colours.light} /> }>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="domain" label="Domain" fullWidth size="small" disabled />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="purpose" label="Purpose" fullWidth size="small"
                                options={kEnvironmentPurposeOptions} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <ColorFieldElement name="colours.dark" label="Dark mode colour" size="small" />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <ColorFieldElement name="colours.light" label="Light mode colour" size="small" />
             </Grid>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="title" label="Title" fullWidth size="small" />
             </Grid>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextareaAutosizeElement name="description" label="Description"
                                          fullWidth size="small" />
             </Grid>
             { props.teams.length > 0 &&
                 <>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Divider />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="body2">
                                 <strong>Teams</strong>:

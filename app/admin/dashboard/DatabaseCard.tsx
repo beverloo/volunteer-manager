@@ -6,7 +6,7 @@
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 /**
@@ -64,17 +64,17 @@ export function DatabaseCard(props: DatabaseCardProps) {
                     Database status
                 </Typography>
                 <Grid container spacing={2} sx={{ pt: 1, mb: 0 }}>
-                    <Grid xs={9}>Active connections:</Grid>
-                    <Grid xs={3}>{connections.active}</Grid>
+                    <Grid size={{ xs: 9 }}>Active connections:</Grid>
+                    <Grid size={{ xs: 3 }}>{connections.active}</Grid>
 
-                    <Grid xs={9}>Idle connections:</Grid>
-                    <Grid xs={3}>{connections.idle}</Grid>
+                    <Grid size={{ xs: 9 }}>Idle connections:</Grid>
+                    <Grid size={{ xs: 3 }}>{connections.idle}</Grid>
 
-                    <Grid xs={9}>Total connections:</Grid>
-                    <Grid xs={3}>{connections.total}</Grid>
+                    <Grid size={{ xs: 9 }}>Total connections:</Grid>
+                    <Grid size={{ xs: 3 }}>{connections.total}</Grid>
 
-                    <Grid xs={9}>Task queue size:</Grid>
-                    <Grid xs={3}>{taskQueueSize}</Grid>
+                    <Grid size={{ xs: 9 }}>Task queue size:</Grid>
+                    <Grid size={{ xs: 3 }}>{taskQueueSize}</Grid>
                 </Grid>
             </CardContent>
         </Card>

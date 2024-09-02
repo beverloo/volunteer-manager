@@ -11,7 +11,7 @@ import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement,
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -119,7 +119,7 @@ export function FeedbackForm(props: FeedbackFormProps) {
                 <FormContainer formContext={form} onSuccess={handleSubmit}>
                     <Paper sx={{ p: 2, mt: 4 }}>
                         <Grid container rowSpacing={2}>
-                            <Grid xs={5}>
+                            <Grid size={{ xs: 5 }}>
                                 <AutocompleteElement name="volunteer" label="Volunteer"
                                                     options={volunteerOptions} matchId
                                                     autocompleteProps={{
@@ -127,15 +127,15 @@ export function FeedbackForm(props: FeedbackFormProps) {
                                                         size: 'small',
                                                     }} />
                             </Grid>
-                            <Grid xs={2} alignContent="center" textAlign="center">
+                            <Grid size={{ xs: 2 }} alignContent="center" textAlign="center">
                                 or
                             </Grid>
-                            <Grid xs={5}>
+                            <Grid size={{ xs: 5 }}>
                                 <TextFieldElement name="visitor" label="Visitor"
                                                 fullWidth size="small" />
                             </Grid>
 
-                            <Grid xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <TextareaAutosizeElement name="feedback" label="Feedback" required
                                                         size="small" fullWidth />
                             </Grid>

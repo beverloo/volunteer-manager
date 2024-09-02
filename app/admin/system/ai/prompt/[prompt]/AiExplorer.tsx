@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -138,45 +138,45 @@ export function AiExplorer(props: AiExplorerProps) {
         <FormContainer defaultValues={defaultValues} onSuccess={handleGenerate}>
             <Paper sx={{ p: 2 }}>
                 <Grid container spacing={2}>
-                    <Grid xs={2}>
+                    <Grid size={{ xs: 2 }}>
                         <Typography variant="subtitle2">
                             Personality
                         </Typography>
                     </Grid>
-                    <Grid xs={10}>
+                    <Grid size={{ xs: 10 }}>
                         <TextareaAutosizeElement name="personality" size="small" fullWidth />
                     </Grid>
 
-                    <Grid xs={2}>
+                    <Grid size={{ xs: 2 }}>
                         <Typography variant="subtitle2">
                             System instructions
                         </Typography>
                     </Grid>
-                    <Grid xs={10}>
+                    <Grid size={{ xs: 10 }}>
                         <TextareaAutosizeElement name="systemInstructions" size="small" fullWidth />
                     </Grid>
 
-                    <Grid xs={2}>
+                    <Grid size={{ xs: 2 }}>
                         <Typography variant="subtitle2">
                             Intention
                         </Typography>
                     </Grid>
-                    <Grid xs={10}>
+                    <Grid size={{ xs: 10 }}>
                         <TextareaAutosizeElement name="intention" size="small" fullWidth />
                     </Grid>
 
-                    <Grid xs={2}>
+                    <Grid size={{ xs: 2 }}>
                         <Typography variant="subtitle2">
                             Language
                         </Typography>
                     </Grid>
-                    <Grid xs={10}>
+                    <Grid size={{ xs: 10 }}>
                         <SelectElement name="language" size="small" fullWidth
                                        options={kLanguageOptions} />
                     </Grid>
 
-                    <Grid xs={2}>{ /* ... */ }</Grid>
-                    <Grid xs={10}>
+                    <Grid size={{ xs: 2 }}>{ /* ... */ }</Grid>
+                    <Grid size={{ xs: 10 }}>
                         <Stack direction="row" spacing={2} alignItems="center">
                             <LoadingButton startIcon={ <SmartToyIcon /> } loading={loading}
                                            type="submit" variant="outlined">
@@ -209,10 +209,10 @@ export function AiExplorer(props: AiExplorerProps) {
                     <Grid container rowSpacing={2}>
                         { Object.entries(generatedPrompt?.params || {}).map(([ key, value ]) =>
                             <React.Fragment key={key}>
-                                <Grid xs={2}>
+                                <Grid size={{ xs: 2 }}>
                                     <strong>{key}</strong>:
                                 </Grid>
-                                <Grid xs={10}>
+                                <Grid size={{ xs: 10 }}>
                                     {value}
                                 </Grid>
                             </React.Fragment> )}
@@ -227,11 +227,11 @@ export function AiExplorer(props: AiExplorerProps) {
                     <Grid container rowSpacing={2}>
                         { Object.entries(generatedPrompt?.context || {}).map(([ key, value ]) =>
                             <React.Fragment key={key}>
-                                <Grid xs={2}>
+                                <Grid size={{ xs: 2 }}>
                                     <strong>{key}</strong>:
                                 </Grid>
-                                <Grid xs={10} sx={{ whiteSpace: 'pre-wrap',
-                                                    overflowWrap: 'anyhere' }}>
+                                <Grid size={{ xs: 10 }} sx={{ whiteSpace: 'pre-wrap',
+                                                              overflowWrap: 'anyhere' }}>
                                     { JSON.stringify(value, undefined, /* space= */ 4) }
                                 </Grid>
                             </React.Fragment> )}

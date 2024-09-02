@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import type { FieldValues } from '@proxy/react-hook-form-mui';
 import { FormContainer, SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -105,27 +105,27 @@ export function ExportCreatePanel(props: ExportCreatePanelProps) {
             </Typography>
             <FormContainer onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="event" fullWidth size="small" required label="Event"
                                        onChange={handleInvalidate} options={props.events} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="type" fullWidth size="small" required label="Data"
                                        onChange={handleInvalidate} options={kTypeOptions} />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="hours" fullWidth size="small" required
                                        label="Availability" onChange={handleInvalidate}
                                        options={kAvailabilityOptions} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="views" fullWidth size="small" required
                                        label="Maximum views" onChange={handleInvalidate}
                                        options={kViewsOptions} />
                     </Grid>
 
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextFieldElement name="justification" fullWidth size="small" required
                                           label="Justification" onChange={handleInvalidate} />
                     </Grid>

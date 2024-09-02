@@ -6,7 +6,7 @@
 import { useContext } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -71,7 +71,7 @@ export default function DisplayPage() {
 
     return (
         <Grid container>
-            <Grid xs={8}>
+            <Grid size={{ xs: 8 }}>
                 <Stack direction="column" spacing={4} sx={{ mr: 4 }}>
 
                     { !display.context.schedule.active.length && <NoVolunteersCard /> }
@@ -86,7 +86,7 @@ export default function DisplayPage() {
 
                 </Stack>
             </Grid>
-            <Grid xs={4}>
+            <Grid size={{ xs: 4 }}>
                 <Stack direction="column" spacing={4}>
                     { !!display.context.config.enableRequestHelp &&
                         <RequestHelpCard enableAdvice={!!display.context.config.enableRequestAdvice}

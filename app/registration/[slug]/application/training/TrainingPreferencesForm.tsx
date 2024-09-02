@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 
 import { SelectElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 /**
  * Props accepted by the <TrainingPreferencesForm> component.

@@ -8,7 +8,7 @@ import { SelectElement } from '@components/proxy/react-hook-form-mui';
 import Alert from '@mui/material/Alert';
 import CategoryIcon from '@mui/icons-material/Category';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
@@ -428,7 +428,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     return (
         <FormGridSection action={action} defaultValues={defaultValues}
                          icon={ <CategoryIcon color="primary" /> } title="Permissions">
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <SectionIntroduction important>
                     Granting permissions to a volunteer gives them more access within the Volunteer
                     Manager. While you can also revoke permissions, it's usually best to keep that
@@ -437,38 +437,38 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 </SectionIntroduction>
             </Grid>
 
-            <Grid xs={2}>
+            <Grid size={{ xs: 2 }}>
                 <Typography variant="body2" sx={{ pt: 1.25 }}>
                     Global event access:
                 </Typography>
             </Grid>
-            <Grid xs={10}>
+            <Grid size={{ xs: 10 }}>
                 <SelectElement name="events" label="Event access" SelectProps={{ multiple: true }}
                                options={eventsOptions} size="small" fullWidth
                                disabled={props.readOnly} />
             </Grid>
 
-            <Grid xs={2}>
+            <Grid size={{ xs: 2 }}>
                 <Typography variant="body2" sx={{ pt: 1.25 }}>
                     Global team access:
                 </Typography>
             </Grid>
-            <Grid xs={10}>
+            <Grid size={{ xs: 10 }}>
                 <SelectElement name="teams" label="Team access" SelectProps={{ multiple: true }}
                                options={teamsOptions} size="small" fullWidth
                                disabled={props.readOnly} />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <VolunteerPermissionsTable permissions={permissions} readOnly={props.readOnly} />
             </Grid>
 
             { !!userConfiguration?.events.length &&
                 <>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Divider />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Alert variant="outlined" severity="info">
                             Additional role-based access has been granted based on their
                             participation in{' '}

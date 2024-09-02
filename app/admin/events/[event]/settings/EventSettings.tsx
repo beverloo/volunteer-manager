@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import { EventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
@@ -202,38 +202,38 @@ export async function EventSettings(props: EventSettingsProps) {
     return (
         <FormGridSection action={action} defaultValues={settings} title="Configuration">
             <EventSettingsForm />
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="location" label="Location"
                                     fullWidth size="small" />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="timezone" label="Timezone"
                                     fullWidth size="small" />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="festivalId" label="AnPlan Festival ID" type="number"
                                     fullWidth size="small" />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="hotelRoomForm" label="Hotel room form URL"
                                     fullWidth size="small" />
             </Grid>
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <Divider />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="availabilityStatus" label="Availability status"
                                fullWidth size="small" options={kAvailabilityStatusOptions} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="hotelEnabled" label="Hotel management"
                                fullWidth size="small" options={kServiceStatusOptions} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="refundEnabled" label="Refund management"
                                fullWidth size="small" options={kServiceStatusOptions} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="trainingEnabled" label="Training management"
                                fullWidth size="small" options={kServiceStatusOptions} />
             </Grid>

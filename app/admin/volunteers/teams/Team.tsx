@@ -13,7 +13,7 @@ import {
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -173,19 +173,19 @@ export function Team(props: TeamProps) {
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="teamName" label="Name" fullWidth size="small"
                                           onChange={handleChange} required />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="teamTitle" label="Title" fullWidth size="small"
                                           onChange={handleChange} required />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextareaAutosizeElement name="teamDescription" label="Description"
                                                  fullWidth onChange={handleChange} required />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <AutocompleteElement name="teamRoles" label="Roles" options={roleOptions}
                                              multiple required
                                              autocompleteProps={{
@@ -195,16 +195,16 @@ export function Team(props: TeamProps) {
                                                  size: 'small'
                                              }} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="teamDefaultRole" label="Default role" size="small"
                                        required fullWidth options={defaultRoleOptions}
                                        onChange={handleChange} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <ColorFieldElement name="teamColourLightTheme" label="Light theme color"
                                            size="small" onChange={handleChange} required />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <ColorFieldElement name="teamColourDarkTheme" label="Dark theme color"
                                            size="small" onChange={handleChange} required />
                     </Grid>

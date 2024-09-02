@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2/Grid2';
+import Grid from '@mui/material/Grid2/Grid2';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import StarIcon from '@mui/icons-material/Star';
@@ -63,7 +63,7 @@ export function StatisticsSection(props: React.PropsWithChildren<StatisticsSecti
     }
 
     return (
-        <Grid xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
             <Paper component={Stack} elevation={2} sx={{ p: 2 }} spacing={1}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between"
                        spacing={2}>

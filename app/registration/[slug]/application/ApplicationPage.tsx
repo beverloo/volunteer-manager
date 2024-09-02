@@ -14,7 +14,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import FaceIcon from '@mui/icons-material/Face';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MuiAvatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';

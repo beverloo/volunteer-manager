@@ -7,7 +7,7 @@ import { type FieldValues, FormContainer, TextFieldElement, SelectElement }
     from '@proxy/react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 
 import type { EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
@@ -144,11 +144,11 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
     return (
         <FormContainer defaultValues={{ ...shift, type }} onSuccess={handleSubmit}>
             <Grid container spacing={2}>
-                <Grid xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <SelectElement name="categoryId" label="Category" options={props.categories}
                                    size="small" fullWidth required disabled={readOnly} />
                 </Grid>
-                <Grid xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <SelectElement name="type" label="Type of shift" options={kShiftTypeOptions}
                                    size="small" fullWidth onChange={handleChangeType}
                                    required disabled={readOnly}/>

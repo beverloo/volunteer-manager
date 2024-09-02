@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 

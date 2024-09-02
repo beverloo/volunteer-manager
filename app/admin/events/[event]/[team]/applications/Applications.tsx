@@ -13,7 +13,7 @@ import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
@@ -383,7 +383,7 @@ export function Applications(props: ApplicationsProps) {
             <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}
                   alignItems="stretch">
                 { applications.map((application, index) =>
-                    <Grid key={index} xs={6}>
+                    <Grid key={index} size={{ xs: 6 }}>
                         <Application application={application} canAccessAccounts={canAccessAccounts}
                                      requestResponse={requestResponse} />
                     </Grid> )}

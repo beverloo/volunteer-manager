@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { FieldValues } from '@proxy/react-hook-form-mui';
 import type { ValueOptions } from '@mui/x-data-grid-pro';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import { MuiColorInput } from 'mui-color-input';
 import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
@@ -109,23 +109,23 @@ export function ShiftSettingsSection(props: ShiftSettingsSectionProps) {
             <ShiftSettingsForm {...props} includeName invalidated={invalidated}
                                onSubmit={handleSubmit}>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="excitement" label="Excitement level" fullWidth required
                                        options={kExcitementOptions} size="small" type="number"
                                        disabled={readOnly} onChange={handleChange} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <MuiColorInput format="hex" value={colour} label="Override colour" fullWidth
                                        size="small" isAlphaHidden disabled={readOnly}
                                        sx={{ '& input[value="#ffffff"]': { color: 'transparent' } }}
                                        fallbackValue="#ffffff" onChange={handleColourChange} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <SelectElement name="overlap" label="Timeslot overlap" fullWidth required
                                        options={kOverlapOptions} size="small" disabled={readOnly}
                                        onChange={handleChange} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextareaAutosizeElement name="description" label="Description"
                                                  size="small" fullWidth disabled={readOnly}
                                                  onChange={handleChange} />

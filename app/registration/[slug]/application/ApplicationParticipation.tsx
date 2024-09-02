@@ -5,7 +5,7 @@
 
 import { SelectElement, TextFieldElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
-import Grid, { type Grid2Props } from '@mui/material/Unstable_Grid2';
+import Grid, { type Grid2Props } from '@mui/material/Grid2';
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';
@@ -77,18 +77,18 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
     const { onChange, readOnly } = props;
     return (
         <>
-            <Grid xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
                 <SelectElement name="serviceHours" label="Number of shifts" required
                                options={kServiceHoursOptions} fullWidth size="small"
                                onChange={onChange} disabled={readOnly} />
             </Grid>
-            <Grid xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
                 <SelectElement name="serviceTiming" label="Timing of shifts" required
                                options={kServiceTimingOption} fullWidth size="small"
                                onChange={onChange} disabled={readOnly}  />
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
                 <TextareaAutosizeElement name="preferences" fullWidth size="small"
                                          label="Anything we should know about?"
                                          onChange={onChange} disabled={readOnly} />
@@ -121,12 +121,12 @@ export function ApplicationParticipationForm(props: ApplicationParticipationForm
     const { readOnly, onChange } = props;
     return (
         <>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="tshirtSize" label="T-shirt size" required
                                options={kTShirtSizeOptions} fullWidth size="small"
                                disabled={readOnly} onChange={onChange} />
             </Grid>
-            <Grid xs={6}>
+            <Grid size={{ xs: 6 }}>
                 <SelectElement name="tshirtFit" label="T-shirt fit" required
                                options={kTShirtFitOptions} fullWidth size="small"
                                disabled={readOnly} onChange={onChange} />

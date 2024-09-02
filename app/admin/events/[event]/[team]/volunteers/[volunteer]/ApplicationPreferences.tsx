@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 
 import { type FieldValues, FormContainer, SelectElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -99,12 +99,12 @@ export function ApplicationPreferences(props: ApplicationPreferencesProps) {
             <FormContainer defaultValues={volunteer} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
                     <ApplicationParticipationForm readOnly={readOnly} onChange={handleChange} />
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="credits" label="Include on the credit reel?"
                                        options={kSelectOptions} size="small" fullWidth
                                        disabled={readOnly} onChange={handleChange} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="socials" label="Include on WhatsApp/social channels?"
                                        options={kSelectOptions} size="small" fullWidth
                                        disabled={readOnly} onChange={handleChange} />

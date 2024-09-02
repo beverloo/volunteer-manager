@@ -10,7 +10,7 @@ import { type FieldValues, AutocompleteElement, FormContainer } from '@proxy/rea
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -151,10 +151,10 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                     <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
                         { [ ...Array(props.limit) ].map((_, index) =>
                             <React.Fragment key={index}>
-                                <Grid xs={12} sm={4} md={3} lg={2} alignSelf="center">
+                                <Grid size={{ xs: 12, sm: 4, md: 3, lg: 2  }} alignSelf="center">
                                     {index + 1}{kOrdinalFn(index + 1)} preference
                                 </Grid>
-                                <Grid xs={12} sm={8} md={9} lg={10}>
+                                <Grid size={{ xs: 12, sm: 8, md: 9, lg: 10 }}>
                                     <AutocompleteElement name={`preference_${index}`}
                                                          autocompleteProps={{
                                                              disabled: !!props.readOnly,

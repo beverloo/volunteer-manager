@@ -9,7 +9,7 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -78,23 +78,23 @@ export function Twilio(props: TwilioProps) {
             </Alert>
             <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="accountSid" label="Account SID" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="accountAuthToken" label="Auth token" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="messagingSidSms" label="SMS SID" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="messagingSidWhatsapp" label="WhatsApp SID" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <SelectElement name="region" label="Twilio region" fullWidth size="small"
                                        options={regions} onChange={handleInvalidate} />
                     </Grid>

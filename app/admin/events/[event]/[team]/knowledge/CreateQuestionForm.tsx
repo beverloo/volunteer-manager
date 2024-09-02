@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
 import type { ValueOptions } from '@mui/x-data-grid-pro';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import type { ContentScope } from '@app/api/admin/content/[[...id]]/route';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
@@ -71,11 +71,11 @@ export function CreateQuestionForm(props: CreateQuestionFormProps) {
     return (
         <FormContainer onSuccess={handleSubmit}>
             <Grid container spacing={2}>
-                <Grid xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <SelectElement name="category" label="Category" fullWidth size="small"
                                    onChange={handleChange} options={props.categories} required />
                 </Grid>
-                <Grid xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <TextFieldElement name="question" label="Question…" fullWidth size="small"
                                       onChange={handleChange} required />
                 </Grid>

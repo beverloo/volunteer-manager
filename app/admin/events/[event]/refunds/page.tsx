@@ -4,7 +4,7 @@
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
@@ -108,7 +108,7 @@ export default async function EventRefundsPage(props: NextPageParams<'event'>) {
         <>
             <RefundsHeader enableExport={enableExport} event={event} />
             <FormGridSection action={action} defaultValues={defaultValues} noHeader>
-                <Grid xs={12}>
+                <Grid size={{ xs: 12 }}>
                     <SectionIntroduction>
                         This section enables you to set the timeframe for accepting refund requests,
                         and to decide if this information should be publicly available.

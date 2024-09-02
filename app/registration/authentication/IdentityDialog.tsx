@@ -11,7 +11,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import PasswordIcon from '@mui/icons-material/Password';
 import Typography from '@mui/material/Typography';
@@ -110,13 +110,14 @@ export function IdentityDialog(props: IdentityDialogProps) {
         <>
             <DialogContent>
                 <Grid container spacing={2}>
-                    <Grid xs={12} md={3} display="flex" justifyContent="center" alignItems="center">
+                    <Grid size={{ xs: 12, md: 3 }} display="flex" justifyContent="center"
+                            alignItems="center">
                         <Avatar editable onChange={requestAvatarUpdate} size="large"
                                 src={user.avatarUrl}>
                             {user.firstName} {user.lastName}
                         </Avatar>
                     </Grid>
-                    <Grid xs={12} md={9}>
+                    <Grid size={{ xs: 12, md: 9 }}>
                         <Typography variant="h6">
                             { user.displayName ?? `${user.firstName} ${user.lastName}` }
                         </Typography>
@@ -129,25 +130,25 @@ export function IdentityDialog(props: IdentityDialogProps) {
                         </Typography>
                     </Grid>
 
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Divider />
                     </Grid>
 
-                    <Grid xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Button variant="outlined" fullWidth startIcon={ <AccountCircleIcon /> }
                                 onClick={props.onRequestAccount}>
                             Account
                         </Button>
                     </Grid>
                     { !!browserSupportsWebAuthn() &&
-                        <Grid xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <LoadingButton loading={false} variant="outlined" fullWidth
                                            onClick={props.onRequestPasskeys}
                                            startIcon={ <FingerprintIcon /> }>
                                 Passkeys
                             </LoadingButton>
                         </Grid> }
-                    <Grid xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Button variant="outlined" fullWidth startIcon={ <PasswordIcon /> }
                                 onClick={props.onRequestPassword}>
                             Password

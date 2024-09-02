@@ -9,7 +9,7 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -105,20 +105,20 @@ export function Google(props: GoogleProps) {
             </Alert>
             <FormContainer defaultValues={settings} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="apiKey" label="API Key" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="credential" label="Credential" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <SelectElement name="location" label="Location" fullWidth
                                        options={kLocationOptions} size="small"
                                        onChange={handleInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="projectId" label="Project ID" fullWidth
                                           size="small" onChange={handleInvalidate} />
                     </Grid>

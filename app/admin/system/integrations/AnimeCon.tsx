@@ -12,7 +12,7 @@ import { type FieldValues, FormContainer, TextFieldElement } from '@proxy/react-
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
@@ -85,33 +85,33 @@ export function AnimeCon(props: GoogleProps) {
             </Alert>
             <FormContainer defaultValues={settings} onSuccess={requestSubmit}>
                 <Grid container spacing={2}>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="apiEndpoint" label="API endpoint" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="authEndpoint" label="Authentication endpoint"
                                           fullWidth size="small" onChange={doInvalidate} />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="clientId" label="Client ID" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="clientSecret" label="Client Secret" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>
 
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="username" label="Username" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>
-                    <Grid xs={6}>
+                    <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="password" label="Password" type="password" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextFieldElement name="scopes" label="Scopes" fullWidth
                                           size="small" onChange={doInvalidate} />
                     </Grid>

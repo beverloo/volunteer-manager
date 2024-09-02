@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 
 import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
@@ -66,17 +66,17 @@ export function AiPromptPersonality(props: AiPromptPersonalityProps) {
         <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
             <Section title="Personality and context">
                 <Grid container rowSpacing={2}>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextareaAutosizeElement size="small" fullWidth name="personality"
                                                  label="Personality"
                                                  onChange={handleChange} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <TextareaAutosizeElement size="small" fullWidth name="systemInstruction"
                                                  label="System instructions"
                                                  onChange={handleChange} />
                     </Grid>
-                    <Grid xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <SubmitCollapse error={error} loading={loading} open={invalidated} />
                     </Grid>
                 </Grid>

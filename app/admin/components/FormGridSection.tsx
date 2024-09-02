@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -180,7 +180,7 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
                     <Grid container spacing={2}>
                         {children}
                         <Collapse in={!!form.formState.isDirty} sx={{ width: '100%' }}>
-                            <Grid xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Stack direction="row" spacing={1} alignItems="center"
                                        sx={{
                                            backgroundColor: '#fff4e5',
