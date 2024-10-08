@@ -30,10 +30,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup -g 1001 -S anime
-RUN adduser -S anime -u 1001
+RUN addgroup --system --gid 1001 anime
+RUN adduser --system --uid 1001 anime
 
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=anime:anime /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown anime:anime .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -44,7 +48,7 @@ USER anime
 
 EXPOSE 3001
 
-ENV PORT 3001
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
