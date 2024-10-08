@@ -16,7 +16,7 @@ jobs:
         key: ${{ secrets.KEY }}
         command_timeout: 20m
         script: |
-          cd ~/volunteer-manager
+          cd ~/volunteer-manager-staging
           git reset --hard
           git pull --rebase
           npm install
