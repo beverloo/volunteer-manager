@@ -176,7 +176,7 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
             <form noValidate onSubmit={handleSubmit}>
                 <Paper sx={{ p: 2 }}>
                     { !('noHeader' in sectionHeaderProps) &&
-                        <SectionHeader {...sectionHeaderProps} sx={{ pb: 1 }} /> }
+                        <SectionHeader {...sectionHeaderProps} sx={{ pb: 2 }} /> }
                     <Grid container spacing={2}>
                         {children}
                         <Collapse in={!!form.formState.isDirty} sx={{ width: '100%' }}>
