@@ -1,0 +1,28 @@
+name: Deploy Volunteer Manager (Staging)
+
+on: [ workflow_dispatch ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy the manager to staging
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST_STAGING }}
+        port: ${{ secrets.PORT_STAGING }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        command_timeout: 20m
+        script: |
+          cd ~/volunteer-manager
+          git reset --hard
+          git pull --rebase
+          npm install
+          npm run-script test
+          npm run-script build-staging
+          docker system prune -f
+          docker stop volunteer-manager-staging
+          docker rm volunteer-manager-staging
+          docker run -d --name volunteer-manager-staging --restart always -p 3002:3002 volunteer-manager-staging:latest
