@@ -18,7 +18,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Sets the port on which the Next.js server should be running, which differs for staging and prod.
-ARG SERVER_PORT=3001
+ARG PORT=3001
+ENV PORT=$PORT
 
 # Expose the git revision to the build system, as git won't be installed on the image.
 ARG BUILD_HASH=0
@@ -49,9 +50,9 @@ COPY --from=builder --chown=anime:anime /app/.next/static ./.next/static
 
 USER anime
 
-EXPOSE $SERVER_PORT
+EXPOSE $PORT
 
-ENV PORT=$SERVER_PORT
+# Note: PORT already exported
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
