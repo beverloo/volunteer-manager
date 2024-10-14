@@ -25,6 +25,12 @@ export interface LogMessage {
     id: number;
 
     /**
+     * Type of log that's been issued. This will be used to determine the message that should be.
+     * Deliberately not typed according to `LogType` as old entries may be included.
+     */
+    type: string;
+
+    /**
      * Textual representation of what happened during this log message.
      */
     message: string;
@@ -302,7 +308,7 @@ const kLogMessageFormatter: {
  * Sort model to apply for the returned log items.
  */
 interface FetchLogsSort {
-    field: 'id' | 'data' | 'date' | 'message' | 'severity' | 'source' | 'target';
+    field: 'id' | 'data' | 'date' | 'message' | 'severity' | 'source' | 'target' | 'type';
     sort: 'asc' | 'desc' | null;
 }
 
@@ -371,6 +377,10 @@ function normalizeSortModel(sortModel?: FetchLogsSort): string {
 
         case 'target':
             column = 'targetUserName';
+            break;
+
+        case 'type':
+            column = 'logType';
             break;
 
         default:
@@ -476,6 +486,7 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
             data,
             date: row.date,
             id: row.id,
+            type: row.logType,
             message,
             severity: row.severity,
             source, target,

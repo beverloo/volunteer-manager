@@ -9,6 +9,7 @@ import { default as MuiLink } from '@mui/material/Link';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
 import type { LogsRowModel } from '@app/api/admin/logs/[[...id]]/route';
@@ -82,10 +83,26 @@ export function LogsDataTable(props: LogsDataTableProps) {
             },
         },
         {
+            display: 'flex',
             field: 'message',
             headerName: 'Message',
             sortable: false,
             flex: 3,
+
+            renderCell: params => {
+                if (params.row.type !== 'database-error')
+                    return params.value;
+
+                return (
+                    <>
+                        {params.value}
+                        <MuiLink sx={{ mt: 0.5, ml: 1 }} component={Link}
+                                 href={`/admin/system/logs/database-error/${params.row.id}`}>
+                            <ReadMoreIcon color="info" fontSize="small" />
+                        </MuiLink>
+                    </>
+                );
+            },
         },
         {
             field: 'source',

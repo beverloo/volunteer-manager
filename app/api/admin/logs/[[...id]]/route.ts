@@ -29,6 +29,11 @@ const kLogsRowModel = z.object({
     date: z.string(),
 
     /**
+     * Type of log message that was stored.
+     */
+    type: z.string(),
+
+    /**
      * Textual representation of what happened during this log message.
      */
     message: z.string(),
