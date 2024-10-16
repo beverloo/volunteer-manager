@@ -10,7 +10,7 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
 
-import db, { tTeams } from '@lib/database';
+import db, { tEnvironments } from '@lib/database';
 
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
@@ -46,11 +46,6 @@ type Request = ApiRequest<typeof kRegisterPasskeyDefinition>;
 type Response = ApiResponse<typeof kRegisterPasskeyDefinition>;
 
 /**
- * The domain used for local development of the Volunteer Manager.
- */
-export const kLocalDevelopmentDomain = 'localhost';
-
-/**
  * The origin on which local development for the Volunteer Manager takes place. Passkey responses
  * for this origin are being accepted as well, to make it possible to end-to-end test the flow.
  */
@@ -61,11 +56,14 @@ export const kLocalDevelopmentOrigin = 'http://localhost:3000';
  * AnimeCon volunteer manager.
  */
 export async function getAllEnvironmentOrigins(): Promise<string[]> {
-    const environments = await db.selectFrom(tTeams)
-        .selectOneColumn(tTeams.teamEnvironment)
+    const environments = await db.selectFrom(tEnvironments)
+        .selectOneColumn(tEnvironments.environmentDomain)
         .executeSelectMany();
 
-    return environments.map(environment => `https://${environment}`);
+    return environments.map(environment => [
+        `https://${environment}`,
+        `https://staging.${environment}`
+    ]).flat();
 }
 
 /**
