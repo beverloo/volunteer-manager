@@ -117,14 +117,14 @@ export async function storePasskeyRegistration(
     await db.insertInto(tUsersPasskeys)
         .set({
             userId: user.userId,
-            credentialId: Buffer.from(registration.credentialID),
+            credentialId: Buffer.from(registration.credential.id),
             credentialRpid: rpID,
             credentialName: name,
             credentialOrigin: registration.origin,
-            credentialPublicKey: Buffer.from(registration.credentialPublicKey),
+            credentialPublicKey: Buffer.from(registration.credential.publicKey),
             credentialDeviceType: registration.credentialDeviceType,
             credentialBackedUp: registration.credentialBackedUp ? 1 : 0,
-            counter: BigInt(registration.counter),
+            counter: BigInt(registration.credential.counter),
         })
         .executeInsert();
 }

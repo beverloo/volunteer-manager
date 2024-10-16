@@ -88,22 +88,22 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     try {
         const requestedCredentialId = Buffer.from(request.verification.id, 'base64url');
 
-        let authenticatorPasskeyId: number | undefined = undefined;
-        let authenticator: VerifyAuthenticationResponseOpts['authenticator'] | undefined;
+        let credentialPasskeyId: number | undefined = undefined;
+        let credential: VerifyAuthenticationResponseOpts['credential'] | undefined;
 
-        for (const credential of credentials) {
-            if (!areBuffersEqual(requestedCredentialId, credential.credentialId))
+        for (const potentialCredential of credentials) {
+            if (!areBuffersEqual(requestedCredentialId, potentialCredential.credentialId))
                 continue;
 
-            authenticatorPasskeyId = credential.passkeyId;
-            authenticator = {
-                credentialID: isoBase64URL.fromBuffer(credential.credentialId),
-                credentialPublicKey: credential.credentialPublicKey,
-                counter: Number(credential.counter),
+            credentialPasskeyId = potentialCredential.passkeyId;
+            credential = {
+                id: isoBase64URL.fromBuffer(potentialCredential.credentialId),
+                publicKey: potentialCredential.credentialPublicKey,
+                counter: Number(potentialCredential.counter),
             };
         }
 
-        if (!authenticatorPasskeyId || !authenticator)
+        if (!credentialPasskeyId || !credential)
             return { success: false, error: 'Unable to find the used credential Id' };
 
         const verification = await verifyAuthenticationResponse({
@@ -111,7 +111,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
             expectedChallenge: challenge,
             expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
             expectedRPID: rpID,
-            authenticator
+            credential
         });
 
         if (!verification.verified)
@@ -119,7 +119,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
 
         await storeUserChallenge(user, /* reset= */ null);
         await updateCredentialCounter(
-            user, authenticatorPasskeyId, BigInt(verification.authenticationInfo.newCounter));
+            user, credentialPasskeyId, BigInt(verification.authenticationInfo.newCounter));
 
         await Log({
             type: LogType.AccountIdentifyPasskey,
