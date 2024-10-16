@@ -76,6 +76,8 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
 
     return {
         success: true,
-        options,
+        options: {
+            optionsJSON: options,
+        },
     };
 }

@@ -72,7 +72,7 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
 
     const credentials = await retrieveCredentials(user, rpID);
     if (credentials.length > 0) {
-        authenticationOptions = await generateAuthenticationOptions({
+        const options = await generateAuthenticationOptions({
             allowCredentials: credentials.map(credential => ({
                 id: isoBase64URL.fromBuffer(credential.credentialId),
                 // TODO: `transports`?
@@ -81,12 +81,17 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
             userVerification: 'preferred',
         });
 
-        await storeUserChallenge(user, authenticationOptions.challenge);
+        await storeUserChallenge(user, options.challenge);
+
+        authenticationOptions = {
+            optionsJSON: options,
+            useBrowserAutofill: false,
+        };
     }
 
     return {
         success: true,
         activated: user.activated,
-        authenticationOptions
+        authenticationOptions,
     };
 }
