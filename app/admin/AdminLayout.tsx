@@ -3,6 +3,8 @@
 
 'use client';
 
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -35,14 +37,17 @@ export function AdminLayout(props: React.PropsWithChildren) {
 
     return (
         <ThemeProvider theme={createAdminTheme(/* mode= */ 'light')}>
-            <Box sx={kStyles.root}>
-                <Box sx={kStyles.container}>
-                    {props.children}
-                    <Typography component="footer" align="center" variant="body2" sx={{ mt: 1 }}>
-                        AnimeCon Volunteer Portal (<a href="https://github.com/beverloo/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
-                    </Typography>
+            <NuqsAdapter>
+                <Box sx={kStyles.root}>
+                    <Box sx={kStyles.container}>
+                        {props.children}
+                        <Typography component="footer" align="center" variant="body2"
+                                    sx={{ mt: 1 }}>
+                            AnimeCon Volunteer Portal (<a href="https://github.com/beverloo/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
+                        </Typography>
+                    </Box>
                 </Box>
-            </Box>
+            </NuqsAdapter>
         </ThemeProvider>
     );
 }
