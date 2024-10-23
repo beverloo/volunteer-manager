@@ -67,6 +67,11 @@ export interface EventPromptParams extends PromptParams {
      * Unique ID of the target user to whom the generated message will be sent.
      */
     targetUserId: number;
+
+    /**
+     * URL-safe slug representing the team with which this prompt is associated.
+     */
+    team?: string;
 }
 
 /**
@@ -98,6 +103,14 @@ export abstract class EventPrompt<Context extends EventPromptContext,
             })
             .executeSelectOne();
 
+        let teamId: number | undefined;
+        if (!!params.team) {
+            teamId = await this.db.selectFrom(tTeams)
+                .selectOneColumn(tTeams.teamId)
+                .where(tTeams.teamSlug.equals(params.team))
+                .executeSelectNoneOrOne() || undefined;
+        }
+
         const rolesJoin = tRoles.forUseInLeftJoin();
         const teamsJoin = tTeams.forUseInLeftJoin();
         const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
@@ -128,6 +141,7 @@ export abstract class EventPrompt<Context extends EventPromptContext,
             .leftJoin(usersEventsJoin)
                 .on(usersEventsJoin.userId.equals(tUsers.userId))
                     .and(usersEventsJoin.eventId.equals(tEvents.eventId))
+                    .and(usersEventsJoin.teamId.equalsIfValue(teamId))
             .leftJoin(rolesJoin)
                 .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
             .leftJoin(teamsJoin)
