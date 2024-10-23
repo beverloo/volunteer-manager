@@ -5,7 +5,7 @@ import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import { AccessControl } from './AccessControl';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
-import { executeAccessCheck, or, and, getAuthenticationContextFromHeaders } from './AuthenticationContext';
+import { executeAccessCheck, getAuthenticationContextFromHeaders } from './AuthenticationContext';
 import { buildAuthenticationContext, expectAuthenticationQuery } from './AuthenticationTestHelpers';
 import { serialize } from 'cookie';
 import { useMockConnection } from '../database/Connection';
@@ -92,7 +92,7 @@ describe('AuthenticationContext', () => {
         // Case (3): Implicit administrators through a role assignment to the applicable event
         const implicitAdminAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2024', { admin: true, event: '2024', team: 'stewards.team' }],
+                [ '2024', 'stewards' ],
             ]),
         });
 
@@ -102,7 +102,7 @@ describe('AuthenticationContext', () => {
         // Case (4): Participation in an event does not equate being granted access.
         const participationAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2024', { admin:  /* ----> */ false, event: '2024', team: 'stewards.team' }],
+                [ '2024', 'stewards' ],
             ]),
         });
 
@@ -118,7 +118,7 @@ describe('AuthenticationContext', () => {
         // Case (5): No administrator access when there is no assignment for the applicable event
         const wrongEventAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2017', { admin: true, event: '2017', team: 'hosts.team' }],
+                [ '2017', 'hosts' ],
             ]),
         });
 
@@ -154,7 +154,7 @@ describe('AuthenticationContext', () => {
         // Case (2): Participants are granted access (w/o administrator access):
         const participantAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2025', { admin: /** ----> **/ false, event: '2025', team: 'hosts.team' }],
+                [ '2025', 'hosts.team' ],
             ]),
         });
 
@@ -163,7 +163,7 @@ describe('AuthenticationContext', () => {
         // Case (3): Participants are granted access (w/ administrator access):
         const administratorAuthenticationContext = buildAuthenticationContext({
             events: new Map([
-                [ '2025', { admin: /** ----> **/ true, event: '2025', team: 'hosts.team' }],
+                [ '2025', 'hosts.team' ],
             ]),
         });
 

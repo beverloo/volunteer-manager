@@ -398,7 +398,7 @@ async function getSeniorVolunteers(access: AccessControl, event: string, eventId
  * which concisely displays the status and progress of organising an individual event.
  */
 export default async function EventPage(props: NextPageParams<'event'>) {
-    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const deadlines = await getEventDeadlines(event.id);
     const eventMetadata = await getEventMetadata(event.id);

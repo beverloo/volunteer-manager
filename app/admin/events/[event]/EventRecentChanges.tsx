@@ -91,7 +91,7 @@ export interface EventRecentChangesProps {
  * The <EventRecentChanges> component displays changes that were recently made by volunteers in
  * context of this event, such as sharing their preferences. Only a few highlights are shown.
  */
-export function EventRecentChanges(props: EventRecentChangesProps) {
+export async function EventRecentChanges(props: EventRecentChangesProps) {
     const currentTime = Temporal.Now.zonedDateTimeISO('UTC');
     return (
         <Card>
@@ -127,7 +127,6 @@ export function EventRecentChanges(props: EventRecentChangesProps) {
                         </Stack>
                     );
                 } )}
-
             </Stack>
         </Card>
     );
