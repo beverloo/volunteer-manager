@@ -1223,6 +1223,11 @@ tables:
     nullable: false
     default: "0"
     comment: ""
+  - name: participation_suspended
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: permissions_grants
     type: text
     nullable: true
@@ -1288,6 +1293,7 @@ tables:
       `phone_number` varchar(32) DEFAULT NULL,
       `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
+      `participation_suspended` text DEFAULT NULL,
       `permissions_grants` text DEFAULT NULL,
       `permissions_revokes` text DEFAULT NULL,
       `permissions_events` text DEFAULT NULL,

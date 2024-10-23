@@ -67,6 +67,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
             preferenceTimingStart: tUsersEvents.preferenceTimingStart,
             preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
             history: dbInstance.count(usersEventsJoin.eventId),
+            suspended: tUsers.participationSuspended,
         })
         .groupBy(tUsersEvents.userId)
         .orderBy(tUsers.firstName, 'asc')

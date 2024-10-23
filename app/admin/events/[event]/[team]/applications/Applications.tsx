@@ -119,6 +119,12 @@ export interface ApplicationInfo {
      * for more information an administrator can look at their profile.
      */
     history: number;
+
+    /**
+     * Whether the person who applied has been suspended from participating. The option to approve
+     * their participation will be disabled.
+     */
+    suspended?: string;
 }
 
 /**
@@ -257,11 +263,16 @@ function Application(props: ApplicationProps) {
                 <>
                     <Divider />
                     <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
+                        { !!application.suspended &&
+                            <Typography color="error" variant="body2" sx={{ flexGrow: 1, px: 1 }}>
+                                This volunteer's participation has been suspended.
+                            </Typography> }
                         <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
                                 onClick={ () => requestResponse(application, 'reject') }>
                             Reject
                         </Button>
                         <Button size="small" color="success" startIcon={ <ThumbUpIcon /> }
+                                disabled={!!application.suspended}
                                 onClick={ () => requestResponse(application, 'approve') }>
                             Approve
                         </Button>
