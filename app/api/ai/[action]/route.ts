@@ -4,17 +4,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '@app/api/Action';
 
+import type { NextRouteParams } from '@lib/NextRouterParams';
 import { updateSettings, kUpdateAiSettingsDefinition } from '../updateSettings';
-
-/**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { action: string } };
 
 /**
  * PUT /api/ai/settings
  */
-export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
+export async function PUT(request: NextRequest, props: NextRouteParams<'action'>)
+    : Promise<Response>
+{
+    const params = await props.params;
+
     switch (params.action) {
         case 'settings':
             return executeAction(request, kUpdateAiSettingsDefinition, updateSettings);

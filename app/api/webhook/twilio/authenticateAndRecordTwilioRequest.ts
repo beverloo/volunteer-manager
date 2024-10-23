@@ -84,7 +84,7 @@ export async function authenticateAndRecordTwilioRequest(
         .set({
             webhookCallDate: dbInstance.currentZonedDateTime(),
             webhookCallEndpoint: endpoint,
-            webhookRequestSource: request.ip ?? request.headers.get('x-forwarded-for'),
+            webhookRequestSource: request.headers.get('x-forwarded-for'),
             webhookRequestMethod: request.method,
             webhookRequestUrl: requestUrl.toString(),
             webhookRequestHeaders: JSON.stringify([ ...request.headers.entries() ]),

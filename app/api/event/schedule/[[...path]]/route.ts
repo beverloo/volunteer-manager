@@ -4,16 +4,14 @@
 import { NextRequest } from 'next/server';
 import { executeAction } from '../../../Action';
 
+import type { NextRouteParams } from '@lib/NextRouterParams';
 import { getSchedule, kPublicScheduleDefinition } from '../getSchedule';
-
-/**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { path: string[] } };
 
 /**
  * The /api/event/schedule endpoint can be used to acquire information about an event's schedule.
  */
-export async function GET(request: NextRequest, { params }: RouteParams): Promise<Response> {
-    return executeAction(request, kPublicScheduleDefinition, getSchedule, params);
+export async function GET(request: NextRequest, props: NextRouteParams<never, 'path'>)
+    : Promise<Response>
+{
+    return executeAction(request, kPublicScheduleDefinition, getSchedule, await props.params);
 }

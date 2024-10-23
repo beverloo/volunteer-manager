@@ -39,3 +39,10 @@ export interface NextLayoutParams<SingleComponentParams extends string,
 export interface NextPageParams<SingleComponentParams extends string,
                                 MultiComponentParams extends string = never>
     extends NextLayoutParams<SingleComponentParams, MultiComponentParams>, NextSearchParams {}
+
+/**
+ * Props accepted by routes using the Next.js router component.
+ */
+export interface NextRouteParams<SingleComponentParams extends string,
+                                 MultiComponentParams extends string = never>
+    extends NextLayoutParams<SingleComponentParams, MultiComponentParams> {}

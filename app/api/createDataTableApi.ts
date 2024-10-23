@@ -310,7 +310,7 @@ export interface DataTableApi<RowModel extends AnyZodObject, Context extends Zod
 /**
  * Parameters that are passed by Next.js to route handlers.
  */
-type DataTableApiHandlerParams = { params: { [key: string]: string | string[] } };
+type DataTableApiHandlerParams = { params: Promise<{ [key: string]: string | string[] }> };
 
 /**
  * Signature of an individual route handler provided by this mechanism.
@@ -393,7 +393,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                 await implementation.writeLog?.(innerRequest, 'Deleted', props);
 
             return response;
-        }, params);
+        }, await params);
     };
 
     // ---------------------------------------------------------------------------------------------
@@ -455,7 +455,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                 await implementation.accessCheck?.(innerRequest, 'list', props);
                 return implementation.list(innerRequest, props);
             }
-        }, params);
+        }, await params);
     };
 
     // ---------------------------------------------------------------------------------------------
@@ -489,7 +489,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
             }
 
             return response;
-        }, params);
+        }, await params);
     };
 
     // ---------------------------------------------------------------------------------------------
@@ -547,7 +547,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                 return response;
             }
 
-        }, params);
+        }, await params);
     };
 
     return { DELETE, GET, POST, PUT };

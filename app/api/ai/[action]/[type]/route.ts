@@ -4,17 +4,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '@app/api/Action';
 
+import type { NextRouteParams } from '@lib/NextRouterParams';
 import { generatePrompt, kGeneratePromptDefinition } from '../../generatePrompt';
-
-/**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { action: string; type: string; } };
 
 /**
  * POST /api/ai/generate/:type
  */
-export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
+export async function POST(request: NextRequest, props: NextRouteParams<'action' | 'type'>)
+    : Promise<Response>
+{
+    const params = await props.params;
     switch (params.action) {
         case 'generate':
             return executeAction(request, kGeneratePromptDefinition, generatePrompt, params);

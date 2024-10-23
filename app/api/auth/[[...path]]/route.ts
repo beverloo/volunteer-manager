@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
+import type { NextRouteParams } from '@lib/NextRouterParams';
 import { confirmIdentity, kConfirmIdentityDefinition } from '../confirmIdentity';
 import { passwordChange, kPasswordChangeDefinition } from '../passwordChange';
 import { passwordReset, kPasswordResetDefinition } from '../passwordReset';
@@ -21,16 +22,14 @@ import { updateAccount, kUpdateAccountDefinition } from '../updateAccount';
 import { updateAvatar, kUpdateAvatarDefinition } from '../updateAvatar';
 
 /**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { path: string[] } };
-
-/**
  * The /api/auth endpoint exposes the API for providing user authentication and associated
  * functionality, including registration, password reset and so on.
  */
-export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
-    const action = Object.hasOwn(params, 'path') ? params.path.join('/') : null;
+export async function POST(request: NextRequest, props: NextRouteParams<never, 'path'>)
+    : Promise<Response>
+{
+    const params = await props.params;
+    const action = Object.hasOwn(params, 'path') ? params.path!.join('/') : null;
     switch (action) {
         case 'confirm-identity':
             return executeAction(request, kConfirmIdentityDefinition, confirmIdentity);

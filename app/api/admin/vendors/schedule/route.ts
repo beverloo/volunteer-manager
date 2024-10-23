@@ -4,16 +4,15 @@
 import { NextRequest } from 'next/server';
 import { executeAction } from '../../../Action';
 
+import type { NextRouteParams } from '@lib/NextRouterParams';
 import { updateVendorSchedule, kUpdateVendorScheduleDefinition } from '../updateVendorSchedule';
-
-/**
- * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
- */
-type RouteParams = { params: { path: string[] } };
 
 /**
  * The /api/admin/vendor/schedule endpoint can be used to update a vendor's schedule.
  */
-export async function PUT(request: NextRequest, { params }: RouteParams): Promise<Response> {
-    return executeAction(request, kUpdateVendorScheduleDefinition, updateVendorSchedule, params);
+export async function PUT(request: NextRequest, props: NextRouteParams<never, 'path'>)
+    : Promise<Response>
+{
+    return executeAction(
+        request, kUpdateVendorScheduleDefinition, updateVendorSchedule, await props.params);
 }

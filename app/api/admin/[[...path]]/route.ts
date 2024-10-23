@@ -23,13 +23,15 @@ import { volunteerTeams, kVolunteerTeamsDefinition } from '../volunteerTeams';
 /**
  * Params accepted by this route implementation. Only the path exists, using NextJS dynamic routing.
  */
-type RouteParams = { params: { path: string[] } };
+type RouteProps = { params: Promise<{ path: string[] }> };
 
 /**
  * The /api/admin endpoint exposes the API for providing administrative functionality, both read and
  * write access. We're still making up our minds about how to balance RSC with API access.
  */
-export async function POST(request: NextRequest, { params }: RouteParams): Promise<Response> {
+export async function POST(request: NextRequest, props: RouteProps): Promise<Response> {
+    const params = await props.params;
+
     const action = Object.hasOwn(params, 'path') ? params.path.join('/') : null;
     switch (action) {
         case 'create-event':
