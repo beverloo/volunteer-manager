@@ -4,11 +4,6 @@
 import type { RegistrationRequest } from './RegistrationRequest';
 import { sealRegistrationRequest, unsealRegistrationRequest } from './RegistrationRequest';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 describe('RegistrationRequest', () => {
     it('should be able to seal and unseal registration requests', async () => {
         // (1) Partial requests

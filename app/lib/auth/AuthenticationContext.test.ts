@@ -10,11 +10,6 @@ import { buildAuthenticationContext, expectAuthenticationQuery } from './Authent
 import { serialize } from 'cookie';
 import { useMockConnection } from '../database/Connection';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 describe('AuthenticationContext', () => {
     const mockConnection = useMockConnection();
 

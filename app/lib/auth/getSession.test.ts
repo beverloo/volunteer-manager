@@ -5,11 +5,6 @@ import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 import { serialize } from 'cookie';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 describe('getSession', () => {
     it('is able to get session information from NextJS cookies store', async () => {
         const sessionData: SessionData = {

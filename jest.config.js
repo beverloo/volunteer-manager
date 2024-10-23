@@ -15,7 +15,7 @@ module.exports = createJestConfig({
     },
     testEnvironment: 'jest-environment-jsdom',
     testPathIgnorePatterns: [ 'e2e' ],
-    setupFiles: [ 'whatwg-fetch' ],
+    setupFiles: [ 'whatwg-fetch', './jest.setup.js' ],
     setupFilesAfterEnv: [ 'jest-extended/all' ],
 });
 

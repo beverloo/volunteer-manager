@@ -3,11 +3,6 @@
 
 import { seal, unseal } from './Iron';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
-
 describe('Iron', () => {
     it('verifies that a sufficiently long password is used', async () => {
         const invalidPassword = 'too-short';

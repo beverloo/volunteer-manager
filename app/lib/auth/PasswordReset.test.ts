@@ -4,11 +4,6 @@
 import type { PasswordResetRequest } from './PasswordReset';
 import { sealPasswordResetRequest, unsealPasswordResetRequest } from './PasswordReset';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 describe('PasswordReset', () => {
     it('should be able to seal and unseal password requests', async () => {
         const plaintextRequest: PasswordResetRequest = {

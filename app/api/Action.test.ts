@@ -6,16 +6,10 @@ import { serialize } from 'cookie';
 import { z } from 'zod';
 
 import type { User } from '@lib/auth/User';
-import { AuthType } from '@lib/database/Types';
 import { type ActionProps, executeAction, noAccess } from './Action';
 import { expectAuthenticationQuery } from '@lib/auth/AuthenticationTestHelpers';
 import { kSessionCookieName, sealSession } from '@lib/auth/Session';
 import { useMockConnection } from '@lib/database/Connection';
-
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
 
 describe('Action', () => {
     const mockConnection = useMockConnection();

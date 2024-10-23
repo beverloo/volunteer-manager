@@ -3,11 +3,6 @@
 
 import { type SessionData, sealSession, unsealSession } from './Session';
 
-import { TextDecoder, TextEncoder } from 'util';
-
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 describe('Session', () => {
     it('should be able to seal and unseal sessions', async () => {
         const plaintextSession: SessionData = {
