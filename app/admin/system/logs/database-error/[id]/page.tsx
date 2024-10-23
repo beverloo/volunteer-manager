@@ -43,7 +43,7 @@ export default async function DatabaseErrorLogPage(props: NextPageParams<'id'>) 
     if (!entry || !entry.data)
         return notFound();
 
-    const { message, query, params } = JSON.parse(entry.data);
+    const { message, query, stack, params } = JSON.parse(entry.data);
 
     return (
         <>
@@ -72,6 +72,12 @@ export default async function DatabaseErrorLogPage(props: NextPageParams<'id'>) 
                         </Stack>
                     </> }
             </Section>
+            { !!stack &&
+                <Section noHeader>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre' }}>
+                        {stack}
+                    </Typography>
+                </Section> }
         </>
     );
 }

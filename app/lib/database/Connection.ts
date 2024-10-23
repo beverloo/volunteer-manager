@@ -93,6 +93,7 @@ class ErrorReportingQueryRunner extends InterceptorQueryRunner<undefined> {
             severity: LogSeverity.Error,
             data: {
                 message: error.message,
+                stack: error.stack,
                 query, params,
             },
         });
