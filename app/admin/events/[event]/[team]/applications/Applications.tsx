@@ -265,7 +265,7 @@ function Application(props: ApplicationProps) {
                     <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
                         { !!application.suspended &&
                             <Typography color="error" variant="body2" sx={{ flexGrow: 1, px: 1 }}>
-                                This volunteer's participation has been suspended.
+                                This volunteer has been suspended
                             </Typography> }
                         <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
                                 onClick={ () => requestResponse(application, 'reject') }>
