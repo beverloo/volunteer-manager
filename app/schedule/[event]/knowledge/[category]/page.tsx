@@ -29,6 +29,8 @@ export default async function ScheduleKnowledgeCategoryPage(
 {
     await requireAuthenticationContext({ check: 'event', event: props.params.event });
 
+    const searchParams = await props.searchParams;
+
     const dbInstance = db;
     const category = await dbInstance.selectFrom(tContentCategories)
         .innerJoin(tContent)
@@ -75,7 +77,7 @@ export default async function ScheduleKnowledgeCategoryPage(
             </Card>
             <Box sx={{ '& .MuiAccordionDetails-root': { paddingTop: 0 } }}>
                 { category.questions.map(({ id, question, answer }) =>
-                    <Accordion key={id} id={id} defaultExpanded={ props.searchParams.q === id }>
+                    <Accordion key={id} id={id} defaultExpanded={ searchParams.q === id }>
                         <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
                             {question}
                         </AccordionSummary>

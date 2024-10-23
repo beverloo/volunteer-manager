@@ -8,7 +8,7 @@ export interface NextSearchParams {
     /**
      * Search parameters given in the URL.
      */
-    searchParams: Record<string, string>;
+    searchParams: Promise<Record<string, string>>;
 }
 
 /**
@@ -30,7 +30,7 @@ export interface NextLayoutParams<SingleComponentParams extends string,
          * Parameters that were included in the URL.
          */
         [P in MultiComponentParams]?: string[];
-    }
+    };
 }
 
 /**

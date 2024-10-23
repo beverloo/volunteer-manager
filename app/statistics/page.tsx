@@ -65,7 +65,7 @@ const kDescriptions = {
  * to drill in to each one of them, across events and teams.
  */
 export default async function StatisticsPage(params: NextSearchParams) {
-    const searchParams = new URLSearchParams(params.searchParams);
+    const searchParams = new URLSearchParams(await params.searchParams);
 
     const filters = await determineFilters(searchParams);
     if (!filters.access.basic)
