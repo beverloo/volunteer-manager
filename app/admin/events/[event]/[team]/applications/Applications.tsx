@@ -391,8 +391,7 @@ export function Applications(props: ApplicationsProps) {
 
     return (
         <>
-            <Grid container spacing={2} sx={{ m: '8px -8px -8px -8px !important' }}
-                  alignItems="stretch">
+            <Grid container spacing={2} alignItems="stretch">
                 { applications.map((application, index) =>
                     <Grid key={index} size={{ xs: 6 }}>
                         <Application application={application} canAccessAccounts={canAccessAccounts}
