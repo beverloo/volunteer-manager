@@ -13,9 +13,6 @@ const nextConfig = {
         buildHash: process.env.BUILD_HASH || nextBuildId.sync({ dir: __dirname }).substring(0, 7),
     },
     output: 'standalone',
-    experimental: {
-        instrumentationHook: true,
-    },
     reactStrictMode: true,
     redirects: async() => ([
         {
