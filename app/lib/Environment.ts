@@ -110,7 +110,7 @@ export async function determineEnvironment(): Promise<Environment | undefined> {
 
     const requestOrigin =
         /* dev environment= */   process.env.APP_ENVIRONMENT_OVERRIDE ??
-        /* production server= */ headers().get('Host');
+        /* production server= */ (await headers()).get('Host');
 
     for (const [ environmentName, environment ] of globalThis.animeConEnvironmentCache!.entries()) {
         if (requestOrigin?.endsWith(environmentName))

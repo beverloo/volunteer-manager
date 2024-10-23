@@ -228,7 +228,7 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
         // Next.js state access or database access directly.
         // -----------------------------------------------------------------------------------------
 
-        const requestHeaders = userForTesting ? new Headers : headers();
+        const requestHeaders = userForTesting ? new Headers : await headers();
 
         const authenticationContext =
             userForTesting ?

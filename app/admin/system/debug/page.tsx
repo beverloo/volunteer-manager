@@ -70,8 +70,8 @@ export default async function DebugPage() {
     });
 
     const debugValues: Record<string, any> = {};
-    debugValues['Cookies'] = [ ...cookies() ];
-    debugValues['Headers'] = [ ...headers() ];
+    debugValues['Cookies'] = [ ...await cookies() ];
+    debugValues['Headers'] = [ ...await headers() ];
 
     const values = {
         notes: `Example notes (count: ${++globalRefreshCounter})`,

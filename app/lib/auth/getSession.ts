@@ -13,9 +13,9 @@ import { type SessionData, kSessionCookieName, unsealSession } from './Session';
  * @returns SessionData when the session is valid and exists, or undefined otherwise.
  */
 export async function getSessionFromCookieStore(cookieStore: ReturnType<typeof cookies>)
-        : Promise<SessionData | undefined>
+    : Promise<SessionData | undefined>
 {
-    const sessionCookie = cookieStore.get(kSessionCookieName);
+    const sessionCookie = (await cookieStore).get(kSessionCookieName);
     if (sessionCookie)
         return getSession(sessionCookie.value);
 
