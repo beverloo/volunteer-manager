@@ -14,10 +14,8 @@ const kTitleCache = new Map();
  * Generates metadata for one of the sub-pages of a particular event based on the given `title`,
  * and the `props` which include the event's slug. Will cause a database query.
  */
-async function generateMetadata(props: NextPageParams<'event'>, title?: string)
-    : Promise<Metadata>
-{
-    const { event } = props.params;
+async function generateMetadata(props: NextPageParams<'event'>, title?: string): Promise<Metadata> {
+    const { event } = await props.params;
 
     if (event && event.length > 0 && !kTitleCache.has(event)) {
         const shortName = await db.selectFrom(tEvents)

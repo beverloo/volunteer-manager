@@ -18,7 +18,7 @@ import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
  * one of our events, or for them to see the status of their current application.
  */
 export default async function EventApplicationPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context)
         notFound();
 

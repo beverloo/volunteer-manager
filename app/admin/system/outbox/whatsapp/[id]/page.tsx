@@ -12,11 +12,13 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The outbox page details an outgoing WhatsApp message, with all information we have collected in
  * the database regarding delivery of that message.
  */
-export default async function OutboxWhatsAppDetailsPage({ params }: NextPageParams<'id'>) {
+export default async function OutboxWhatsAppDetailsPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
         permission: 'system.internals.outbox',
     });
+
+    const params = await props.params;
 
     return <TwilioDetailsPage type={TwilioOutboxType.WhatsApp} id={parseInt(params.id, 10)} />;
 }

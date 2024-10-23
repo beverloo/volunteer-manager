@@ -15,9 +15,11 @@ import db, { tContentCategories } from '@lib/database';
  * question and the answer to the question. A rich text editing component is made available.
  */
 export default async function EventFaqEntryPage(props: NextPageParams<'event' | 'team' | 'id'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
     if (!team.managesFaq)
         notFound();
+
+    const params = await props.params;
 
     // Select the categories that questions can be associated with.
     const categories = await db.selectFrom(tContentCategories)
@@ -33,7 +35,7 @@ export default async function EventFaqEntryPage(props: NextPageParams<'event' | 
     const scope = createKnowledgeBaseScope(event.id);
 
     return (
-        <ContentEditor contentId={parseInt(props.params.id)} pathHidden scope={scope}
+        <ContentEditor contentId={parseInt(params.id, /* radix= */ 10)} pathHidden scope={scope}
                        title="Knowledge base" subtitle={event.shortName} categories={categories} />
     );
 }

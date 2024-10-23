@@ -10,5 +10,5 @@ import { VolunteerPage } from './VolunteerPage';
  * authentication will be performed.
  */
 export default async function ScheduleVolunteerPage(props: NextPageParams<'event' | 'volunteer'>) {
-    return <VolunteerPage userId={props.params.volunteer} />;
+    return <VolunteerPage userId={(await props.params).volunteer} />;
 }

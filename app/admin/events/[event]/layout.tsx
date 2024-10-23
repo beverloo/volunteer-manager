@@ -104,11 +104,13 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
  */
 export default async function EventLayout(props: React.PropsWithChildren<NextLayoutParams<'event'>>)
 {
-    if (typeof props.params.event !== 'string' || !props.params.event.length)
+    const params = await props.params;
+
+    if (typeof params.event !== 'string' || !params.event.length)
         notFound();
 
     const { access, user } = await requireAuthenticationContext();
-    const { event } = props.params;
+    const { event } = params;
 
     const info = await fetchEventSidebarInformation(user, event);
     if (!info)

@@ -11,7 +11,9 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * of the things we'd like the volunteer to know about.
  */
 export default async function ScheduleMainPage(props: NextPageParams<'event'>) {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
+    const params = await props.params;
+    await requireAuthenticationContext({ check: 'event', event: params.event });
+
     return <OverviewPage />;
 }
 

@@ -187,7 +187,8 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
     return (
         <>
             <VolunteerTable title={`${event.shortName} ${team.name}`} enableExport={enableExport}
-                            volunteers={[ ...acceptedVolunteers.values() ]} {...props} />
+                            volunteers={[ ...acceptedVolunteers.values() ]} event={event.slug}
+                            team={team.slug} />
             { cancelledVolunteers.length > 0 &&
                 <CancelledVolunteers volunteers={cancelledVolunteers} /> }
         </>

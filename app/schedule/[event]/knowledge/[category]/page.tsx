@@ -27,7 +27,9 @@ import db, { tContent, tContentCategories } from '@lib/database';
 export default async function ScheduleKnowledgeCategoryPage(
     props: NextPageParams<'category' | 'event'>)
 {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
+    const params = await props.params;
+
+    await requireAuthenticationContext({ check: 'event', event: params.event });
 
     const searchParams = await props.searchParams;
 
@@ -37,7 +39,7 @@ export default async function ScheduleKnowledgeCategoryPage(
             .on(tContent.contentType.equals(ContentType.FAQ))
                 .and(tContent.contentCategoryId.equals(tContentCategories.categoryId))
                 .and(tContent.revisionVisible.equals(/* true= */ 1))
-        .where(tContentCategories.categoryId.equals(parseInt(props.params.category, 10)))
+        .where(tContentCategories.categoryId.equals(parseInt(params.category, 10)))
             .and(tContentCategories.categoryDeleted.isNull())
         .select({
             title: tContentCategories.categoryTitle,
@@ -92,17 +94,18 @@ export default async function ScheduleKnowledgeCategoryPage(
 
 export async function generateMetadata(props: NextPageParams<'category' | 'event'>) {
     const cache = getTitleCache('knowledge-base');
+    const category = (await props.params).category;
 
-    let categoryName = cache.get(props.params.category);
+    let categoryName = cache.get(category);
     if (!categoryName) {
         categoryName = await db.selectFrom(tContentCategories)
             .where(tContentCategories.categoryId.equals(
-                parseInt(props.params.category, /* radix= */ 10)))
+                parseInt(category, /* radix= */ 10)))
                 .and(tContentCategories.categoryDeleted.isNull())
             .selectOneColumn(tContentCategories.categoryTitle)
             .executeSelectNoneOrOne() ?? 'Unknown category';
 
-        cache.set(props.params.category, categoryName);
+        cache.set(category, categoryName);
     }
 
     return generateScheduleMetadata(props, [ categoryName!, 'Knowledge Base' ]);

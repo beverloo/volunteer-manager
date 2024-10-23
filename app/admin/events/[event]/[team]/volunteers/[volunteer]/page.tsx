@@ -46,6 +46,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     if (!access.can('event.volunteers.information', 'read', accessScope))
         notFound();
 
+    const params = await props.params;
     const readOnly = access.can('event.volunteers.information', 'update', accessScope);
 
     const storageJoin = tStorage.forUseInLeftJoin();
@@ -60,7 +61,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tUsers.avatarId))
-        .where(tUsersEvents.userId.equals(parseInt(props.params.volunteer, 10)))
+        .where(tUsersEvents.userId.equals(parseInt(params.volunteer, 10)))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
             .and(tUsersEvents.registrationStatus.in(

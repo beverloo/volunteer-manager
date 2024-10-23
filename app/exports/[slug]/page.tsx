@@ -26,6 +26,8 @@ import db, { tEvents, tExports, tExportsLogs, tUsers } from '@lib/database';
 export default async function ExportsPage(props: NextPageParams<'slug'>) {
     const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
 
+    const { slug } = await props.params;
+
     const dbInstance = db;
     const metadata = await dbInstance.selectFrom(tExports)
         .innerJoin(tEvents)
@@ -34,7 +36,7 @@ export default async function ExportsPage(props: NextPageParams<'slug'>) {
             .on(tUsers.userId.equals(tExports.exportCreatedUserId))
         .leftJoin(exportsLogsJoin)
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
-        .where(tExports.exportSlug.equals(props.params.slug))
+        .where(tExports.exportSlug.equals(slug))
         .select({
             slug: tExports.exportSlug,  // do not expose the `id` as these are incremental
 

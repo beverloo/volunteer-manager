@@ -32,18 +32,20 @@ import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColou
  * information.
  */
 export default async function ScheduleHelpRequestPage(props: NextPageParams<'event' | 'id'>) {
+    const params = await props.params;
+
     await requireAuthenticationContext({
         check: 'event',
-        event: props.params.event,
+        event: params.event,
         permission: {
             permission: 'event.help-requests',
             scope: {
-                event: props.params.event,
+                event: params.event,
             },
         },
     });
 
-    const event = await getEventBySlug(props.params.event);
+    const event = await getEventBySlug(params.event);
     if (!event)
         notFound();
 
@@ -58,7 +60,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
         .leftJoin(closedUserJoin)
             .on(closedUserJoin.userId.equals(tDisplaysRequests.requestClosedBy))
         .where(tDisplaysRequests.requestEventId.equals(event.id))
-            .and(tDisplaysRequests.requestId.equals(parseInt(props.params.id, /* radix= */ 10)))
+            .and(tDisplaysRequests.requestId.equals(parseInt(params.id, /* radix= */ 10)))
         .select({
             id: tDisplaysRequests.requestId,
             date: tDisplaysRequests.requestReceivedDate,
@@ -180,17 +182,18 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
 
 export async function generateMetadata(props: NextPageParams<'event' | 'id'>) {
     const cache = getTitleCache('help-requests');
+    const id = (await props.params).id;
 
-    let displayName = cache.get(props.params.id);
+    let displayName = cache.get(id);
     if (!displayName) {
         displayName = await db.selectFrom(tDisplaysRequests)
             .innerJoin(tDisplays)
                 .on(tDisplays.displayId.equals(tDisplaysRequests.displayId))
-            .where(tDisplaysRequests.requestId.equals(parseInt(props.params.id, /* radix= */ 10)))
+            .where(tDisplaysRequests.requestId.equals(parseInt(id, /* radix= */ 10)))
             .selectOneColumn(tDisplays.displayLabel)
             .executeSelectNoneOrOne() ?? 'Unknown display';
 
-        cache.set(props.params.id, displayName);
+        cache.set(id, displayName);
     }
 
     return generateScheduleMetadata(props, [ displayName!, 'Help Requests' ]);

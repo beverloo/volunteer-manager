@@ -19,10 +19,11 @@ export default async function ContentEntryPage(props: NextPageParams<'id'>) {
         permission: 'system.content',
     });
 
+    const params = await props.params;
     const scope = createGlobalScope();
 
     return (
-        <ContentEditor contentId={parseInt(props.params.id)} scope={scope} title="Page editor">
+        <ContentEditor contentId={parseInt(params.id)} scope={scope} title="Page editor">
             <SectionIntroduction>
                 You are updating <strong>global content</strong>, any changes you save will be
                 published immediately.

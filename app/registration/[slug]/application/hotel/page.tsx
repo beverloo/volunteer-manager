@@ -24,7 +24,7 @@ import { getStaticContent } from '@lib/Content';
  * selection, as the number of available hotel rooms is limited.
  */
 export default async function EventApplicationHotelsPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context || !context.registration || !context.user || !context.event.hotelEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 

@@ -191,8 +191,8 @@ export interface PageInfoWithTeam extends PageInfo {
     };
 }
 
-type PageInfoParams = { event: string; };
-type PageInfoWithTeamParams = { event: string; team: string; };
+type PageInfoParams = Promise<{ event: string; }>;
+type PageInfoWithTeamParams = Promise<{ event: string; team: string; }>;
 
 /**
  * Verifies that the current user has access to the current page, and returns information about the
@@ -200,15 +200,16 @@ type PageInfoWithTeamParams = { event: string; team: string; };
  * page can optionally be guarded behind a given `accessCheck` as well.
  */
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoWithTeamParams, accessCheck?: PermissionAccessCheck)
-        : Promise<PageInfoWithTeam | never>;
+    asyncParams: PageInfoWithTeamParams,
+    accessCheck?: PermissionAccessCheck): Promise<PageInfoWithTeam | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: PageInfoParams, accessCheck?: PermissionAccessCheck)
-        : Promise<PageInfo | never>;
+    asyncParams: PageInfoParams,
+    accessCheck?: PermissionAccessCheck): Promise<PageInfo | never>;
 export async function verifyAccessAndFetchPageInfo(
-    params: { event: string, team?: string }, accessCheck?: PermissionAccessCheck)
-        : Promise<(PageInfo | PageInfoWithTeam) | never>
+    asyncParams: Promise<{ event: string, team?: string }>,
+    accessCheck?: PermissionAccessCheck): Promise<(PageInfo | PageInfoWithTeam) | never>
 {
+    const params = await asyncParams;
     const permission = typeof accessCheck === 'object' ? accessCheck : undefined;
 
     const { access, user } = await requireAuthenticationContext({

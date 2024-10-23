@@ -33,7 +33,7 @@ function isSameDay(one: Temporal.ZonedDateTime, two: Temporal.ZonedDateTime) {
  * will be around at the festival, and which events they really want to attend.
  */
 export default async function EventApplicationAvailabilityPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context || !context.registration || !context.user)
         notFound();  // the event does not exist, or the volunteer is not signed in
 

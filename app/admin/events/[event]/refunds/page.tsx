@@ -76,10 +76,12 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
  * access to the volunteering refunds to see the overview of requested refunds for a given event.
  */
 export default async function EventRefundsPage(props: NextPageParams<'event'>) {
+    const params = await props.params;
+
     const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.refunds',
         scope: {
-            event: props.params.event,
+            event: params.event,
         },
     });
 

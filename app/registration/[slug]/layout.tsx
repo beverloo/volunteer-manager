@@ -14,7 +14,7 @@ type RegistrationEventLayoutProps = React.PropsWithChildren<NextLayoutParams<'sl
  * Root layout for the registration page belonging to a particular event.
  */
 export default async function RegistrationEventLayout(props: RegistrationEventLayoutProps) {
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context)
         notFound();
 

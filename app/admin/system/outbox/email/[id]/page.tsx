@@ -18,7 +18,9 @@ export default async function OutboxEmailPage(props: NextPageParams<'id'>) {
         permission: 'system.internals.outbox',
     });
 
-    return <EmailMessage id={parseInt(props.params.id, 10)} />;
+    const params = await props.params;
+
+    return <EmailMessage id={parseInt(params.id, 10)} />;
 }
 
 export const metadata: Metadata = {

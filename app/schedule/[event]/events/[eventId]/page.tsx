@@ -10,6 +10,7 @@ import { EventPage } from './EventPage';
  * about the event, its timeslots, as well as volunteers who are scheduled for those times.
  */
 export default async function ScheduleEventPage(props: NextPageParams<'event' | 'eventId'>) {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
-    return <EventPage activityId={props.params.eventId} />;
+    const params = await props.params;
+    await requireAuthenticationContext({ check: 'event', event: params.event });
+    return <EventPage activityId={params.eventId} />;
 }

@@ -34,6 +34,8 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     const acknowledgedUserJoin = tUsers.forUseInLeftJoinAs('auj');
     const closedUserJoin = tUsers.forUseInLeftJoinAs('cuj');
 
+    const { id } = await props.params;
+
     const request = await db.selectFrom(tDisplaysRequests)
         .innerJoin(tDisplays)
             .on(tDisplays.displayId.equals(tDisplaysRequests.displayId))
@@ -43,7 +45,7 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
             .on(acknowledgedUserJoin.userId.equals(tDisplaysRequests.requestAcknowledgedBy))
         .leftJoin(closedUserJoin)
             .on(closedUserJoin.userId.equals(tDisplaysRequests.requestClosedBy))
-        .where(tDisplaysRequests.requestId.equals(parseInt(props.params.id, /* radix= */ 10)))
+        .where(tDisplaysRequests.requestId.equals(parseInt(id, /* radix= */ 10)))
         .select({
             id: tDisplaysRequests.requestId,
             date: tDisplaysRequests.requestReceivedDate,

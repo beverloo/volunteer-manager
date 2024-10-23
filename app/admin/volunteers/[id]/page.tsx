@@ -108,7 +108,9 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
         },
     });
 
-    const volunteerInfo = await fetchVolunteerInfo(props.params.id);
+    const params = await props.params;
+
+    const volunteerInfo = await fetchVolunteerInfo(params.id);
     if (!volunteerInfo)
         notFound();
 
@@ -147,7 +149,7 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
  * database, and using this as the page title. MysQL connections are pooled.
  */
 export async function generateMetadata(props: NextPageParams<'id'>): Promise<Metadata> {
-    const userId = parseInt(props.params.id, 10);
+    const userId = parseInt((await props.params).id, 10);
     if (isNaN(userId))
         return { /* no updates */ };
 

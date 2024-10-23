@@ -23,7 +23,6 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import type { NextPageParams } from '@lib/NextRouterParams';
 import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
@@ -67,11 +66,21 @@ export interface VolunteerInfo {
 /**
  * Props accepted by the <VolunteerTable> component.
  */
-interface VolunteerTableProps extends NextPageParams<'event' | 'team'> {
+interface VolunteerTableProps {
     /**
      * Whether a link to the data export tool should be displayed on the page.
      */
     enableExport?: boolean;
+
+    /**
+     * URL-safe slug of the event for which volunteers are being shown.
+     */
+    event: string;
+
+    /**
+     * URL-safe slug of the team for which volunteers are being shown.
+     */
+    team: string;
 
     /**
      * Title that should be given to this page.
@@ -90,7 +99,7 @@ interface VolunteerTableProps extends NextPageParams<'event' | 'team'> {
  * in the current event, in the current team. Each volunteer will receive a detailed page.
  */
 export function VolunteerTable(props: VolunteerTableProps) {
-    const kVolunteerBase = `/admin/events/${props.params.event}/${props.params.team}/volunteers/`;
+    const kVolunteerBase = `/admin/events/${props.event}/${props.team}/volunteers/`;
 
     const columns: DataTableColumn<VolunteerInfo>[] = [
         {

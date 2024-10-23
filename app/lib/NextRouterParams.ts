@@ -20,7 +20,7 @@ export interface NextLayoutParams<SingleComponentParams extends string,
     /**
      * Parameters passed to the component by the NextJS router.
      */
-    params: {
+    params: Promise<{
         /**
          * Parameter that was included in the URL.
          */
@@ -30,7 +30,7 @@ export interface NextLayoutParams<SingleComponentParams extends string,
          * Parameters that were included in the URL.
          */
         [P in MultiComponentParams]?: string[];
-    };
+    }>;
 }
 
 /**

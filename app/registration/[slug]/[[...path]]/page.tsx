@@ -28,9 +28,9 @@ const kTeamCapacityWarningRatio = 0.8;
  * volunteers can freely create content as they see fit, which will be served by this component.
  */
 export default async function EventContentPage(props: NextPageParams<'slug', 'path'>) {
-    const { path } = props.params;
+    const { path } = await props.params;
 
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context)
         notFound();
 

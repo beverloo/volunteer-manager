@@ -15,10 +15,9 @@ const kTitleCache = new Map();
  * Generates the page title specific to the landing page or one of the registration portal pages, in
  * which we highlight the name of the team about which the visitor is being informed.
  */
-async function generateMetadata(props: NextLayoutParams<'slug'>, title?: string)
-    : Promise<Metadata>
+async function generateMetadata(props: NextLayoutParams<'slug'>, title?: string): Promise<Metadata>
 {
-    const { slug } = props.params;
+    const { slug } = await props.params;
 
     const environment = await determineEnvironment();
     const product = `AnimeCon ${environment?.title ?? 'Volunteering Teams'}`;

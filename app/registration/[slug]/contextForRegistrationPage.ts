@@ -57,12 +57,14 @@ export interface RegistrationPageContext {
  * the year (e.g. "2025") in single-team environments, or a combination of the year and the team's
  * slug (e.g. "2025-crew") to disambiguate for multi-team contexts.
  */
-export async function contextForRegistrationPage(slug: string)
+export async function contextForRegistrationPage(params: Promise<{ slug: string }>)
     : Promise<RegistrationPageContext | undefined>
 {
     const environment = await determineEnvironment();
     if (!environment)
         return undefined;  // invalid environment
+
+    const { slug } = await params;
 
     let eventSlug: string;
     let teamSlug: string;

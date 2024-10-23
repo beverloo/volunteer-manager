@@ -20,9 +20,10 @@ import { RejectedApplications } from './RejectedApplications';
  * new applications on this page themselves.
  */
 export default async function EventApplicationsPage(props: NextPageParams<'event' | 'team'>) {
+    const params = await props.params;
     const accessScope = {
-        event: props.params.event,
-        team: props.params.team,
+        event: params.event,
+        team: params.team,
     };
 
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {

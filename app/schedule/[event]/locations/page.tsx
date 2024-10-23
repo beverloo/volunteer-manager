@@ -10,5 +10,5 @@ import type { NextPageParams } from '@lib/NextRouterParams';
  * overview.
  */
 export default async function ScheduleLocationsPage(props: NextPageParams<'event'>) {
-    redirect(`/schedule/${props.params.event}`);
+    redirect(`/schedule/${(await props.params).event}`);
 }

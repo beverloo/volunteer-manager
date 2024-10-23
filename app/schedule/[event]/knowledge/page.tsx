@@ -14,7 +14,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * base, each of which links through to a page containing all associated questions.
  */
 export default async function ScheduleKnowledgePage(props: NextPageParams<'event'>) {
-    await requireAuthenticationContext({ check: 'event', event: props.params.event });
+    await requireAuthenticationContext({ check: 'event', event: (await props.params).event });
     return (
         <>
             <Card>

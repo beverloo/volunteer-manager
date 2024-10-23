@@ -43,6 +43,8 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
         permission: 'system.internals.outbox',
     });
 
+    const params = await props.params;
+
     const messageJoin = tOutboxTwilio.forUseInLeftJoinAs('mj');
     const originalMessageJoin = tOutboxTwilio.forUseInLeftJoinAs('omj');
 
@@ -52,7 +54,7 @@ export default async function TwilioWebhooksPage(props: NextPageParams<'id'>) {
         .leftJoin(originalMessageJoin)
             .on(originalMessageJoin.outboxResultSid.equals(
                 tTwilioWebhookCalls.webhookMessageOriginalSid))
-        .where(tTwilioWebhookCalls.webhookCallId.equals(parseInt(props.params.id)))
+        .where(tTwilioWebhookCalls.webhookCallId.equals(parseInt(params.id)))
         .select({
             date: tTwilioWebhookCalls.webhookCallDate,
             endpoint: tTwilioWebhookCalls.webhookCallEndpoint,

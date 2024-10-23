@@ -11,23 +11,24 @@ import db, { tActivitiesAreas } from '@lib/database';
  * area, together with information on what's currently happening within them. Authentication is
  * skipped as this page only consumes data already shared with the client.
  */
-export default function ScheduleAreaPage(props: NextPageParams<'area' | 'event'>) {
-    return <LocationList areaId={props.params.area} />;
+export default async function ScheduleAreaPage(props: NextPageParams<'area' | 'event'>) {
+    return <LocationList areaId={(await props.params).area} />;
 }
 
 export async function generateMetadata(props: NextPageParams<'area' | 'event'>) {
     const cache = getTitleCache('areas');
+    const area = (await props.params).area;
 
-    let areaName = cache.get(props.params.area);
+    let areaName = cache.get(area);
     if (!areaName) {
         areaName = await db.selectFrom(tActivitiesAreas)
-            .where(tActivitiesAreas.areaId.equals(parseInt(props.params.area, /* radix= */ 10)))
+            .where(tActivitiesAreas.areaId.equals(parseInt(area, /* radix= */ 10)))
                 .and(tActivitiesAreas.areaDeleted.isNull())
             .selectOneColumn(
                 tActivitiesAreas.areaDisplayName.valueWhenNull(tActivitiesAreas.areaName))
             .executeSelectNoneOrOne() ?? 'Unknown area';
 
-        cache.set(props.params.area, areaName);
+        cache.set(area, areaName);
     }
 
     return generateScheduleMetadata(props, [ areaName! ]);

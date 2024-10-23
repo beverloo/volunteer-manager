@@ -82,6 +82,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
 
     const expandSchedule = userSettings['user-admin-shifts-expand-shifts'] ?? false;
     const includeAllTeams = userSettings['user-admin-shifts-display-other-teams'] ?? false;
+    const params = await props.params;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
     const shift = await dbInstance.selectFrom(tShifts)
         .innerJoin(tShiftsCategories)
             .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
-        .where(tShifts.shiftId.equals(parseInt(props.params.id)))
+        .where(tShifts.shiftId.equals(parseInt(params.id, /* radix= */ 10)))
             .and(tShifts.eventId.equals(event.id))
             .and(tShifts.teamId.equals(team.id))
             .and(tShifts.shiftDeleted.isNull())

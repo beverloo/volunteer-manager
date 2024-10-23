@@ -29,8 +29,9 @@ const kUpdateFormat = ' dddd, MMMM D, [at] HH:mm';
  */
 export default async function ProgramActivityPage(props: NextPageParams<'event' | 'id'>) {
     const { event } = await verifyAccessAndFetchPageInfo(props.params);
+    const { id } = await props.params;
 
-    const activityId = parseInt(props.params.id, 10);
+    const activityId = parseInt(id, 10);
     if (!Number.isSafeInteger(activityId) || !event.festivalId)
         notFound();
 

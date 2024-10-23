@@ -16,11 +16,12 @@ export default async function EventContentEntryPage(props: NextPageParams<'event
 {
     const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
+    const params = await props.params;
     const pathPrefix = `/registration/${event.slug}/`;
     const scope = createEventScope(event.id, team.id);
 
     return (
-        <ContentEditor contentId={parseInt(props.params.id)} pathPrefix={pathPrefix} scope={scope}
+        <ContentEditor contentId={parseInt(params.id)} pathPrefix={pathPrefix} scope={scope}
                        title="Page editor" subtitle={team._environment}>
             <SectionIntroduction>
                 You are editing content on <strong>{team._environment}</strong>, any changes that

@@ -41,14 +41,16 @@ globalThis.animeConScheduleTitleCache = new Map;
 export async function generateScheduleMetadata(props: NextPageParams<'event'>, title?: string[])
     : Promise<Metadata>
 {
-    let eventName = globalThis.animeConScheduleEventNameCache.get(props.params.event);
+    const params = await props.params;
+
+    let eventName = globalThis.animeConScheduleEventNameCache.get(params.event);
     if (!eventName) {
         eventName = await db.selectFrom(tEvents)
-            .where(tEvents.eventSlug.equals(props.params.event))
+            .where(tEvents.eventSlug.equals(params.event))
             .selectOneColumn(tEvents.eventShortName)
             .executeSelectNoneOrOne() ?? 'AnimeCon';
 
-        globalThis.animeConScheduleEventNameCache.set(props.params.event, eventName);
+        globalThis.animeConScheduleEventNameCache.set(params.event, eventName);
     }
 
     if (!!title)

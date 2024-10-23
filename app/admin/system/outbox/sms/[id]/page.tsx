@@ -12,11 +12,13 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * The outbox page details an outgoing SMS message, with all information we have collected in
  * the database regarding delivery of that message.
  */
-export default async function OutboxSmsDetailsPage({ params }: NextPageParams<'id'>) {
+export default async function OutboxSmsDetailsPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
         permission: 'system.internals.outbox',
     });
+
+    const params = await props.params;
 
     return <TwilioDetailsPage type={TwilioOutboxType.SMS} id={parseInt(params.id, 10)} />;
 }

@@ -19,12 +19,14 @@ import db, { tVendors, tVendorsSchedule } from '@lib/database';
  * visitors are safe, and any incidents are taken care of.
  */
 export default async function EventTeamFirstAidPage(props: NextPageParams<'event' | 'team'>) {
+    const params = await props.params;
+
     const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.vendors',
         operation: 'read',
         scope: {
-            event: props.params.event,
-            team: props.params.team,
+            event: params.event,
+            team: params.team,
         },
     });
 
@@ -32,8 +34,8 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'event
         notFound();
 
     const canUpdateVendors = access.can('event.vendors', 'update', {
-        event: props.params.event,
-        team: props.params.team,
+        event: params.event,
+        team: params.team,
     });
 
     const roleSetting = await readSetting('vendor-first-aid-roles') ?? 'First Aid';

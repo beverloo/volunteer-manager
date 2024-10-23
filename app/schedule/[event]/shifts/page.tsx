@@ -13,8 +13,8 @@ import { VolunteerPage } from '../volunteers/[volunteer]/VolunteerPage';
  * discover the user ID of the person signed in to the Volunteer Manager.
  */
 export default async function ScheduleShiftsPage(props: NextPageParams<'event'>) {
-    const { user } =
-        await requireAuthenticationContext({ check: 'event', event: props.params.event });
+    const params = await props.params;
+    const { user } = await requireAuthenticationContext({ check: 'event', event: params.event });
 
     return <VolunteerPage userId={`${user.userId}`} />;
 }

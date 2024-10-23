@@ -24,7 +24,7 @@ import db, { tEvents } from '@lib/database';
  * specific event administrators.
  */
 export default async function EventApplicationRefundPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params.slug);
+    const context = await contextForRegistrationPage(props.params);
     if (!context || !context.registration || !context.user || !context.event.refundEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 

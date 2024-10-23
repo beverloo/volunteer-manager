@@ -10,5 +10,5 @@ import { LocationPage } from './LocationPage';
  * additional security checks have to be done.
  */
 export default async function ScheduleLocationPage(props: NextPageParams<'event' | 'location'>) {
-    return <LocationPage locationId={props.params.location} />;
+    return <LocationPage locationId={(await props.params).location} />;
 }

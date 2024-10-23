@@ -142,18 +142,20 @@ function HelpRequestSummary(props: HelpRequestSummaryProps) {
  * is only available to a subset of volunteers.
  */
 export default async function ScheduleHelpRequestsPage(props: NextPageParams<'event'>) {
+    const params = await props.params;
+
     await requireAuthenticationContext({
         check: 'event',
-        event: props.params.event,
+        event: params.event,
         permission: {
             permission: 'event.help-requests',
             scope: {
-                event: props.params.event,
+                event: params.event,
             },
         },
     });
 
-    const event = await getEventBySlug(props.params.event);
+    const event = await getEventBySlug(params.event);
     if (!event)
         notFound();
 

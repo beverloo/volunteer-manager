@@ -21,10 +21,12 @@ import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra,
     tUsers } from '@lib/database';
 
 export default async function EventTrainingPage(props: NextPageParams<'event'>) {
+    const params = await props.params;
+
     const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.trainings',
         scope: {
-            event: props.params.event,
+            event: params.event,
         },
     });
 

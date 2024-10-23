@@ -26,6 +26,8 @@ export default async function VolunteersExportDetailsPage(props: NextPageParams<
         permission: 'volunteer.export',
     });
 
+    const params = await props.params;
+
     const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
 
     const dbInstance = db;
@@ -36,7 +38,7 @@ export default async function VolunteersExportDetailsPage(props: NextPageParams<
             .on(tUsers.userId.equals(tExports.exportCreatedUserId))
         .leftJoin(exportsLogsJoin)
             .on(exportsLogsJoin.exportId.equals(tExports.exportId))
-        .where(tExports.exportId.equals(parseInt(props.params.id, 10)))
+        .where(tExports.exportId.equals(parseInt(params.id, 10)))
         .select({
             date: dbInstance.dateTimeAsString(tExports.exportCreatedDate),
             slug: tExports.exportSlug,
@@ -60,7 +62,7 @@ export default async function VolunteersExportDetailsPage(props: NextPageParams<
     const views = await dbInstance.selectFrom(tExportsLogs)
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(tExportsLogs.accessUserId))
-        .where(tExportsLogs.exportId.equals(parseInt(props.params.id, 10)))
+        .where(tExportsLogs.exportId.equals(parseInt(params.id, 10)))
         .select({
             id: tExportsLogs.exportLogId,
             date: dbInstance.dateTimeAsString(tExportsLogs.accessDate),

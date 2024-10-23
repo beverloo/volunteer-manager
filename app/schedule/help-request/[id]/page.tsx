@@ -15,11 +15,13 @@ import db, { tDisplaysRequests, tEvents, tTeams, tUsersEvents } from '@lib/datab
 export default async function EventlessHelpRequestPageWithId(props: NextPageParams<'id'>) {
     const { access, user } = await getAuthenticationContext();
 
+    const params = await props.params;
+
     const dbInstance = db;
     const event = await dbInstance.selectFrom(tDisplaysRequests)
         .innerJoin(tEvents)
             .on(tEvents.eventId.equals(tDisplaysRequests.requestEventId))
-        .where(tDisplaysRequests.requestId.equals(parseInt(props.params.id, /* radix= */ 10)))
+        .where(tDisplaysRequests.requestId.equals(parseInt(params.id, /* radix= */ 10)))
         .selectOneColumn(tEvents.eventSlug)
         .executeSelectNoneOrOne();
 
@@ -41,7 +43,7 @@ export default async function EventlessHelpRequestPageWithId(props: NextPagePara
         .executeSelectNoneOrOne();
 
     if (!!environment)
-        redirect(`https://${environment}/schedule/${event}/help-requests/${props.params.id}`);
+        redirect(`https://${environment}/schedule/${event}/help-requests/${params.id}`);
     else
-        redirect(`/schedule/${event}/help-requests/${props.params.id}`);
+        redirect(`/schedule/${event}/help-requests/${params.id}`);
 }

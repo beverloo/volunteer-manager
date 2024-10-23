@@ -26,7 +26,9 @@ import db, { tTasks } from '@lib/database';
  * and exception information. It allows system administrators to inspect what went wrong.
  */
 export default async function TaskPage(props: NextPageParams<'id'>) {
-    if (!props.params.id)
+    const params = await props.params;
+
+    if (!params.id)
         notFound();
 
     await requireAuthenticationContext({
@@ -47,7 +49,7 @@ export default async function TaskPage(props: NextPageParams<'id'>) {
             resultLogs: tTasks.taskInvocationLogs,
             resultTimeMs: tTasks.taskInvocationTimeMs,
         })
-        .where(tTasks.taskId.equals(parseInt(props.params.id, 10)))
+        .where(tTasks.taskId.equals(parseInt(params.id, 10)))
         .executeSelectNoneOrOne();
 
     if (!task)

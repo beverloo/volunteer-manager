@@ -29,8 +29,10 @@ export default async function DatabaseErrorLogPage(props: NextPageParams<'id'>) 
         },
     });
 
+    const { id } = await props.params;
+
     const entry = await db.selectFrom(tLogs)
-        .where(tLogs.logId.equals(parseInt(props.params.id, 10)))
+        .where(tLogs.logId.equals(parseInt(id, /* radix= */ 10)))
             .and(tLogs.logType.equals(LogType.DatabaseError))
             .and(tLogs.logDeleted.isNull())
         .select({

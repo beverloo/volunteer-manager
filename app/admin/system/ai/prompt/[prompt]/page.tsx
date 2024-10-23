@@ -20,7 +20,9 @@ export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) 
         permission: 'system.internals.ai',
     });
 
-    const intentionSetting: Setting = `gen-ai-intention-${props.params.prompt}` as Setting;
+    const { prompt } = await props.params;
+
+    const intentionSetting: Setting = `gen-ai-intention-${prompt}` as Setting;
     const settings = await readSettings([
         'gen-ai-personality',
         'gen-ai-system-instruction',
@@ -39,7 +41,7 @@ export default async function AiPromptExplorer(props: NextPageParams<'prompt'>) 
             <AiExplorer intention={settings[intentionSetting] as string}
                         personality={settings['gen-ai-personality'] || ''}
                         systemInstructions={settings['gen-ai-system-instruction'] || ''}
-                        type={props.params.prompt} />
+                        type={prompt} />
         </>
     );
 }
