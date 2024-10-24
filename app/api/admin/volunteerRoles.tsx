@@ -20,9 +20,9 @@ export const kVolunteerRolesDefinition = z.object({
         eventId: z.number().optional(),
 
         /**
-         * For updating: URL-safe slug of the event for which the role should be updated.
+         * URL-safe slug of the event for which the role should be updated.
          */
-        event: z.string().optional(),
+        event: z.string(),
 
         /**
          * For updating: ID of the role that the user should be updated to.
@@ -80,6 +80,7 @@ type Response = ApiResponse<typeof kVolunteerRolesDefinition>;
 export async function volunteerRoles(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin-event',
+        event: request.event,
         permission: {
             permission: 'event.volunteers.participation',
             scope: {

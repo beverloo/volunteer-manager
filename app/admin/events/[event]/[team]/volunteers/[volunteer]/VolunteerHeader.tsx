@@ -114,7 +114,7 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
 
     useEffect(() => {
         setSelectedRole(volunteer.roleId);
-    }, [ open, setSelectedRole, volunteer ]);
+    }, [ open, setSelectedRole, volunteer.roleId ]);
 
     useEffect(() => {
         for (const { roleId, roleAdminAccess } of roles ?? []) {
@@ -474,6 +474,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
             setRolesLoading(true);
             try {
                 const response = await callApi('post', '/api/admin/volunteer-roles', {
+                    event: event.slug,
                     teamId: team.id,
                 });
 
@@ -483,7 +484,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
             }
         }
         setRolesOpen(true);
-    }, [ roles, setRoles, setRolesLoading, setRolesOpen, team ]);
+    }, [ event.slug, roles, setRoles, setRolesLoading, setRolesOpen, team ]);
 
     // ---------------------------------------------------------------------------------------------
     // Change team
