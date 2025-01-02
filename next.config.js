@@ -12,6 +12,10 @@ const nextConfig = {
         // Docker.build.js when changing the logic in this file.
         buildHash: process.env.BUILD_HASH || nextBuildId.sync({ dir: __dirname }).substring(0, 7),
     },
+    experimental: {
+        // https://nextjs.org/blog/next-15-1#forbidden-and-unauthorized-experimental
+        authInterrupts: true,
+    },
     output: 'standalone',
     reactStrictMode: true,
     redirects: async() => ([
