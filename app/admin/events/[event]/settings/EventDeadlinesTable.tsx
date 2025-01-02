@@ -86,6 +86,7 @@ export function EventDeadlinesTable(props: EventDeadlinesTableProps) {
             flex: 2,
         },
         {
+            display: 'flex',
             field: 'ownerUserId',
             headerName: 'Owner',
             editable: true,
