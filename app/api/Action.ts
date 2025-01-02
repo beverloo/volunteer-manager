@@ -3,7 +3,6 @@
 
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import { isNotFoundError } from 'next/dist/client/components/not-found';
 
 import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
@@ -223,7 +222,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         if (error instanceof NoAccessError)
             return createResponse(403, { success: false });
 
-        if (isNotFoundError(error))
+        if (Object.hasOwn(error, 'digest'))  // fixme
             return createResponse(404, { success: false });
 
         if (!process.env.JEST_WORKER_ID)
