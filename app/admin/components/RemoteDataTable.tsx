@@ -284,6 +284,7 @@ export function RemoteDataTable<
             let renderHeader = column.renderHeader;
             if (enableCreate) {
                 headerAlign = 'center';
+                sortable = false;
                 renderHeader = () => {
                     return (
                         <Tooltip title={`Create a new ${subject}`}>
