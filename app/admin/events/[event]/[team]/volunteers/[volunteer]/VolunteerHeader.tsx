@@ -256,7 +256,8 @@ function ChangeTeamDialog(props: ChangeTeamDialogProps) {
                                      <>
                                          You're about to change
                                          <strong> {volunteer.firstName}</strong>'s team to the
-                                         <strong> {selectedTeam.teamName}</strong>.
+                                         <strong> {selectedTeam.teamName}</strong>. An e-mail will
+                                         automatically be sent to let them know.
                                      </>
                                  } apiParams={{
                                      type: 'change-team',
@@ -568,7 +569,8 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      <>
                                          You're about to cancel
                                          <strong> {volunteer.firstName}</strong>'s participation in
-                                         this event.
+                                         this event. An e-mail will automatically be sent to let
+                                         them know.
                                      </>
                                  } apiParams={{
                                      type: 'cancel-participation',
@@ -585,7 +587,8 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                                      <>
                                          You're about to reinstate
                                          <strong> {volunteer.firstName}</strong> to participation in
-                                         this event.
+                                         this event. An e-mail will automatically be sent to let
+                                         them know.
                                      </>
                                  } apiParams={{
                                      type: 'reinstate-participation',

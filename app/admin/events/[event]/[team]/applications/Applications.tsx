@@ -405,7 +405,8 @@ export function Applications(props: ApplicationsProps) {
                                      <>
                                          You're about to approve
                                          <strong> {application?.firstName}</strong>'s application to
-                                         help out during this event.
+                                         help out during this event. An e-mail will automatically be
+                                         sent to let them know.
                                      </>
                                  } apiParams={{
                                      type: 'approve-volunteer',
@@ -421,7 +422,8 @@ export function Applications(props: ApplicationsProps) {
                                      <>
                                          You're about to reject
                                          <strong> {application?.firstName}</strong>'s application to
-                                         help out during this event.
+                                         help out during this event. An e-mail will automatically be
+                                         sent to let them know.
                                      </>
                                  } apiParams={{
                                      type: 'reject-volunteer',

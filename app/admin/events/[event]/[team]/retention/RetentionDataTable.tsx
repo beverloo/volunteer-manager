@@ -4,6 +4,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
@@ -15,7 +17,9 @@ import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import type { RetentionContext, RetentionRowModel } from '@app/api/admin/retention/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
+import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
+import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { callApi } from '@lib/callApi';
 
 /**
  * Props accepted by the <RetentionDataTable> component.
@@ -38,6 +42,11 @@ export type RetentionDataTableProps = RetentionContext & {
  * reaching out to particular volunteers can be claimed by any of the seniors.
  */
 export function RetentionDataTable(props: RetentionDataTableProps) {
+    const [ emailOpen, setEmailOpen ] = useState<boolean>(false);
+    const [ emailTarget, setEmailTarget ] = useState<RetentionRowModel | undefined>();
+
+    const router = useRouter();
+
     const columns: RemoteDataTableColumn<RetentionRowModel>[] = [
         {
             field: 'name',
@@ -163,13 +172,18 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                     );
                 }
 
+                const openEmailDialog = () => {
+                    setEmailTarget(params.row);
+                    setEmailOpen(true);
+                };
+
                 return (
                     <Stack direction="row" alignItems="center">
                         <Typography component="span" variant="body2"
                                     sx={{ color: 'text.disabled', fontStyle: 'italic', mr: 1 }}>
                             Unassigned
                         </Typography>
-                        <IconButton size="small">
+                        <IconButton size="small" onClick={openEmailDialog}>
                             <MailOutlineIcon color="action" fontSize="inherit" />
                         </IconButton>
                         { props.enableWhatsApp &&
@@ -201,12 +215,50 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
         }
     ];
 
+    const handleEmailClose = useCallback(() => setEmailOpen(false), [ /* no deps */ ]);
+    const handleEmailSubmit = useCallback(async (subject?: string, message?: string) => {
+        if (!subject || !message)
+            return { error: 'Something went wrong, and no message was available to send.' };
+
+        const result = await callApi('post', '/api/admin/retention', {
+            event: props.event,
+            team: props.team,
+            userId: emailTarget?.id ?? 0,
+            email: { subject, message },
+        });
+
+        if (!result.success)
+            return { error: result.error ?? '' };
+
+        router.refresh();
+
+        return { success: 'They have been invited to participate!' };
+
+    }, [ emailTarget, props.event, props.team, router ]);
+
     return (
         <>
             <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
                              context={{ event: props.event, team: props.team }} refreshOnUpdate
                              defaultSort={{ field: 'id', sort: 'asc' }} pageSize={100}
                              disableFooter />
+
+            <CommunicationDialog title={`Invite ${emailTarget?.name} to volunteer again`}
+                                 open={emailOpen} onClose={handleEmailClose}
+                                 confirmLabel="Send" allowSilent={false} description={
+                                     <>
+                                         You're about to send an e-mail to
+                                         <strong> {emailTarget?.name}</strong> inviting them to help
+                                         out during the upcoming AnimeCon event.
+                                     </>
+                                 } apiParams={{
+                                     type: 'remind-participation',
+                                     remindParticipation: {
+                                         userId: emailTarget?.id ?? 0,
+                                         event: props.event,
+                                         team: props.team,
+                                     },
+                                 }} onSubmit={handleEmailSubmit} />
         </>
     );
 }

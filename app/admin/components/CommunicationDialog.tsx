@@ -241,8 +241,7 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                         </Typography> }
                     <Collapse in={state === 'language'}>
                         <Typography>
-                            An e-mail will automatically be sent to let them know. In which language
-                            should the message be written?
+                            In which language should the message be written?
                         </Typography>
                         <Stack direction="row" justifyContent="space-between" spacing={2}
                                alignItems="stretch" sx={{ mt: 2 }}>

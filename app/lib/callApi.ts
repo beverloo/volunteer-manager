@@ -26,6 +26,7 @@ import type { RefundRequestDefinition } from '@app/api/event/refundRequest';
 import type { RegisterActivateDefinition } from '@app/api/auth/registerActivate';
 import type { RegisterDefinition } from '@app/api/auth/register';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
+import type { RemindParticipationDefinition } from '@app/api/admin/retention/remindParticipation';
 import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
 import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { ScheduleTaskDefinition } from '@app/api/admin/scheduler/scheduleTask';
@@ -158,6 +159,7 @@ export type ApiEndpoints = {
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
         '/api/admin/reset-access-code': ResetAccessCodeDefinition,
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
+        '/api/admin/retention': RemindParticipationDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,
         '/api/admin/service-health': ServiceHealthDefinition,
         '/api/admin/trainings': TrainingsEndpoints['create'],
