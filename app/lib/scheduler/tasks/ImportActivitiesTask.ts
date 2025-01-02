@@ -445,6 +445,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationCreated: dbInstance.currentZonedDateTime(),
                         locationUpdated: dbInstance.currentZonedDateTime(),
                         locationDeleted: null,
+                    })
+                    .onConflictDoUpdateSet({
+                        locationDeleted: null,
                     }));
 
                 mutations.mutations.push({
