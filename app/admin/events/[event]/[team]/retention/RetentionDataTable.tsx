@@ -7,8 +7,12 @@ import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import type { RetentionContext, RetentionRowModel } from '@app/api/admin/retention/[[...id]]/route';
 import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
@@ -17,6 +21,11 @@ import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/componen
  * Props accepted by the <RetentionDataTable> component.
  */
 export type RetentionDataTableProps = RetentionContext & {
+    /**
+     * Whether the WhatsApp integration should be enabled for direct outreach.
+     */
+    enableWhatsApp: boolean;
+
     /**
      * Leaders to whom a retention action can be assigned.
      */
@@ -131,6 +140,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
             },
         },
         {
+            display: 'flex',
             field: 'assigneeName',
             headerName: 'Assignee',
             editable: true,
@@ -144,11 +154,29 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                 if (!!params.value)
                     return params.value;
 
+                if (params.row.status !== 'Unknown') {
+                    return (
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                            Unassigned
+                        </Typography>
+                    );
+                }
+
                 return (
-                    <Typography component="span" variant="body2"
-                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
-                        Unassigned
-                    </Typography>
+                    <Stack direction="row" alignItems="center">
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled', fontStyle: 'italic', mr: 1 }}>
+                            Unassigned
+                        </Typography>
+                        <IconButton size="small">
+                            <MailOutlineIcon color="action" fontSize="inherit" />
+                        </IconButton>
+                        { props.enableWhatsApp &&
+                            <IconButton size="small">
+                                <WhatsAppIcon color="success" fontSize="inherit" />
+                            </IconButton> }
+                    </Stack>
                 );
             }
         },
@@ -174,8 +202,11 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
-                         context={{ event: props.event, team: props.team }} refreshOnUpdate
-                         defaultSort={{ field: 'id', sort: 'asc' }} pageSize={100} disableFooter />
+        <>
+            <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
+                             context={{ event: props.event, team: props.team }} refreshOnUpdate
+                             defaultSort={{ field: 'id', sort: 'asc' }} pageSize={100}
+                             disableFooter />
+        </>
     );
 }

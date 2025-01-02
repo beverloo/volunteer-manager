@@ -19,7 +19,7 @@ import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
  * events are interested in participating in the upcoming event.
  */
 export default async function EventTeamRetentionPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const usersEventJoin = tUsersEvents.forUseInLeftJoin();
 
@@ -55,6 +55,8 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();
 
+    const enableWhatsApp = access.can('volunteer.pii') || access.can('volunteer.account');
+
     return (
         <>
             <Collapse in={!!assignedVolunteers.length} unmountOnExit>
@@ -73,7 +75,8 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
                     <em> claim</em> a volunteer, which you can do by double clicking on cells in the
                     the "Assignee" or "Notes" columns.
                 </Alert>
-                <RetentionDataTable event={event.slug} leaders={leaders} team={team.slug} />
+                <RetentionDataTable enableWhatsApp={enableWhatsApp}
+                                    event={event.slug} leaders={leaders} team={team.slug} />
             </Paper>
         </>
     )

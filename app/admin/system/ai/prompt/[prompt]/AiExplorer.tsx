@@ -108,6 +108,12 @@ export function AiExplorer(props: AiExplorerProps) {
                     team: 'crew',
                 },
 
+                remindParticipation: {
+                    userId: /* Nienke= */ 24,
+                    event: '2025',
+                    team: 'crew',
+                },
+
                 overrides: {
                     intention: data.intention,
                     systemInstructions: data.systemInstructions,

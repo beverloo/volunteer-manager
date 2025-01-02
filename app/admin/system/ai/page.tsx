@@ -32,6 +32,7 @@ export default async function AiPage() {
         'gen-ai-intention-change-team',
         'gen-ai-intention-reinstate-participation',
         'gen-ai-intention-reject-volunteer',
+        'gen-ai-intention-remind-participation',
     ]);
 
     // <AiPromptContext> intentions:
@@ -60,6 +61,11 @@ export default async function AiPage() {
             label: 'Participation (reinstate)',
             intention: settings['gen-ai-intention-reinstate-participation'] ?? '',
             setting: 'gen-ai-intention-reinstate-participation',
+        },
+        {
+            label: 'Participation (reminder)',
+            intention: settings['gen-ai-intention-remind-participation'] ?? '',
+            setting: 'gen-ai-intention-remind-participation',
         },
     ];
 

@@ -33,6 +33,7 @@ export const kUpdateAiSettingsDefinition = z.object({
             'gen-ai-intention-change-team': z.string(),
             'gen-ai-intention-reinstate-participation': z.string(),
             'gen-ai-intention-reject-volunteer': z.string(),
+            'gen-ai-intention-remind-participation': z.string(),
         }).optional(),
     }),
     response: z.strictObject({
@@ -85,6 +86,8 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
                 request.prompts['gen-ai-intention-reinstate-participation'],
             'gen-ai-intention-reject-volunteer':
                 request.prompts['gen-ai-intention-reject-volunteer'],
+            'gen-ai-intention-remind-participation':
+                request.prompts['gen-ai-intention-remind-participation'],
         });
 
         await Log({

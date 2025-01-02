@@ -11,6 +11,7 @@ import { ApproveApplicationPrompt } from './prompts/ApproveApplicationPrompt';
 import { CancelParticipationPrompt } from './prompts/CancelParticipationPrompt';
 import { ReinstateParticipationPrompt } from './prompts/ReinstateParticipationPrompt';
 import { RejectApplicationPrompt } from './prompts/RejectApplicationPrompt';
+import { RemindParticipationPrompt } from './prompts/RemindParticipationPrompt';
 import { TeamChangePrompt } from './prompts/TeamChangePrompt';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 
@@ -30,6 +31,7 @@ export const kGeneratePromptDefinition = z.object({
             'change-team',
             'reinstate-participation',
             'reject-volunteer',
+            'remind-participation',
         ]),
 
         /**
@@ -87,6 +89,15 @@ export const kGeneratePromptDefinition = z.object({
          * Parameters that can be passed when the `type` equals `reject-volunteer`.
          */
         rejectVolunteer: z.object({
+            userId: z.number(),
+            event: z.string(),
+            team: z.string(),
+        }).optional(),
+
+        /**
+         * Parameters that can be passed when the `type` equals `remind-participation`.
+         */
+        remindParticipation: z.object({
             userId: z.number(),
             event: z.string(),
             team: z.string(),
@@ -259,12 +270,28 @@ export async function generatePrompt(request: Request, props: ActionProps): Prom
 
             break;
 
+        case 'remind-participation':
+            if (!request.remindParticipation)
+                notFound();
+
+            prompt = new RemindParticipationPrompt({
+                event: request.remindParticipation.event,
+                intention,
+                language: request.language,
+                sourceUserId: props.user.userId,
+                systemInstructions,
+                targetUserId: request.remindParticipation.userId,
+                team: request.remindParticipation.team,
+            });
+
+            break;
+
         default:
             return { success: false, error: 'This type of prompt is not yet supported.' };
     }
 
     const client = await createVertexAIClient();
-    const result = await prompt.generate(client);
+    const result = await prompt!.generate(client);
 
     return {
         success: true,

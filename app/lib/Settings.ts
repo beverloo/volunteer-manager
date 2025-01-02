@@ -63,6 +63,7 @@ type SettingsMap = {
     'gen-ai-intention-change-team': string;
     'gen-ai-intention-reinstate-participation': string;
     'gen-ai-intention-reject-volunteer': string;
+    'gen-ai-intention-remind-participation': string;
 
     // ---------------------------------------------------------------------------------------------
     // Integration settings
