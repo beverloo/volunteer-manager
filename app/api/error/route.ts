@@ -2,10 +2,11 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, executeAction, noAccess } from '../Action';
+import { type ActionProps, executeAction } from '../Action';
 import db, { tErrorLogs } from '@lib/database';
 
 /**
@@ -55,7 +56,7 @@ type Response = ApiResponse<typeof kErrorDefinition>;
  */
 async function error(request: Request, props: ActionProps): Promise<Response> {
     if (!props.ip)
-        noAccess();
+        forbidden();
 
     const dbInstance = db;
     await dbInstance.insertInto(tErrorLogs)

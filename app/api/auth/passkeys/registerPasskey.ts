@@ -1,11 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden } from 'next/navigation';
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 import { z } from 'zod';
 
+import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
@@ -71,7 +72,7 @@ export async function getAllEnvironmentOrigins(): Promise<string[]> {
  */
 export async function registerPasskey(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user || !props.user.username)
-        noAccess();
+        forbidden();
 
     const expectedChallenge = await retrieveUserChallenge(props.user);
     if (!expectedChallenge)

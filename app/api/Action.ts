@@ -4,6 +4,9 @@
 import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { getAccessFallbackHTTPStatus, isHTTPAccessFallbackError }
+    from 'next/dist/client/components/http-access-fallback/http-access-fallback';
+
 import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
 import { AccessControl } from '@lib/auth/AccessControl';
@@ -69,11 +72,6 @@ export interface ActionProps {
  */
 export type Action<T extends ZodObject<ZodRawShape, any, any>> =
     (request: z.infer<T>['request'], props: ActionProps) => Promise<z.infer<T>['response']>;
-
-/**
- * Error thrown when an HTTP 403 No Access response should be returned instead.
- */
-class NoAccessError extends Error {}
 
 /**
  * Creates a response for the given `status` and `payload`. Necessary as the Jest test environment
@@ -219,11 +217,8 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
         throw new Error(`Action response validation failed (${issues})`);
 
     } catch (error: any) {
-        if (error instanceof NoAccessError)
-            return createResponse(403, { success: false });
-
-        if (Object.hasOwn(error, 'digest'))  // fixme
-            return createResponse(404, { success: false });
+        if (isHTTPAccessFallbackError(error))
+            return createResponse(getAccessFallbackHTTPStatus(error), { success: false });
 
         if (!process.env.JEST_WORKER_ID)
             console.error(`Action(${request.nextUrl.pathname}) threw an Exception:`, error);
@@ -233,12 +228,4 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             error: `The server was not able to handle the request: ${error.message}`,
         });
     }
-}
-
-/**
- * Aborts execution of the rest of the Action, and completes the API call with an HTTP 403 Forbidden
- * response instead.
- */
-export function noAccess(): never {
-    throw new NoAccessError;
 }

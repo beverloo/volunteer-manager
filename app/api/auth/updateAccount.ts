@@ -1,11 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, noAccess } from '../Action';
 import { LogType, Log } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import db, { tUsers } from '@lib/database';
@@ -83,7 +83,7 @@ type Response = ApiResponse<typeof kUpdateAccountDefinition>;
  */
 export async function updateAccount(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user)
-        return noAccess();
+        return forbidden();
 
     const account = await db.selectFrom(tUsers)
         .where(tUsers.userId.equals(props.user.userId))

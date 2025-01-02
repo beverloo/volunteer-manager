@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { DisplayHelpRequestStatus, RegistrationStatus } from '@lib/database/Types';
 import { Temporal, isBefore } from '@lib/Temporal';
-import { executeAction, noAccess, type ActionProps } from '../Action';
+import { executeAction, type ActionProps } from '../Action';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
 
@@ -204,7 +205,7 @@ function generateDisplayIdentifier(length: number): string {
  */
 async function display(request: Request, props: ActionProps): Promise<Response> {
     if (!props.ip)
-        noAccess();
+        forbidden();
 
     const settings = await readSettings([
         'display-check-in-rate-help-requested-seconds',

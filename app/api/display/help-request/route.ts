@@ -2,12 +2,13 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { DisplayHelpRequestStatus, DisplayHelpRequestTarget, SubscriptionType } from '@lib/database/Types';
 import { Publish } from '@lib/subscriptions';
-import { executeAction, noAccess, type ActionProps } from '../../Action';
+import { executeAction, type ActionProps } from '../../Action';
 import { getDisplayIdFromHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
 import db, { tActivitiesLocations, tDisplays, tDisplaysRequests, tEvents } from '@lib/database';
@@ -57,11 +58,11 @@ type Response = ApiResponse<typeof kHelpRequestDefinition>;
  */
 async function helpRequest(request: Request, props: ActionProps): Promise<Response> {
     if (!props.ip)
-        noAccess();
+        forbidden();
 
     const displayId: number | undefined = await getDisplayIdFromHeaders(props.requestHeaders);
     if (!displayId)
-        noAccess();
+        forbidden();
 
     const dbInstance = db;
     const configuration = await dbInstance.selectFrom(tDisplays)

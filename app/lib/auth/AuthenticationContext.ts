@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, unauthorized } from 'next/navigation';
 
 import type { AccessOperation } from '@lib/auth/AccessDescriptor';
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
@@ -212,14 +212,14 @@ export function checkPermission(
 export function executeAccessCheck(
     context: AuthenticationContext, access: AuthenticationAccessCheck): void | never
 {
-    if (access.permission) {
-        if (!checkPermission(context.access, access.permission))
-            notFound();
+    if (access.permission && !checkPermission(context.access, access.permission)) {
+        !!context.user ? forbidden()
+                       : unauthorized();
     }
 
     if ('check' in access) {
         if (!context.user)
-            notFound();
+            unauthorized();
 
         switch (access.check) {
             case 'admin':
@@ -242,7 +242,7 @@ export function executeAccessCheck(
                 if (!context.access.can('event.schedules', 'read', { event: access.event,
                                                                      team: kAnyTeam })) {
                     if (!context.events.has(access.event))
-                        notFound();
+                        forbidden();
                 }
                 break;
         }
@@ -259,7 +259,7 @@ export async function requireAuthenticationContext(access?: AuthenticationAccess
 {
     const authenticationContext = await getAuthenticationContext();
     if (!authenticationContext.user)
-        notFound();
+        unauthorized();
 
     if (access)
         executeAccessCheck(authenticationContext, access);

@@ -1,11 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, noAccess } from '../Action';
 import { Log, LogType, LogSeverity } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
@@ -188,7 +188,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
     const { subject, message } = request.update;
     if (!subject || !message || /* null check= */ !props.user) {
         if (!props.access.can('volunteer.silent'))
-            noAccess();
+            forbidden();
 
     } else {
         const username = await db.selectFrom(tUsers)

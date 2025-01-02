@@ -2,9 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
-import { type ActionProps, executeAction, noAccess } from '../Action';
+import { type ActionProps, executeAction } from '../Action';
 import { TaskResult } from '@lib/scheduler/Task';
 import { TaskRunner } from '@lib/scheduler/TaskRunner';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
@@ -61,7 +62,7 @@ type Response = SchedulerDefinition['response'];
  */
 async function scheduler(request: Request, props: ActionProps): Promise<Response> {
     if (!kSchedulerPassword?.length || request.password !== kSchedulerPassword)
-        noAccess();
+        forbidden();
 
     const taskRunner = TaskRunner.getOrCreateForScheduler(globalScheduler);
     const success = await taskRunner.executeTask(

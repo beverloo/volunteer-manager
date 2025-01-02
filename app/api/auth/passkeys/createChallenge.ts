@@ -1,14 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden, notFound } from 'next/navigation';
 import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { isoBase64URL, isoUint8Array } from '@simplewebauthn/server/helpers';
-import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { determineEnvironment } from '@lib/Environment';
-import { noAccess, type ActionProps } from '../../Action';
 import { determineRpID, retrieveCredentials, storeUserChallenge } from './PasskeyUtils';
 
 /**
@@ -46,7 +46,7 @@ type Response = ApiResponse<typeof kCreateChallengeDefinition>;
  */
 export async function createChallenge(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user || !props.user.username)
-        noAccess();
+        forbidden();
 
     const environment = await determineEnvironment();
     if (!environment)

@@ -1,10 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { type ActionProps, noAccess } from '../../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { deleteCredential } from './PasskeyUtils';
 
@@ -41,7 +42,7 @@ type Response = ApiResponse<typeof kDeletePasskeyDefinition>;
  */
 export async function deletePasskey(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user || !props.user.username)
-        noAccess();
+        forbidden();
 
     const credentialDeleted = await deleteCredential(props.user, request.id);
     if (credentialDeleted) {

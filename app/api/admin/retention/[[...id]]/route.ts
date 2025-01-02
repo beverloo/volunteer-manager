@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
@@ -9,7 +9,6 @@ import { LogSeverity, LogType, Log } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import { noAccess } from '@app/api/Action';
 import { readSetting } from '@lib/Settings';
 import db, { tEvents, tRetention, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
@@ -132,7 +131,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             case 'create':
             case 'delete':
             case 'get':
-                noAccess();
+                forbidden();
 
             case 'list':
             case 'update':

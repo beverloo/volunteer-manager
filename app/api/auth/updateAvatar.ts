@@ -1,13 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, noAccess } from '../Action';
 import { FileType } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
-import { executeAccessCheck, or } from '@lib/auth/AuthenticationContext';
+import { executeAccessCheck} from '@lib/auth/AuthenticationContext';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';
 
@@ -46,7 +47,7 @@ type Response = ApiResponse<typeof kUpdateAvatarDefinition>;
  */
 export async function updateAvatar(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user)
-        return noAccess();
+        return forbidden();
 
     let subjectUserId: number = props.user.userId;
     if (request.overrideUserId && request.overrideUserId !== props.user.userId) {

@@ -2,10 +2,11 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { type ActionProps, executeAction, noAccess } from '../Action';
+import { type ActionProps, executeAction } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
 import { LogType, Log } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -232,7 +233,7 @@ const kReloadIgnoreThreshold = 5 /* = minutes */ * 60 * 1000;
  */
 async function exports(request: Request, props: ActionProps): Promise<Response> {
     if (!props.ip)
-        noAccess();
+        forbidden();
 
     const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
 

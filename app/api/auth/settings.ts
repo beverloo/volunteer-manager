@@ -1,10 +1,11 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
+import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { noAccess, type ActionProps } from '../Action';
 import { writeUserSettings, type UserSettingsMap } from '@lib/UserSettings';
 
 /**
@@ -46,7 +47,7 @@ type SettingStringType<Key extends keyof UserSettingsMap> =
  */
 export async function settings(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user)
-        noAccess();
+        forbidden();
 
     // User settings that are allowed to be updated using this interface.
     const kAllowedUserSettings: { [k in keyof UserSettingsMap]: SettingStringType<k> } = {

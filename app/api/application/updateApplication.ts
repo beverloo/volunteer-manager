@@ -1,10 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
-import { type ActionProps, noAccess } from '../Action';
+import type { ActionProps } from '../Action';
 import { LogSeverity, LogType, Log } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
@@ -114,7 +114,7 @@ type Response = ApiResponse<typeof kUpdateApplicationDefinition>;
  */
 export async function updateApplication(request: Request, props: ActionProps): Promise<Response> {
     if (!props.user)
-        noAccess();
+        forbidden();
 
     const requestContext = await db.selectFrom(tEventsTeams)
         .innerJoin(tEvents)
@@ -283,7 +283,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             const { subject, message } = request.status;
             if (!subject || !message) {
                 if (!props.access.can('volunteer.silent'))
-                    noAccess();
+                    forbidden();
 
             } else {
                 await SendEmailTask.Schedule({
