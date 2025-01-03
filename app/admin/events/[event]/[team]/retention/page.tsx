@@ -20,7 +20,7 @@ import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
  * events are interested in participating in the upcoming event.
  */
 export default async function EventTeamRetentionPage(props: NextPageParams<'event' | 'team'>) {
-    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     const usersEventJoin = tUsersEvents.forUseInLeftJoin();
 
@@ -56,15 +56,8 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();
 
-    const enableWhatsApp = access.can('volunteer.pii') || access.can('volunteer.account');
-
-    let whatsAppLink: string = '';
-    let whatsAppMessage: string = '';
-
-    if (enableWhatsApp) {
-        whatsAppLink = `https://${team._environment}/registration`;
-        whatsAppMessage = await readSetting('retention-whatsapp-message') ?? '';
-    }
+    const whatsAppLink = `https://${team._environment}/registration`;
+    const whatsAppMessage = await readSetting('retention-whatsapp-message') ?? '{name}, {link}?!';
 
     return (
         <>
@@ -84,8 +77,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
                     <em> claim</em> a volunteer, which you can do by double clicking on cells in the
                     the "Assignee" or "Notes" columns or by clicking on an available action.
                 </Alert>
-                <RetentionDataTable enableWhatsApp={enableWhatsApp}
-                                    whatsAppLink={whatsAppLink} whatsAppMessage={whatsAppMessage}
+                <RetentionDataTable whatsAppLink={whatsAppLink} whatsAppMessage={whatsAppMessage}
                                     event={event.slug} leaders={leaders} team={team.slug} />
             </Paper>
         </>

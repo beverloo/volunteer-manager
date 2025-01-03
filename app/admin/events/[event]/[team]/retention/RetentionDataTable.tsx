@@ -29,11 +29,6 @@ import { callApi } from '@lib/callApi';
  */
 export type RetentionDataTableProps = RetentionContext & {
     /**
-     * Whether the WhatsApp integration should be enabled for direct outreach.
-     */
-    enableWhatsApp: boolean;
-
-    /**
      * Leaders to whom a retention action can be assigned.
      */
     leaders: string[];
@@ -213,10 +208,9 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                         <IconButton size="small" onClick={openEmailDialog}>
                             <MailOutlineIcon color="action" fontSize="inherit" />
                         </IconButton>
-                        { props.enableWhatsApp &&
-                            <IconButton size="small" onClick={openWhatsAppDialog}>
-                                <WhatsAppIcon color="success" fontSize="inherit" />
-                            </IconButton> }
+                        <IconButton size="small" onClick={openWhatsAppDialog}>
+                            <WhatsAppIcon color="success" fontSize="inherit" />
+                        </IconButton>
                     </Stack>
                 );
             }
