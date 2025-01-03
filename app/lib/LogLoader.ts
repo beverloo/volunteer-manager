@@ -130,6 +130,9 @@ const kLogMessageFormatter: {
     [LogType.AdminEventPublishInfo]: (source, target, { event, published, type }) => {
         return `${published ? 'Published' : 'Unpublished'} ${type} information for ${event}`;
     },
+    [LogType.AdminEventRetentionMessage]: (source, target, { channel, event }) => {
+        return `Reached out to ${target?.name} using ${channel} regarding ${event}`;
+    },
     [LogType.AdminEventRetentionUpdate]: (source, target, { event }) => {
         return `Updated ${event} retention for ${target?.name}`;
     },

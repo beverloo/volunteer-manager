@@ -176,6 +176,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
     if (!affectedRows)
         return { success: false, error: 'Unable to assign this volunteer to you…' };
 
+    let channel: string = 'unknown';
     let message: string = '';
     let phoneNumber: string | undefined;
 
@@ -183,6 +184,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
         if (!volunteer.emailAddress)
             return { success: false, error: 'We don\'t have their e-mail address on file…' };
 
+        channel = 'e-mail';
         message = request.email.message;
 
         await SendEmailTask.Schedule({
@@ -201,16 +203,18 @@ export async function remindParticipation(request: Request, props: ActionProps):
         if (!volunteer.phoneNumber)
             return { success: false, error: 'We don\'t have their phone number on file…' };
 
+        channel = 'WhatsApp';
         message = request.whatsApp.message;
         phoneNumber = volunteer.phoneNumber;
     }
 
     await Log({
-        type: LogType.AdminEventRetentionUpdate,
+        type: LogType.AdminEventRetentionMessage,
         severity: LogSeverity.Info,
         sourceUser: props.user,
         targetUser: request.userId,
         data: {
+            channel,
             event: event.shortName,
             message,
         }
