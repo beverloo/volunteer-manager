@@ -53,6 +53,8 @@ export default async function AnimeConIntegrationPage() {
     );
 }
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
     title: 'AnimeCon integration | AnimeCon Volunteer Manager',
 };
