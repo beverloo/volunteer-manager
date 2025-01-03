@@ -11,6 +11,7 @@ import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
 
@@ -57,6 +58,14 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
 
     const enableWhatsApp = access.can('volunteer.pii') || access.can('volunteer.account');
 
+    let whatsAppLink: string = '';
+    let whatsAppMessage: string = '';
+
+    if (enableWhatsApp) {
+        whatsAppLink = `https://${team._environment}/registration`;
+        whatsAppMessage = await readSetting('retention-whatsapp-message') ?? '';
+    }
+
     return (
         <>
             <Collapse in={!!assignedVolunteers.length} unmountOnExit>
@@ -73,9 +82,10 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
                     This table displays <strong>{team.name.replace(/s$/, '')} retention </strong>
                     considering two previous events. Contact information will be revealed when you
                     <em> claim</em> a volunteer, which you can do by double clicking on cells in the
-                    the "Assignee" or "Notes" columns.
+                    the "Assignee" or "Notes" columns or by clicking on an available action.
                 </Alert>
                 <RetentionDataTable enableWhatsApp={enableWhatsApp}
+                                    whatsAppLink={whatsAppLink} whatsAppMessage={whatsAppMessage}
                                     event={event.slug} leaders={leaders} team={team.slug} />
             </Paper>
         </>

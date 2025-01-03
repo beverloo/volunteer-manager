@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { TextFieldElement } from '@proxy/react-hook-form-mui';
+
 import { default as MuiLink } from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
@@ -19,6 +21,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import type { RetentionContext, RetentionRowModel } from '@app/api/admin/retention/[[...id]]/route';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -34,6 +37,17 @@ export type RetentionDataTableProps = RetentionContext & {
      * Leaders to whom a retention action can be assigned.
      */
     leaders: string[];
+
+    /**
+     * The link to the event that should be included in the WhatsApp message.
+     */
+    whatsAppLink: string;
+
+    /**
+     * The message that should be send over WhatsApp. {name} and {link} are placeholders that will
+     * be substituted with actual useful values.
+     */
+    whatsAppMessage: string;
 };
 
 /**
@@ -44,6 +58,10 @@ export type RetentionDataTableProps = RetentionContext & {
 export function RetentionDataTable(props: RetentionDataTableProps) {
     const [ emailOpen, setEmailOpen ] = useState<boolean>(false);
     const [ emailTarget, setEmailTarget ] = useState<RetentionRowModel | undefined>();
+
+    const [ whatsAppOpen, setWhatsAppOpen ] = useState<boolean>(false);
+    const [ whatsAppTarget, setWhatsAppTarget ] = useState<RetentionRowModel | undefined>();
+    const [ whatsAppMessage, setWhatsAppMessage ] = useState<Record<string, string>>({});
 
     const router = useRouter();
 
@@ -177,6 +195,15 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                     setEmailOpen(true);
                 };
 
+                const openWhatsAppDialog = () => {
+                    setWhatsAppTarget(params.row);
+                    setWhatsAppMessage({
+                        message: props.whatsAppMessage.replaceAll('{name}', params.row.firstName)
+                                                      .replaceAll('{link}', props.whatsAppLink)
+                    });
+                    setWhatsAppOpen(true);
+                };
+
                 return (
                     <Stack direction="row" alignItems="center">
                         <Typography component="span" variant="body2"
@@ -187,7 +214,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                             <MailOutlineIcon color="action" fontSize="inherit" />
                         </IconButton>
                         { props.enableWhatsApp &&
-                            <IconButton size="small">
+                            <IconButton size="small" onClick={openWhatsAppDialog}>
                                 <WhatsAppIcon color="success" fontSize="inherit" />
                             </IconButton> }
                     </Stack>
@@ -236,6 +263,8 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
     }, [ emailTarget, props.event, props.team, router ]);
 
+    const handleWhatsAppClose = useCallback(() => setWhatsAppOpen(false), [ /* no deps */ ]);
+
     return (
         <>
             <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
@@ -259,6 +288,20 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                                          team: props.team,
                                      },
                                  }} onSubmit={handleEmailSubmit} />
+
+            <SettingDialog title={`Invite ${whatsAppTarget?.name} to volunteer again`}
+                           open={whatsAppOpen} onClose={handleWhatsAppClose}
+                           closeLabel="Cancel" submitLabel="Claim"
+                           defaultValues={whatsAppMessage} description={
+                               <>
+                                   You are preparing a WhatsApp message to
+                                   <strong> {whatsAppTarget?.name}</strong>, inviting them to help
+                                   out again at the upcoming event.
+                               </>
+                           }>
+                <TextFieldElement name="message" label="Message" required multiline fullWidth
+                                  size="small" sx={{ mt: 2 }} />
+            </SettingDialog>
         </>
     );
 }

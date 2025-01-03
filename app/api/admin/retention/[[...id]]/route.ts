@@ -31,6 +31,11 @@ const kRetentionRowModel = z.object({
     name: z.string(),
 
     /**
+     * The volunteer's first name. Won't be presented in UI, but will be used for messages.
+     */
+    firstName: z.string(),
+
+    /**
      * The most recent event that this volunteer participated in.
      */
     latestEvent: z.string().optional(),
@@ -204,6 +209,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             .select({
                 id: tUsers.userId,
                 name: tUsers.name,
+                firstName: tUsers.displayName.valueWhenNull(tUsers.firstName),
                 events: dbInstance.aggregateAsArray({
                     slug: tEvents.eventSlug,
                     name: tEvents.eventShortName,
@@ -253,6 +259,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             volunteerRows.push({
                 id: volunteer.id,
                 name: volunteer.name,
+                firstName: volunteer.firstName,
                 latestEvent: latestEvent.name,
                 latestEventSlug: latestEvent.slug,
                 status, statusTeam,
