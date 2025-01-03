@@ -33,6 +33,7 @@ type SettingsMap = {
 
     // Retention:
     'retention-number-of-events-to-consider': number;
+    'retention-whatsapp-message': string;
 
     // Schedule:
     'schedule-day-view-start-time': string;

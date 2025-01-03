@@ -129,6 +129,14 @@ export default async function IntegrationsPage() {
                 description: 'How many events should be considered for retention planning?',
             },
             {
+                setting: 'retention-whatsapp-message',
+                type: 'string',
+                defaultValue: 'Hi {name}',
+
+                label: 'Retention - WhatsApp message',
+                description: 'Default WhatsApp message to compose',
+            },
+            {
                 setting: 'schedule-day-view-start-time',
                 type: 'string',
                 defaultValue: '08:00',
