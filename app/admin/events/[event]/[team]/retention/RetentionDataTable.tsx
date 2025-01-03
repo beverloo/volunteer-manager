@@ -247,15 +247,18 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
         if (!subject || !message)
             return { error: 'Something went wrong, and no message was available to send.' };
 
+        if (!emailTarget)
+            return { error: 'Something went wrong, and no recipient was available.' };
+
         const result = await callApi('post', '/api/admin/retention', {
             event: props.event,
             team: props.team,
-            userId: emailTarget?.id ?? 0,
+            userId: emailTarget.id,
             email: { subject, message },
         });
 
         if (!result.success)
-            return { error: result.error ?? '' };
+            return { error: result.error ?? 'Something went wrong, the message could not be send' };
 
         router.refresh();
 
@@ -264,6 +267,41 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
     }, [ emailTarget, props.event, props.team, router ]);
 
     const handleWhatsAppClose = useCallback(() => setWhatsAppOpen(false), [ /* no deps */ ]);
+    const handleWhatsAppSubmit = useCallback(async (data: Record<string, string>) => {
+        if (!Object.hasOwn(data, 'message') || !data.message.length)
+            return { error: 'Something went wrong, and no message was available to send.' };
+
+        if (!whatsAppTarget)
+            return { error: 'Something went wrong, and no recipient was available.' };
+
+        const result = await callApi('post', '/api/admin/retention', {
+            event: props.event,
+            team: props.team,
+            userId: whatsAppTarget.id,
+            whatsApp: { message: data.message },
+        });
+
+        if (!result.success || !result.phoneNumber)
+            return { error: result.error ?? 'Something went wrong, the message could not be send' };
+
+        router.refresh();
+
+        const params = new URLSearchParams();
+        params.set('text', data.message);
+
+        const link = `https://wa.me/${result.phoneNumber.replace(/^\+/, '')}?${params.toString()}`;
+
+        return {
+            success:
+                <>
+                    <strong>Now click on this link! </strong>
+                    <MuiLink href={link} target="_blank" rel="noopener noreferrer">
+                        Send a WhatsApp message
+                    </MuiLink>
+                </>
+        };
+
+    }, [ whatsAppTarget, props.event, props.team, router ]);
 
     return (
         <>
@@ -291,14 +329,14 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
             <SettingDialog title={`Invite ${whatsAppTarget?.name} to volunteer again`}
                            open={whatsAppOpen} onClose={handleWhatsAppClose}
-                           closeLabel="Cancel" submitLabel="Claim"
+                           closeLabel="Cancel" submitLabel="Reach out"
                            defaultValues={whatsAppMessage} description={
                                <>
                                    You are preparing a WhatsApp message to
                                    <strong> {whatsAppTarget?.name}</strong>, inviting them to help
                                    out again at the upcoming event.
                                </>
-                           }>
+                           } onSubmit={handleWhatsAppSubmit}>
                 <TextFieldElement name="message" label="Message" required multiline fullWidth
                                   size="small" sx={{ mt: 2 }} />
             </SettingDialog>

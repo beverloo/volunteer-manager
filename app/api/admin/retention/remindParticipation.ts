@@ -55,7 +55,11 @@ export const kRemindParticipationDefinition = z.object({
          * The message that should be send over WhatsApp.
          */
         whatsApp: z.object({
-            // TODO...
+            /**
+             * Body of the WhatsApp message. Will be stored for logging purposes only.
+             */
+            message: z.string(),
+
         }).optional(),
 
     }),
@@ -69,6 +73,11 @@ export const kRemindParticipationDefinition = z.object({
          * Optional error message explaining what went wrong.
          */
         error: z.string().optional(),
+
+        /**
+         * Optional phone number when reaching out to a volunteer over WhatsApp.
+         */
+        phoneNumber: z.string().optional(),
     }),
 });
 
@@ -141,7 +150,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
     if (!volunteer)
         forbidden();  // the volunteer is not eligible for being reminded
 
-    if (!!request.email && !!request.whatsApp)
+    if (!request.email && !request.whatsApp)
         return { success: false, error: 'You can only reach out using e-mail or WhatsApp…' };
 
     const noteDate = formatDate(Temporal.Now.instant(), 'MMMM Do');
@@ -167,9 +176,14 @@ export async function remindParticipation(request: Request, props: ActionProps):
     if (!affectedRows)
         return { success: false, error: 'Unable to assign this volunteer to you…' };
 
+    let message: string = '';
+    let phoneNumber: string | undefined;
+
     if (!!request.email) {
         if (!volunteer.emailAddress)
             return { success: false, error: 'We don\'t have their e-mail address on file…' };
+
+        message = request.email.message;
 
         await SendEmailTask.Schedule({
             sender: `${props.user.firstName} ${props.user.lastName} (AnimeCon)`,
@@ -184,7 +198,11 @@ export async function remindParticipation(request: Request, props: ActionProps):
             },
         });
     } else if (!!request.whatsApp) {
-        return { success: false, error: 'Not yet implemented' };
+        if (!volunteer.phoneNumber)
+            return { success: false, error: 'We don\'t have their phone number on file…' };
+
+        message = request.whatsApp.message;
+        phoneNumber = volunteer.phoneNumber;
     }
 
     await Log({
@@ -194,8 +212,9 @@ export async function remindParticipation(request: Request, props: ActionProps):
         targetUser: request.userId,
         data: {
             event: event.shortName,
+            message,
         }
     });
 
-    return { success: true };
+    return { success: true, phoneNumber };
 }
