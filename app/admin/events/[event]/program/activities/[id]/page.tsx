@@ -8,14 +8,16 @@ import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
+import PeopleIcon from '@mui/icons-material/People';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { formatDate } from '@lib/Temporal';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts }
+import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts, tTeams }
     from '@lib/database';
 
 /**
@@ -78,10 +80,20 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
         .executeSelectMany();
 
     const shifts = await dbInstance.selectFrom(tShifts)
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tShifts.teamId))
         .where(tShifts.eventId.equals(event.id))
             .and(tShifts.shiftActivityId.equals(activityId))
         .select({
-            id: tShifts.shiftId,
+            shift: {
+                id: tShifts.shiftId,
+                name: tShifts.shiftName,
+            },
+            team: {
+                name: tTeams.teamName,
+                colour: tTeams.teamColourLightTheme,
+                slug: tTeams.teamSlug,
+            },
         })
         .executeSelectMany();
 
@@ -169,8 +181,26 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
                     </Stack>
                 </Paper> }
             { shifts.length > 0 &&
-                <Paper variant="outlined">
-                    { /* TODO: Shifts */ }
+                <Paper variant="outlined" sx={{ p: 1 }}>
+                    <Typography variant="h6">
+                        Volunteering shifts
+                    </Typography>
+                    <Stack divider={ <Divider flexItem /> } spacing={1} sx={{ mt: 1 }}>
+                        { shifts.map(({ shift, team }, index) =>
+                            <Stack key={index} direction="row" spacing={1} alignContent="center">
+                                <Tooltip title={team.name}>
+                                    <PeopleIcon fontSize="small" htmlColor={team.colour} />
+                                </Tooltip>
+                                <Typography variant="body2">
+                                    <MuiLink component={Link}
+                                             href={`../../${team.slug}/shifts/${shift.id}`}>
+                                        {shift.name}
+                                    </MuiLink>{' '}
+                                    ({team.name})
+                                </Typography>
+                            </Stack>
+                        )}
+                    </Stack>
                 </Paper> }
         </Box>
     );
