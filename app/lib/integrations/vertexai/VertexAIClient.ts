@@ -116,7 +116,6 @@ export class VertexAIClient {
                 topK: this.#settings.topK,
                 topP: this.#settings.topP,
             },
-            // TODO: `safetySettings`
             systemInstruction: prompt.systemInstruction,
         });
 

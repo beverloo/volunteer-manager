@@ -11,7 +11,7 @@ import { SectionHeader, type SectionHeaderProps } from './SectionHeader';
  * Other props, e.g. that of the header, will be included.
  */
 interface SectionOwnProps {
-    // TODO: Additional options go here.
+    // Additional options go here.
 }
 
 /**

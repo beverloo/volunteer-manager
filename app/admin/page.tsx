@@ -83,7 +83,6 @@ async function fetchBirthdays(user: User) {
 export default async function AdminPage() {
     const { access, events, user } = await requireAuthenticationContext({ check: 'admin' });
 
-    // TODO: Filter for participating events in `fetchBirthdays`
     const { currentBirthdays, upcomingBirthdays } = await fetchBirthdays(user);
 
     const connectionPool = getConnectionPool();
