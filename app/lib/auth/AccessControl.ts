@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden } from 'next/navigation';
 
 import type { AccessDescriptor, AccessOperation } from './AccessDescriptor';
 import type { AccessScope, Grant, Result } from './AccessList';
@@ -212,14 +212,11 @@ export class AccessControl {
      * Permission queries are hierarchical, which means that someone granted the "event" permission
      * also has access to the "event.visible" permission. These queries are done in order of highest
      * specificity, to make sure that the most specific grant (and/or revoke) will be considered.
-     *
-     * @todo Actually throw a HTTP 403 Forbidden error when Next.js supports it.
-     * @see https://github.com/vercel/next.js/pull/65993
      */
     require(permission: BooleanPermission, scope?: AccessScope): void;
     require(permission: CRUDPermission, operation: AccessOperation, scope?: AccessScope): void;
     require(permission: BooleanPermission | CRUDPermission, second?: any, third?: any): void {
         if (!this.can(permission as any, second, third))
-            notFound();
+            forbidden();
     }
 }
