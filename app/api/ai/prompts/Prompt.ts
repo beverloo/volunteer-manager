@@ -70,8 +70,6 @@ export interface PromptResult<Context, Params> {
  * The `Prompt` class is the base class for each of the prompts supported by the AnimeCon Volunteer
  * Manager. Prompts use a "system instruction" to define personality and what has to happen, and
  * then a list of items that should be conveyed in a message.
- *
- * @todo Support multiple personalities.
  */
 export abstract class Prompt<Context extends PromptContext, Params extends PromptParams> {
     #db: typeof db;

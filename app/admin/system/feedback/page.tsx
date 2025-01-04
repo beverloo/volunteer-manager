@@ -18,8 +18,6 @@ export default async function FeedbackPage() {
         permission: 'system.feedback',
     });
 
-    // TODO: Consider allowing a response to be composed automagically.
-
     return (
         <Section title="Feedback">
             <SectionIntroduction>

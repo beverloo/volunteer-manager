@@ -120,9 +120,6 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
 
     }, [ defaultValues, timezone ]);
 
-    // TODO: Do we need to preprocess `defaultValues` to translate ZonedDateTime-compatible formats
-    // to ones that can be used by DayJS?
-
     const form = useForm({ defaultValues: processedDefaultValues });
     const router = useRouter();
 
