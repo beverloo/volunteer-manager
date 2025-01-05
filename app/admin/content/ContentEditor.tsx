@@ -191,8 +191,10 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                                                           validate:
                                                               contentProtected ? undefined
                                                                               : validateContentPath
-                                                      }} InputProps={{
-                                                          readOnly: !!contentProtected }} />
+                                                      }}
+                                                      slotProps={{
+                                                          input: { readOnly: !!contentProtected }
+                                                      }} />
                                 </Stack>
                             </Grid> }
                     </Grid>

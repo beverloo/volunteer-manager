@@ -42,7 +42,7 @@ export function EventSettingsForm(props: EventSettingsFormProps) {
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="slug" label="Event slug" required fullWidth
-                                  size="small" InputProps={{ readOnly: !mutableSlug }}
+                                  size="small" slotProps={{ input: { readOnly: !mutableSlug } }}
                                   onChange={onChange} />
             </Grid>
 

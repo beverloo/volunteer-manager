@@ -179,7 +179,7 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 2 }}>
                         <TextField name="emailAddress" label="E-mail address"
                                    value={contactInfo.username} size="small"
-                                   InputProps={{ readOnly: true, autoFocus: true }} />
+                                   slotProps={{ input: { autoFocus: true, readOnly: true } }} />
                         { contactInfoLoading &&
                             <Tooltip title="Treat personal information carefully">
                                 <WarningAmberIcon color="warning" />
@@ -195,7 +195,7 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 2 }}>
                         <TextField name="phoneNumber" label="Phone number"
                                    value={contactInfo.phoneNumber} size="small"
-                                   InputProps={{ readOnly: true, autoFocus: true }} />
+                                   slotProps={{ input: { autoFocus: true, readOnly: true } }} />
                         { contactInfoLoading &&
                             <Tooltip title="Treat personal information carefully">
                                 <WarningAmberIcon color="warning" />

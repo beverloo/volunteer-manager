@@ -63,7 +63,7 @@ function DataTableFilter() {
     return (
         <Box sx={kStyles.filterContainer}>
             <GridToolbarQuickFilter debounceMs={200} fullWidth sx={kStyles.filterTextField}
-                                    InputProps={{ inputRef: inputReference }} />
+                                    slotProps={{ input: { inputRef: inputReference } }} />
         </Box>
     )
 }
