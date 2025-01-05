@@ -9,6 +9,7 @@ import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
+import type { NextLayoutParams } from '@lib/NextRouterParams';
 import { ApplicationBar } from './components/ApplicationBar';
 import { DesktopNavigation } from './components/DesktopNavigation';
 import { MobileNavigation } from './components/MobileNavigation';
@@ -48,17 +49,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
 /**
  * Props accepted by the <ScheduleLayout> component.
  */
-interface ScheduleLayoutProps {
-    /**
-     * Parameters passed to the component by the NextJS router.
-     */
-    params: {
-        /**
-         * The slug included in the URL. Used to uniquely identify the event.
-         */
-        event: string;
-    },
-}
+type ScheduleLayoutProps = NextLayoutParams<'event'>;
 
 /**
  * The <ScheduleLayout> component is the main page of the scheduling tool, that allows volunteers to
@@ -76,7 +67,9 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
     if (!environment)
         notFound();
 
-    const event = await getEventBySlug(props.params.event);
+    const params = await props.params;
+
+    const event = await getEventBySlug(params.event);
     if (!event)
         notFound();  // the requested |event| does not exist
 
