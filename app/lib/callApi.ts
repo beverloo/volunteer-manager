@@ -16,7 +16,7 @@ import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetScheduleDefinition } from '@app/api/admin/event/schedule/getSchedule';
 import type { HelpRequestDefinition } from '@app/api/display/help-request/route';
 import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
-import type { HotelsDefinition } from '@app/api/event/hotels';
+import type { HotelsDefinition } from '@app/api/event/hotels/[event]/route';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
 import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
@@ -39,7 +39,7 @@ import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswor
 import type { SignOutDefinition } from '@app/api/auth/signOut';
 import type { SubmitFeedbackDefinition } from '@app/api/event/schedule/submitFeedback';
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
-import type { TrainingsDefinition } from '@app/api/event/trainings';
+import type { TrainingsDefinition } from '@app/api/event/trainings/[event]/route';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
 import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
@@ -140,6 +140,8 @@ export type ApiEndpoints = {
         '/api/admin/volunteers/roles': RolesEndpoints['list'],
         '/api/admin/webhooks': WebhookEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
+        '/api/event/hotels/:event': HotelsDefinition,
+        '/api/event/trainings/:event': TrainingsDefinition,
         '/api/display': DisplayDefinition,
         '/api/nardo': NardoEndpoints['list'],
     },
@@ -199,11 +201,9 @@ export type ApiEndpoints = {
         '/api/event/application': ApplicationDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
-        '/api/event/hotels': HotelsDefinition,  // FIXME: move to GET?
         '/api/event/refund-request': RefundRequestDefinition,
         '/api/event/schedule/feedback': SubmitFeedbackDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,
-        '/api/event/trainings': TrainingsDefinition,  // FIXME: move to GET?
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
     },

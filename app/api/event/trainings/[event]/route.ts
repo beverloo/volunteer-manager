@@ -1,17 +1,20 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import type { ActionProps } from '../Action';
-import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import type { ActionProps } from '../../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../../Types';
+import type { NextRouteParams } from '@lib/NextRouterParams';
+import { executeAction } from '../../../Action';
 import { formatDate } from '@lib/Temporal';
 import db, { tEvents, tTrainings } from '@lib/database';
 
 /**
  * Interface definition for the Trainings API, exposed through /api/event/trainings.
  */
-export const kTrainingsDefinition = z.object({
+const kTrainingsDefinition = z.object({
     request: z.object({
         /**
          * Unique slug of the event for which to fetch training information.
@@ -34,7 +37,7 @@ type Response = ApiResponse<typeof kTrainingsDefinition>;
 /**
  * API through which visitors can retrieve information about the trainings available for an event.
  */
-export async function trainings(request: Request, props: ActionProps): Promise<Response> {
+async function trainings(request: Request, props: ActionProps): Promise<Response> {
     const configuration = await db.selectFrom(tTrainings)
         .innerJoin(tEvents)
             .on(tEvents.eventId.equals(tTrainings.eventId))
@@ -63,4 +66,11 @@ export async function trainings(request: Request, props: ActionProps): Promise<R
     }
 
     return { trainings };
+}
+
+/**
+ * The /api/event/trainings/[event] endpoint exposes a read-only version of the training data.
+ */
+export async function GET(request: NextRequest, props: NextRouteParams<'event'>) {
+    return executeAction(request, kTrainingsDefinition, trainings, await props.params);
 }

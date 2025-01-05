@@ -8,10 +8,8 @@ import type { NextRouteParams } from '@lib/NextRouterParams';
 import { application, kApplicationDefinition } from '../application';
 import { availabilityPreferences, kAvailabilityPreferencesDefinition } from '../availabilityPreferences';
 import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
-import { hotels, kHotelsDefinition } from '../hotels';
 import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
 import { trainingPreferences, kTrainingPreferencesDefinition } from '../trainingPreferences';
-import { trainings, kTrainingsDefinition } from '../trainings';
 
 /**
  * The /api/event endpoint exposes APIs related to a particular event such as participation
@@ -31,14 +29,10 @@ export async function POST(request: NextRequest, props: NextRouteParams<never, '
                 request, kAvailabilityPreferencesDefinition, availabilityPreferences);
         case 'hotel-preferences':
             return executeAction(request, kHotelPreferencesDefinition, hotelPreferences);
-        case 'hotels':
-            return executeAction(request, kHotelsDefinition, hotels);
         case 'refund-request':
             return executeAction(request, kRefundRequestDefinition, refundRequest);
         case 'training-preferences':
             return executeAction(request, kTrainingPreferencesDefinition, trainingPreferences);
-        case 'trainings':
-            return executeAction(request, kTrainingsDefinition, trainings);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });

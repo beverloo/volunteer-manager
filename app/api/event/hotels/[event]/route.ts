@@ -1,16 +1,19 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 
-import type { ActionProps } from '../Action';
-import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import type { ActionProps } from '../../../Action';
+import type { ApiDefinition, ApiRequest, ApiResponse } from '../../../Types';
+import type { NextRouteParams } from '@lib/NextRouterParams';
+import { executeAction } from '../../../Action';
 import db, { tEvents, tHotels } from '@lib/database';
 
 /**
  * Interface definition for the Hotel API, exposed through /api/event/hotels.
  */
-export const kHotelsDefinition = z.object({
+const kHotelsDefinition = z.object({
     request: z.object({
         /**
          * Unique slug of the event for which to fetch hotel room information.
@@ -69,7 +72,7 @@ type Response = ApiResponse<typeof kHotelsDefinition>;
  * API through which visitors can retrieve information about the hotel rooms available for an event.
  * These are the same regardless of volunteering team, but may not be available to everybody.
  */
-export async function hotels(request: Request, props: ActionProps): Promise<Response> {
+async function hotels(request: Request, props: ActionProps): Promise<Response> {
     const configuration = await db.selectFrom(tEvents)
         .innerJoin(tHotels)
             .on(tHotels.eventId.equals(tEvents.eventId))
@@ -111,4 +114,11 @@ export async function hotels(request: Request, props: ActionProps): Promise<Resp
     }
 
     return { hotels: [ ...hotels.values() ] };
+}
+
+/**
+ * The /api/event/hotels/[event] endpoint exposes a read-only version of the hotel data.
+ */
+export async function GET(request: NextRequest, props: NextRouteParams<'event'>) {
+    return executeAction(request, kHotelsDefinition, hotels, await props.params);
 }

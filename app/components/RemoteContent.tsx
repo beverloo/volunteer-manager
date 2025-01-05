@@ -19,8 +19,8 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { alpha, darken, lighten } from '@mui/system/colorManipulator';
 
-import type { HotelsDefinition } from '@app/api/event/hotels';
-import type { TrainingsDefinition } from '@app/api/event/trainings';
+import type { HotelsDefinition } from '@app/api/event/hotels/[event]/route';
+import type { TrainingsDefinition } from '@app/api/event/trainings/[event]/route';
 import { Markdown } from './Markdown';
 import { callApi } from '@lib/callApi';
 
@@ -82,7 +82,7 @@ function RemoteContentHotels(props: Omit<RemoteContentProps, 'type'>) {
         if (!props.event)
             return;
 
-        callApi('post', '/api/event/hotels', {
+        callApi('get', '/api/event/hotels/:event', {
             event: props.event
         }).then(response => setHotels(response));
 
@@ -154,7 +154,7 @@ function RemoteContentTrainings(props: Omit<RemoteContentProps, 'type'>) {
         if (!props.event)
             return;
 
-        callApi('post', '/api/event/trainings', {
+        callApi('get', '/api/event/trainings/:event', {
             event: props.event
         }).then(response => setTrainings(response));
 
@@ -182,7 +182,10 @@ function RemoteContentTrainings(props: Omit<RemoteContentProps, 'type'>) {
             </Typography>
             <Box sx={{ borderLeft: theme => `4px solid ${theme.palette.success.main}`, px: 2 }}>
                 <Typography variant="body1">
-                    { trainings.trainings.map((training, index) => <>{training}<br /></> )}
+                    { trainings.trainings.map((training, index) =>
+                        <React.Fragment key={index}>
+                            {training}<br />
+                        </React.Fragment> )}
                 </Typography>
             </Box>
         </React.Fragment>
