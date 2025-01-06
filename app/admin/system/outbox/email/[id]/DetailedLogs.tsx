@@ -12,6 +12,7 @@ import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
@@ -119,8 +120,12 @@ export function DetailedLogs(props: DetailedLogsProps) {
         <Paper variant={ props.variant ?? 'elevation' }>
             <Accordion>
                 <AccordionSummary expandIcon={ <ExpandMoreIcon /> }>
-                    <TroubleshootIcon color="info" sx={{ mr: 1.5 }} />
-                    Detailed logs
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <TroubleshootIcon color="info" />
+                        <Typography variant="body1">
+                            Detailed logs
+                        </Typography>
+                    </Stack>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Table sx={{ mt: -2 }}>
