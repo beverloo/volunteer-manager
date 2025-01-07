@@ -16,6 +16,8 @@ jobs:
         key: ${{ secrets.KEY }}
         command_timeout: 20m
         script: |
+          #!/usr/bin/env bash
+          set -e
           cd ~/volunteer-manager
           git reset --hard
           git pull --rebase
