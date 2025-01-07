@@ -89,7 +89,7 @@ export abstract class SchedulerBase implements Scheduler {
 
         const currentTimeNs = process.hrtime.bigint();
 
-        const pendingTask = this.#taskQueue.front();
+        const pendingTask = this.#taskQueue.front()!;
         if (pendingTask.runtime > currentTimeNs)
             return;  // the task is not ready to be invoked yet
 
