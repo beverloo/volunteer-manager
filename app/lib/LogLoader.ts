@@ -91,7 +91,7 @@ const kLogMessageFormatter: {
     [LogType.AccountPasskeyCreate]: 'Created a passkey for their account',
     [LogType.AccountPasskeyDelete]: 'Deleted a passkey from their account',
     [LogType.AccountPasswordResetRequest]: 'Requested their password to be reset',
-    [LogType.AccountPasswordReset]: 'Reset their password',
+    [LogType.AccountPasswordReset]: 'Reset their password and signed in',
     [LogType.AccountPasswordUpdate]: 'Updated their password',
     [LogType.AccountRegister]: 'Created their account',
     [LogType.AccountUpdateAvatar]: 'Uploaded a new avatar',
