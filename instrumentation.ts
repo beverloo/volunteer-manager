@@ -16,7 +16,7 @@ export async function register() {
         return;
     }
 
-    if (process.env.NODE_ENV !== 'production' && !process.env.APP_USE_SCHEDULER) {
+    if (process.env.NODE_ENV !== 'production' && process.env.APP_SCHEDULER_ENABLED !== '1') {
         // Fail silent: this is intentionally done by the developer.
         return;
     }
