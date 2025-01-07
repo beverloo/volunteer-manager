@@ -15,9 +15,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { LocalDateTime } from '@app/admin/components/LocalDateTime';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { formatDate, formatDuration } from '@lib/Temporal';
+import { formatDuration } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database';
 
@@ -67,24 +68,17 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     if (!request)
         notFound();
 
-    // TODO: Have some sort of server-side knowledge of the timezone of the signed in user.
-    const received = formatDate(request.date, 'MMMM D, YYYY [at] H:mm:ss');
-
-    let acknowledged: string | undefined;
     let acknowledgedLatency: string | undefined;
 
     if (!!request.acknowledgedDate) {
-        acknowledged = formatDate(request.acknowledgedDate, 'MMMM D, YYYY [at] H:mm:ss');
         acknowledgedLatency =
             formatDuration(request.date.until(request.acknowledgedDate, { largestUnit: 'hours' }),
                 /* noPrefix= */ true);
     }
 
-    let closed: string | undefined;
     let closedLatency: string | undefined;
 
     if (!!request.closedDate) {
-        closed = formatDate(request.closedDate, 'MMMM D, YYYY [at] H:mm:ss');
         closedLatency =
             formatDuration(request.date.until(request.closedDate, { largestUnit: 'hours' }),
                 /* noPrefix= */ true);
@@ -105,7 +99,10 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             <TableCell width="25%" component="th" scope="row">
                                 Date
                             </TableCell>
-                            <TableCell>{received}</TableCell>
+                            <TableCell>
+                                <LocalDateTime dateTime={request.date.toString()}
+                                               format="MMMM D, YYYY [at] H:mm:ss" />
+                            </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell component="th" scope="row">
@@ -143,7 +140,9 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                                     Acknowledged
                                 </TableCell>
                                 <TableCell>
-                                    {acknowledged} (latency: {acknowledgedLatency})
+                                    <LocalDateTime dateTime={request.acknowledgedDate!.toString()}
+                                                   format="MMMM D, YYYY [at] H:mm:ss" />
+                                    {' '}(latency: {acknowledgedLatency})
                                 </TableCell>
                             </TableRow>
                             <TableRow>
@@ -178,7 +177,9 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                                     Closed
                                 </TableCell>
                                 <TableCell>
-                                    {closed} (latency: {closedLatency})
+                                    <LocalDateTime dateTime={request.closedDate!.toString()}
+                                                   format="MMMM D, YYYY [at] H:mm:ss" />
+                                    {' '}(latency: {closedLatency})
                                 </TableCell>
                             </TableRow>
                             <TableRow>
