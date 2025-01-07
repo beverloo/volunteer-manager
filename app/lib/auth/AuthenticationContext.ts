@@ -67,7 +67,7 @@ export type AuthenticationContext = UserAuthenticationContext | VisitorAuthentic
  * Determines the authentication context from the cookies included with the current request. May
  * only be used by server-side components, as authentication requires a database query.
  */
-export async function getAuthenticationContext(): Promise<AuthenticationContext> {
+export async function ggetAuthenticationContext(): Promise<AuthenticationContext> {
     const sessionData = await getSessionFromCookieStore((await headers).cookies());
     if (sessionData)
         return getAuthenticationContextFromSessionData(sessionData);
