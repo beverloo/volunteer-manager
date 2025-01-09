@@ -55,8 +55,6 @@ interface FormGridSectionOwnProps {
 
 /**
  * Props accepted by the <FormGridSection> component.
- *
- * @todo Rename <SectionHeader action> to something else now that React has a canonical `action`.
  */
 export type FormGridSectionProps =
     FormGridSectionOwnProps & (Omit<SectionHeaderProps, 'action' | 'sx'> | { noHeader: true });

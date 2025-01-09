@@ -29,7 +29,7 @@ export default async function SubscriptionPage() {
     // TODO: Add a warning section listing users who have subscriptions, but are no longer eligible.
 
     return (
-        <Section action={action} title="Subscriptions">
+        <Section headerAction={action} title="Subscriptions">
             <SectionIntroduction>
                 Any person granted the <strong>subscription eligibility permission</strong> can be
                 subscribed to a variety of notifications using a variety of communication channels.

@@ -12,7 +12,7 @@ export interface SectionHeaderProps {
     /**
      * Action that should be shown on the end side of the header.
      */
-    action?: React.ReactNode;
+    headerAction?: React.ReactNode;
 
     /**
      * The icon that should be shown in the section's header, if any.
@@ -62,7 +62,7 @@ export function SectionHeader(props: SectionHeaderProps) {
                         </Typography> }
                 </Typography>
             </Stack>
-            {props.action}
+            {props.headerAction}
         </Stack>
     );
 }
