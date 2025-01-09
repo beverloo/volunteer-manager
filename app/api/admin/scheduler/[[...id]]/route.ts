@@ -124,7 +124,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
                 let state: SchedulerRowModel['state'] = 'pending';
                 if (!!row.executionResult) {
                     if (row.executionResult === TaskResult.TaskSuccess) {
-                        state = 'success';  // TODO: Recognise warnings?
+                        state = 'success';
                     } else {
                         state = 'failure';
                     }
