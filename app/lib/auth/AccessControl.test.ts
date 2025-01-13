@@ -361,4 +361,70 @@ describe('AccessControl', () => {
         expect(accessControl.can('event.visible', { event: '2024', team: 'hosts' })).toBeFalse();
         expect(accessControl.can('event.visible', { event: '2025', team: 'hosts' })).toBeFalse();
     });
+
+    it('should issue a broad permission grant for explicit grants', () => {
+        // When a volunteer has been issued permission to, for example, access schedule requests, it
+        // should be granted for all events and all teams by default.
+
+        const defaultAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'senior',
+                    event: '2025',
+                    team: 'stewards',
+                },
+            ],
+            events: '2024',
+            teams: 'name',
+        });
+
+        {
+            expect(defaultAccessControl.can('event.visible', { event: kAnyEvent, team: kAnyTeam }))
+                .toBeTrue();
+
+            expect(defaultAccessControl.can('event.requests', { event: kAnyEvent, team: kAnyTeam }))
+                .toBeFalse();
+            expect(defaultAccessControl.can('event.requests', { event: '2024', team: kAnyTeam }))
+                .toBeFalse();
+            expect(defaultAccessControl.can('event.requests', { event: kAnyEvent, team: 'name' }))
+                .toBeFalse();
+            expect(defaultAccessControl.can('event.requests', { event: '2025', team: 'stewards' }))
+                .toBeFalse();
+            expect(defaultAccessControl.can('event.requests', { event: '2025', team: 'hosts' }))
+                .toBeFalse();
+            expect(defaultAccessControl.can('event.requests', { event: '2026', team: kAnyTeam }))
+                .toBeFalse();
+        }
+
+        const grantedAccessControl = new AccessControl({
+            grants: [
+                {
+                    permission: 'senior',
+                    event: '2025',
+                    team: 'stewards',
+                },
+                'event.requests',  // <---
+            ],
+            events: '2024',
+            teams: 'name',
+        });
+
+        {
+            expect(grantedAccessControl.can('event.visible', { event: kAnyEvent, team: kAnyTeam }))
+                .toBeTrue();
+
+            expect(grantedAccessControl.can('event.requests', { event: kAnyEvent, team: kAnyTeam }))
+                .toBeTrue();
+            expect(grantedAccessControl.can('event.requests', { event: '2024', team: kAnyTeam }))
+                .toBeTrue();  // global event access
+            expect(grantedAccessControl.can('event.requests', { event: kAnyEvent, team: 'name' }))
+                .toBeTrue();  // global team access
+            expect(grantedAccessControl.can('event.requests', { event: '2025', team: 'stewards' }))
+                .toBeTrue();  // specific request made global
+            expect(grantedAccessControl.can('event.requests', { event: '2025', team: 'hosts' }))
+                .toBeTrue();  // specific request made global
+            expect(grantedAccessControl.can('event.requests', { event: '2026', team: kAnyTeam }))
+                .toBeTrue();  // specific request made global
+        }
+    });
 });

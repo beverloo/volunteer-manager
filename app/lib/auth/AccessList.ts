@@ -256,12 +256,12 @@ export class AccessList {
             }
         } else if (!!scope) {
             if (!!scope.event && scope.event !== kAnyEvent) {
-                if (!globalEventAccess)
+                if (!globalEventAccess && !access.global)
                     return undefined;
             }
 
             if (!!scope.team && scope.team !== kAnyTeam) {
-                if (!globalTeamAccess)
+                if (!globalTeamAccess && !access.global)
                     return undefined;
             }
 

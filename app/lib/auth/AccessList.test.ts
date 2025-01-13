@@ -37,6 +37,32 @@ describe('AccessList', () => {
         expect(arrayAccessList.query('foo.baz')).toEqual(multipleAccessList.query('foo.baz'));
     });
 
+    it('should ignore scope when querying for globally granted permissions', () => {
+        const singleAccessList = new AccessList({ grants: 'foo.bar' });
+        expect(singleAccessList.query('foo.bar')).toEqual({
+            expanded: false,
+            global: true,
+        });
+
+        expect(singleAccessList.query('foo.bar', { event: '2024' })).toEqual({
+            expanded: false,
+            global: true,
+            scope: 'global',
+        });
+
+        expect(singleAccessList.query('foo.bar', { team: 'example' })).toEqual({
+            expanded: false,
+            global: true,
+            scope: 'global',
+        });
+
+        expect(singleAccessList.query('foo.bar', { event: '2024', team: 'example' })).toEqual({
+            expanded: false,
+            global: true,
+            scope: 'global',
+        });
+    });
+
     it('should be able to run queries against expanded permissions', () => {
         const expansions = {
             test: [
