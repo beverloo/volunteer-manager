@@ -250,7 +250,9 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                 </Grid>
                 <Accordion disableGutters elevation={0} square sx={kStyles.section}>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
-                        Events they plan to attend
+                        <Typography>
+                            Events they plan to attend
+                        </Typography>
                         <Typography sx={{ color: 'text.disabled', pl: 1 }}>
                             ({numberOfEventsToAttend})
                         </Typography>
@@ -273,7 +275,9 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                 </Accordion>
                 <Accordion disableGutters elevation={0} square sx={kStyles.section}>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
-                        Availability exceptions
+                        <Typography>
+                            Availability exceptions
+                        </Typography>
                         <Typography sx={{ color: 'text.disabled', pl: 1 }}>
                             ({timeslots.length})
                         </Typography>
