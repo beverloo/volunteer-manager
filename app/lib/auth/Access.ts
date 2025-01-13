@@ -126,9 +126,10 @@ export const kPermissions = {
             'This permission grants them access to the ability to help out with retention ' +
             'management for a particular event and team. It can reveal contact information of ' +
             'people who helped us out in the past to them.',
+        hide: [ 'create', 'delete' ],  // retention can only be read or updated
         requireEvent: true,
         requireTeam: true,
-        type: 'boolean',
+        type: 'crud',
     },
 
     'event.trainings': {

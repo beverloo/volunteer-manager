@@ -20,7 +20,16 @@ import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
  * events are interested in participating in the upcoming event.
  */
 export default async function EventTeamRetentionPage(props: NextPageParams<'event' | 'team'>) {
-    const { event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const params = await props.params;
+
+    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params, {
+        permission: 'event.retention',
+        operation: 'read',
+        scope: {
+            event: params.event,
+            team: params.team,
+        },
+    });
 
     const usersEventJoin = tUsersEvents.forUseInLeftJoin();
 
@@ -56,6 +65,11 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();
 
+    const readOnly = access.can('event.retention', 'update', {
+        event: event.slug,
+        team: team.slug,
+    });
+
     const whatsAppLink = `https://${team._environment}/registration`;
     const whatsAppMessage = await readSetting('retention-whatsapp-message') ?? '{name}, {link}?!';
 
@@ -71,13 +85,20 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
                         ({event.shortName})
                     </Typography>
                 </Typography>
-                <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
-                    This table displays <strong>{team.name.replace(/s$/, '')} retention </strong>
-                    considering two previous events. Contact information will be revealed when you
-                    <em> claim</em> a volunteer, which you can do by double clicking on cells in the
-                    the "Assignee" or "Notes" columns or by clicking on an available action.
-                </Alert>
+                { readOnly &&
+                    <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
+                        This table displays all {team.name} who participated in the past few years,
+                        and might want to participate again.
+                    </Alert> }
+                { !readOnly &&
+                    <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
+                        This table displays all {team.name} who participated in the past few years,
+                        and might want to participate again. Reach out by clicking on either of the
+                        icons in the "Assignee" column, or double click on the column to manually
+                        assign it in case outreach has already started.
+                    </Alert> }
                 <RetentionDataTable whatsAppLink={whatsAppLink} whatsAppMessage={whatsAppMessage}
+                                    readOnly={readOnly}
                                     event={event.slug} leaders={leaders} team={team.slug} />
             </Paper>
         </>

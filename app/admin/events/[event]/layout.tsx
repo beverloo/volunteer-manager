@@ -338,6 +338,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     label: 'Retention',
                     permission: {
                         permission: 'event.retention',
+                        operation: 'read',
                         scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/retention`,

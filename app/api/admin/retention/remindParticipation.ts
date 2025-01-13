@@ -96,6 +96,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
 
         permission: {
             permission: 'event.retention',
+            operation: 'update',
             scope: {
                 event: request.event,
                 team: request.team,

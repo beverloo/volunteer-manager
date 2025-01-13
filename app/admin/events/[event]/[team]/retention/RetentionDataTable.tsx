@@ -34,6 +34,11 @@ export type RetentionDataTableProps = RetentionContext & {
     leaders: string[];
 
     /**
+     * Whether updates to the table are prohibited.
+     */
+    readOnly: boolean;
+
+    /**
      * The link to the event that should be included in the WhatsApp message.
      */
     whatsAppLink: string;
@@ -176,7 +181,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                 if (!!params.value)
                     return params.value;
 
-                if (params.row.status !== 'Unknown') {
+                if (params.row.status !== 'Unknown' || !!props.readOnly) {
                     return (
                         <Typography component="span" variant="body2"
                                     sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
@@ -299,7 +304,8 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
     return (
         <>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/retention" enableUpdate
+            <RemoteDataTable columns={columns} endpoint="/api/admin/retention"
+                             enableUpdate={!props.readOnly}
                              context={{ event: props.event, team: props.team }} refreshOnUpdate
                              defaultSort={{ field: 'id', sort: 'asc' }} pageSize={100}
                              disableFooter />

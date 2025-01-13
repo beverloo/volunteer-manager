@@ -150,6 +150,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
                     permission: {
                         permission: 'event.retention',
+                        operation: action === 'list' ? 'read' : 'update',
                         scope: {
                             event: context.event,
                             team: context.team,
