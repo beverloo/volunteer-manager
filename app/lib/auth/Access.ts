@@ -537,12 +537,13 @@ export const kPermissionGroups: Record<string, string[]> = {
 
     senior: [
         'event.applications:read',
+        'event.retention',
         'event.schedules:read',
         'event.shifts:read',
         'event.vendors:read',
         'event.visible',
         'event.volunteers.information',
-        // statistics.basic -- when the tool is ready-ish
+        'statistics.basic',
         'system.subscriptions.eligible',
         'volunteer.avatars',
     ],
