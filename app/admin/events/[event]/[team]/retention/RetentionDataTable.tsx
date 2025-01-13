@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -67,6 +68,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
     const columns: RemoteDataTableColumn<RetentionRowModel>[] = [
         {
+            display: 'flex',
             field: 'name',
             headerName: 'Volunteer',
             editable: false,
@@ -75,6 +77,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
 
             renderCell: params => {
                 let href = `/admin/events/${props.event}/`;
+
                 switch (params.row.status) {
                     case 'Applied':
                         href += `${params.row.statusTeam}/applications`;
@@ -84,13 +87,22 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                         href += `${params.row.statusTeam}/volunteers/${params.row.id}`;
                         break;
 
-                    default:
+                    default: {
+                        const accountHref = `/admin/volunteers/${params.row.userIdForAccountLink}`;
                         return (
-                            <Typography component="span" variant="body2"
-                                        sx={{ color: 'action.active' }}>
-                                {params.value}
-                            </Typography>
+                            <>
+                                <Typography component="span" variant="body2"
+                                            sx={{ color: 'action.active' }}>
+                                    {params.value}
+                                </Typography>
+                                { params.row.userIdForAccountLink &&
+                                    <MuiLink component={Link} href={accountHref} sx={{ ml: 0.5 }}>
+                                        <AccountCircleOutlinedIcon color="info" fontSize="inherit"
+                                                                   sx={{ mt: 0.65 }} />
+                                    </MuiLink> }
+                            </>
                         );
+                    }
                 }
 
                 return (

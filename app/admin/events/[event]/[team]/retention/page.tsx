@@ -65,7 +65,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .orderBy(tUsers.lastName, 'asc')
         .executeSelectMany();
 
-    const readOnly = access.can('event.retention', 'update', {
+    const readOnly = !access.can('event.retention', 'update', {
         event: event.slug,
         team: team.slug,
     });

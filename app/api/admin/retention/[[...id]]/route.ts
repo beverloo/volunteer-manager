@@ -26,6 +26,12 @@ const kRetentionRowModel = z.object({
     id: z.number(),
 
     /**
+     * Unique ID of the user in the database. Should only be populated when a link is to be shown to
+     * their account page, separate from their previous participation.
+     */
+    userIdForAccountLink: z.number().optional(),
+
+    /**
      * Name of the volunteer for whom retention is being considered.
      */
     name: z.string(),
@@ -164,7 +170,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
     // Note: This display does not support either pagination or sorting because of the data model,
     // and the slim chance that this will provide benefits when displaying the data.
-    async list({ context }) {
+    async list({ context }, props) {
         const eventAndTeamId = await getEventAndTeamId(context);
         if (!eventAndTeamId)
             notFound();
@@ -226,6 +232,8 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             .groupBy(tUsersEvents.userId, usersEventsJoin.eventId)
             .executeSelectPage();
 
+        const includeAccountLink = props.access.can('volunteer.account.information', 'read');
+
         const volunteerRows: RetentionRowModel[] = [];
         for (const volunteer of volunteers.data) {
             if (!volunteer.events.length)
@@ -235,6 +243,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
 
             let status: RetentionRowModel['status'] = 'Unknown';
             let statusTeam: string | undefined;
+            let userIdForAccountLink: number | undefined;
 
             if (volunteer.registrationStatus.length) {
                 for (const application of volunteer.registrationStatus) {
@@ -255,10 +264,14 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                 }
             } else if (!!volunteer.retentionStatus) {
                 status = volunteer.retentionStatus;
+            } else {
+                if (includeAccountLink)
+                    userIdForAccountLink = volunteer.id;
             }
 
             volunteerRows.push({
                 id: volunteer.id,
+                userIdForAccountLink,
                 name: volunteer.name,
                 firstName: volunteer.firstName,
                 latestEvent: latestEvent.name,
