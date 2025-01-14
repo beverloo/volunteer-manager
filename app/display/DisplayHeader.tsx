@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
+import Button, { type ButtonProps } from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -21,7 +22,6 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import LoadingButton, { type LoadingButtonProps } from '@mui/lab/LoadingButton';
 import LockIcon from '@mui/icons-material/Lock';
 import MenuIcon from '@mui/icons-material/Menu';
 import Paper from '@mui/material/Paper';
@@ -235,7 +235,7 @@ function DisplayHeaderMenu(props: { display: DisplayContextInfo }) {
     const context = display.context;
     const router = useRouter();
 
-    const [ refreshColor, setRefreshColor ] = useState<LoadingButtonProps['color']>('secondary');
+    const [ refreshColor, setRefreshColor ] = useState<ButtonProps['color']>('secondary');
     const [ refreshLoading, setRefreshLoading ] = useState<boolean>(false);
 
     const handleRefresh = useCallback(async () => {
@@ -301,11 +301,11 @@ function DisplayHeaderMenu(props: { display: DisplayContextInfo }) {
                     <Alert severity="success" sx={{ backgroundColor: '#08440c', color: '#ffffff' }}>
                         This display is fully operational.
                     </Alert> }
-                <LoadingButton fullWidth variant="outlined" color={refreshColor}
-                               loading={refreshLoading} onClick={handleRefresh}
-                               sx={{ transition: 'border-color .3s ease-in, color .3s ease-in' }}>
+                <Button fullWidth variant="outlined" color={refreshColor} loading={refreshLoading}
+                        onClick={handleRefresh}
+                        sx={{ transition: 'border-color .3s ease-in, color .3s ease-in' }}>
                     Refresh
-                </LoadingButton>
+                </Button>
                 <DisplayHeaderMenuBrightness />
                 <DisplayHeaderMenuVolume
                     confirmVolumeChanges={context?.config.confirmVolumeChanges} />

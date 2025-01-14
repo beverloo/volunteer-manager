@@ -12,9 +12,9 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
 import type { ValueOptions } from '@mui/x-data-grid-pro';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -204,9 +204,9 @@ export function ContentEditor(props: React.PropsWithChildren<ContentEditorProps>
                 </Section>
                 <Section noHeader>
                     <Stack direction="row" spacing={2} alignItems="center">
-                        <LoadingButton loading={!!loading} variant="contained" type="submit">
+                        <Button loading={!!loading} variant="contained" type="submit">
                             Save changes
-                        </LoadingButton>
+                        </Button>
                         { error &&
                             <Typography sx={{ color: 'error.main' }}>
                                 {error}

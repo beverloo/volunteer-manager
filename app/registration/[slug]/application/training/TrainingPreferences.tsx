@@ -9,8 +9,8 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -118,10 +118,10 @@ export function TrainingPreferences(props: TrainingPreferencesProps) {
                 <TrainingPreferencesForm readOnly={readOnly} trainingOptions={trainingOptions} />
                 { !readOnly &&
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
-                        <LoadingButton startIcon={ <HistoryEduIcon /> } variant="contained"
-                                       loading={loading} type="submit">
+                        <Button startIcon={ <HistoryEduIcon /> } variant="contained"
+                                loading={loading} type="submit">
                             Update my preferences
-                        </LoadingButton>
+                        </Button>
                         { success &&
                             <Typography sx={{ color: 'success.main' }}>
                                 {success}

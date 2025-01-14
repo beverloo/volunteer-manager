@@ -9,9 +9,9 @@ import { FormProvider, useForm } from '@proxy/react-hook-form-mui';
 import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
@@ -182,10 +182,9 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
                                            borderRadius: 2,
                                            padding: 1,
                                        }}>
-                                    <LoadingButton variant="contained" type="submit"
-                                                   loading={!!isPending}>
+                                    <Button variant="contained" type="submit" loading={!!isPending}>
                                         Save changes
-                                    </LoadingButton>
+                                    </Button>
                                     { (!!state && !state.success) &&
                                         <Alert severity="warning" sx={{flexGrow: 1, px: 1, py: 0}}>
                                             { state.error || 'The changes could not be saved' }

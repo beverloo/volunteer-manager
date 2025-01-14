@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import LoadingButton from '@mui/lab/LoadingButton';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -69,10 +68,10 @@ export function RerunTaskButton(props: RerunTaskButtonProps) {
     return (
         <>
             <Tooltip title="Re-run this task">
-                <LoadingButton size="small" disabled={disabled} loading={loading} variant="outlined"
-                               color={ error ? 'error' : 'primary' } onClick={handleRetry}>
+                <Button size="small" disabled={disabled} loading={loading} variant="outlined"
+                        color={ error ? 'error' : 'primary' } onClick={handleRetry}>
                     <RepeatIcon fontSize="small" />
-                </LoadingButton>
+                </Button>
             </Tooltip>
             <Collapse in={!!childTaskId} orientation="horizontal">
                 <Tooltip title="Navigate to the child task">

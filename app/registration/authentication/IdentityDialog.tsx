@@ -12,7 +12,6 @@ import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import PasswordIcon from '@mui/icons-material/Password';
 import Typography from '@mui/material/Typography';
 
@@ -142,11 +141,11 @@ export function IdentityDialog(props: IdentityDialogProps) {
                     </Grid>
                     { !!browserSupportsWebAuthn() &&
                         <Grid size={{ xs: 12, md: 4 }}>
-                            <LoadingButton loading={false} variant="outlined" fullWidth
-                                           onClick={props.onRequestPasskeys}
-                                           startIcon={ <FingerprintIcon /> }>
+                            <Button loading={false} variant="outlined" fullWidth
+                                    onClick={props.onRequestPasskeys}
+                                    startIcon={ <FingerprintIcon /> }>
                                 Passkeys
-                            </LoadingButton>
+                            </Button>
                         </Grid> }
                     <Grid size={{ xs: 12, md: 4 }}>
                         <Button variant="outlined" fullWidth startIcon={ <PasswordIcon /> }
@@ -159,9 +158,9 @@ export function IdentityDialog(props: IdentityDialogProps) {
                 <Divider sx={{ pt: 2, mb: -1 }} />
             </DialogContent>
             <DialogActions>
-                <LoadingButton loading={loading} onClick={requestSignOut}>
+                <Button loading={loading} onClick={requestSignOut}>
                     Sign out
-                </LoadingButton>
+                </Button>
                 <Button onClick={onClose} variant="contained">Close</Button>
             </DialogActions>
         </>

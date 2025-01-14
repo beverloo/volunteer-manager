@@ -12,7 +12,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 import { PasswordField } from './PasswordField';
 
@@ -76,9 +75,9 @@ export function LoginPasswordUpdateDialog(props: LoginPasswordUpdateDialogProps)
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} type="submit" variant="contained">
+                <Button loading={loading} type="submit" variant="contained">
                     Sign in
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </FormContainer>
     );

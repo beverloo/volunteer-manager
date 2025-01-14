@@ -11,7 +11,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 
 import { Alert } from '../components/Alert';
@@ -103,9 +102,9 @@ export default function NotesEditorDialog(props: NotesEditorDialogProps) {
             </DialogContent>
             <DialogActions sx={{ pr: 3, pb: 2, mt: -1 }}>
                 <Button color="inherit" onClick={handleClose}>Cancel</Button>
-                <LoadingButton variant="contained" onClick={handleSubmit} loading={!!loading}>
+                <Button variant="contained" onClick={handleSubmit} loading={!!loading}>
                     Save
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </Dialog>
     );

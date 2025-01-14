@@ -9,9 +9,9 @@ import { type FieldValues, FormContainer, TextareaAutosizeElement, SelectElement
     SliderElement } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
 import Skeleton from '@mui/material/Skeleton';
@@ -179,10 +179,10 @@ function InteractivePanel(props: InteractivePanelProps) {
             <FormContainer defaultValues={{ prompt: normalizedPrompt }} onSuccess={requestPrompt}>
                 <TextareaAutosizeElement size="small" fullWidth name="prompt" />
                 <Stack direction="row" justifyContent="flex-end" sx={{ pt: 2 }}>
-                    <LoadingButton startIcon={ <SmartToyIcon /> } loading={loading}
-                                   variant="outlined" type="submit">
+                    <Button startIcon={ <SmartToyIcon /> } loading={loading} variant="outlined"
+                            type="submit">
                         Generate
-                    </LoadingButton>
+                    </Button>
                 </Stack>
             </FormContainer>
         </Paper>

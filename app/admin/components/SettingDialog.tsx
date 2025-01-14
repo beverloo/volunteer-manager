@@ -15,7 +15,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
 /**
@@ -207,10 +206,10 @@ export function SettingDialog<TFieldValues extends FieldValues = FieldValues>(
                             Delete
                         </Button> }
                     <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                    <LoadingButton disabled={!!successMessage} loading={loading}
-                                   variant="contained" onClick={handleSubmit}>
+                    <Button disabled={!!successMessage} loading={loading} variant="contained"
+                            onClick={handleSubmit}>
                         {submitLabel}
-                    </LoadingButton>
+                    </Button>
                 </DialogActions>
             </FormContainer>
         </Dialog>

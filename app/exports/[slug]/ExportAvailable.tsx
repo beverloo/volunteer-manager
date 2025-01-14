@@ -6,9 +6,9 @@
 import { useCallback, useState } from 'react';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import LaunchIcon from '@mui/icons-material/Launch';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
@@ -103,10 +103,10 @@ export function ExportAvailable(props: ExportAvailableProps) {
             </Collapse>
             <Collapse in={!credits && !trainings && !volunteers} unmountOnExit>
                 <Paper component={Stack} alignItems="center" sx={{ p: 2 }}>
-                    <LoadingButton loading={loading} variant="contained" onClick={handleAccessData}
-                                   startIcon={ <LaunchIcon /> }>
+                    <Button loading={loading} variant="contained" onClick={handleAccessData}
+                            startIcon={ <LaunchIcon /> }>
                         Access data
-                    </LoadingButton>
+                    </Button>
                 </Paper>
             </Collapse>
             <Collapse in={!!credits} unmountOnExit>

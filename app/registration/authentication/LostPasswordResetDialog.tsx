@@ -12,7 +12,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 
 import { PasswordField } from './PasswordField';
@@ -108,9 +107,9 @@ export function LostPasswordResetDialog(props: LostPasswordResetDialogProps) {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={onClose}>Close</Button>
-                        <LoadingButton loading={loading} type="submit" variant="contained">
+                        <Button loading={loading} type="submit" variant="contained">
                             Update
-                        </LoadingButton>
+                        </Button>
                     </DialogActions>
                 </FormContainer> }
             { requestValid === false &&

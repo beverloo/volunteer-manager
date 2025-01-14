@@ -12,7 +12,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 
 import { Alert } from '../components/Alert';
@@ -111,9 +110,9 @@ export default function FeedbackDialog(props: FeedbackDialogProps) {
                     { success ? 'Close' : 'Cancel' }
                 </Button>
                 { !success &&
-                    <LoadingButton variant="contained" onClick={handleSubmit} loading={!!loading}>
+                    <Button variant="contained" onClick={handleSubmit} loading={!!loading}>
                         Save
-                    </LoadingButton> }
+                    </Button> }
             </DialogActions>
         </Dialog>
     );

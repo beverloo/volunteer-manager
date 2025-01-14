@@ -10,8 +10,8 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement, useFo
     from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -148,10 +148,9 @@ export function SchedulerCreateTaskPanel() {
                     <CreateNoopComplexTaskPanel />
                 </Collapse>
                 <Collapse in={!!selectedTask}>
-                    <LoadingButton type="submit" variant="contained" loading={loading}
-                                   sx={{ mt: 2 }}>
+                    <Button type="submit" variant="contained" loading={loading} sx={{ mt: 2 }}>
                         Create task
-                    </LoadingButton>
+                    </Button>
                 </Collapse>
             </FormContainer>
         </Paper>

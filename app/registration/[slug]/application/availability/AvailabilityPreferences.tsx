@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, AutocompleteElement, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -170,10 +170,10 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
 
             { !props.readOnly &&
                 <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, mb: 2 }}>
-                    <LoadingButton variant="contained" type="submit" loading={loading}
-                                   startIcon={ <EventNoteIcon /> }>
+                    <Button variant="contained" type="submit" loading={loading}
+                            startIcon={ <EventNoteIcon /> }>
                         Save preferences
-                    </LoadingButton>
+                    </Button>
                     { !!success &&
                         <Typography sx={{ color: 'success.main' }}>
                             {success}

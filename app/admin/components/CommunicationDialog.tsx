@@ -18,7 +18,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DoNotDisturbOnTotalSilenceIcon from '@mui/icons-material/DoNotDisturbOnTotalSilence';
 import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -287,10 +286,10 @@ export function CommunicationDialog(props: CommunicationDialogProps) {
                             {fatalError}
                         </Typography> }
                     <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                    <LoadingButton loading={loading} type="submit" variant="contained"
-                                   disabled={ state !== 'message' && !confirmSilent }>
+                    <Button loading={loading} type="submit" variant="contained"
+                            disabled={ state !== 'message' && !confirmSilent }>
                         {confirmLabel}
-                    </LoadingButton>
+                    </Button>
                 </DialogActions>
             </FormContainer>
         </Dialog>

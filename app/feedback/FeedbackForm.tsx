@@ -12,7 +12,6 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
@@ -149,10 +148,10 @@ export function FeedbackForm(props: FeedbackFormProps) {
                         </Paper>
                     </Collapse>
                     <Paper sx={{ p: 2, mt: 2 }}>
-                        <LoadingButton color="success" fullWidth type="submit" variant="contained"
-                                    loading={loading}>
+                        <Button color="success" fullWidth type="submit" variant="contained"
+                                loading={loading}>
                             Submit
-                        </LoadingButton>
+                        </Button>
                     </Paper>
                 </FormContainer>
             </Collapse>

@@ -4,8 +4,8 @@
 'use client';
 
 import Box, { type BoxProps } from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
@@ -41,9 +41,9 @@ export const SubmitCollapse = styled((props: SubmitCollapseProps) => {
     return (
         <Collapse in={!!open}>
             <Box {...boxProps}>
-                <LoadingButton loading={!!loading} variant="contained" type="submit">
+                <Button loading={!!loading} variant="contained" type="submit">
                     Save changes
-                </LoadingButton>
+                </Button>
                 { error &&
                     <Typography sx={{ display: 'inline-block', ml: 2 }}>
                         {error}

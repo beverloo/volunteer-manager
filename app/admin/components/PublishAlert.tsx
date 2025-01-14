@@ -5,7 +5,7 @@
 
 import { useCallback, useState } from 'react';
 
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import Stack, { stackClasses } from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { alertClasses } from '@mui/material/Alert';
@@ -56,10 +56,9 @@ export const PublishAlert = styled((props: React.PropsWithChildren<PublishAlertP
                     {children}
                 </Typography>
                 { onClick &&
-                    <LoadingButton loading={loading} size="small" sx={{ mt: '2px' }}
-                                   onClick={handleClick}>
+                    <Button loading={loading} size="small" sx={{ mt: '2px' }} onClick={handleClick}>
                         { !!published ? 'Unpublish' : 'Publish' }
-                    </LoadingButton> }
+                    </Button> }
             </Stack>
         </TransitionAlert>
     );

@@ -12,7 +12,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 /**
  * Props accepted by the <UsernameDialog> component.
@@ -73,9 +72,9 @@ export function UsernameDialog(props: UsernameDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
-                <LoadingButton loading={loading} type="submit" variant="contained">
+                <Button loading={loading} type="submit" variant="contained">
                     Proceed
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </FormContainer>
     );

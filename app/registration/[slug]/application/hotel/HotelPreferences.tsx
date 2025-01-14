@@ -16,7 +16,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import HotelIcon from '@mui/icons-material/Hotel';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -164,10 +163,10 @@ export function HotelPreferences(props: HotelPreferencesProps) {
                                       hotelOptions={hotelOptions} readOnly={readOnly} />
                 { !readOnly &&
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
-                        <LoadingButton startIcon={ <HotelIcon /> } variant="contained"
-                                       loading={loading} type="submit">
+                        <Button startIcon={ <HotelIcon /> } variant="contained" loading={loading}
+                                type="submit">
                             Update my preferences
-                        </LoadingButton>
+                        </Button>
                         { !!success &&
                             <Typography sx={{ color: 'success.main' }}>
                                 {success}

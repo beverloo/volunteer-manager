@@ -9,7 +9,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 
 /**
  * Props accepted by the <LostPasswordDialog> component.
@@ -73,9 +72,9 @@ export function LostPasswordDialog(props: LostPasswordDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>
-                <LoadingButton loading={loading} onClick={requestPasswordReset} variant="contained">
+                <Button loading={loading} onClick={requestPasswordReset} variant="contained">
                     Request
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </>
     );

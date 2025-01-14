@@ -9,13 +9,13 @@ import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement
     from '@proxy/react-hook-form-mui';
 
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Stack from '@mui/material/Stack';
@@ -184,10 +184,10 @@ export function AiExplorer(props: AiExplorerProps) {
                     <Grid size={{ xs: 2 }}>{ /* ... */ }</Grid>
                     <Grid size={{ xs: 10 }}>
                         <Stack direction="row" spacing={2} alignItems="center">
-                            <LoadingButton startIcon={ <SmartToyIcon /> } loading={loading}
-                                           type="submit" variant="outlined">
-                                    Generate responses
-                            </LoadingButton>
+                            <Button startIcon={ <SmartToyIcon /> } loading={loading} type="submit"
+                                    variant="outlined">
+                                Generate responses
+                            </Button>
                             {error &&
                                 <Typography sx={{ color: 'error.main' }}>
                                     {error}

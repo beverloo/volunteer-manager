@@ -13,7 +13,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 
 import { RegisterForm } from './RegisterForm';
@@ -118,10 +117,10 @@ export function IdentityAccountDialog(props: IdentityAccountDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>
-                <LoadingButton loading={loading} disabled={!loaded || success} type="submit"
-                               variant="contained">
+                <Button loading={loading} disabled={!loaded || success} type="submit"
+                        variant="contained">
                     Update
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </FormContainer>
     );

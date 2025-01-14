@@ -21,7 +21,6 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import LoadingButton from '@mui/lab/LoadingButton';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Paper from '@mui/material/Paper';
 import PeopleIcon from '@mui/icons-material/People';
@@ -550,16 +549,16 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                         </Button> }
 
                     { props.canUpdateParticipation &&
-                        <LoadingButton startIcon={ <ManageAccountsIcon /> }
-                                       onClick={handleRolesOpen} loading={rolesLoading}>
+                        <Button startIcon={ <ManageAccountsIcon /> } onClick={handleRolesOpen}
+                                loading={rolesLoading}>
                             Change role
-                        </LoadingButton> }
+                        </Button> }
 
                     { props.canUpdateParticipation &&
-                        <LoadingButton startIcon={ <PeopleIcon /> }
-                                       onClick={handleTeamsOpen} loading={teamsLoading}>
+                        <Button startIcon={ <PeopleIcon /> } onClick={handleTeamsOpen}
+                                loading={teamsLoading}>
                             Change team
-                        </LoadingButton> }
+                        </Button> }
 
                 </Stack>
             </ContrastBox>

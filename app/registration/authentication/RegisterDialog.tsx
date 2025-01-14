@@ -14,7 +14,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
 import type { RegisterDefinition } from '@app/api/auth/register';
@@ -120,9 +119,9 @@ export function RegisterDialog(props: RegisterDialogProps) {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>
-                <LoadingButton loading={loading} type="submit" variant="contained">
+                <Button loading={loading} type="submit" variant="contained">
                     Register
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </FormContainer>
     );

@@ -22,7 +22,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Skeleton from '@mui/material/Skeleton';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -195,10 +194,10 @@ export function IdentityPasskeysDialog(props: IdentityPasskeysDialogProps) {
                 </List>
                 <Collapse in={!!deletionCandidate}>
                     <Alert severity="warning" sx={{ mt: 2 }} action={
-                        <LoadingButton color="error" size="small" onClick={handleDeletePasskey}
-                                       loading={deletionLoading}>
+                        <Button color="error" size="small" onClick={handleDeletePasskey}
+                                loading={deletionLoading}>
                             Yes
-                        </LoadingButton> }>
+                        </Button> }>
 
                         Are you sure that you want to delete Passkey #{deletionCandidate}?
 

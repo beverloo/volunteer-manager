@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -109,10 +109,10 @@ export function RejectedApplications(props: RejectedApplicationsProps) {
                             </Box>
                         </Stack>
                         { !!editable &&
-                            <LoadingButton loading={loading} variant="outlined"
-                                           onClick={ () => handleSubmit(application.userId) }>
+                            <Button loading={loading} variant="outlined"
+                                    onClick={ () => handleSubmit(application.userId) }>
                                 Reconsider
-                            </LoadingButton> }
+                            </Button> }
                     </Stack> )}
             </Stack>
         </Paper>

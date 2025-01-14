@@ -25,7 +25,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import { type ApiEndpoints, callApi } from '@lib/callApi';
@@ -567,10 +566,9 @@ export function RemoteDataTable<
                 </DialogContent>
                 <DialogActions sx={{ p: 2, pt: 0 }}>
                     <Button onClick={resetDeleteCandidate}>Cancel</Button>
-                    <LoadingButton onClick={handleDelete} loading={deleteLoading}
-                                   variant="contained">
+                    <Button onClick={handleDelete} loading={deleteLoading} variant="contained">
                         Delete
-                    </LoadingButton>
+                    </Button>
                 </DialogActions>
             </Dialog>
         </>

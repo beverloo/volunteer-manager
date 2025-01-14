@@ -14,6 +14,7 @@ import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/da
 import { kApplicationProperties } from '../event/application';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
+import { resolve } from 'path';
 
 /**
  * Interface definition for the Application API, exposed through /api/application/

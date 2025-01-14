@@ -13,7 +13,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import Stack from '@mui/material/Stack';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -226,14 +225,14 @@ export default function AvatarEditor(props: AvatarEditorProps) {
                         onClick={handleDialogClose}>
                     Close
                 </Button>
-                <LoadingButton variant="contained"
-                               color={ uploadError ? 'error' : 'primary' }
-                               loading={uploading}
-                               loadingPosition="start"
-                               startIcon={ <CloudUploadIcon /> }
-                               onClick={processUpload}>
+                <Button variant="contained"
+                        color={ uploadError ? 'error' : 'primary' }
+                        loading={uploading}
+                        loadingPosition="start"
+                        startIcon={ <CloudUploadIcon /> }
+                        onClick={processUpload}>
                     Upload
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </Dialog>
     );

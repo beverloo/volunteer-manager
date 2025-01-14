@@ -12,7 +12,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Typography from '@mui/material/Typography';
 
 /**
@@ -133,9 +132,9 @@ export function ConfirmationDialog(props: React.PropsWithChildren<ConfirmationDi
             </DialogContent>
             <DialogActions sx={{ pt: 0, mr: 2, mb: 2 }}>
                 <Button onClick={handleClose} variant="text">{closeLabel}</Button>
-                <LoadingButton loading={loading} onClick={handleConfirm} variant="contained">
+                <Button loading={loading} onClick={handleConfirm} variant="contained">
                     {confirmLabel}
-                </LoadingButton>
+                </Button>
             </DialogActions>
         </Dialog>
     );

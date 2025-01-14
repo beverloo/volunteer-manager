@@ -10,10 +10,10 @@ import { type FieldValues, FormContainer, useForm } from '@proxy/react-hook-form
 
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
+import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid2';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Paper from '@mui/material/Paper';
 import SaveIcon from '@mui/icons-material/Save';
 import Stack from '@mui/material/Stack';
@@ -224,10 +224,10 @@ export function CreateApplication(props: CreateApplicationProps) {
                         <ApplicationAvailabilityForm />
                     </Grid>
                     <Stack direction="row" spacing={2} sx={{ mt: 1, py: 1 }} alignItems="center">
-                        <LoadingButton loading={loading} startIcon={ <SaveIcon /> } type="submit"
-                                       variant="contained">
+                        <Button loading={loading} startIcon={ <SaveIcon /> } type="submit"
+                                variant="contained">
                             Create application
-                        </LoadingButton>
+                        </Button>
                         <Typography variant="body2" color="error.main">
                             {error}
                         </Typography>

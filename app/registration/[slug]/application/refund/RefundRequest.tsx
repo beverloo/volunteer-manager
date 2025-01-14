@@ -3,14 +3,13 @@
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
-import EuroIcon from '@mui/icons-material/Euro';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -111,10 +110,10 @@ export function RefundRequest(props: RefundRequestProps) {
                 <RefundRequestForm readOnly={readOnly} requireTicketNumber />
                 { !readOnly &&
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 2 }}>
-                        <LoadingButton startIcon={ <MonetizationOnIcon /> } variant="contained"
-                                       loading={loading} type="submit">
+                        <Button startIcon={ <MonetizationOnIcon /> } variant="contained"
+                                loading={loading} type="submit">
                             Request a ticket refund
-                        </LoadingButton>
+                        </Button>
                         { success &&
                             <Typography sx={{ color: 'success.main' }}>
                                 {success}
