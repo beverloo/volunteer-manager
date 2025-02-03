@@ -41,14 +41,16 @@ function HotelAssignmentPersonSelect(props: HotelAssignmentPersonSelectProps) {
     const { field, hasFocus, id } = props;
 
     const context = useGridApiContext();
+    if (context.current === null)
+        throw new Error('The Grid API context is not available');
 
     const handleAutocompleteChange = useCallback((event: unknown, value: string) => {
-        context.current.setEditCellValue({ id, field, value });
+        context.current!.setEditCellValue({ id, field, value });
     }, [ context, field, id ]);
 
     const handleInputChange = useCallback(
         (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-            context.current.setEditCellValue({ id, field, value: event.currentTarget.value });
+            context.current!.setEditCellValue({ id, field, value: event.currentTarget.value });
         }, [ context, field, id ]);
 
     const ref = useRef<HTMLTextAreaElement | HTMLInputElement>();
