@@ -18,7 +18,7 @@ import '@beverloo/volunteer-manager-timeline/dist/volunteer-manager-timeline.css
 
 import type { PublicVendorSchedule } from '@app/api/event/schedule/PublicSchedule';
 import { Temporal } from '@lib/Temporal';
-import { currentTimezone } from '../CurrentTime';
+import { currentInstant, currentTimezone } from '../CurrentTime';
 import { useIsMobile } from '../lib/useIsMobile';
 
 /**
@@ -91,11 +91,14 @@ export default function CalendarPopover(props: CalendarPopoverProps) {
             }
         }
 
+        if (!min || !max)
+            min = max = currentInstant();
+
         return {
             events,
-            min: min!.toZonedDateTimeISO(timezone).with({ hour: 0, minute: 0, second: 0 })
+            min: min.toZonedDateTimeISO(timezone).with({ hour: 0, minute: 0, second: 0 })
                 .toString({ timeZoneName: 'never' }),
-            max: max!.toZonedDateTimeISO(timezone).with({ hour: 23, minute: 59, second: 59 })
+            max: max.toZonedDateTimeISO(timezone).with({ hour: 23, minute: 59, second: 59 })
                 .toString({ timeZoneName: 'never' }),
         };
     }, [ schedule, timezone ]);
