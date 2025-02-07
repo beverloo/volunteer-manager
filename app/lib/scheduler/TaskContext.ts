@@ -22,19 +22,20 @@ interface TaskConfiguration {
 /**
  * Severity level of an entry logged during task execution.
  */
-export enum TaskLogSeverity {
-    Debug = 'Debug',
-    Info = 'Info',
-    Warning = 'Warning',
-    Error = 'Error',
-    Exception = 'Exception',
-}
+export const TaskLogSeverity = {
+    Debug: 'Debug',
+    Info: 'Info',
+    Warning: 'Warning',
+    Error: 'Error',
+    Exception: 'Exception',
+
+} as const;
 
 /**
  * Individual log entry to be stored each time a task requests something to be logged.
  */
 interface TaskLogEntry {
-    severity: TaskLogSeverity;
+    severity: typeof TaskLogSeverity[keyof typeof TaskLogSeverity];
     time?: number;
     message: string;
     data: any[];

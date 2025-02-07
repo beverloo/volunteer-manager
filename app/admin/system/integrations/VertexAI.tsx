@@ -82,7 +82,7 @@ function ServiceSettings(props: ServiceSettingsProps) {
         }
     }, [ onSave, settings ]);
 
-    const onModelChange = useCallback((value: VertexSupportedModels) => {
+    const onModelChange = useCallback((value: VertexAISettings['model']) => {
         setInvalidated(true);
         onChange({ ...settings, model: value });
     }, [ onChange, settings ]);

@@ -55,17 +55,18 @@ export interface LogMessage {
  * Enumeration containing log types that have been deprecated. We still want to be able to display
  * the origin log messages in a formatted manner, but autocomplete doesn't have to care.
  */
-enum DeprecatedLogType {
-    AdminHotelBookingCreate = 'admin-hotel-booking-create',
-    AdminHotelBookingDelete = 'admin-hotel-booking-delete',
-    AdminHotelBookingUpdate = 'admin-hotel-booking-update',
-    AdminUpdateAnimeConIntegration = 'admin-update-animecon-integration',
-    AdminUpdateEmailIntegration = 'admin-update-email-integration',
-    AdminUpdateGoogleIntegration = 'admin-update-google-integration',
-    AdminUpdatePromptIntegration = 'admin-update-prompt-integration',
-    AdminUpdateVertexIntegration = 'admin-update-vertex-integration',
-    AdminWhatsAppMutation = 'admin-whatsapp-mutation',
-};
+const DeprecatedLogType = {
+    AdminHotelBookingCreate: 'admin-hotel-booking-create',
+    AdminHotelBookingDelete: 'admin-hotel-booking-delete',
+    AdminHotelBookingUpdate: 'admin-hotel-booking-update',
+    AdminUpdateAnimeConIntegration: 'admin-update-animecon-integration',
+    AdminUpdateEmailIntegration: 'admin-update-email-integration',
+    AdminUpdateGoogleIntegration: 'admin-update-google-integration',
+    AdminUpdatePromptIntegration: 'admin-update-prompt-integration',
+    AdminUpdateVertexIntegration: 'admin-update-vertex-integration',
+    AdminWhatsAppMutation: 'admin-whatsapp-mutation',
+
+} as const;
 
 /**
  * Signature of log message formatting functions that can be used in the table below.
@@ -75,11 +76,17 @@ type LogMessageFormatFn =
         => string;
 
 /**
+ * Type representing the keys that are valid for a given object.
+ */
+type ValidKeys<T> = T[keyof T];
+
+/**
  * Formatting rules for each of the log message types. Strings with a series of special placeholders
  * may be used, alternatively a function may be used for more advanced processing.
  */
 const kLogMessageFormatter: {
-    [ key in (DeprecatedLogType | LogType) ]: string | LogMessageFormatFn
+    [ key in (ValidKeys<typeof DeprecatedLogType> | ValidKeys<typeof LogType>) ]:
+        string | LogMessageFormatFn
 } = {
     [LogType.AccountActivate]: 'Activated their account',
     [LogType.AccountIdentifyAccessCode]: 'Signed in using an access code',

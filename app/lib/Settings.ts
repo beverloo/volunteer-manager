@@ -92,7 +92,7 @@ type SettingsMap = {
     'integration-google-project-id': string;
 
     // Google Vertex AI:
-    'integration-vertex-model': VertexSupportedModels;
+    'integration-vertex-model': typeof VertexSupportedModels[keyof typeof VertexSupportedModels];
     'integration-vertex-temperature': number;
     'integration-vertex-token-limit': number;
     'integration-vertex-top-k': number;
@@ -103,7 +103,7 @@ type SettingsMap = {
     'integration-twilio-account-sid': string;
     'integration-twilio-messaging-sid-sms': string;
     'integration-twilio-messaging-sid-whatsapp': string;
-    'integration-twilio-region': TwilioRegion;
+    'integration-twilio-region': typeof TwilioRegion[keyof typeof TwilioRegion];
 
     // ---------------------------------------------------------------------------------------------
     // Schedule settings:

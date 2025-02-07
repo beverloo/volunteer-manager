@@ -37,7 +37,7 @@ export interface TwilioSettings {
     /**
      * Region in which the Twilio API endpoint should ideally be located.
      */
-    region?: TwilioRegion;
+    region?: typeof TwilioRegion[keyof typeof TwilioRegion];
 }
 
 /**

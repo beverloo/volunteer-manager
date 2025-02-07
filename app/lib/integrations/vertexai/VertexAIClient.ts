@@ -15,7 +15,7 @@ export interface VertexAISettings {
      *
      * @see https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models
      */
-    model: VertexSupportedModels;
+    model: typeof VertexSupportedModels[keyof typeof VertexSupportedModels];
 
     /**
      * Temperature controls the degree of randomness in token selection. Lower temperatures are good

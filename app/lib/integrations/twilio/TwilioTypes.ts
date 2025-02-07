@@ -9,11 +9,12 @@ import { z } from 'zod';
  *
  * @see https://www.twilio.com/docs/global-infrastructure#control-data-residency
  */
-export enum TwilioRegion {
-    'US1' = 'US1',
-    'IE1' = 'IE1',
-    'AU1' = 'AU1',
-}
+export const TwilioRegion = {
+    'US1': 'US1',
+    'IE1': 'IE1',
+    'AU1': 'AU1',
+
+} as const;
 
 /**
  * Zod type to validate a phone number, inclusive of country code.
