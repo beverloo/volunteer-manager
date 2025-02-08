@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -68,7 +68,7 @@ export async function signInImpersonate(request: Request, props: ActionProps): P
     }, props.responseHeaders);
 
     await Log({
-        type: LogType.AdminImpersonateVolunteer,
+        type: kLogType.AdminImpersonateVolunteer,
         severity: LogSeverity.Warning,
         sourceUser: props.user,
         targetUser: impersonatedUser,

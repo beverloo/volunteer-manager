@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -360,7 +360,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             .executeSelectNoneOrOne();
 
         await Log({
-            type: LogType.AdminProgramMutation,
+            type: kLogType.AdminProgramMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

@@ -6,7 +6,7 @@ import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { executeAction } from '@app/api/Action';
@@ -342,7 +342,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             return;
 
         await Log({
-            type: LogType.AdminEventRetentionUpdate,
+            type: kLogType.AdminEventRetentionUpdate,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             targetUser: /* rowId = userId = */ id,

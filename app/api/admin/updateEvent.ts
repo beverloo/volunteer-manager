@@ -6,14 +6,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { EventAvailabilityStatus, FileType } from '@lib/database/Types';
-import { LogType, Log, LogSeverity } from '@lib/Log';
+import { FileType } from '@lib/database/Types';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tEvents } from '@lib/database';
-
-import { kTemporalZonedDateTime } from '../Types';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/update-event.
@@ -88,7 +86,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
 
         if (affectedRows > 0) {
             await Log({
-                type: LogType.AdminUpdateEvent,
+                type: kLogType.AdminUpdateEvent,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 data: {
@@ -116,7 +114,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
 
             if (!!affectedRows) {
                 await Log({
-                    type: LogType.AdminUpdateEvent,
+                    type: kLogType.AdminUpdateEvent,
                     severity: LogSeverity.Info,
                     sourceUser: props.user,
                     data: {
@@ -146,7 +144,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
 
         if (affectedRows > 0) {
             await Log({
-                type: LogType.AdminUpdateEvent,
+                type: kLogType.AdminUpdateEvent,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 data: {

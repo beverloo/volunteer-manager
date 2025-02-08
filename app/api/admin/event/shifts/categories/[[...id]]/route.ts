@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../../createDataTableApi';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tShiftsCategories } from '@lib/database';
 
@@ -180,7 +180,7 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
             .executeSelectNoneOrOne();
 
         await Log({
-            type: LogType.AdminEventShiftCategoryMutation,
+            type: kLogType.AdminEventShiftCategoryMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tContentCategories, tContent } from '@lib/database';
@@ -228,7 +228,7 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
             .executeSelectNoneOrOne();
 
         await Log({
-            type: LogType.AdminKnowledgeBaseCategoryMutation,
+            type: kLogType.AdminKnowledgeBaseCategoryMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

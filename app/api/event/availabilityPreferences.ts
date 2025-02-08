@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { EnvironmentDomain } from '@lib/Environment';
 import { EventAvailabilityStatus } from '@lib/database/Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
@@ -210,7 +210,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
 
     if (!request.adminOverrideUserId) {
         await Log({
-            type: LogType.ApplicationAvailabilityPreferences,
+            type: kLogType.ApplicationAvailabilityPreferences,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
@@ -223,7 +223,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
         });
     } else {
         await Log({
-            type: LogType.AdminUpdateAvailabilityPreferences,
+            type: kLogType.AdminUpdateAvailabilityPreferences,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.adminOverrideUserId,

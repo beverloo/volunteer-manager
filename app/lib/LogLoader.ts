@@ -275,7 +275,8 @@ const kLogMessageFormatter: {
         return `Database error: "${normalizedQuery}"…`;
     },
 
-    [kLogType.EventApplication]: (source, target, { event }) => `Applied to participate in ${event}`,
+    [kLogType.EventApplication]: (source, target, { event }) =>
+        `Applied to participate in ${event}`,
     [kLogType.EventFeedbackSubmitted]: 'Submitted feedback through the Volunteer Portal',
     [kLogType.EventHelpRequestUpdate]: (source, target, { event, display, mutation }) => {
         return `${mutation} a help request from ${display} for ${event}`;
@@ -304,7 +305,8 @@ const kLogMessageFormatter: {
     [kDeprecatedLogType.AdminUpdateAnimeConIntegration]:
         'Updated the integration settings for AnimeCon',
     [kDeprecatedLogType.AdminUpdateEmailIntegration]: 'Updated the e-mail integration settings',
-    [kDeprecatedLogType.AdminUpdateGoogleIntegration]: 'Updated the integration settings for Google',
+    [kDeprecatedLogType.AdminUpdateGoogleIntegration]:
+        'Updated the integration settings for Google',
     [kDeprecatedLogType.AdminUpdatePromptIntegration]: 'Updated the Vertex AI LLM prompts',
     [kDeprecatedLogType.AdminUpdateVertexIntegration]:
         'Updated the integration settings for Vertex AI',

@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { updateUserPassword } from './passwordReset';
@@ -67,7 +67,7 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
                 { id: user.userId, token: sessionToken }, props.responseHeaders);
 
             await Log({
-                type: LogType.AccountPasswordUpdate,
+                type: kLogType.AccountPasswordUpdate,
                 sourceUser: user,
                 data: { ip: props.ip },
             });

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { AuthType } from '@lib/database/Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -69,7 +69,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
     switch (authenticationContext.authType) {
         case AuthType.code: {  // one-time access code
             await Log({
-                type: LogType.AccountIdentifyAccessCode,
+                type: kLogType.AccountIdentifyAccessCode,
                 severity: LogSeverity.Debug,
                 sourceUser: user,
                 data: { ip: props.ip },
@@ -86,7 +86,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
 
         case AuthType.password: {  // stored password
             await Log({
-                type: LogType.AccountIdentifyPassword,
+                type: kLogType.AccountIdentifyPassword,
                 severity: LogSeverity.Debug,
                 sourceUser: user,
                 data: { ip: props.ip },

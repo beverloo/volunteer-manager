@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -112,7 +112,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
 
         if (!!affectedRows) {
             await Log({
-                type: LogType.AdminClearRefundRequest,
+                type: kLogType.AdminClearRefundRequest,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverrideUserId,
@@ -149,7 +149,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
 
     if (!request.adminOverrideUserId) {
         await Log({
-            type: LogType.ApplicationRefundRequest,
+            type: kLogType.ApplicationRefundRequest,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
@@ -158,7 +158,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
         });
     } else {
         await Log({
-            type: LogType.AdminUpdateRefundRequest,
+            type: kLogType.AdminUpdateRefundRequest,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.adminOverrideUserId,

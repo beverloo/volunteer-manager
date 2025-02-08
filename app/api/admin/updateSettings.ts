@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -69,7 +69,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
 
     await writeSettings(settings as any);
     await Log({
-        type: LogType.AdminUpdateSettings,
+        type: kLogType.AdminUpdateSettings,
         severity: LogSeverity.Warning,
         sourceUser: props.user,
         data: settings,

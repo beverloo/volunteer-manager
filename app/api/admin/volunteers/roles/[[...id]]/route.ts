@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RoleBadge } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles } from '@lib/database';
@@ -156,7 +156,7 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
             .executeSelectNoneOrOne();
 
         await Log({
-            type: LogType.AdminUpdateRole,
+            type: kLogType.AdminUpdateRole,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

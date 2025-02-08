@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -162,7 +162,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
         if (!!affectedRows) {
             await Log({
-                type: LogType.AdminClearHotelPreferences,
+                type: kLogType.AdminClearHotelPreferences,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverrideUserId,
@@ -233,7 +233,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
 
     if (!request.adminOverrideUserId) {
         await Log({
-            type: LogType.ApplicationHotelPreferences,
+            type: kLogType.ApplicationHotelPreferences,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
@@ -244,7 +244,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
         });
     } else {
         await Log({
-            type: LogType.AdminUpdateHotelPreferences,
+            type: kLogType.AdminUpdateHotelPreferences,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.adminOverrideUserId,

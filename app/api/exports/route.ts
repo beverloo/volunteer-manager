@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction } from '../Action';
 import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 
@@ -289,7 +289,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .executeInsert();
 
         await Log({
-            type: LogType.ExportDataAccess,
+            type: kLogType.ExportDataAccess,
             sourceUser: props.user,
             data: {
                 event: metadata.eventName,

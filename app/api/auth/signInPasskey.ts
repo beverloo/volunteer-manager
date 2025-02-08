@@ -8,7 +8,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 import { determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
@@ -122,7 +122,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
             user, credentialPasskeyId, BigInt(verification.authenticationInfo.newCounter));
 
         await Log({
-            type: LogType.AccountIdentifyPasskey,
+            type: kLogType.AccountIdentifyPasskey,
             severity: LogSeverity.Debug,
             sourceUser: user.userId,
             data: { ip: props.ip },

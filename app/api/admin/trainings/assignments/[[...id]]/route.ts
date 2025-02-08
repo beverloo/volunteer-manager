@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -322,7 +322,7 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
             .executeSelectNoneOrOne();
 
         await Log({
-            type: LogType.AdminEventTrainingAssignment,
+            type: kLogType.AdminEventTrainingAssignment,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: targetUserId ?? undefined,

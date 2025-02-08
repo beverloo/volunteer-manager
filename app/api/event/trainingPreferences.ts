@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
@@ -127,7 +127,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
 
         if (!!affectedRows) {
             await Log({
-                type: LogType.AdminClearTrainingPreferences,
+                type: kLogType.AdminClearTrainingPreferences,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverrideUserId,
@@ -165,7 +165,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
 
     if (!request.adminOverrideUserId) {
         await Log({
-            type: LogType.ApplicationTrainingPreferences,
+            type: kLogType.ApplicationTrainingPreferences,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
@@ -175,7 +175,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
         });
     } else {
         await Log({
-            type: LogType.AdminUpdateTrainingPreferences,
+            type: kLogType.AdminUpdateTrainingPreferences,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.adminOverrideUserId,

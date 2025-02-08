@@ -5,7 +5,7 @@ import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -226,7 +226,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
         skipLog = true;
 
         await Log({
-            type: LogType.EventVolunteerNotes,
+            type: kLogType.EventVolunteerNotes,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             targetUser: request.userId,
@@ -312,7 +312,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
             .executeUpdate(/* min= */ 0, /* max= */ 1);
 
         await Log({
-            type: LogType.AdminUpdateTeamVolunteerStatus,
+            type: kLogType.AdminUpdateTeamVolunteerStatus,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.userId,
@@ -330,7 +330,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
     if (!!affectedRows && !skipLog) {
         await Log({
-            type: LogType.AdminUpdateTeamVolunteer,
+            type: kLogType.AdminUpdateTeamVolunteer,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             targetUser: request.userId,

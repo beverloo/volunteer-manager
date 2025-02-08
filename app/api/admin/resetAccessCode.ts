@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { AuthType } from '@lib/database/Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, kLogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsersAuth } from '@lib/database';
 
@@ -44,7 +44,7 @@ export async function resetAccessCode(request: Request, props: ActionProps): Pro
     });
 
     await Log({
-        type: LogType.AdminResetAccessCode,
+        type: kLogType.AdminResetAccessCode,
         severity: LogSeverity.Warning,
         sourceUser: props.user,
         targetUser: request.userId,

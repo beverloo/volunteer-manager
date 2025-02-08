@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
@@ -154,7 +154,7 @@ async function updateVolunteerPermissions(userId: number, formData: unknown) {
 
         if (!!affectedRows) {
             await Log({
-                type: LogType.AdminUpdatePermission,
+                type: kLogType.AdminUpdatePermission,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: userId,

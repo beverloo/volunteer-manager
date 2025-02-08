@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -272,7 +272,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
         };
 
         await Log({
-            type: LogType.AdminVendorMutation,
+            type: kLogType.AdminVendorMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

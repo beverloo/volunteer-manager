@@ -9,12 +9,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { LogType } from '@lib/Log';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { formatDate } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tLogs } from '@lib/database';
+
+import { kLogType } from '@lib/Log';
 
 /**
  * This page provides details about a particular database error, such as the full error and the
@@ -33,7 +34,7 @@ export default async function DatabaseErrorLogPage(props: NextPageParams<'id'>) 
 
     const entry = await db.selectFrom(tLogs)
         .where(tLogs.logId.equals(parseInt(id, /* radix= */ 10)))
-            .and(tLogs.logType.equals(LogType.DatabaseError))
+            .and(tLogs.logType.equals(kLogType.DatabaseError))
             .and(tLogs.logDeleted.isNull())
         .select({
             id: tLogs.logId,

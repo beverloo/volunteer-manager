@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -203,7 +203,7 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
     async writeLog({ context }, mutation, props) {
         const event = await getEventBySlug(context.event);
         await Log({
-            type: LogType.AdminEventDeadlineMutation,
+            type: kLogType.AdminEventDeadlineMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

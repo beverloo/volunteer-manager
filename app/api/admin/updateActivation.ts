@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
@@ -55,7 +55,7 @@ export async function updateActivation(request: Request, props: ActionProps): Pr
 
     if (!!affectedRows) {
         await Log({
-            type: LogType.AdminUpdateActivation,
+            type: kLogType.AdminUpdateActivation,
             sourceUser: props.user,
             targetUser: request.userId,
             data: {

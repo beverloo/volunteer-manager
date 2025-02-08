@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { clearEnvironmentCache } from '@lib/Environment';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tTeamsRoles } from '@lib/database';
@@ -109,7 +109,7 @@ export async function updateTeam(request: Request, props: ActionProps): Promise<
     });
 
     await Log({
-        type: LogType.AdminUpdateTeam,
+        type: kLogType.AdminUpdateTeam,
         severity: LogSeverity.Warning,
         sourceUser: props.user,
         data: {

@@ -11,7 +11,7 @@ import { MockQueryRunner, type QueryType as MockQueryType }
     from 'ts-sql-query/queryRunners/MockQueryRunner';
 
 import type { PlainDate, ZonedDateTime } from '@lib/Temporal';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 
 declare module globalThis {
     let animeConConnectionPool: Pool | undefined;
@@ -89,7 +89,7 @@ class ErrorReportingQueryRunner extends InterceptorQueryRunner<undefined> {
             return;  // prevent recursion
 
         Log({
-            type: LogType.DatabaseError,
+            type: kLogType.DatabaseError,
             severity: LogSeverity.Error,
             data: {
                 message: error.message,

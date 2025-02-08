@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 
 import { AuthType } from '@lib/database/Types';
 import { PlaywrightHooks } from '@lib/PlaywrightHooks';
@@ -109,7 +109,7 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
                 { id: user.userId, token: sessionToken }, props.responseHeaders);
 
             await Log({
-                type: LogType.AccountPasswordReset,
+                type: kLogType.AccountPasswordReset,
                 sourceUser: user,
                 data: { ip: props.ip },
             });

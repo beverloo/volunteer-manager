@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tRefunds, tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -162,7 +162,7 @@ export const { PUT, GET } = createDataTableApi(kRefundRequestRowModel, kRefundRe
     async writeLog({ context, id }, mutation, props) {
         const event = await getEventBySlug(context.event);
         await Log({
-            type: LogType.AdminRefundMutation,
+            type: kLogType.AdminRefundMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             targetUser: id,

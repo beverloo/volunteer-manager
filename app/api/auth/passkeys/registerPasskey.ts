@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
 
@@ -99,7 +99,7 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
         await storeUserChallenge(props.user, /* reset= */ null);
 
         await Log({
-            type: LogType.AccountPasskeyCreate,
+            type: kLogType.AccountPasskeyCreate,
             severity: LogSeverity.Debug,
             sourceUser: props.user,
             data: { ip: props.ip },

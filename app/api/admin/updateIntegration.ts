@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { LogSeverity, Log, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -103,7 +103,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateIntegration,
+            type: kLogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
@@ -121,7 +121,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateIntegration,
+            type: kLogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
@@ -139,7 +139,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateIntegration,
+            type: kLogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
@@ -158,7 +158,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateIntegration,
+            type: kLogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {
@@ -177,7 +177,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
         });
 
         await Log({
-            type: LogType.AdminUpdateIntegration,
+            type: kLogType.AdminUpdateIntegration,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

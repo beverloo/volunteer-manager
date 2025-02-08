@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { ContentType } from '@lib/database/Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { createDataTableApi, type DataTableEndpoints } from '../../../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -352,7 +352,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
 
         if (contentContext?.contentType === ContentType.FAQ) {
             await Log({
-                type: LogType.AdminKnowledgeBaseMutation,
+                type: kLogType.AdminKnowledgeBaseMutation,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 data: {
@@ -377,7 +377,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
         }
 
         await Log({
-            type: LogType.AdminContentMutation,
+            type: kLogType.AdminContentMutation,
             severity: LogSeverity.Warning,
             sourceUser: props.user,
             data: {

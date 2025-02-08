@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -210,7 +210,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
     }
 
     await Log({
-        type: LogType.AdminEventRetentionMessage,
+        type: kLogType.AdminEventRetentionMessage,
         severity: LogSeverity.Info,
         sourceUser: props.user,
         targetUser: request.userId,

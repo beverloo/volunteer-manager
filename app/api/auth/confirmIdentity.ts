@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { determineRpID, retrieveCredentials, storeUserChallenge } from './passkeys/PasskeyUtils';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
 
@@ -54,7 +54,7 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
     const user = await isValidActivatedUser(request.username);
 
     await Log({
-        type: LogType.AccountIdentityCheck,
+        type: kLogType.AccountIdentityCheck,
         severity: LogSeverity.Debug,
         data: {
             userId: user?.userId,

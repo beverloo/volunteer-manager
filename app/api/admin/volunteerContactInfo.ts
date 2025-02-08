@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents, tEvents } from '@lib/database';
@@ -76,7 +76,7 @@ export async function volunteerContactInfo(request: Request, props: ActionProps)
 
     if (contactInformation) {
         await Log({
-            type: LogType.AdminAccessVolunteerInfo,
+            type: kLogType.AdminAccessVolunteerInfo,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             targetUser: request.userId,

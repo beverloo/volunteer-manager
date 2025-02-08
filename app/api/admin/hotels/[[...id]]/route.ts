@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tHotels } from '@lib/database';
@@ -186,7 +186,7 @@ createDataTableApi(kHotelRowModel, kHotelContext, {
     async writeLog({ context }, mutation, props) {
         const event = await getEventBySlug(context.event);
         await Log({
-            type: LogType.AdminEventHotelMutation,
+            type: kLogType.AdminEventHotelMutation,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, LogSeverity, LogType } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Publish, SubscriptionType } from '@lib/subscriptions';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';
@@ -181,7 +181,7 @@ export async function application(request: Request, props: ActionProps): Promise
         await createRegistration(environmentDomain, event, userId, request);
         if (request.adminOverride) {
             await Log({
-                type: LogType.AdminEventApplication,
+                type: kLogType.AdminEventApplication,
                 severity: LogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverride.userId,
@@ -191,7 +191,7 @@ export async function application(request: Request, props: ActionProps): Promise
             });
         } else {
             await Log({
-                type: LogType.EventApplication,
+                type: kLogType.EventApplication,
                 sourceUser: props.user,
                 data: {
                     event: event.shortName,

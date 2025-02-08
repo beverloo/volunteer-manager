@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { determineEnvironment } from '@lib/Environment';
 import { getEventsForUser } from '@lib/EventLoader';
@@ -94,7 +94,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
 
     await writeSealedSessionCookie({ id: user.userId, token: sessionToken }, props.responseHeaders);
     await Log({
-        type: LogType.AccountActivate,
+        type: kLogType.AccountActivate,
         sourceUser: user,
         data: { ip: props.ip },
     });

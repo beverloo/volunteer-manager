@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogType, LogSeverity } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
@@ -103,7 +103,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
         return { success: false, error: 'Unable to update the existing user information' };
 
     await Log({
-        type: LogType.AdminUpdateVolunteer,
+        type: kLogType.AdminUpdateVolunteer,
         severity: LogSeverity.Warning,
         sourceUser: props.user,
         targetUser: request.userId,

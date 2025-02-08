@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../createDataTableApi';
-import { LogType, Log } from '@lib/Log';
+import { Log, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tNardo, tUsers } from '@lib/database';
@@ -155,7 +155,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
 
     async writeLog(request, mutation, props) {
         await Log({
-            type: LogType.AdminNardoMutation,
+            type: kLogType.AdminNardoMutation,
             sourceUser: props.user!.userId,
             data: { mutation },
         });

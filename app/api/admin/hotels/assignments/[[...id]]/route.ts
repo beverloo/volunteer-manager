@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { LogSeverity, LogType, Log } from '@lib/Log';
+import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -224,7 +224,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
             for (const uid of [ booking.firstUserId, booking.secondUserId, booking.thirdUserId ]) {
                 if (!!uid) {
                     await Log({
-                        type: LogType.AdminHotelAssignVolunteerDelete,
+                        type: kLogType.AdminHotelAssignVolunteerDelete,
                         severity: LogSeverity.Warning,
                         sourceUser: props.user,
                         targetUser: uid,
@@ -319,7 +319,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
                     continue;  // the volunteer still has an assignment
 
                 await Log({
-                    type: LogType.AdminHotelAssignVolunteerDelete,
+                    type: kLogType.AdminHotelAssignVolunteerDelete,
                     severity: LogSeverity.Warning,
                     sourceUser: props.user,
                     targetUser: assignment,
@@ -336,7 +336,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
                     continue;  // the volunteer already had an assignment
 
                 await Log({
-                    type: LogType.AdminHotelAssignVolunteer,
+                    type: kLogType.AdminHotelAssignVolunteer,
                     severity: LogSeverity.Warning,
                     sourceUser: props.user,
                     targetUser: assignment,
@@ -353,7 +353,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
     async writeLog({ context }, mutation, props) {
         const event = await getEventBySlug(context.event);
         await Log({
-            type: LogType.AdminHotelBookingMutation,
+            type: kLogType.AdminHotelBookingMutation,
             severity: LogSeverity.Info,
             sourceUser: props.user,
             data: {
