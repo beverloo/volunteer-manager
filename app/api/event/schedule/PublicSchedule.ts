@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { RoleBadge, VendorTeam } from '@lib/database/Types';
+import { type VendorTeam, kRoleBadge, kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding
@@ -415,7 +415,7 @@ export const kPublicSchedule = z.strictObject({
      * will be presented with an informational card, where volunteering leads will be able to see
      * their full availability in a calendar-style display.
      */
-    vendors: z.record(z.nativeEnum(VendorTeam), kVendorTeam),
+    vendors: z.record(z.nativeEnum(kVendorTeamEnum), kVendorTeam),
 
     /**
      * Number of volunteers who are currently on a shift.
@@ -450,7 +450,7 @@ export const kPublicSchedule = z.strictObject({
         /**
          * Badge that should be issued to the volunteer, if any.
          */
-        roleBadge: z.nativeEnum(RoleBadge).optional(),
+        roleBadge: z.nativeEnum(kRoleBadge).optional(),
 
         /**
          * Whether the role that they're assigned to implies a senior position.

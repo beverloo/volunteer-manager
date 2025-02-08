@@ -3,12 +3,13 @@
 
 'use client';
 
-import { SelectElement, TextFieldElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
+import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
-import Grid, { type Grid2Props } from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid2';
 
 import type { ApplicationDefinition } from '@app/api/event/application';
-import { ShirtFit, ShirtSize } from '@lib/database/Types';
+
+import { kShirtFit, kShirtSize } from '@lib/database/Types';
 
 type ApplicationRequest = ApplicationDefinition['request'];
 
@@ -37,20 +38,20 @@ const kServiceTimingOption: { id: ApplicationRequest['serviceTiming'], label: st
  * Valid options for the t-shirt fit select field.
  */
 const kTShirtFitOptions: { id: ApplicationRequest['tshirtFit'], label: string }[] =
-    Object.values(ShirtFit).map(fit => ({ id: fit, label: fit }));
+    Object.values(kShirtFit).map(fit => ({ id: fit, label: fit }));
 
 /**
  * Valid options for the t-shirt size select field.
  */
 const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string }[] = [
-    { id: ShirtSize.XS, label: 'XS' },
-    { id: ShirtSize.S, label: 'Small' },
-    { id: ShirtSize.M, label: 'Medium' },
-    { id: ShirtSize.L, label: 'Large' },
-    { id: ShirtSize.XL, label: 'XL' },
-    { id: ShirtSize.XXL, label: 'XXL' },
-    { id: ShirtSize['3XL'], label: '3XL' },
-    { id: ShirtSize['4XL'], label: '4XL' },
+    { id: kShirtSize.XS, label: 'XS' },
+    { id: kShirtSize.S, label: 'Small' },
+    { id: kShirtSize.M, label: 'Medium' },
+    { id: kShirtSize.L, label: 'Large' },
+    { id: kShirtSize.XL, label: 'XL' },
+    { id: kShirtSize.XXL, label: 'XXL' },
+    { id: kShirtSize['3XL'], label: '3XL' },
+    { id: kShirtSize['4XL'], label: '4XL' },
 ];
 
 /**

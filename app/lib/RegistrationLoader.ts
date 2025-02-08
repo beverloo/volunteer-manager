@@ -5,7 +5,7 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { EnvironmentDomain } from './Environment';
 import type { Event } from './Event';
 import { Registration } from './Registration';
-import { RegistrationStatus, ShirtFit, ShirtSize } from './database/Types';
+import { type ShirtFit, type ShirtSize, RegistrationStatus } from './database/Types';
 import db, { tEvents, tEventsTeams, tHotels, tHotelsAssignments, tHotelsBookings,
     tHotelsPreferences, tRefunds, tRoles, tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments,
     tUsers, tUsersEvents } from './database';

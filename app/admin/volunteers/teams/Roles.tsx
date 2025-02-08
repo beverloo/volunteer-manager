@@ -11,7 +11,9 @@ import Typography from '@mui/material/Typography';
 
 import type { RoleRowModel } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { VolunteerBadge, VolunteerBadgeVariant } from '@components/VolunteerBadge';
+import { VolunteerBadge } from '@components/VolunteerBadge';
+
+import { kRoleBadge } from '@lib/database/Types';
 
 /**
  * The <Roles> component represents the roles that exist in the Volunteer Manager. Each role has a
@@ -41,7 +43,7 @@ export function Roles() {
             },
 
             type: 'singleSelect',
-            valueOptions: [ '(none)', ...Object.keys(VolunteerBadgeVariant) ],
+            valueOptions: [ '(none)', ...Object.keys(kRoleBadge) ],
         },
         {
             field: 'availabilityEventLimit',

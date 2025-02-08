@@ -1,10 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { TaskResult } from './Task';
 import { MockScheduler } from './MockScheduler';
-import { TaskResult } from './Task';
 import { TaskRunner } from './TaskRunner';
 import { useMockConnection } from '@lib/database/Connection';
+
+import { kTaskResult } from '@lib/database/Types';
 
 describe('TaskRunner', () => {
     const mockConnection = useMockConnection();
@@ -92,13 +94,13 @@ describe('TaskRunner', () => {
         // (1) Simple tasks
         {
             const result = await taskRunner.executeTask({ taskName: 'NoopTask' });
-            expect(result).toEqual(TaskResult.TaskSuccess);
+            expect(result).toEqual(kTaskResult.TaskSuccess);
         }
 
         // (2) Complex tasks - failure w/ invalid parameters
         {
             const result = await taskRunner.executeTask({ taskName: 'NoopComplexTask' });
-            expect(result).toEqual(TaskResult.InvalidParameters);
+            expect(result).toEqual(kTaskResult.InvalidParameters);
         }
 
         // (3) Complex tasks - success due to parameterized behaviour
@@ -106,7 +108,7 @@ describe('TaskRunner', () => {
             const result = await taskRunner.executeTask(
                 { taskName: 'NoopComplexTask' }, { succeed: true });
 
-            expect(result).toEqual(TaskResult.TaskSuccess);
+            expect(result).toEqual(kTaskResult.TaskSuccess);
         }
 
         // (4) Complex tasks - failure due to parameterized behaviour
@@ -114,7 +116,7 @@ describe('TaskRunner', () => {
             const result = await taskRunner.executeTask(
                 { taskName: 'NoopComplexTask' }, { succeed: false });
 
-            expect(result).toEqual(TaskResult.TaskFailure);
+            expect(result).toEqual(kTaskResult.TaskFailure);
         }
     });
 
@@ -124,7 +126,7 @@ describe('TaskRunner', () => {
         // (1) Executing a task using named execution.
         {
             const result = await taskRunner.executeTask({ taskName: 'InvalidTask' });
-            expect(result).toEqual(TaskResult.InvalidNamedTask);
+            expect(result).toEqual(kTaskResult.InvalidNamedTask);
         }
 
         // (2) Executing a task using static database-driven execution.
@@ -134,11 +136,11 @@ describe('TaskRunner', () => {
             const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
 
             const result = await taskRunner.executeTask({ taskId: 42 });
-            expect(result).toEqual(TaskResult.InvalidNamedTask);
+            expect(result).toEqual(kTaskResult.InvalidNamedTask);
 
             const update = await updatePromise;
             expect(update.taskId).toEqual(42);
-            expect(update.taskInvocationResult).toEqual(TaskResult.InvalidNamedTask);
+            expect(update.taskInvocationResult).toEqual(kTaskResult.InvalidNamedTask);
             expect(update.taskInvocationLogs).toEqual('[]');
             expect(update.taskInvocationTimeMs).toBeGreaterThan(0);
         }
@@ -152,7 +154,7 @@ describe('TaskRunner', () => {
             const result = await taskRunner.executeTask(
                 { taskName: 'NoopComplexTask' }, { succeed: 12345678 });
 
-            expect(result).toEqual(TaskResult.InvalidParameters);
+            expect(result).toEqual(kTaskResult.InvalidParameters);
         }
 
         // (2) Executing a task using static database-driven execution.
@@ -165,11 +167,11 @@ describe('TaskRunner', () => {
             const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
 
             const result = await taskRunner.executeTask({ taskId: 100 });
-            expect(result).toEqual(TaskResult.InvalidParameters);
+            expect(result).toEqual(kTaskResult.InvalidParameters);
 
             const update = await updatePromise;
             expect(update.taskId).toEqual(100);
-            expect(update.taskInvocationResult).toEqual(TaskResult.InvalidParameters);
+            expect(update.taskInvocationResult).toEqual(kTaskResult.InvalidParameters);
             expect(update.taskInvocationLogs).toEqual('[]');
             expect(update.taskInvocationTimeMs).toBeGreaterThan(0);
         }
@@ -192,13 +194,13 @@ describe('TaskRunner', () => {
         expect(scheduler.taskQueueSize).toEqual(0);
 
         const result = await taskRunner.executeTask({ taskId: 100 });
-        expect(result).toEqual(TaskResult.TaskSuccess);
+        expect(result).toEqual(kTaskResult.TaskSuccess);
 
         expect(scheduler.taskQueueSize).toEqual(1);
 
         const update = await updatePromise;
         expect(update.taskId).toEqual(100);
-        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(update.taskInvocationResult).toEqual(kTaskResult.TaskSuccess);
         expect(update.taskInvocationTimeMs).toBeGreaterThan(0);
         expect(update.scheduledTaskName).toEqual('NoopComplexTask');
         expect(update.scheduledTaskParams).toEqual('{"succeed":true,"logs":true}');
@@ -224,11 +226,11 @@ describe('TaskRunner', () => {
 
         const updatePromise = expectTaskUpdate(/* expectSchedule= */ true);
         const result = await taskRunner.executeTask({ taskId: 100 });
-        expect(result).toEqual(TaskResult.TaskSuccess);
+        expect(result).toEqual(kTaskResult.TaskSuccess);
 
         const update = await updatePromise;
         expect(update.taskId).toEqual(100);
-        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(update.taskInvocationResult).toEqual(kTaskResult.TaskSuccess);
         expect(update.scheduledTaskName).toEqual('NoopComplexTask');
         expect(update.scheduledTaskParams).toEqual('{"succeed":true,"intervalMs":60000}');
         expect(update.scheduledTaskIntervalMs).toEqual(60000);
@@ -245,11 +247,11 @@ describe('TaskRunner', () => {
 
         const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
         const result = await taskRunner.executeTask({ taskId: 100 });
-        expect(result).toEqual(TaskResult.TaskSuccess);
+        expect(result).toEqual(kTaskResult.TaskSuccess);
 
         const update = await updatePromise;
         expect(update.taskId).toEqual(100);
-        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(update.taskInvocationResult).toEqual(kTaskResult.TaskSuccess);
         expect(Object.hasOwn(update, 'scheduledTaskName')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskParams')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskIntervalMs')).toBeFalse();
@@ -267,11 +269,11 @@ describe('TaskRunner', () => {
 
         const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
         const result = await taskRunner.executeTask({ taskId: 100 });
-        expect(result).toEqual(TaskResult.TaskSuccess);
+        expect(result).toEqual(kTaskResult.TaskSuccess);
 
         const update = await updatePromise;
         expect(update.taskId).toEqual(100);
-        expect(update.taskInvocationResult).toEqual(TaskResult.TaskSuccess);
+        expect(update.taskInvocationResult).toEqual(kTaskResult.TaskSuccess);
         expect(Object.hasOwn(update, 'scheduledTaskName')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskParams')).toBeFalse();
         expect(Object.hasOwn(update, 'scheduledTaskIntervalMs')).toBeFalse();
@@ -286,24 +288,24 @@ describe('TaskRunner', () => {
         installTaskContext(100, /* not found= */ undefined);
 
         const invalidResult = await taskRunner.executeTask({ taskId: 100 });
-        expect(invalidResult).toEqual(TaskResult.InvalidTaskId);
+        expect(invalidResult).toEqual(kTaskResult.InvalidTaskId);
 
         installTaskContext(101, { taskName: 'NoopTask' });
 
         const validResultUpdatePromise = expectTaskUpdate(/* expectSchedule= */ false);
         const validResult = await taskRunner.executeTask({ taskId: 101 });
-        expect(validResult).toEqual(TaskResult.TaskSuccess);
+        expect(validResult).toEqual(kTaskResult.TaskSuccess);
 
         expect((await validResultUpdatePromise).taskInvocationResult).toEqual(
-            TaskResult.TaskSuccess);
+            kTaskResult.TaskSuccess);
 
         installTaskContext(102, { taskName: 'NoopComplexTask', params: { succeed: false } });
 
         const validFailureUpdatePromise = expectTaskUpdate(/* expectSchedule= */ false);
         const validFailure = await taskRunner.executeTask({ taskId: 102 });
-        expect(validFailure).toEqual(TaskResult.TaskFailure);
+        expect(validFailure).toEqual(kTaskResult.TaskFailure);
 
         expect((await validFailureUpdatePromise).taskInvocationResult).toEqual(
-            TaskResult.TaskFailure);
+            kTaskResult.TaskFailure);
     });
 });

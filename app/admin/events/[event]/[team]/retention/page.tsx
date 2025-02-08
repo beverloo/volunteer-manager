@@ -7,13 +7,15 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
+import { RegistrationStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRetentionStatus } from '@lib/database/Types';
 
 /**
  * The retention page displays a recruiting tool to understand how participants from the past two
@@ -41,7 +43,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
             .and(usersEventJoin.eventId.equals(tRetention.eventId))
         .where(tRetention.eventId.equals(event.id))
             .and(tRetention.teamId.equals(team.id))
-            .and(tRetention.retentionStatus.notEquals(RetentionStatus.Declined))
+            .and(tRetention.retentionStatus.notEquals(kRetentionStatus.Declined))
             .and(tRetention.retentionAssigneeId.equals(user.userId))
             .and(usersEventJoin.registrationStatus.isNull())
         .select({

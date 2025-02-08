@@ -5,11 +5,13 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { MutationSeverity, RegistrationStatus } from '@lib/database/Types';
+import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
     tActivitiesTimeslots, tUsers, tUsersEvents, tTeams } from '@lib/database';
+
+import { kMutationSeverity } from '@lib/database/Types';
 
 /**
  * Row model an entry program change history.
@@ -23,7 +25,7 @@ const kProgramChangeRowModel = z.object({
     /**
      * Severity of the change, i.e. how much attention should we pay to it?
      */
-    severity: z.nativeEnum(MutationSeverity),
+    severity: z.nativeEnum(kMutationSeverity),
 
     /**
      * Date & time describing when the change happened, in UTC.

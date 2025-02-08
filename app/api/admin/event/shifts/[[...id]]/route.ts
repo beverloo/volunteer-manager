@@ -12,7 +12,7 @@ import { validateContext } from '../../validateContext';
 import db, { tActivities, tSchedule, tShifts, tShiftsCategories } from '@lib/database';
 
 import { kShiftDemand } from './demand';
-import { ShiftDemandOverlap } from '@lib/database/Types';
+import { kShiftDemandOverlap } from '@lib/database/Types';
 
 /**
  * Row model for a team's shifts. The shifts are fully mutable, even though the create and edit
@@ -96,7 +96,7 @@ const kEventShiftRowModel = z.object({
     /**
      * Expected overlap between the shifts and any and all timeslots.
      */
-    demandOverlap: z.nativeEnum(ShiftDemandOverlap).optional(),
+    demandOverlap: z.nativeEnum(kShiftDemandOverlap).optional(),
 });
 
 /**

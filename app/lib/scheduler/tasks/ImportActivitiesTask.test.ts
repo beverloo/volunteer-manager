@@ -3,10 +3,11 @@
 
 import type { Activity, Floor, Location, Timeslot } from '@lib/integrations/animecon';
 import { ImportActivitiesTask, type StoredActivity, type StoredTimeslot } from './ImportActivitiesTask';
-import { MutationSeverity } from '@lib/database/Types';
 import { TaskContext } from '../TaskContext';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { useMockConnection } from '@lib/database/Connection';
+
+import { kMutationSeverity } from '@lib/database/Types';
 
 type PartialWithRequiredId<T> = Partial<T> & { id: number};
 
@@ -274,15 +275,17 @@ describe('ImportActivitiesTask', () => {
         const helpNeededStoredActivity = createStoredActivity(
             { id: 101, helpNeeded: 1 }, [ /* no timeslots */ ]);
 
-        expect(task.maybeEscalateMutationSeverity(regularActivity, MutationSeverity.Moderate))
-            .toBe(MutationSeverity.Moderate);
-        expect(task.maybeEscalateMutationSeverity(regularStoredActivity, MutationSeverity.Moderate))
-            .toBe(MutationSeverity.Moderate);
+        expect(task.maybeEscalateMutationSeverity(regularActivity, kMutationSeverity.Moderate))
+            .toBe(kMutationSeverity.Moderate);
+        expect(
+            task.maybeEscalateMutationSeverity(regularStoredActivity, kMutationSeverity.Moderate))
+                .toBe(kMutationSeverity.Moderate);
 
         expect(task.maybeEscalateMutationSeverity(
-            helpNeededActivity, MutationSeverity.Moderate)).toBe(MutationSeverity.Important);
+            helpNeededActivity, kMutationSeverity.Moderate)).toBe(kMutationSeverity.Important);
         expect(task.maybeEscalateMutationSeverity(
-            helpNeededStoredActivity, MutationSeverity.Moderate)).toBe(MutationSeverity.Important);
+            helpNeededStoredActivity, kMutationSeverity.Moderate))
+                .toBe(kMutationSeverity.Important);
     });
 
     it('should be able to identify additions to the program', () => {

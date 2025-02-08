@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
-import { RegistrationStatus, VendorTeam, kActivityType } from '@lib/database/Types';
+import { RegistrationStatus, kActivityType, kVendorTeam } from '@lib/database/Types';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -344,9 +344,9 @@ async function populateVendors(
     eventId: number, includeFirstAid: boolean, includeSecurity: boolean, fullAccess: boolean)
 {
     if (fullAccess || includeFirstAid)
-        schedule.vendors[VendorTeam.FirstAid] = { active: [ /* empty */ ], schedule: [] };
+        schedule.vendors[kVendorTeam.FirstAid] = { active: [ /* empty */ ], schedule: [] };
     if (fullAccess || includeSecurity)
-        schedule.vendors[VendorTeam.Security] = { active: [ /* empty */ ], schedule: [] };
+        schedule.vendors[kVendorTeam.Security] = { active: [ /* empty */ ], schedule: [] };
 
     const vendorsScheduleJoin = tVendorsSchedule.forUseInLeftJoin();
     const vendors = await dbInstance.selectFrom(tVendors)
@@ -380,9 +380,9 @@ async function populateVendors(
                 })),
             });
         } else {
-            if (vendor.team === VendorTeam.FirstAid && !includeFirstAid)
+            if (vendor.team === kVendorTeam.FirstAid && !includeFirstAid)
                 continue;
-            if (vendor.team === VendorTeam.Security && !includeSecurity)
+            if (vendor.team === kVendorTeam.Security && !includeSecurity)
                 continue;
         }
 

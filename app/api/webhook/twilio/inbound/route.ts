@@ -5,8 +5,9 @@ import type { NextRequest } from 'next/server';
 
 import twilio from 'twilio';
 
-import { TwilioWebhookEndpoint } from '@lib/database/Types';
 import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwilioRequest';
+
+import { kTwilioWebhookEndpoint } from '@lib/database/Types';
 
 /**
  * Webhook invoked when an inbound message has been received over one of our communication channels,
@@ -14,7 +15,7 @@ import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwil
  */
 export async function POST(request: NextRequest) {
     const { authenticated, body } =
-        await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Inbound);
+        await authenticateAndRecordTwilioRequest(request, kTwilioWebhookEndpoint.Inbound);
 
     // TODO: Do something with the `body`
 

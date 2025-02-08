@@ -5,8 +5,10 @@ import { ZodError } from 'zod';
 
 import type { Scheduler, TaskIdentifier } from './Scheduler';
 import { TaskContext } from './TaskContext';
-import { TaskResult, TaskWithParams } from './Task';
+import { type TaskResult, TaskWithParams } from './Task';
 import { kTaskRegistry } from './TaskRegistry';
+
+import { kTaskResult } from '@lib/database/Types';
 
 /**
  * Global cache for the task runner instances. One task runner will be lazily created for each
@@ -47,7 +49,7 @@ export class TaskRunner {
 
         const context = await TaskContext.forStaticTask(task.taskId, params);
         if (!context)
-            return TaskResult.InvalidTaskId;
+            return kTaskResult.InvalidTaskId;
 
         context.markTaskExecutionStart();
         const result = await this.executeNamedTask(context);
@@ -63,7 +65,7 @@ export class TaskRunner {
      */
     private async executeNamedTask(context: TaskContext): Promise<TaskResult> {
         if (!Object.hasOwn(kTaskRegistry, context.taskName))
-            return TaskResult.InvalidNamedTask;
+            return kTaskResult.InvalidNamedTask;
 
         try {
             const taskConstructor = kTaskRegistry[context.taskName as keyof typeof kTaskRegistry];
@@ -77,18 +79,18 @@ export class TaskRunner {
                 const validatedParams = complexTask.validate(context.params);
                 result = await complexTask.execute(validatedParams);
             } else {
-                return TaskResult.UnknownFailure;
+                return kTaskResult.UnknownFailure;
             }
 
-            return result ? TaskResult.TaskSuccess
-                          : TaskResult.TaskFailure;
+            return result ? kTaskResult.TaskSuccess
+                          : kTaskResult.TaskFailure;
 
         } catch (error: any) {
             if (error instanceof ZodError)
-                return TaskResult.InvalidParameters;
+                return kTaskResult.InvalidParameters;
 
             context.log.exception(error.message, error);
-            return TaskResult.TaskException;
+            return kTaskResult.TaskException;
         }
     }
 }

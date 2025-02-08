@@ -3,9 +3,10 @@
 
 import type { NextRequest } from 'next/server';
 
-import { TwilioWebhookEndpoint } from '@lib/database/Types';
 import { authenticateAndRecordTwilioRequest } from '../authenticateAndRecordTwilioRequest';
 import db, { tOutboxTwilio } from '@lib/database';
+
+import { kTwilioWebhookEndpoint } from '@lib/database/Types';
 
 /**
  * Webhook invoked when the status of an outbound message has been updated. This may happen minutes,
@@ -13,7 +14,7 @@ import db, { tOutboxTwilio } from '@lib/database';
  */
 export async function POST(request: NextRequest) {
     const { authenticated, body } =
-        await authenticateAndRecordTwilioRequest(request, TwilioWebhookEndpoint.Outbound);
+        await authenticateAndRecordTwilioRequest(request, kTwilioWebhookEndpoint.Outbound);
 
     if (!authenticated || !body) {
         return new Response(undefined, {

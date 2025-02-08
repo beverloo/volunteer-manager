@@ -15,10 +15,11 @@ import { NardoAdviceCard } from './components/NardoAdviceCard';
 import { OverviewVendorCard } from './components/OverviewVendorCard';
 import { ScheduleContext } from './ScheduleContext';
 import { SetTitle } from './components/SetTitle';
-import { VendorTeam } from '@lib/database/Types';
 import { currentTimestamp } from './CurrentTime';
 import { useIsMobile } from './lib/useIsMobile';
 import { UpcomingShiftCard } from './components/UpcomingShiftCard';
+
+import { kVendorTeam } from '@lib/database/Types';
 
 /**
  * Displays the portal's overview page, which contains a series of cards displaying key information
@@ -99,10 +100,10 @@ export function OverviewPage() {
             { (!!isMobile && !!schedule?.config.enableHelpRequests) &&
                 <HelpRequestsCard pending={schedule?.helpRequestsPending}
                                   slug={schedule.slug} /> }
-            { !!schedule?.vendors[VendorTeam.FirstAid] &&
-                <OverviewVendorCard team={VendorTeam.FirstAid} /> }
-            { !!schedule?.vendors[VendorTeam.Security] &&
-                <OverviewVendorCard team={VendorTeam.Security} /> }
+            { !!schedule?.vendors[kVendorTeam.FirstAid] &&
+                <OverviewVendorCard team={kVendorTeam.FirstAid} /> }
+            { !!schedule?.vendors[kVendorTeam.Security] &&
+                <OverviewVendorCard team={kVendorTeam.Security} /> }
             { !!schedule?.nardo && <NardoAdviceCard advice={schedule.nardo} /> }
         </>
     );

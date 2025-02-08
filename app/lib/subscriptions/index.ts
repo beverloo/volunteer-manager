@@ -2,4 +2,4 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 export { Publish } from './Publish';
-export { SubscriptionType } from '../database/Types';
+export { type SubscriptionType, kSubscriptionType } from '../database/Types';

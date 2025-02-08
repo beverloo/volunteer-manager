@@ -11,11 +11,11 @@ import { TaskWithParams } from '../Task';
 import { Temporal } from '@lib/Temporal';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 
-import { Mutation, MutationSeverity } from '@lib/database/Types';
+import type { Mutation, MutationSeverity } from '@lib/database/Types';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
     tActivitiesTimeslots, tEvents } from '@lib/database';
 
-import { kActivityType } from '@lib/database/Types';
+import { kActivityType, kMutation, kMutationSeverity } from '@lib/database/Types';
 
 /**
  * Parameter scheme applying to the `ImportActivitiesTask`.
@@ -351,9 +351,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     activityId,
-                    mutation: Mutation.Created,
+                    mutation: kMutation.Created,
                     severity: this.maybeEscalateMutationSeverity(
-                        currentActivity, MutationSeverity.Moderate),
+                        currentActivity, kMutationSeverity.Moderate),
                 });
 
             } else {
@@ -369,9 +369,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     activityId,
-                    mutation: Mutation.Deleted,
+                    mutation: kMutation.Deleted,
                     severity: this.maybeEscalateMutationSeverity(
-                        storedActivity, MutationSeverity.Moderate),
+                        storedActivity, kMutationSeverity.Moderate),
                 });
             }
         }
@@ -401,8 +401,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     areaId,
-                    mutation: Mutation.Created,
-                    severity: MutationSeverity.Moderate,
+                    mutation: kMutation.Created,
+                    severity: kMutationSeverity.Moderate,
                 });
 
             } else {
@@ -418,8 +418,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     areaId,
-                    mutation: Mutation.Deleted,
-                    severity: MutationSeverity.Moderate,
+                    mutation: kMutation.Deleted,
+                    severity: kMutationSeverity.Moderate,
                 });
             }
         }
@@ -453,8 +453,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     locationId,
-                    mutation: Mutation.Created,
-                    severity: MutationSeverity.Moderate,
+                    mutation: kMutation.Created,
+                    severity: kMutationSeverity.Moderate,
                 });
 
             } else {
@@ -470,8 +470,8 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
                 mutations.mutations.push({
                     locationId,
-                    mutation: Mutation.Deleted,
-                    severity: MutationSeverity.Moderate,
+                    mutation: kMutation.Deleted,
+                    severity: kMutationSeverity.Moderate,
                 });
             }
         }
@@ -507,9 +507,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityId: currentActivity.id,
                     activityTimeslotId: currentTimeslot.id,
 
-                    mutation: Mutation.Created,
+                    mutation: kMutation.Created,
                     severity: this.maybeEscalateMutationSeverity(
-                        currentActivity, MutationSeverity.Moderate),
+                        currentActivity, kMutationSeverity.Moderate),
                 });
 
             } else {
@@ -532,9 +532,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     activityId: storedActivity.id,
                     activityTimeslotId: storedTimeslot.id,
 
-                    mutation: Mutation.Deleted,
+                    mutation: kMutation.Deleted,
                     severity: this.maybeEscalateMutationSeverity(
-                        storedActivity, MutationSeverity.Moderate),
+                        storedActivity, kMutationSeverity.Moderate),
                 });
             }
         }
@@ -578,7 +578,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.mutations.push({
                 activityId: storedActivity.id,
-                mutation: Mutation.Updated,
+                mutation: kMutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -604,7 +604,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.mutations.push({
                 areaId: storedArea.id,
-                mutation: Mutation.Updated,
+                mutation: kMutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -630,7 +630,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
             mutations.mutations.push({
                 locationId: storedLocation.id,
-                mutation: Mutation.Updated,
+                mutation: kMutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -658,7 +658,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
             mutations.mutations.push({
                 activityId: timeslotToCurrentActivity.get(currentTimeslot.id)?.id,
                 activityTimeslotId: storedTimeslot.id,
-                mutation: Mutation.Updated,
+                mutation: kMutation.Updated,
                 mutatedFields: update.fields,
                 severity: update.severity,
             });
@@ -973,11 +973,11 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
 
     updateWeightToSeverityLevel(weight: number): MutationSeverity {
         if (weight < kUpdateSeverityLevel.Moderate)
-            return MutationSeverity.Low;
+            return kMutationSeverity.Low;
         else if (weight < kUpdateSeverityLevel.Important)
-            return MutationSeverity.Moderate;
+            return kMutationSeverity.Moderate;
         else
-            return MutationSeverity.Important;
+            return kMutationSeverity.Important;
     }
 
     maybeEscalateMutationSeverity(
@@ -986,7 +986,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         // The severity of mutations gets escalated when the "help needed" flag has been set on an
         // event, which signals that explicit action from our team is requested.
         if ('helpNeeded' in activity && !!activity.helpNeeded)
-            return MutationSeverity.Important;
+            return kMutationSeverity.Important;
 
         return baseSeverity;
     }

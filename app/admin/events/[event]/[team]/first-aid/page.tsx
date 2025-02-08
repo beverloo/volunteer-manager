@@ -8,11 +8,12 @@ import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { Section } from '@app/admin/components/Section';
 import { VendorSchedule } from './VendorSchedule';
 import { VendorTable } from './VendorTable';
-import { VendorTeam } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tVendors, tVendorsSchedule } from '@lib/database';
+
+import { kVendorTeam } from '@lib/database/Types';
 
 /**
  * The first aid team (normally supporting the Stewards) is responsible for making sure that all our
@@ -48,7 +49,7 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'event
         .leftJoin(vendorsScheduleJoin)
             .on(vendorsScheduleJoin.vendorId.equals(tVendors.vendorId))
                 .and(vendorsScheduleJoin.vendorsScheduleDeleted.isNull())
-        .where(tVendors.vendorTeam.equals(VendorTeam.FirstAid))
+        .where(tVendors.vendorTeam.equals(kVendorTeam.FirstAid))
             .and(tVendors.eventId.equals(event.id))
             .and(tVendors.vendorVisible.equals(/* true= */ 1))
         .select({
@@ -74,12 +75,12 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'event
                     to know their full name in order to issue a valid ticket, and optionally their
                     t-shirt preferences when it is appropriate to grant one.
                 </SectionIntroduction>
-                <VendorTable event={event.slug} team={VendorTeam.FirstAid}
+                <VendorTable event={event.slug} team={kVendorTeam.FirstAid}
                              readOnly={!canUpdateVendors} roles={roles} />
             </Section>
             { !!schedule.length &&
                 <Section noHeader>
-                    <VendorSchedule event={event} team={VendorTeam.FirstAid} roles={roles}
+                    <VendorSchedule event={event} team={kVendorTeam.FirstAid} roles={roles}
                                     readOnly={!canUpdateVendors} schedule={schedule} />
                 </Section> }
         </>

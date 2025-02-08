@@ -7,13 +7,14 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus, RetentionStatus } from '@lib/database/Types';
+import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-
 import db, { tEvents, tRetention, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRetentionStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for an API to remind a volunteer to participate in an event.
@@ -163,12 +164,12 @@ export async function remindParticipation(request: Request, props: ActionProps):
             userId: request.userId,
             eventId: event.eventId,
             teamId: teamId,
-            retentionStatus: RetentionStatus.Contacting,
+            retentionStatus: kRetentionStatus.Contacting,
             retentionAssigneeId: props.user.userId,
             retentionNotes: `${noteMedium} (${noteDate})`,
         })
         .onConflictDoUpdateSet({
-            retentionStatus: RetentionStatus.Contacting,
+            retentionStatus: kRetentionStatus.Contacting,
             retentionAssigneeId: props.user.userId,
             retentionNotes: `${noteMedium} (${noteDate})`,
         })

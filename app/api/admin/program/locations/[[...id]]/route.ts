@@ -5,12 +5,13 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { Mutation, MutationSeverity, kActivityType } from '@lib/database/Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanLocationUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tActivitiesAreas, tActivitiesLogs, tActivitiesLocations } from '@lib/database';
+
+import { kActivityType, kMutation, kMutationSeverity } from '@lib/database/Types';
 
 /**
  * Row model of a program's location.
@@ -142,8 +143,8 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             .set({
                 festivalId: event.festivalId,
                 locationId: newInternalLocationId,
-                mutation: Mutation.Created,
-                mutationSeverity: MutationSeverity.Important,
+                mutation: kMutation.Created,
+                mutationSeverity: kMutationSeverity.Important,
                 mutationUserId: props.user?.userId,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
@@ -180,8 +181,8 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             .set({
                 festivalId: event.festivalId,
                 locationId: id,
-                mutation: Mutation.Deleted,
-                mutationSeverity: MutationSeverity.Important,
+                mutation: kMutation.Deleted,
+                mutationSeverity: kMutationSeverity.Important,
                 mutationUserId: props.user?.userId,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
@@ -249,9 +250,9 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             .set({
                 festivalId: event.festivalId,
                 locationId: id,
-                mutation: Mutation.Updated,
+                mutation: kMutation.Updated,
                 mutationFields: 'area, display name',
-                mutationSeverity: MutationSeverity.Important,
+                mutationSeverity: kMutationSeverity.Important,
                 mutationUserId: props.user?.userId,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })

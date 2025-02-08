@@ -4,8 +4,9 @@
 import type { Metadata } from 'next';
 
 import { TwilioDataTable } from '../TwilioDataTable';
-import { TwilioOutboxType } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+
+import { kTwilioOutboxType } from '@lib/database/Types';
 
 /**
  * The outbox page summarises all outgoing SMS messages.
@@ -16,7 +17,7 @@ export default async function OutboxSmsPage() {
         permission: 'system.internals.outbox',
     });
 
-    return <TwilioDataTable type={TwilioOutboxType.SMS} />;
+    return <TwilioDataTable type={kTwilioOutboxType.SMS} />;
 }
 
 export const metadata: Metadata = {

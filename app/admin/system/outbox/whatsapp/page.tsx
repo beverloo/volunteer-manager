@@ -4,8 +4,9 @@
 import type { Metadata } from 'next';
 
 import { TwilioDataTable } from '../TwilioDataTable';
-import { TwilioOutboxType } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+
+import { kTwilioOutboxType } from '@lib/database/Types';
 
 /**
  * The outbox page summarises all outgoing WhatsApp messages. This includes both human readable
@@ -17,7 +18,7 @@ export default async function OutboxWhatsAppPage() {
         permission: 'system.internals.outbox',
     });
 
-    return <TwilioDataTable type={TwilioOutboxType.WhatsApp} />;
+    return <TwilioDataTable type={kTwilioOutboxType.WhatsApp} />;
 }
 
 export const metadata: Metadata = {

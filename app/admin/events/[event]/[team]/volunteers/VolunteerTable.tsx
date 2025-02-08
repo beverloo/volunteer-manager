@@ -23,7 +23,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import { RegistrationStatus, RoleBadge } from '@lib/database/Types';
+import { RegistrationStatus, type RoleBadge } from '@lib/database/Types';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
 /**

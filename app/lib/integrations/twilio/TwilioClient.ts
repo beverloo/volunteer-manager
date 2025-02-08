@@ -6,8 +6,8 @@ import client from 'twilio';
 
 import type { TwilioSmsMessage, TwilioWhatsappMessage } from './TwilioTypes';
 import { TwilioLogger } from './TwilioLogger';
-import { TwilioOutboxType } from '@lib/database/Types';
 
+import { kTwilioOutboxType } from '@lib/database/Types';
 import { kTwilioSmsMessage, kTwilioWhatsappMessage, type TwilioRegion } from './TwilioTypes';
 
 /**
@@ -61,7 +61,7 @@ export class TwilioClient {
      * validate the `message` in order to ensure that it conforms to Twilio's expectations.
      */
     async sendSmsMessage(recipientUserId: number, message: TwilioSmsMessage): Promise<boolean> {
-        const logger = new TwilioLogger(TwilioOutboxType.SMS);
+        const logger = new TwilioLogger(kTwilioOutboxType.SMS);
         await logger.initialiseMessage(recipientUserId, message);
 
         let messageInstance: MessageInstance | undefined;
@@ -89,7 +89,7 @@ export class TwilioClient {
     async sendWhatsappMessage(recipientUserId: number, message: TwilioWhatsappMessage)
         : Promise<boolean>
     {
-        const logger = new TwilioLogger(TwilioOutboxType.WhatsApp);
+        const logger = new TwilioLogger(kTwilioOutboxType.WhatsApp);
         await logger.initialiseMessage(recipientUserId, message);
 
         let messageInstance: MessageInstance | undefined;

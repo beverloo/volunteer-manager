@@ -6,7 +6,7 @@ import type { Driver } from './Driver';
 import { ApplicationDriver } from './drivers/ApplicationDriver';
 import { HelpDriver } from './drivers/HelpDriver';
 import { RegistrationDriver } from './drivers/RegistrationDriver';
-import { SubscriptionType } from '@lib/database/Types';
+import { type SubscriptionType, kSubscriptionType } from '@lib/database/Types';
 import { TestDriver } from './drivers/TestDriver';
 
 /**
@@ -14,8 +14,8 @@ import { TestDriver } from './drivers/TestDriver';
  * of the `Driver` type, and implement each of the messaging channels independently.
  */
 export const kSubscriptionFactories = {
-    [SubscriptionType.Application]: () => new ApplicationDriver,
-    [SubscriptionType.Help]: () => new HelpDriver,
-    [SubscriptionType.Registration]: () => new RegistrationDriver,
-    [SubscriptionType.Test]: () => new TestDriver,
+    [kSubscriptionType.Application]: () => new ApplicationDriver,
+    [kSubscriptionType.Help]: () => new HelpDriver,
+    [kSubscriptionType.Registration]: () => new RegistrationDriver,
+    [kSubscriptionType.Test]: () => new TestDriver,
 } as const satisfies { [k in SubscriptionType]: () => Driver<any> };

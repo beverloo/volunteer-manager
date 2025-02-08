@@ -8,12 +8,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import SvgIcon, { type SvgIconProps } from '@mui/material/SvgIcon';
 
-import { RoleBadge as VolunteerBadgeVariant } from '@lib/database/Types';
-
-/**
- * Types of volunteer badge that can be assigned to individuals.
- */
-export { VolunteerBadgeVariant };
+import { type RoleBadge, kRoleBadge } from '@lib/database/Types';
 
 /**
  * Props accepted by the <VolunteerBadge> component.
@@ -22,7 +17,7 @@ interface VolunteerBadgeProps extends SvgIconProps {
     /**
      * Variant of volunteer badge that should be displayed.
      */
-    variant: keyof typeof VolunteerBadgeVariant;
+    variant: RoleBadge;
 }
 
 /**
@@ -31,11 +26,11 @@ interface VolunteerBadgeProps extends SvgIconProps {
  */
 export function VolunteerBadge(props: VolunteerBadgeProps) {
     switch (props.variant) {
-        case VolunteerBadgeVariant.Host:
+        case kRoleBadge.Host:
             return <InfoIcon {...props} color="info" />;
-        case VolunteerBadgeVariant.Senior:
+        case kRoleBadge.Senior:
             return <KeyboardArrowUpIcon {...props} />;
-        case VolunteerBadgeVariant.Staff:
+        case kRoleBadge.Staff:
             return <KeyboardDoubleArrowUpIcon {...props} />;
     }
 

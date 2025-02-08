@@ -2,8 +2,8 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { TaskContext } from './TaskContext';
-import { TaskResult } from '../database/Types';
-export { TaskResult };
+import type { TaskResult } from '../database/Types';
+export type { TaskResult };
 
 /**
  * Abstract class describing a task that can be owned by the `TaskRegistry` and executed using the

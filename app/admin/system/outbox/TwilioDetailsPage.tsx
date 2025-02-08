@@ -16,7 +16,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 
 import { Temporal, formatDate } from '@lib/Temporal';
-import { TwilioOutboxType } from '@lib/database/Types';
+import { type TwilioOutboxType, kTwilioOutboxType } from '@lib/database/Types';
 import db, { tOutboxTwilio, tUsers } from '@lib/database';
 import { WebhookDataTable } from '../webhooks/WebhookDataTable';
 
@@ -142,7 +142,7 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
                                     </MuiLink> }
                             </TableCell>
                         </TableRow>
-                        { props.type === TwilioOutboxType.WhatsApp &&
+                        { props.type === kTwilioOutboxType.WhatsApp &&
                             <TableRow>
                                 <TableCell colSpan={2} padding="none">
                                     <Alert severity="warning" variant="standard">

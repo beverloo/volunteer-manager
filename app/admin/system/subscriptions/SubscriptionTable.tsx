@@ -17,17 +17,17 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import type { SubscriptionsRowModel } from '@app/api/admin/subscriptions/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { SubscriptionType } from '@lib/database/Types';
+import { type SubscriptionType, kSubscriptionType } from '@lib/database/Types';
 
 /**
  * Human-readable descriptions of each of the subscriptions that can be created. Will be presented
  * in the data table.
  */
 const kSubscriptionDescriptions: { [k in SubscriptionType]: string } = {
-    [SubscriptionType.Application]: 'When a volunteer applies to help out in this team',
-    [SubscriptionType.Help]: 'When help is requested through a display',
-    [SubscriptionType.Registration]: 'When a volunteer has created an account',
-    [SubscriptionType.Test]: 'Internal test messages',
+    [kSubscriptionType.Application]: 'When a volunteer applies to help out in this team',
+    [kSubscriptionType.Help]: 'When help is requested through a display',
+    [kSubscriptionType.Registration]: 'When a volunteer has created an account',
+    [kSubscriptionType.Test]: 'Internal test messages',
 };
 
 /**

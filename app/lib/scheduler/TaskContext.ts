@@ -4,7 +4,7 @@
 import type { Scheduler } from './Scheduler';
 import type { kTaskRegistry } from './TaskRegistry';
 
-import { TaskResult } from './Task';
+import type { TaskResult } from './Task';
 import { scheduleTask } from '@lib/scheduler';
 import db, { tTasks } from '@lib/database';
 

@@ -5,13 +5,13 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { SubscriptionType } from '@lib/database/Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { queryUsersWithPermission } from '@lib/auth/AccessQuery';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
 
+import { kSubscriptionType } from '@lib/database/Types';
 import { kTargetToTypeId } from '@lib/subscriptions/drivers/HelpDriver';
-import { queryUsersWithPermission } from '@lib/auth/AccessQuery';
 
 /**
  * Row model for a subscription.
@@ -35,7 +35,7 @@ const kSubscriptionRowModel = z.object({
     /**
      * Type of subscription that this row is dealing with.
      */
-    type: z.nativeEnum(SubscriptionType).optional(),
+    type: z.nativeEnum(kSubscriptionType).optional(),
 
     /**
      * Whether notifications for this subscription will be delivered by e-mail.
@@ -93,17 +93,17 @@ async function getSubscriptionTypes() {
 
     return [
         ...teams.map(team => ({
-            type: SubscriptionType.Application,
+            type: kSubscriptionType.Application,
             typeId: team.id,
             label: `Application (${team.name})`,
         })),
         ...Object.entries(kTargetToTypeId).map(([ type, typeId ]) => ({
-            type: SubscriptionType.Help,
+            type: kSubscriptionType.Help,
             typeId: typeId,
             label: `Help request (${type})`,
         })),
-        { type: SubscriptionType.Registration, typeId: null, label: 'New user registrations' },
-        { type: SubscriptionType.Test, typeId: null, label: 'Test messages' },
+        { type: kSubscriptionType.Registration, typeId: null, label: 'New user registrations' },
+        { type: kSubscriptionType.Test, typeId: null, label: 'Test messages' },
     ];
 }
 
@@ -209,7 +209,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
 
         // (1) Parse the incoming data given the path included in the `row`.
         const userId = z.coerce.number().parse(matches[1]);
-        const type = z.nativeEnum(SubscriptionType).parse(matches[2]);
+        const type = z.nativeEnum(kSubscriptionType).parse(matches[2]);
         const typeId = matches[3] === 'null' ? null
                                              : z.coerce.number().parse(matches[3]);
 

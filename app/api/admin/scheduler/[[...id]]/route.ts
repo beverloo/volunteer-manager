@@ -5,13 +5,13 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { TaskResult } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { executeAction } from '@app/api/Action';
-import { kTaskFormatFn } from '@lib/scheduler/TaskRegistry';
+import { scheduleTask, kScheduleTaskDefinition } from '../scheduleTask';
 import db, { tTasks } from '@lib/database';
 
-import { scheduleTask, kScheduleTaskDefinition } from '../scheduleTask';
+import { kTaskFormatFn } from '@lib/scheduler/TaskRegistry';
+import { kTaskResult } from '@lib/database/Types';
 
 /**
  * Row model an entry from the scheduler.
@@ -123,7 +123,7 @@ export const { GET } = createDataTableApi(kSchedulerRowModel, kSchedulerContext,
 
                 let state: SchedulerRowModel['state'] = 'pending';
                 if (!!row.executionResult) {
-                    if (row.executionResult === TaskResult.TaskSuccess) {
+                    if (row.executionResult === kTaskResult.TaskSuccess) {
                         state = 'success';
                     } else {
                         state = 'failure';

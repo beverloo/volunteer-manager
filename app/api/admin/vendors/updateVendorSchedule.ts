@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { VendorTeam } from '@lib/database/Types';
+import { type VendorTeam, kVendorTeam } from '@lib/database/Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tVendors, tVendorsSchedule } from '@lib/database';
@@ -56,7 +56,7 @@ export const kUpdateVendorScheduleDefinition = z.object({
         /**
          * Team of vendors for whom the schedules are being updated.
          */
-        team: z.nativeEnum(VendorTeam),
+        team: z.nativeEnum(kVendorTeam),
 
         /**
          * Array of vendor Ids that were considered for this update, to help reduce race conditions.
@@ -177,8 +177,8 @@ export async function updateVendorSchedule(request: Request, props: ActionProps)
     });
 
     const kVendorTeamName: { [k in VendorTeam]: string } = {
-        [VendorTeam.FirstAid]: 'First Aid',
-        [VendorTeam.Security]: 'Security',
+        [kVendorTeam.FirstAid]: 'First Aid',
+        [kVendorTeam.Security]: 'Security',
     };
 
     await Log({

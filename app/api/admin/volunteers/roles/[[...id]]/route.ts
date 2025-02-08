@@ -5,9 +5,10 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RoleBadge } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles } from '@lib/database';
+
+import { kRoleBadge } from '@lib/database/Types';
 
 /**
  * Row model for a volunteering role. Roles are editable, but cannot be created or removed.
@@ -26,7 +27,7 @@ const kRoleRowModel = z.object({
     /**
      * Badge that should be applied to the role. Optional.
      */
-    roleBadge: z.nativeEnum(RoleBadge).optional(),
+    roleBadge: z.nativeEnum(kRoleBadge).optional(),
 
     /**
      * Ordering rules of the order.

@@ -15,23 +15,23 @@ import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import SecurityIcon from '@mui/icons-material/Security';
 
 import { ScheduleContext } from '../ScheduleContext';
-import { VendorTeam } from '@lib/database/Types';
+import { type VendorTeam, kVendorTeam } from '@lib/database/Types';
 import { concatenateNames } from '../lib/concatenateNames';
 
 /**
  * Header to use for the vendor card, depending on the team.
  */
 const kVendorCardHeader: { [k in VendorTeam]: string } = {
-    [VendorTeam.FirstAid]: 'First Aid team',
-    [VendorTeam.Security]: 'Security team',
+    [kVendorTeam.FirstAid]: 'First Aid team',
+    [kVendorTeam.Security]: 'Security team',
 };
 
 /**
  * Icons to show on the the vendor cards, which depends on the team the card is representing.
  */
 const kVendorCardIcon: { [k in VendorTeam]: React.ReactNode } = {
-    [VendorTeam.FirstAid]: <LocalHospitalIcon color="primary" />,
-    [VendorTeam.Security]: <SecurityIcon color="primary" />,
+    [kVendorTeam.FirstAid]: <LocalHospitalIcon color="primary" />,
+    [kVendorTeam.Security]: <SecurityIcon color="primary" />,
 };
 
 /**

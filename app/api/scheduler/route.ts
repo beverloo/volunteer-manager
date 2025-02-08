@@ -6,9 +6,10 @@ import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import { type ActionProps, executeAction } from '../Action';
-import { TaskResult } from '@lib/scheduler/Task';
 import { TaskRunner } from '@lib/scheduler/TaskRunner';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
+
+import { kTaskResult } from '@lib/database/Types';
 
 /**
  * Interface definition for the Scheduler API, exposed through /api/scheduler.
@@ -70,7 +71,7 @@ async function scheduler(request: Request, props: ActionProps): Promise<Response
                             : { taskName: request.taskName });
 
     return {
-        success: success === TaskResult.TaskSuccess,
+        success: success === kTaskResult.TaskSuccess,
     };
 }
 

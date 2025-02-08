@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction } from '../Action';
-import { RegistrationStatus, VendorTeam, kExportType } from '@lib/database/Types';
+import { RegistrationStatus, type VendorTeam, kExportType, kVendorTeam } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
@@ -512,7 +512,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         const vendorList = await db.selectFrom(tVendors)
             .where(tVendors.eventId.equals(metadata.eventId))
                 .and(tVendors.vendorVisible.equals(/* true= */ 1))
-                .and(tVendors.vendorTeam.in([ VendorTeam.FirstAid ]))
+                .and(tVendors.vendorTeam.equals(kVendorTeam.FirstAid))
             .select({
                 team: tVendors.vendorTeam,
                 firstName: tVendors.vendorFirstName,
@@ -526,8 +526,8 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .executeSelectMany();
 
         const kVendorTeamToRoleMapping: { [k in VendorTeam]: string } = {
-            [VendorTeam.FirstAid]: 'First Aid',
-            [VendorTeam.Security]: 'Security',
+            [kVendorTeam.FirstAid]: 'First Aid',
+            [kVendorTeam.Security]: 'Security',
         };
 
         for (const vendor of vendorList) {

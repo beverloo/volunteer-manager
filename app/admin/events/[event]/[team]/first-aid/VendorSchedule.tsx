@@ -8,15 +8,14 @@ import { useCallback, useMemo, useState } from 'react';
 import { FormContainer } from '@proxy/react-hook-form-mui';
 
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { VendorScheduleEntry } from '@app/api/admin/vendors/updateVendorSchedule';
+import type { VendorTeam } from '@lib/database/Types';
 import { Schedule, type ScheduleEvent, type ScheduleMarker, type ScheduleResource } from '@app/admin/components/Schedule';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { Temporal } from '@lib/Temporal';
-import { VendorTeam } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
 
 /**

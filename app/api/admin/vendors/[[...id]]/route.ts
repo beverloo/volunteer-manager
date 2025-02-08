@@ -6,13 +6,13 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSetting } from '@lib/Settings';
 import db, { tVendors } from '@lib/database';
 
 import { kAnyTeam } from '@lib/auth/AccessControl';
+import { type VendorTeam, kShirtFit, kShirtSize, kVendorGender, kVendorTeam } from '@lib/database/Types';
 
 /**
  * Row model for vendor entry, as can be shown and modified in the administration area.
@@ -41,19 +41,19 @@ const kVendorRowModel = z.object({
     /**
      * Gender of the vendor. Used for statistical purposes.
      */
-    gender: z.nativeEnum(VendorGender),
+    gender: z.nativeEnum(kVendorGender),
 
     /**
      * T-shirt size of the vendor, only if they should be granted one. The empty string is used to
      * reset the shirt size to a null value.
      */
-    shirtSize: z.nativeEnum(ShirtSize).or(z.literal(' ')).optional(),
+    shirtSize: z.nativeEnum(kShirtSize).or(z.literal(' ')).optional(),
 
     /**
      * T-shirt fit of the vendor, only if they should be granted one. The empty string is used to
      * reset the shirt fit to a null value.
      */
-    shirtFit: z.nativeEnum(ShirtFit).or(z.literal(' ')).optional(),
+    shirtFit: z.nativeEnum(kShirtFit).or(z.literal(' ')).optional(),
 });
 
 /**
@@ -69,7 +69,7 @@ const kVendorContext = z.object({
         /**
          * Unique name of the vendor team that is being consulted.
          */
-        team: z.nativeEnum(VendorTeam),
+        team: z.nativeEnum(kVendorTeam),
     }),
 });
 
@@ -150,10 +150,10 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
 
         let roleSetting: string;
         switch (context.team) {
-            case VendorTeam.FirstAid:
+            case kVendorTeam.FirstAid:
                 roleSetting = await readSetting('vendor-first-aid-roles') ?? 'First Aid';
                 break;
-            case VendorTeam.Security:
+            case kVendorTeam.Security:
                 roleSetting = await readSetting('vendor-security-roles') ?? 'Security';
                 break
             default:
@@ -171,7 +171,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 vendorFirstName: 'First',
                 vendorLastName: 'Name',
                 vendorRole: defaultRole,
-                vendorGender: VendorGender.Other,
+                vendorGender: kVendorGender.Other,
                 vendorShirtFit: null,
                 vendorShirtSize: null,
                 vendorModified: dbInstance.currentZonedDateTime(),
@@ -187,7 +187,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
                 firstName: 'First',
                 lastName: 'Name',
                 role: defaultRole,
-                gender: VendorGender.Other,
+                gender: kVendorGender.Other,
             }
         };
     },
@@ -267,8 +267,8 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kVendorRowModel, kV
     async writeLog({ context, id }, mutation, props) {
         const event = await getEventBySlug(context.event);
         const kReadableTeamName: { [k in VendorTeam]: string } = {
-            [VendorTeam.FirstAid]: 'First Aid',
-            [VendorTeam.Security]: 'Security',
+            [kVendorTeam.FirstAid]: 'First Aid',
+            [kVendorTeam.Security]: 'Security',
         };
 
         await Log({

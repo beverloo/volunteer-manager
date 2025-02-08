@@ -5,7 +5,7 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
-import { Publish, SubscriptionType } from '@lib/subscriptions';
+import { Publish, kSubscriptionType } from '@lib/subscriptions';
 import type { TestMessage } from '@lib/subscriptions/drivers/TestDriver';
 
 /**
@@ -23,7 +23,7 @@ export function SubscriptionTestAction(props: SubscriptionTestActionProps) {
         'use server';
 
         await Publish({
-            type: SubscriptionType.Test,
+            type: kSubscriptionType.Test,
             sourceUserId: props.userId,
             message: props,
         });

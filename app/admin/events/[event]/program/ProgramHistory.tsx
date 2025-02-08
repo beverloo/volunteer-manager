@@ -16,9 +16,10 @@ import Typography from '@mui/material/Typography';
 import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 
 import type { ProgramChangesRowModel, ProgramChangesContext } from '@app/api/admin/program/changes/route';
-import { MutationSeverity } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
+
+import { kMutationSeverity } from '@lib/database/Types';
 
 /**
  * Props accepted by the <ProgramHistory> component.
@@ -47,11 +48,11 @@ export function ProgramHistory(props: ProgramHistoryProps) {
 
             renderCell: params => {
                 switch (params.value) {
-                    case MutationSeverity.Low:
+                    case kMutationSeverity.Low:
                         return <CircleOutlinedIcon color="action" />;
-                    case MutationSeverity.Moderate:
+                    case kMutationSeverity.Moderate:
                         return <InfoOutlinedIcon color="info" />;
-                    case MutationSeverity.Important:
+                    case kMutationSeverity.Important:
                         return <WarningOutlinedIcon color="warning" />;
                     default:
                         console.error(`Unrecognised severity: ${params.value}`);

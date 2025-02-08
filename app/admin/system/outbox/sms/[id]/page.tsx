@@ -5,8 +5,9 @@ import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { TwilioDetailsPage } from '../../TwilioDetailsPage';
-import { TwilioOutboxType } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+
+import { kTwilioOutboxType } from '@lib/database/Types';
 
 /**
  * The outbox page details an outgoing SMS message, with all information we have collected in
@@ -20,7 +21,7 @@ export default async function OutboxSmsDetailsPage(props: NextPageParams<'id'>) 
 
     const params = await props.params;
 
-    return <TwilioDetailsPage type={TwilioOutboxType.SMS} id={parseInt(params.id, 10)} />;
+    return <TwilioDetailsPage type={kTwilioOutboxType.SMS} id={parseInt(params.id, 10)} />;
 }
 
 export const metadata: Metadata = {

@@ -112,30 +112,33 @@ export const kFileType = {
  * The type of (activity) mutation that happened in the AnPlan program.
  * @see Table `activities_logs`
  */
-export enum Mutation {
-    Created = 'Created',
-    Updated = 'Updated',
-    Deleted = 'Deleted',
-}
+export type Mutation = Values<typeof kMutation>;
+export const kMutation = {
+    Created: 'Created',
+    Updated: 'Updated',
+    Deleted: 'Deleted',
+} as const;
 
 /**
  * The severity of the (activity) mutation that happened in the AnPlan program.
  * @see Table `activities_logs`
  */
-export enum MutationSeverity {
-    Low = 'Low',
-    Moderate = 'Moderate',
-    Important = 'Important',
-}
+export type MutationSeverity = Values<typeof kMutationSeverity>;
+export const kMutationSeverity = {
+    Low: 'Low',
+    Moderate: 'Moderate',
+    Important: 'Important',
+} as const;
 
 /**
  * Type of message that is being logged by the Twilio table.
  * @see Table `outbox_twilio`
  */
-export enum TwilioOutboxType {
-    SMS = 'SMS',
-    WhatsApp = 'WhatsApp',
-}
+export type TwilioOutboxType = Values<typeof kTwilioOutboxType>;
+export const kTwilioOutboxType = {
+    SMS: 'SMS',
+    WhatsApp: 'WhatsApp',
+} as const;
 
 /**
  * Status of a volunteer's registration to an event.
@@ -152,105 +155,115 @@ export enum RegistrationStatus {
  * Status of reaching out regarding a volunteer's retention.
  * @see Table `retention`
  */
-export enum RetentionStatus {
-    Contacting = 'Contacting',
-    Declined = 'Declined',
-}
+export type RetentionStatus = Values<typeof kRetentionStatus>;
+export const kRetentionStatus = {
+    Contacting: 'Contacting',
+    Declined: 'Declined',
+} as const;
 
 /**
  * The badges that can be assigned to individual roles.
  * @see Table `roles`
  */
-export enum RoleBadge {
-    Staff = 'Staff',
-    Senior = 'Senior',
-    Host = 'Host',
-}
+export type RoleBadge = Values<typeof kRoleBadge>;
+export const kRoleBadge = {
+    Staff: 'Staff',
+    Senior: 'Senior',
+    Host: 'Host',
+} as const;
 
 /**
  * Degree of expected overlap for the scheduled demand of a shift.
  * @see Table `shifts`
  */
-export enum ShiftDemandOverlap {
-    None = 'None',
-    Partial = 'Partial',
-    Cover = 'Cover',
-}
+export type ShiftDemandOverlap = Values<typeof kShiftDemandOverlap>;
+export const kShiftDemandOverlap = {
+    None: 'None',
+    Partial: 'Partial',
+    Cover: 'Cover',
+} as const;
 
 /**
  * Fit of a t-shirt that a volunteer has requested in a registration.
  * @see Table `users_events`
  * @see Table `vendors`
  */
-export enum ShirtFit {
-    Regular = 'Regular',
-    Girly = 'Girly',
-}
+export type ShirtFit = Values<typeof kShirtFit>;
+export const kShirtFit = {
+    Regular: 'Regular',
+    Girly: 'Girly',
+} as const;
 
 /**
  * Size of a t-shirt that a volunteer has requested in a registration.
  * @see Table `users_events`
  * @see Table `vendors`
  */
-export enum ShirtSize {
-    XS = 'XS',
-    S = 'S',
-    M = 'M',
-    L = 'L',
-    XL = 'XL',
-    XXL = 'XXL',
-    '3XL' = '3XL',
-    '4XL' = '4XL',
-}
+export type ShirtSize = Values<typeof kShirtSize>;
+export const kShirtSize = {
+    XS: 'XS',
+    S: 'S',
+    M: 'M',
+    L: 'L',
+    XL: 'XL',
+    XXL: 'XXL',
+    '3XL': '3XL',
+    '4XL': '4XL',
+} as const;
 
 /**
  * Types of subscriptions that can be created for eligible users.
  * @see Table `subscriptions`
  */
-export enum SubscriptionType {
-    Application = 'Application',
-    Help = 'Help',
-    Registration = 'Registration',
-    Test = 'Test',
-}
+export type SubscriptionType = Values<typeof kSubscriptionType>;
+export const kSubscriptionType = {
+    Application: 'Application',
+    Help: 'Help',
+    Registration: 'Registration',
+    Test: 'Test',
+} as const;
 
 /**
  * Possible results that can occur when running tasks.
  */
-export enum TaskResult {
-    TaskSuccess = 'TaskSuccess',
-    TaskException = 'TaskException',
-    TaskFailure = 'TaskFailure',
-    InvalidNamedTask = 'InvalidNamedTask',
-    InvalidParameters = 'InvalidParameters',
-    InvalidTaskId = 'InvalidTaskId',
-    UnknownFailure = 'UnknownFailure',
-}
+export type TaskResult = Values<typeof kTaskResult>;
+export const kTaskResult = {
+    TaskSuccess: 'TaskSuccess',
+    TaskException: 'TaskException',
+    TaskFailure: 'TaskFailure',
+    InvalidNamedTask: 'InvalidNamedTask',
+    InvalidParameters: 'InvalidParameters',
+    InvalidTaskId: 'InvalidTaskId',
+    UnknownFailure: 'UnknownFailure',
+} as const;
 
 /**
  * Webhook endpoint that was posted to from the Twilio infrastructure.
  * @see Table `twilio_webhook_calls`
  */
-export enum TwilioWebhookEndpoint {
-    Inbound = 'Inbound',
-    Outbound = 'Outbound',
-}
+export type TwilioWebhookEndpoint = Values<typeof kTwilioWebhookEndpoint>;
+export const kTwilioWebhookEndpoint = {
+    Inbound: 'Inbound',
+    Outbound: 'Outbound',
+} as const;
 
 /**
  * Gender of a vendor, simplified display.
  * @see Table `vendors`
  */
-export enum VendorGender {
-    Female = 'Female',
-    Other = 'Other',
-    Male = 'Male',
-}
+export type VendorGender = Values<typeof kVendorGender>;
+export const kVendorGender = {
+    Female: 'Female',
+    Other: 'Other',
+    Male: 'Male',
+} as const;
 
 /**
  * The team that a vendor can be part of.
  * @see Table `vendors`
  */
-export enum VendorTeam {
-    FirstAid = 'first-aid',
-    Security = 'security',
-}
+export type VendorTeam = Values<typeof kVendorTeam>;
+export const kVendorTeam = {
+    FirstAid: 'first-aid',
+    Security: 'security',
+} as const;

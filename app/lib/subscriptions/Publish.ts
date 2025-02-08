@@ -5,7 +5,6 @@ import type { ApplicationMessage } from './drivers/ApplicationDriver';
 import type { HelpMessage } from './drivers/HelpDriver';
 import type { RegistrationMessage } from './drivers/RegistrationDriver';
 import type { TestMessage } from './drivers/TestDriver';
-import { SubscriptionType } from '@lib/database/Types';
 import db, { tSubscriptions, tSubscriptionsPublications, tUsers } from '@lib/database';
 
 import { kSubscriptionFactories } from './Drivers';
@@ -24,10 +23,10 @@ interface PublicationBase {
  * Interface describing a publication. Strongly typed based on the subscription type.
  */
 export type Publication = PublicationBase & (
-    { type: SubscriptionType.Application; typeId: number; message: ApplicationMessage } |
-    { type: SubscriptionType.Help; typeId: number; message: HelpMessage } |
-    { type: SubscriptionType.Registration; typeId?: undefined; message: RegistrationMessage } |
-    { type: SubscriptionType.Test; typeId?: undefined; message: TestMessage }
+    { type: 'Application'; typeId: number; message: ApplicationMessage } |
+    { type: 'Help'; typeId: number; message: HelpMessage } |
+    { type: 'Registration'; typeId?: undefined; message: RegistrationMessage } |
+    { type: 'Test'; typeId?: undefined; message: TestMessage }
 );
 
 /**

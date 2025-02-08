@@ -6,12 +6,13 @@ import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { SubscriptionType, kDisplayHelpRequestStatus, kDisplayHelpRequestTarget } from '@lib/database/Types';
 import { Publish } from '@lib/subscriptions';
 import { executeAction, type ActionProps } from '../../Action';
 import { getDisplayIdFromHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
 import db, { tActivitiesLocations, tDisplays, tDisplaysRequests, tEvents } from '@lib/database';
+
+import { kDisplayHelpRequestStatus, kDisplayHelpRequestTarget, kSubscriptionType } from '@lib/database/Types';
 import { kTargetToTypeId } from '@lib/subscriptions/drivers/HelpDriver';
 
 /**
@@ -121,7 +122,7 @@ async function helpRequest(request: Request, props: ActionProps): Promise<Respon
     });
 
     await Publish({
-        type: SubscriptionType.Help,
+        type: kSubscriptionType.Help,
         typeId: kTargetToTypeId[request.target],
         message: {
             requestId: insertId,

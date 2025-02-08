@@ -5,13 +5,15 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
+import type { TaskResult } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
-import { TaskResult } from '@lib/database/Types';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tTasks } from '@lib/database';
+
+import { kTaskResult } from '@lib/database/Types';
 
 /**
  * The services for which health check can be carried out.
@@ -108,7 +110,7 @@ async function runEmailHealthCheck(user: User): Promise<Response> {
                 break;
         }
 
-        if (taskResult === TaskResult.TaskSuccess) {
+        if (taskResult === kTaskResult.TaskSuccess) {
             return {
                 status: 'success',
                 service: 'Email',

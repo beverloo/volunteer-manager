@@ -5,7 +5,8 @@
 
 import type { VendorRowModel } from '@app/api/admin/vendors/[[...id]]/route';
 import { type RemoteDataTableColumn, RemoteDataTable } from '@app/admin/components/RemoteDataTable';
-import { ShirtFit, ShirtSize, VendorGender, VendorTeam } from '@lib/database/Types';
+
+import { type VendorTeam, kShirtFit, kShirtSize, kVendorGender, kVendorTeam } from '@lib/database/Types';
 
 /**
  * Props accepted by the <VendorTable> component.
@@ -40,7 +41,7 @@ export function VendorTable(props: VendorTableProps) {
 
     const teamSpecificColumns: RemoteDataTableColumn<VendorRowModel>[] = [];
     switch (props.team) {
-        case VendorTeam.FirstAid:
+        case kVendorTeam.FirstAid:
             teamSpecificColumns.push({
                 field: 'shirtSize',
                 headerName: 'T-shirt size',
@@ -48,7 +49,7 @@ export function VendorTable(props: VendorTableProps) {
                 flex: 2,
 
                 type: 'singleSelect',
-                valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtSize) ],
+                valueOptions: [ /* empty= */ ' ', ...Object.values(kShirtSize) ],
             });
 
             teamSpecificColumns.push({
@@ -58,7 +59,7 @@ export function VendorTable(props: VendorTableProps) {
                 flex: 2,
 
                 type: 'singleSelect',
-                valueOptions: [ /* empty= */ ' ', ...Object.values(ShirtFit) ],
+                valueOptions: [ /* empty= */ ' ', ...Object.values(kShirtFit) ],
             });
 
             break;
@@ -93,7 +94,7 @@ export function VendorTable(props: VendorTableProps) {
             flex: 2,
 
             type: 'singleSelect',
-            valueOptions: Object.values(VendorGender),
+            valueOptions: Object.values(kVendorGender),
         },
         ...teamSpecificColumns,
     ];

@@ -4,9 +4,10 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { TwilioOutboxType } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tOutboxTwilio, tUsers } from '@lib/database';
+
+import { kTwilioOutboxType } from '@lib/database/Types';
 
 /**
  * Row model for a Twilio that was sent using the Volunteer Manager.
@@ -59,7 +60,7 @@ const kOutboxTwilioContext = z.object({
         /**
          * Type of message that should be considered for this API.
          */
-        type: z.nativeEnum(TwilioOutboxType),
+        type: z.nativeEnum(kTwilioOutboxType),
     }),
 });
 
