@@ -2,9 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { AccessControl, type Grant } from './AccessControl';
-import { RegistrationStatus } from '@lib/database/Types';
 import { checkPermission, type PermissionAccessCheck } from './AuthenticationContext';
 import db, { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Type that describes the user information returned from an access query.
@@ -39,7 +40,7 @@ export async function queryUsersWithPermission(permission: PermissionAccessCheck
     const users = await dbInstance.selectFrom(tUsers)
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
                 .and(eventsJoin.eventHidden.equals(/* false= */ 0))

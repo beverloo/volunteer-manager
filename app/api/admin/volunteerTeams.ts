@@ -7,11 +7,12 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEventsTeams, tEvents, tTeamsRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-teams.
@@ -178,7 +179,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
         .set({
             teamId: verifiedUpdatedTeam.teamId,
             roleId: verifiedUpdatedTeam.teamDefaultRole,
-            registrationStatus: RegistrationStatus.Accepted,
+            registrationStatus: kRegistrationStatus.Accepted,
         })
         .where(tUsersEvents.userId.equals(request.userId))
             .and(tUsersEvents.eventId.equals(event.eventId))

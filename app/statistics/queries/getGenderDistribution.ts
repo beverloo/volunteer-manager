@@ -3,9 +3,10 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Computes the fraction (0-1) that the `share` represents of the `total`. Safely deals with
@@ -33,7 +34,7 @@ export async function getGenderDistribution(filters: Filters): Promise<LineGraph
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(usersEventsJoin.userId))
         .where(tEvents.eventId.inIfValue(filters.events))

@@ -4,10 +4,12 @@
 import { notFound } from 'next/navigation';
 
 import type { AccessControl } from '@lib/auth/AccessControl';
+import type { EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
-import { RegistrationStatus, type EventAvailabilityStatus } from '@lib/database/Types';
 import { requireAuthenticationContext, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Basic information that will always be made available. Includes the user who is signed in and key
@@ -235,7 +237,7 @@ export async function verifyAccessAndFetchPageInfo(
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.userId.equals(user.userId))
-            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .where(tEvents.eventSlug.equals(params.event))

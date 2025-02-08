@@ -8,10 +8,11 @@ import { type Content, getContent, getStaticContent } from '@lib/Content';
 import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
 import { ApplicationStatusPage, type ApplicationStatusPageProps } from './ApplicationStatusPage';
 import { Markdown } from '@components/Markdown';
-import { RegistrationStatus } from '@lib/database/Types';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
@@ -58,7 +59,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             .where(tUsersEvents.userId.equals(user.userId))
                 .and(tUsersEvents.eventId.equals(event.eventId))
                 .and(tUsersEvents.registrationStatus.in(
-                    [ RegistrationStatus.Registered, RegistrationStatus.Accepted ]))
+                    [ kRegistrationStatus.Registered, kRegistrationStatus.Accepted ]))
             .select({
                 environment: tTeams.teamEnvironment,
                 name: tTeams.teamName,

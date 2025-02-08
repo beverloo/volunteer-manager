@@ -7,7 +7,6 @@ import { notFound } from 'next/navigation';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
-import { RegistrationStatus, kActivityType, kVendorTeam } from '@lib/database/Types';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -16,6 +15,7 @@ import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTim
     tContentCategories, tDisplaysRequests, tNardo, tRoles, tSchedule, tShifts, tStorage, tTeams,
     tUsers, tUsersEvents, tVendors, tVendorsSchedule } from '@lib/database';
 
+import { kActivityType, kRegistrationStatus, kVendorTeam } from '@lib/database/Types';
 import { kAnyTeam } from '@lib/auth/AccessList';
 import { kAvailabilityException } from '@app/api/admin/event/schedule/fn/determineAvailability';
 import { kPublicSchedule } from './PublicSchedule';
@@ -416,7 +416,7 @@ async function populateVolunteers(
         .leftJoin(storageJoin)
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .where(tUsersEvents.eventId.equals(eventId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(tTeams.teamSlug.equalsIfValue(team).ignoreWhen(teamAccess))
         .select({
             id: tUsers.userId,

@@ -3,9 +3,10 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Query that gathers the percentage of the team that decided to participate again in the following
@@ -46,12 +47,12 @@ export async function getRetention(filters: Filters): Promise<LineGraphData> {
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(priorUserEventsJoin)
             .on(priorUserEventsJoin.eventId.equals(selectFirstSubsequentEvent).or(
                 priorUserEventsJoin.eventId.equals(selectSecondSubsequentEvent)))
                 .and(priorUserEventsJoin.userId.equals(usersEventsJoin.userId))
-                .and(priorUserEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(priorUserEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tEvents.eventId.inIfValue(filters.events))
         .select({
             event: {

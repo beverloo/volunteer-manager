@@ -7,12 +7,13 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { executeAction } from '@app/api/Action';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSetting } from '@lib/Settings';
 import db, { tEvents, tRetention, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 import { remindParticipation, kRemindParticipationDefinition } from '../remindParticipation';
 
@@ -212,7 +213,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             .where(tUsersEvents.eventId.in(events))
                 .and(tUsersEvents.teamId.equals(teamId))
                 .and(tUsersEvents.registrationStatus.in(
-                    [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                    [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
             .select({
                 id: tUsers.userId,
                 name: tUsers.name,
@@ -248,13 +249,13 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             if (volunteer.registrationStatus.length) {
                 for (const application of volunteer.registrationStatus) {
                     switch (application.status) {
-                        case RegistrationStatus.Accepted:
-                        case RegistrationStatus.Cancelled:
+                        case kRegistrationStatus.Accepted:
+                        case kRegistrationStatus.Cancelled:
                             status = 'Retained';
                             statusTeam = application.team;
                             break;
 
-                        case RegistrationStatus.Registered:
+                        case kRegistrationStatus.Registered:
                             if (status !== 'Retained') {
                                 status = 'Applied';
                                 statusTeam = application.team;

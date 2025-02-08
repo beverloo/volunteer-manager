@@ -15,7 +15,8 @@ import { contextForRegistrationPage } from '../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import { getContent } from '@lib/Content';
 import db, { tTeams, tUsersEvents } from '@lib/database';
-import { RegistrationStatus } from '@lib/database/Types';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * When the number of participating volunteers exceeds this proportion of a team's capacity, a
@@ -61,7 +62,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
             .leftJoin(usersEventsJoin)
                 .on(usersEventsJoin.teamId.equals(tTeams.teamId))
                     .and(usersEventsJoin.eventId.equals(event.id))
-                    .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                    .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
             .where(tTeams.teamEnvironment.equals(environment.domain))
             .selectCountAll()
             .groupBy(tTeams.teamId)

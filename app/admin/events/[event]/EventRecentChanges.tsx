@@ -12,15 +12,15 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
-import { RegistrationStatus } from '@lib/database/Types';
+import { type RegistrationStatus, kRegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDuration } from '@lib/Temporal';
 
 /**
  * Whether the volunteer's application `status` is still pending.
  */
 function isApplicationPending(status: RegistrationStatus): boolean {
-    return status === RegistrationStatus.Registered ||
-           status === RegistrationStatus.Rejected;
+    return status === kRegistrationStatus.Registered ||
+           status === kRegistrationStatus.Rejected;
 }
 
 /**

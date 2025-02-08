@@ -144,12 +144,13 @@ export const kTwilioOutboxType = {
  * Status of a volunteer's registration to an event.
  * @see Table `users_events`
  */
-export enum RegistrationStatus {
-    Registered = 'Registered',
-    Cancelled = 'Cancelled',
-    Accepted = 'Accepted',
-    Rejected = 'Rejected',
-}
+export type RegistrationStatus = Values<typeof kRegistrationStatus>;
+export const kRegistrationStatus = {
+    Registered: 'Registered',
+    Cancelled: 'Cancelled',
+    Accepted: 'Accepted',
+    Rejected: 'Rejected',
+} as const;
 
 /**
  * Status of reaching out regarding a volunteer's retention.

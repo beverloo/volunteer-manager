@@ -5,13 +5,12 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
     tActivitiesTimeslots, tUsers, tUsersEvents, tTeams } from '@lib/database';
 
-import { kMutationSeverity } from '@lib/database/Types';
+import { kMutationSeverity, kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Row model an entry program change history.
@@ -155,7 +154,7 @@ export const { GET } = createDataTableApi(kProgramChangeRowModel, kProgramChange
                 .on(usersEventsJoin.userId.equals(tActivitiesLogs.mutationUserId))
                 .and(usersEventsJoin.eventId.equals(event.eventId))
                 .and(usersEventsJoin.registrationStatus.in([
-                    RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                    kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
             .leftJoin(teamsJoin)
                 .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
             .where(tActivitiesLogs.festivalId.equals(context.festivalId))

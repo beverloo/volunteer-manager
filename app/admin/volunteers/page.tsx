@@ -12,7 +12,6 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { ExpandableSection } from '../components/ExpandableSection';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerDataTable } from './VolunteerDataTable';
@@ -20,6 +19,7 @@ import { readUserSettings } from '@lib/UserSettings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 /**
  * Regular expression to verify that phone numbers are stored in a E.164-compatible format.
  */
@@ -45,7 +45,7 @@ export default async function VolunteersPage() {
     const volunteers = await dbInstance.selectFrom(tUsers)
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId)
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted)))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted)))
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .select({

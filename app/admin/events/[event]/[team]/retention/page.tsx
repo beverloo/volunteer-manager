@@ -7,7 +7,6 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@lib/database/Types';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
@@ -15,7 +14,7 @@ import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
 
-import { kRetentionStatus } from '@lib/database/Types';
+import { kRegistrationStatus, kRetentionStatus } from '@lib/database/Types';
 
 /**
  * The retention page displays a recruiting tool to understand how participants from the past two
@@ -60,7 +59,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
         .selectOneColumn(tUsers.name)
         .orderBy(tUsers.firstName, 'asc')

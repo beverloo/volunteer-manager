@@ -6,15 +6,14 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kApplicationProperties } from '../event/application';
+import { kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
-import { resolve } from 'path';
 
 /**
  * Interface definition for the Application API, exposed through /api/application/
@@ -83,7 +82,7 @@ export const kUpdateApplicationDefinition = z.object({
             /**
              * The registration status that the volunteer should be updated to.
              */
-            registrationStatus: z.nativeEnum(RegistrationStatus),
+            registrationStatus: z.nativeEnum(kRegistrationStatus),
 
             /**
              * Subject of the message that should be sent out. May be omitted for certain users.
@@ -244,9 +243,9 @@ export async function updateApplication(request: Request, props: ActionProps): P
     if (request.status) {
         switch (request.status.registrationStatus) {
             // Accept and approve applications; cancel and re-instate volunteers:
-            case RegistrationStatus.Accepted:
-            case RegistrationStatus.Cancelled:
-            case RegistrationStatus.Rejected:
+            case kRegistrationStatus.Accepted:
+            case kRegistrationStatus.Cancelled:
+            case kRegistrationStatus.Rejected:
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: request.event,
@@ -263,7 +262,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 break;
 
             // Reconsider previously rejected applications:
-            case RegistrationStatus.Registered:
+            case kRegistrationStatus.Registered:
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin-event',
                     event: request.event,
@@ -280,7 +279,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 break;
         }
 
-        if (request.status.registrationStatus !== RegistrationStatus.Registered) {
+        if (request.status.registrationStatus !== kRegistrationStatus.Registered) {
             const { subject, message } = request.status;
             if (!subject || !message) {
                 if (!props.access.can('volunteer.silent'))

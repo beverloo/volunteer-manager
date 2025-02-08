@@ -21,8 +21,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
-import { RegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
+import { type RegistrationStatus, kRegistrationStatus } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -146,7 +146,7 @@ export function VolunteerIdentity(props: VolunteerIdentityProps) {
                     <Box>
                         <Typography variant="subtitle1">
                             {volunteer.name}
-                            { volunteer.registrationStatus === RegistrationStatus.Cancelled &&
+                            { volunteer.registrationStatus === kRegistrationStatus.Cancelled &&
                                 <Tooltip title={`${volunteer.firstName} no longer participates`}>
                                     <Chip label="cancelled" size="small" color="error"
                                           sx={{ ml: 1 }} />

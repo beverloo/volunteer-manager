@@ -17,9 +17,10 @@ import Typography from '@mui/material/Typography';
 import type { ApplicationInfo } from './Applications';
 import { Avatar } from '@components/Avatar';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Props accepted by the <RejectedApplications> component.
@@ -66,7 +67,7 @@ export function RejectedApplications(props: RejectedApplicationsProps) {
                 userId,
 
                 status: {
-                    registrationStatus: RegistrationStatus.Registered,
+                    registrationStatus: kRegistrationStatus.Registered,
                 },
             });
 

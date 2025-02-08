@@ -3,10 +3,11 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tSchedule, tShifts, tShiftsCategories, tRoles, tTeams, tUsersEvents }
     from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Query that gathers the average number of shifts that each volunteer has helped out for, separated
@@ -25,7 +26,7 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(scheduleJoin)

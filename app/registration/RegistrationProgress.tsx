@@ -30,7 +30,8 @@ import yellow from '@mui/material/colors/yellow';
 
 import type { EventData } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';
-import { RegistrationStatus } from '@lib/database/Types';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 
 /**
@@ -179,7 +180,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
         } catch (e) { /* thanks, Safari */ }
     }
 
-    if (registration.status === RegistrationStatus.Accepted)
+    if (registration.status === kRegistrationStatus.Accepted)
         return <RegistrationProgressAccepted {...props} />;
 
     let containerStyle: SxProps<Theme>;
@@ -188,7 +189,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
     let explanation: React.ReactNode;
 
     switch (registration.status) {
-        case RegistrationStatus.Registered:
+        case kRegistrationStatus.Registered:
             containerStyle = kStyles.containerRegistered;
             icon = <HowToVoteIcon fontSize="inherit" />;
             title = <>Your application is <b>being considered</b></>;
@@ -202,7 +203,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
 
             break;
 
-        case RegistrationStatus.Cancelled:
+        case kRegistrationStatus.Cancelled:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
             title = <>Your participation has been <b>cancelled</b></>;
@@ -215,7 +216,7 @@ export function RegistrationProgress(props: RegistrationProgressProps) {
 
             break;
 
-        case RegistrationStatus.Rejected:
+        case kRegistrationStatus.Rejected:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
             title = <>Your participation has been <b>declined</b></>;

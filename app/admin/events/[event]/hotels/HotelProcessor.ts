@@ -4,11 +4,11 @@
 import symmetricDifference from 'set.prototype.symmetricdifference';
 
 import type { HotelPendingRequestRowModel } from './HotelPendingAssignment';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate, isBefore } from '@lib/Temporal';
-
 import db, { tHotels, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tTeams, tUsers, tUsersEvents }
     from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Record detailing the information stored about an assignment. Roughly maps to the
@@ -121,7 +121,7 @@ export class HotelProcessor {
             .innerJoin(tUsersEvents)
                 .on(tUsersEvents.userId.equals(tHotelsPreferences.userId))
                     .and(tUsersEvents.eventId.equals(tHotelsPreferences.eventId))
-                    .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                    .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tHotelsPreferences.teamId))
             .where(tHotelsPreferences.eventId.equals(this.#eventId))

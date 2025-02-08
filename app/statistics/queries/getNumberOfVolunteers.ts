@@ -3,9 +3,10 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Query that gathers the number of volunteers for each of the years and teams included in the
@@ -20,7 +21,7 @@ export async function getNumberOfVolunteers(filters: Filters): Promise<LineGraph
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tEvents.eventId.inIfValue(filters.events))
         .select({
             event: {

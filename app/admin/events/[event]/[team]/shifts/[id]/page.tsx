@@ -7,7 +7,6 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
-import { RegistrationStatus } from '@lib/database/Types';
 import { ScheduledShiftsSection } from './ScheduledShiftsSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -21,6 +20,7 @@ import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivitiesTimeslots, tSchedule, tShifts, tShiftsCategories, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
 
 /**
@@ -179,7 +179,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.userId.equals(tSchedule.userId))
                 .and(tUsersEvents.eventId.equals(tSchedule.eventId))
-                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .where(tSchedule.shiftId.in([ ...shiftsForActivity ]))

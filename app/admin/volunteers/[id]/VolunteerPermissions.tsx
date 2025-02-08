@@ -15,13 +15,13 @@ import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescript
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Suffix to distinguish the root of nested permissions from its children. Forms are submitted in
@@ -273,7 +273,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     const userConfiguration = await dbInstance.selectFrom(tUsers)
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
                 .and(eventsJoin.eventHidden.equals(/* false= */ 0))

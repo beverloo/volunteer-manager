@@ -2,8 +2,9 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { HotelsAssignmentsRowModel } from './route';
-import { RegistrationStatus } from '@lib/database/Types';
 import db, { tHotelsAssignments, tHotelsBookings, tHotels, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Retrieves the hotel bookings for the given `eventId` in line with the row model of hotel
@@ -27,7 +28,7 @@ export async function getHotelBookings(eventId: number, bookingId?: number)
             .on(usersEventsJoin.eventId.equals(tHotelsAssignments.eventId))
             .and(usersEventsJoin.userId.equals(tHotelsAssignments.assignmentUserId))
             .and(usersEventsJoin.registrationStatus.in(
-                [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
         .where(tHotelsAssignments.eventId.equals(eventId))

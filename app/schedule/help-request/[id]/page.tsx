@@ -4,9 +4,10 @@
 import { notFound, redirect } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@lib/database/Types';
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplaysRequests, tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The <EventlessHelpRequestPageWithId> component redirects the user to the latest available
@@ -35,7 +36,7 @@ export default async function EventlessHelpRequestPageWithId(props: NextPagePara
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
                 .and(tUsersEvents.userId.equals(user.userId))
-                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .where(tEvents.eventSlug.equals(event))

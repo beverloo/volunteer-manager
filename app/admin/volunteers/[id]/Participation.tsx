@@ -9,9 +9,9 @@ import { default as MuiLink } from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import type { RegistrationStatus } from '@lib/database/Types';
 import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
 import { TeamChip } from '@app/admin/components/TeamChip';
-import type { RegistrationStatus } from '@lib/database/Types';
 
 /**
  * Information about a volunteer's participation in a singular event.

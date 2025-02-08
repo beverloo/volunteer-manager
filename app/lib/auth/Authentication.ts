@@ -6,14 +6,14 @@ import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AccessControl, type Grant } from './AccessControl';
-import { RegistrationStatus, kAuthType } from '../database/Types';
+import { PlaywrightHooks } from '../PlaywrightHooks';
 import { Temporal } from '@lib/Temporal';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
-
-import { PlaywrightHooks } from '../PlaywrightHooks';
 import db, { tEvents, tRoles, tStorage, tTeams, tUsers, tUsersAuth, tUsersEvents }
     from '../database';
+
+import { kAuthType, kRegistrationStatus } from '../database/Types';
 
 /**
  * Interface containing all the information that must be known when creating a new account.
@@ -88,7 +88,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
-            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
         .leftJoin(teamsJoin)

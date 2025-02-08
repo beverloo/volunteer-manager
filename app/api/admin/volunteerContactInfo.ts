@@ -6,10 +6,10 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents, tEvents } from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 /**
  * Interface definition for the Volunteer API, exposed through /api/admin/volunteer-contact-info.
  */
@@ -63,7 +63,7 @@ export async function volunteerContactInfo(request: Request, props: ActionProps)
     const contactInformation = await db.selectFrom(tUsers)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.userId.equals(tUsers.userId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tEvents)
             .on(tEvents.eventId.equals(tUsersEvents.eventId))
             .and(tEvents.eventSlug.equals(request.event))

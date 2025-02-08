@@ -5,9 +5,10 @@ import type { AccessControl } from './auth/AccessControl';
 import type { EnvironmentDomain } from './Environment';
 import type { User } from './auth/User';
 import { Event } from './Event';
-import { RegistrationStatus } from './database/Types';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
 import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
+
+import { kRegistrationStatus } from './database/Types';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -103,7 +104,7 @@ export async function getEventsForUser(
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.userId.equals(user?.userId ?? -1))
-            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(teamsJoin)

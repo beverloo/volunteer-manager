@@ -23,7 +23,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
-import { type EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
+import { type EventAvailabilityStatus, kRegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 
 import { kEventAvailabilityStatus } from '@lib/database/Types';
@@ -599,22 +599,22 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
     let explanation: string;
 
     switch (registration.status) {
-        case RegistrationStatus.Registered:
+        case kRegistrationStatus.Registered:
             label = 'received';
             explanation =
                 'The leads are considering it and will confirm your participation as soon as ' +
                 'possible.';
             break;
 
-        case RegistrationStatus.Accepted:
+        case kRegistrationStatus.Accepted:
             label = 'accepted';
             explanation =
                 'We\'ve confirmed your participation and are really excited to get to work ' +
                 `with you during ${event.shortName}!`;
             break;
 
-        case RegistrationStatus.Cancelled:
-        case RegistrationStatus.Rejected:
+        case kRegistrationStatus.Cancelled:
+        case kRegistrationStatus.Rejected:
             label = registration.status === 'Cancelled' ? 'cancelled' : 'declined';
             explanation =
                 'We\'re sorry that you won\'t be participating in this team during ' +

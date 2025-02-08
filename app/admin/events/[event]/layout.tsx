@@ -27,12 +27,13 @@ import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
 import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSidebar }
     from '../../AdminSidebar';
-import { RegistrationStatus } from '@lib/database/Types';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tActivities, tEvents, tEventsTeams, tHotelsAssignments, tHotelsBookings,
     tHotelsPreferences, tRefunds, tShifts, tTeams, tTrainingsAssignments, tUsersEvents }
     from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Fetch the information about the event identified by `eventSlug` that is applicable to the given
@@ -41,7 +42,7 @@ import db, { tActivities, tEvents, tEventsTeams, tHotelsAssignments, tHotelsBook
 async function fetchEventSidebarInformation(user: User, eventSlug: string) {
     const dbInstance = db;
     const pendingApplicationsJoin = dbInstance.selectFrom(tUsersEvents)
-        .where(tUsersEvents.registrationStatus.equals(RegistrationStatus.Registered))
+        .where(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Registered))
         .select({
             eventId: tUsersEvents.eventId,
             teamId: tUsersEvents.teamId,
@@ -66,7 +67,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
             .and(pendingApplicationsJoin.teamId.equals(teamsJoin.teamId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
-            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(usersEventsJoin.userId.equals(user.userId))
         .where(tEvents.eventSlug.equals(eventSlug))
         .select({

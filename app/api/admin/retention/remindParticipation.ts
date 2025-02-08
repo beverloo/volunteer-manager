@@ -7,14 +7,13 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents, tRetention, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
-import { kRetentionStatus } from '@lib/database/Types';
+import { kRegistrationStatus, kRetentionStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for an API to remind a volunteer to participate in an event.
@@ -139,7 +138,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
         .where(tUsersEvents.userId.equals(request.userId))
             .and(tUsersEvents.teamId.equals(teamId))
             .and(tUsersEvents.registrationStatus.in(
-                [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
             .and(usersEventsJoin.registrationStatus.isNull())
             .and(retentionJoin.retentionStatus.isNull())
         .select({

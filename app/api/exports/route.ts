@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction } from '../Action';
-import { RegistrationStatus, type VendorTeam, kExportType, kVendorTeam } from '@lib/database/Types';
+import { type VendorTeam, kExportType, kRegistrationStatus, kVendorTeam } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
@@ -309,7 +309,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .innerJoin(tRoles)
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
-                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .select({
                 name: tUsers.name,
                 role: tRoles.roleName,
@@ -465,7 +465,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .innerJoin(tRoles)
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
-                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .select({
                 role: tRoles.roleName,
                 username: tUsers.username,

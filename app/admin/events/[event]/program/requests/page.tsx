@@ -2,11 +2,12 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@lib/database/Types';
 import { RequestDataTable } from './RequestDataTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The <ProgramRequestsPage> component lists the program entries where the organiser has requested
@@ -21,7 +22,7 @@ export default async function ProgramRequestsPage(props: NextPageParams<'event'>
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
         .selectOneColumn(tUsers.name)
         .orderBy(tUsers.firstName, 'asc')

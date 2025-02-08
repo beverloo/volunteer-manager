@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
 import type { PageInfo } from '../verifyAccessAndFetchPageInfo';
-import { RegistrationStatus } from '@lib/database/Types';
+import { type RegistrationStatus, kRegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
 
 /**
@@ -82,8 +82,8 @@ export function VolunteerStack(props: EventRecentVolunteersProps) {
 
                 let link: string = '/applications';
                 switch (volunteer.status) {
-                    case RegistrationStatus.Accepted:
-                    case RegistrationStatus.Cancelled:
+                    case kRegistrationStatus.Accepted:
+                    case kRegistrationStatus.Cancelled:
                         link = `/volunteers/${volunteer.userId}`;
                         break;
                 }

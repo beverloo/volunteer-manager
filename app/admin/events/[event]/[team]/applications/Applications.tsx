@@ -30,10 +30,10 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import { type RegistrationStatus, kRegistrationStatus } from '@lib/database/Types';
 import { Avatar } from '@components/Avatar';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
 
@@ -380,11 +380,11 @@ export function Applications(props: ApplicationsProps) {
 
     const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no deps */ ]);
     const handleApproved = useCallback((subject?: string, message?: string) =>
-        handleDecided(RegistrationStatus.Accepted, subject, message), [ handleDecided ]);
+        handleDecided(kRegistrationStatus.Accepted, subject, message), [ handleDecided ]);
 
     const handleRejectClose = useCallback(() => setRejectOpen(false), [ /* no deps */ ]);
     const handleRejected = useCallback((subject?: string, message?: string) =>
-        handleDecided(RegistrationStatus.Rejected, subject, message), [ handleDecided ]);
+        handleDecided(kRegistrationStatus.Rejected, subject, message), [ handleDecided ]);
 
     if (!applications.length)
         return <NoApplications />;

@@ -6,11 +6,11 @@ import { notFound } from 'next/navigation';
 import { ExportLayout } from '@app/exports/[slug]/ExportLayout';
 import { FeedbackForm } from './FeedbackForm';
 import { Temporal } from '@lib/Temporal';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-
-import db, { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
-import { RegistrationStatus } from '@lib/database/Types';
 import { getStaticContent } from '@lib/Content';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The <FeedbackPage> component displays the feedback tool that can be used during the event for
@@ -54,7 +54,7 @@ export default async function FeedbackPage() {
         })
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.registrationStatus.in([
-                RegistrationStatus.Accepted, RegistrationStatus.Cancelled,
+                kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled,
             ]))
         .orderBy('name', 'asc')
         .executeSelectMany();

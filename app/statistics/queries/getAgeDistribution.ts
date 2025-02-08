@@ -3,9 +3,10 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Query that gathers the average age of volunteers participating in our events. The age demographic
@@ -26,7 +27,7 @@ export async function getAgeDistribution(filters: Filters): Promise<LineGraphDat
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(usersEventsJoin.userId))
                 .and(usersJoin.birthdate.isNotNull())

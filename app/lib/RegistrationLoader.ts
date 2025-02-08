@@ -5,7 +5,7 @@ import type { ApplicationDefinition } from '@app/api/event/application';
 import type { EnvironmentDomain } from './Environment';
 import type { Event } from './Event';
 import { Registration } from './Registration';
-import { type ShirtFit, type ShirtSize, RegistrationStatus } from './database/Types';
+import { type ShirtFit, type ShirtSize, kRegistrationStatus } from './database/Types';
 import db, { tEvents, tEventsTeams, tHotels, tHotelsAssignments, tHotelsBookings,
     tHotelsPreferences, tRefunds, tRoles, tTeams, tTeamsRoles, tTrainings, tTrainingsAssignments,
     tUsers, tUsersEvents } from './database';
@@ -202,7 +202,7 @@ export async function createRegistration(
             teamId: teamDefaultRole.teamId,
             roleId: teamDefaultRole.roleId,
             registrationDate: dbInstance.currentZonedDateTime(),
-            registrationStatus: RegistrationStatus.Registered,
+            registrationStatus: kRegistrationStatus.Registered,
             shirtFit: application.tshirtFit as ShirtFit,
             shirtSize: application.tshirtSize as ShirtSize,
             preferenceHours: parseInt(application.serviceHours, 10),

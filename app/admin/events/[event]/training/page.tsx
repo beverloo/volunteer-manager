@@ -7,7 +7,6 @@ import Collapse from '@mui/material/Collapse';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TrainingsAssignmentsRowModel } from '@app/api/admin/trainings/assignments/[[...id]]/route';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { TrainingAssignments } from './TrainingAssignments';
 import { TrainingConfiguration } from './TrainingConfiguration';
@@ -16,9 +15,10 @@ import { TrainingOverview, type TrainingConfirmation } from './TrainingOverview'
 import { TrainingProcessor } from './TrainingProcessor';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-
 import db, { tRoles, tTeams, tTrainings, tTrainingsAssignments, tTrainingsExtra, tUsersEvents,
     tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 export default async function EventTrainingPage(props: NextPageParams<'event'>) {
     const params = await props.params;
@@ -50,7 +50,7 @@ export default async function EventTrainingPage(props: NextPageParams<'event'>) 
             .on(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
             .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(
                 tUsersEvents.trainingEligible.equals(/* true= */ 1).or(
                     tRoles.roleTrainingEligible.equals(/* true= */ 1)))

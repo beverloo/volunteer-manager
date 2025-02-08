@@ -19,7 +19,6 @@ import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
-import { RegistrationStatus } from '@lib/database/Types';
 import { StatisticsCard } from './welcome/StatisticsCard';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { WelcomeCard } from './welcome/WelcomeCard';
@@ -29,6 +28,8 @@ import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventsForUser } from './lib/EventLoader';
 import { getRegistration } from './lib/RegistrationLoader';
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Styles that apply to the photo card, displaying the environment's impression image.
@@ -120,7 +121,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                     team: defaultTeamSlug,
                 });
 
-            if (registration.status === RegistrationStatus.Accepted && scheduleAccess)
+            if (registration.status === kRegistrationStatus.Accepted && scheduleAccess)
                 redirect(`/schedule/${registrationEvent.slug}`);
         }
         else if (access.can('system.feedback') &&

@@ -9,13 +9,14 @@ import type { SchedulerStatus } from './dashboard/SchedulerCard';
 import type { User } from '@lib/auth/User';
 import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { getConnectionPool } from '@lib/database/Connection';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Fetches the upcoming birthdays from the database for the given `user`. The considered volunteers
@@ -36,7 +37,7 @@ async function fetchBirthdays(user: User) {
     const birthdays = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
             .and(tUsers.birthdate.isNotNull())

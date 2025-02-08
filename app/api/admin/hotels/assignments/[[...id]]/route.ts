@@ -9,10 +9,10 @@ import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
+import { getHotelBookings } from './getHotelBookings';
 import db, { tHotelsAssignments, tHotelsBookings, tUsers, tUsersEvents } from '@lib/database';
 
-import { getHotelBookings } from './getHotelBookings';
-import { RegistrationStatus } from '@lib/database/Types';
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Row model for an hotel assignment, as can be shown and modified in the administration area.
@@ -118,7 +118,7 @@ async function determineAssignmentsFromRow(eventId: number, row: HotelsAssignmen
             .on(usersEventsJoin.userId.equals(tUsers.userId))
                 .and(usersEventsJoin.eventId.equals(eventId))
                 .and(usersEventsJoin.registrationStatus.in(
-                    [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                    [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
         .where(tUsers.name.in(names))
             .and(usersEventsJoin.teamId.isNotNull())
         .select({

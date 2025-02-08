@@ -6,7 +6,6 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { determineAvailability } from './fn/determineAvailability';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -17,6 +16,7 @@ import { validateContext } from '../validateContext';
 import { validateTime } from './fn/validateTime';
 import db, { tRoles, tSchedule, tUsers, tUsersEvents } from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
 
 /**
@@ -346,10 +346,10 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             .on(usersEventsJoin.userId.equals(tUsersEvents.userId))
                 .and(usersEventsJoin.eventId.notEquals(tUsersEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tUsersEvents.teamId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(usersEventsJoin.eventId.isNull())
         .selectOneColumn(tUsersEvents.userId)
         .executeSelectMany());
@@ -361,7 +361,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .select({
             id: tRoles.roleId,
             name: tRoles.roleName,

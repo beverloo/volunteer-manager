@@ -34,7 +34,7 @@ import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
-import { RegistrationStatus } from '@lib/database/Types';
+import { type RegistrationStatus, kRegistrationStatus } from '@lib/database/Types';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { callApi } from '@lib/callApi';
 
@@ -446,7 +446,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
     const handleCancelOpen = useCallback(() => setCancelOpen(true), [ /* no deps */ ]);
 
     const handleCancelled = useCallback((subject?: string, message?: string) =>
-        handleDecided(RegistrationStatus.Cancelled, subject, message), [ handleDecided ]);
+        handleDecided(kRegistrationStatus.Cancelled, subject, message), [ handleDecided ]);
 
     // ---------------------------------------------------------------------------------------------
     // Reinstate participation
@@ -458,7 +458,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
     const handleReinstateOpen = useCallback(() => setReinstateOpen(true), [ /* no deps */ ]);
 
     const handleReinstated = useCallback((subject?: string, message?: string) =>
-        handleDecided(RegistrationStatus.Accepted, subject, message), [ handleDecided ]);
+        handleDecided(kRegistrationStatus.Accepted, subject, message), [ handleDecided ]);
 
     // ---------------------------------------------------------------------------------------------
     // Change role
@@ -536,13 +536,13 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
                         </Button> }
 
                     { (props.canUpdateApplications &&
-                           volunteer.registrationStatus === RegistrationStatus.Accepted) &&
+                           volunteer.registrationStatus === kRegistrationStatus.Accepted) &&
                         <Button startIcon={ <DoNotDisturbIcon /> } onClick={handleCancelOpen}>
                             Cancel participation
                         </Button> }
 
                     { (props.canUpdateApplications &&
-                           volunteer.registrationStatus === RegistrationStatus.Cancelled) &&
+                           volunteer.registrationStatus === kRegistrationStatus.Cancelled) &&
                         <Button startIcon={ <SettingsBackupRestoreIcon /> }
                                 onClick={handleReinstateOpen}>
                             Reinstate volunteer

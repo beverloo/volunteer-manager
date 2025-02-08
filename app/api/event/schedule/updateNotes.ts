@@ -6,10 +6,11 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for the Schedule API, exposed through /api/event/schedule/notes
@@ -66,7 +67,7 @@ export async function updateNotes(request: Request, props: ActionProps): Promise
         })
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.userId.equals(request.userId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .executeUpdate();
 
     if (!!affectedRows) {

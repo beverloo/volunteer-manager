@@ -3,8 +3,9 @@
 
 import type { ValueOptions } from '@mui/x-data-grid-pro';
 
-import { RegistrationStatus } from '@lib/database/Types';
 import db, { tRoles, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Returns the leaders for the given `eventId`, as an array of objects which contain the user Id as
@@ -17,7 +18,7 @@ export async function getLeadersForEvent(eventId: number): Promise<ValueOptions[
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(eventId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
             .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
         .select({
             value: tUsers.userId,

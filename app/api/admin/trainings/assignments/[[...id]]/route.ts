@@ -6,11 +6,12 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { Log, kLogSeverity, kLogType } from '@lib/Log';
-import { RegistrationStatus } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tRoles, tTeams, tTrainingsAssignments, tTrainingsExtra, tUsersEvents, tUsers }
     from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Row model for a training assignment, as can be shown and modified in the administration area.
@@ -121,7 +122,7 @@ createDataTableApi(kTrainingAssignmentRowModel, kTrainingAssignmentContext, {
                 .on(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
                 .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
             .where(tUsersEvents.eventId.equals(event.id))
-                .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
                 .and(
                     tUsersEvents.trainingEligible.equals(/* true= */ 1).or(
                         tRoles.roleTrainingEligible.equals(/* true= */ 1)))

@@ -1,12 +1,12 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal } from '@lib/Temporal';
 import { createColourInterpolator, type ColourInterpolator } from './createColourInterpolator';
 import db, { tActivities, tSchedule, tShifts, tShiftsCategories, tTeams, tUsersEvents }
     from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 import { kShiftDemand } from '@app/api/admin/event/shifts/[[...id]]/demand';
 
 /**
@@ -126,7 +126,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(scheduleJoin.userId))
                 .and(usersEventsJoin.eventId.equals(scheduleJoin.eventId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tShifts.eventId.equals(eventId))
             .and(tShifts.shiftDeleted.isNull())
         .select({

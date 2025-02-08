@@ -1,18 +1,18 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { NextPageParams } from '@lib/NextRouterParams';
-import { RegistrationStatus } from '@lib/database/Types';
-import { generateEventMetadataFn } from '../../generateEventMetadataFn';
-import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
-
 import Collapse from '@mui/material/Collapse';
 
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Applications } from './Applications';
 import { CreateApplication } from './CreateApplication';
 import { Header } from './Header';
 import { RejectedApplications } from './RejectedApplications';
+import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The Applications page allows senior volunteers to see, and sometimes modify the incoming requests
@@ -50,7 +50,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
             .and(tUsersEvents.registrationStatus.in(
-                [ RegistrationStatus.Registered, RegistrationStatus.Rejected ]))
+                [ kRegistrationStatus.Registered, kRegistrationStatus.Rejected ]))
         .select({
             userId: tUsers.userId,
             age: dbInstance.fragmentWithType('int', 'required')
@@ -79,7 +79,7 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
     const rejections: typeof unfilteredApplications = [];
 
     for (const application of unfilteredApplications) {
-        if (application.status === RegistrationStatus.Registered)
+        if (application.status === kRegistrationStatus.Registered)
             applications.push(application);
         else
             rejections.push(application);

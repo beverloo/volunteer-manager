@@ -6,11 +6,11 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
-import { RegistrationStatus } from '@lib/database/Types';
 import { getEventBySlug } from '@lib/EventLoader';
 import { isValidShift } from './fn/isValidShift';
 import db, { tSchedule, tTeams, tUsersEvents } from '@lib/database';
 
+import { kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
@@ -87,7 +87,7 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .where(tUsersEvents.userId.equals(request.shift.userId))
             .and(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .select({
             id: tUsersEvents.userId,
 

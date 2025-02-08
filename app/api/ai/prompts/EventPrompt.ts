@@ -4,8 +4,9 @@
 import type { PromptContext, PromptParams } from './Prompt';
 import type { Temporal } from '@lib/Temporal';
 import { Prompt } from './Prompt';
-import { RegistrationStatus } from '@lib/database/Types';
 import { tEvents, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Context that has been collected by the prompt structure.
@@ -121,7 +122,7 @@ export abstract class EventPrompt<Context extends EventPromptContext,
             .leftJoin(usersEventsJoin)
                 .on(usersEventsJoin.userId.equals(tUsers.userId))
                     .and(usersEventsJoin.eventId.equals(tEvents.eventId))
-                    .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                    .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
             .leftJoin(rolesJoin)
                 .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
             .leftJoin(teamsJoin)

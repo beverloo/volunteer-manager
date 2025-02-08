@@ -6,11 +6,12 @@ import { notFound } from 'next/navigation';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
-import { RegistrationStatus, kEventAvailabilityStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles,
     tSchedule, tTrainingsAssignments, tUsersEvents, tUsers } from '@lib/database';
+
+import { kEventAvailabilityStatus, kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The volunteers page for a particular event lists the volunteers who have signed up and have been
@@ -53,7 +54,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
             .and(tUsersEvents.registrationStatus.in(
-                [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
         .select({
             id: tUsers.userId,
             date: dbInstance.dateTimeAsString(tUsersEvents.registrationDate),
@@ -81,7 +82,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
     const cancelledVolunteers: VolunteerInfo[] = [];
 
     for (const volunteer of volunteers) {
-        if (volunteer.status === RegistrationStatus.Accepted)
+        if (volunteer.status === kRegistrationStatus.Accepted)
             acceptedVolunteers.set(volunteer.id, volunteer);
         else
             cancelledVolunteers.push(volunteer);
@@ -114,7 +115,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
             .and(hotelsBookingsJoin.bookingVisible.equals(/* true= */ 1))
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .select({
             userId: tUsersEvents.userId,
 
@@ -153,7 +154,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
             .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
         .where(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .select({
             userId: tUsersEvents.userId,
 

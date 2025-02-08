@@ -3,9 +3,10 @@
 
 import type { Filters } from '../Filters';
 import type { LineGraphData } from '../components/LineGraph';
-import { RegistrationStatus } from '@lib/database/Types';
 import { toLineGraphData } from './toLineGraphData';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Computes the fraction (0-1) that the `share` represents of the `total`. Safely deals with
@@ -44,10 +45,10 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
         .executeSelectMany();
 
     type EventMetrics = {
-        [RegistrationStatus.Accepted]: number;
-        [RegistrationStatus.Cancelled]: number;
-        [RegistrationStatus.Registered]: number;
-        [RegistrationStatus.Rejected]: number;
+        [kRegistrationStatus.Accepted]: number;
+        [kRegistrationStatus.Cancelled]: number;
+        [kRegistrationStatus.Registered]: number;
+        [kRegistrationStatus.Rejected]: number;
     };
 
     const events = new Map<string, EventMetrics>();
@@ -56,10 +57,10 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
     for (const { event, status, volunteers } of data) {
         if (!events.has(event.slug)) {
             events.set(event.slug, {
-                [RegistrationStatus.Accepted]: 0,
-                [RegistrationStatus.Cancelled]: 0,
-                [RegistrationStatus.Registered]: 0,
-                [RegistrationStatus.Rejected]: 0,
+                [kRegistrationStatus.Accepted]: 0,
+                [kRegistrationStatus.Cancelled]: 0,
+                [kRegistrationStatus.Registered]: 0,
+                [kRegistrationStatus.Rejected]: 0,
             });
 
             eventArray.push(event.slug);
@@ -71,45 +72,45 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
     return toLineGraphData(eventArray.map(slug => {
         const statuses = events.get(slug)!;
         const total =
-            statuses[RegistrationStatus.Accepted] + statuses[RegistrationStatus.Cancelled] +
-            statuses[RegistrationStatus.Registered] + statuses[RegistrationStatus.Rejected];
+            statuses[kRegistrationStatus.Accepted] + statuses[kRegistrationStatus.Cancelled] +
+            statuses[kRegistrationStatus.Registered] + statuses[kRegistrationStatus.Rejected];
 
         return [
             {
                 event: { slug },
                 series: {
-                    id: RegistrationStatus.Accepted,
+                    id: kRegistrationStatus.Accepted,
                     color: '#8BC34A',
-                    label: RegistrationStatus.Accepted,
+                    label: kRegistrationStatus.Accepted,
                 },
-                value: safeFraction(statuses[RegistrationStatus.Accepted], total),
+                value: safeFraction(statuses[kRegistrationStatus.Accepted], total),
             },
             {
                 event: { slug },
                 series: {
-                    id: RegistrationStatus.Cancelled,
+                    id: kRegistrationStatus.Cancelled,
                     color: '#FF7043',
-                    label: RegistrationStatus.Cancelled,
+                    label: kRegistrationStatus.Cancelled,
                 },
-                value: safeFraction(statuses[RegistrationStatus.Cancelled], total),
+                value: safeFraction(statuses[kRegistrationStatus.Cancelled], total),
             },
             {
                 event: { slug },
                 series: {
-                    id: RegistrationStatus.Registered,
+                    id: kRegistrationStatus.Registered,
                     color: '#BDBDBD',
-                    label: RegistrationStatus.Registered,
+                    label: kRegistrationStatus.Registered,
                 },
-                value: safeFraction(statuses[RegistrationStatus.Registered], total),
+                value: safeFraction(statuses[kRegistrationStatus.Registered], total),
             },
             {
                 event: { slug },
                 series: {
-                    id: RegistrationStatus.Rejected,
+                    id: kRegistrationStatus.Rejected,
                     color: '#8D6E63',
-                    label: RegistrationStatus.Rejected,
+                    label: kRegistrationStatus.Rejected,
                 },
-                value: safeFraction(statuses[RegistrationStatus.Rejected], total),
+                value: safeFraction(statuses[kRegistrationStatus.Rejected], total),
             },
         ];
 

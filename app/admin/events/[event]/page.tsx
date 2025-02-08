@@ -22,7 +22,6 @@ import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSales, EventSalesLoading } from './EventSales';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Temporal, isAfter } from '@lib/Temporal';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { isAvailabilityWindowOpen } from '@lib/isAvailabilityWindowOpen';
@@ -30,6 +29,8 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
     tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Updates within how many minutes of each other should be merged together?
@@ -130,7 +131,7 @@ async function getParticipatingTeams(eventId: number) {
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.teamId.equals(tEventsTeams.teamId))
-            .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tEvents.eventId.equals(eventId))
         .select({
             teamName: tTeams.teamName,
@@ -237,7 +238,7 @@ async function getRecentChanges(access: AccessControl, event: string, eventId: n
             });
         }
 
-        if (preferenceUpdate.status !== RegistrationStatus.Accepted)
+        if (preferenceUpdate.status !== kRegistrationStatus.Accepted)
             continue;
 
         // Refund requests will never be merged with other updates, as they are important.
@@ -324,7 +325,7 @@ async function getRecentVolunteers(access: AccessControl, event: string, eventId
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.notIn([
-                RegistrationStatus.Cancelled, RegistrationStatus.Rejected ]))
+                kRegistrationStatus.Cancelled, kRegistrationStatus.Rejected ]))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .innerJoin(tUsers)
@@ -362,7 +363,7 @@ async function getSeniorVolunteers(access: AccessControl, event: string, eventId
     const seniors = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
-            .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
         .innerJoin(tUsers)

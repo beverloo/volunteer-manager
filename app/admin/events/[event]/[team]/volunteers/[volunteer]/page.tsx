@@ -20,7 +20,6 @@ import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationPreferences } from './ApplicationPreferences';
 import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
-import { RegistrationStatus } from '@lib/database/Types';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { VolunteerNotes } from './VolunteerNotes';
@@ -31,6 +30,8 @@ import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/regist
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 import { readUserSettings } from '@lib/UserSettings';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
 
@@ -65,7 +66,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
             .and(tUsersEvents.registrationStatus.in(
-                [ RegistrationStatus.Accepted, RegistrationStatus.Cancelled ]))
+                [ kRegistrationStatus.Accepted, kRegistrationStatus.Cancelled ]))
         .select({
             userId: tUsersEvents.userId,
             username: tUsers.username,

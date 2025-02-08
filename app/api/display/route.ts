@@ -6,14 +6,14 @@ import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { RegistrationStatus, kDisplayHelpRequestStatus } from '@lib/database/Types';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { executeAction, type ActionProps } from '../Action';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
 import { readSettings } from '@lib/Settings';
-
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tDisplays, tEvents, tNardo,
     tRoles, tSchedule, tShifts, tStorage, tTeams, tUsers, tUsersEvents } from '@lib/database';
+
+import { kDisplayHelpRequestStatus, kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Interface defining an individual shift that will be shared with the display.
@@ -395,7 +395,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
                 .innerJoin(tUsersEvents)
                     .on(tUsersEvents.userId.equals(tSchedule.userId))
                         .and(tUsersEvents.eventId.equals(tSchedule.eventId))
-                        .and(tUsersEvents.registrationStatus.equals(RegistrationStatus.Accepted))
+                        .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
                 .innerJoin(tTeams)
                     .on(tTeams.teamId.equals(tUsersEvents.teamId))
                 .innerJoin(tRoles)

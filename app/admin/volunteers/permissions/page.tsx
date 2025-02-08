@@ -8,7 +8,6 @@ import CategoryIcon from '@mui/icons-material/Category';
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { PermissionsTable, type PermissionRecord, type PermissionUserRecord } from './PermissionsTable';
-import { RegistrationStatus } from '@lib/database/Types';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { getBlobUrl } from '@lib/database/BlobStore';
@@ -17,6 +16,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tRoles, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Helper function that lowercases the first letter of the given `text`.
@@ -166,7 +166,7 @@ export default async function PermissionsPage() {
             .on(storageJoin.fileId.equals(tUsers.avatarId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
-                .and(usersEventsJoin.registrationStatus.equals(RegistrationStatus.Accepted))
+                .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(eventsJoin)
             .on(eventsJoin.eventId.equals(usersEventsJoin.eventId))
                 .and(eventsJoin.eventHidden.equals(/* false= */ 0))
