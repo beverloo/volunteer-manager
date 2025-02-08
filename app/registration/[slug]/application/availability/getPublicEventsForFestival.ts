@@ -1,10 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { ActivityType } from '@lib/database/Types';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 import db, { tActivities, tActivitiesTimeslots } from '@lib/database';
+
+import { kActivityType } from '@lib/database/Types';
 
 /**
  * Individual event that can be selected as a preference by the volunteer.
@@ -48,7 +49,7 @@ export async function getPublicEventsForFestival(
             .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
             .and(tActivitiesTimeslots.timeslotDeleted.isNull())
         .where(tActivities.activityFestivalId.equals(festivalId))
-            .and(tActivities.activityType.equals(ActivityType.Program))
+            .and(tActivities.activityType.equals(kActivityType.Program))
             .and(tActivities.activityVisible.equals(/* true= */ 1))
             .and(tActivities.activityDeleted.isNull())
         .select({

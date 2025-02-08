@@ -5,10 +5,11 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { AuthType } from '@lib/database/Types';
 import { Log, kLogType, LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsersAuth } from '@lib/database';
+
+import { kAuthType } from '@lib/database/Types';
 
 /**
  * Interface definition for the Access Code API, exposed through /api/admin/reset-access-code.
@@ -54,7 +55,7 @@ export async function resetAccessCode(request: Request, props: ActionProps): Pro
     const existingAccessCode = await db.selectFrom(tUsersAuth)
         .select({ accessCode: tUsersAuth.authValue })
         .where(tUsersAuth.userId.equals(request.userId))
-        .and(tUsersAuth.authType.equals(AuthType.code))
+        .and(tUsersAuth.authType.equals(kAuthType.code))
         .executeSelectNoneOrOne();
 
     if (!!existingAccessCode)
@@ -64,7 +65,7 @@ export async function resetAccessCode(request: Request, props: ActionProps): Pro
     const insertedAccessCode = await db.insertInto(tUsersAuth)
         .values({
             userId: request.userId,
-            authType: AuthType.code,
+            authType: kAuthType.code,
             authValue: `${accessCode}`,
         })
         .executeInsert();

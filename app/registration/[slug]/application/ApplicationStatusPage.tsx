@@ -23,8 +23,10 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import type { EventDataWithEnvironment } from '@lib/Event';
 import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
-import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
+import { type EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
+
+import { kEventAvailabilityStatus } from '@lib/database/Types';
 
 type WindowStatus =
     undefined | { enabled: boolean; status: 'pending' | 'missed'; secondary: string };
@@ -102,21 +104,19 @@ interface AvailabilityButtonProps {
 function AvailabilityButton(props: AvailabilityButtonProps) {
     const { status, override } = props;
 
-    const enabled = [
-        EventAvailabilityStatus.Available,
-        EventAvailabilityStatus.Locked
-    ].includes(status);
+    const enabled =
+        status === kEventAvailabilityStatus.Available || status === kEventAvailabilityStatus.Locked;
 
     let buttonStatus: 'pending' | 'available' | 'locked';
     let primary: string | undefined = undefined;
     let secondary: string | undefined = undefined;
 
-    if (status === EventAvailabilityStatus.Locked) {
+    if (status === kEventAvailabilityStatus.Locked) {
         // (1) The volunteer is able to see their preferences, but can't change them.
         primary = 'When will you be around during the festival?';
         secondary = 'Your preferences have been noted!';
         buttonStatus = 'locked';
-    } else if (status === EventAvailabilityStatus.Available) {
+    } else if (status === kEventAvailabilityStatus.Available) {
         // (2) The volunteer is able to indicate their preferences.
         primary = 'When will you be around during the festival?';
         secondary = 'Please share your preferences at your convenience!';

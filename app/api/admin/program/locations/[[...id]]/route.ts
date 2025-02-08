@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
+import { Mutation, MutationSeverity, kActivityType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanLocationUrl } from '@lib/AnPlan';
@@ -24,7 +24,7 @@ const kProgramLocationRowModel = z.object({
     /**
      * Type of location this entails, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(ActivityType),
+    type: z.nativeEnum(kActivityType),
 
     /**
      * Name of the location, which does not have to be its display name.
@@ -127,7 +127,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             .set({
                 locationId: newInternalLocationId,
                 locationFestivalId: event.festivalId,
-                locationType: ActivityType.Internal,
+                locationType: kActivityType.Internal,
                 locationName: `Internal location #${newDisplayInternalLocationId}`,
                 locationAreaId: firstAreaId,
                 locationCreated: dbInstance.currentZonedDateTime(),
@@ -153,7 +153,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             success: true,
             row: {
                 id: newInternalLocationId,
-                type: ActivityType.Internal,
+                type: kActivityType.Internal,
                 name: `Internal location #${newDisplayInternalLocationId}`,
                 area: firstAreaId,
             },
@@ -172,7 +172,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             })
             .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
                 .and(tActivitiesLocations.locationId.equals(id))
-                .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
+                .and(tActivitiesLocations.locationType.equals(kActivityType.Internal))
                 .and(tActivitiesLocations.locationDeleted.isNull())
             .executeUpdate();
 
@@ -242,7 +242,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
             })
             .where(tActivitiesLocations.locationFestivalId.equals(event.festivalId))
                 .and(tActivitiesLocations.locationId.equals(id))
-                .and(tActivitiesLocations.locationType.equals(ActivityType.Internal))
+                .and(tActivitiesLocations.locationType.equals(kActivityType.Internal))
             .executeUpdate();
 
         await dbInstance.insertInto(tActivitiesLogs)

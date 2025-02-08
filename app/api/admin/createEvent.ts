@@ -5,11 +5,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse } from '../Types';
-import { EventAvailabilityStatus } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
+
+import { kEventAvailabilityStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/create-event.
@@ -89,7 +90,7 @@ export async function createEvent(request: Request, props: ActionProps): Promise
             eventTimezone: 'Europe/Amsterdam',
             eventStartTime: request.startTime,
             eventEndTime: request.endTime,
-            eventAvailabilityStatus: EventAvailabilityStatus.Unavailable,
+            eventAvailabilityStatus: kEventAvailabilityStatus.Unavailable,
         })
         .executeInsert();
 

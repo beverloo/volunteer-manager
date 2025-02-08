@@ -20,8 +20,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { ProgramActivitiesRowModel } from '@app/api/admin/program/activities/[[...id]]/route';
-import { ActivityType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+
+import { kActivityType } from '@lib/database/Types';
 
 /**
  * Props accepted by the <ActivityDataTable> component.
@@ -55,7 +56,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             width: 50,
 
             // Only internal entries can be removed, AnPlan data is considered read-only.
-            isProtected: params => params.row.type !== ActivityType.Internal,
+            isProtected: params => params.row.type !== kActivityType.Internal,
         },
         {
             field: 'anplanLink',
@@ -99,7 +100,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             flex: 2,
 
             renderCell: params => {
-                if (params.row.type === ActivityType.Internal)
+                if (params.row.type === kActivityType.Internal)
                     return params.value;
 
                 return (
@@ -131,7 +132,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
                         </>
                     );
                 } else if (params.row.location === 'No locations…') {
-                    if (params.row.type === ActivityType.Internal) {
+                    if (params.row.type === kActivityType.Internal) {
                         return (
                             <Tooltip title="Internal activities must have a location">
                                 <ErrorIcon color="error" fontSize="small" />
@@ -257,7 +258,7 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
             if (![ 'title', 'locationId' ].includes(params.colDef.field))
                 return false;  // invalid column
 
-            if (params.row.type !== ActivityType.Internal)
+            if (params.row.type !== kActivityType.Internal)
                 return false;  // AnPlan-sourced activity
 
             return true;

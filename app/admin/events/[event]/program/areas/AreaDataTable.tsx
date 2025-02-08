@@ -12,8 +12,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ProgramAreasContext, ProgramAreasRowModel } from '@app/api/admin/program/areas/[[...id]]/route';
-import { ActivityType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+
+import { kActivityType } from '@lib/database/Types';
 
 /**
  * Props accepted by the <AreaDataTable> component.
@@ -36,7 +37,7 @@ export function AreaDataTable(context: AreaDataTableProps) {
             width: 50,
 
             // Only internal entries can be removed, AnPlan data is considered read-only.
-            isProtected: params => params.row.type !== ActivityType.Internal,
+            isProtected: params => params.row.type !== kActivityType.Internal,
         },
         {
             field: 'type',
@@ -54,7 +55,7 @@ export function AreaDataTable(context: AreaDataTableProps) {
                 </Tooltip>,
 
             renderCell: params => {
-                if (params.value === ActivityType.Internal || !params.row.anplanLink) {
+                if (params.value === kActivityType.Internal || !params.row.anplanLink) {
                     return (
                         <Tooltip title="This area does not exist in AnPlan">
                             <LaunchIcon color="disabled" fontSize="small" />

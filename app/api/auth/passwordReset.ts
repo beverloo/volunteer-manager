@@ -7,13 +7,14 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
 import { Log, kLogType } from '@lib/Log';
 
-import { AuthType } from '@lib/database/Types';
 import { PlaywrightHooks } from '@lib/PlaywrightHooks';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { securePasswordHash } from '@lib/auth/Password';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 import db, { tUsers, tUsersAuth } from '@lib/database';
+
+import { kAuthType } from '@lib/database/Types';
 
 /**
  * Interface definition for the PasswordReset API, exposed through /api/auth/password-reset.
@@ -65,14 +66,14 @@ export async function updateUserPassword(
         // (1) Delete all old passwords, which should no longer be valid.
         await dbInstance.deleteFrom(tUsersAuth)
             .where(tUsersAuth.userId.equals(userId))
-                .and(tUsersAuth.authType.in([ AuthType.code, AuthType.password ]))
+                .and(tUsersAuth.authType.in([ kAuthType.code, kAuthType.password ]))
             .executeDelete();
 
         // (2) Store the new password in the authentication table.
         await dbInstance.insertInto(tUsersAuth)
             .values({
                 userId: userId,
-                authType: AuthType.password,
+                authType: kAuthType.password,
                 authValue: securelyHashedPassword
             })
             .executeInsert();

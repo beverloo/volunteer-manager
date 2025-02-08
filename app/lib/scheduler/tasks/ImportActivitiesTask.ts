@@ -7,7 +7,6 @@ import symmetricDifference from 'set.prototype.symmetricdifference';
 import { z } from 'zod';
 
 import type { Activity, Location, Timeslot } from '@lib/integrations/animecon';
-import { ActivityType } from '@lib/database/Types';
 import { TaskWithParams } from '../Task';
 import { Temporal } from '@lib/Temporal';
 import { createAnimeConClient } from '@lib/integrations/animecon';
@@ -15,6 +14,8 @@ import { createAnimeConClient } from '@lib/integrations/animecon';
 import { Mutation, MutationSeverity } from '@lib/database/Types';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesLogs,
     tActivitiesTimeslots, tEvents } from '@lib/database';
+
+import { kActivityType } from '@lib/database/Types';
 
 /**
  * Parameter scheme applying to the `ImportActivitiesTask`.
@@ -326,7 +327,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         activityId: currentActivity.id,
                         activityFestivalId: currentActivity.festivalId,
-                        activityType: ActivityType.Program,
+                        activityType: kActivityType.Program,
                         activityTitle: currentActivity.title,
                         activityDescription: currentActivity.description,
                         activityDescriptionWeb: currentActivity.webDescription,
@@ -391,7 +392,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         areaId: currentArea.id,
                         areaFestivalId: festivalId,
-                        areaType: ActivityType.Program,
+                        areaType: kActivityType.Program,
                         areaName: currentArea.name,
                         areaCreated: dbInstance.currentZonedDateTime(),
                         areaUpdated: dbInstance.currentZonedDateTime(),
@@ -439,7 +440,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         locationId: currentLocation.id,
                         locationFestivalId: festivalId,
-                        locationType: ActivityType.Program,
+                        locationType: kActivityType.Program,
                         locationName: currentLocation.useName ?? currentLocation.name,
                         locationAreaId: currentLocation.floorId,
                         locationCreated: dbInstance.currentZonedDateTime(),
@@ -493,7 +494,7 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                     .set({
                         activityId: currentActivity.id,
                         timeslotId: currentTimeslot.id,
-                        timeslotType: ActivityType.Program,
+                        timeslotType: kActivityType.Program,
                         timeslotStartTime: toZonedDateTime(currentTimeslot.dateStartsAt),
                         timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
@@ -914,20 +915,20 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
         return await db.selectFrom(tActivities)
             .leftJoin(activitiesTimeslotsJoin)
                 .on(activitiesTimeslotsJoin.activityId.equals(tActivities.activityId))
-                .and(activitiesTimeslotsJoin.timeslotType.equals(ActivityType.Program))
+                .and(activitiesTimeslotsJoin.timeslotType.equals(kActivityType.Program))
             .leftJoin(activitiesLocationsJoin)
                 .on(activitiesLocationsJoin.locationId.equals(
                     activitiesTimeslotsJoin.timeslotLocationId))
                 .and(activitiesLocationsJoin.locationFestivalId.equals(
                     tActivities.activityFestivalId))
-                .and(activitiesLocationsJoin.locationType.equals(ActivityType.Program))
+                .and(activitiesLocationsJoin.locationType.equals(kActivityType.Program))
             .leftJoin(activitiesAreasJoin)
                 .on(activitiesAreasJoin.areaId.equals(activitiesLocationsJoin.locationAreaId))
                 .and(activitiesAreasJoin.areaFestivalId.equals(
                     activitiesLocationsJoin.locationFestivalId))
-                .and(activitiesAreasJoin.areaType.equals(ActivityType.Program))
+                .and(activitiesAreasJoin.areaType.equals(kActivityType.Program))
             .where(tActivities.activityFestivalId.equals(festivalId))
-                .and(tActivities.activityType.equals(ActivityType.Program))
+                .and(tActivities.activityType.equals(kActivityType.Program))
                 .and(tActivities.activityDeleted.isNull())
             .select({
                 id: tActivities.activityId,

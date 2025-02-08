@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Temporal } from '@lib/Temporal';
-import { EventAvailabilityStatus, RegistrationStatus } from './database/Types';
+import { type EventAvailabilityStatus, RegistrationStatus } from './database/Types';
 
 import { getAvailabilityWindowStatus, type AvailabilityWindowStatus }
     from './isAvailabilityWindowOpen';

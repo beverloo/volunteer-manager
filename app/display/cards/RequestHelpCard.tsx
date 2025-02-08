@@ -21,9 +21,11 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import type { DisplayHelpRequestStatus, DisplayHelpRequestTarget } from '@lib/database/Types';
 import { DisplayContext } from '../DisplayContext';
-import { DisplayHelpRequestStatus, DisplayHelpRequestTarget } from '@lib/database/Types';
 import { callApi } from '@lib/callApi';
+
+import { kDisplayHelpRequestStatus, kDisplayHelpRequestTarget } from '@lib/database/Types';
 
 /**
  * Props accepted by the <RequestHelpButton> component.
@@ -137,11 +139,11 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
     }, [ display, handleClose ]);
 
     const handleRequestCrew =
-        useCallback(() => sendHelpRequest(DisplayHelpRequestTarget.Crew), [ sendHelpRequest ]);
+        useCallback(() => sendHelpRequest(kDisplayHelpRequestTarget.Crew), [ sendHelpRequest ]);
     const handleRequestNardo =
-        useCallback(() => sendHelpRequest(DisplayHelpRequestTarget.Nardo), [ sendHelpRequest ]);
+        useCallback(() => sendHelpRequest(kDisplayHelpRequestTarget.Nardo), [ sendHelpRequest ]);
     const handleRequestStewards =
-        useCallback(() => sendHelpRequest(DisplayHelpRequestTarget.Stewards), [ sendHelpRequest ]);
+        useCallback(() => sendHelpRequest(kDisplayHelpRequestTarget.Stewards), [ sendHelpRequest ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -161,13 +163,13 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
                     You can request help from a Volunteering Lead in case of safety or security
                     concerns, or when scheduled volunteers did not show up.
                 </Typography>
-                { status === DisplayHelpRequestStatus.Acknowledged &&
+                { status === kDisplayHelpRequestStatus.Acknowledged &&
                     <Button fullWidth color="warning" variant="contained"
                             startIcon={ <CircularProgress color="inherit" thickness={6}
                                                           size={16} sx={{ mr: 0.5 }} /> }>
                         Help is on its way
                     </Button> }
-                { status === DisplayHelpRequestStatus.Pending &&
+                { status === kDisplayHelpRequestStatus.Pending &&
                     <Button fullWidth color="error" variant="contained"
                             startIcon={ <CircularProgress color="inherit" thickness={6}
                                                           size={16} sx={{ mr: 0.5 }} /> }>

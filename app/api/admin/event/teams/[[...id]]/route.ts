@@ -5,11 +5,12 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ContentType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tContent, tEventsTeams, tTeams } from '@lib/database';
+
+import { kContentType } from '@lib/database/Types';
 
 /**
  * Row model for a team's participation. Configuration is mutable, but cannot be created or removed.
@@ -162,7 +163,7 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                     .values(pages.map((pageProps) => ({
                         eventId: event.eventId,
                         teamId: row!.id,
-                        contentType: ContentType.Page,
+                        contentType: kContentType.Page,
                         content: 'No content has been written yet…',
                         contentProtected: 1,
                         revisionAuthorId: props.user!.userId,

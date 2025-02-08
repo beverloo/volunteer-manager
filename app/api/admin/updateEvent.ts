@@ -6,12 +6,13 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { FileType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tEvents } from '@lib/database';
+
+import { kFileType } from '@lib/database/Types';
 
 /**
  * Interface definition for the Event API, exposed through /api/admin/update-event.
@@ -103,7 +104,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         const eventIdentityId = await storeBlobData({
             bytes: Buffer.from(request.eventIdentity, 'base64'),
             mimeType: 'image/png',
-            type: FileType.EventIdentity,
+            type: kFileType.EventIdentity,
         });
 
         if (eventIdentityId !== false) {

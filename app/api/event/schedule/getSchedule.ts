@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
-import { ActivityType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
+import { RegistrationStatus, VendorTeam, kActivityType } from '@lib/database/Types';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -247,7 +247,7 @@ async function populateProgram(
             .on(tActivitiesAreas.areaId.equals(tActivitiesLocations.locationAreaId))
                 .and(tActivitiesAreas.areaDeleted.isNull())
         .where(tActivities.activityFestivalId.equals(festivalId))
-            .and(tActivities.activityType.equals(ActivityType.Program))
+            .and(tActivities.activityType.equals(kActivityType.Program))
             .and(tActivities.activityDeleted.isNull())
         .select({
             id: tActivities.activityId,

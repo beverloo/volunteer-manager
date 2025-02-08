@@ -4,7 +4,7 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { DisplayHelpRequestStatus } from '@lib/database/Types';
+import { type DisplayHelpRequestStatus, kDisplayHelpRequestStatus } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -48,7 +48,7 @@ const kDisplaysRowModel = z.object({
     /**
      * The help request status this display is in, if any.
      */
-    helpRequestStatus: z.nativeEnum(DisplayHelpRequestStatus).or(z.literal(' ')).optional(),
+    helpRequestStatus: z.nativeEnum(kDisplayHelpRequestStatus).or(z.literal(' ')).optional(),
 
     /**
      * Last check-in performed by the device. (Temporal ZDT-compatible format.)

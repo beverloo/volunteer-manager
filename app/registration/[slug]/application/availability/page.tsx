@@ -16,8 +16,9 @@ import { contextForRegistrationPage } from '../../contextForRegistrationPage';
 import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import { EventAvailabilityStatus } from '@lib/database/Types';
 import db, { tUsersEvents } from '@lib/database';
+
+import { kEventAvailabilityStatus } from '@lib/database/Types';
 
 /**
  * Returns whether `one` and `two` fall on the same day.
@@ -39,10 +40,9 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
 
     const { access, event, registration, slug, teamSlug, user } = context;
 
-    const enabled = [
-        EventAvailabilityStatus.Available,
-        EventAvailabilityStatus.Locked
-    ].includes(registration.availabilityStatus);
+    const enabled =
+        registration.availabilityStatus === kEventAvailabilityStatus.Available ||
+        registration.availabilityStatus === kEventAvailabilityStatus.Locked;
 
     const enabledWithOverride =
         enabled ||
@@ -245,7 +245,7 @@ export default async function EventApplicationAvailabilityPage(props: NextPagePa
 
     // ---------------------------------------------------------------------------------------------
 
-    const readOnly = registration.availabilityStatus === EventAvailabilityStatus.Locked;
+    const readOnly = registration.availabilityStatus === kEventAvailabilityStatus.Locked;
     const strippedEventInformation = events.map(event => ({
         id: event.id,
         label: event.label,

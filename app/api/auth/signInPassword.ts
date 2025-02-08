@@ -5,11 +5,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { AuthType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
+
+import { kAuthType } from '@lib/database/Types';
 
 /**
  * Interface definition for the SignInPassword API, exposed through /api/auth/sign-in-password.
@@ -67,7 +68,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         return { success: false };
 
     switch (authenticationContext.authType) {
-        case AuthType.code: {  // one-time access code
+        case kAuthType.code: {  // one-time access code
             await Log({
                 type: kLogType.AccountIdentifyAccessCode,
                 severity: LogSeverity.Debug,
@@ -84,7 +85,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
             };
         }
 
-        case AuthType.password: {  // stored password
+        case kAuthType.password: {  // stored password
             await Log({
                 type: kLogType.AccountIdentifyPassword,
                 severity: LogSeverity.Debug,

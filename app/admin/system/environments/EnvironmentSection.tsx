@@ -14,11 +14,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { ColorFieldElement } from '@app/admin/volunteers/teams/Team';
-import { EnvironmentPurpose } from '@lib/database/Types';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEnvironments } from '@lib/database';
+
+import { kEnvironmentPurpose } from '@lib/database/Types';
 
 /**
  * The data associated with a particular environment.
@@ -40,7 +41,7 @@ const kEnvironmentSettings = z.object({
     /**
      * Purpose that the environment fulfils, i.e. what should happen when you visit the domain?
      */
-    purpose: z.nativeEnum(EnvironmentPurpose),
+    purpose: z.nativeEnum(kEnvironmentPurpose),
 
     /**
      * Title that briefly details what this environment is used for.
@@ -83,7 +84,7 @@ async function updateEnvironmentSettings(id: number, formData: unknown) {
  * Options that will be presented to the user regarding the purpose of this environment.
  */
 const kEnvironmentPurposeOptions = [
-    { id: EnvironmentPurpose.LandingPage, label: 'Landing page (default)' },
+    { id: kEnvironmentPurpose.LandingPage, label: 'Landing page (default)' },
 ];
 
 /**

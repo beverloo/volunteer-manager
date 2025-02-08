@@ -13,8 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { ProgramLocationsContext, ProgramLocationsRowModel } from '@app/api/admin/program/locations/[[...id]]/route';
-import { ActivityType } from '@lib/database/Types';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
+
+import { kActivityType } from '@lib/database/Types';
 
 /**
  * Props accepted by the <LocationDataTable> component.
@@ -56,7 +57,7 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
             width: 50,
 
             // Only internal entries can be removed, AnPlan data is considered read-only.
-            isProtected: params => params.row.type !== ActivityType.Internal,
+            isProtected: params => params.row.type !== kActivityType.Internal,
         },
         {
             field: 'type',
@@ -74,7 +75,7 @@ export function LocationDataTable({ areas, context }: LocationDataTableProps) {
                 </Tooltip>,
 
             renderCell: params => {
-                if (params.value === ActivityType.Internal || !params.row.anplanLink) {
+                if (params.value === kActivityType.Internal || !params.row.anplanLink) {
                     return (
                         <Tooltip title="This location does not exist in AnPlan">
                             <LaunchIcon color="disabled" fontSize="small" />

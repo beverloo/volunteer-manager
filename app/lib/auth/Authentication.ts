@@ -6,7 +6,7 @@ import type { AuthenticationResult } from './AuthenticationTestHelpers';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AccessControl, type Grant } from './AccessControl';
-import { AuthType, RegistrationStatus } from '../database/Types';
+import { RegistrationStatus, kAuthType } from '../database/Types';
 import { Temporal } from '@lib/Temporal';
 import { getBlobUrl } from '../database/BlobStore';
 import { securePasswordHash } from './Password';
@@ -136,9 +136,9 @@ export async function authenticateUser(params: AuthenticateUserParams)
             authenticationQuery = authenticationBaseSelect
                 .where(tUsers.username.equals(params.username))
                     .and(tUsers.activated.equals(/* true= */ 1))
-                    .and(tUsersAuth.authType.equals(AuthType.password)
+                    .and(tUsersAuth.authType.equals(kAuthType.password)
                              .and(tUsersAuth.authValue.equals(securelyHashedPassword))
-                        .or(tUsersAuth.authType.equals(AuthType.code)
+                        .or(tUsersAuth.authType.equals(kAuthType.code)
                                 .and(dbInstance.fragmentWithType('boolean', 'required').sql`
                                     SHA2(${tUsersAuth.authValue}, 256) =
                                          ${dbInstance.const(params.sha256Password, 'string')}`))
@@ -264,7 +264,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
         await dbInstance.insertInto(tUsersAuth)
             .set({
                 userId: userId,
-                authType: AuthType.password,
+                authType: kAuthType.password,
                 authValue: securelyHashedPassword,
             })
             .executeInsert();

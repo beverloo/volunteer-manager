@@ -6,7 +6,7 @@ import MoodOutlinedIcon from '@mui/icons-material/MoodOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 
-import { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { type DisplayHelpRequestTarget, kDisplayHelpRequestTarget } from '@lib/database/Types';
 
 import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
 
@@ -14,9 +14,9 @@ import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColou
  * Icon to use for each of the request targets. Will be drawn in white.
  */
 const kTargetIcon: { [k in DisplayHelpRequestTarget]: React.ReactNode } = {
-    [DisplayHelpRequestTarget.Crew]: <PeopleAltOutlinedIcon fontSize="inherit" />,
-    [DisplayHelpRequestTarget.Nardo]: <MoodOutlinedIcon fontSize="inherit" />,
-    [DisplayHelpRequestTarget.Stewards]: <SecurityOutlinedIcon fontSize="inherit" />,
+    [kDisplayHelpRequestTarget.Crew]: <PeopleAltOutlinedIcon fontSize="inherit" />,
+    [kDisplayHelpRequestTarget.Nardo]: <MoodOutlinedIcon fontSize="inherit" />,
+    [kDisplayHelpRequestTarget.Stewards]: <SecurityOutlinedIcon fontSize="inherit" />,
 };
 
 /**

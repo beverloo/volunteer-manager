@@ -4,11 +4,11 @@
 import { forbidden, unauthorized } from 'next/navigation';
 
 import type { AccessOperation } from '@lib/auth/AccessDescriptor';
+import type { AuthType } from '@lib/database/Types';
 import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
 import type { SessionData } from './Session';
 import type { User } from './User';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessScope } from './AccessControl';
-import { AuthType } from '@lib/database/Types';
 import { authenticateUser } from './Authentication';
 import { getSessionFromCookieStore, getSessionFromHeaders } from './getSession';
 

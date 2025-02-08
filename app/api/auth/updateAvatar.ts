@@ -6,11 +6,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { FileType } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { executeAccessCheck} from '@lib/auth/AuthenticationContext';
 import { storeBlobData } from '@lib/database/BlobStore';
 import db, { tUsers } from '@lib/database';
+
+import { kFileType } from '@lib/database/Types';
 
 /**
  * Interface definition for the UpdateAvatar API, exposed through /api/auth/update-avatar.
@@ -61,7 +62,7 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     const avatarId = await storeBlobData({
         bytes: Buffer.from(request.avatar, 'base64'),
         mimeType: 'image/png',
-        type: FileType.Avatar,
+        type: kFileType.Avatar,
         userId: subjectUserId,
     });
 

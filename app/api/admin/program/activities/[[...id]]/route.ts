@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
+import { Mutation, MutationSeverity, kActivityType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
@@ -24,7 +24,7 @@ const kProgramActivityRowModel = z.object({
     /**
      * Type of this activity, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(ActivityType),
+    type: z.nativeEnum(kActivityType),
 
     /**
      * Title of the activity.
@@ -135,7 +135,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             .set({
                 activityId: newInternalActivityId,
                 activityFestivalId: event.festivalId,
-                activityType: ActivityType.Internal,
+                activityType: kActivityType.Internal,
                 activityTitle: `Internal activity #${newDisplayInternalActivityId}`,
                 activityHelpNeeded: /* true= */ 1,
                 activityTypeAdultsOnly: /* false= */ 0,
@@ -169,7 +169,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             success: true,
             row: {
                 id: newInternalActivityId,
-                type: ActivityType.Internal,
+                type: kActivityType.Internal,
                 title: `Internal activity #${newDisplayInternalActivityId}`,
                 location: 'No locations…',
                 timeslots: 0,
@@ -192,7 +192,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             })
             .where(tActivities.activityFestivalId.equals(event.festivalId))
                 .and(tActivities.activityId.equals(id))
-                .and(tActivities.activityType.equals(ActivityType.Internal))
+                .and(tActivities.activityType.equals(kActivityType.Internal))
                 .and(tActivities.activityDeleted.isNull())
             .executeUpdate();
 
@@ -278,13 +278,13 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             rowCount: activities.count,
             rows: activities.data.map(activity => {
                 let anplanLink: string | undefined;
-                if (activity.type === ActivityType.Program)
+                if (activity.type === kActivityType.Program)
                     anplanLink = getAnPlanActivityUrl(activity.id);
 
                 let location: string = 'No locations…';
                 let locationId: number | undefined;
 
-                if (activity.type === ActivityType.Internal && !!activity.locationName) {
+                if (activity.type === kActivityType.Internal && !!activity.locationName) {
                     location = activity.locationName;
                     locationId = activity.locationId;
                 } else if (!!activity.timeslots.length) {
@@ -330,7 +330,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
             })
             .where(tActivities.activityId.equals(id))
                 .and(tActivities.activityFestivalId.equals(event.festivalId))
-                .and(tActivities.activityType.equals(ActivityType.Internal))
+                .and(tActivities.activityType.equals(kActivityType.Internal))
                 .and(tActivities.activityDeleted.isNull())
             .executeUpdate();
 
@@ -355,7 +355,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
         const event = await getEventBySlug(context.event);
         const activityName = await db.selectFrom(tActivities)
             .where(tActivities.activityId.equals(id))
-                .and(tActivities.activityType.equals(ActivityType.Internal))
+                .and(tActivities.activityType.equals(kActivityType.Internal))
             .selectOneColumn(tActivities.activityTitle)
             .executeSelectNoneOrOne();
 

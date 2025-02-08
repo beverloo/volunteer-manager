@@ -25,7 +25,7 @@ import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Alert } from '../components/Alert';
-import { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { type DisplayHelpRequestTarget, kDisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../components/HelpRequestTarget';
 import { SetTitle } from '../components/SetTitle';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -97,8 +97,8 @@ function HelpRequestSummary(props: HelpRequestSummaryProps) {
 
     const date = request.closedDate || request.acknowledgedDate || request.date;
     const target =
-        request.target === DisplayHelpRequestTarget.Nardo ? 'Advice'
-                                                          : request.target;
+        request.target === kDisplayHelpRequestTarget.Nardo ? 'Advice'
+                                                           : request.target;
 
     let state: 'pending' | 'acknowledged' | 'closed' = 'pending';
     if (!!request.acknowledgedDate)

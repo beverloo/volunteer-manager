@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { DisplayHelpRequestStatus, LogSeverity } from '@lib/database/Types';
+import { LogSeverity, kDisplayHelpRequestStatus } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
@@ -109,7 +109,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
         await dbInstance.transaction(async () => {
             await dbInstance.update(tDisplays)
                 .set({
-                    displayHelpRequestStatus: DisplayHelpRequestStatus.Acknowledged,
+                    displayHelpRequestStatus: kDisplayHelpRequestStatus.Acknowledged,
                 })
                 .where(tDisplays.displayId.equals(helpRequest.displayId))
                 .executeUpdate();

@@ -2,90 +2,104 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 /**
+ * Lists the values of a given type.
+ */
+type Values<T> = T[keyof T];
+
+/**
  * Type of entry in the database program tables.
  * @see Table `activities`
  * @see Table `activities_timeslots`
  */
-export enum ActivityType {
-    Program = 'Program',
-    Internal = 'Internal',
-}
+export type ActivityType = Values<typeof kActivityType>;
+export const kActivityType = {
+    Program: 'Program',
+    Internal: 'Internal',
+} as const;
 
 /**
  * Type of authentication credential that is stored in the value column.
  * @see Table `users_auth`
  */
-export enum AuthType {
-    code = 'code',
-    passkey = 'passkey',
-    password = 'password',
-}
+export type AuthType = Values<typeof kAuthType>;
+export const kAuthType = {
+    code: 'code',
+    passkey: 'passkey',
+    password: 'password',
+} as const;
 
 /**
  * Type of content that's stored within a particular scope.
  * @see Table `content`
  */
-export enum ContentType {
-    FAQ = 'FAQ',
-    Page = 'Page',
-}
+export type ContentType = Values<typeof kContentType>;
+export const kContentType = {
+    FAQ: 'FAQ',
+    Page: 'Page',
+} as const;
 
 /**
  * Status of a help request issued by one of the displays.
  * @see Table `displays`
  */
-export enum DisplayHelpRequestStatus {
-    Pending = 'Pending',
-    Acknowledged = 'Acknowledged',
-}
+export type DisplayHelpRequestStatus = Values<typeof kDisplayHelpRequestStatus>;
+export const kDisplayHelpRequestStatus = {
+    Pending: 'Pending',
+    Acknowledged: 'Acknowledged',
+} as const;
 
 /**
  * Target of a help request issued by one of the displays.
  * @see Table `displays_requests`
  */
-export enum DisplayHelpRequestTarget {
-    Crew = 'Crew',
-    Nardo = 'Nardo',
-    Stewards = 'Stewards',
-}
+export type DisplayHelpRequestTarget = Values<typeof kDisplayHelpRequestTarget>;
+export const kDisplayHelpRequestTarget = {
+    Crew: 'Crew',
+    Nardo: 'Nardo',
+    Stewards: 'Stewards',
+} as const;
 
 /**
  * Purpose of an environment that defines what happens when someone visits them.
  * @see Table `environments`
  */
-export enum EnvironmentPurpose {
-    LandingPage = 'LandingPage',
-}
+export type EnvironmentPurpose = Values<typeof kEnvironmentPurpose>;
+export const kEnvironmentPurpose = {
+    LandingPage: 'LandingPage',
+} as const;
 
 /**
  * Status indicating whether volunteers can share their availability preferences.
  * @see Table `events`
  */
-export enum EventAvailabilityStatus {
-    Unavailable = 'Unavailable',
-    Available = 'Available',
-    Locked = 'Locked',
-}
+export type EventAvailabilityStatus = Values<typeof kEventAvailabilityStatus>;
+export const kEventAvailabilityStatus = {
+    Unavailable: 'Unavailable',
+    Available: 'Available',
+    Locked: 'Locked',
+} as const;
 
 /**
  * Type of export that a particular entry describes.
  * @see Table `exports`
  */
-export enum ExportType {
-    Credits = 'Credits',
-    Refunds = 'Refunds',
-    Trainings = 'Trainings',
-    Volunteers = 'Volunteers',
-}
+export type ExportType = Values<typeof kExportType>;
+export const kExportType = {
+    Credits: 'Credits',
+    Refunds: 'Refunds',
+    Trainings: 'Trainings',
+    Volunteers: 'Volunteers',
+} as const;
 
 /**
  * Type of content that's stored within the storage buffer.
  * @see Table `storage`
  */
-export enum FileType {
-    Avatar = 'Avatar',
-    EventIdentity = 'EventIdentity',
-}
+export type FileType = Values<typeof kFileType>;
+export const kFileType = {
+    Avatar: 'Avatar',
+    EventIdentity: 'EventIdentity',
+} as const;
 
 /**
  * Severities that can be assigned to log entries.

@@ -1,8 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { ContentType } from './database/Types';
 import { callApi, injectFetch } from './callApi';
+
+import { kContentType } from './database/Types';
 
 describe('callApi', () => {
     let latestRequestInput: RequestInfo | URL | undefined;
@@ -72,7 +73,7 @@ describe('callApi', () => {
         const response = await callApi('delete', '/api/admin/content/:id', {
             id: 42,
             context: {
-                type: ContentType.Page,
+                type: kContentType.Page,
                 eventId: 1,
                 teamId: 2,
             }

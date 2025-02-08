@@ -8,9 +8,10 @@ import { ZodError, ZodFirstPartyTypeKind } from 'zod';
 
 import type { User } from './auth/User';
 import { AccessControl } from './auth/AccessControl';
-import { AuthType } from './database/Types';
 import { getAuthenticationContextFromHeaders, type AuthenticationContext }
     from './auth/AuthenticationContext';
+
+import { kAuthType } from './database/Types';
 
 /**
  * Type definition for the props that will be made available to a server action implementation.
@@ -234,7 +235,7 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape, any, 
             userForTesting ?
                 {
                     access: new AccessControl({ /* todo? */ }),
-                    authType: AuthType.password,
+                    authType: kAuthType.password,
                     events: new Map,
                     user: userForTesting
 

@@ -3,13 +3,14 @@
 
 import { z } from 'zod';
 
-import { ContentType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { createDataTableApi, type DataTableEndpoints } from '../../../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventSlugForId } from '@lib/EventLoader';
 import db, { tContent, tContentCategories, tEvents, tTeams, tUsers } from '@lib/database';
+
+import { kContentType } from '@lib/database/Types';
 
 /**
  * Row model for a piece of content, as can be shown or edited through the administration panel.
@@ -94,7 +95,7 @@ const kContentContext = z.object({
         /**
          * Kind of content that's being requested.
          */
-        type: z.nativeEnum(ContentType),
+        type: z.nativeEnum(kContentType),
     }),
 });
 
@@ -350,7 +351,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
             })
             .executeSelectNoneOrOne();
 
-        if (contentContext?.contentType === ContentType.FAQ) {
+        if (contentContext?.contentType === kContentType.FAQ) {
             await Log({
                 type: kLogType.AdminKnowledgeBaseMutation,
                 severity: LogSeverity.Warning,

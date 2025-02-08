@@ -19,9 +19,10 @@ import type { ExportMetadata } from './ExportMetadata';
 import { ExportCredits } from './ExportCredits';
 import { ExportRefunds } from './ExportRefunds';
 import { ExportTrainings } from './ExportTrainings';
-import { ExportType } from '@lib/database/Types';
 import { ExportVolunteers } from './ExportVolunteers';
 import { callApi } from '@lib/callApi';
+
+import { kExportType } from '@lib/database/Types';
 
 /**
  * Props accepted by the <ExportAvailable> component.
@@ -43,16 +44,16 @@ export function ExportAvailable(props: ExportAvailableProps) {
 
     let description: string;
     switch (metadata.type) {
-        case ExportType.Credits:
+        case kExportType.Credits:
             description = 'credit real consent';
             break;
-        case ExportType.Refunds:
+        case kExportType.Refunds:
             description = 'ticket refund requests';
             break;
-        case ExportType.Trainings:
+        case kExportType.Trainings:
             description = 'training participation';
             break;
-        case ExportType.Volunteers:
+        case kExportType.Volunteers:
             description = 'volunteer participation';
             break;
         default:

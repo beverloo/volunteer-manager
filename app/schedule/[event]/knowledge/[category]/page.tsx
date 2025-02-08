@@ -12,13 +12,14 @@ import CardHeader from '@mui/material/CardHeader';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { ContentType } from '@lib/database/Types';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
 import { SetTitle } from '../../components/SetTitle';
 import { generateScheduleMetadata, getTitleCache } from '../../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
+
+import { kContentType } from '@lib/database/Types';
 
 /**
  * The <ScheduleKnowledgeCategoryPage> component displays a list of all questions within a given
@@ -36,7 +37,7 @@ export default async function ScheduleKnowledgeCategoryPage(
     const dbInstance = db;
     const category = await dbInstance.selectFrom(tContentCategories)
         .innerJoin(tContent)
-            .on(tContent.contentType.equals(ContentType.FAQ))
+            .on(tContent.contentType.equals(kContentType.FAQ))
                 .and(tContent.contentCategoryId.equals(tContentCategories.categoryId))
                 .and(tContent.revisionVisible.equals(/* true= */ 1))
         .where(tContentCategories.categoryId.equals(parseInt(params.category, 10)))

@@ -8,7 +8,7 @@ import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
 
-import { EventAvailabilityStatus } from '@lib/database/Types';
+import { type EventAvailabilityStatus, kEventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
@@ -22,15 +22,15 @@ import { kTemporalZonedDateTime } from '@app/api/Types';
  */
 const kAvailabilityStatusOptions = [
     {
-        id: EventAvailabilityStatus.Unavailable,
+        id: kEventAvailabilityStatus.Unavailable,
         label: 'Volunteers cannot indicate their availability'
     },
     {
-        id: EventAvailabilityStatus.Available,
+        id: kEventAvailabilityStatus.Available,
         label: 'Volunteers can indicate their availability'
     },
     {
-        id: EventAvailabilityStatus.Locked,
+        id: kEventAvailabilityStatus.Locked,
         label: 'Volunteers can see their availability, but not change it'
     },
 ] satisfies { id: EventAvailabilityStatus; label: string }[];
@@ -95,7 +95,7 @@ const kEventSettingsData = z.object({
     /**
      * Whether volunteers can indicate their availability.
      */
-    availabilityStatus: z.nativeEnum(EventAvailabilityStatus),
+    availabilityStatus: z.nativeEnum(kEventAvailabilityStatus),
 
     /**
      * Whether hotel management is enabled for this event.

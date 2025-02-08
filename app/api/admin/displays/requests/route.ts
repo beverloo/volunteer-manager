@@ -4,9 +4,10 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database';
+
+import { kDisplayHelpRequestTarget } from '@lib/database/Types';
 
 /**
  * Row model for an individual help request issued for a display.
@@ -25,7 +26,7 @@ const kDisplayRequestRowModel = z.object({
     /**
      * Team / individual target of the received help request.
      */
-    target: z.nativeEnum(DisplayHelpRequestTarget),
+    target: z.nativeEnum(kDisplayHelpRequestTarget),
 
     /**
      * Name of the display from which the request was issued.

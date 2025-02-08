@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { ActivityType, Mutation, MutationSeverity } from '@lib/database/Types';
+import { Mutation, MutationSeverity, kActivityType } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanAreaUrl } from '@lib/AnPlan';
@@ -24,7 +24,7 @@ const kProgramAreaRowModel = z.object({
     /**
      * Type of area this entails, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(ActivityType),
+    type: z.nativeEnum(kActivityType),
 
     /**
      * Name of the area, which does not have to be its display name.
@@ -113,7 +113,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
             .set({
                 areaId: newInternalAreaId,
                 areaFestivalId: event.festivalId,
-                areaType: ActivityType.Internal,
+                areaType: kActivityType.Internal,
                 areaName: `Internal area #${newDisplayInternalAreaId}`,
                 areaCreated: dbInstance.currentZonedDateTime(),
                 areaUpdated: dbInstance.currentZonedDateTime(),
@@ -138,7 +138,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
             success: true,
             row: {
                 id: newInternalAreaId,
-                type: ActivityType.Internal,
+                type: kActivityType.Internal,
                 name: `Internal area #${newDisplayInternalAreaId}`,
             },
         };
@@ -156,7 +156,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
             })
             .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
                 .and(tActivitiesAreas.areaId.equals(id))
-                .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
+                .and(tActivitiesAreas.areaType.equals(kActivityType.Internal))
                 .and(tActivitiesAreas.areaDeleted.isNull())
             .executeUpdate();
 
@@ -223,7 +223,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
             })
             .where(tActivitiesAreas.areaFestivalId.equals(event.festivalId))
                 .and(tActivitiesAreas.areaId.equals(id))
-                .and(tActivitiesAreas.areaType.equals(ActivityType.Internal))
+                .and(tActivitiesAreas.areaType.equals(kActivityType.Internal))
             .executeUpdate();
 
         await dbInstance.insertInto(tActivitiesLogs)

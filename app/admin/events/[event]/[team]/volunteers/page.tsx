@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type VolunteerInfo, VolunteerTable } from './VolunteerTable';
 import { CancelledVolunteers } from './CancelledVolunteers';
-import { EventAvailabilityStatus, RegistrationStatus } from '@lib/database/Types';
+import { RegistrationStatus, kEventAvailabilityStatus } from '@lib/database/Types';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tRoles,
@@ -65,7 +65,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
             shiftSeconds: dbInstance.sum(shiftSecondsFragment),
 
             availabilityEligible:
-                tEvents.eventAvailabilityStatus.notEquals(EventAvailabilityStatus.Unavailable),
+                tEvents.eventAvailabilityStatus.notEquals(kEventAvailabilityStatus.Unavailable),
             availabilityConfirmed: tUsersEvents.preferencesUpdated.isNotNull(),
             hotelEligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
             refundRequested: refundsJoin.refundRequested.isNotNull(),

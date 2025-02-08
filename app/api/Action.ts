@@ -10,8 +10,9 @@ import { getAccessFallbackHTTPStatus, isHTTPAccessFallbackError }
 import type { AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import type { User } from '@lib/auth/User';
 import { AccessControl } from '@lib/auth/AccessControl';
-import { AuthType } from '@lib/database/Types';
 import { getAuthenticationContextFromHeaders } from '@lib/auth/AuthenticationContext';
+
+import { kAuthType } from '@lib/database/Types';
 
 /**
  * Route parameters that can be included in the action request payload, based on REST principles.
@@ -184,7 +185,7 @@ export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
             userForTesting ?
                 {
                     access: new AccessControl({ /* todo? */ }),
-                    authType: AuthType.password,
+                    authType: kAuthType.password,
                     events: new Map,
                     user: userForTesting
 

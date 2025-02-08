@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { ExportType, LogSeverity } from '@lib/database/Types';
+import { type ExportType, LogSeverity, kExportType } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck, type AuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -37,7 +37,7 @@ const kExportRowModel = z.object({
     /**
      * The type of export this describes.
      */
-    type: z.nativeEnum(ExportType),
+    type: z.nativeEnum(kExportType),
 
     /**
      * Justification for the data export, should be a brief sentence at most.

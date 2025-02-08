@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AcknowledgeForm } from './AcknowledgeForm';
 import { CloseForm } from './CloseForm';
-import { DisplayHelpRequestTarget } from '@lib/database/Types';
 import { HelpRequestTarget } from '../../components/HelpRequestTarget';
 import { SetTitle } from '../../components/SetTitle';
 import { formatDate, formatDuration } from '@lib/Temporal';
@@ -24,6 +23,7 @@ import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
+import { kDisplayHelpRequestTarget } from '@lib/database/Types';
 import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
 
 /**
@@ -104,8 +104,8 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     }
 
     const target =
-        request.target === DisplayHelpRequestTarget.Nardo ? 'Nardo\'s Advice'
-                                                          : request.target;
+        request.target === kDisplayHelpRequestTarget.Nardo ? 'Nardo\'s Advice'
+                                                           : request.target;
 
     return (
         <>

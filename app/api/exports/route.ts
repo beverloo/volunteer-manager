@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction } from '../Action';
-import { ExportType, RegistrationStatus, VendorTeam } from '@lib/database/Types';
+import { RegistrationStatus, VendorTeam, kExportType } from '@lib/database/Types';
 import { Log, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
@@ -300,7 +300,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     }
 
     let credits: CreditsDataExport | undefined = undefined;
-    if (metadata.type === ExportType.Credits) {
+    if (metadata.type === kExportType.Credits) {
         credits = { declined: [], included: [] };
 
         const volunteers = await db.selectFrom(tUsersEvents)
@@ -352,7 +352,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     }
 
     let refunds: RefundsDataExport | undefined = undefined;
-    if (metadata.type === ExportType.Refunds) {
+    if (metadata.type === kExportType.Refunds) {
         refunds = { requests: [] };
 
         const refundRequests = await db.selectFrom(tUsersEvents)
@@ -384,7 +384,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     }
 
     let trainings: TrainingsDataExport | undefined = undefined;
-    if (metadata.type === ExportType.Trainings) {
+    if (metadata.type === kExportType.Trainings) {
         trainings = { sessions: [] };
 
         const trainingsExtraJoin = tTrainingsExtra.forUseInLeftJoin();
@@ -446,7 +446,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
     }
 
     let volunteers: VolunteersDataExport | undefined = undefined;
-    if (metadata.type === ExportType.Volunteers) {
+    if (metadata.type === kExportType.Volunteers) {
         volunteers = [];
 
         // What is the e-mail address that tickets for first aiders should be send to?

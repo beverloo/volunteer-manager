@@ -5,13 +5,13 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { EventAvailabilityStatus } from '@lib/database/Types';
 import { Log, LogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
 import db, { tActivities, tActivitiesTimeslots, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
+import { kEventAvailabilityStatus } from '@lib/database/Types';
 import { kServiceHoursProperty, kServiceTimingProperty } from './application';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
@@ -153,7 +153,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     if (!registration)
         return { success: false, error: 'Something seems to be wrong with your application…' };
 
-    if (registration.availabilityStatus !== EventAvailabilityStatus.Available
+    if (registration.availabilityStatus !== kEventAvailabilityStatus.Available
             && !props.access.can('event.visible', { event: event.slug, team: team.slug })) {
         return { success: false, error: 'Preferences cannot be shared yet, sorry!' };
     }

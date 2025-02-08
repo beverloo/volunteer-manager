@@ -4,7 +4,7 @@
 import type { AuthenticationContext } from './auth/AuthenticationContext';
 import type { AuthenticateUserParams } from './auth/Authentication';
 import type { User } from '@lib/auth/User';
-import { AuthType } from './database/Types';
+import { type AuthType, kAuthType } from './database/Types';
 import { AccessControl } from './auth/AccessControl';
 
 /**
@@ -42,7 +42,7 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         firstName: 'PWUSER',
 
         activated: true,
-        authType: AuthType.password,
+        authType: kAuthType.password,
         password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
         sessionToken: 1,
     },
@@ -51,7 +51,7 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         username: 'playwright-access-code@animecon.nl',
 
         activated: true,
-        authType: AuthType.code,
+        authType: kAuthType.code,
         password: 'cccd34d95dc5294d17177274e6a7b25a569fda7d823f2aa59ba63dfba9f8e013',  // 8765
         sessionToken: 1,
     },
@@ -60,7 +60,7 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         username: 'playwright-unactivated@animecon.nl',
 
         activated: false,
-        authType: AuthType.password,
+        authType: kAuthType.password,
         password: '7827e8eb2cb3b95f4d0ffac324b65208ff813b66884d08327ab0abb04fe780fb',  // playwright
         sessionToken: 1,
     }

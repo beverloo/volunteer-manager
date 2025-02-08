@@ -6,7 +6,7 @@ import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { DisplayHelpRequestStatus, RegistrationStatus } from '@lib/database/Types';
+import { RegistrationStatus, kDisplayHelpRequestStatus } from '@lib/database/Types';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { executeAction, type ActionProps } from '../Action';
 import { getDisplayIdFromHeaders, writeDisplayIdToHeaders } from '@lib/auth/DisplaySession';
@@ -151,7 +151,7 @@ const kDisplayDefinition = z.object({
         /**
          * Status of the help request that has been issued by this display, if any.
          */
-        helpRequestStatus: z.nativeEnum(DisplayHelpRequestStatus).optional(),
+        helpRequestStatus: z.nativeEnum(kDisplayHelpRequestStatus).optional(),
 
         /**
          * The piece of Del a Rie advice that should be shared.
@@ -306,11 +306,11 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
     // and second on whether the device has a hardcoded colour.
     let color: string | undefined = configuration.color;
     switch (configuration.helpRequestStatus) {
-        case DisplayHelpRequestStatus.Pending:
+        case kDisplayHelpRequestStatus.Pending:
             color = '#ff0000';  // red
             break;
 
-        case DisplayHelpRequestStatus.Acknowledged:
+        case kDisplayHelpRequestStatus.Acknowledged:
             color = '#ff6000';  // orange
             break;
     }

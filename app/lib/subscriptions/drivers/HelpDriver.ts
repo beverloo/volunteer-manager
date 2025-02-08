@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { Driver, type Message, type Recipient } from '../Driver';
-import { DisplayHelpRequestTarget } from '@lib/database/Types';
+import { type DisplayHelpRequestTarget, kDisplayHelpRequestTarget } from '@lib/database/Types';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { SendSmsTask } from '@lib/scheduler/tasks/SendSmsTask';
 import { SendWhatsappTask } from '@lib/scheduler/tasks/SendWhatsappTask';
@@ -11,9 +11,9 @@ import { SendWhatsappTask } from '@lib/scheduler/tasks/SendWhatsappTask';
  * Converts a `DisplayHelpRequestTarget` value to a `typeId` value supported by this driver.
  */
 export const kTargetToTypeId: { [k in DisplayHelpRequestTarget]: number } = {
-    [DisplayHelpRequestTarget.Crew]: 0,
-    [DisplayHelpRequestTarget.Nardo]: 1,
-    [DisplayHelpRequestTarget.Stewards]: 2
+    [kDisplayHelpRequestTarget.Crew]: 0,
+    [kDisplayHelpRequestTarget.Nardo]: 1,
+    [kDisplayHelpRequestTarget.Stewards]: 2
 };
 
 /**

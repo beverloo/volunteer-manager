@@ -5,7 +5,7 @@ import type { AuthenticationContext } from './AuthenticationContext';
 import type { User } from './User';
 import type { useMockConnection } from '@lib/database/Connection';
 import { AccessControl } from './AccessControl';
-import { AuthType } from '../database/Types';
+import { type AuthType, kAuthType } from '../database/Types';
 
 /**
  * Type that describes the result of the query executed by `authenticateUser`. Defined because there
@@ -79,7 +79,7 @@ export function buildAuthenticationContext(params?: BuildAuthenticationContextPa
 
             ...params.user,
         },
-        authType: params.authType ?? AuthType.password,
+        authType: params.authType ?? kAuthType.password,
         events: params.events ?? new Map,
     };
 }
@@ -95,7 +95,7 @@ export function expectAuthenticationQuery(
 {
     mockConnection.expect('selectOneRow', (query: string, params: any[]): AuthenticationResult => ({
         // UserAuthenticationContext.authType:
-        authType: AuthType.password,
+        authType: kAuthType.password,
 
         // UserAuthenticationContext.events:
         events: [],

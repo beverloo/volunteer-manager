@@ -6,7 +6,7 @@ import { forbidden } from 'next/navigation';
 import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { DisplayHelpRequestStatus, DisplayHelpRequestTarget, SubscriptionType } from '@lib/database/Types';
+import { SubscriptionType, kDisplayHelpRequestStatus, kDisplayHelpRequestTarget } from '@lib/database/Types';
 import { Publish } from '@lib/subscriptions';
 import { executeAction, type ActionProps } from '../../Action';
 import { getDisplayIdFromHeaders } from '@lib/auth/DisplaySession';
@@ -22,7 +22,7 @@ const kHelpRequestDefinition = z.object({
         /**
          * To whom should the help request be directed?
          */
-        target: z.nativeEnum(DisplayHelpRequestTarget),
+        target: z.nativeEnum(kDisplayHelpRequestTarget),
     }),
     response: z.object({
         /**
@@ -43,10 +43,10 @@ export type HelpRequestDefinition = ApiDefinition<typeof kHelpRequestDefinition>
  * Maps a given `DisplayHelpRequestTarget` target to a textual subject to use in a message. Use
  * generally looks like: "...requested help with [value]".
  */
-const kTargetToSubject: { [k in DisplayHelpRequestTarget]: string } = {
-    [DisplayHelpRequestTarget.Crew]: 'a volunteering matter',
-    [DisplayHelpRequestTarget.Nardo]: 'a Del a Rie advice query',
-    [DisplayHelpRequestTarget.Stewards]: 'a steward-related matter',
+const kTargetToSubject: { [k in keyof typeof kDisplayHelpRequestTarget]: string } = {
+    [kDisplayHelpRequestTarget.Crew]: 'a volunteering matter',
+    [kDisplayHelpRequestTarget.Nardo]: 'a Del a Rie advice query',
+    [kDisplayHelpRequestTarget.Stewards]: 'a steward-related matter',
 };
 
 type Request = ApiRequest<typeof kHelpRequestDefinition>;
@@ -93,7 +93,7 @@ async function helpRequest(request: Request, props: ActionProps): Promise<Respon
     if (!settings['display-request-help'])
         return { success: false, error: 'The "help request" feature is not available' };
 
-    if (!settings['display-request-advice'] && request.target === DisplayHelpRequestTarget.Nardo)
+    if (!settings['display-request-advice'] && request.target === kDisplayHelpRequestTarget.Nardo)
         return { success: false, error: 'Del a Rie Advies is currently not available for advice' };
 
     if (!Object.hasOwn(kTargetToTypeId, request.target))
@@ -112,7 +112,7 @@ async function helpRequest(request: Request, props: ActionProps): Promise<Respon
 
         await dbInstance.update(tDisplays)
             .set({
-                displayHelpRequestStatus: DisplayHelpRequestStatus.Pending,
+                displayHelpRequestStatus: kDisplayHelpRequestStatus.Pending,
             })
             .where(tDisplays.displayId.equals(displayId))
             .executeUpdate();
