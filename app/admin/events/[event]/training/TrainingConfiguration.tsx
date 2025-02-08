@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid2';
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { TrainingConfigurationTable } from './TrainingConfigurationTable';
 import { executeServerAction } from '@lib/serverAction';
 import { getEventNameForId } from '@lib/EventLoader';
@@ -56,7 +56,7 @@ async function updateTrainingConfiguration(eventId: number, formData: unknown) {
 
         await Log({
             type: kLogType.AdminEventPublishInfo,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 event: await getEventNameForId(eventId),

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -225,7 +225,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
                 if (!!uid) {
                     await Log({
                         type: kLogType.AdminHotelAssignVolunteerDelete,
-                        severity: LogSeverity.Warning,
+                        severity: kLogSeverity.Warning,
                         sourceUser: props.user,
                         targetUser: uid,
                         data: {
@@ -320,7 +320,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
 
                 await Log({
                     type: kLogType.AdminHotelAssignVolunteerDelete,
-                    severity: LogSeverity.Warning,
+                    severity: kLogSeverity.Warning,
                     sourceUser: props.user,
                     targetUser: assignment,
                     data: {
@@ -337,7 +337,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
 
                 await Log({
                     type: kLogType.AdminHotelAssignVolunteer,
-                    severity: LogSeverity.Warning,
+                    severity: kLogSeverity.Warning,
                     sourceUser: props.user,
                     targetUser: assignment,
                     data: {
@@ -354,7 +354,7 @@ createDataTableApi(kHotelAssignmentRowModel, kHotelAssignmentContext, {
         const event = await getEventBySlug(context.event);
         await Log({
             type: kLogType.AdminHotelBookingMutation,
-            severity: LogSeverity.Info,
+            severity: kLogSeverity.Info,
             sourceUser: props.user,
             data: {
                 event: event?.shortName,

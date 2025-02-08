@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { type DisplayHelpRequestStatus, kDisplayHelpRequestStatus } from '@lib/database/Types';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { readSetting } from '@lib/Settings';
@@ -179,7 +179,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
 
         await Log({
             type: kLogType.AdminDisplayMutation,
-            severity: LogSeverity.Info,
+            severity: kLogSeverity.Info,
             sourceUser: props.user,
             data: {
                 identifier: displayInfo?.identifier,

@@ -5,8 +5,8 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { LogSeverity, SubscriptionType } from '@lib/database/Types';
-import { Log, kLogType } from '@lib/Log';
+import { SubscriptionType } from '@lib/database/Types';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
 
@@ -250,7 +250,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
 
         await Log({
             type: kLogType.AdminSubscriptionUpdate,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             targetUser,
         });

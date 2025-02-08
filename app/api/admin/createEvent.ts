@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse } from '../Types';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
@@ -97,7 +97,7 @@ export async function createEvent(request: Request, props: ActionProps): Promise
     if (!!insertId) {
         Log({
             type: kLogType.AdminEventCreate,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 event: request.shortName,

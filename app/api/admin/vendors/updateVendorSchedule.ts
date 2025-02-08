@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { LogSeverity, VendorTeam } from '@lib/database/Types';
-import { Log, kLogType } from '@lib/Log';
+import { VendorTeam } from '@lib/database/Types';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tVendors, tVendorsSchedule } from '@lib/database';
 
@@ -183,7 +183,7 @@ export async function updateVendorSchedule(request: Request, props: ActionProps)
 
     await Log({
         type: kLogType.AdminVendorScheduleUpdate,
-        severity: LogSeverity.Warning,
+        severity: kLogSeverity.Warning,
         sourceUser: props.user,
         data: {
             event: event.shortName,

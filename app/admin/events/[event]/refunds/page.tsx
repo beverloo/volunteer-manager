@@ -10,7 +10,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { RefundsHeader } from './RefundsHeader';
 import { RefundsTable } from './RefundsTable';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -60,7 +60,7 @@ async function updateRefundConfiguration(eventId: number, formData: unknown) {
 
         await Log({
             type: kLogType.AdminEventPublishInfo,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 event: await getEventNameForId(eventId),

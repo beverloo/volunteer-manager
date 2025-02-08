@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid2';
 import { type EventAvailabilityStatus, kEventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents } from '@lib/database';
 
@@ -142,7 +142,7 @@ async function updateEventSettings(eventId: number, formData: unknown) {
 
         await Log({
             type: kLogType.AdminUpdateEvent,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 action: 'event settings',

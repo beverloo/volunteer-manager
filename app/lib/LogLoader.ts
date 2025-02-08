@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type LogEntry, type LogType, LogSeverity, kLogType } from './Log';
+import { type LogEntry, type LogSeverity, type LogType, kLogSeverity, kLogType } from './Log';
 import db, { tLogs, tUsers } from './database';
 
 /**
@@ -453,7 +453,9 @@ export async function fetchLogs(params: FetchLogsParams): Promise<FetchLogsRespo
                                              : undefined)
         .where(tLogs.logDeleted.isNull())
             .and(tLogs.logSeverity.in(
-                params.severity ?? [ LogSeverity.Info, LogSeverity.Warning, LogSeverity.Error ]));
+                params.severity ?? [ kLogSeverity.Info,
+                                     kLogSeverity.Warning,
+                                     kLogSeverity.Error ]));
 
     if (params.sourceOrTargetUserId) {
         selectQueryBuilder = selectQueryBuilder

@@ -4,10 +4,11 @@
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { LogSeverity } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { fetchLogs } from '@lib/LogLoader';
 import db, { tLogs } from '@lib/database';
+
+import { kLogSeverity } from '@lib/Log';
 
 /**
  * Row model for a log message describing an event that happened on the Volunteer Manager.
@@ -41,7 +42,7 @@ const kLogsRowModel = z.object({
     /**
      * The severity assigned to the log entry.
      */
-    severity: z.nativeEnum(LogSeverity),
+    severity: z.nativeEnum(kLogSeverity),
 
     /**
      * Source of the person or entity who issued the log message, if any.
@@ -149,10 +150,10 @@ export const { DELETE, GET } = createDataTableApi(kLogsRowModel, kLogsContext, {
             sort, pagination,
 
             severity: [
-                LogSeverity.Debug,
-                LogSeverity.Info,
-                LogSeverity.Warning,
-                LogSeverity.Error
+                kLogSeverity.Debug,
+                kLogSeverity.Info,
+                kLogSeverity.Warning,
+                kLogSeverity.Error
             ],
         });
 

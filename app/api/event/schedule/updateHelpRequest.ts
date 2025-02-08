@@ -6,10 +6,11 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { LogSeverity, kDisplayHelpRequestStatus } from '@lib/database/Types';
-import { Log, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
+
+import { kDisplayHelpRequestStatus } from '@lib/database/Types';
 
 /**
  * Interface definition for the Schedule API, exposed through /api/event/schedule/help-request
@@ -125,7 +126,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.EventHelpRequestUpdate,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 display: helpRequest.display,
@@ -166,7 +167,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.EventHelpRequestUpdate,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 display: helpRequest.display,

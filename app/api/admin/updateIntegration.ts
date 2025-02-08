@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { LogSeverity, Log, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -104,7 +104,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.AdminUpdateIntegration,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 integration: 'AnimeCon',
@@ -122,7 +122,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.AdminUpdateIntegration,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 integration: 'e-mail',
@@ -140,7 +140,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.AdminUpdateIntegration,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 integration: 'Google',
@@ -159,7 +159,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.AdminUpdateIntegration,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 integration: 'Twilio',
@@ -178,7 +178,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
 
         await Log({
             type: kLogType.AdminUpdateIntegration,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 integration: 'Vertex AI LLM',

@@ -5,8 +5,19 @@ import type { User } from '@lib/auth/User';
 import { PlaywrightHooks } from './PlaywrightHooks';
 import db, { tLogs } from '@lib/database';
 
-import { LogSeverity } from './database/Types';
-export { LogSeverity };
+/**
+ * Enumeration containing all the valid log severities. Will be stored as a string, and must be kept
+ * in sync with the column definition in the database.
+ *
+ * @see Table `logs`
+ */
+export type LogSeverity = typeof kLogSeverity[keyof typeof kLogSeverity];
+export const kLogSeverity = {
+    Debug: 'Debug',
+    Info: 'Info',
+    Warning: 'Warning',
+    Error: 'Error',
+} as const;
 
 /**
  * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.
@@ -142,7 +153,7 @@ export async function Log(entry: LogEntry): Promise<void> {
         targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
-    const severity = entry.severity ?? LogSeverity.Info;
+    const severity = entry.severity ?? kLogSeverity.Info;
 
     if (PlaywrightHooks.isActive() && PlaywrightHooks.isPlaywrightUser(sourceUserId, targetUserId))
         return;  // don't create log entries on behalf of Playwright users

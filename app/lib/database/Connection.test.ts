@@ -1,9 +1,10 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { LogSeverity } from './Types';
 import { useMockConnection } from './Connection';
 import db, { tLogs, tHotels } from './index';
+
+import { kLogSeverity } from '@lib/Log';
 
 describe('Connection', () => {
     const mockConnection = useMockConnection();
@@ -49,11 +50,11 @@ describe('Connection', () => {
 
     it('should be able to work with custom enums we include in the generation tool', async () => {
         mockConnection.expect('insert', () => /* insertId= */ 9001);
-        mockConnection.expect('selectOneRow', () => ({ severity: LogSeverity.Warning }));
+        mockConnection.expect('selectOneRow', () => ({ severity: kLogSeverity.Warning }));
 
         const insertResult = await db.insertInto(tLogs).values({
             logType: 'my-log-type',
-            logSeverity: LogSeverity.Info,
+            logSeverity: kLogSeverity.Info,
         }).executeInsert();
 
         expect(insertResult).toEqual(9001);
@@ -62,6 +63,6 @@ describe('Connection', () => {
             severity: tLogs.logSeverity,
         }).executeSelectOne();
 
-        expect(selectResult.severity).toEqual(LogSeverity.Warning);
+        expect(selectResult.severity).toEqual(kLogSeverity.Warning);
     });
 });

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -163,7 +163,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
         if (!!affectedRows) {
             await Log({
                 type: kLogType.AdminClearHotelPreferences,
-                severity: LogSeverity.Warning,
+                severity: kLogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverrideUserId,
                 data: {
@@ -234,7 +234,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     if (!request.adminOverrideUserId) {
         await Log({
             type: kLogType.ApplicationHotelPreferences,
-            severity: LogSeverity.Info,
+            severity: kLogSeverity.Info,
             sourceUser: props.user,
             data: {
                 event: event.shortName,
@@ -245,7 +245,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
     } else {
         await Log({
             type: kLogType.AdminUpdateHotelPreferences,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             targetUser: request.adminOverrideUserId,
             data: {

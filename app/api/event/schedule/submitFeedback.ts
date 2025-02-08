@@ -6,8 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { Log, kLogType } from '@lib/Log';
-import { LogSeverity } from '@lib/database/Types';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import db, { tFeedback } from '@lib/database';
 
 /**
@@ -84,7 +83,7 @@ export async function submitFeedback(request: Request, props: ActionProps): Prom
 
     await Log({
         type: kLogType.EventFeedbackSubmitted,
-        severity: LogSeverity.Warning,
+        severity: kLogSeverity.Warning,
         sourceUser: props.user,
         data: {
             feedback: request.feedback,

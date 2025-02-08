@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSetting, writeSettings } from '@lib/Settings';
 
@@ -66,7 +66,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
 
         await Log({
             type: kLogType.AdminUpdateAiSetting,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 setting: 'personality',
@@ -92,7 +92,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
 
         await Log({
             type: kLogType.AdminUpdateAiSetting,
-            severity: LogSeverity.Warning,
+            severity: kLogSeverity.Warning,
             sourceUser: props.user,
             data: {
                 setting: 'intentions',

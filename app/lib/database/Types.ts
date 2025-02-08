@@ -1,6 +1,13 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { LogSeverity } from '@lib/Log';
+
+/**
+ * @deprecated Use the `LogSeverity` type from the `@lib/Log` module instead.
+ */
+export type { LogSeverity };
+
 /**
  * Lists the values of a given type.
  */
@@ -100,17 +107,6 @@ export const kFileType = {
     Avatar: 'Avatar',
     EventIdentity: 'EventIdentity',
 } as const;
-
-/**
- * Severities that can be assigned to log entries.
- * @see Table `logs`
- */
-export enum LogSeverity {
-    Debug = 'Debug',
-    Info = 'Info',
-    Warning = 'Warning',
-    Error = 'Error',
-}
 
 /**
  * The type of (activity) mutation that happened in the AnPlan program.

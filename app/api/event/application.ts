@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Publish, SubscriptionType } from '@lib/subscriptions';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { ShirtFit, ShirtSize } from '@lib/database/Types';
@@ -182,7 +182,7 @@ export async function application(request: Request, props: ActionProps): Promise
         if (request.adminOverride) {
             await Log({
                 type: kLogType.AdminEventApplication,
-                severity: LogSeverity.Warning,
+                severity: kLogSeverity.Warning,
                 sourceUser: props.user,
                 targetUser: request.adminOverride.userId,
                 data: {

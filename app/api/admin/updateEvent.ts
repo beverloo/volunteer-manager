@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, LogSeverity, kLogType } from '@lib/Log';
+import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
@@ -88,7 +88,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         if (affectedRows > 0) {
             await Log({
                 type: kLogType.AdminUpdateEvent,
-                severity: LogSeverity.Warning,
+                severity: kLogSeverity.Warning,
                 sourceUser: props.user,
                 data: {
                     action: 'the publication status',
@@ -116,7 +116,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             if (!!affectedRows) {
                 await Log({
                     type: kLogType.AdminUpdateEvent,
-                    severity: LogSeverity.Info,
+                    severity: kLogSeverity.Info,
                     sourceUser: props.user,
                     data: {
                         action: 'the identity image',
@@ -146,7 +146,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
         if (affectedRows > 0) {
             await Log({
                 type: kLogType.AdminUpdateEvent,
-                severity: LogSeverity.Warning,
+                severity: kLogSeverity.Warning,
                 sourceUser: props.user,
                 data: {
                     action: 'the URL slug',
