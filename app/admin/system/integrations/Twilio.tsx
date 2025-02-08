@@ -15,8 +15,9 @@ import Typography from '@mui/material/Typography';
 
 import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { TwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { callApi } from '@lib/callApi';
+
+import { kTwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 
 /**
  * Props accepted by the <Twilio> component.
@@ -62,7 +63,7 @@ export function Twilio(props: TwilioProps) {
     }, [ setError, setInvalidated, setLoading ]);
 
     const regions = useMemo(() => {
-        return Object.values(TwilioRegion).map(region => ({
+        return Object.values(kTwilioRegion).map(region => ({
             id: region,
             label: region,
         }));

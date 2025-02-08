@@ -3,8 +3,8 @@
 
 import { VertexAI } from '@google-cloud/vertexai';
 
+import type { VertexSupportedModels } from './VertexSupportedModels';
 import { GoogleClient, type GoogleClientSettings } from '../google/GoogleClient';
-import { VertexSupportedModels } from './VertexSupportedModels';
 
 /**
  * Settings required by the Vertex AI client.
@@ -15,7 +15,7 @@ export interface VertexAISettings {
      *
      * @see https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models
      */
-    model: typeof VertexSupportedModels[keyof typeof VertexSupportedModels];
+    model: VertexSupportedModels;
 
     /**
      * Temperature controls the degree of randomness in token selection. Lower temperatures are good

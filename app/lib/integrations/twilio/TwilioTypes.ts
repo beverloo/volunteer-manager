@@ -9,12 +9,19 @@ import { z } from 'zod';
  *
  * @see https://www.twilio.com/docs/global-infrastructure#control-data-residency
  */
-export const TwilioRegion = {
+export const kTwilioRegion = {
     'US1': 'US1',
     'IE1': 'IE1',
     'AU1': 'AU1',
-
 } as const;
+
+/**
+ * Options regarding Twilio regions that our implementation can be tuned to. Note that not all
+ * features and capabilities are available outside of US1, but nothing we currently rely on.
+ *
+ * @see https://www.twilio.com/docs/global-infrastructure#control-data-residency
+ */
+export type TwilioRegion = typeof kTwilioRegion[keyof typeof kTwilioRegion];
 
 /**
  * Zod type to validate a phone number, inclusive of country code.

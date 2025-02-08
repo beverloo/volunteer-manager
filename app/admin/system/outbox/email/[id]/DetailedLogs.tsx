@@ -24,8 +24,6 @@ import WarningOutlinedIcon from '@mui/icons-material/WarningOutlined';
 import type { EmailLoggerSeverity } from '@lib/integrations/email/EmailLogger';
 import type { TaskLogSeverity } from '@lib/scheduler/TaskContext';
 
-type TaskLogSeverityType = typeof TaskLogSeverity[keyof typeof TaskLogSeverity];
-
 /**
  * Detailed logs applicable to outbox messages.
  */
@@ -38,7 +36,7 @@ interface DetailedOutboxLogEntry {
  * Detailed logs applicable to tasks.
  */
 interface DetailedTaskLogEntry {
-    severity: TaskLogSeverityType;
+    severity: TaskLogSeverity;
     data: any[];
     message: string;
 };
@@ -53,7 +51,7 @@ type DetailedLogEntry = {
 /**
  * Displays an icon appropriate to the severity level of a log message.
  */
-function LogSeverity(props: { severity: EmailLoggerSeverity | TaskLogSeverityType }) {
+function LogSeverity(props: { severity: EmailLoggerSeverity | TaskLogSeverity }) {
     let icon: React.ReactNode = undefined;
 
     switch (props.severity) {

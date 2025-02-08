@@ -5,16 +5,17 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { readSettings } from '@lib/Settings';
+
+import { kVertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 
 /**
  * The Vertex AI settings object. Shared across multiple API calls.
  */
 export const kVertexAiSettings = z.object({
-    model: z.nativeEnum(VertexSupportedModels),
+    model: z.nativeEnum(kVertexSupportedModels),
     temperature: z.number().gte(0).lte(1),
     tokenLimit: z.number().gte(1).lte(1024),
     topK: z.number().gte(1).lte(40),

@@ -22,8 +22,9 @@ import Typography from '@mui/material/Typography';
 import type { VertexAISettings } from '@lib/integrations/vertexai/VertexAIClient';
 import { PlaceholderPaper } from '../../components/PlaceholderPaper';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
-import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { callApi } from '@lib/callApi';
+
+import { kVertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 
 export type { VertexAISettings };
 
@@ -107,7 +108,7 @@ function ServiceSettings(props: ServiceSettingsProps) {
         onChange({ ...settings, topP: Array.isArray(value) ? value[0] : value });
     }, [ onChange, settings ]);
 
-    const modelOptions = Object.values(VertexSupportedModels).map(model => ({
+    const modelOptions = Object.values(kVertexSupportedModels).map(model => ({
         id: model,
         label: model,
     }));

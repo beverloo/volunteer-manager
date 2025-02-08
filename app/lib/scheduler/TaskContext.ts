@@ -22,20 +22,24 @@ interface TaskConfiguration {
 /**
  * Severity level of an entry logged during task execution.
  */
-export const TaskLogSeverity = {
+export const kTaskLogSeverity = {
     Debug: 'Debug',
     Info: 'Info',
     Warning: 'Warning',
     Error: 'Error',
     Exception: 'Exception',
-
 } as const;
+
+/**
+ * Severity level of an entry logged during task execution.
+ */
+export type TaskLogSeverity = typeof kTaskLogSeverity[keyof typeof kTaskLogSeverity];
 
 /**
  * Individual log entry to be stored each time a task requests something to be logged.
  */
 interface TaskLogEntry {
-    severity: typeof TaskLogSeverity[keyof typeof TaskLogSeverity];
+    severity: TaskLogSeverity;
     time?: number;
     message: string;
     data: any[];
@@ -71,7 +75,7 @@ class TaskLogger {
 
     debug(message: string, ...args: any[]) {
         this.#logs.push({
-            severity: TaskLogSeverity.Debug,
+            severity: kTaskLogSeverity.Debug,
             time: this.currentRuntimeMs(),
             data: args, message,
         });
@@ -79,7 +83,7 @@ class TaskLogger {
 
     info(message: string, ...args: any[]) {
         this.#logs.push({
-            severity: TaskLogSeverity.Info,
+            severity: kTaskLogSeverity.Info,
             time: this.currentRuntimeMs(),
             data: args, message,
         });
@@ -87,7 +91,7 @@ class TaskLogger {
 
     warning(message: string, ...args: any[]) {
         this.#logs.push({
-            severity: TaskLogSeverity.Warning,
+            severity: kTaskLogSeverity.Warning,
             time: this.currentRuntimeMs(),
             data: args, message,
         });
@@ -95,7 +99,7 @@ class TaskLogger {
 
     error(message: string, ...args: any[]) {
         this.#logs.push({
-            severity: TaskLogSeverity.Error,
+            severity: kTaskLogSeverity.Error,
             time: this.currentRuntimeMs(),
             data: args, message,
         });
@@ -103,7 +107,7 @@ class TaskLogger {
 
     exception(message: string, ...args: any[]) {
         this.#logs.push({
-            severity: TaskLogSeverity.Exception,
+            severity: kTaskLogSeverity.Exception,
             time: this.currentRuntimeMs(),
             data: args, message,
         });

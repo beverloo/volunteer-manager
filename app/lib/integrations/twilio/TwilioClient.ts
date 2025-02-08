@@ -8,7 +8,7 @@ import type { TwilioSmsMessage, TwilioWhatsappMessage } from './TwilioTypes';
 import { TwilioLogger } from './TwilioLogger';
 import { TwilioOutboxType } from '@lib/database/Types';
 
-import { kTwilioSmsMessage, kTwilioWhatsappMessage, TwilioRegion } from './TwilioTypes';
+import { kTwilioSmsMessage, kTwilioWhatsappMessage, type TwilioRegion } from './TwilioTypes';
 
 /**
  * Settings required by the Twilio client.
@@ -37,7 +37,7 @@ export interface TwilioSettings {
     /**
      * Region in which the Twilio API endpoint should ideally be located.
      */
-    region?: typeof TwilioRegion[keyof typeof TwilioRegion];
+    region?: TwilioRegion;
 }
 
 /**

@@ -11,7 +11,7 @@ export { LogSeverity };
 /**
  * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.
  */
-export const LogType = {
+export const kLogType = {
     AccountActivate: 'account-activate',
     AccountIdentifyAccessCode: 'account-identify-access-code',
     AccountIdentifyPasskey: 'account-identify-passkey',
@@ -88,8 +88,12 @@ export const LogType = {
     EventHelpRequestUpdate: 'event-help-request-update',
     EventVolunteerNotes: 'event-volunteer-notes',
     ExportDataAccess: 'export-data-access',
-
 } as const;
+
+/**
+ * Enumeration containing all the valid log types. Will be stored as a string, so keep alphabetized.
+ */
+export type LogType = typeof kLogType[keyof typeof kLogType];
 
 /**
  * Information about what happened that should be logged for future inspection. Not all fields are
@@ -119,7 +123,7 @@ export interface LogEntry {
     /**
      * The type of log entry that's being written.
      */
-    type: typeof LogType[keyof typeof LogType];
+    type: LogType;
 }
 
 /**

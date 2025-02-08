@@ -3,16 +3,17 @@
 
 import type { Metadata } from 'next';
 
+import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
 import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Twilio } from './Twilio';
 import { VertexAI, type VertexAISettings } from './VertexAI';
-import { VertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
+
+import { kVertexSupportedModels } from '@lib/integrations/vertexai/VertexSupportedModels';
 
 /**
  * The Integrations page lists settings and information regarding the third party services that the
@@ -95,7 +96,7 @@ export default async function IntegrationsPage() {
 
     const vertexSettings: VertexAISettings = {
         model:
-            settings['integration-vertex-model'] ?? VertexSupportedModels['gemini-1.5-flash-001'],
+            settings['integration-vertex-model'] ?? kVertexSupportedModels['gemini-1.5-flash-001'],
         temperature: settings['integration-vertex-temperature'] ?? 0.25,
         tokenLimit: settings['integration-vertex-token-limit'] ?? 256,
         topK: settings['integration-vertex-top-k'] ?? 40,

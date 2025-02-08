@@ -6,10 +6,10 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { LogSeverity, LogType, Log } from '@lib/Log';
-import { TwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
+import { kTwilioRegion } from '@lib/integrations/twilio/TwilioTypes';
 import { kVertexAiSettings } from './vertexAi';
 
 /**
@@ -59,7 +59,7 @@ export const kUpdateIntegrationDefinition = z.object({
             accountSid: z.string(),
             messagingSidSms: z.string(),
             messagingSidWhatsapp: z.string(),
-            region: z.nativeEnum(TwilioRegion),
+            region: z.nativeEnum(kTwilioRegion),
         }).optional(),
 
         /**
