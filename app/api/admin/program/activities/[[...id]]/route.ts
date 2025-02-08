@@ -290,7 +290,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                     locationId = activity.locationId;
                 } else if (!!activity.timeslots.length) {
                     const uniqueLocations = new Set<number>();
-                    for (const { locationId, locationName } of activity.timeslots)
+                    for (const { locationId } of activity.timeslots)
                         uniqueLocations.add(locationId);
 
                     if (uniqueLocations.size === 1) {

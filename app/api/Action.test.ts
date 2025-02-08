@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
-import { forbidden } from 'next/navigation';
 import { serialize } from 'cookie';
 import { z } from 'zod';
 

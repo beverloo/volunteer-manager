@@ -28,7 +28,7 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
     if (!context || !context.registration || !context.user || !context.event.trainingEnabled)
         notFound();  // the event does not exist, or the volunteer is not signed in
 
-    const { access, environment, event, registration, slug, teamSlug, user } = context;
+    const { access, event, registration, slug, teamSlug, user } = context;
 
     const eligible = registration.trainingEligible;
     const override = access.can('event.trainings', { event: event.slug });

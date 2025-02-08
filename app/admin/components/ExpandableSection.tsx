@@ -56,7 +56,7 @@ export function ExpandableSection(props: React.PropsWithChildren<ExpandableSecti
             </AccordionSummary>
             <AccordionDetails sx={{ paddingTop: 0 }}>
                 <Stack direction="column" spacing={2}>
-                    {props.children}
+                    {children}
                 </Stack>
             </AccordionDetails>
         </Paper>

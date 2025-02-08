@@ -17,7 +17,7 @@ import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
  * events. Events cannot be removed through the portal, although they can be hidden.
  */
 export default async function EventsPage() {
-    const { access, user } = await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: {
             permission: 'event.visible',

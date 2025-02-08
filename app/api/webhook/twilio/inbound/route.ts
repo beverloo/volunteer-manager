@@ -14,6 +14,7 @@ import { kTwilioWebhookEndpoint } from '@lib/database/Types';
  * generally either SMS or WhatsApp. An immediate response is expected.
  */
 export async function POST(request: NextRequest) {
+    // eslint-disable-next-line unused-imports/no-unused-vars
     const { authenticated, body } =
         await authenticateAndRecordTwilioRequest(request, kTwilioWebhookEndpoint.Inbound);
 

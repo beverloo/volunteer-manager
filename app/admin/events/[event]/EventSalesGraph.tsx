@@ -162,7 +162,7 @@ export function EventSalesGraph(props: EventSalesGraphProps) {
             .call(formattedLeftAxis(scaleY));
 
         // Create a clip path:
-        const clip = element.append('defs')
+        element.append('defs')
             .append('SVG:clipPath')
             .attr('id', 'clip')
             .append('SVG:rect')

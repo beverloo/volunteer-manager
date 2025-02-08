@@ -13,8 +13,8 @@ import type { JsxComponentDescriptor, MDXEditorMethods } from '@mdxeditor/editor
 import {
     BlockTypeSelect, BoldItalicUnderlineToggles, CreateLink, DiffSourceToggleWrapper,
     GenericJsxEditor, ListsToggle, MDXEditor, Separator, UndoRedo, diffSourcePlugin, headingsPlugin,
-    imagePlugin, jsxPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin,
-    tablePlugin, thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
+    jsxPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, quotePlugin, tablePlugin,
+    thematicBreakPlugin, toolbarPlugin } from '@mdxeditor/editor';
 
 import { unrecognisedNodePlugin } from './mdxEditorPlugins';
 

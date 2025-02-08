@@ -47,6 +47,7 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
 
     }, [ props.event ]);
 
+    // eslint-disable-next-line unused-imports/no-unused-vars
     const { data, error, isLoading, mutate } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
         refreshInterval: data => !!data ? data.config.updateFrequencyMs : kDefaultUpdateFrequencyMs,
     });

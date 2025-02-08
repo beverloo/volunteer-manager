@@ -17,9 +17,8 @@ import { or, requireAuthenticationContext } from '@lib/auth/AuthenticationContex
  * (signed in) user, although the available options will depend on the user's access level.
  */
 export default async function VolunteersLayout(props: React.PropsWithChildren) {
-
     // Note: keep this in sync with //admin/layout.tsx
-    const { access, user } = await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: or(
             'volunteer.export',

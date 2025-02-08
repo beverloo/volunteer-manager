@@ -22,7 +22,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * end up out of sync.
  */
 export default async function EventTeamShiftsPage(props: NextPageParams<'event' | 'team'>) {
-    const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const accessScope = { event: event.slug, team: team.slug };
 

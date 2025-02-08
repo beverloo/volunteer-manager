@@ -3,8 +3,6 @@
 
 'use client';
 
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
@@ -37,7 +35,7 @@ interface HeaderProps {
  * of the scheduling app. The header is not actionable by default.
  */
 export function Header(props: HeaderProps) {
-    const { title, subtitle, icon } = props;
+    const { title, subtitle } = props;
     return (
         <Paper sx={{ maxWidth: '100vw' }}>
             <List>

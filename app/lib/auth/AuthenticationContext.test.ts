@@ -1,9 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { getAccessFallbackHTTPStatus, isHTTPAccessFallbackError }
-    from 'next/dist/client/components/http-access-fallback/http-access-fallback';
-
 import { AccessControl } from './AccessControl';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { executeAccessCheck, getAuthenticationContextFromHeaders } from './AuthenticationContext';

@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { type VendorTeam, kRoleBadge, kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
+import { kRoleBadge, kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding

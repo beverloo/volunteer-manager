@@ -5,7 +5,7 @@
 
 import type { PaletteMode } from '@mui/material';
 import type { Theme, ThemeOptions } from '@mui/material/styles';
-import { createTheme, darken, lighten } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 
 import grey from '@mui/material/colors/grey';

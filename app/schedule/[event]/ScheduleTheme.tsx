@@ -10,7 +10,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
-import { darken, decomposeColor, emphasize, lighten } from '@mui/system/colorManipulator';
+import { decomposeColor, lighten } from '@mui/system/colorManipulator';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Box from '@mui/material/Box';

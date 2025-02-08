@@ -402,7 +402,7 @@ interface VolunteerHeaderProps {
  * to change their participation. The exact actions depend on the access level of the user.
  */
 export function VolunteerHeader(props: VolunteerHeaderProps) {
-    const { event, team, volunteer, user } = props;
+    const { event, team, volunteer } = props;
 
     const allowSilent = props.canUpdateWithoutNotification;
 

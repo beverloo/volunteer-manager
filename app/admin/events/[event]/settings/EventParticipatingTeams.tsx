@@ -26,8 +26,6 @@ interface EventParticipatingTeamsProps {
  * will enable a more detailed section with settings specific to that team.
  */
 export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
-    const { event } = props;
-
     const context = { event: props.event.slug };
     const columns: RemoteDataTableColumn<EventTeamRowModel>[] = [
         {

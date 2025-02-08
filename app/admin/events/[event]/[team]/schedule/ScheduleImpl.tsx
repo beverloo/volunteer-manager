@@ -291,10 +291,8 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         let estimatedScheduleHeight = /* header= */ 50;
         for (const resource of resources) {
             estimatedScheduleHeight += /* section header= */ 32;
-            if (!!resource.children) {
-                for (const child of resource.children)
-                    estimatedScheduleHeight += /* resource =*/ 32;
-            }
+            if (!!resource.children)
+                estimatedScheduleHeight += resource.children.length * /* resource =*/ 32;
         }
 
         // Substract 100 from the `windowHeight` to ensure that the essential UI around the tool

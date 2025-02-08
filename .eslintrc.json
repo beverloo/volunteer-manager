@@ -1,5 +1,8 @@
 {
     "extends": "next",
+    "plugins": [
+        "unused-imports"
+    ],
     "rules": {
         "eol-last": [ "error", "always" ],
         "eqeqeq": [ "error", "always" ],
@@ -24,6 +27,14 @@
         "prefer-const": "warn",
         "quotes": [ "error", "single" ],
         "react/jsx-indent-props": "off",
-        "react/no-unescaped-entities": "off"
+        "react/no-unescaped-entities": "off",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+            "warn",
+            {
+                "args": "none",
+                "caughtErrors": "none"
+            }
+        ]
     }
 }

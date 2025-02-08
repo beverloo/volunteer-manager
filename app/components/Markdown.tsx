@@ -12,7 +12,6 @@ import Alert from '@mui/material/Alert';
 import Box, { type BoxProps } from '@mui/material/Box';
 import { default as MuiLink, type LinkProps } from '@mui/material/Link';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
-import { darken, lighten } from '@mui/material/styles';
 
 import { RemoteContent } from './RemoteContent';
 

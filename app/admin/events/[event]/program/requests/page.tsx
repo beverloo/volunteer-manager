@@ -14,7 +14,7 @@ import { kRegistrationStatus } from '@lib/database/Types';
  * help from the volunteering teams. Requests must be managed directly by our team.
  */
 export default async function ProgramRequestsPage(props: NextPageParams<'event'>) {
-    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event } = await verifyAccessAndFetchPageInfo(props.params);
 
     const leaders = await db.selectFrom(tUsersEvents)
         .innerJoin(tRoles)

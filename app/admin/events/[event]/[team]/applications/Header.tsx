@@ -34,7 +34,7 @@ interface HeaderProps {
  * applications are no longer being accepted. These settings can be changed in Event Settings.
  */
 export function Header(props: HeaderProps) {
-    const { event, team, user } = props;
+    const { event, team } = props;
 
     return (
         <Paper sx={{ p: 2 }}>

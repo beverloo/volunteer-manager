@@ -11,7 +11,7 @@ import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PaletteIcon from '@mui/icons-material/Palette';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import Tooltip from '@mui/material/Tooltip';
-import Typography, { type TypographyProps } from '@mui/material/Typography';
+import Typography from '@mui/material/Typography';
 
 import type { EventShiftContext, EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';
 import { ExcitementIcon } from '@app/admin/components/ExcitementIcon';
