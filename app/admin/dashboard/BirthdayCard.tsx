@@ -3,6 +3,9 @@
 
 'use client';
 
+import { useMemo } from 'react';
+
+import type { SvgIconProps } from '@mui/material/SvgIcon';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -51,6 +54,8 @@ interface BirthdayCardProps {
  * particular month. No particular interaction is provided, but we don't want to forget either.
  */
 export function BirthdayCard(props: BirthdayCardProps) {
+    const today = useMemo(() => Temporal.Now.plainDateISO(), [ /* no deps */ ]);
+
     const month = formatDate(Temporal.PlainDate.from(props.birthdays[0].birthdate), 'MMMM');
     const image = !!props.upcoming ? '/images/admin/birthday-header-2.jpg'
                                    : '/images/admin/birthday-header-1.jpg';
@@ -64,16 +69,40 @@ export function BirthdayCard(props: BirthdayCardProps) {
                     {month}
                 </Typography>
                 <List dense disablePadding>
-                    { props.birthdays.map(({ name, birthdate }, index) =>
-                        <ListItem disableGutters key={index}>
-                            <ListItemIcon sx={{ minWidth: '40px' }}>
-                                <CelebrationIcon />
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={name}
-                                secondary={
-                                    formatDate(Temporal.PlainDate.from(birthdate), 'MMMM D')} />
-                        </ListItem> )}
+                    { props.birthdays.map(({ name, birthdate }, index) => {
+                        const plainBirthdate = Temporal.PlainDate.from(birthdate);
+                        const plainBirthdateThisYear = plainBirthdate.with({ year: today.year });
+
+                        const daysUntilBirthday =
+                            today.until(plainBirthdateThisYear, { largestUnit: 'days' }).days;
+
+                        const iconColour: SvgIconProps['color'] =
+                            daysUntilBirthday < 0
+                                ? 'disabled'
+                                : daysUntilBirthday === 0
+                                    ? 'warning'
+                                    : daysUntilBirthday < 7
+                                        ? 'primary'
+                                        : 'action';
+
+                        return (
+                            <ListItem disableGutters key={index}>
+                                <ListItemIcon sx={{ minWidth: '40px' }}>
+                                    <CelebrationIcon color={iconColour} />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={name}
+                                    secondary={formatDate(plainBirthdate, 'MMMM D')}
+                                    slotProps={{
+                                        primary: {
+                                            sx: {
+                                                fontWeight: daysUntilBirthday === 0 ? '500' : '400',
+                                            }
+                                        }
+                                    }} />
+                            </ListItem>
+                        );
+                    }) }
                 </List>
             </CardContent>
         </Card>
