@@ -89,34 +89,25 @@ export async function writeUserSettings<T extends keyof UserSettingsMap>(
 {
     const dbInstance = db;
     await dbInstance.transaction(async () => {
-        const keysToDelete: T[] = [];
-        const keysToInsert: { userId: number, settingName: string, settingValue: string }[] = [];
-
         for (const [ setting, value ] of Object.entries(settings)) {
-            keysToDelete.push(setting as T);
+            if (value === undefined || value === null) {
+                await dbInstance.deleteFrom(tUsersSettings)
+                    .where(tUsersSettings.userId.equals(userId))
+                        .and(tUsersSettings.settingName.equals(setting))
+                    .executeDelete();
 
-            if (typeof value !== 'undefined') {
-                keysToInsert.push({
-                    userId,
-                    settingName: setting,
-                    settingValue: JSON.stringify(value)
-                });
+            } else {
+                const settingValue = JSON.stringify(value);
+
+                await dbInstance.insertInto(tUsersSettings)
+                    .set({
+                        userId,
+                        settingName: setting,
+                        settingValue,
+                    })
+                    .onConflictDoUpdateSet({ settingValue })
+                    .executeInsert();
             }
-        }
-
-        // Delete stored settings that no longer should have a value.
-        if (keysToDelete.length) {
-            await dbInstance.deleteFrom(tUsersSettings)
-                .where(tUsersSettings.settingName.in(keysToDelete))
-                    .and(tUsersSettings.userId.equals(userId))
-                .executeDelete(/* min= */ 0, /* max= */ keysToDelete.length);
-        }
-
-        // Insert new rows for stored settings that do have a value.
-        if (keysToInsert.length) {
-            await dbInstance.insertInto(tUsersSettings)
-                .values(keysToInsert)
-                .executeInsert();
         }
     });
 }
