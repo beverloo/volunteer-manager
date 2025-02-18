@@ -1,8 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type ICompare, PriorityQueue } from '@datastructures-js/priority-queue';
-
+import { PriorityQueue, type PriorityQueueComparator } from './PriorityQueue';
 import type { Scheduler, TaskIdentifier } from './Scheduler';
 
 /**
@@ -25,9 +24,10 @@ interface QueuedTask {
  * Comparator that can be used to compare two queued tasks. The task that will be executed soonest
  * will be sorted at the top of the priority queue, everything else will follow thereafter.
  */
-const QueuedTaskComparator: ICompare<QueuedTask> = (lhs: QueuedTask, rhs: QueuedTask) => {
-    return rhs.runtime > lhs.runtime ? -1 : 1;
-};
+const QueuedTaskComparator: PriorityQueueComparator<QueuedTask> =
+    (lhs: QueuedTask, rhs: QueuedTask) => {
+        return rhs.runtime > lhs.runtime ? -1 : 1;
+    };
 
 /**
  * Base implementation of the Scheduler type to be shared between the production and a mock.
@@ -93,7 +93,7 @@ export abstract class SchedulerBase implements Scheduler {
         if (pendingTask.runtime > currentTimeNs)
             return;  // the task is not ready to be invoked yet
 
-        this.#taskQueue.dequeue();
+        this.#taskQueue.pop();
         {
             this.#invocationCount++;
             this.#lastInvocation = process.hrtime.bigint();
