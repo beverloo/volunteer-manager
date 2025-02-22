@@ -1,9 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { Suspense } from 'react';
 
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
@@ -441,6 +444,14 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                                     <EventSales event={event.slug} />
                                 </Suspense>
                             </CardContent>
+                            <Divider />
+                            <CardActions sx={{ justifyContent: 'flex-end' }}>
+                                <Button LinkComponent={Link}
+                                        href={`/admin/events/${event.slug}/finance`}
+                                        size="small">
+                                    Learn more
+                                </Button>
+                            </CardActions>
                         </Card> }
                     { (!canAccessFinanceStatistics && recentVolunteers.length > 0) &&
                         <EventRecentVolunteers event={event} volunteers={recentVolunteers} /> }
