@@ -32,8 +32,6 @@ const kSalesUploadData = z.object({
  */
 export async function salesUpload(eventSlug: string, formData: unknown) {
     'use server';
-    console.log(formData);
-
     return executeServerAction(formData, kSalesUploadData, async (data, props) => {
         const event = await getEventBySlug(eventSlug);
         if (!event)
