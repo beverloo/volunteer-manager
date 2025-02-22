@@ -12,10 +12,11 @@ import { SalesConfigurationSection } from './SalesConfigurationSection';
 import { SalesUploadSection } from './SalesUploadSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { Temporal } from '@lib/Temporal';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { readUserSetting } from '@lib/UserSettings';
-import db, { tEventsSalesConfiguration } from '@lib/database';
+import db, { tEvents, tEventsSalesConfiguration, tEventsSales } from '@lib/database';
 
 import { type EventSalesGraphProps, EventSalesGraph } from './graphs/EventSalesGraph';
 import { type TicketSalesGraphProps, TicketSalesGraph } from './graphs/TicketSalesGraph';
@@ -32,6 +33,8 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
         permission: 'statistics.finances',
     });
 
+    const dbInstance = db;
+
     // Those who are allowed to manage an event's settings can manage financial information as well,
     // even though that does not necessarily mean that they can access the source data.
     const canManageFinances = access.can('event.settings', {
@@ -39,8 +42,29 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
     });
 
     // ---------------------------------------------------------------------------------------------
+    // Determine the date ranges that should be displayed on the graphs. All graphs will show data
+    // along the same X axes to make sure that they're visually comparable.
 
-    const dbInstance = db;
+    const minimumRange = await dbInstance.selectFrom(tEventsSales)
+        .where(tEventsSales.eventId.equals(event.id))
+        .selectOneColumn(tEventsSales.eventSaleDate)
+        .orderBy(tEventsSales.eventSaleDate, 'asc')
+        .limit(1)
+        .executeSelectNoneOrOne() ?? Temporal.Now.plainDateISO().subtract({ days: 90 });
+
+    const maximumRange = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(event.id))
+        .selectOneColumn(tEvents.eventEndTime)
+        .executeSelectNoneOrOne() ?? Temporal.Now.zonedDateTimeISO().add({ days: 14 });
+
+    const range: [ string, string ] = [
+        minimumRange.toString(),
+        maximumRange.toPlainDate().toString()
+    ];
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine that graphs that have to be displayed. This is depending on the configuration that
+    // has been set for the event. Ticket graphs will be displayed before event graphs.
 
     const graphs = await dbInstance.selectFrom(tEventsSalesConfiguration)
         .where(tEventsSalesConfiguration.eventId.equals(event.id))
@@ -64,9 +88,10 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
                 eventGraphs.push({
                     activityId: graph.saleEventId,
                     category: graph.category,
-                    event: event.slug,
+                    eventId: event.id,
                     limit: graph.categoryLimit,
                     products: graph.saleTypes,
+                    range,
                 });
                 break;
 
@@ -80,8 +105,9 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
             case kEventSalesCategory.TicketWeekend:
                 ticketGraphs.push({
                     category: graph.category,
-                    event: event.slug,
+                    eventId: event.id,
                     products: graph.saleTypes,
+                    range,
                 });
                 break;
 

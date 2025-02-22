@@ -13,14 +13,20 @@ export interface TicketSalesGraphProps {
     category: EventSalesCategory;
 
     /**
-     * URL-safe slug of the event for which the graph should be displayed.
+     * Unique ID of the event for which data should be displayed.
      */
-    event: string;
+    eventId: number;
 
     /**
      * String of products that will be counted towards this graph.
      */
     products: string[];
+
+    /**
+     * Range of the graph, indicated as the first and last date to display. Dates must be formatted
+     * in a Temporal PlainDate-compatible format.
+     */
+    range: [ string, string ];
 }
 
 /**
