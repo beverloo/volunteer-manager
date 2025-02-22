@@ -144,7 +144,7 @@ export function SalesUploadSection(props: EventSalesProps) {
                     Aggregated information can be imported from our{' '}
                     <MuiLink component={Link} href={link}>ticketing partner</MuiLink>:
                     navigate to an event, then <em>Rapports</em>, then <em>Sales</em>, then
-                    download the daily statistics per ticket type.
+                    download the daily statistics for products and tickets.
                 </SectionIntroduction>
             </Grid>
             <Grid size={12}>

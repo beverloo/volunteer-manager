@@ -226,6 +226,10 @@ do {
                     field: [ 'events', 'event_availability_status' ],
                     type: 'EventAvailabilityStatus'
                 },
+                {
+                    field: [ 'events_sales_configuration', 'sale_category' ],
+                    type: 'EventSalesCategory',
+                },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'outbox_twilio', 'outbox_type' ], type: 'TwilioOutboxType' },

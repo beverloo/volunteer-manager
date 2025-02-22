@@ -87,6 +87,20 @@ export const kEventAvailabilityStatus = {
 } as const;
 
 /**
+ * Sales categories that can be independently tracked and displayed in finance dashboards.
+ * @see Table `events_sales_configuration`
+ */
+export type EventSalesCategory = Values<typeof kEventSalesCategory>;
+export const kEventSalesCategory = {
+    Event: 'Event',
+    Locker: 'Locker',
+    TicketFriday: 'TicketFriday',
+    TicketSaturday: 'TicketSaturday',
+    TicketSunday: 'TicketSunday',
+    TicketWeekend: 'TicketWeekend'
+} as const;
+
+/**
  * Type of export that a particular entry describes.
  * @see Table `exports`
  */

@@ -2,11 +2,13 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { SalesConfigurationSection } from './SalesConfigurationSection';
 import { SalesUploadSection } from './SalesUploadSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
+import { readUserSetting } from '@lib/UserSettings';
 
 /**
  * The <EventFinancePage> page displays financial information of the event to those who have access
@@ -14,7 +16,7 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  * controls which metrics should be displayed in the different graphs.
  */
 export default async function EventFinancePage(props: NextPageParams<'event'>) {
-    const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
+    const { access, event, user } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'statistics.finances',
     });
 
@@ -23,6 +25,9 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
     const canManageFinances = access.can('event.settings', {
         event: event.slug,
     });
+
+    const configurationExpanded =
+        await readUserSetting(user.userId, 'user-admin-event-finance-configuration') ?? false;
 
     return (
         <>
@@ -36,7 +41,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
             { /* TODO: Flagged metrics */ }
             { /* TODO: Empty state */ }
             { canManageFinances &&
-                <>{ /* TODO: Manage metrics */ }</> }
+                <SalesConfigurationSection event={event.slug} expanded={configurationExpanded} /> }
             { canManageFinances &&
                 <SalesUploadSection event={event.slug} /> }
         </>
