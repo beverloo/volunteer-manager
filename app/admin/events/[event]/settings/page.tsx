@@ -1,18 +1,12 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Link from 'next/link';
-
-import { default as MuiLink } from '@mui/material/Link';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { EventDeadlinesTable } from './EventDeadlinesTable';
 import { EventParticipatingTeams } from './EventParticipatingTeams';
-import { EventSales } from './EventSales';
 import { EventSettings } from './EventSettings';
 import { EventTeamSettings } from './EventTeamSettings';
 import { Section } from '@app/admin/components/Section';
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { SettingsHeader } from './SettingsHeader';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
 import { getLeadersForEvent } from '@app/admin/lib/getLeadersForEvent';
@@ -27,7 +21,7 @@ import db, { tEventsTeams, tTeams } from '@lib/database';
 export default async function EventSettingsPage(props: NextPageParams<'event'>) {
     const params = await props.params;
 
-    const { access, event } = await verifyAccessAndFetchPageInfo(props.params, {
+    const { event } = await verifyAccessAndFetchPageInfo(props.params, {
         permission: 'event.settings',
         scope: {
             event: params.event,
@@ -67,8 +61,6 @@ export default async function EventSettingsPage(props: NextPageParams<'event'>) 
 
     const leaders = await getLeadersForEvent(event.id);
 
-    const link = 'https://www.yourticketprovider.nl/account/events/manage/myevents.aspx';
-
     return (
         <>
             <SettingsHeader event={event} />
@@ -82,16 +74,6 @@ export default async function EventSettingsPage(props: NextPageParams<'event'>) 
             { teamSettings.map(({ settings, team }) =>
                 <EventTeamSettings key={team.id} event={event.id} settings={settings!} team={team}
                                    timezone={event.timezone} /> )}
-            { access.can('statistics.finances') &&
-                <Section title="Sales import">
-                    <SectionIntroduction>
-                        Aggregated information can be imported from our{' '}
-                        <MuiLink component={Link} href={link}>ticketing partner</MuiLink>:
-                        navigate to an event, then <em>Rapports</em>, then <em>Sales</em>, then
-                        download the daily statistics per ticket type.
-                    </SectionIntroduction>
-                    <EventSales event={event} />
-                </Section> }
         </>
     );
 }

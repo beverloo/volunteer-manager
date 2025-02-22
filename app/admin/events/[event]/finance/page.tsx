@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { SalesUploadSection } from './SalesUploadSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { generateEventMetadataFn } from '../generateEventMetadataFn';
@@ -25,7 +26,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
 
     return (
         <>
-            <Section title="Financial Information" subtitle={event.shortName}>
+            <Section title="Financial information" subtitle={event.shortName}>
                 <SectionIntroduction important>
                     Financial information regarding {event.shortName} is confidential, even within
                     the volunteering organisation. Do not share this information with anyone who
@@ -37,7 +38,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
             { canManageFinances &&
                 <>{ /* TODO: Manage metrics */ }</> }
             { canManageFinances &&
-                <>{ /* TODO: Upload metrics */ }</> }
+                <SalesUploadSection event={event.slug} /> }
         </>
     );
 }
