@@ -269,7 +269,8 @@ export function ActivityDataTable(props: ActivityDataTableProps) {
         <Box sx={{ p: 2 }}>
             <RemoteDataTable columns={columns} endpoint="/api/admin/program/activities"
                              context={context} pageSize={10} enableCreate enableDelete
-                             enableUpdate defaultSort={{ field: 'title', sort: 'asc' }}
+                             enableUpdate enableQueryParams={true}
+                             defaultSort={{ field: 'title', sort: 'asc' }}
                              isCellEditable={isCellEditable} subject="activity" />
         </Box>
     );
