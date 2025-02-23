@@ -27,7 +27,7 @@ const kTodayColor = '#1976D2';
 /**
  * Props accepted by the <SalesGraph> component.
  */
-export interface SalesGraphProps {
+interface SalesGraphProps {
     /**
      * Optional limit indicating the maximum number of tickets that can be sold.
      */
