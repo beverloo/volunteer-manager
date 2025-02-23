@@ -17,13 +17,15 @@ available in the current version:
         event's program,
       * Separated application and volunteer management systems, per team, per event,
       * Hotel booking management including support for non-volunteers and warnings,
-      * Retention management to easily approach volunteers who helped out before,
+      * Retention management to easily approach volunteers who helped out before, including the
+        ability to generate both e-mail and text messages,
       * Training scheduling management including support for non-volunteers and warnings,
       * Vendor management and scheduling for First Aid and Security teams,
     * Knowledge Base to provide volunteers access to categorised Q&A during the event,
     * Full accountability through extensive logging, including any and all outgoing messages,
     * Powerful permission management based on assigned roles and expressly granted privileges,
     * Direct integration with our friends at [Del a Rie Advies](https://delarieadvies.nl).
+  * Multi-year statistics, each of which can be sliced by team and situation,
   * GDPR-compliant data export tool, enabling third parties to securely access the data they need
     with strict limits on availability, time and request limits.
 
