@@ -35,7 +35,7 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
     return executeServerAction(formData, kSalesUploadData, async (data, props) => {
         const event = await getEventBySlug(eventSlug);
         if (!event)
-            return { success: false, error: 'The right event could not be selected on the server…' };
+            return { success: false, error: 'The event could not be selected on the server…' };
 
         const uploadedReportData = await data.file[0].text();
         const uploadedReportLines = uploadedReportData.split(/\r?\n/);
@@ -68,7 +68,7 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
             for (const uploadedReportLine of uploadedReportLines) {
                 const report = uploadedReportLine.trim().split(separator);
                 if (report.length !== fields.length)
-                    return { success: false, error: 'The selected file contains inconsistent data…' };
+                    return { success: false, error: 'The selected file contains corrupted data…' };
 
                 salesData.push(Object.fromEntries(report.map((value, index) =>
                     [ fields[index], value ])));
@@ -78,9 +78,9 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
         if (!salesData.length)
             return { success: false, error: 'The select file contains no sales data…' };
 
-        // ---------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
         // Actually upload the `data` to the database.
-        // ---------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------
 
         const dbInstance = db;
 

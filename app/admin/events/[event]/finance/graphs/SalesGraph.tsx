@@ -59,7 +59,7 @@ export interface SalesGraphProps {
  * to work in the Volunteer Manager. Input are the series, axis contents, and optional configuration
  * to specialise the default display.
  */
-export async function SalesGraph(props: SalesGraphProps) {
+export function SalesGraph(props: SalesGraphProps) {
     const clipPathId = useId();
 
     return (
