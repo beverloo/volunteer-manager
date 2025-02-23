@@ -5,6 +5,7 @@ import { useId } from 'react';
 
 import { ResponsiveChartContainer, type ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
 import { ChartsClipPath } from '@mui/x-charts/ChartsClipPath';
+import { ChartsAxisHighlight } from '@mui/x-charts/ChartsAxisHighlight';
 import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip/ChartsTooltip';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
@@ -168,6 +169,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
                                                 stroke: kMaximumColor
                                             }} /> }
                 </g>
+                <ChartsAxisHighlight x="line" />
                 <ChartsTooltip />
                 <ChartsXAxis />
                 <ChartsYAxis />
