@@ -7,7 +7,9 @@ import { z } from 'zod';
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tSchedule } from '@lib/database';
+import db, { tSchedule, tScheduleLogs } from '@lib/database';
+
+import { kMutation } from '@lib/database/Types';
 
 /**
  * Type that describes the schedule entry that should be deleted.
@@ -74,15 +76,28 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
         notFound();
 
     const dbInstance = db;
-    const affectedRows = await dbInstance.update(tSchedule)
-        .set({
-            scheduleDeleted: db.currentZonedDateTime()
-        })
-        .where(tSchedule.scheduleId.equals(id))
-            .and(tSchedule.eventId.equals(event.id))
-        .executeUpdate();
+    const affectedRows = await dbInstance.transaction(async () => {
+        const affectedRows = await dbInstance.update(tSchedule)
+            .set({
+                scheduleDeleted: db.currentZonedDateTime()
+            })
+            .where(tSchedule.scheduleId.equals(id))
+                .and(tSchedule.eventId.equals(event.id))
+            .executeUpdate();
 
-    // TODO: Log.
+        if (!!affectedRows) {
+            await dbInstance.insertInto(tScheduleLogs)
+                .set({
+                    eventId: event.id,
+                    scheduleId: id,
+                    mutation: kMutation.Deleted,
+                    mutationUserId: props.user!.userId,
+                })
+                .executeInsert();
+        }
+
+        return affectedRows;
+    });
 
     return { success: !!affectedRows };
 }

@@ -8,9 +8,9 @@ import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { getEventBySlug } from '@lib/EventLoader';
 import { isValidShift } from './fn/isValidShift';
-import db, { tSchedule, tTeams, tUsersEvents } from '@lib/database';
+import db, { tSchedule, tScheduleLogs, tTeams, tUsersEvents } from '@lib/database';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import { kMutation, kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
@@ -106,19 +106,29 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
         return { success: false, error: 'Cannot schedule a shift at that time for the volunteer' };
 
     const dbInstance = db;
-    await dbInstance.insertInto(tSchedule)
-        .set({
-            userId: volunteer.id,
-            eventId: event.id,
-            shiftId: /* to be determined= */ undefined,
-            scheduleTimeStart: request.shift.start,
-            scheduleTimeEnd: request.shift.end,
-            scheduleUpdatedBy: props.user.userId,
-            scheduleUpdated: dbInstance.currentZonedDateTime()
-        })
-        .executeInsert();
+    await dbInstance.transaction(async () => {
+        const scheduleId = await dbInstance.insertInto(tSchedule)
+            .set({
+                userId: volunteer.id,
+                eventId: event.id,
+                shiftId: /* to be determined= */ undefined,
+                scheduleTimeStart: request.shift.start,
+                scheduleTimeEnd: request.shift.end,
+                scheduleUpdatedBy: props.user!.userId,
+                scheduleUpdated: dbInstance.currentZonedDateTime()
+            })
+            .returningLastInsertedId()
+            .executeInsert();
 
-    // TODO: Log.
+        await dbInstance.insertInto(tScheduleLogs)
+            .set({
+                eventId: event.id,
+                scheduleId,
+                mutation: kMutation.Created,
+                mutationUserId: props.user!.userId,
+            })
+            .executeInsert();
+    });
 
     return { success: true };
 }

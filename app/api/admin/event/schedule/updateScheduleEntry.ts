@@ -6,11 +6,12 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
+import { Temporal } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { isValidShift } from './fn/isValidShift';
-import db, { tSchedule, tTeams, tUsersEvents } from '@lib/database';
+import db, { tSchedule, tScheduleLogs, tTeams, tUsersEvents } from '@lib/database';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import { kMutation, kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
@@ -104,6 +105,20 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
     if (!event)
         notFound();
 
+    const shift = await db.selectFrom(tSchedule)
+        .where(tSchedule.scheduleId.equals(id))
+            .and(tSchedule.scheduleDeleted.isNull())
+        .select({
+            userId: tSchedule.userId,
+            shiftId: tSchedule.shiftId,
+            start: tSchedule.scheduleTimeStart,
+            end: tSchedule.scheduleTimeEnd,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!shift)
+        return { success: false, error: 'The selected shift does not exist anymore' };
+
     const volunteer = await db.selectFrom(tUsersEvents)
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
@@ -128,22 +143,74 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
         return { success: false, error: 'Cannot schedule a shift at that time for the volunteer' };
 
     const dbInstance = db;
-    const affectedRows = await dbInstance.update(tSchedule)
-        .setIfValue({
-            shiftId: request.shift.shiftId,
-        })
-        .set({
-            userId: request.shift.userId,
-            scheduleTimeStart: request.shift.start,
-            scheduleTimeEnd: request.shift.end,
-            scheduleUpdatedBy: props.user.userId,
-            scheduleUpdated: dbInstance.currentZonedDateTime()
-        })
-        .where(tSchedule.scheduleId.equals(id))
-            .and(tSchedule.eventId.equals(event.id))
-        .executeUpdate();
+    const affectedRows = await dbInstance.transaction(async () => {
+        const affectedRows = await dbInstance.update(tSchedule)
+            .setIfValue({
+                shiftId: request.shift.shiftId,
+            })
+            .set({
+                userId: request.shift.userId,
+                scheduleTimeStart: request.shift.start,
+                scheduleTimeEnd: request.shift.end,
+                scheduleUpdatedBy: props.user!.userId,
+                scheduleUpdated: dbInstance.currentZonedDateTime()
+            })
+            .where(tSchedule.scheduleId.equals(id))
+                .and(tSchedule.eventId.equals(event.id))
+            .executeUpdate();
 
-    // TODO: Log
+        if (!!affectedRows) {
+            let mutationBeforeShiftId: number | undefined;
+            let mutationAfterShiftId: number | undefined;
+
+            if (shift.shiftId !== request.shift.shiftId) {
+                mutationBeforeShiftId = shift.shiftId;
+                mutationAfterShiftId = request.shift.shiftId;
+            }
+
+            let mutationBeforeTimeStart: Temporal.ZonedDateTime | undefined;
+            let mutationBeforeTimeEnd: Temporal.ZonedDateTime | undefined;
+            let mutationAfterTimeStart: Temporal.ZonedDateTime | undefined;
+            let mutationAfterTimeEnd: Temporal.ZonedDateTime | undefined;
+
+            if (Temporal.ZonedDateTime.compare(shift.start, request.shift.start) !== 0) {
+                mutationBeforeTimeStart = shift.start;
+                mutationAfterTimeStart = request.shift.start
+            }
+
+            if (Temporal.ZonedDateTime.compare(shift.end, request.shift.end) !== 0) {
+                mutationBeforeTimeEnd = shift.end;
+                mutationAfterTimeEnd = request.shift.end;
+            }
+
+            let mutationBeforeUserId: number | undefined;
+            let mutationAfterUserId: number | undefined;
+
+            if (shift.userId !== request.shift.userId) {
+                mutationBeforeUserId = shift.userId;
+                mutationAfterUserId = request.shift.userId;
+            }
+
+            await dbInstance.insertInto(tScheduleLogs)
+                .set({
+                    eventId: event.id,
+                    scheduleId: id,
+                    mutation: kMutation.Updated,
+                    mutationBeforeShiftId,
+                    mutationBeforeTimeStart,
+                    mutationBeforeTimeEnd,
+                    mutationBeforeUserId,
+                    mutationAfterShiftId,
+                    mutationAfterTimeStart,
+                    mutationAfterTimeEnd,
+                    mutationAfterUserId,
+                    mutationUserId: props.user!.userId,
+                })
+                .executeInsert();
+        }
+
+        return affectedRows;
+    });
 
     return { success: !!affectedRows };
 }

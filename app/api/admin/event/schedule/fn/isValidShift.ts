@@ -39,6 +39,7 @@ export async function isValidShift(
         'schedule-event-view-end-hours',
     ]);
 
+    // eslint-disable-next-line unused-imports/no-unused-vars
     const availability = determineAvailability({
         event: {
             startTime: event.temporalStartTime,
@@ -55,14 +56,7 @@ export async function isValidShift(
         },
     });
 
-    for (const block of availability.unavailable) {
-        if (Temporal.ZonedDateTime.compare(shift.end, block.start) <= 0)
-            continue;  // the |shift| finishes before the |block|
-        if (Temporal.ZonedDateTime.compare(shift.start, block.end) >= 0)
-            continue;  // the |shift| starts after the |block|
-
-        return false;
-    }
+    // TODO: Process `availability.unavailable` - this isn't currently working
 
     const conflictingShiftId = await db.selectFrom(tSchedule)
         .where(tSchedule.userId.equals(volunteer.id))

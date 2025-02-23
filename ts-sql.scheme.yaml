@@ -3465,6 +3465,131 @@ tables:
       `error_digest` text DEFAULT NULL,
       PRIMARY KEY (`error_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: schedule_logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: mutation_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: schedule_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: mutation
+    type: enum('Created','Updated','Deleted')
+    nullable: false
+    default: null
+    comment: ""
+  - name: mutation_before_shift_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_before_time_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_before_time_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_before_user_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_after_shift_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_after_time_start
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_after_time_end
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_after_user_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: mutation_user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: mutation_date
+    type: datetime
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  indexes:
+  - name: event_id
+    def: KEY event_id (event_id) USING BTREE
+    table: schedule_logs
+    columns:
+    - event_id
+    comment: ""
+  - name: schedule_id
+    def: KEY schedule_id (schedule_id) USING BTREE
+    table: schedule_logs
+    columns:
+    - schedule_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (mutation_id) USING BTREE
+    table: schedule_logs
+    columns:
+    - mutation_id
+    comment: ""
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (mutation_id)
+    table: schedule_logs
+    referencedTable: null
+    columns:
+    - mutation_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `schedule_logs` (
+      `mutation_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
+      `event_id` int(4) unsigned NOT NULL,
+      `schedule_id` int(4) unsigned NOT NULL,
+      `mutation` enum('Created','Updated','Deleted') NOT NULL,
+      `mutation_before_shift_id` int(4) unsigned DEFAULT NULL,
+      `mutation_before_time_start` datetime DEFAULT NULL,
+      `mutation_before_time_end` datetime DEFAULT NULL,
+      `mutation_before_user_id` int(4) unsigned DEFAULT NULL,
+      `mutation_after_shift_id` int(4) unsigned DEFAULT NULL,
+      `mutation_after_time_start` datetime DEFAULT NULL,
+      `mutation_after_time_end` datetime DEFAULT NULL,
+      `mutation_after_user_id` int(4) unsigned DEFAULT NULL,
+      `mutation_user_id` int(4) unsigned NOT NULL,
+      `mutation_date` datetime NOT NULL DEFAULT current_timestamp(),
+      PRIMARY KEY (`mutation_id`),
+      KEY `schedule_id` (`schedule_id`),
+      KEY `event_id` (`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_areas
   type: BASE TABLE
   comment: ""

@@ -125,6 +125,7 @@ export const kFileType = {
 /**
  * The type of (activity) mutation that happened in the AnPlan program.
  * @see Table `activities_logs`
+ * @see Table `schedule_logs`
  */
 export type Mutation = Values<typeof kMutation>;
 export const kMutation = {
