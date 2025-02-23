@@ -5,7 +5,7 @@ import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tActivities, tEventsTeams, tShifts, tUsers } from '@lib/database';
@@ -240,7 +240,7 @@ export const { GET, PUT } = createDataTableApi(kProgramRequestRowModel, kProgram
                 .and(tActivities.activityDeleted.isNull())
             .executeSelectNoneOrOne();
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminEventProgramRequestUpdate,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import db, { tUsers } from '@lib/database';
@@ -57,7 +57,7 @@ export async function resetPasswordLink(request: Request, props: ActionProps): P
         token: user.sessionToken
     });
 
-    await Log({
+    RecordLog({
         type: kLogType.AdminResetPasswordLink,
         severity: kLogSeverity.Warning,
         sourceUser: props.user,

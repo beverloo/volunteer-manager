@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tUsers, tUsersEvents, tEvents } from '@lib/database';
 
@@ -75,7 +75,7 @@ export async function volunteerContactInfo(request: Request, props: ActionProps)
         .executeSelectNoneOrOne();
 
     if (contactInformation) {
-        await Log({
+        RecordLog({
             type: kLogType.AdminAccessVolunteerInfo,
             severity: kLogSeverity.Info,
             sourceUser: props.user,

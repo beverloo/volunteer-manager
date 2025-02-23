@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -215,7 +215,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
     }
 
     if (affectedRows > 0) {
-        await Log({
+        RecordLog({
             type: kLogType.AdminEventTeamUpdate,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

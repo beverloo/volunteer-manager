@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -209,7 +209,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
         phoneNumber = volunteer.phoneNumber;
     }
 
-    await Log({
+    RecordLog({
         type: kLogType.AdminEventRetentionMessage,
         severity: kLogSeverity.Info,
         sourceUser: props.user,

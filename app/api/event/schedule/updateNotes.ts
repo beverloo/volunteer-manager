@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tUsersEvents } from '@lib/database';
 
@@ -71,7 +71,7 @@ export async function updateNotes(request: Request, props: ActionProps): Promise
         .executeUpdate();
 
     if (!!affectedRows) {
-        await Log({
+        RecordLog({
             type: kLogType.EventVolunteerNotes,
             severity: kLogSeverity.Info,
             sourceUser: props.user,

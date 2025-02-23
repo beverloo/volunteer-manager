@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { getStaticContent } from '@lib/Content';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
@@ -80,7 +80,7 @@ export async function passwordResetRequest(request: Request, props: ActionProps)
                 },
             });
 
-            await Log({
+            RecordLog({
                 type: kLogType.AccountPasswordResetRequest,
                 sourceUser: passwordResetData.userId,
                 data: { ip: props.ip }

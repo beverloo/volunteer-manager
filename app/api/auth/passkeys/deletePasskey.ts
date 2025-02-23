@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { deleteCredential } from './PasskeyUtils';
 
 /**
@@ -46,7 +46,7 @@ export async function deletePasskey(request: Request, props: ActionProps): Promi
 
     const credentialDeleted = await deleteCredential(props.user, request.id);
     if (credentialDeleted) {
-        await Log({
+        RecordLog({
             type: kLogType.AccountPasskeyCreate,
             severity: kLogSeverity.Debug,
             sourceUser: props.user,

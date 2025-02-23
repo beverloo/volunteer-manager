@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { type ActionProps, executeAction } from '../Action';
 import { type VendorTeam, kExportType, kRegistrationStatus, kVendorTeam } from '@lib/database/Types';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 
@@ -288,7 +288,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             })
             .executeInsert();
 
-        await Log({
+        RecordLog({
             type: kLogType.ExportDataAccess,
             sourceUser: props.user,
             data: {

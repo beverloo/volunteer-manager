@@ -24,6 +24,8 @@ export class LogsTable extends Table<DBConnection, 'LogsTable'> {
     logType = this.column('log_type', 'string');
     logSeverity = this.column<LogSeverity>('log_severity', 'enum', 'LogSeverity');
     logSourceUserId = this.optionalColumnWithDefaultValue('log_source_user_id', 'int');
+    logSourceIpAddress = this.optionalColumnWithDefaultValue('log_source_ip_address', 'string');
+    logSourceUserAgent = this.optionalColumnWithDefaultValue('log_source_user_agent', 'string');
     logTargetUserId = this.optionalColumnWithDefaultValue('log_target_user_id', 'int');
     logData = this.optionalColumnWithDefaultValue('log_data', 'string');
     logDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('log_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);

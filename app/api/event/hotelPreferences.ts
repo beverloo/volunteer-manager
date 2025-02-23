@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -161,7 +161,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
             .executeDelete();
 
         if (!!affectedRows) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminClearHotelPreferences,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
@@ -232,7 +232,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
         return { success: false, error: 'Unable to update your preferences in the database' };
 
     if (!request.adminOverrideUserId) {
-        await Log({
+        RecordLog({
             type: kLogType.ApplicationHotelPreferences,
             severity: kLogSeverity.Info,
             sourceUser: props.user,
@@ -243,7 +243,7 @@ export async function hotelPreferences(request: Request, props: ActionProps): Pr
             },
         });
     } else {
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateHotelPreferences,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles, tTeamsRoles, tUsersEvents } from '@lib/database';
 
@@ -125,7 +125,7 @@ export async function volunteerRoles(request: Request, props: ActionProps): Prom
             .executeUpdate(/* min= */ 0, /* max= */ 1);
 
         if (affectedRows > 0) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminEventRoleUpdate,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,

@@ -10,7 +10,7 @@ import { AvailabilityToggle } from '@app/admin/components/AvailabilityToggle';
 import { AvailabilityWindow } from '@app/admin/components/AvailabilityWindow';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { HotelConfigurationTable } from './HotelConfigurationTable';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { executeServerAction } from '@lib/serverAction';
 import { getEventNameForId } from '@lib/EventLoader';
@@ -54,7 +54,7 @@ async function updateHotelConfiguration(eventId: number, formData: unknown) {
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminEventPublishInfo,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

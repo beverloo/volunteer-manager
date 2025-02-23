@@ -7,7 +7,7 @@ import { z } from 'zod';
 import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { type ExportType, kExportType } from '@lib/database/Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck, type AuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -250,7 +250,7 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
             })
             .executeSelectOne();
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminExportMutation,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

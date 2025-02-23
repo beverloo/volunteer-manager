@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -64,7 +64,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
             'gen-ai-system-instruction': request.systemInstruction,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateAiSetting,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -90,7 +90,7 @@ export async function updateSettings(request: Request, props: ActionProps): Prom
                 request.prompts['gen-ai-intention-remind-participation'],
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateAiSetting,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

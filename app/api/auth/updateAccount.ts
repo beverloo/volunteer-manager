@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import db, { tUsers } from '@lib/database';
 
@@ -137,7 +137,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
         .where(tUsers.userId.equals(props.user.userId))
         .executeUpdate();
 
-    await Log({
+    RecordLog({
         type: kLogType.AccountUpdate,
         sourceUser: props.user,
         data: {

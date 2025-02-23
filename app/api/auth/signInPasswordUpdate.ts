@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { unsealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { updateUserPassword } from './passwordReset';
@@ -66,7 +66,7 @@ export async function signInPasswordUpdate(request: Request, props: ActionProps)
             await writeSealedSessionCookie(
                 { id: user.userId, token: sessionToken }, props.responseHeaders);
 
-            await Log({
+            RecordLog({
                 type: kLogType.AccountPasswordUpdate,
                 sourceUser: user,
                 data: { ip: props.ip },

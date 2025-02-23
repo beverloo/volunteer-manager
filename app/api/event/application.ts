@@ -6,8 +6,8 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
 import { Publish } from '@lib/subscriptions';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { createRegistration, getRegistration } from '@lib/RegistrationLoader';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
@@ -181,7 +181,7 @@ export async function application(request: Request, props: ActionProps): Promise
 
         await createRegistration(environmentDomain, event, userId, request);
         if (request.adminOverride) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminEventApplication,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
@@ -191,7 +191,7 @@ export async function application(request: Request, props: ActionProps): Promise
                 }
             });
         } else {
-            await Log({
+            RecordLog({
                 type: kLogType.EventApplication,
                 sourceUser: props.user,
                 data: {

@@ -1,6 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { after } from 'next/server';
+import { headers } from 'next/headers';
+
 import type { User } from '@lib/auth/User';
 import { PlaywrightHooks } from './PlaywrightHooks';
 import db, { tLogs } from '@lib/database';
@@ -138,10 +141,10 @@ export interface LogEntry {
 }
 
 /**
- * Logs the given `entry` to the database. Callers to this method must wait for this call to
- * complete in order to avoid concurrent queries running on the database.
+ * Logs the given `entry` to the database. This function will be executed after the current request
+ * has completed, to avoid blocking the response as users don't get value out of log entries.
  */
-export async function Log(entry: LogEntry): Promise<void> {
+export function RecordLog(entry: LogEntry): void {
     const { sourceUser, targetUser } = entry;
 
     let sourceUserId: number | null = null;
@@ -158,11 +161,65 @@ export async function Log(entry: LogEntry): Promise<void> {
     if (PlaywrightHooks.isActive() && PlaywrightHooks.isPlaywrightUser(sourceUserId, targetUserId))
         return;  // don't create log entries on behalf of Playwright users
 
+    after(async () => {
+        const requestHeaders = await headers();
+
+        const logSourceIpAddress = requestHeaders.get('x-forwarded-for');
+        const logSourceUserAgent = requestHeaders.get('user-agent');
+
+        await db.insertInto(tLogs)
+            .values({
+                logType: entry.type,
+                logSeverity: severity,
+                logSourceUserId: sourceUserId,
+                logSourceIpAddress,
+                logSourceUserAgent,
+                logTargetUserId: targetUserId,
+                logData: data,
+            }).executeInsert();
+    });
+}
+
+/**
+ * Version of `RecordLog` that will write the given `entry` to the database immediately, in a way
+ * that can be waited on. Should be used sparsely, generally `RecordLog` should be preferred unless
+ * the log might be issued outside of a request context.
+ */
+export async function RecordLogImmediate(entry: LogEntry): Promise<void> {
+    const { sourceUser, targetUser } = entry;
+
+    let sourceUserId: number | null = null;
+    if (sourceUser)
+        sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.userId;
+
+    let targetUserId: number | null = null;
+    if (targetUser)
+        targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
+
+    const data = entry.data ? JSON.stringify(entry.data) : null;
+    const severity = entry.severity ?? kLogSeverity.Info;
+
+    if (PlaywrightHooks.isActive() && PlaywrightHooks.isPlaywrightUser(sourceUserId, targetUserId))
+        return;  // don't create log entries on behalf of Playwright users
+
+    let logSourceIpAddress: string | null = null;
+    let logSourceUserAgent: string | null = null;
+
+    try {
+        const requestHeaders = await headers();
+
+        logSourceIpAddress = requestHeaders.get('x-forwarded-for');
+        logSourceUserAgent = requestHeaders.get('user-agent');
+
+    } catch (error) { /* ignore for non-request contexts */ }
+
     await db.insertInto(tLogs)
         .values({
             logType: entry.type,
             logSeverity: severity,
             logSourceUserId: sourceUserId,
+            logSourceIpAddress,
+            logSourceUserAgent,
             logTargetUserId: targetUserId,
             logData: data,
         }).executeInsert();

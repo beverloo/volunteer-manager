@@ -305,117 +305,6 @@ tables:
       KEY `event_id` (`event_id`),
       CONSTRAINT `hotels_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: logs
-  type: BASE TABLE
-  comment: ""
-  columns:
-  - name: log_id
-    type: int(8) unsigned
-    nullable: false
-    default: null
-    extraDef: auto_increment
-    comment: ""
-  - name: log_date
-    type: timestamp
-    nullable: false
-    default: current_timestamp()
-    comment: ""
-  - name: log_type
-    type: varchar(48)
-    nullable: false
-    default: null
-    comment: ""
-  - name: log_severity
-    type: enum('Debug','Info','Warning','Error')
-    nullable: false
-    default: null
-    comment: ""
-  - name: log_source_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: log_target_user_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: log_data
-    type: text
-    nullable: true
-    default: "NULL"
-    comment: ""
-  - name: log_deleted
-    type: datetime
-    nullable: true
-    default: "NULL"
-    comment: ""
-  indexes:
-  - name: log_source_user_id
-    def: KEY log_source_user_id (log_source_user_id) USING BTREE
-    table: logs
-    columns:
-    - log_source_user_id
-    comment: ""
-  - name: log_target_user_id
-    def: KEY log_target_user_id (log_target_user_id) USING BTREE
-    table: logs
-    columns:
-    - log_target_user_id
-    comment: ""
-  - name: PRIMARY
-    def: PRIMARY KEY (log_id) USING BTREE
-    table: logs
-    columns:
-    - log_id
-    comment: ""
-  constraints:
-  - name: logs_log_source_user_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
-    table: logs
-    referencedTable: users
-    columns:
-    - log_source_user_id
-    referencedColumns:
-    - user_id
-    comment: ""
-  - name: logs_log_target_user_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
-    table: logs
-    referencedTable: users
-    columns:
-    - log_target_user_id
-    referencedColumns:
-    - user_id
-    comment: ""
-  - name: PRIMARY
-    type: PRIMARY KEY
-    def: PRIMARY KEY (log_id)
-    table: logs
-    referencedTable: null
-    columns:
-    - log_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
-  def: |-
-    CREATE TABLE `logs` (
-      `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `log_date` timestamp NOT NULL DEFAULT current_timestamp(),
-      `log_type` varchar(48) NOT NULL,
-      `log_severity` enum('Debug','Info','Warning','Error') NOT NULL,
-      `log_source_user_id` int(8) unsigned DEFAULT NULL,
-      `log_target_user_id` int(8) unsigned DEFAULT NULL,
-      `log_data` text DEFAULT NULL,
-      `log_deleted` datetime DEFAULT NULL,
-      PRIMARY KEY (`log_id`),
-      KEY `log_target_user_id` (`log_target_user_id`),
-      KEY `log_source_user_id` (`log_source_user_id`),
-      CONSTRAINT `logs_log_source_user_id` FOREIGN KEY (`log_source_user_id`) REFERENCES `users` (`user_id`),
-      CONSTRAINT `logs_log_target_user_id` FOREIGN KEY (`log_target_user_id`) REFERENCES `users` (`user_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: roles
   type: BASE TABLE
   comment: ""
@@ -4718,6 +4607,129 @@ tables:
       PRIMARY KEY (`whatsapp_message_id`),
       KEY `whatsapp_message_recipient_user_id` (`whatsapp_recipient_user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: logs
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: log_id
+    type: int(8) unsigned
+    nullable: false
+    default: null
+    extraDef: auto_increment
+    comment: ""
+  - name: log_date
+    type: timestamp
+    nullable: false
+    default: current_timestamp()
+    comment: ""
+  - name: log_type
+    type: varchar(48)
+    nullable: false
+    default: null
+    comment: ""
+  - name: log_severity
+    type: enum('Debug','Info','Warning','Error')
+    nullable: false
+    default: null
+    comment: ""
+  - name: log_source_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_source_ip_address
+    type: varchar(45)
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_source_user_agent
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_target_user_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_data
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
+  - name: log_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
+    comment: ""
+  indexes:
+  - name: log_source_user_id
+    def: KEY log_source_user_id (log_source_user_id) USING BTREE
+    table: logs
+    columns:
+    - log_source_user_id
+    comment: ""
+  - name: log_target_user_id
+    def: KEY log_target_user_id (log_target_user_id) USING BTREE
+    table: logs
+    columns:
+    - log_target_user_id
+    comment: ""
+  - name: PRIMARY
+    def: PRIMARY KEY (log_id) USING BTREE
+    table: logs
+    columns:
+    - log_id
+    comment: ""
+  constraints:
+  - name: logs_log_source_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
+    table: logs
+    referencedTable: users
+    columns:
+    - log_source_user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  - name: logs_log_target_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
+    table: logs
+    referencedTable: users
+    columns:
+    - log_target_user_id
+    referencedColumns:
+    - user_id
+    comment: ""
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (log_id)
+    table: logs
+    referencedTable: null
+    columns:
+    - log_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `logs` (
+      `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `log_date` timestamp NOT NULL DEFAULT current_timestamp(),
+      `log_type` varchar(48) NOT NULL,
+      `log_severity` enum('Debug','Info','Warning','Error') NOT NULL,
+      `log_source_user_id` int(8) unsigned DEFAULT NULL,
+      `log_source_ip_address` varchar(45) DEFAULT NULL,
+      `log_source_user_agent` text DEFAULT NULL,
+      `log_target_user_id` int(8) unsigned DEFAULT NULL,
+      `log_data` text DEFAULT NULL,
+      `log_deleted` datetime DEFAULT NULL,
+      PRIMARY KEY (`log_id`),
+      KEY `log_target_user_id` (`log_target_user_id`),
+      KEY `log_source_user_id` (`log_source_user_id`),
+      CONSTRAINT `logs_log_source_user_id` FOREIGN KEY (`log_source_user_id`) REFERENCES `users` (`user_id`),
+      CONSTRAINT `logs_log_target_user_id` FOREIGN KEY (`log_target_user_id`) REFERENCES `users` (`user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
   comment: ""
@@ -5334,26 +5346,6 @@ relations:
   parentCardinality: Exactly one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
-- table: logs
-  columns:
-  - log_source_user_id
-  cardinality: Zero or more
-  parentTable: users
-  parentColumns:
-  - user_id
-  parentCardinality: Zero or one
-  def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
-  virtual: false
-- table: logs
-  columns:
-  - log_target_user_id
-  cardinality: Zero or more
-  parentTable: users
-  parentColumns:
-  - user_id
-  parentCardinality: Zero or one
-  def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
-  virtual: false
 - table: storage
   columns:
   - user_id
@@ -5473,6 +5465,26 @@ relations:
   - team_id
   parentCardinality: Exactly one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: logs
+  columns:
+  - log_source_user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
+  virtual: false
+- table: logs
+  columns:
+  - log_target_user_id
+  cardinality: Zero or more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: Zero or one
+  def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
   virtual: false
 - table: schedule
   columns:

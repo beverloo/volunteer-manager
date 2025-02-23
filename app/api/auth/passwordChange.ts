@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 import { authenticateUser } from '@lib/auth/Authentication';
 import { updateUserPassword } from './passwordReset';
 
@@ -61,7 +61,7 @@ export async function passwordChange(request: Request, props: ActionProps): Prom
         return { success: false, error: 'That is not your current password…' };
 
     await updateUserPassword(props.user.userId, request.newPassword, /* incrementSession= */ false);
-    await Log({
+    RecordLog({
         type: kLogType.AccountPasswordUpdate,
         sourceUser: props.user,
         data: { ip: props.ip },

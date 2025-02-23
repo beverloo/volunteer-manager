@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getAnPlanAreaUrl } from '@lib/AnPlan';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -250,7 +250,7 @@ createDataTableApi(kProgramAreaRowModel, kProgramAreaContext, {
                 tActivitiesAreas.areaName))
             .executeSelectNoneOrOne();
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminProgramMutation,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

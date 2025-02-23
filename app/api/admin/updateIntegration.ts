@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { writeSettings } from '@lib/Settings';
 
@@ -102,7 +102,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-animecon-scopes': request.animecon.scopes,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateIntegration,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -120,7 +120,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-email-smtp-password': request.email.password,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateIntegration,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -138,7 +138,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-google-project-id': request.google.projectId,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateIntegration,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -157,7 +157,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-twilio-region': request.twilio.region,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateIntegration,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -176,7 +176,7 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             'integration-vertex-top-p': request.vertexAi.topP,
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateIntegration,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

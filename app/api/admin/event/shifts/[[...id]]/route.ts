@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { validateContext } from '../../validateContext';
@@ -398,7 +398,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
             .selectOneColumn(tShifts.shiftName)
             .executeSelectNoneOrOne();
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminEventShiftMutation,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

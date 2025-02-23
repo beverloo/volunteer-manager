@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
@@ -69,7 +69,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
 
     switch (authenticationContext.authType) {
         case kAuthType.code: {  // one-time access code
-            await Log({
+            RecordLog({
                 type: kLogType.AccountIdentifyAccessCode,
                 severity: kLogSeverity.Debug,
                 sourceUser: user,
@@ -86,7 +86,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
         }
 
         case kAuthType.password: {  // stored password
-            await Log({
+            RecordLog({
                 type: kLogType.AccountIdentifyPassword,
                 severity: kLogSeverity.Debug,
                 sourceUser: user,

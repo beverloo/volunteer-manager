@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { ActionProps } from '../Action';
-import { Log, kLogType } from '@lib/Log';
+import { RecordLog, kLogType } from '@lib/Log';
 
 import { PlaywrightHooks } from '@lib/PlaywrightHooks';
 import { authenticateUser, getUserSessionToken } from '@lib/auth/Authentication';
@@ -109,7 +109,7 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
             await writeSealedSessionCookie(
                 { id: user.userId, token: sessionToken }, props.responseHeaders);
 
-            await Log({
+            RecordLog({
                 type: kLogType.AccountPasswordReset,
                 sourceUser: user,
                 data: { ip: props.ip },

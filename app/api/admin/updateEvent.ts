@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { storeBlobData } from '@lib/database/BlobStore';
@@ -86,7 +86,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             .executeUpdate(/* min= */ 0, /* max= */ 1);
 
         if (affectedRows > 0) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminUpdateEvent,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
@@ -114,7 +114,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
                 .executeUpdate(/* min= */ 0, /* max= */ 1);
 
             if (!!affectedRows) {
-                await Log({
+                RecordLog({
                     type: kLogType.AdminUpdateEvent,
                     severity: kLogSeverity.Info,
                     sourceUser: props.user,
@@ -144,7 +144,7 @@ export async function updateEvent(request: Request, props: ActionProps): Promise
             .executeUpdate(/* min= */ 0, /* max= */ 1);
 
         if (affectedRows > 0) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminUpdateEvent,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,

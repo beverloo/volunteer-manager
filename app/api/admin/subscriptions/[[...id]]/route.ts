@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { queryUsersWithPermission } from '@lib/auth/AccessQuery';
 import db, { tSubscriptions, tTeams, tUsers } from '@lib/database';
@@ -248,7 +248,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
 
         const targetUser = Math.floor(id / 10_000);
 
-        await Log({
+        RecordLog({
             type: kLogType.AdminSubscriptionUpdate,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

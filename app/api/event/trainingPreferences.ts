@@ -6,7 +6,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import type { EnvironmentDomain } from '@lib/Environment';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 import { getRegistration } from '@lib/RegistrationLoader';
@@ -126,7 +126,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
             .executeDelete();
 
         if (!!affectedRows) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminClearTrainingPreferences,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
@@ -164,7 +164,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
         return { success: false, error: 'Unable to update your preferences in the database' };
 
     if (!request.adminOverrideUserId) {
-        await Log({
+        RecordLog({
             type: kLogType.ApplicationTrainingPreferences,
             severity: kLogSeverity.Info,
             sourceUser: props.user,
@@ -174,7 +174,7 @@ export async function trainingPreferences(request: Request, props: ActionProps):
             },
         });
     } else {
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateTrainingPreferences,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

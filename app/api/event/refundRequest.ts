@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { Temporal } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
@@ -111,7 +111,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
             .executeDelete();
 
         if (!!affectedRows) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminClearRefundRequest,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
@@ -148,7 +148,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
         return { success: false, error: 'Unable to store your request in the database' };
 
     if (!request.adminOverrideUserId) {
-        await Log({
+        RecordLog({
             type: kLogType.ApplicationRefundRequest,
             severity: kLogSeverity.Info,
             sourceUser: props.user,
@@ -157,7 +157,7 @@ export async function refundRequest(request: Request, props: ActionProps): Promi
             },
         });
     } else {
-        await Log({
+        RecordLog({
             type: kLogType.AdminUpdateRefundRequest,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

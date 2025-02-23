@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { getEventBySlug } from '@lib/EventLoader';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
@@ -124,7 +124,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
                 .executeUpdate();
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.EventHelpRequestUpdate,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
@@ -165,7 +165,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
                 .executeUpdate();
         });
 
-        await Log({
+        RecordLog({
             type: kLogType.EventHelpRequestUpdate,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,

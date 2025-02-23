@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import { ColorFieldElement } from '@app/admin/volunteers/teams/Team';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { Log, kLogSeverity, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEnvironments } from '@lib/database';
 
@@ -69,7 +69,7 @@ async function updateEnvironmentSettings(id: number, formData: unknown) {
             .executeUpdate();
 
         if (!!affectedRows) {
-            await Log({
+            RecordLog({
                 type: kLogType.AdminUpdateEnvironment,
                 severity: kLogSeverity.Warning,
                 sourceUser: props.user,
