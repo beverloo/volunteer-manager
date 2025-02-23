@@ -23,6 +23,8 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '&> div >:last-child': { mb: 0 },
         '&> p:last-child': { mb: 0 },
 
+        '& li:last-child': { mb: 2 },
+
         '& p': { marginBottom: 2 },
 
         '& .MuiAlert-root': { marginBottom: 2 },
