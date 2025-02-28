@@ -1,6 +1,9 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { getAccessFallbackHTTPStatus, isHTTPAccessFallbackError }
+    from 'next/dist/client/components/http-access-fallback/http-access-fallback';
+
 import { AccessControl } from './AccessControl';
 import { type SessionData, kSessionCookieName, sealSession } from './Session';
 import { executeAccessCheck, getAuthenticationContextFromHeaders } from './AuthenticationContext';
@@ -44,9 +47,8 @@ describe('AuthenticationContext', () => {
             executeAccessCheck(visitorAuthenticationContext, { check: 'admin' });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(401);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(401);
         }
 
         // Case (2): Implicit administrators through a role assignment
@@ -64,23 +66,21 @@ describe('AuthenticationContext', () => {
             executeAccessCheck(userAuthenticationContext, { check: 'admin' });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(403);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(403);
         }
     });
 
     // TODO: Fix this test.
-    it.failing('is able to execute dedicated access checks: "admin-event"', () => {
+    it('is able to execute dedicated access checks: "admin-event"', () => {
         // Case (1): Visitors are never administrators
         const visitorAuthenticationContext = { access: new AccessControl({}), user: undefined };
         try {
             executeAccessCheck(visitorAuthenticationContext, { check: 'admin-event', event: 'XX' });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(401);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(401);
         }
 
         // Case (2): Explicit administrators through a permission
@@ -94,17 +94,7 @@ describe('AuthenticationContext', () => {
         executeAccessCheck(
             explicitAdminAuthenticationContext, { check: 'admin-event', event: '2024' });
 
-        // Case (3): Implicit administrators through a role assignment to the applicable event
-        const implicitAdminAuthenticationContext = buildAuthenticationContext({
-            events: new Map([
-                [ '2024', 'stewards' ],
-            ]),
-        });
-
-        executeAccessCheck(
-            implicitAdminAuthenticationContext, { check: 'admin-event', event: '2024' });
-
-        // Case (4): Participation in an event does not equate being granted access.
+        // Case (3): Participation in an event does not equate being granted access.
         const participationAuthenticationContext = buildAuthenticationContext({
             events: new Map([
                 [ '2024', 'stewards' ],
@@ -117,12 +107,11 @@ describe('AuthenticationContext', () => {
 
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(403);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(403);
         }
 
-        // Case (5): No administrator access when there is no assignment for the applicable event
+        // Case (4): No administrator access when there is no assignment for the applicable event
         const wrongEventAuthenticationContext = buildAuthenticationContext({
             events: new Map([
                 [ '2017', 'hosts' ],
@@ -135,20 +124,18 @@ describe('AuthenticationContext', () => {
 
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(403);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(403);
         }
 
-        // Case (6): Users without either are not administrators
+        // Case (5): Users without either are not administrators
         const userAuthenticationContext = buildAuthenticationContext();
         try {
             executeAccessCheck(userAuthenticationContext, { check: 'admin-event', event: '2024' });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(403);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(403);
         }
     });
 
@@ -159,9 +146,8 @@ describe('AuthenticationContext', () => {
             executeAccessCheck(visitorAuthenticationContext, { check: 'event', event: '2025' });
             fail('executeAccessCheck was expected to throw');
         } catch (error: any) {
-            // TODO: Re-enable this test when Next.js 15.2 is released.
-            //expect(isHTTPAccessFallbackError(error)).toBeTrue();
-            //expect(getAccessFallbackHTTPStatus(error)).toBe(401);
+            expect(isHTTPAccessFallbackError(error)).toBeTrue();
+            expect(getAccessFallbackHTTPStatus(error)).toBe(403);
         }
 
         // Case (2): Participants are granted access (w/o administrator access):

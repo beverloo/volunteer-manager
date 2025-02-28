@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { NextRequest } from 'next/server';
+import { forbidden } from 'next/navigation';
 import { serialize } from 'cookie';
 import { z } from 'zod';
 
@@ -293,13 +294,7 @@ describe('Action', () => {
         type ResponseType = z.infer<typeof interfaceDefinition>['response'];
 
         async function MyAction(request: RequestType, props: ActionProps): Promise<ResponseType> {
-            // TODO: Replace this with `forbidden()` when Next.js 15.2 is released, and the new
-            // authorization interrupt feature is stable. Right now this depends on an experimental
-            // API that we cannot enable for testing purposes.
-            const error = new Error('NEXT_HTTP_ERROR_FALLBACK;403') as any;
-            error.digest = 'NEXT_HTTP_ERROR_FALLBACK;403';
-
-            throw error;
+            forbidden();
         }
 
         const request = createRequest('POST', { /* no payload */ });

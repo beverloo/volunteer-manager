@@ -5,3 +5,6 @@ import { TextDecoder, TextEncoder } from 'util';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+
+// TODO: Remove this once Next.js auth interrupts are stable.
+process.env.__NEXT_EXPERIMENTAL_AUTH_INTERRUPTS = 'true';
