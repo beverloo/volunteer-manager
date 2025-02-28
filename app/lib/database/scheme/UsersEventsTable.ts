@@ -39,6 +39,7 @@ export class UsersEventsTable extends Table<DBConnection, 'UsersEventsTable'> {
     preferenceTimingStart = this.optionalColumnWithDefaultValue('preference_timing_start', 'int');
     preferenceTimingEnd = this.optionalColumnWithDefaultValue('preference_timing_end', 'int');
     preferences = this.optionalColumnWithDefaultValue('preferences', 'string');
+    preferencesDietary = this.optionalColumnWithDefaultValue('preferences_dietary', 'string');
     preferencesUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('preferences_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     fullyAvailable = this.columnWithDefaultValue('fully_available', 'int');
     includeCredits = this.columnWithDefaultValue('include_credits', 'int');

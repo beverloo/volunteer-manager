@@ -86,6 +86,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
             trainingEligible: tUsersEvents.trainingEligible,
             credits: tUsersEvents.includeCredits,
             preferences: tUsersEvents.preferences,
+            preferencesDietary: tUsersEvents.preferencesDietary,
             serviceHours: tUsersEvents.preferenceHours,
             preferenceTimingStart: tUsersEvents.preferenceTimingStart,
             preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,

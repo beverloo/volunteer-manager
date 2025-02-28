@@ -59,6 +59,12 @@ const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string 
  */
 interface ApplicationAvailabilityFormProps {
     /**
+     * Whether the dietary restrictions field should be included. Omitted from the registration form
+     * as we want to minimsie the number of fields there.
+     */
+    includeDietaryRestrictions?: boolean;
+
+    /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
     onChange?: () => void;
@@ -88,7 +94,12 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
                                options={kServiceTimingOption} fullWidth size="small"
                                onChange={onChange} disabled={readOnly}  />
             </Grid>
-
+            { !!props.includeDietaryRestrictions &&
+                <Grid size={{ xs: 12 }}>
+                    <TextareaAutosizeElement name="preferencesDietary" fullWidth size="small"
+                                             label="Any dietary restrictions?"
+                                             onChange={onChange} disabled={readOnly} />
+                </Grid> }
             <Grid size={{ xs: 12 }}>
                 <TextareaAutosizeElement name="preferences" fullWidth size="small"
                                          label="Anything we should know about?"

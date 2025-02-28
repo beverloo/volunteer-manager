@@ -71,6 +71,7 @@ export async function getRegistration(environment: EnvironmentDomain, event: Eve
                 tRoles.roleAvailabilityEventLimit),
             availability: {
                 preferences: tUsersEvents.preferences,
+                preferencesDietary: tUsersEvents.preferencesDietary,
                 timeslots: tUsersEvents.availabilityTimeslots,
                 serviceHours: tUsersEvents.preferenceHours,
                 serviceTimingStart: tUsersEvents.preferenceTimingStart,

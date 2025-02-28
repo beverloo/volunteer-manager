@@ -61,6 +61,11 @@ export const kAvailabilityPreferencesDefinition = z.object({
         preferences: z.string().optional(),
 
         /**
+         * Dietary preferences that a volunteer can indicate.
+         */
+        preferencesDietary: z.string().optional(),
+
+        /**
          * Number of hours that the volunteer would like to help us out with.
          */
         serviceHours: kServiceHoursProperty,
@@ -195,6 +200,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
             preferenceHours: parseInt(request.serviceHours, 10),
             preferenceTimingStart, preferenceTimingEnd,
             preferences: request.preferences,
+            preferencesDietary: request.preferencesDietary,
             preferencesUpdated: dbInstance.currentZonedDateTime(),
         })
         .setIfValue({

@@ -104,6 +104,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 event: props.event,
                 eventPreferences,
                 preferences: data.preferences,
+                preferencesDietary: data.preferencesDietary,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 team: props.team,
@@ -124,6 +125,7 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
 
     const defaultValues = useMemo(() => ({
         preferences: props.preferences.preferences,
+        preferencesDietary: props.preferences.preferencesDietary,
         serviceHours: props.preferences.serviceHours,
         serviceTiming: props.preferences.serviceTiming,
         ...Object.fromEntries(props.preferences.timeslots.map((value, index) =>
@@ -139,7 +141,8 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
                 { props.readOnly &&
                     <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
                 <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
-                    <ApplicationAvailabilityForm readOnly={props.readOnly} />
+                    <ApplicationAvailabilityForm includeDietaryRestrictions
+                                                 readOnly={props.readOnly} />
                 </Grid>
             </Box>
 

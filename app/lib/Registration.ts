@@ -19,6 +19,7 @@ export interface RegistrationDatabaseRow {
     availabilityEventLimit: number;
     availability?: {
         preferences?: string;
+        preferencesDietary?: string;
         serviceHours?: number;
         serviceTimingStart?: number;
         serviceTimingEnd?: number;
@@ -72,6 +73,11 @@ export interface RegistrationAvailability {
      * Specific preferences indicated by the volunteer, if any.
      */
     preferences?: string;
+
+    /**
+     * Specific dietary preferences indicated by the volunteer, if any.
+     */
+    preferencesDietary?: string;
 
     /**
      * The list of timeslots that the volunteer would really like to attend.
@@ -394,6 +400,7 @@ export class Registration implements RegistrationData {
 
             this.#availability = {
                 preferences: registration.availability?.preferences,
+                preferencesDietary: registration.availability?.preferencesDietary,
                 serviceHours: registration.availability?.serviceHours,
                 serviceTiming,
                 timeslots

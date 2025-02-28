@@ -221,6 +221,7 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
                 eventPreferences: eventPreferences,
                 exceptions,
                 preferences: data.preferences,
+                preferencesDietary: data.preferencesDietary,
                 serviceHours: `${data.serviceHours}` as any,
                 serviceTiming: data.serviceTiming,
                 team,
@@ -246,7 +247,8 @@ export function ApplicationAvailability(props: ApplicationAvailabilityProps) {
             </Typography>
             <FormContainer defaultValues={defaultValues} onSuccess={handleSubmit}>
                 <Grid container spacing={2}>
-                    <ApplicationAvailabilityForm readOnly={readOnly} onChange={handleChange} />
+                    <ApplicationAvailabilityForm includeDietaryRestrictions
+                                                 onChange={handleChange} readOnly={readOnly} />
                 </Grid>
                 <Accordion disableGutters elevation={0} square sx={kStyles.section}>
                     <AccordionSummary expandIcon={ <ExpandMoreIcon /> } sx={kStyles.sectionHeader}>
