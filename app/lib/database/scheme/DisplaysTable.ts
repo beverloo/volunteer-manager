@@ -36,4 +36,5 @@ export class DisplaysTable extends Table<DBConnection, 'DisplaysTable'> {
     }
 }
 
+export const tDisplays = new DisplaysTable();
 

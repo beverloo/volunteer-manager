@@ -38,4 +38,5 @@ export class ShiftsTable extends Table<DBConnection, 'ShiftsTable'> {
     }
 }
 
+export const tShifts = new ShiftsTable();
 

@@ -19,4 +19,5 @@ export class TeamsRolesTable extends Table<DBConnection, 'TeamsRolesTable'> {
     }
 }
 
+export const tTeamsRoles = new TeamsRolesTable();
 

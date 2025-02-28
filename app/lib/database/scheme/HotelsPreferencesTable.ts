@@ -32,4 +32,5 @@ export class HotelsPreferencesTable extends Table<DBConnection, 'HotelsPreferenc
     }
 }
 
+export const tHotelsPreferences = new HotelsPreferencesTable();
 

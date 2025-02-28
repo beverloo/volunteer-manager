@@ -31,4 +31,5 @@ export class EventsDeadlinesTable extends Table<DBConnection, 'EventsDeadlinesTa
     }
 }
 
+export const tEventsDeadlines = new EventsDeadlinesTable();
 

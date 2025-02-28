@@ -32,4 +32,5 @@ export class ErrorLogsTable extends Table<DBConnection, 'ErrorLogsTable'> {
     }
 }
 
+export const tErrorLogs = new ErrorLogsTable();
 

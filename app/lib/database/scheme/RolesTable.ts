@@ -29,4 +29,5 @@ export class RolesTable extends Table<DBConnection, 'RolesTable'> {
     }
 }
 
+export const tRoles = new RolesTable();
 

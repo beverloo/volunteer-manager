@@ -27,4 +27,5 @@ export class EnvironmentsTable extends Table<DBConnection, 'EnvironmentsTable'> 
     }
 }
 
+export const tEnvironments = new EnvironmentsTable();
 

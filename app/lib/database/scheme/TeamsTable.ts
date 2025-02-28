@@ -30,4 +30,5 @@ export class TeamsTable extends Table<DBConnection, 'TeamsTable'> {
     }
 }
 
+export const tTeams = new TeamsTable();
 

@@ -29,4 +29,5 @@ export class RefundsTable extends Table<DBConnection, 'RefundsTable'> {
     }
 }
 
+export const tRefunds = new RefundsTable();
 

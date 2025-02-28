@@ -42,4 +42,5 @@ export class OutboxTwilioTable extends Table<DBConnection, 'OutboxTwilioTable'> 
     }
 }
 
+export const tOutboxTwilio = new OutboxTwilioTable();
 

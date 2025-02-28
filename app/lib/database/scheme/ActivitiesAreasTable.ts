@@ -33,4 +33,5 @@ export class ActivitiesAreasTable extends Table<DBConnection, 'ActivitiesAreasTa
     }
 }
 
+export const tActivitiesAreas = new ActivitiesAreasTable();
 

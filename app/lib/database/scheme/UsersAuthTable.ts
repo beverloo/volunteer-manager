@@ -22,4 +22,5 @@ export class UsersAuthTable extends Table<DBConnection, 'UsersAuthTable'> {
     }
 }
 
+export const tUsersAuth = new UsersAuthTable();
 

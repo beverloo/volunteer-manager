@@ -40,4 +40,5 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     }
 }
 
+export const tUsers = new UsersTable();
 

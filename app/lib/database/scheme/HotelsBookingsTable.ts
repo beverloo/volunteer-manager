@@ -29,4 +29,5 @@ export class HotelsBookingsTable extends Table<DBConnection, 'HotelsBookingsTabl
     }
 }
 
+export const tHotelsBookings = new HotelsBookingsTable();
 

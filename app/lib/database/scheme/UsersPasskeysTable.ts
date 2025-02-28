@@ -37,4 +37,5 @@ export class UsersPasskeysTable extends Table<DBConnection, 'UsersPasskeysTable'
     }
 }
 
+export const tUsersPasskeys = new UsersPasskeysTable();
 

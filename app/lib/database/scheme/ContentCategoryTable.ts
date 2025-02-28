@@ -31,4 +31,5 @@ export class ContentCategoryTable extends Table<DBConnection, 'ContentCategoryTa
     }
 }
 
+export const tContentCategory = new ContentCategoryTable();
 

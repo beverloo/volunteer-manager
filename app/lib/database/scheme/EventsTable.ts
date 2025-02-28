@@ -50,4 +50,5 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     }
 }
 
+export const tEvents = new EventsTable();
 

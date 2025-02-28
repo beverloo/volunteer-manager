@@ -24,4 +24,5 @@ export class EventsSalesConfigurationTable extends Table<DBConnection, 'EventsSa
     }
 }
 
+export const tEventsSalesConfiguration = new EventsSalesConfigurationTable();
 

@@ -35,4 +35,5 @@ export class StorageTable extends Table<DBConnection, 'StorageTable'> {
     }
 }
 
+export const tStorage = new StorageTable();
 

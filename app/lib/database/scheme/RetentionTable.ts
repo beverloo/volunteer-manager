@@ -25,4 +25,5 @@ export class RetentionTable extends Table<DBConnection, 'RetentionTable'> {
     }
 }
 
+export const tRetention = new RetentionTable();
 

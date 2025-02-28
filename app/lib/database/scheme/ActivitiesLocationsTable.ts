@@ -34,4 +34,5 @@ export class ActivitiesLocationsTable extends Table<DBConnection, 'ActivitiesLoc
     }
 }
 
+export const tActivitiesLocations = new ActivitiesLocationsTable();
 

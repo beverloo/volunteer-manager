@@ -27,4 +27,5 @@ export class NardoTable extends Table<DBConnection, 'NardoTable'> {
     }
 }
 
+export const tNardo = new NardoTable();
 

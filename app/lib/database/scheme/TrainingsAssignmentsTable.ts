@@ -31,4 +31,5 @@ export class TrainingsAssignmentsTable extends Table<DBConnection, 'TrainingsAss
     }
 }
 
+export const tTrainingsAssignments = new TrainingsAssignmentsTable();
 

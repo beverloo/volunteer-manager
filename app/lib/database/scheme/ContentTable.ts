@@ -37,4 +37,5 @@ export class ContentTable extends Table<DBConnection, 'ContentTable'> {
     }
 }
 
+export const tContent = new ContentTable();
 

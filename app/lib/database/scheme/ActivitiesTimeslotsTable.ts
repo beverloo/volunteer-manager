@@ -34,4 +34,5 @@ export class ActivitiesTimeslotsTable extends Table<DBConnection, 'ActivitiesTim
     }
 }
 
+export const tActivitiesTimeslots = new ActivitiesTimeslotsTable();
 

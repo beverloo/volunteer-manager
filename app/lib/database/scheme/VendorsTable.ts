@@ -39,4 +39,5 @@ export class VendorsTable extends Table<DBConnection, 'VendorsTable'> {
     }
 }
 
+export const tVendors = new VendorsTable();
 

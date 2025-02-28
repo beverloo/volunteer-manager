@@ -35,4 +35,5 @@ export class LogsTable extends Table<DBConnection, 'LogsTable'> {
     }
 }
 
+export const tLogs = new LogsTable();
 

@@ -274,6 +274,10 @@ do {
             // -------------------------------------------------------------------------------------
         ],
 
+        export: {
+            tableInstances: true,
+        },
+
         rawContent: {
             before: '// @ts-nocheck\n/* eslint-disable quotes, max-len */',
         }

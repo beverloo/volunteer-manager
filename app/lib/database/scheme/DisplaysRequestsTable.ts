@@ -35,4 +35,5 @@ export class DisplaysRequestsTable extends Table<DBConnection, 'DisplaysRequests
     }
 }
 
+export const tDisplaysRequests = new DisplaysRequestsTable();
 

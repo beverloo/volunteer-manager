@@ -36,4 +36,5 @@ export class OutboxWhatsappTable extends Table<DBConnection, 'OutboxWhatsappTabl
     }
 }
 
+export const tOutboxWhatsapp = new OutboxWhatsappTable();
 

@@ -34,4 +34,5 @@ export class TasksTable extends Table<DBConnection, 'TasksTable'> {
     }
 }
 
+export const tTasks = new TasksTable();
 

@@ -39,4 +39,5 @@ export class ScheduleLogsTable extends Table<DBConnection, 'ScheduleLogsTable'> 
     }
 }
 
+export const tScheduleLogs = new ScheduleLogsTable();
 

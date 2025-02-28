@@ -35,4 +35,5 @@ export class ExportsTable extends Table<DBConnection, 'ExportsTable'> {
     }
 }
 
+export const tExports = new ExportsTable();
 

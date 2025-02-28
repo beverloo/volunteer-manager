@@ -34,4 +34,5 @@ export class EventsTeamsTable extends Table<DBConnection, 'EventsTeamsTable'> {
     }
 }
 
+export const tEventsTeams = new EventsTeamsTable();
 

@@ -41,4 +41,5 @@ export class TwilioWebhookCallsTable extends Table<DBConnection, 'TwilioWebhookC
     }
 }
 
+export const tTwilioWebhookCalls = new TwilioWebhookCallsTable();
 

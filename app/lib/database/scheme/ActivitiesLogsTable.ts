@@ -37,4 +37,5 @@ export class ActivitiesLogsTable extends Table<DBConnection, 'ActivitiesLogsTabl
     }
 }
 
+export const tActivitiesLogs = new ActivitiesLogsTable();
 

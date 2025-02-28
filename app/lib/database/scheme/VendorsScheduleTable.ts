@@ -29,4 +29,5 @@ export class VendorsScheduleTable extends Table<DBConnection, 'VendorsScheduleTa
     }
 }
 
+export const tVendorsSchedule = new VendorsScheduleTable();
 

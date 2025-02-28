@@ -27,4 +27,5 @@ export class FeedbackTable extends Table<DBConnection, 'FeedbackTable'> {
     }
 }
 
+export const tFeedback = new FeedbackTable();
 

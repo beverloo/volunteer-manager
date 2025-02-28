@@ -30,4 +30,5 @@ export class SubscriptionsPublicationsTable extends Table<DBConnection, 'Subscri
     }
 }
 
+export const tSubscriptionsPublications = new SubscriptionsPublicationsTable();
 

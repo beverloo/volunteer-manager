@@ -28,4 +28,5 @@ export class ExportsLogsTable extends Table<DBConnection, 'ExportsLogsTable'> {
     }
 }
 
+export const tExportsLogs = new ExportsLogsTable();
 

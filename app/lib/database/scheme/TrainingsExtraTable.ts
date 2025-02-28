@@ -28,4 +28,5 @@ export class TrainingsExtraTable extends Table<DBConnection, 'TrainingsExtraTabl
     }
 }
 
+export const tTrainingsExtra = new TrainingsExtraTable();
 

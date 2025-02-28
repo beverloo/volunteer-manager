@@ -44,4 +44,5 @@ export class OutboxTable extends Table<DBConnection, 'OutboxTable'> {
     }
 }
 
+export const tOutbox = new OutboxTable();
 

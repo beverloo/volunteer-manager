@@ -31,4 +31,5 @@ export class ScheduleTable extends Table<DBConnection, 'ScheduleTable'> {
     }
 }
 
+export const tSchedule = new ScheduleTable();
 

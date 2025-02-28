@@ -18,4 +18,5 @@ export class SettingsTable extends Table<DBConnection, 'SettingsTable'> {
     }
 }
 
+export const tSettings = new SettingsTable();
 

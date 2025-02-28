@@ -29,4 +29,5 @@ export class ShiftsCategoriesTable extends Table<DBConnection, 'ShiftsCategories
     }
 }
 
+export const tShiftsCategories = new ShiftsCategoriesTable();
 

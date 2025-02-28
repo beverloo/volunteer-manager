@@ -24,4 +24,5 @@ export class HotelsTable extends Table<DBConnection, 'HotelsTable'> {
     }
 }
 
+export const tHotels = new HotelsTable();
 
