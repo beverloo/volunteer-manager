@@ -127,7 +127,7 @@ export async function storePasskeyRegistration(
     await db.insertInto(tUsersPasskeys)
         .set({
             userId: user.userId,
-            credentialId: Buffer.from(registration.credential.id),
+            credentialId: Buffer.from(registration.credential.id, 'base64url'),
             credentialRpid: rpID,
             credentialFormat: registration.fmt,
             credentialName: name,
