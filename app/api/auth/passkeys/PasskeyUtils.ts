@@ -22,6 +22,16 @@ export async function deleteCredential(user: UserLike, passkeyId: number): Promi
 }
 
 /**
+ * Determines the origin to be used for passkeys based on the given `props`.
+ */
+export function determineOrigin(props: ActionProps): string {
+    if (props.origin.startsWith('localhost'))
+        return `http://${props.origin}`
+
+    return `https://${props.origin}`;
+}
+
+/**
  * Determines the RpID associated with the request for which `props` was created.
  */
 export function determineRpID(props: ActionProps): string {

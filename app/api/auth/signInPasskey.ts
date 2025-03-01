@@ -11,7 +11,7 @@ import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { getUserSessionToken } from '@lib/auth/Authentication';
 import { isValidActivatedUser } from '@lib/auth/Authentication';
-import { determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
+import { determineOrigin, determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserChallenge, updateCredentialCounter }
     from './passkeys/PasskeyUtils';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
@@ -72,6 +72,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     if (!user)
         return { success: false };
 
+    const origin = determineOrigin(props);
     const rpID = determineRpID(props);
 
     const challenge = await retrieveUserChallenge(user);
@@ -106,7 +107,7 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
             response: request.verification!,
 
             expectedChallenge: challenge,
-            expectedOrigin: props.origin,
+            expectedOrigin: origin,
             expectedRPID: rpID,
 
             credential

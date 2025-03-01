@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
-import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
+import { determineOrigin, determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
 
 /**
@@ -55,13 +55,14 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
     if (!expectedChallenge)
         return { success: false, error: 'You are not currently in a passkey registration flow' };
 
+    const origin = determineOrigin(props);
     const rpID = determineRpID(props);
 
     try {
         const verification = await verifyRegistrationResponse({
             response: request.registration,
             expectedChallenge,
-            expectedOrigin: props.origin,
+            expectedOrigin: origin,
             expectedRPID: rpID,
         });
 

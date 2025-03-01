@@ -74,6 +74,8 @@ export async function listPasskeys(request: Request, props: ActionProps): Promis
         let description = `Created on ${formatDate(credential.created, 'DD/MM/YYYY')}`;
         if (credential.lastUsed)
             description += `, last used on ${formatDate(credential.lastUsed, 'DD/MM/YYYY')}`;
+        else
+            description += ', never used';
 
         return {
             id: credential.passkeyId,
