@@ -230,8 +230,8 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
                                     <TableCell sx={{whiteSpace: 'pre-wrap',
                                                     overflowWrap: 'anywhere'}}>
                                         { JSON.stringify(
-                                             JSON.parse(message.exception.cause),
-                                             undefined, 4) }
+                                            JSON.parse(message.exception.cause),
+                                            undefined, 4) }
                                     </TableCell>
                                 </TableRow> }
                         </TableBody>

@@ -15,8 +15,6 @@ import { determineRpID, retrieveCredentials, retrieveUserChallenge, storeUserCha
     from './passkeys/PasskeyUtils';
 import { writeSealedSessionCookie } from '@lib/auth/Session';
 
-import { getAllEnvironmentOrigins, kLocalDevelopmentOrigin } from './passkeys/registerPasskey';
-
 /**
  * Interface definition for the SignIn API, exposed through /api/auth/sign-in-passkey.
  */
@@ -83,8 +81,6 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
     if (!challenge || !credentials.length || !sessionToken)
         return { success: false, error: 'Unable to load the challenge and credential' };
 
-    const environmentOrigins = await getAllEnvironmentOrigins();
-
     try {
         const requestedCredentialId = Buffer.from(request.verification.id, 'base64url');
 
@@ -108,9 +104,11 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
 
         const verification = await verifyAuthenticationResponse({
             response: request.verification!,
+
             expectedChallenge: challenge,
-            expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
+            expectedOrigin: props.origin,
             expectedRPID: rpID,
+
             credential
         });
 

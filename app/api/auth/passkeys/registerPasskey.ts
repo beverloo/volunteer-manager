@@ -11,8 +11,6 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { determineRpID, retrieveUserChallenge, storePasskeyRegistration, storeUserChallenge }
     from './PasskeyUtils';
 
-import db, { tEnvironments } from '@lib/database';
-
 /**
  * Interface definition for the Passkeys API, exposed through /api/auth/passkeys.
  */
@@ -45,29 +43,6 @@ export type RegisterPasskeyDefinition = ApiDefinition<typeof kRegisterPasskeyDef
 
 type Request = ApiRequest<typeof kRegisterPasskeyDefinition>;
 type Response = ApiResponse<typeof kRegisterPasskeyDefinition>;
-
-/**
- * The origin on which local development for the Volunteer Manager takes place. Passkey responses
- * for this origin are being accepted as well, to make it possible to end-to-end test the flow.
- */
-export const kLocalDevelopmentOrigin = 'http://localhost:3000';
-
-/**
- * Function that queries the database to get all origins that represent environments for the
- * AnimeCon volunteer manager.
- *
- * @deprecated We're going to strictly associate passkeys with certain origins for now.
- */
-export async function getAllEnvironmentOrigins(): Promise<string[]> {
-    const environments = await db.selectFrom(tEnvironments)
-        .selectOneColumn(tEnvironments.environmentDomain)
-        .executeSelectMany();
-
-    return environments.map(environment => [
-        `https://${environment}`,
-        `https://staging.${environment}`
-    ]).flat();
-}
 
 /**
  * Verifies the registration response and registers the new passkey when sound.

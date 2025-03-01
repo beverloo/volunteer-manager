@@ -68,17 +68,17 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
         return { success: false };
 
     let authenticationOptions = undefined;
+
     const rpID = determineRpID(props);
 
-    const credentials = await retrieveCredentials(user, rpID);
-    if (credentials.length > 0) {
+    const existingCredentials = await retrieveCredentials(user, rpID);
+    if (existingCredentials.length > 0) {
         const options = await generateAuthenticationOptions({
-            allowCredentials: credentials.map(credential => ({
-                id: isoBase64URL.fromBuffer(credential.credentialId),
-                // TODO: `transports`?
-            })),
             rpID,
-            userVerification: 'preferred',
+
+            allowCredentials: existingCredentials.map(credential => ({
+                id: isoBase64URL.fromBuffer(credential.credentialId),
+            })),
         });
 
         await storeUserChallenge(user, options.challenge);
