@@ -53,6 +53,11 @@ const kRetentionRowModel = z.object({
     latestEventSlug: z.string().optional(),
 
     /**
+     * Whether their participation in the most recent event was cancelled.
+     */
+    latestEventDidCancel: z.boolean().optional(),
+
+    /**
      * Status of this volunteer in regards to retention planning.
      */
     status: z.enum([ 'Unknown', 'Contacting', 'Declined', 'Applied', 'Retained' ]),
@@ -221,6 +226,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                 events: dbInstance.aggregateAsArray({
                     slug: tEvents.eventSlug,
                     name: tEvents.eventShortName,
+                    status: tUsersEvents.registrationStatus,
                 }),
                 registrationStatus: dbInstance.aggregateAsArray({
                     status: usersEventsJoin.registrationStatus,
@@ -277,6 +283,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
                 firstName: volunteer.firstName,
                 latestEvent: latestEvent.name,
                 latestEventSlug: latestEvent.slug,
+                latestEventDidCancel: latestEvent.status === kRegistrationStatus.Cancelled,
                 status, statusTeam,
                 assigneeName: volunteer.retentionAssigneeName,
                 notes: volunteer.retentionNotes,

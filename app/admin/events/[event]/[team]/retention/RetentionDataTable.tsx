@@ -11,6 +11,7 @@ import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -113,6 +114,7 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
             },
         },
         {
+            display: 'flex',
             field: 'latestEvent',
             headerName: 'Latest event',
             editable: false,
@@ -125,9 +127,16 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                     `${params.row.id}`;
 
                 return (
-                    <MuiLink component={Link} href={href}>
-                        {params.value}
-                    </MuiLink>
+                    <>
+                        <MuiLink component={Link} href={href}>
+                            {params.value}
+                        </MuiLink>
+                        { params.row.latestEventDidCancel &&
+                                <Tooltip title="Their participation was cancelled">
+                                    <CancelOutlinedIcon color="warning" fontSize="inherit"
+                                                        sx={{ ml: 0.75 }} />
+                                </Tooltip> }
+                    </>
                 );
             },
         },
