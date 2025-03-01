@@ -2007,6 +2007,11 @@ tables:
     nullable: false
     default: null
     comment: ""
+  - name: credential_format
+    type: text
+    nullable: true
+    default: "NULL"
+    comment: ""
   - name: credential_name
     type: text
     nullable: true
@@ -2036,6 +2041,11 @@ tables:
     type: tinyint(1)
     nullable: false
     default: null
+    comment: ""
+  - name: credential_transport
+    type: text
+    nullable: true
+    default: "NULL"
     comment: ""
   - name: credential_last_used
     type: datetime
@@ -2077,12 +2087,14 @@ tables:
       `user_id` int(8) unsigned NOT NULL,
       `credential_id` blob NOT NULL,
       `credential_rpid` varchar(64) NOT NULL,
+      `credential_format` text DEFAULT NULL,
       `credential_name` text DEFAULT NULL,
       `credential_created` datetime NOT NULL DEFAULT current_timestamp(),
       `credential_origin` varchar(64) NOT NULL,
       `credential_public_key` blob NOT NULL,
       `credential_device_type` text NOT NULL,
       `credential_backed_up` tinyint(1) NOT NULL,
+      `credential_transport` text DEFAULT NULL,
       `credential_last_used` datetime DEFAULT NULL,
       `counter` bigint(8) NOT NULL,
       PRIMARY KEY (`user_passkey_id`),

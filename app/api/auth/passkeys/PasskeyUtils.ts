@@ -119,11 +119,13 @@ export async function storePasskeyRegistration(
             userId: user.userId,
             credentialId: Buffer.from(registration.credential.id),
             credentialRpid: rpID,
+            credentialFormat: registration.fmt,
             credentialName: name,
             credentialOrigin: registration.origin,
             credentialPublicKey: Buffer.from(registration.credential.publicKey),
             credentialDeviceType: registration.credentialDeviceType,
             credentialBackedUp: registration.credentialBackedUp ? 1 : 0,
+            credentialTransport: registration.credential.transports?.join(', '),
             counter: BigInt(registration.credential.counter),
         })
         .executeInsert();

@@ -54,19 +54,31 @@ export async function createChallenge(request: Request, props: ActionProps): Pro
 
     const rpID = determineRpID(props);
 
-    const credentials = await retrieveCredentials(props.user, rpID) ?? [];
+    const existingCredentials = await retrieveCredentials(props.user, rpID);
 
     const options = await generateRegistrationOptions({
         rpName: `AnimeCon ${environment.title}`,
         rpID,
-        userID: isoUint8Array.fromUTF8String(`${props.user.userId}`),
+
         userName: props.user.username,
-        userDisplayName: `${props.user.firstName} ${props.user.lastName}`,
+        userDisplayName: props.user.name,
+
         attestationType: 'none',
-        excludeCredentials: credentials.map(credential => ({
+
+        excludeCredentials: existingCredentials.map(credential => ({
             id: isoBase64URL.fromBuffer(credential.credentialId),
-            // TODO: `transports`?
         })),
+
+        authenticatorSelection: {
+            // Will always generate synced passkeys on Android devices, but consumes discoverable
+            // credential slots on security keys.
+            residentKey: 'preferred',
+
+            // Will perform user verification when possible, but will skip any prompts for PIN or
+            // local login password when possible. In these instances user verification can
+            // sometimes be false.
+            userVerification: 'preferred',
+        },
     });
 
     if (!options || !options.challenge)

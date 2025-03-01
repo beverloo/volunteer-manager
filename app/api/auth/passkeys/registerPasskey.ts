@@ -55,6 +55,8 @@ export const kLocalDevelopmentOrigin = 'http://localhost:3000';
 /**
  * Function that queries the database to get all origins that represent environments for the
  * AnimeCon volunteer manager.
+ *
+ * @deprecated We're going to strictly associate passkeys with certain origins for now.
  */
 export async function getAllEnvironmentOrigins(): Promise<string[]> {
     const environments = await db.selectFrom(tEnvironments)
@@ -80,13 +82,11 @@ export async function registerPasskey(request: Request, props: ActionProps): Pro
 
     const rpID = determineRpID(props);
 
-    const environmentOrigins = await getAllEnvironmentOrigins();
-
     try {
         const verification = await verifyRegistrationResponse({
             response: request.registration,
             expectedChallenge,
-            expectedOrigin: [ ...environmentOrigins, kLocalDevelopmentOrigin ],
+            expectedOrigin: props.origin,
             expectedRPID: rpID,
         });
 
