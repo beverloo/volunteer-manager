@@ -191,36 +191,50 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
             { !!message.exception &&
                 <TableContainer component={Paper} variant="outlined">
                     <Table>
-                        <TableRow>
-                            <TableCell colSpan={2} padding="none">
-                                <Alert severity="error">
-                                    An exception occurred when sending this message.
-                                </Alert>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell width="25%" component="th" scope="row">Error name</TableCell>
-                            <TableCell>{message.exception.name}</TableCell>
-                        </TableRow>
-                        { !!message.exception.message &&
+                        <TableBody>
                             <TableRow>
-                                <TableCell component="th" scope="row">Error message</TableCell>
-                                <TableCell>{message.exception.message}</TableCell>
-                            </TableRow> }
-                        { !!message.exception.stack &&
-                            <TableRow>
-                                <TableCell component="th" scope="row">Stack trace</TableCell>
-                                <TableCell sx={{whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}>
-                                    {message.exception.stack}
+                                <TableCell colSpan={2} padding="none">
+                                    <Alert severity="error">
+                                        An exception occurred when sending this message.
+                                    </Alert>
                                 </TableCell>
-                            </TableRow> }
-                        { !!message.exception.cause &&
+                            </TableRow>
                             <TableRow>
-                                <TableCell component="th" scope="row">Cause</TableCell>
-                                <TableCell sx={{whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}>
-                                    {JSON.parse(message.exception.cause)}
+                                <TableCell width="25%" component="th" scope="row">
+                                    Error name
                                 </TableCell>
-                            </TableRow> }
+                                <TableCell>{message.exception.name}</TableCell>
+                            </TableRow>
+                            { !!message.exception.message &&
+                                <TableRow>
+                                    <TableCell component="th" scope="row">
+                                        Error message
+                                    </TableCell>
+                                    <TableCell>{message.exception.message}</TableCell>
+                                </TableRow> }
+                            { !!message.exception.stack &&
+                                <TableRow>
+                                    <TableCell component="th" scope="row">
+                                        Stack trace
+                                    </TableCell>
+                                    <TableCell sx={{whiteSpace: 'pre-wrap',
+                                                    overflowWrap: 'anywhere'}}>
+                                        {message.exception.stack}
+                                    </TableCell>
+                                </TableRow> }
+                            { !!message.exception.cause &&
+                                <TableRow>
+                                    <TableCell component="th" scope="row">
+                                        Cause
+                                    </TableCell>
+                                    <TableCell sx={{whiteSpace: 'pre-wrap',
+                                                    overflowWrap: 'anywhere'}}>
+                                        { JSON.stringify(
+                                             JSON.parse(message.exception.cause),
+                                             undefined, 4) }
+                                    </TableCell>
+                                </TableRow> }
+                        </TableBody>
                     </Table>
                 </TableContainer> }
             { !!message.result &&
