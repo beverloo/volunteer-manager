@@ -62,6 +62,8 @@ interface SalesGraphProps {
 export function SalesGraph(props: SalesGraphProps) {
     const clipPathId = useId();
 
+    const yAxis = props.limit ? [{ max: Math.floor(props.limit * 1.1) }] : undefined;
+
     return (
         <>
             { !!props.title &&
@@ -69,20 +71,26 @@ export function SalesGraph(props: SalesGraphProps) {
                     {props.title}
                 </Typography> }
             <ResponsiveChartContainer series={props.series} height={300} margin={{ top: 24 }}
-                                      xAxis={[ { scaleType: 'point', data: props.xLabels } ]}>
+                                      xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
+                                      yAxis={yAxis}>
                 <g clipPath={clipPathId}>
                     <LinePlot />
                     { !!props.today &&
                         <ChartsReferenceLine x={props.today}
-                                            lineStyle={{
-                                                stroke: kTodayColor
-                                            }} /> }
+                                             lineStyle={{
+                                                 stroke: kTodayColor
+                                             }} /> }
                     { !!props.limit &&
                         <ChartsReferenceLine y={props.limit}
-                                            lineStyle={{
-                                                strokeDasharray: 4,
-                                                stroke: kMaximumColor
-                                            }} /> }
+                                             label={`${props.limit}`}
+                                             labelStyle={{
+                                                 fill: kMaximumColor,
+                                                 fontSize: '12px',
+                                             }}
+                                             lineStyle={{
+                                                 strokeDasharray: 4,
+                                                 stroke: kMaximumColor
+                                             }} /> }
                 </g>
                 <ChartsAxisHighlight x="line" />
                 <ChartsGrid horizontal={true} />
