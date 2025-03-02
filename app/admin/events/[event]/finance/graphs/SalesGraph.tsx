@@ -46,6 +46,11 @@ export interface SalesGraphProps {
     series: ResponsiveChartContainerProps['series'];
 
     /**
+     * Optional styling to apply to the graph. Will be forwarded to the container.
+     */
+    sx?: ResponsiveChartContainerProps['sx'];
+
+    /**
      * Title that should be displayed on the graph, if any.
      */
     title?: string;
@@ -91,7 +96,7 @@ export function SalesGraph(props: SalesGraphProps) {
                 </Stack> }
             <ResponsiveChartContainer series={props.series} height={300} margin={{ top: 24 }}
                                       xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
-                                      yAxis={yAxis}>
+                                      yAxis={yAxis} sx={props.sx}>
                 <g clipPath={clipPathId}>
                     <LinePlot />
                     { !!props.today &&
