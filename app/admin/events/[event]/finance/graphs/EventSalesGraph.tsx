@@ -1,11 +1,17 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
+
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+
 import type { EventSalesCategory } from '@lib/database/Types';
 import { SalesGraph, type SalesGraphProps } from './SalesGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
-import db, { tActivities } from '@lib/database';
+import db, { tActivities, tEvents } from '@lib/database';
 
 /**
  * Props accepted by the <EventSalesGraph> component.
@@ -63,20 +69,40 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
 
     const dbInstance = db;
 
-    // TODO: Enable linking the user through to the associated activity
-
     // ---------------------------------------------------------------------------------------------
     // Determine the title of the graph. When an Activity ID is given this will be used, with the
     // label of the first product being the fallback.
 
+    let action: React.ReactNode;
     let title = props.title ?? props.products[0];
 
     if (!props.title && !!props.activityId) {
-        title = await dbInstance.selectFrom(tActivities)
+        const eventsJoin = tEvents.forUseInLeftJoin();
+
+        const activityInfo = await dbInstance.selectFrom(tActivities)
+            .leftJoin(eventsJoin)
+                .on(eventsJoin.eventFestivalId.equals(tActivities.activityFestivalId))
             .where(tActivities.activityId.equals(props.activityId))
                 .and(tActivities.activityDeleted.isNull())
-            .selectOneColumn(tActivities.activityTitle)
-            .executeSelectNoneOrOne() ?? props.products[0];
+            .select({
+                title: tActivities.activityTitle,
+                eventSlug: eventsJoin.eventSlug,
+            })
+            .executeSelectNoneOrOne();
+
+        if (!!activityInfo) {
+            const href =
+                `/admin/events/${activityInfo.eventSlug}/program/activities/${props.activityId}`;
+
+            title = activityInfo.title;
+            action = (
+                <Tooltip title="View activity">
+                    <IconButton LinkComponent={Link} href={href}>
+                        <EventNoteIcon color="info" fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            );
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -97,7 +123,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesGraph limit={props.limit} series={series} title={title}
+        <SalesGraph action={action} limit={props.limit} series={series} title={title}
                     titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
     );
 }

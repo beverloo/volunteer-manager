@@ -3,7 +3,7 @@
 
 import { useId } from 'react';
 
-import { ResponsiveChartContainer, type ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
+import Box from '@mui/material/Box';
 import { ChartsAxisHighlight } from '@mui/x-charts/ChartsAxisHighlight';
 import { ChartsClipPath } from '@mui/x-charts/ChartsClipPath';
 import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
@@ -12,6 +12,8 @@ import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip/ChartsTooltip';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { LinePlot } from '@mui/x-charts/LineChart';
+import { ResponsiveChartContainer, type ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
+import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 /**
@@ -28,6 +30,11 @@ const kTodayColor = '#1976D2';
  * Props accepted by the <SalesGraph> component.
  */
 export interface SalesGraphProps {
+    /**
+     * Action to display at the right-hand side of the title.
+     */
+    action?: React.ReactNode;
+
     /**
      * Optional limit indicating the maximum number of tickets that can be sold.
      */
@@ -71,10 +78,17 @@ export function SalesGraph(props: SalesGraphProps) {
 
     return (
         <>
-            { !!props.title &&
-                <Typography variant={ props.titleVariant ?? 'h5' }>
-                    {props.title}
-                </Typography> }
+            { (!!props.action || !!props.title) &&
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    { !!props.title &&
+                        <Typography variant={ props.titleVariant ?? 'h5' }>
+                            {props.title}
+                        </Typography> }
+                    { !!props.action &&
+                        <Box justifySelf="flex-end">
+                            {props.action}
+                        </Box> }
+                </Stack> }
             <ResponsiveChartContainer series={props.series} height={300} margin={{ top: 24 }}
                                       xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
                                       yAxis={yAxis}>
