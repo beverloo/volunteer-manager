@@ -264,6 +264,7 @@ export class TaskContext {
                     await scheduleTask({
                         taskName: this.#configuration.taskName as keyof typeof kTaskRegistry,
                         params: this.#configuration.params,
+                        parentTaskId: this.#configuration.taskId,
                         delayMs: this.#intervalMs,
                         intervalMs: this.#intervalMs,
                     }, scheduler);
