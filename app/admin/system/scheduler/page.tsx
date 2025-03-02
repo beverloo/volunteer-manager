@@ -9,6 +9,8 @@ import { SchedulerCreateTaskPanel } from './SchedulerCreateTaskPanel';
 import { SchedulerTaskTable } from './SchedulerTaskTable';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
+import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
+
 /**
  * The scheduler page gives an overview of the scheduler's state - both pending and past tasks, with
  * the ability to schedule a new task when so desired.
@@ -21,7 +23,7 @@ export default async function SchedulerPage() {
 
     return (
         <>
-            { process.env.APP_SCHEDULER_ENABLED !== '1' &&
+            { !globalScheduler.lastExecution &&
                 <Alert severity="error" variant="filled">
                     The scheduler is not running on this Volunteer Manager instance.
                 </Alert> }

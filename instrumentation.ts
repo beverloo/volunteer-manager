@@ -21,6 +21,11 @@ export async function register() {
         return;
     }
 
+    if (process.env.NODE_ENV === 'production' && process.env.APP_SCHEDULER_ENABLED === '0') {
+        // Fail silent: this is intentionally configured on staging environments.
+        return;
+    }
+
     // (1) Instantiate and start the SchedulerRunner, which "runs" the scheduler.
     const scheduler = SchedulerRunner.getInstance();
     scheduler.runLoop();
