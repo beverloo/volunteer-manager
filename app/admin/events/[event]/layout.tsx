@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
+import EuroIcon from '@mui/icons-material/Euro';
 import GridViewIcon from '@mui/icons-material/GridView';
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import HotelIcon from '@mui/icons-material/Hotel';
@@ -213,6 +214,14 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             label: 'Dashboard',
             url: `/admin/events/${event}`,
             urlMatchMode: 'strict',
+        },
+        {
+            icon: <EuroIcon />,
+            label: 'Finance',
+            permission: {
+                permission: 'statistics.finances',
+            },
+            url: `/admin/events/${event}/finance`,
         },
         {
             icon: <HotelIcon />,
