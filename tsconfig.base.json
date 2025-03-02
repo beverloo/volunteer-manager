@@ -21,6 +21,7 @@
     "verbatimModuleSyntax": true,
     "noImplicitOverride": true,
     "allowUnusedLabels": false,
+    "erasableSyntaxOnly": true,
     "jsx": "preserve",
     "paths": {
       "@components/*": [ "components/*" ],
