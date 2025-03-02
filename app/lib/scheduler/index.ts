@@ -34,7 +34,6 @@ export async function rerunTask(taskId: number): Promise<undefined | number> {
         params: JSON.parse(taskInfo.params),
         parentTaskId: taskInfo.parentTaskId ?? taskId,
         delayMs: 0,
-        intervalMs: taskInfo.intervalMs,
     });
 }
 
