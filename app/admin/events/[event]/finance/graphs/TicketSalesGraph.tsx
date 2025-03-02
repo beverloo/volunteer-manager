@@ -4,6 +4,8 @@
 import { type EventSalesCategory, kEventSalesCategory } from '@lib/database/Types';
 import { SalesGraph } from './SalesGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
+import { TicketSalesComparisonAction } from './TicketSalesComparisonAction';
+import { TicketSalesComparisonGraph } from './TicketSalesComparisonGraph';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
 
 /**
@@ -55,7 +57,7 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
             title = 'Tickets (Sunday)';
             break;
         case kEventSalesCategory.TicketWeekend:
-            title = 'Tickets (Weekend)';
+            title = 'Tickets (Full weekend)';
             break;
         default:
             throw new Error(`Unsupported category given: ${props.category}`);
@@ -69,6 +71,19 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
         props.eventId, props.products, start, end, /* includeAggregate= */ true);
 
     // ---------------------------------------------------------------------------------------------
+    // Start preloading the comparison graph. It will only be shown when the graph is activated by
+    // the user, but it depends on a fair number of queries.
+
+    const action = (
+        <TicketSalesComparisonAction
+            graph={
+                <TicketSalesComparisonGraph categories={[ props.category ]}
+                                            eventId={props.eventId} />
+            }
+            title={title} />
+    );
+
+    // ---------------------------------------------------------------------------------------------
 
     const currentPlainDate = Temporal.Now.plainDateISO();
     const today =
@@ -79,6 +94,6 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesGraph series={series} title={title} today={today} xLabels={xLabels} />
+        <SalesGraph action={action} series={series} title={title} today={today} xLabels={xLabels} />
     );
 }
