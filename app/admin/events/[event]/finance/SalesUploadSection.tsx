@@ -135,7 +135,7 @@ export function SalesUploadSection(props: EventSalesProps) {
     const link = 'https://www.yourticketprovider.nl/account/events/manage/myevents.aspx';
 
     return (
-        <FormGridSection action={action} title="Import sales data"
+        <FormGridSection action={action} title="Import sales data" callToAction="Import"
                          icon={ <AutoGraphOutlinedIcon /> }>
             <Grid size={12}>
                 <SectionIntroduction>

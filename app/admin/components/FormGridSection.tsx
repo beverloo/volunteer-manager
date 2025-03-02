@@ -41,6 +41,12 @@ interface FormGridSectionOwnProps {
     action: ServerAction;
 
     /**
+     * Text that should be displayed on the call-to-action button that will submit the form.
+     * Defaults to "Save changes".
+     */
+    callToAction?: string;
+
+    /**
      * Default values that should be provided to the form. Can be updated while the form is visible,
      * in which case all non-dirty fields will have their values updated.
      */
@@ -78,7 +84,8 @@ export type FormGridSectionProps =
  * https://github.com/dohomi/react-hook-form-mui/blob/master/packages/rhf-mui/src/FormContainer.tsx
  */
 export function FormGridSection(props: React.PropsWithChildren<FormGridSectionProps>) {
-    const { action, children, defaultValues, timezone, ...sectionHeaderProps } = props;
+    const { action, children, callToAction, defaultValues, timezone, ...sectionHeaderProps }
+        = props;
 
     const [ isPending, startTransition ] = useTransition();
     const [ state, setState ] = useState<ServerActionResult | undefined>();
@@ -183,7 +190,7 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
                                            padding: 1,
                                        }}>
                                     <Button variant="contained" type="submit" loading={!!isPending}>
-                                        Save changes
+                                        { props.callToAction ?? 'Save changes' }
                                     </Button>
                                     { (!!state && !state.success) &&
                                         <Alert severity="warning" sx={{flexGrow: 1, px: 1, py: 0}}>
