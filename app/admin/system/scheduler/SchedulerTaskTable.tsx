@@ -83,7 +83,7 @@ export function SchedulerTaskTable() {
                                 Temporal.ZonedDateTime.from(params.value), 'YYYY-MM-DD HH:mm:ss') }
                         </Typography>
                         { !!params.row.parentId &&
-                            <Tooltip title="Manual re-run of another task" color="disabled">
+                            <Tooltip title="This is a repeating task" color="disabled">
                                 <RepeatIcon fontSize="small" sx={{ ml: 1 }} />
                             </Tooltip> }
                     </>
