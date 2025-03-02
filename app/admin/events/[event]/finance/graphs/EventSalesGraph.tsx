@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { EventSalesCategory } from '@lib/database/Types';
-import { SalesGraph } from './SalesGraph';
+import { SalesGraph, type SalesGraphProps } from './SalesGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
 import db, { tActivities } from '@lib/database';
@@ -41,6 +41,16 @@ export interface EventSalesGraphProps {
      * in a Temporal PlainDate-compatible format.
      */
     range: [ string, string ];
+
+    /**
+     * Optional title. When omitted, the title will be inferred based on the first product.
+     */
+    title?: string;
+
+    /**
+     * Variant of the <Typography> component that should be used for the title. Defaults to "h5".
+     */
+    titleVariant?: SalesGraphProps['titleVariant'];
 }
 
 /**
@@ -59,9 +69,9 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     // Determine the title of the graph. When an Activity ID is given this will be used, with the
     // label of the first product being the fallback.
 
-    let title = props.products[0];
+    let title = props.title ?? props.products[0];
 
-    if (!!props.activityId) {
+    if (!props.title && !!props.activityId) {
         title = await dbInstance.selectFrom(tActivities)
             .where(tActivities.activityId.equals(props.activityId))
                 .and(tActivities.activityDeleted.isNull())
@@ -87,7 +97,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesGraph limit={props.limit} series={series} title={title} today={today}
-                    xLabels={xLabels} />
+        <SalesGraph limit={props.limit} series={series} title={title}
+                    titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
     );
 }

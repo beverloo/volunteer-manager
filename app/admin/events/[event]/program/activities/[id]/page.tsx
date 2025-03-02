@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
@@ -14,11 +15,14 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { EventSalesGraph } from '../../../finance/graphs/EventSalesGraph';
+import { LoadingGraph } from '../../../finance/graphs/LoadingGraph';
 import { formatDate } from '@lib/Temporal';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
+import { selectRangeForEvent } from '../../../finance/graphs/SalesGraphUtils';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tShifts, tTeams }
-    from '@lib/database';
+import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tEventsSalesConfiguration,
+             tShifts, tTeams } from '@lib/database';
 
 /**
  * Date and time format in which updates should be displayed.
@@ -30,7 +34,7 @@ const kUpdateFormat = ' dddd, MMMM D, [at] HH:mm';
  * up the Program section of the Volunteer Manager. A program is bound to an event.
  */
 export default async function ProgramActivityPage(props: NextPageParams<'event' | 'id'>) {
-    const { event } = await verifyAccessAndFetchPageInfo(props.params);
+    const { access, event } = await verifyAccessAndFetchPageInfo(props.params);
     const { id } = await props.params;
 
     const activityId = parseInt(id, 10);
@@ -96,6 +100,29 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
             },
         })
         .executeSelectMany();
+
+    let salesLimit: number | undefined = undefined;
+    let salesProducts: string[] = [ /* no products */ ];
+    let salesRange: [ string, string ] = [ '1998-09-04', '1998-09-18' ];
+
+    if (access.can('statistics.finances')) {
+        const configuration = await dbInstance.selectFrom(tEventsSalesConfiguration)
+            .where(tEventsSalesConfiguration.eventId.equals(event.id))
+                .and(tEventsSalesConfiguration.saleEventId.equals(activityId))
+            .select({
+                products:
+                    dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+                limit: tEventsSalesConfiguration.saleCategoryLimit,
+            })
+            .groupBy(tEventsSalesConfiguration.saleEventId)
+            .executeSelectNoneOrOne();
+
+        if (!!configuration && configuration.products.length > 0) {
+            salesLimit = configuration.limit;
+            salesProducts = configuration.products;
+            salesRange = await selectRangeForEvent(event.id);
+        }
+    }
 
     return (
         <Box component={Stack} direction="column" spacing={2} sx={{ p: 2 }}>
@@ -201,6 +228,15 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
                             </Stack>
                         )}
                     </Stack>
+                </Paper> }
+            { !!salesProducts.length &&
+                <Paper variant="outlined" sx={{ p: 1 }}>
+                    <Suspense fallback={ <LoadingGraph /> }>
+                        <EventSalesGraph activityId={activityId} category="Event" eventId={event.id}
+                                         limit={salesLimit} products={salesProducts}
+                                         range={salesRange}
+                                         title="Ticket sales" titleVariant="h6" />
+                    </Suspense>
                 </Paper> }
         </Box>
     );

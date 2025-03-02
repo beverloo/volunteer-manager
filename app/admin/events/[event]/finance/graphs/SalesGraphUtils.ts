@@ -4,7 +4,7 @@
 import type { ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
 
 import { Temporal, isAfter } from '@lib/Temporal';
-import db, { tEventsSales } from '@lib/database';
+import db, { tEvents, tEventsSales } from '@lib/database';
 
 /**
  * Generates the series for a given set of products, associated with a given event. This function
@@ -112,4 +112,27 @@ export function generateXLabels(start: Temporal.PlainDate, end: Temporal.PlainDa
         xLabels.push(date.toString());
 
     return xLabels;
+}
+
+/**
+ * Selects the date range to use for graphs in context of the given `eventId`, returned as a string
+ * array with two entries, each in a PlainDate-compatible format (YYYY-MM-DD).
+ */
+export async function selectRangeForEvent(eventId: number): Promise<[ string, string ]> {
+    const minimumRange = await db.selectFrom(tEventsSales)
+        .where(tEventsSales.eventId.equals(eventId))
+        .selectOneColumn(tEventsSales.eventSaleDate)
+        .orderBy(tEventsSales.eventSaleDate, 'asc')
+        .limit(1)
+        .executeSelectNoneOrOne() ?? Temporal.Now.plainDateISO().subtract({ days: 90 });
+
+    const maximumRange = await db.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(eventId))
+        .selectOneColumn(tEvents.eventEndTime)
+        .executeSelectNoneOrOne() ?? Temporal.Now.zonedDateTimeISO().add({ days: 14 });
+
+    return [
+        minimumRange.toString(),
+        maximumRange.toPlainDate().toString()
+    ];
 }

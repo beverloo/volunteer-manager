@@ -12,7 +12,7 @@ import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip/ChartsTooltip';
 import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
 import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
 import { LinePlot } from '@mui/x-charts/LineChart';
-import Typography from '@mui/material/Typography';
+import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 /**
  * Colour in which the line visualising maximum ticket sales should be displayed.
@@ -27,7 +27,7 @@ const kTodayColor = '#1976D2';
 /**
  * Props accepted by the <SalesGraph> component.
  */
-interface SalesGraphProps {
+export interface SalesGraphProps {
     /**
      * Optional limit indicating the maximum number of tickets that can be sold.
      */
@@ -42,6 +42,11 @@ interface SalesGraphProps {
      * Title that should be displayed on the graph, if any.
      */
     title?: string;
+
+    /**
+     * Variant of the <Typography> component that should be used for the title. Defaults to "h5".
+     */
+    titleVariant?: TypographyProps['variant'];
 
     /**
      * Date on which the "today" vertical line should be displayed.
@@ -67,7 +72,7 @@ export function SalesGraph(props: SalesGraphProps) {
     return (
         <>
             { !!props.title &&
-                <Typography variant="h5">
+                <Typography variant={ props.titleVariant ?? 'h5' }>
                     {props.title}
                 </Typography> }
             <ResponsiveChartContainer series={props.series} height={300} margin={{ top: 24 }}

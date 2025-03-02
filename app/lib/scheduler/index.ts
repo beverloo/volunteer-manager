@@ -22,7 +22,6 @@ export async function rerunTask(taskId: number): Promise<undefined | number> {
             taskName: tTasks.taskName,
             params: tTasks.taskParams,
             parentTaskId: tTasks.taskParentTaskId,
-            intervalMs: tTasks.taskScheduledIntervalMs,
         })
         .executeSelectNoneOrOne();
 
