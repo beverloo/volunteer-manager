@@ -41,6 +41,11 @@ interface TicketSalesComparisonGraphProps {
      * information will be automatically selected from the database.
      */
     eventId: number;
+
+    /**
+     * Maximum height of the graph, in pixels. Defaults to 300px.
+     */
+    height?: number;
 }
 
 /**
@@ -132,7 +137,7 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <SalesGraph series={series} xLabels={xLabels}
+        <SalesGraph height={props.height} series={series} xLabels={xLabels}
                     sx={{
                         [ `& .MuiLineElement-series-1` ]: { strokeWidth: 3 },
                         [ `& .MuiLineElement-series-2` ]: { strokeWidth: 1 },

@@ -22,10 +22,11 @@ import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
 import { EventRecentChanges } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
-import { EventSales, EventSalesLoading } from './EventSales';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
+import { LoadingGraph } from './finance/graphs/LoadingGraph';
 import { Temporal, isAfter } from '@lib/Temporal';
+import { TicketSalesComparisonGraph } from './finance/graphs/TicketSalesComparisonGraph';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { isAvailabilityWindowOpen } from '@lib/isAvailabilityWindowOpen';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -33,7 +34,7 @@ import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
     tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import { kEventSalesCategory, kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Updates within how many minutes of each other should be merged together?
@@ -440,8 +441,15 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                                         titleTypographyProps={{ variant: 'subtitle2' }} />
                             <Divider />
                             <CardContent sx={{ p: '0 !important' }}>
-                                <Suspense fallback={ <EventSalesLoading /> }>
-                                    <EventSales event={event.slug} />
+                                <Suspense fallback={ <LoadingGraph padding={2} /> }>
+                                    <TicketSalesComparisonGraph
+                                        categories={[
+                                            kEventSalesCategory.TicketFriday,
+                                            kEventSalesCategory.TicketSaturday,
+                                            kEventSalesCategory.TicketSunday,
+                                            kEventSalesCategory.TicketWeekend,
+                                        ]}
+                                        eventId={event.id} height={250} />
                                 </Suspense>
                             </CardContent>
                             <Divider />

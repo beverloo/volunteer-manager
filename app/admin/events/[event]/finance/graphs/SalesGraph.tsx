@@ -36,6 +36,11 @@ export interface SalesGraphProps {
     action?: React.ReactNode;
 
     /**
+     * Maximum height of the graph, in pixels. Defaults to 300px.
+     */
+    height?: number;
+
+    /**
      * Optional limit indicating the maximum number of tickets that can be sold.
      */
     limit?: number;
@@ -79,6 +84,7 @@ export interface SalesGraphProps {
 export function SalesGraph(props: SalesGraphProps) {
     const clipPathId = useId();
 
+    const height = props.height ?? 300;
     const yAxis = props.limit ? [{ max: Math.floor(props.limit * 1.1) }] : undefined;
 
     return (
@@ -94,7 +100,7 @@ export function SalesGraph(props: SalesGraphProps) {
                             {props.action}
                         </Box> }
                 </Stack> }
-            <ResponsiveChartContainer series={props.series} height={300} margin={{ top: 24 }}
+            <ResponsiveChartContainer series={props.series} height={height} margin={{ top: 24 }}
                                       xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
                                       yAxis={yAxis} sx={props.sx}>
                 <g clipPath={clipPathId}>
