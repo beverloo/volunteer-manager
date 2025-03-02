@@ -347,6 +347,12 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         activityCreated: dbInstance.currentZonedDateTime(),
                         activityUpdated: dbInstance.currentZonedDateTime(),
                         activityDeleted: null,
+                    })
+                    .onConflictDoUpdateSet({
+                        // The activity had been deleted and has now been re-added. All information
+                        // will be updated with a one-cycle delay, but already mark it as recovered.
+                        activityUpdated: dbInstance.currentZonedDateTime(),
+                        activityDeleted: null,
                     }));
 
                 mutations.mutations.push({
@@ -395,6 +401,12 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         areaType: kActivityType.Program,
                         areaName: currentArea.name,
                         areaCreated: dbInstance.currentZonedDateTime(),
+                        areaUpdated: dbInstance.currentZonedDateTime(),
+                        areaDeleted: null,
+                    })
+                    .onConflictDoUpdateSet({
+                        // The area had been deleted and has now been re-added. All information will
+                        // be updated with a one-cycle delay, but already mark it as recovered.
                         areaUpdated: dbInstance.currentZonedDateTime(),
                         areaDeleted: null,
                     }));
@@ -448,6 +460,9 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         locationDeleted: null,
                     })
                     .onConflictDoUpdateSet({
+                        // The location had been deleted and has now been re-added. All information
+                        // will be updated with a one-cycle delay, but already mark it as recovered.
+                        locationUpdated: dbInstance.currentZonedDateTime(),
                         locationDeleted: null,
                     }));
 
@@ -499,6 +514,12 @@ export class ImportActivitiesTask extends TaskWithParams<TaskParams> {
                         timeslotEndTime: toZonedDateTime(currentTimeslot.dateEndsAt),
                         timeslotLocationId: currentTimeslot.location.id,
                         timeslotCreated: dbInstance.currentZonedDateTime(),
+                        timeslotUpdated: dbInstance.currentZonedDateTime(),
+                        timeslotDeleted: null,
+                    })
+                    .onConflictDoUpdateSet({
+                        // The timeslot had been deleted and has now been re-added. All information
+                        // will be updated with a one-cycle delay, but already mark it as recovered.
                         timeslotUpdated: dbInstance.currentZonedDateTime(),
                         timeslotDeleted: null,
                     }));
