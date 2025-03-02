@@ -190,7 +190,7 @@ export function FormGridSection(props: React.PropsWithChildren<FormGridSectionPr
                                            padding: 1,
                                        }}>
                                     <Button variant="contained" type="submit" loading={!!isPending}>
-                                        { props.callToAction ?? 'Save changes' }
+                                        { callToAction ?? 'Save changes' }
                                     </Button>
                                     { (!!state && !state.success) &&
                                         <Alert severity="warning" sx={{flexGrow: 1, px: 1, py: 0}}>

@@ -22,7 +22,7 @@ import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { selectRangeForEvent } from '../../../finance/graphs/SalesGraphUtils';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tEventsSalesConfiguration,
-             tShifts, tTeams } from '@lib/database';
+    tShifts, tTeams } from '@lib/database';
 
 /**
  * Date and time format in which updates should be displayed.
