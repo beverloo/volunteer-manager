@@ -2,8 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { EventSalesCategory } from '@lib/database/Types';
-import type { ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
-import { SalesGraph } from './SalesGraph';
+import { SalesGraph, type SalesGraphProps } from './SalesGraph';
 import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
 
 /**
@@ -53,7 +52,7 @@ interface TicketSalesComparisonGraphProps {
  * a single category or within multiple categories, between several years.
  */
 export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
-    const series: ResponsiveChartContainerProps['series'] = [];
+    const series: SalesGraphProps['series'] = [];
     const xLabels: string[] = [];
 
     const dbInstance = db;

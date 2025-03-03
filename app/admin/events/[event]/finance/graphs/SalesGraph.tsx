@@ -4,17 +4,14 @@
 import { useId } from 'react';
 
 import Box from '@mui/material/Box';
-import { ChartsAxisHighlight } from '@mui/x-charts/ChartsAxisHighlight';
-import { ChartsClipPath } from '@mui/x-charts/ChartsClipPath';
-import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
-import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
-import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip/ChartsTooltip';
-import { ChartsXAxis } from '@mui/x-charts/ChartsXAxis';
-import { ChartsYAxis } from '@mui/x-charts/ChartsYAxis';
-import { LinePlot } from '@mui/x-charts/LineChart';
-import { ResponsiveChartContainer, type ResponsiveChartContainerProps } from '@mui/x-charts/ResponsiveChartContainer';
 import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
+
+import {
+    ChartsAxisHighlight, ChartsClipPath, ChartsGrid, ChartsReferenceLine, ChartsTooltip,
+    ChartsXAxis, ChartsYAxis, LinePlot } from '@mui/x-charts-pro';
+import { ResponsiveChartContainerPro, type ResponsiveChartContainerProProps }
+    from '@mui/x-charts-pro/ResponsiveChartContainerPro';
 
 /**
  * Colour in which the line visualising maximum ticket sales should be displayed.
@@ -48,12 +45,12 @@ export interface SalesGraphProps {
     /**
      * Series that should be displayed on the graph.
      */
-    series: ResponsiveChartContainerProps['series'];
+    series: ResponsiveChartContainerProProps['series'];
 
     /**
      * Optional styling to apply to the graph. Will be forwarded to the container.
      */
-    sx?: ResponsiveChartContainerProps['sx'];
+    sx?: ResponsiveChartContainerProProps['sx'];
 
     /**
      * Title that should be displayed on the graph, if any.
@@ -100,9 +97,9 @@ export function SalesGraph(props: SalesGraphProps) {
                             {props.action}
                         </Box> }
                 </Stack> }
-            <ResponsiveChartContainer series={props.series} height={height} margin={{ top: 24 }}
-                                      xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
-                                      yAxis={yAxis} sx={props.sx}>
+            <ResponsiveChartContainerPro series={props.series} height={height} margin={{ top: 24 }}
+                                         xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
+                                         yAxis={yAxis} sx={props.sx}>
                 <g clipPath={clipPathId}>
                     <LinePlot />
                     { !!props.today &&
@@ -128,7 +125,7 @@ export function SalesGraph(props: SalesGraphProps) {
                 <ChartsXAxis />
                 <ChartsYAxis />
                 <ChartsClipPath id={clipPathId} />
-            </ResponsiveChartContainer>
+            </ResponsiveChartContainerPro>
         </>
     );
 }
