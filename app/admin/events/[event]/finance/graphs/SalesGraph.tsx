@@ -9,9 +9,8 @@ import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 import {
     ChartsAxisHighlight, ChartsClipPath, ChartsGrid, ChartsReferenceLine, ChartsTooltip,
-    ChartsXAxis, ChartsYAxis, LinePlot } from '@mui/x-charts-pro';
-import { ResponsiveChartContainerPro, type ResponsiveChartContainerProProps }
-    from '@mui/x-charts-pro/ResponsiveChartContainerPro';
+    ChartsXAxis, ChartsYAxis, LinePlot, ResponsiveChartContainerPro, ZoomSetup,
+    type ResponsiveChartContainerProProps } from './MuiChartProxy';
 
 /**
  * Colour in which the line visualising maximum ticket sales should be displayed.
@@ -71,6 +70,11 @@ export interface SalesGraphProps {
      * Labels that should be displayed on the x-axis of the graph.
      */
     xLabels: string[];
+
+    /**
+     * Whether to enable zooming on the graph.
+     */
+    zoom?: boolean;
 }
 
 /**
@@ -82,7 +86,21 @@ export function SalesGraph(props: SalesGraphProps) {
     const clipPathId = useId();
 
     const height = props.height ?? 300;
-    const yAxis = props.limit ? [{ max: Math.floor(props.limit * 1.1) }] : undefined;
+
+    const xAxis: ResponsiveChartContainerProProps['xAxis'] = [
+        {
+            scaleType: 'point',
+            data: props.xLabels,
+            zoom: props.zoom,
+        }
+    ];
+
+    const yAxis: ResponsiveChartContainerProProps['yAxis'] = [
+        {
+            max: props.limit ? Math.floor(props.limit * 1.1) : undefined,
+            zoom: props.zoom,
+        },
+    ];
 
     return (
         <>
@@ -98,9 +116,9 @@ export function SalesGraph(props: SalesGraphProps) {
                         </Box> }
                 </Stack> }
             <ResponsiveChartContainerPro series={props.series} height={height} margin={{ top: 24 }}
-                                         xAxis={[ { scaleType: 'point', data: props.xLabels } ]}
-                                         yAxis={yAxis} sx={props.sx}>
-                <g clipPath={clipPathId}>
+                                         xAxis={xAxis} yAxis={yAxis} sx={props.sx}>
+                <ChartsClipPath id={clipPathId} />
+                <g clipPath={`url(#${clipPathId})`}>
                     <LinePlot />
                     { !!props.today &&
                         <ChartsReferenceLine x={props.today}
@@ -124,7 +142,7 @@ export function SalesGraph(props: SalesGraphProps) {
                 <ChartsTooltip />
                 <ChartsXAxis />
                 <ChartsYAxis />
-                <ChartsClipPath id={clipPathId} />
+                { !!props.zoom && <ZoomSetup /> }
             </ResponsiveChartContainerPro>
         </>
     );

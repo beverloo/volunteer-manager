@@ -136,7 +136,7 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <SalesGraph height={props.height} series={series} xLabels={xLabels}
+        <SalesGraph height={props.height} series={series} xLabels={xLabels} zoom
                     sx={{
                         [ '& .MuiLineElement-series-1' ]: { strokeWidth: 3 },
                         [ '& .MuiLineElement-series-2' ]: { strokeWidth: 1 },
