@@ -4,7 +4,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '@mui/material/Button';
@@ -224,7 +224,7 @@ function Application(props: ApplicationProps) {
         },
     ];
 
-    let accountAction: JSX.Element | undefined;
+    let accountAction: React.JSX.Element | undefined;
     if (!!canAccessAccounts) {
         const href = `/admin/volunteers/${application.userId}`;
 

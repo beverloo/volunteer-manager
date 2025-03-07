@@ -53,7 +53,7 @@ function HotelAssignmentPersonSelect(props: HotelAssignmentPersonSelectProps) {
             context.current!.setEditCellValue({ id, field, value: event.currentTarget.value });
         }, [ context, field, id ]);
 
-    const ref = useRef<HTMLTextAreaElement | HTMLInputElement>();
+    const ref = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
 
     useLayoutEffect(() => {
         if (hasFocus && ref.current)

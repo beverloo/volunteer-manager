@@ -42,7 +42,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
  * whatever they're searching for in this filter, which will automatically search through all data.
  */
 function DataTableFilter() {
-    const inputReference = useRef<HTMLInputElement>();
+    const inputReference = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         function handleKeyPress(event: KeyboardEvent) {

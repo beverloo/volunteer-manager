@@ -12,7 +12,7 @@ interface SelectElementResult<Type extends HTMLElement> {
     /**
      * The element reference indicating the element that should be selected.
      */
-    elementRef: RefObject<Type>;
+    elementRef: RefObject<Type | null>;
 
     /**
      * Callback that is to be invoked when the element's contents should be selected.

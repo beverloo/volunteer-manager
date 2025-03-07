@@ -1,9 +1,0 @@
-{
-    "reject": [
-        // https://github.com/beverloo/volunteer-manager/issues/8
-        "@types/react",
-        "@types/react-dom",
-        "react",
-        "react-dom"
-    ]
-}

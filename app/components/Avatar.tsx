@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { Theme } from '@mui/material/styles';
 import type { AvatarProps as MuiAvatarProps } from '@mui/material/Avatar';
@@ -92,7 +92,7 @@ interface AvatarProps {
      * The badge that should be displayed on the avatar, if any. It will be displayed in the bottom-
      * right corner considering the `variant`.
      */
-    badge?: JSX.Element | null;
+    badge?: React.JSX.Element | null;
 
     /**
      * Children passed to the <Avatar> component. When given, must be a string based on which the

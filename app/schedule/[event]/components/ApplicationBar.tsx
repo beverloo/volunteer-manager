@@ -140,7 +140,7 @@ export function ApplicationBar() {
     const router = useRouter();
     const title = useTitle();
 
-    const searchBarRef = useRef<HTMLInputElement>();
+    const searchBarRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         function interceptSearchKey(event: KeyboardEvent): void {
