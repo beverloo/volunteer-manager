@@ -21,7 +21,6 @@ export async function rerunTask(taskId: number): Promise<undefined | number> {
         .select({
             taskName: tTasks.taskName,
             params: tTasks.taskParams,
-            parentTaskId: tTasks.taskParentTaskId,
         })
         .executeSelectNoneOrOne();
 
@@ -31,8 +30,9 @@ export async function rerunTask(taskId: number): Promise<undefined | number> {
     return await scheduleTask({
         taskName: taskInfo.taskName as RegisteredTasks,
         params: JSON.parse(taskInfo.params),
-        parentTaskId: taskInfo.parentTaskId ?? taskId,
+        parentTaskId: taskId,
         delayMs: 0,
+        intervalMs: /* no interval= */ undefined,
     });
 }
 

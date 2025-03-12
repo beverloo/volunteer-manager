@@ -243,11 +243,6 @@ export class TaskContext {
      * to be exeucted when an interval has been given.
      */
     async finalize(scheduler: Scheduler, result: TaskResult) {
-        if (!!this.#intervalMs && !!this.#configuration.parentTaskId) {
-            this.#logger.debug('Task was manually repeated, ignoring the execution interval');
-            this.#intervalMs = undefined;
-        }
-
         if (!!this.#configuration.taskId) {
             const dbInstance = db;
             await dbInstance.transaction(async () => {
