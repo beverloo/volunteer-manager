@@ -79,30 +79,60 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
             return { success: false, error: 'The select file contains no sales data…' };
 
         // -----------------------------------------------------------------------------------------
-        // Actually upload the `data` to the database.
+        // Actually upload the `data` to the database. Only missing or updated numbers will be
+        // inserted in the database, values that already exist will remain untouched.
         // -----------------------------------------------------------------------------------------
 
         const dbInstance = db;
+
+        const existingSalesData: Map<string, Map<string, number>> = new Map();
+        {
+            const existingSalesDatabaseData = await dbInstance.selectFrom(tEventsSales)
+                .where(tEventsSales.eventId.equals(event.id))
+                .select({
+                    eventSaleDate: tEventsSales.eventSaleDate,
+                    eventSaleType: tEventsSales.eventSaleType,
+                    eventSaleCount: tEventsSales.eventSaleCount,
+                })
+                .executeSelectMany();
+
+            for (const existingSale of existingSalesDatabaseData) {
+                const serialisedDate = existingSale.eventSaleDate.toString();
+
+                if (!existingSalesData.has(serialisedDate))
+                    existingSalesData.set(serialisedDate, new Map);
+
+                existingSalesData.get(serialisedDate)!.set(
+                    existingSale.eventSaleType, existingSale.eventSaleCount);
+            }
+        }
 
         for (const day of salesData) {
             const dateDecomposed = day.Datum.split('/');
             const date = Temporal.PlainDate.from(
                 `${dateDecomposed[2]}-${dateDecomposed[1]}-${dateDecomposed[0]}`);
 
+            const existingData = existingSalesData.get(date.toString());
+
             for (const field of fields) {
                 if (field === 'Datum')
                     continue;  // represents the date
+
+                const count = parseInt(day[field], 10);
+
+                if (!!existingData && existingData.get(field) === count)
+                    continue;  // no change, no need to update
 
                 await db.insertInto(tEventsSales)
                     .set({
                         eventId: event.id,
                         eventSaleDate: date,
                         eventSaleType: field,
-                        eventSaleCount: parseInt(day[field], 10),
+                        eventSaleCount: count,
                         eventSaleUpdated: dbInstance.currentZonedDateTime(),
                     })
                     .onConflictDoUpdateSet({
-                        eventSaleCount: parseInt(day[field], 10),
+                        eventSaleCount: count,
                         eventSaleUpdated: dbInstance.currentZonedDateTime(),
                     })
                     .executeInsert();
