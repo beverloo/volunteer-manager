@@ -9,7 +9,6 @@ import Paper from '@mui/material/Paper';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ScheduleContextImpl } from './ScheduleContext';
-import { ScheduleWarnings } from './ScheduleWarnings';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -67,8 +66,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
                 </Paper> }
             <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
                 <ScheduleImpl readOnly={readOnly} sections={sections} />
-                <ScheduleWarnings
-                    defaultExpanded={ !!userSettings['user-admin-schedule-expand-warnings'] } />
+                { /* TODO: Add a section displaying warnings */ }
             </ScheduleContextImpl>
         </>
     );
