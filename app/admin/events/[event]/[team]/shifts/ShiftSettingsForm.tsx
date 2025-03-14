@@ -3,7 +3,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type FieldValues, FormContainer, TextFieldElement, SelectElement }
+import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement, SelectElement }
     from '@proxy/react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
@@ -156,9 +156,14 @@ export function ShiftSettingsForm(props: React.PropsWithChildren<ShiftSettingsFo
             </Grid>
             <Collapse in={type === 'program'}>
                 <Stack direction="column" spacing={2} sx={{ mt: 2 }}>
-                    <SelectElement name="activityId" label="Associated activity"
-                                   options={props.activities} size="small" fullWidth
-                                   onChange={handleChange} disabled={readOnly} />
+                    <AutocompleteElement name="activityId" label="Associated activity"
+                                         options={props.activities} matchId
+                                         autocompleteProps={{
+                                             disabled: readOnly,
+                                             fullWidth: true,
+                                             onChange: handleChange,
+                                             size: 'small',
+                                         }} />
                     { !!props.includeName &&
                         <TextFieldElement name="name" label="Shift name" fullWidth size="small"
                                           onChange={handleChange} disabled={readOnly} /> }
