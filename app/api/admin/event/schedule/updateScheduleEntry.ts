@@ -160,13 +160,11 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
             .executeUpdate();
 
         if (!!affectedRows) {
-            let mutationBeforeShiftId: number | undefined;
+            const mutationBeforeShiftId = shift.shiftId;
             let mutationAfterShiftId: number | undefined;
 
-            if (shift.shiftId !== request.shift.shiftId) {
-                mutationBeforeShiftId = shift.shiftId;
+            if (shift.shiftId !== request.shift.shiftId)
                 mutationAfterShiftId = request.shift.shiftId;
-            }
 
             let mutationBeforeTimeStart: Temporal.ZonedDateTime | undefined;
             let mutationBeforeTimeEnd: Temporal.ZonedDateTime | undefined;
@@ -183,13 +181,11 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
                 mutationAfterTimeEnd = request.shift.end;
             }
 
-            let mutationBeforeUserId: number | undefined;
+            const mutationBeforeUserId = shift.userId;
             let mutationAfterUserId: number | undefined;
 
-            if (shift.userId !== request.shift.userId) {
-                mutationBeforeUserId = shift.userId;
+            if (shift.userId !== request.shift.userId)
                 mutationAfterUserId = request.shift.userId;
-            }
 
             await dbInstance.insertInto(tScheduleLogs)
                 .set({

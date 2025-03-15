@@ -66,6 +66,7 @@ import type { DisplayRequestsEndpoints } from '@app/api/admin/displays/requests/
 import type { DisplaysEndpoints } from '@app/api/admin/displays/[[...id]]/route';
 import type { EventDeadlinesEndpoints } from '@app/api/admin/event/deadlines/[[...id]]/route';
 import type { EventFinanceEndpoints } from '@app/api/admin/event/finance/[[...id]]/route';
+import type { EventScheduleHistoryEndpoints } from '@app/api/admin/event/schedule/history/[[...id]]/route';
 import type { EventShiftCategoriesEndpoints } from '@app/api/admin/event/shifts/categories/[[...id]]/route';
 import type { EventShiftEndpoints } from '@app/api/admin/event/shifts/[[...id]]/route';
 import type { EventTeamEndpoints } from '@app/api/admin/event/teams/[[...id]]/route';
@@ -113,6 +114,7 @@ export type ApiEndpoints = {
         '/api/admin/displays/requests': DisplayRequestsEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
         '/api/admin/event/finance': EventFinanceEndpoints['list'],
+        '/api/admin/event/schedule/history': EventScheduleHistoryEndpoints['list'],
         '/api/admin/event/schedule/:event/:team': GetScheduleDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['list'],
         '/api/admin/event/shifts': EventShiftEndpoints['list'],
@@ -214,6 +216,7 @@ export type ApiEndpoints = {
         '/api/admin/content/:id': ContentEndpoints['delete'],
         '/api/admin/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['delete'],
+        '/api/admin/event/schedule/history/:id': EventScheduleHistoryEndpoints['delete'],
         '/api/admin/event/schedule/:event/:team/:id': DeleteScheduleEntryDefinition,
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['delete'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['delete'],

@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ScheduleContextImpl } from './ScheduleContext';
+import { ScheduleHistory } from './ScheduleHistory';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -32,6 +33,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
     const userSettings = await readUserSettings(user.userId, [
         'user-admin-schedule-date',
         'user-admin-schedule-expand-sections',
+        'user-admin-schedule-expand-history',
         'user-admin-schedule-expand-warnings',
         'user-admin-schedule-inclusive-shifts',
     ]);
@@ -65,8 +67,17 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
                     to be able to make any changes.
                 </Paper> }
             <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
+
                 <ScheduleImpl readOnly={readOnly} sections={sections} />
+
+                <ScheduleHistory
+                    context={{ event: event.slug, team: team.slug }}
+                    defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
+                    enableDelete={ access.can('system.logs', 'delete') }
+                    enableProfileLinks={ access.can('volunteer.account.information', 'read') } />
+
                 { /* TODO: Add a section displaying warnings */ }
+
             </ScheduleContextImpl>
         </>
     );
