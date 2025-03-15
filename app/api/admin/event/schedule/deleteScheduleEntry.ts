@@ -76,6 +76,20 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
         notFound();
 
     const dbInstance = db;
+    const scheduledShift = await dbInstance.selectFrom(tSchedule)
+        .where(tSchedule.scheduleId.equals(id))
+            .and(tSchedule.eventId.equals(event.id))
+        .select({
+            shiftId: tSchedule.shiftId,
+            timeStart: tSchedule.scheduleTimeStart,
+            timeEnd: tSchedule.scheduleTimeEnd,
+            userId: tSchedule.userId,
+        })
+        .executeSelectNoneOrOne();
+
+    if (!scheduledShift)
+        notFound();
+
     const affectedRows = await dbInstance.transaction(async () => {
         const affectedRows = await dbInstance.update(tSchedule)
             .set({
@@ -91,6 +105,10 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
                     eventId: event.id,
                     scheduleId: id,
                     mutation: kMutation.Deleted,
+                    mutationBeforeShiftId: scheduledShift.shiftId,
+                    mutationBeforeTimeStart: scheduledShift.timeStart,
+                    mutationBeforeTimeEnd: scheduledShift.timeEnd,
+                    mutationBeforeUserId: scheduledShift.userId,
                     mutationUserId: props.user!.userId,
                 })
                 .executeInsert();

@@ -125,6 +125,10 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
                 eventId: event.id,
                 scheduleId,
                 mutation: kMutation.Created,
+                mutationAfterShiftId: /* to be determined= */ undefined,
+                mutationAfterTimeStart: request.shift.start,
+                mutationAfterTimeEnd: request.shift.end,
+                mutationAfterUserId: volunteer.id,
                 mutationUserId: props.user!.userId,
             })
             .executeInsert();
