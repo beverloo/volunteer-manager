@@ -8,7 +8,11 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SelectElement } from '@proxy/react-hook-form-mui';
 
 import type { PopoverPosition } from '@mui/material/Popover';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
+import HistoryIcon from '@mui/icons-material/History';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
@@ -206,6 +210,17 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ contextMenuPosition, setContextMenuPosition ] = useState<PopoverPosition | undefined>();
     const [ contextMenuResolver, setContextMenuResolver ] = useState<ContextMenuResolver>();
 
+    const handleRightClickMenuHistory = useCallback(() => {
+        if (!contextMenuEvent || !contextMenuResolver)
+            return;
+
+        // TODO: Display a history dialog for this particular shift.
+
+        contextMenuResolver(/* do nothing */);
+        setContextMenuEvent(undefined);
+
+    }, [ contextMenuEvent, contextMenuResolver ]);
+
     const handleRightClickMenuSelect = useCallback((shiftId: number) => {
         if (!contextMenuEvent || !contextMenuResolver)
             return;
@@ -331,9 +346,20 @@ export function ScheduleImpl(props: ScheduleImplProps) {
             <Menu open={!!contextMenuEvent && !!recentShifts.length}
                   onClose={handleRightClickMenuClose}
                   anchorReference="anchorPosition"
-                  anchorPosition={contextMenuPosition}>
+                  anchorPosition={contextMenuPosition}
+                  slotProps={{ list: { dense: true } }}>
+                <MenuItem onClick={handleRightClickMenuHistory}>
+                    <ListItemIcon>
+                        <HistoryIcon fontSize="small" />
+                    </ListItemIcon>
+                    History
+                </MenuItem>
+                { recentShifts.length > 0 && <Divider /> }
                 { recentShifts.map(shift =>
                     <MenuItem key={shift.id} onClick={ () => handleRightClickMenuSelect(shift.id) }>
+                        <ListItemIcon>
+                            <CompareArrowsIcon fontSize="small" />
+                        </ListItemIcon>
                         {shift.label}
                     </MenuItem> )}
             </Menu>
