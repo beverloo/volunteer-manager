@@ -5,11 +5,13 @@ import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import Alert from '@mui/material/Alert';
+import HistoryIcon from '@mui/icons-material/History';
 import Paper from '@mui/material/Paper';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { ScheduleContextImpl } from './ScheduleContext';
-import { ScheduleHistory } from './ScheduleHistory';
+import { ScheduleHistoryTable } from './ScheduleHistoryTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
 import { readUserSettings } from '@lib/UserSettings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -70,11 +72,18 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
 
                 <ScheduleImpl readOnly={readOnly} sections={sections} />
 
-                <ScheduleHistory
-                    context={{ event: event.slug, team: team.slug }}
+                <ExpandableSection
                     defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
-                    enableDelete={ access.can('system.logs', 'delete') }
-                    enableProfileLinks={ access.can('volunteer.account.information', 'read') } />
+                    title="Recent changes" icon={ <HistoryIcon color="info" /> }
+                    setting="user-admin-schedule-expand-history">
+
+                    <ScheduleHistoryTable
+                        context={{ event: event.slug, team: team.slug }}
+                        defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
+                        enableDelete={access.can('system.logs', 'delete')}
+                        enableProfileLinks={access.can('volunteer.account.information', 'read')} />
+
+                </ExpandableSection>
 
                 { /* TODO: Add a section displaying warnings */ }
 

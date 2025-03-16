@@ -6,9 +6,7 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
-import HistoryIcon from '@mui/icons-material/History';
 
-import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -16,9 +14,9 @@ import type { EventScheduleHistoryContext, EventScheduleHistoryRowModel }
     from '@app/api/admin/event/schedule/history/[[...id]]/route';
 
 /**
- * Props accepted by the <ScheduleHistory> component.
+ * Props accepted by the <ScheduleHistoryTable> component.
  */
-interface ScheduleHistoryProps extends EventScheduleHistoryContext {
+interface ScheduleHistoryTableProps extends EventScheduleHistoryContext {
     /**
      * Whether the history should be expanded by default.
      */
@@ -36,11 +34,11 @@ interface ScheduleHistoryProps extends EventScheduleHistoryContext {
 }
 
 /**
- * The <ScheduleHistory> component displays the most recent changes to the schedule in a table, to
- * provide some insight in which volunteers made which modifications. This is helpful to understand
- * the most recent changes that have been made.
+ * The <ScheduleHistoryTable> component displays the most recent changes to the schedule in a table,
+ * to * provide some insight in which volunteers made which modifications. This is helpful to
+ * understand the most recent changes that have been made.
  */
-export function ScheduleHistory(props: ScheduleHistoryProps) {
+export function ScheduleHistoryTable(props: ScheduleHistoryTableProps) {
     const localTz = Temporal.Now.timeZoneId();
 
     const columns: RemoteDataTableColumn<EventScheduleHistoryRowModel>[] = [
@@ -91,13 +89,9 @@ export function ScheduleHistory(props: ScheduleHistoryProps) {
     ];
 
     return (
-        <ExpandableSection defaultExpanded={props.defaultExpanded} title="Recent changes"
-                           icon={ <HistoryIcon color="info" /> }
-                           setting="user-admin-schedule-expand-history">
-            <RemoteDataTable columns={columns} endpoint="/api/admin/event/schedule/history"
-                             enableDelete={!!props.enableDelete} context={props.context}
-                             defaultSort={{ field: 'id', sort: 'desc' }} pageSize={10}
-                             subject="log entry" />
-        </ExpandableSection>
+        <RemoteDataTable columns={columns} endpoint="/api/admin/event/schedule/history"
+                         enableDelete={!!props.enableDelete} context={props.context}
+                         defaultSort={{ field: 'id', sort: 'desc' }} pageSize={10}
+                         subject="log entry" />
     );
 }
