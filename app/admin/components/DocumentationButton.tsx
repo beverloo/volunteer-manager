@@ -5,6 +5,7 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useState } from 'react';
+import { useQueryState, parseAsBoolean } from 'nuqs';
 
 import { type SvgIconProps } from '@mui/material/SvgIcon';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -49,7 +50,7 @@ export function DocumentationButton(props: DocumentationButtonProps) {
     const [ dialogRequested, setDialogRequested ] = useState<boolean>(false);
 
     // Whether the dialog is currently open. This will be toggled by the user's interaction.
-    const [ dialogOpen, setDialogOpen ] = useState<boolean>(false);
+    const [ dialogOpen, setDialogOpen ] = useQueryState('help', parseAsBoolean.withDefault(false));
 
     // Handles the user's request to close the documentation dialog.
     const handleCloseDocumentation = useCallback(() => {
