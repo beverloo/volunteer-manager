@@ -60,7 +60,8 @@ export default function DocumentationDialog(props: DocumentationDialogProps) {
     });
 
     return (
-        <Dialog fullWidth onClose={props.onClose} open={props.open}>
+        <Dialog fullWidth maxWidth="md" onClose={props.onClose} open={props.open}
+                scroll="paper">
             <DialogContent>
                 <Collapse in={!!error}>
                     <Alert severity="error">
@@ -72,7 +73,10 @@ export default function DocumentationDialog(props: DocumentationDialogProps) {
                         { data?.error ?? 'The server was not able to provide the documentation.' }
                     </Alert>
                 </Collapse>
-                { (!isLoading && data?.success === true) && <Markdown>{data.markdown}</Markdown> }
+                { (!isLoading && data?.success === true) &&
+                    <Markdown sx={{
+                        '& h5:first-child': { pb: 0.5, fontSize: 24 }
+                    }}>{data.markdown}</Markdown> }
                 { (isLoading && !error) &&
                     <>
                         <Skeleton variant="text" animation="wave" width="80%" height={16} />
