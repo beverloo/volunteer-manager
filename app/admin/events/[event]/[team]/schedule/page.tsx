@@ -79,7 +79,6 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
 
                     <ScheduleHistoryTable
                         context={{ event: event.slug, team: team.slug }}
-                        defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
                         enableDelete={access.can('system.logs', 'delete')}
                         enableProfileLinks={access.can('volunteer.account.information', 'read')} />
 

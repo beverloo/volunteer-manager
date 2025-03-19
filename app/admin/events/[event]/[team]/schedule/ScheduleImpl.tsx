@@ -8,7 +8,12 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SelectElement } from '@proxy/react-hook-form-mui';
 
 import type { PopoverPosition } from '@mui/material/Popover';
+import Button from '@mui/material/Button';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
 import HistoryIcon from '@mui/icons-material/History';
@@ -22,6 +27,7 @@ import type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleReso
     from '@app/admin/components/Schedule';
 
 import { ScheduleContext } from './ScheduleContext';
+import { ScheduleHistoryTable } from './ScheduleHistoryTable';
 import { Schedule } from '@app/admin/components/Schedule';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { TimePickerElement } from 'react-hook-form-mui/date-pickers';
@@ -131,14 +137,14 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ dialogEvent, setDialogEvent ] = useState<ScheduleEvent | undefined>();
     const [ dialogResolver, setDialogResolver ] = useState<DialogResolver>();
 
-    const handleDialogClose = useCallback(() => {
+    const handleSettingDialogClose = useCallback(() => {
         setDialogEvent(undefined);
         if (!!dialogResolver)
             dialogResolver(/* do nothing */);
 
     }, [ dialogResolver ]);
 
-    const handleDialogDelete = useCallback(async () => {
+    const handleSettingDialogDelete = useCallback(async () => {
         if (!dialogEvent || !dialogResolver)
             return { error: <>I forgot which shift was selected, sorry!</> };
 
@@ -147,7 +153,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     }, [ dialogEvent, dialogResolver ]);
 
-    const handleDialogUpdate = useCallback(async (event: ScheduleEvent) => {
+    const handleSettingDialogUpdate = useCallback(async (event: ScheduleEvent) => {
         if (!dialogEvent || !dialogResolver)
             return { error: <>I forgot which shift was selected, sorry!</> };
 
@@ -201,6 +207,16 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     }, [ dialogEvent ]);
 
     // ---------------------------------------------------------------------------------------------
+    // Interaction: right click -> history
+    // ---------------------------------------------------------------------------------------------
+
+    const [ historyDialogEvent, setHistoryDialogEvent ] = useState<ScheduleEvent | undefined>();
+
+    const handleHistoryDialogClose = useCallback(() => {
+        setHistoryDialogEvent(undefined);
+    }, [ /* no dependencies */ ]);
+
+    // ---------------------------------------------------------------------------------------------
     // Interaction: right click -> recent shift context menu
     // ---------------------------------------------------------------------------------------------
 
@@ -214,7 +230,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
         if (!contextMenuEvent || !contextMenuResolver)
             return;
 
-        // TODO: Display a history dialog for this particular shift.
+        setHistoryDialogEvent(contextMenuEvent);
 
         contextMenuResolver(/* do nothing */);
         setContextMenuEvent(undefined);
@@ -320,15 +336,18 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     return (
         <Paper>
+
             <Schedule min={context.schedule.min} max={context.schedule.max} readOnly={readOnly}
                       events={events} eventDefaults={eventDefaults} eventOverlap={false}
                       onChange={context.processMutation} onRightClick={handleRightClick}
                       onResourceExpansionChange={handleExpansionChange} height={height}
                       onDoubleClick={handleDoubleClick} markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
+
             <SettingDialog title="Select a shift" delete open={!!dialogEvent}
-                           onClose={handleDialogClose} onDelete={handleDialogDelete}
-                           onSubmit={handleDialogUpdate} defaultValues={dialogDefaultValues}>
+                           onClose={handleSettingDialogClose} onDelete={handleSettingDialogDelete}
+                           onSubmit={handleSettingDialogUpdate}
+                           defaultValues={dialogDefaultValues}>
                 <Grid container>
                     <Grid size={{ xs: 12 }}>
                         <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
@@ -343,6 +362,24 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                     </Grid>
                 </Grid>
             </SettingDialog>
+
+            { !!historyDialogEvent &&
+                <Dialog open onClose={handleHistoryDialogClose} fullWidth maxWidth="md">
+                    <DialogTitle>{historyDialogEvent?.title} shift history</DialogTitle>
+                    <DialogContent>
+                        <ScheduleHistoryTable context={{
+                            event: '2025',
+                            team: 'stewards',
+                            scheduleId: `${historyDialogEvent.id}`,
+                        }} />
+                    </DialogContent>
+                    <DialogActions sx={{ pt: 0, mr: 1, mb: 0 }}>
+                        <Button onClick={handleHistoryDialogClose} variant="text">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog> }
+
             <Menu open={!!contextMenuEvent && !!recentShifts.length}
                   onClose={handleRightClickMenuClose}
                   anchorReference="anchorPosition"
@@ -363,6 +400,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                         {shift.label}
                     </MenuItem> )}
             </Menu>
+
         </Paper>
     );
 }

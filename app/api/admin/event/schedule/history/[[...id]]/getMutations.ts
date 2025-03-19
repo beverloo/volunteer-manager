@@ -93,6 +93,11 @@ interface GetMutationsParams {
          */
         pageSize: number;
     };
+
+    /**
+     * Unique ID of the scheduled shift for which history should be obtained.
+     */
+    scheduleId?: number;
 }
 
 /**
@@ -129,6 +134,7 @@ export async function getMutations(eventId: number, teamId: number, params: GetM
         .leftJoin(shiftsJoin)
             .on(shiftsJoin.shiftId.equals(tSchedule.shiftId))
         .where(tScheduleLogs.eventId.equals(eventId))
+            .and(tScheduleLogs.scheduleId.equalsIfValue(params.scheduleId))
             .and(shiftsJoin.teamId.equals(teamId)
                 .or(tSchedule.shiftId.isNull()))
         .select({

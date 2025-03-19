@@ -54,6 +54,11 @@ const kEventScheduleHistoryContext = z.object({
          * Unique slug of the team that the history should be obtained of.
          */
         team: z.string(),
+
+        /**
+         * Optional ID of the scheduled shift for which history should be shown.
+         */
+        scheduleId: z.string().optional(),
     }),
 });
 
@@ -126,7 +131,14 @@ createDataTableApi(kEventScheduleHistoryRowModel, kEventScheduleHistoryContext, 
         if (!event || !team)
             notFound();
 
-        const [ rowCount, rows ] = await getMutations(event.id, team.id, { pagination });
+        let scheduleId: number | undefined;
+        if (!!context.scheduleId)
+            scheduleId = parseInt(context.scheduleId, /* radix= */ 10);
+
+        const [ rowCount, rows ] = await getMutations(event.id, team.id, {
+            pagination,
+            scheduleId
+        });
 
         return {
             success: true,
