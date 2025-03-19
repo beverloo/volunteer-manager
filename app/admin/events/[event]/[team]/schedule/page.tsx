@@ -61,6 +61,11 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
         console.warn(`User ${user.userId} has invalid section expand configuration`);
     }
 
+    // ---------------------------------------------------------------------------------------------
+
+    const enableHistoryDelete = access.can('system.logs', 'delete');
+    const enableHistoryProfileLinks = access.can('volunteer.account.information', 'read');
+
     return (
         <>
             { !!readOnly &&
@@ -70,7 +75,11 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
                 </Paper> }
             <ScheduleContextImpl event={event} team={team} defaultContext={defaultContext}>
 
-                <ScheduleImpl readOnly={readOnly} sections={sections} />
+                <ScheduleImpl readOnly={readOnly} sections={sections}
+                              historyContext={{ event: event.slug, team: team.slug }}
+                              enableHistoryDelete={enableHistoryDelete}
+                              enableHistoryProfileLinks={enableHistoryProfileLinks}
+                    />
 
                 <ExpandableSection
                     defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
@@ -79,8 +88,8 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
 
                     <ScheduleHistoryTable
                         context={{ event: event.slug, team: team.slug }}
-                        enableDelete={access.can('system.logs', 'delete')}
-                        enableProfileLinks={access.can('volunteer.account.information', 'read')} />
+                        enableDelete={enableHistoryDelete}
+                        enableProfileLinks={enableHistoryProfileLinks} />
 
                 </ExpandableSection>
 

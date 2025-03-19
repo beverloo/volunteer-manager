@@ -26,6 +26,7 @@ import Skeleton from '@mui/material/Skeleton';
 import type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleResource }
     from '@app/admin/components/Schedule';
 
+import type { EventScheduleHistoryContext } from '@app/api/admin/event/schedule/history/[[...id]]/route';
 import { ScheduleContext } from './ScheduleContext';
 import { ScheduleHistoryTable } from './ScheduleHistoryTable';
 import { Schedule } from '@app/admin/components/Schedule';
@@ -47,6 +48,21 @@ const kMarkerBackgroundColor = {
  * Props accepted by the <ScheduleImpl> component.
  */
 interface ScheduleImplProps {
+    /**
+     * Whether the volunteer is able to delete history items.
+     */
+    enableHistoryDelete?: boolean;
+
+    /**
+     * Whether users should be linked through to their profile pages in the history dialog.
+     */
+    enableHistoryProfileLinks?: boolean;
+
+    /**
+     * Context that should be provided to the history dialog.
+     */
+    historyContext: EventScheduleHistoryContext['context'];
+
     /**
      * Whether the schedule should be displayed in read-only mode.
      */
@@ -356,24 +372,26 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                         </Grid>
                         <Grid size={{ xs: 6 }} sx={{ pt: 1, pr: 0.5 }}>
                             <TimePickerElement name="startTime"
-                                            inputProps={{ size: 'small', fullWidth: true }} />
+                                               inputProps={{ size: 'small', fullWidth: true }} />
                         </Grid>
                         <Grid size={{ xs: 6 }} sx={{ pt: 1, pl: 0.5 }}>
                             <TimePickerElement name="endTime"
-                                            inputProps={{ size: 'small', fullWidth: true }} />
+                                               inputProps={{ size: 'small', fullWidth: true }} />
                         </Grid>
                     </Grid>
                 </SettingDialog> }
 
             { !!historyDialogEvent &&
                 <Dialog open onClose={handleHistoryDialogClose} fullWidth maxWidth="md">
-                    <DialogTitle>{historyDialogEvent?.title} shift history</DialogTitle>
+                    <DialogTitle>{historyDialogEvent.title} shift history</DialogTitle>
                     <DialogContent>
-                        <ScheduleHistoryTable context={{
-                            event: '2025',
-                            team: 'stewards',
-                            scheduleId: `${historyDialogEvent.id}`,
-                        }} />
+                        <ScheduleHistoryTable
+                            enableDelete={props.enableHistoryDelete}
+                            enableProfileLinks={props.enableHistoryProfileLinks}
+                            context={{
+                                ...props.historyContext,
+                                scheduleId: `${historyDialogEvent.id}`,
+                            }} />
                     </DialogContent>
                     <DialogActions sx={{ pt: 0, mr: 1, mb: 0 }}>
                         <Button onClick={handleHistoryDialogClose} variant="text">

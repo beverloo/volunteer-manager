@@ -18,11 +18,6 @@ import type { EventScheduleHistoryContext, EventScheduleHistoryRowModel }
  */
 interface ScheduleHistoryTableProps extends EventScheduleHistoryContext {
     /**
-     * Whether the history should be expanded by default.
-     */
-    defaultExpanded?: boolean;
-
-    /**
      * Whether the volunteer is able to delete history items.
      */
     enableDelete?: boolean;
