@@ -78,8 +78,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
                 <ScheduleImpl readOnly={readOnly} sections={sections}
                               historyContext={{ event: event.slug, team: team.slug }}
                               enableHistoryDelete={enableHistoryDelete}
-                              enableHistoryProfileLinks={enableHistoryProfileLinks}
-                    />
+                              enableHistoryProfileLinks={enableHistoryProfileLinks} />
 
                 <ExpandableSection
                     defaultExpanded={ !!userSettings['user-admin-schedule-expand-history'] }
