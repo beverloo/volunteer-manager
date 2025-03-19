@@ -344,24 +344,26 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                       onDoubleClick={handleDoubleClick} markers={markers} resources={resources}
                       displayTimezone={context.schedule.timezone} subject="shift" />
 
-            <SettingDialog title="Select a shift" delete open={!!dialogEvent}
-                           onClose={handleSettingDialogClose} onDelete={handleSettingDialogDelete}
-                           onSubmit={handleSettingDialogUpdate}
-                           defaultValues={dialogDefaultValues}>
-                <Grid container>
-                    <Grid size={{ xs: 12 }}>
-                        <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
+            { !!dialogEvent &&
+                <SettingDialog title="Select a shift" delete
+                               onClose={handleSettingDialogClose}
+                               onDelete={handleSettingDialogDelete}
+                               onSubmit={handleSettingDialogUpdate}
+                               defaultValues={dialogDefaultValues}>
+                    <Grid container>
+                        <Grid size={{ xs: 12 }}>
+                            <SelectElement name="shiftId" options={shifts} size="small" fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6 }} sx={{ pt: 1, pr: 0.5 }}>
+                            <TimePickerElement name="startTime"
+                                            inputProps={{ size: 'small', fullWidth: true }} />
+                        </Grid>
+                        <Grid size={{ xs: 6 }} sx={{ pt: 1, pl: 0.5 }}>
+                            <TimePickerElement name="endTime"
+                                            inputProps={{ size: 'small', fullWidth: true }} />
+                        </Grid>
                     </Grid>
-                    <Grid size={{ xs: 6 }} sx={{ pt: 1, pr: 0.5 }}>
-                        <TimePickerElement name="startTime"
-                                           inputProps={{ size: 'small', fullWidth: true }} />
-                    </Grid>
-                    <Grid size={{ xs: 6 }} sx={{ pt: 1, pl: 0.5 }}>
-                        <TimePickerElement name="endTime"
-                                           inputProps={{ size: 'small', fullWidth: true }} />
-                    </Grid>
-                </Grid>
-            </SettingDialog>
+                </SettingDialog> }
 
             { !!historyDialogEvent &&
                 <Dialog open onClose={handleHistoryDialogClose} fullWidth maxWidth="md">
@@ -380,26 +382,26 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                     </DialogActions>
                 </Dialog> }
 
-            <Menu open={!!contextMenuEvent && !!recentShifts.length}
-                  onClose={handleRightClickMenuClose}
-                  anchorReference="anchorPosition"
-                  anchorPosition={contextMenuPosition}
-                  slotProps={{ list: { dense: true } }}>
-                <MenuItem onClick={handleRightClickMenuHistory}>
-                    <ListItemIcon>
-                        <HistoryIcon fontSize="small" />
-                    </ListItemIcon>
-                    History
-                </MenuItem>
-                { recentShifts.length > 0 && <Divider /> }
-                { recentShifts.map(shift =>
-                    <MenuItem key={shift.id} onClick={ () => handleRightClickMenuSelect(shift.id) }>
+            { !!contextMenuEvent &&
+                <Menu open onClose={handleRightClickMenuClose}
+                      anchorReference="anchorPosition" anchorPosition={contextMenuPosition}
+                      slotProps={{ list: { dense: true } }}>
+                    <MenuItem onClick={handleRightClickMenuHistory}>
                         <ListItemIcon>
-                            <CompareArrowsIcon fontSize="small" />
+                            <HistoryIcon fontSize="small" />
                         </ListItemIcon>
-                        {shift.label}
-                    </MenuItem> )}
-            </Menu>
+                        History
+                    </MenuItem>
+                    { recentShifts.length > 0 && <Divider /> }
+                    { recentShifts.map(shift =>
+                        <MenuItem key={shift.id}
+                                  onClick={ () => handleRightClickMenuSelect(shift.id) }>
+                            <ListItemIcon>
+                                <CompareArrowsIcon fontSize="small" />
+                            </ListItemIcon>
+                            {shift.label}
+                        </MenuItem> )}
+                </Menu> }
 
         </Paper>
     );
