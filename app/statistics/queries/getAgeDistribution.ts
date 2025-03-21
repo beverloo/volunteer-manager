@@ -23,7 +23,7 @@ export async function getAgeDistribution(filters: Filters): Promise<LineGraphDat
 
     const data = await db.selectFrom(tEvents)
         .innerJoin(tTeams)
-            .on(tTeams.teamId.inIfValue(filters.teams))
+            .on(tTeams.teamId.inIfValue(filters.teams.map(team => team.id)))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
@@ -31,7 +31,7 @@ export async function getAgeDistribution(filters: Filters): Promise<LineGraphDat
         .leftJoin(usersJoin)
             .on(usersJoin.userId.equals(usersEventsJoin.userId))
                 .and(usersJoin.birthdate.isNotNull())
-        .where(tEvents.eventId.inIfValue(filters.events))
+        .where(tEvents.eventId.inIfValue(filters.events.map(event => event.id)))
         .select({
             event: {
                 slug: tEvents.eventSlug,

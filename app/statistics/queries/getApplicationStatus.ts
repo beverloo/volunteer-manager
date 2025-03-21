@@ -28,11 +28,11 @@ export async function getApplicationStatus(filters: Filters): Promise<LineGraphD
 
     const data = await db.selectFrom(tEvents)
         .innerJoin(tTeams)
-            .on(tTeams.teamId.inIfValue(filters.teams))
+            .on(tTeams.teamId.inIfValue(filters.teams.map(team => team.id)))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
-        .where(tEvents.eventId.inIfValue(filters.events))
+        .where(tEvents.eventId.inIfValue(filters.events.map(event => event.id)))
         .select({
             event: {
                 slug: tEvents.eventSlug,

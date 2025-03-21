@@ -22,7 +22,7 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
 
     const data = await db.selectFrom(tEvents)
         .innerJoin(tTeams)
-            .on(tTeams.teamId.inIfValue(filters.teams))
+            .on(tTeams.teamId.inIfValue(filters.teams.map(team => team.id)))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
                 .and(usersEventsJoin.teamId.equals(tTeams.teamId))
@@ -37,7 +37,7 @@ export async function getAverageShiftsPerVolunteer(filters: Filters): Promise<Li
             .on(shiftsJoin.shiftId.equals(scheduleJoin.shiftId))
         .leftJoin(shiftsCategoriesJoin)
             .on(shiftsCategoriesJoin.shiftCategoryId.equals(shiftsJoin.shiftCategoryId))
-        .where(tEvents.eventId.inIfValue(filters.events))
+        .where(tEvents.eventId.inIfValue(filters.events.map(event => event.id)))
         .select({
             event: {
                 slug: tEvents.eventSlug,

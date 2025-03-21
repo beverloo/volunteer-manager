@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tTeams } from '@lib/database';
+import db, { tEvents, tEventsSalesConfiguration, tTeams } from '@lib/database';
 
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
@@ -20,31 +20,66 @@ export interface Filters {
     },
 
     /**
-     * Event IDs that the signed in user has access to.
+     * Events that the signed in user has access to.
      */
-    events: number[];
+    events: {
+        /**
+         * Unique ID of the event, as it exists in the database.
+         */
+        id: number;
+
+        /**
+         * Human-presentable name of the event.
+         */
+        name: string;
+
+        /**
+         * Unique slug identifying the event.
+         */
+        slug: string;
+
+        /**
+         * Whether sales information is available for this event.
+         */
+        hasSales: boolean;
+    }[];
 
     /**
-     * Team IDs that the signed in user has access to.
+     * Teams that the signed in user has access to.
      */
-    teams: number[];
+    teams: {
+        /**
+         * Unique ID of the team, as it exists in the database.
+         */
+        id: number;
+
+        /**
+         * Human-presentable name of the team.
+         */
+        name: string;
+
+        /**
+         * Unique slug identifying the team.
+         */
+        slug: string;
+    }[];
 }
 
 /**
  * Determines the filters applicable for the signed in user given the `params`. Their upper bound of
  * access is decided first, which is then limited by the `params` to avoid accidental data access.
  */
-export async function determineFilters(params: URLSearchParams): Promise<Filters> {
+export async function determineFilters(params?: URLSearchParams): Promise<Filters> {
     const { access } = await getAuthenticationContext();
 
     // ---------------------------------------------------------------------------------------------
 
     let requestedEvents: Set<string> | undefined;
-    if (params.has('events'))
+    if (params?.has('events'))
         requestedEvents = new Set(params.get('events')!.split(','));
 
     let requestedTeams: Set<string> | undefined;
-    if (params.has('teams'))
+    if (params?.has('teams'))
         requestedTeams = new Set(params.get('teams')!.split(','));
 
     const filters: Filters = {
@@ -63,16 +98,26 @@ export async function determineFilters(params: URLSearchParams): Promise<Filters
 
     const dbInstance = db;
 
+    const eventsSalesConfigurationJoin = tEventsSalesConfiguration.forUseInLeftJoin();
+
     const eventsSubQuery = dbInstance.selectFrom(tEvents)
+        .leftJoin(eventsSalesConfigurationJoin)
+            .on(eventsSalesConfigurationJoin.eventId.equals(tEvents.eventId))
         .select({
             id: tEvents.eventId,
+            name: tEvents.eventShortName,
             slug: tEvents.eventSlug,
+
+            hasSales: dbInstance.count(eventsSalesConfigurationJoin.eventId).greaterThan(0),
         })
+        .groupBy(tEvents.eventId)
+        .orderBy(tEvents.eventStartTime, 'desc')
         .forUseAsInlineAggregatedArrayValue();
 
     const teamsSubQuery = dbInstance.selectFrom(tTeams)
         .select({
             id: tTeams.teamId,
+            name: tTeams.teamName,
             slug: tTeams.teamSlug,
         })
         .forUseAsInlineAggregatedArrayValue();
@@ -86,24 +131,24 @@ export async function determineFilters(params: URLSearchParams): Promise<Filters
 
     // ---------------------------------------------------------------------------------------------
 
-    for (const { id, slug } of events) {
+    for (const { id, name, slug, hasSales } of events) {
         if (!access.can('event.visible', { event: slug, team: kAnyTeam }))
             continue;  // this event is not accessible by the volunteer
 
         if (requestedEvents && !requestedEvents.has(slug))
             continue;  // this event has not been selected
 
-        filters.events.push(id);
+        filters.events.push({ id, name, slug, hasSales });
     }
 
-    for (const { id, slug } of teams) {
+    for (const { id, name, slug } of teams) {
         if (!access.can('event.visible', { event: kAnyEvent, team: slug }))
             continue;  // this team is not accessible by the volunteer
 
         if (requestedTeams && !requestedTeams.has(slug))
             continue;  // this team has not been selected
 
-        filters.teams.push(id);
+        filters.teams.push({ id, name, slug });
     }
 
     return filters;
