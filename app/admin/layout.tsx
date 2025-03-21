@@ -3,7 +3,7 @@
 
 import { AdminHeader } from './AdminHeader';
 import { AdminLayout } from './AdminLayout';
-import { MuiLicense } from './components/MuiLicense';
+import { MuiLicense } from '../components/MuiLicense';
 import { getHeaderEventsForUser } from './AdminUtils';
 import { checkPermission, or, requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 
+import { MuiLicense } from '@components/MuiLicense';
 import { Navigation, type NavigationProps } from './components/Navigation';
 import { RegistrationLayout } from '@app/registration/RegistrationLayout';
 import { determineEnvironment } from '@lib/Environment';
@@ -31,6 +32,7 @@ export default async function StatisticsLayout(props: React.PropsWithChildren) {
 
     return (
         <RegistrationLayout environment={environment}>
+            <MuiLicense />
             <Paper sx={{ mb: 2, p: 1 }}>
                 <Navigation enableSales={enableSales} />
             </Paper>
