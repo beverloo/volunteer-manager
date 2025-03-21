@@ -33,7 +33,7 @@ export default async function StatisticsLayout(props: React.PropsWithChildren) {
     return (
         <RegistrationLayout environment={environment}>
             <MuiLicense />
-            <Paper sx={{ mb: 2, p: 1 }}>
+            <Paper sx={{ mb: 2, px: 2, py: 1 }}>
                 <Navigation enableSales={enableSales} />
             </Paper>
             {props.children}
