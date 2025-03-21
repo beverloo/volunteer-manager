@@ -55,13 +55,13 @@ export function DocumentationButton(props: DocumentationButtonProps) {
     // Handles the user's request to close the documentation dialog.
     const handleCloseDocumentation = useCallback(() => {
         setDialogOpen(false);
-    }, [ /* no deps */ ]);
+    }, [ setDialogOpen ]);
 
     // Handles the user's request to show the documentation dialog.
     const handleShowDocumentation = useCallback(() => {
         setDialogOpen(true);
         setDialogRequested(true);
-    }, [ /* no deps */ ]);
+    }, [ setDialogOpen ]);
 
     return (
         <>
