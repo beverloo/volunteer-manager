@@ -107,7 +107,7 @@ export function SalesGraph(props: SalesGraphProps) {
             { (!!props.action || !!props.title) &&
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
                     { !!props.title &&
-                        <Typography variant={ props.titleVariant ?? 'h5' }>
+                        <Typography noWrap variant={ props.titleVariant ?? 'h5' }>
                             {props.title}
                         </Typography> }
                     { !!props.action &&

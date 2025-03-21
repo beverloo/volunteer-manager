@@ -21,6 +21,11 @@ import { kEventSalesCategory } from '@lib/database/Types';
  */
 interface FinanceGraphGridProps {
     /**
+     * Whether links to associated events should be disabled.
+     */
+    disableEventLinks?: boolean;
+
+    /**
      * Unique ID of the event for which graphs should be shown.
      */
     eventId: number;
@@ -31,7 +36,7 @@ interface FinanceGraphGridProps {
  * particular event. No access checks are performed by this component.
  */
 export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
-    const { eventId } = props;
+    const { disableEventLinks, eventId } = props;
 
     // ---------------------------------------------------------------------------------------------
     // Determine the date ranges that should be displayed on the graphs. All graphs will show data
@@ -67,6 +72,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 eventGraphs.push({
                     activityId: graph.saleEventId,
                     category: graph.category,
+                    disableEventLinks,
                     eventId: eventId,
                     limit: graph.categoryLimit,
                     products: graph.saleTypes,

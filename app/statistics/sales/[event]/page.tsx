@@ -25,6 +25,6 @@ export default async function StatisticsPage(props: NextPageParams<'event'>) {
         notFound();
 
     return (
-        <FinanceGraphGrid eventId={event.id} />
+        <FinanceGraphGrid disableEventLinks eventId={event.id} />
     );
 }

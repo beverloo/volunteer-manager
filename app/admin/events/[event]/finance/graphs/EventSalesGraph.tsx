@@ -28,6 +28,11 @@ export interface EventSalesGraphProps {
     category: EventSalesCategory;
 
     /**
+     * Whether links to associated events should be disabled.
+     */
+    disableEventLinks?: boolean;
+
+    /**
      * Unique ID of the event for which data should be displayed.
      */
     eventId: number;
@@ -90,7 +95,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
             })
             .executeSelectNoneOrOne();
 
-        if (!!activityInfo) {
+        if (!!activityInfo && !props.disableEventLinks) {
             const href =
                 `/admin/events/${activityInfo.eventSlug}/program/activities/${props.activityId}`;
 
