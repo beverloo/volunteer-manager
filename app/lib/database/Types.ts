@@ -93,6 +93,7 @@ export const kEventAvailabilityStatus = {
 export type EventSalesCategory = Values<typeof kEventSalesCategory>;
 export const kEventSalesCategory = {
     Event: 'Event',
+    Hidden: 'Hidden',
     Locker: 'Locker',
     TicketFriday: 'TicketFriday',
     TicketSaturday: 'TicketSaturday',

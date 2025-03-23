@@ -80,6 +80,9 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 });
                 break;
 
+            case kEventSalesCategory.Hidden:
+                break;
+
             case kEventSalesCategory.Locker:
                 // TODO: Figure out what to do with lockers?
                 break;

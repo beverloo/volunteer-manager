@@ -5,6 +5,7 @@
 
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Typography from '@mui/material/Typography';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import type { EventFinanceRowModel } from '@app/api/admin/event/finance/[[...id]]/route';
 import type { EventSalesCategory } from '@lib/database/Types';
@@ -17,6 +18,7 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
  */
 const kEventSaleCategoryOptions: { [k in EventSalesCategory]: string } = {
     Event: 'Event',
+    Hidden: 'Hidden',
     Locker: 'Locker',
     TicketFriday: 'Ticket (Friday)',
     TicketSaturday: 'Ticket (Saturday)',
@@ -53,6 +55,7 @@ export function SalesConfigurationSection(props: SalesConfigurationSectionProps)
             flex: 2,
         },
         {
+            display: 'flex',
             field: 'category',
             headerName: 'Category',
             type: 'singleSelect',
@@ -67,6 +70,19 @@ export function SalesConfigurationSection(props: SalesConfigurationSectionProps)
             ],
 
             renderCell: params => {
+                if (params.value === kEventSaleCategoryOptions.Hidden) {
+                    return (
+                        <>
+                            <Typography component="span" variant="body2"
+                                        sx={{ color: 'grey.600', pt: 0.25 }}>
+                                Hidden
+                            </Typography>
+                            <VisibilityOffIcon color="disabled" fontSize="inherit"
+                                               sx={{ ml: 0.5, mt: 0.25 }} />
+                        </>
+                    );
+                }
+
                 if (!!params.value && params.value !== 'null') {
                     if (Object.hasOwn(kEventSaleCategoryOptions, params.value)) {
                         return kEventSaleCategoryOptions[
@@ -114,8 +130,9 @@ export function SalesConfigurationSection(props: SalesConfigurationSectionProps)
                            defaultExpanded={props.expanded}
                            setting="user-admin-event-finance-configuration">
             <RemoteDataTable columns={columns} endpoint="/api/admin/event/finance" enableUpdate
-                             context={{ event: props.event }} disableFooter pageSize={100}
-                             defaultSort={{ field: 'product', sort: 'asc' }} subject="product" />
+                             context={{ event: props.event }} refreshOnUpdate disableFooter
+                             pageSize={100} defaultSort={{ field: 'product', sort: 'asc' }}
+                             subject="product" />
         </ExpandableSection>
     );
 }
