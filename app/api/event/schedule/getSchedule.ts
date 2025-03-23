@@ -344,8 +344,17 @@ async function populateProgram(
         if (!activity.visible)
             schedule.program.activities[activityId].invisible = true;
 
-        if (products.has(activity.id))
-            schedule.program.activities[activityId].products = products.get(activity.id)!;
+        // Include the product list when available. Names of the products are stripped of the
+        // activity's name when appropriate, to make sure the associated information is visible.
+        if (products.has(activity.id)) {
+            schedule.program.activities[activityId].products =
+                products.get(activity.id)!.map(entry => ({
+                    ...entry,
+                    product: entry.product.startsWith(activity.title)
+                        ? entry.product.substring(activity.title.length).trim()
+                        : entry.product,
+                }));
+        }
 
         if (soldOut.has(activity.id))
             schedule.program.activities[activityId].soldOut = true;
