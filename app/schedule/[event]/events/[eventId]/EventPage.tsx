@@ -345,7 +345,7 @@ export function EventPage(props: EventPageProps) {
                     </List>
                 </Section> }
             { (!!activity.products && activity.products.length > 0) &&
-                <Section header="Ticket sales">
+                <Section header="Tickets sold">
                     <List dense disablePadding>
                         { activity.products.map((product, index) =>
                             <ListItem key={index}>
@@ -358,18 +358,24 @@ export function EventPage(props: EventPageProps) {
                                                 <Typography variant="caption" color="error">
                                                     sold out ({product.sold})
                                                 </Typography>
-                                                <LocalActivityIcon color="error" fontSize="small"
-                                                                   sx={{ pb: 0.25 }} />
+                                                <LocalActivityIcon color="error" fontSize="small" />
                                             </> }
                                         { (!product.limit || product.sold < product.limit) &&
                                             <>
                                                 <Typography variant="caption">
                                                     { !product.limit && `${product.sold}` }
                                                     { !!product.limit &&
-                                                        `${product.sold} / ${product.limit}` }
+                                                        <>
+                                                            {product.sold}{' '}
+                                                            <Typography variant="inherit"
+                                                                        component="span"
+                                                                        color="text.disabled">
+                                                                / {product.limit}
+                                                            </Typography>
+                                                        </> }
                                                 </Typography>
-                                                <LocalActivityIcon color="action" fontSize="small"
-                                                                   sx={{ pb: 0.25 }} />
+                                                <LocalActivityIcon color="action"
+                                                                   fontSize="small" />
                                             </> }
                                     </Stack>
                                 </ListItemDetails>
