@@ -319,10 +319,11 @@ export function EventPage(props: EventPageProps) {
         <>
             <SetTitle title={activity.title} />
             <Card>
-                <CardHeader title={activity.title}
-                            titleTypographyProps={{ variant: 'subtitle2' }}
-                            subheaderTypographyProps={{ sx: kEnforceSingleLine }}
-                            subheader={eventLocation} />
+                <CardHeader title={activity.title} subheader={eventLocation}
+                            slotProps={{
+                                subheader: { sx: kEnforceSingleLine },
+                                title: { variant: 'subtitle2' }
+                            }} />
             </Card>
             { descriptions.map(description =>
                 <NotesCard key={description.id}
@@ -335,8 +336,8 @@ export function EventPage(props: EventPageProps) {
                         { timeslots.map(timeslot =>
                             <ListItemButton LinkComponent={Link} href={timeslot.href}
                                             key={timeslot.id} sx={timeslot.sx}>
-                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
-                                              primary={timeslot.location} />
+                                <ListItemText primary={timeslot.location}
+                                              slotProps={{ primary: { sx: kEnforceSingleLine} }} />
                                 <ListItemDetails>
                                     {timeslot.timings}
                                 </ListItemDetails>
@@ -348,8 +349,8 @@ export function EventPage(props: EventPageProps) {
                     <List dense disablePadding>
                         { activity.products.map((product, index) =>
                             <ListItem key={index}>
-                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
-                                              primary={product.product} />
+                                <ListItemText primary={product.product}
+                                              slotProps={{ primary: { sx: kEnforceSingleLine} }} />
                                 <ListItemDetails>
                                     <Stack direction="row" spacing={1} alignItems="center">
                                     { (!!product.limit && product.sold >= product.limit) &&
@@ -381,8 +382,8 @@ export function EventPage(props: EventPageProps) {
                         { volunteers.map(volunteer =>
                             <ListItemButton LinkComponent={Link} href={volunteer.href}
                                             key={volunteer.id} sx={volunteer.sx}>
-                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
-                                              primary={volunteer.name} />
+                                <ListItemText primary={volunteer.name}
+                                              slotProps={{ primary: { sx: kEnforceSingleLine} }} />
                                 <ListItemDetails>
                                     {volunteer.timings}
                                 </ListItemDetails>
