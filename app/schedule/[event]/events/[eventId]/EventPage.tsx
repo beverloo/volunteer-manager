@@ -18,9 +18,9 @@ import NotesIcon from '@mui/icons-material/Notes';
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { ScheduleContext } from '../../ScheduleContext';
+import { Section } from '../../components/Section';
 import { SetTitle } from '../../components/SetTitle';
 import { SoldOutWarning } from '../../components/SoldOutWarning';
-import { SubHeader } from '../../components/SubHeader';
 import { formatDate } from '@lib/Temporal';
 import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { NotesCard } from '../../components/NotesCard';
@@ -326,40 +326,34 @@ export function EventPage(props: EventPageProps) {
                            title={description.team}
                            notes={description.description} />  )}
             { (timeslots.length > 0 && !timeslotsHidden) &&
-                <>
-                    <SubHeader>Timeslots</SubHeader>
-                    <Card sx={{ mt: '8px !important' }}>
-                        <List dense disablePadding>
-                            { timeslots.map(timeslot =>
-                                <ListItemButton LinkComponent={Link} href={timeslot.href}
-                                                key={timeslot.id} sx={timeslot.sx}>
-                                    <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
-                                                  primary={timeslot.location} />
-                                    <ListItemDetails>
-                                        {timeslot.timings}
-                                    </ListItemDetails>
-                                </ListItemButton> )}
-                        </List>
-                    </Card>
-                </> }
+                <Section header="Timeslots">
+                    <List dense disablePadding>
+                        { timeslots.map(timeslot =>
+                            <ListItemButton LinkComponent={Link} href={timeslot.href}
+                                            key={timeslot.id} sx={timeslot.sx}>
+                                <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                              primary={timeslot.location} />
+                                <ListItemDetails>
+                                    {timeslot.timings}
+                                </ListItemDetails>
+                            </ListItemButton> )}
+                    </List>
+                </Section> }
             { !!activity.soldOut && <SoldOutWarning /> }
             { !!volunteers.length &&
-                <>
-                    <SubHeader>Volunteers</SubHeader>
-                    <Card sx={{ mt: '8px !important' }}>
-                        <List dense disablePadding>
-                            { volunteers.map(volunteer =>
-                                <ListItemButton LinkComponent={Link} href={volunteer.href}
-                                                key={volunteer.id} sx={volunteer.sx}>
-                                    <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
-                                                  primary={volunteer.name} />
-                                    <ListItemDetails>
-                                        {volunteer.timings}
-                                    </ListItemDetails>
-                                </ListItemButton> )}
-                        </List>
-                    </Card>
-                </> }
+                <Section header="Volunteers">
+                    <List dense disablePadding>
+                        { volunteers.map(volunteer =>
+                            <ListItemButton LinkComponent={Link} href={volunteer.href}
+                                            key={volunteer.id} sx={volunteer.sx}>
+                                <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                              primary={volunteer.name} />
+                                <ListItemDetails>
+                                    {volunteer.timings}
+                                </ListItemDetails>
+                            </ListItemButton> )}
+                    </List>
+                </Section> }
         </>
     );
 }
