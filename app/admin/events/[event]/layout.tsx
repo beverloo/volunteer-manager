@@ -30,9 +30,9 @@ import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSide
     from '../../AdminSidebar';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-import db, { tActivities, tEvents, tEventsTeams, tHotelsAssignments, tHotelsBookings,
-    tHotelsPreferences, tRefunds, tShifts, tTeams, tTrainingsAssignments, tUsersEvents }
-    from '@lib/database';
+import db, { tActivities, tEvents, tEventsSales, tEventsSalesConfiguration, tEventsTeams,
+    tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tShifts, tTeams,
+    tTrainingsAssignments, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 
@@ -114,6 +114,8 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     const { access, user } = await requireAuthenticationContext();
     const { event } = params;
 
+    const dbInstance = db;
+
     const info = await fetchEventSidebarInformation(user, event);
     if (!info)
         notFound();
@@ -137,7 +139,6 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         const hotelsAssignmentsJoin = tHotelsAssignments.forUseInLeftJoin();
         const hotelsBookingsJoin = tHotelsBookings.forUseInLeftJoin();
 
-        const dbInstance = db;
         const hotelSubQuery = dbInstance.selectFrom(tHotelsPreferences)
             .leftJoin(hotelsAssignmentsJoin)
                 .on(hotelsAssignmentsJoin.assignmentUserId.equals(tHotelsPreferences.userId))
@@ -165,7 +166,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
             .selectCountAll()
             .forUseAsInlineQueryValue();
 
-        const badgeValues = await db.selectFromNoTable()
+        const badgeValues = await dbInstance.selectFromNoTable()
             .select({
                 unconfirmedHotelRequests: hotelSubQuery,
                 unconfirmedRefunds: refundsSubQuery,
@@ -186,7 +187,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     const programEntry: AdminSidebarMenuEntry[] = [ /* empty */ ];
     if (!!info.event.festivalId) {
         const shiftsJoin = tShifts.forUseInLeftJoin();
-        const unknownProgramEntries = await db.selectFrom(tActivities)
+        const unknownProgramEntries = await dbInstance.selectFrom(tActivities)
             .leftJoin(shiftsJoin)
                 .on(shiftsJoin.shiftActivityId.equals(tActivities.activityId))
                     .and(shiftsJoin.eventId.equals(info.event.id))
@@ -208,6 +209,22 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         });
     }
 
+    // Display the number of uncategorised products for those with access to sales information. This
+    // number should generally be zero, whereas any new entries need to be associated with an event.
+    let uncategorisedProductCount: number | undefined;
+    if (access.can('statistics.finances')) {
+        const eventsSalesConfigurationJoin = tEventsSalesConfiguration.forUseInLeftJoin();
+
+        uncategorisedProductCount = await dbInstance.selectFrom(tEventsSales)
+            .leftJoin(eventsSalesConfigurationJoin)
+                .on(eventsSalesConfigurationJoin.eventId.equals(tEventsSales.eventId))
+                .and(eventsSalesConfigurationJoin.eventSaleType.equals(tEventsSales.eventSaleType))
+            .where(tEventsSales.eventId.equals(info.event.id))
+                .and(eventsSalesConfigurationJoin.eventSaleType.isNull())
+            .selectOneColumn(dbInstance.countDistinct(tEventsSales.eventSaleType))
+            .executeSelectOne();
+    }
+
     const volunteersMenu: AdminSidebarMenuEntry[] = [
         {
             icon: <GridViewIcon />,
@@ -222,6 +239,8 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                 permission: 'statistics.finances',
             },
             url: `/admin/events/${event}/finance`,
+            badge: uncategorisedProductCount,
+            badgeSeverity: 'error',
         },
         {
             icon: <HotelIcon />,
