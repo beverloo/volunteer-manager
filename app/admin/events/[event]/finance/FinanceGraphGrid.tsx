@@ -64,6 +64,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
         .executeSelectMany();
 
     const eventGraphs: EventSalesGraphProps[] = [ /* no graphs */ ];
+    const lockerGraphs: EventSalesGraphProps[] = [ /* no graphs */ ];
     const ticketGraphs: TicketSalesGraphProps[] = [ /* no graphs */ ];
 
     for (const graph of graphs) {
@@ -84,7 +85,13 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 break;
 
             case kEventSalesCategory.Locker:
-                // TODO: Figure out what to do with lockers?
+                lockerGraphs.push({
+                    category: graph.category,
+                    eventId: eventId,
+                    products: graph.saleTypes,
+                    range,
+                    title: 'Lockers',
+                });
                 break;
 
             case kEventSalesCategory.TicketFriday:
@@ -104,6 +111,9 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 break;
         }
     }
+
+    for (const graph of lockerGraphs)
+        eventGraphs.unshift(graph);
 
     // ---------------------------------------------------------------------------------------------
 
