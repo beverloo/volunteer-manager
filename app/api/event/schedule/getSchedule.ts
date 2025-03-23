@@ -915,7 +915,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         settings['schedule-del-a-rie-advies-time-limit'] ?? 5);
 
     const includeProductPanel =
-        access.can('statistics.finances') || !!settings['schedule-sales-product-panel'];
+        access.can('statistics.finances') ||
+        (!!settings['schedule-sales-product-panel'] && !!teamAccess);
 
     await populateProgram(dbInstance, schedule, includeProductPanel,
         !!settings['schedule-sales-sold-out'], currentTime, event.id, event.festivalId);

@@ -353,23 +353,24 @@ export function EventPage(props: EventPageProps) {
                                               slotProps={{ primary: { sx: kEnforceSingleLine} }} />
                                 <ListItemDetails>
                                     <Stack direction="row" spacing={1} alignItems="center">
-                                    { (!!product.limit && product.sold >= product.limit) &&
-                                        <>
-                                            <Typography variant="caption" color="error">
-                                                sold out ({product.sold})
-                                            </Typography>
-                                            <LocalActivityIcon color="error" fontSize="small"
-                                                               sx={{ pb: 0.25 }} />
-                                        </> }
-                                    { (!product.limit || product.sold < product.limit) &&
-                                        <>
-                                            <Typography variant="caption">
-                                                { !product.limit && `${product.sold}` }
-                                                { !!product.limit && `${product.sold} / ${product.limit}` }
-                                            </Typography>
-                                            <LocalActivityIcon color="action" fontSize="small"
-                                                               sx={{ pb: 0.25 }} />
-                                        </> }
+                                        { (!!product.limit && product.sold >= product.limit) &&
+                                            <>
+                                                <Typography variant="caption" color="error">
+                                                    sold out ({product.sold})
+                                                </Typography>
+                                                <LocalActivityIcon color="error" fontSize="small"
+                                                                   sx={{ pb: 0.25 }} />
+                                            </> }
+                                        { (!product.limit || product.sold < product.limit) &&
+                                            <>
+                                                <Typography variant="caption">
+                                                    { !product.limit && `${product.sold}` }
+                                                    { !!product.limit &&
+                                                        `${product.sold} / ${product.limit}` }
+                                                </Typography>
+                                                <LocalActivityIcon color="action" fontSize="small"
+                                                                   sx={{ pb: 0.25 }} />
+                                            </> }
                                     </Stack>
                                 </ListItemDetails>
                             </ListItem> )}
