@@ -2,7 +2,8 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { EventSalesCategory } from '@lib/database/Types';
-import { SalesGraph, type SalesGraphProps } from './SalesGraph';
+import type { SalesGraphProps } from './SalesGraph';
+import { ComparisonGraph, kComparisonEditionColours } from './ComparisonGraph';
 import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
 
 /**
@@ -11,20 +12,9 @@ import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/datab
 const kTicketSalesComparisonDays = 90;
 
 /**
- * Which colours should the edition series be rendered in? More recent series (first entries) should
- * be more pronounced on the graph than later series (later entries).
- */
-const kTicketSalesComparisonEditionColours: string[] = [
-    '#b71c1c',  // red 900
-    '#455a64',  // blueGrey 700
-    '#78909c',  // blueGrey 400
-    '#b0bec5',  // blueGrey 200
-];
-
-/**
  * How many editions should be compared within the comparable graphs, including the selected one?
  */
-const kTicketSalesComparisonEditionCount = kTicketSalesComparisonEditionColours.length;
+const kTicketSalesComparisonEditionCount = kComparisonEditionColours.length;
 
 /**
  * Props accepted by the <TicketSalesComparisonGraph> component.
@@ -53,7 +43,6 @@ interface TicketSalesComparisonGraphProps {
  */
 export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
     const series: SalesGraphProps['series'] = [];
-    const xLabels: string[] = [];
 
     const dbInstance = db;
 
@@ -76,13 +65,6 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
         .orderBy(tEvents.eventEndTime, 'desc')
         .limit(kTicketSalesComparisonEditionCount)
         .executeSelectMany();
-
-    // ---------------------------------------------------------------------------------------------
-    // Compile the empty state for each of the events. This will enable rendering the base graph
-    // completely, aside from the actual sales data that will be added later.
-
-    for (let label = 90; label >= 0; --label)
-        xLabels.push(label.toString());
 
     // ---------------------------------------------------------------------------------------------
     // Create a series for each of the events that should be compared. This requires a query per
@@ -127,7 +109,7 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
         series.push({
             id: currentId++,
             data: aggregateSalesData,
-            color: kTicketSalesComparisonEditionColours[currentSeriesColourIndex++],
+            color: kComparisonEditionColours[currentSeriesColourIndex++],
             label: event.name,
             type: 'line',
         });
@@ -136,12 +118,6 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <SalesGraph height={props.height} series={series} xLabels={xLabels} zoom
-                    sx={{
-                        [ '& .MuiLineElement-series-1' ]: { strokeWidth: 3 },
-                        [ '& .MuiLineElement-series-2' ]: { strokeWidth: 1 },
-                        [ '& .MuiLineElement-series-3' ]: { strokeWidth: 1 },
-                        [ '& .MuiLineElement-series-4' ]: { strokeWidth: 1 },
-                    }} />
+        <ComparisonGraph days={kTicketSalesComparisonDays} height={props.height} series={series} />
     );
 }

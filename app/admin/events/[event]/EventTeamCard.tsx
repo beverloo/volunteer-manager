@@ -3,9 +3,18 @@
 
 'use client';
 
+import React, { useCallback, useState } from 'react';
+
 import Box, { type BoxProps } from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
+import HistoryIcon from '@mui/icons-material/History';
+import IconButton from '@mui/material/IconButton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Paper from '@mui/material/Paper';
 import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
@@ -67,6 +76,11 @@ const TeamIdentityFooter = styled(TeamIdentityHeader)(({ theme }) => ({
  */
 interface EventTeamCardProps {
     /**
+     * The graph that should be shown as the team's history graph.
+     */
+    graph: React.ReactNode;
+
+    /**
      * Name of the team for which this card is being displayed.
      */
     teamName: string;
@@ -99,15 +113,27 @@ interface EventTeamCardProps {
 export function EventTeamCard(props: EventTeamCardProps) {
     const { teamColourDarkTheme, teamColourLightTheme } = props;
 
+    const [ teamHistoryOpen, setTeamHistoryOpen ] = useState<boolean>(false);
+
+    const closeTeamHistory = useCallback(() => setTeamHistoryOpen(false), [ /* no deps */ ]);
+    const openTeamHistory = useCallback(() => setTeamHistoryOpen(true), [ /* no deps */ ]);
+
     return (
         <Paper sx={{ aspectRatio: 1.25 }}>
             <Stack direction="column" spacing={2} justifyContent="space-between"
                    sx={{ height: '100%' }}>
                 <TeamIdentityHeader darkThemeColour={teamColourDarkTheme}
                                     lightThemeColour={teamColourLightTheme} sx={{ px: 2, py: 1 }}>
-                    <Typography variant="h5">
-                        {props.teamName}
-                    </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Typography variant="h5">
+                            {props.teamName}
+                        </Typography>
+                        <Tooltip title="Team history">
+                            <IconButton size="small" color="inherit" onClick={openTeamHistory}>
+                                <HistoryIcon fontSize="small" color="inherit" />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
                 </TeamIdentityHeader>
                 <Stack direction="column" spacing={2} alignItems="center">
                     <Stack direction="column">
@@ -166,6 +192,20 @@ export function EventTeamCard(props: EventTeamCardProps) {
                 <TeamIdentityFooter darkThemeColour={teamColourDarkTheme}
                                     lightThemeColour={teamColourLightTheme} />
             </Stack>
+            { !!teamHistoryOpen &&
+                <Dialog open={teamHistoryOpen} onClose={closeTeamHistory} fullWidth maxWidth="md">
+                    <DialogTitle>
+                        {props.teamName} team history
+                    </DialogTitle>
+                    <DialogContent>
+                        {props.graph}
+                    </DialogContent>
+                    <DialogActions sx={{ pt: 1, mr: 1, mb: 0 }}>
+                        <Button onClick={closeTeamHistory} variant="text">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog> }
         </Paper>
     );
 }

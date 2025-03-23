@@ -24,6 +24,7 @@ import { EventRecentChanges } from './EventRecentChanges';
 import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
+import { EventTeamHistoryGraph } from './EventTeamHistoryGraph';
 import { LoadingGraph } from './finance/graphs/LoadingGraph';
 import { Temporal, isAfter } from '@lib/Temporal';
 import { TicketSalesComparisonGraph } from './finance/graphs/TicketSalesComparisonGraph';
@@ -137,6 +138,8 @@ async function getParticipatingTeams(eventId: number) {
             .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .where(tEvents.eventId.equals(eventId))
         .select({
+            id: tTeams.teamId,
+
             teamName: tTeams.teamName,
             teamColourDarkTheme: tTeams.teamColourDarkTheme,
             teamColourLightTheme: tTeams.teamColourLightTheme,
@@ -414,13 +417,15 @@ export default async function EventPage(props: NextPageParams<'event'>) {
     const canAccessFinanceStatistics = access.can('statistics.finances');
 
     return (
-        <Grid container spacing={2} sx={{ m: '-8px !important' }} alignItems="stretch">
+        <Grid container spacing={2} alignItems="stretch">
             <Grid size={{ xs: 3 }}>
                 <EventIdentityCard event={event} />
             </Grid>
             { participatingTeams.map((team, index) =>
                 <Grid key={`team-${index}`} size={{ xs: 3 }}>
-                    <EventTeamCard {...team} />
+                    <EventTeamCard {...team} graph={
+                        <EventTeamHistoryGraph eventId={event.id} teamId={team.id} />
+                    } />
                 </Grid> ) }
             <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="column" spacing={2}>
