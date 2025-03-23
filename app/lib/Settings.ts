@@ -116,6 +116,8 @@ type SettingsMap = {
     'schedule-knowledge-base': boolean;
     'schedule-knowledge-base-search': boolean;
     'schedule-logical-days': boolean;
+    'schedule-sales-product-panel': boolean;
+    'schedule-sales-sold-out': boolean;
     'schedule-search-candidate-fuzziness': number;
     'schedule-search-candidate-minimum-score': number;
     'schedule-search-result-limit': number;

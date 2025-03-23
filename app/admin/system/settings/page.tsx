@@ -271,10 +271,28 @@ export default async function IntegrationsPage() {
                 type: 'boolean',
                 defaultValue: false,
 
-                label: 'Use logical days',
+                label: 'Logical days',
                 description:
                     'Whether shifts that finish before 4am should be counted as part of the ' +
                     'previous day',
+            },
+            {
+                setting: 'schedule-sales-product-panel',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Sales: Product panel',
+                description:
+                    'Whether senior volunteer should be able to see product panels displaying ' +
+                    'sales information',
+            },
+            {
+                setting: 'schedule-sales-sold-out',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Sales: Sold Out warnings',
+                description: 'Whether all volunteers should be able to see Sold Out warnings',
             },
             {
                 setting: 'schedule-search-candidate-fuzziness',
