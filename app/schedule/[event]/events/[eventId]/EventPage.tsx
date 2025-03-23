@@ -11,9 +11,13 @@ import type { Theme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import NotesIcon from '@mui/icons-material/Notes';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
@@ -331,12 +335,43 @@ export function EventPage(props: EventPageProps) {
                         { timeslots.map(timeslot =>
                             <ListItemButton LinkComponent={Link} href={timeslot.href}
                                             key={timeslot.id} sx={timeslot.sx}>
-                                <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
                                               primary={timeslot.location} />
                                 <ListItemDetails>
                                     {timeslot.timings}
                                 </ListItemDetails>
                             </ListItemButton> )}
+                    </List>
+                </Section> }
+            { (!!activity.products && activity.products.length > 0) &&
+                <Section header="Ticket sales">
+                    <List dense disablePadding>
+                        { activity.products.map((product, index) =>
+                            <ListItem key={index}>
+                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
+                                              primary={product.product} />
+                                <ListItemDetails>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                    { (!!product.limit && product.sold >= product.limit) &&
+                                        <>
+                                            <Typography variant="caption" color="error">
+                                                sold out ({product.sold})
+                                            </Typography>
+                                            <LocalActivityIcon color="error" fontSize="small"
+                                                               sx={{ pb: 0.25 }} />
+                                        </> }
+                                    { (!product.limit || product.sold < product.limit) &&
+                                        <>
+                                            <Typography variant="caption">
+                                                { !product.limit && `${product.sold}` }
+                                                { !!product.limit && `${product.sold} / ${product.limit}` }
+                                            </Typography>
+                                            <LocalActivityIcon color="action" fontSize="small"
+                                                               sx={{ pb: 0.25 }} />
+                                        </> }
+                                    </Stack>
+                                </ListItemDetails>
+                            </ListItem> )}
                     </List>
                 </Section> }
             { !!activity.soldOut && <SoldOutWarning /> }
@@ -346,7 +381,7 @@ export function EventPage(props: EventPageProps) {
                         { volunteers.map(volunteer =>
                             <ListItemButton LinkComponent={Link} href={volunteer.href}
                                             key={volunteer.id} sx={volunteer.sx}>
-                                <ListItemText primaryTypographyProps={{sx: kEnforceSingleLine}}
+                                <ListItemText primaryTypographyProps={{ sx: kEnforceSingleLine }}
                                               primary={volunteer.name} />
                                 <ListItemDetails>
                                     {volunteer.timings}
