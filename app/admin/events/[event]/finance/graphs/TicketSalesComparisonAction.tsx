@@ -48,17 +48,18 @@ export function TicketSalesComparisonAction(props: TicketSalesComparisonActionPr
                     <HistoryIcon color="info" fontSize="small" />
                 </IconButton>
             </Tooltip>
-            <Dialog open={comparisonOpen} onClose={closeComparison} fullWidth maxWidth="md">
-                <DialogTitle>{title}</DialogTitle>
-                <DialogContent>
-                    {graph}
-                </DialogContent>
-                <DialogActions sx={{ pt: 1, mr: 1, mb: 0 }}>
-                    <Button onClick={closeComparison} variant="text">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            { !!comparisonOpen &&
+                <Dialog open={comparisonOpen} onClose={closeComparison} fullWidth maxWidth="md">
+                    <DialogTitle>{title}</DialogTitle>
+                    <DialogContent>
+                        {graph}
+                    </DialogContent>
+                    <DialogActions sx={{ pt: 1, mr: 1, mb: 0 }}>
+                        <Button onClick={closeComparison} variant="text">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog> }
         </>
     );
 }
