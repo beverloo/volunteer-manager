@@ -144,6 +144,16 @@ interface EventMetadataProps {
          */
         trainingSessions: number;
     };
+
+    /**
+     * Whether hotel management is enabled for this event.
+     */
+    hotelEnabled: boolean;
+
+    /**
+     * Whether training management is enabled for this event.
+     */
+    trainingEnabled: boolean;
 }
 
 /**
@@ -206,28 +216,32 @@ export function EventMetadata(props: EventMetadataProps) {
                     <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                         {event.name}
                     </Typography>
-                    <List dense disablePadding>
-                        <ListItem disableGutters disablePadding>
-                            <ListItemIcon sx={{ minWidth: '40px' }}>
-                                <Tooltip title={hotelText}>
-                                    <HotelIcon fontSize="small" color={hotelColor} />
-                                </Tooltip>
-                            </ListItemIcon>
-                            <ListItemText>
-                                {hotel}
-                            </ListItemText>
-                        </ListItem>
-                        <ListItem disableGutters disablePadding>
-                            <ListItemIcon sx={{ minWidth: '40px' }}>
-                                <Tooltip title={trainingText}>
-                                    <HistoryEduIcon fontSize="small" color={trainingColor} />
-                                </Tooltip>
-                            </ListItemIcon>
-                            <ListItemText>
-                                {training}
-                            </ListItemText>
-                        </ListItem>
-                    </List>
+                    { (props.hotelEnabled || props.trainingEnabled) &&
+                        <List dense disablePadding>
+                            { props.hotelEnabled &&
+                                <ListItem disableGutters disablePadding>
+                                    <ListItemIcon sx={{ minWidth: '40px' }}>
+                                        <Tooltip title={hotelText}>
+                                            <HotelIcon fontSize="small" color={hotelColor} />
+                                        </Tooltip>
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                        {hotel}
+                                    </ListItemText>
+                                </ListItem> }
+                            { props.trainingEnabled &&
+                                <ListItem disableGutters disablePadding>
+                                    <ListItemIcon sx={{ minWidth: '40px' }}>
+                                        <Tooltip title={trainingText}>
+                                            <HistoryEduIcon fontSize="small"
+                                                            color={trainingColor} />
+                                        </Tooltip>
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                        {training}
+                                    </ListItemText>
+                                </ListItem> }
+                        </List> }
                 </Box>
             </Stack>
         </Paper>

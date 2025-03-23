@@ -115,7 +115,6 @@ async function getEventMetadata(eventId: number) {
             trainingSessions: trainingSessionsQuery,
         })
         .executeSelectNoneOrOne() ?? undefined;
-    ;
 }
 
 /**
@@ -425,7 +424,9 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                 </Grid> ) }
             <Grid size={{ xs: 12, md: 6 }}>
                 <Stack direction="column" spacing={2}>
-                    <EventMetadata event={event} metadata={eventMetadata} />
+                    <EventMetadata event={event} metadata={eventMetadata}
+                                   hotelEnabled={event.hotelEnabled}
+                                   trainingEnabled={event.trainingEnabled} />
                     { recentChanges.length > 0 &&
                         <EventRecentChanges changes={recentChanges} event={event} /> }
                 </Stack>
