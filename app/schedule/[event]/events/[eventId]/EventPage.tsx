@@ -19,6 +19,7 @@ import { ErrorCard } from '../../components/ErrorCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { ScheduleContext } from '../../ScheduleContext';
 import { SetTitle } from '../../components/SetTitle';
+import { SoldOutWarning } from '../../components/SoldOutWarning';
 import { SubHeader } from '../../components/SubHeader';
 import { formatDate } from '@lib/Temporal';
 import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
@@ -341,6 +342,7 @@ export function EventPage(props: EventPageProps) {
                         </List>
                     </Card>
                 </> }
+            { !!activity.soldOut && <SoldOutWarning /> }
             { !!volunteers.length &&
                 <>
                     <SubHeader>Volunteers</SubHeader>
