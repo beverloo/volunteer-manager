@@ -18,6 +18,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { EventSalesGraph } from '../../../finance/graphs/EventSalesGraph';
 import { LoadingGraph } from '../../../finance/graphs/LoadingGraph';
 import { formatDate } from '@lib/Temporal';
+import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
 import { selectRangeForEvent } from '../../../finance/graphs/SalesGraphUtils';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -240,4 +241,13 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
                 </Paper> }
         </Box>
     );
+}
+
+export async function generateMetadata(props: NextPageParams<'event' | 'id'>) {
+    const activityTitle = await db.selectFrom(tActivities)
+        .where(tActivities.activityId.equals(parseInt((await props.params).id, 10)))
+        .selectOneColumn(tActivities.activityTitle)
+        .executeSelectNoneOrOne() ?? undefined;
+
+    return generateEventMetadataFn(activityTitle)(props);
 }
