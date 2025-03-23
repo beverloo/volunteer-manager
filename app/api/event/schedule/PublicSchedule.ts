@@ -221,9 +221,35 @@ export const kPublicSchedule = z.strictObject({
             invisible: z.literal(true).optional(),
 
             /**
+             * Product information associated with this activity, when available to the volunteer.
+             */
+            products: z.array(z.strictObject({
+                /**
+                 * Name of the product as it should be presented.
+                 */
+                product: z.string(),
+
+                /**
+                 * When known, the maximum number of times that this product can be sold.
+                 */
+                limit: z.number().optional(),
+
+                /**
+                 * The number of products that have been sold so far.
+                 */
+                sold: z.number(),
+
+            })).optional(),
+
+            /**
              * Scheduled shifts that will be taking place as part of this activity.
              */
             schedule: z.array(z.string()),
+
+            /**
+             * Set when all products associated with the activity have sold out.
+             */
+            soldOut: z.literal(true).optional(),
         })),
 
         /**

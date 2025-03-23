@@ -281,9 +281,9 @@ export default async function IntegrationsPage() {
                 type: 'boolean',
                 defaultValue: false,
 
-                label: 'Sales: Product panel',
+                label: 'Sales: Product panel w/o permission',
                 description:
-                    'Whether senior volunteer should be able to see product panels displaying ' +
+                    'Whether all senior volunteer should be able to see product panels ' +
                     'sales information',
             },
             {

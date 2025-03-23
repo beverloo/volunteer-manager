@@ -12,10 +12,11 @@ import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
-    tContentCategories, tDisplaysRequests, tNardo, tRoles, tSchedule, tShifts, tStorage, tTeams,
-    tUsers, tUsersEvents, tVendors, tVendorsSchedule } from '@lib/database';
+    tContentCategories, tDisplaysRequests, tEventsSales, tEventsSalesConfiguration, tNardo, tRoles,
+    tSchedule, tShifts, tStorage, tTeams, tUsers, tUsersEvents, tVendors, tVendorsSchedule }
+    from '@lib/database';
 
-import { kActivityType, kRegistrationStatus, kVendorTeam } from '@lib/database/Types';
+import { kActivityType, kEventSalesCategory, kRegistrationStatus, kVendorTeam } from '@lib/database/Types';
 import { kAnyTeam } from '@lib/auth/AccessList';
 import { kAvailabilityException } from '@app/api/admin/event/schedule/fn/determineAvailability';
 import { kPublicSchedule } from './PublicSchedule';
@@ -233,9 +234,65 @@ async function populateMetadata(
  * based on the given `currentTime`.
  */
 async function populateProgram(
-    dbInstance: DBConnection, schedule: Response, currentTime: Temporal.ZonedDateTime,
-    festivalId: number)
+    dbInstance: DBConnection, schedule: Response, salesPanel: boolean, soldOutWarning: boolean,
+    currentTime: Temporal.ZonedDateTime, eventId: number, festivalId: number)
 {
+    type ProductSalesInfo = {
+        product: string;
+        limit?: number;
+        sold: number;
+    };
+
+    const products = new Map</* activityId= */ number, ProductSalesInfo[]>();
+    const soldOut = new Set</* activityId= */ number>();
+
+    if (salesPanel || soldOutWarning) {
+        const salesInformation = await dbInstance.selectFrom(tEventsSalesConfiguration)
+            .innerJoin(tEventsSales)
+                .on(tEventsSales.eventId.equals(tEventsSalesConfiguration.eventId))
+                    .and(tEventsSales.eventSaleType.equals(tEventsSalesConfiguration.eventSaleType))
+            .where(tEventsSalesConfiguration.eventId.equals(eventId))
+                .and(tEventsSalesConfiguration.saleCategory.equals(kEventSalesCategory.Event))
+                .and(tEventsSalesConfiguration.saleEventId.isNotNull())
+            .select({
+                activityId: tEventsSalesConfiguration.saleEventId,
+
+                product: tEventsSalesConfiguration.eventSaleType,
+                limit: tEventsSalesConfiguration.saleCategoryLimit,
+                sold: dbInstance.sum(tEventsSales.eventSaleCount).valueWhenNull(0),
+            })
+            .groupBy(tEventsSalesConfiguration.eventSaleType)
+            .orderBy(tEventsSalesConfiguration.eventSaleType, 'asc')
+            .executeSelectMany();
+
+        for (const { activityId, ...product } of salesInformation) {
+            if (!activityId) continue;  // make TypeScript happy
+
+            if (products.has(activityId))
+                products.get(activityId)!.push(product);
+            else
+                products.set(activityId, [ product ]);
+        }
+
+        if (soldOutWarning) {
+            for (const [ activityId, activityProducts ] of products.entries()) {
+                let hasRemainingTickets = false;
+                for (const product of activityProducts) {
+                    if (!product.limit || product.limit > product.sold) {
+                        hasRemainingTickets = true;
+                        break;
+                    }
+                }
+
+                if (!hasRemainingTickets)
+                    soldOut.add(activityId);
+            }
+        }
+
+        if (!salesPanel)
+            products.clear();
+    }
+
     const activities = await dbInstance.selectFrom(tActivities)
         .innerJoin(tActivitiesTimeslots)
             .on(tActivitiesTimeslots.activityId.equals(tActivities.activityId))
@@ -286,6 +343,12 @@ async function populateProgram(
 
         if (!activity.visible)
             schedule.program.activities[activityId].invisible = true;
+
+        if (products.has(activity.id))
+            schedule.program.activities[activityId].products = products.get(activity.id)!;
+
+        if (soldOut.has(activity.id))
+            schedule.program.activities[activityId].soldOut = true;
 
         for (const timeslot of activity.timeslots) {
             const areaId = `${timeslot.area.id}`;
@@ -784,6 +847,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         'schedule-knowledge-base',
         'schedule-knowledge-base-search',
         'schedule-logical-days',
+        'schedule-sales-product-panel',
+        'schedule-sales-sold-out',
         'schedule-search-candidate-fuzziness',
         'schedule-search-candidate-minimum-score',
         'schedule-search-result-limit',
@@ -849,7 +914,11 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         dbInstance, schedule, event.id, !!settings['schedule-del-a-rie-advies'],
         settings['schedule-del-a-rie-advies-time-limit'] ?? 5);
 
-    await populateProgram(dbInstance, schedule, currentTime, event.festivalId);
+    const includeProductPanel =
+        access.can('statistics.finances') || !!settings['schedule-sales-product-panel'];
+
+    await populateProgram(dbInstance, schedule, includeProductPanel,
+        !!settings['schedule-sales-sold-out'], currentTime, event.id, event.festivalId);
 
     const fullVendorAccess = access.can('event.vendors', 'read', {
         event: event.slug,
