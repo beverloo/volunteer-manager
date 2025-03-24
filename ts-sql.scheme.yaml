@@ -4750,6 +4750,62 @@ tables:
       PRIMARY KEY (`whatsapp_message_id`),
       KEY `whatsapp_message_recipient_user_id` (`whatsapp_recipient_user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: users_events_favourites
+  type: BASE TABLE
+  comment: ""
+  columns:
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  - name: activity_id
+    type: int(4) unsigned
+    nullable: false
+    default: null
+    comment: ""
+  indexes:
+  - name: user_id
+    def: KEY user_id (user_id, event_id) USING BTREE
+    table: users_events_favourites
+    columns:
+    - user_id
+    - event_id
+    comment: ""
+  - name: user_id_2
+    def: UNIQUE KEY user_id_2 (user_id, event_id, activity_id) USING BTREE
+    table: users_events_favourites
+    columns:
+    - user_id
+    - event_id
+    - activity_id
+    comment: ""
+  constraints:
+  - name: user_id_2
+    type: UNIQUE
+    def: UNIQUE KEY user_id_2 (user_id, event_id, activity_id)
+    table: users_events_favourites
+    referencedTable: null
+    columns:
+    - user_id
+    - event_id
+    - activity_id
+    referencedColumns: []
+    comment: ""
+  triggers: []
+  def: |-
+    CREATE TABLE `users_events_favourites` (
+      `user_id` int(4) unsigned NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `activity_id` int(4) unsigned NOT NULL,
+      UNIQUE KEY `user_id_2` (`user_id`,`event_id`,`activity_id`),
+      KEY `user_id` (`user_id`,`event_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: logs
   type: BASE TABLE
   comment: ""

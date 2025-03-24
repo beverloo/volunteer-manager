@@ -50,6 +50,7 @@ export { tTrainingsExtra } from './scheme/TrainingsExtraTable';
 export { tTwilioWebhookCalls } from './scheme/TwilioWebhookCallsTable';
 export { tUsersAuth } from './scheme/UsersAuthTable';
 export { tUsersEvents } from './scheme/UsersEventsTable';
+export { tUsersEventsFavourites } from './scheme/UsersEventsFavouritesTable';
 export { tUsersPasskeys } from './scheme/UsersPasskeysTable';
 export { tUsersSettings } from './scheme/UsersSettingsTable';
 export { tVendorsSchedule } from './scheme/VendorsScheduleTable';
