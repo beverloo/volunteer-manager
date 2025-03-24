@@ -7,10 +7,10 @@ import { notFound } from 'next/navigation';
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
 import type { DBConnection } from '@lib/database/Connection';
+import { FavouriteCache } from './FavouriteCache';
 import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { getEventBySlug } from '@lib/EventLoader';
-import { getFavouriteCache } from './FavouriteCache';
 import { readSettings } from '@lib/Settings';
 import db, { tActivities, tActivitiesAreas, tActivitiesLocations, tActivitiesTimeslots, tContent,
     tContentCategories, tDisplaysRequests, tEventsSales, tEventsSalesConfiguration, tNardo, tRoles,
@@ -154,7 +154,7 @@ function determineVolunteerUnavailability(
 async function populateFavourites(
     dbInstance: DBConnection, schedule: Response, eventId: number, userId: number)
 {
-    schedule.favourites = await getFavouriteCache().read(dbInstance, eventId, userId);
+    schedule.favourites = await FavouriteCache.read(dbInstance, eventId, userId);
 }
 
 // -------------------------------------------------------------------------------------------------

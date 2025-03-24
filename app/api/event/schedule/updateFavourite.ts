@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
+import { FavouriteCache } from './FavouriteCache';
 import { getEventBySlug } from '@lib/EventLoader';
-import { getFavouriteCache } from './FavouriteCache';
 import db, { tUsersEventsFavourites } from '@lib/database';
 
 /**
@@ -65,8 +65,7 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
 
     const dbInstance = db;
 
-    const cache = getFavouriteCache();
-    const activities = await cache.read(dbInstance, event.id, props.user.userId);
+    const activities = await FavouriteCache.read(dbInstance, event.id, props.user.userId);
 
     let favourited: boolean;
 
@@ -92,7 +91,7 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
         favourited = true;
     }
 
-    cache.clear(event.id, props.user.userId);
+    FavouriteCache.clear(event.id, props.user.userId);
 
     return {
         success: true,

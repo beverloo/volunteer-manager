@@ -14,6 +14,7 @@ import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
+import StarIcon from '@mui/icons-material/Star';
 
 import { ErrorCard } from '../../components/ErrorCard';
 import { HeaderSectionCard } from '../../components/HeaderSectionCard';
@@ -74,6 +75,11 @@ interface TimeslotSectionInfo {
          * Time at which the timeslot will finish.
          */
         end: string;
+
+        /**
+         * Whether the timeslot belongs to an event favourited by the volunteer.
+         */
+        favourite?: boolean;
 
         /**
          * Whether the timeslot is not visible to regular visitors.
@@ -175,6 +181,7 @@ export function LocationPage(props: LocationPageProps) {
                 startTime: timeslot.start,
                 finished: timeslot.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
+                favourite: !!schedule.favourites?.hasOwnProperty(timeslot.activity),
                 invisible: activity.invisible,
                 sx,
             });
@@ -273,6 +280,13 @@ export function LocationPage(props: LocationPageProps) {
                                         <ListItemEventText invisible={timeslot.invisible}
                                                            title={timeslot.activity} />
                                         <ListItemDetails>
+                                            { !!timeslot.favourite &&
+                                                <StarIcon color="primary" fontSize="inherit"
+                                                          sx={{
+                                                              verticalAlign: 'middle',
+                                                              mr: .5,
+                                                              mt: -0.25
+                                                          }} /> }
                                             {timeslot.start}–{timeslot.end}
                                         </ListItemDetails>
                                     </ListItemButton>

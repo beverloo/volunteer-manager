@@ -60,6 +60,7 @@ export function LocationList(props: LocationListProps) {
                     start: timeslot.start,
                     end: timeslot.end,
                     title: activity.title,
+                    favourite: !!schedule.favourites?.hasOwnProperty(timeslot.activity),
                     invisible: activity.invisible,
                 };
 

@@ -241,7 +241,7 @@ export function DesktopNavigation() {
                     <DesktopNavigationEntry active={ schedulePathname === '/shifts' }
                                             badge={ !!userVolunteer.activeShift }
                                             href={ scheduleBaseUrl + '/shifts' }
-                                            icon={ <AccessTimeIcon /> } label="Your shifts" /> }
+                                            icon={ <AccessTimeIcon /> } label="Your schedule" /> }
                 <DesktopNavigationEntry active={ schedulePathname === '/areas' }
                                         badge={activeEvents}
                                         href={ scheduleBaseUrl + '/areas' }

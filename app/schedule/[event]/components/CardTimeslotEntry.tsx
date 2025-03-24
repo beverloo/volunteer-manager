@@ -9,6 +9,7 @@ import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 
+import { InlineFavouriteStar } from './InlineFavouriteStar';
 import { ListItemDetails } from './ListItemDetails';
 import { ListItemEventText } from './ListItemEventText';
 import { formatDate, type Temporal } from '@lib/Temporal';
@@ -43,6 +44,11 @@ export interface CardTimeslot {
      * Title to show on the timeslot entry.
      */
     title: string;
+
+    /**
+     * Set when the timeslot belongs to an event favourited by the volunteer.
+     */
+    favourite?: boolean;
 
     /**
      * Set when the timeslot is invisible to the public.
@@ -112,7 +118,11 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
 
             <ListItemEventText invisible={!!timeslot.invisible} title={timeslot.title} />
 
-            { !!time && <ListItemDetails>{time}</ListItemDetails> }
+            { (!!time || !!timeslot.favourite) &&
+                <ListItemDetails>
+                    { !!timeslot.favourite && <InlineFavouriteStar /> }
+                    { !!time && time }
+                </ListItemDetails> }
 
         </ListItemButton>
     );
