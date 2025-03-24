@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { HeaderSectionCard } from '../components/HeaderSectionCard';

@@ -113,6 +113,7 @@ type SettingsMap = {
     'schedule-check-in-rate-seconds': number;
     'schedule-del-a-rie-advies': boolean;
     'schedule-del-a-rie-advies-time-limit': number;
+    'schedule-favourite-events': boolean;
     'schedule-knowledge-base': boolean;
     'schedule-knowledge-base-search': boolean;
     'schedule-logical-days': boolean;

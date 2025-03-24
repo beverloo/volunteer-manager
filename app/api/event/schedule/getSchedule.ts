@@ -853,6 +853,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         'schedule-check-in-rate-seconds',
         'schedule-del-a-rie-advies',
         'schedule-del-a-rie-advies-time-limit',
+        'schedule-favourite-events',
         'schedule-knowledge-base',
         'schedule-knowledge-base-search',
         'schedule-logical-days',
@@ -874,6 +875,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
             enableAvatarManagement: access.can('volunteer.avatars'),
+            enableFavourites: settings['schedule-favourite-events'] ?? false,
             enableHelpRequests: access.can('event.help-requests', { event: event.slug }),
             enableKnowledgeBase: settings['schedule-knowledge-base'] ?? false,
             enableKnowledgeBaseSearch: settings['schedule-knowledge-base-search'] ?? false,
@@ -915,6 +917,10 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
+
+    if (schedule.config.enableFavourites) {
+        // TODO: Populate favourited events in the schedule.
+    }
 
     if (schedule.config.enableKnowledgeBase)
         await populateKnowledgeBase(dbInstance, schedule, event.id);

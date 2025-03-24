@@ -4,19 +4,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
-import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
+import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import NotesIcon from '@mui/icons-material/Notes';
+import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
+import StarIcon from '@mui/icons-material/Star';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { ErrorCard } from '../../components/ErrorCard';
@@ -31,6 +35,7 @@ import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
 import { NotesCard } from '../../components/NotesCard';
 
 import { kEnforceSingleLine } from '../../Constants';
+import { callApi } from '@lib/callApi';
 
 /**
  * Information cached for a shift description box on the event page.
@@ -153,11 +158,13 @@ interface EventPageProps {
  * volunteers assigned to work at this location.
  */
 export function EventPage(props: EventPageProps) {
-    const { schedule } = useContext(ScheduleContext);
+    const { refresh, schedule } = useContext(ScheduleContext);
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ descriptions, eventLocation, timeslots, timeslotsHidden, volunteers ] = useMemo(() => {
+    const [ descriptions, eventLocation, favourited, timeslots, timeslotsHidden,
+            volunteers ] = useMemo(() =>
+    {
         const descriptions: DescriptionInfo[] = [ /* empty */ ];
         const timeslots: TimeslotInfo[] = [ /* empty */ ];
         const volunteers: VolunteerInfo[] = [ /* empty */ ];
@@ -165,7 +172,11 @@ export function EventPage(props: EventPageProps) {
         const currentTime = currentTimestamp();
 
         let eventLocation: string | undefined;
+        let favourited: boolean = false;
         let timeslotsHidden: boolean = false;
+
+        if (!!schedule && !!schedule.config.enableFavourites)
+            favourited = !!schedule.favourites?.includes(props.activityId);
 
         if (!!schedule && schedule.program.activities.hasOwnProperty(props.activityId)) {
             const activity = schedule.program.activities[props.activityId];
@@ -297,12 +308,76 @@ export function EventPage(props: EventPageProps) {
         return [
             descriptions,
             eventLocation ?? 'AnimeCon',
+            favourited,
             timeslots,
             timeslotsHidden,
             volunteers
         ];
 
     }, [ props.activityId, schedule ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const [ favouriteConfirmationOpen, setFavouriteConfirmationOpen ] = useState<boolean>(false);
+    const [ favouriteConfirmation, setFavouriteConfirmation ] =
+        useState<null | 'added' | 'removed'>(null);
+
+    const handleCloseFavouriteConfirmation = useCallback(() => {
+        setFavouriteConfirmationOpen(false);
+    }, [ /* no dependencies */ ]);
+
+    const handleFavouriteChange = useCallback(async () => {
+        if (!refresh || !schedule || !schedule.config.enableFavourites)
+            return;  // the feature is disabled
+
+        try {
+            const response = await callApi('put', '/api/event/schedule/favourite', {
+                event: schedule.slug,
+                activityId: props.activityId,
+            });
+
+            if (!response.success) {
+                console.error('Failed to store the favourite status:', response.error);
+                return;
+            }
+
+            await refresh();
+
+            setFavouriteConfirmationOpen(true);
+            setFavouriteConfirmation(!!response.favourited ? 'added' : 'removed');
+
+        } catch (error: any) {
+            console.error('Failed to update the favourite status:', error);
+            return;
+        }
+
+    }, [ props.activityId, refresh, schedule ]);
+
+    let action: React.ReactNode;
+    if (!!schedule && !!schedule.config.enableFavourites) {
+        action = (
+            <>
+                { !favourited &&
+                    <Tooltip title="Star this event">
+                        <IconButton onClick={handleFavouriteChange}>
+                            <StarOutlineIcon color="primary" />
+                        </IconButton>
+                    </Tooltip> }
+                { !!favourited &&
+                    <Tooltip title="Unstar this event">
+                        <IconButton onClick={handleFavouriteChange}>
+                            <StarIcon color="primary" />
+                        </IconButton>
+                    </Tooltip> }
+                <Snackbar open={!!favouriteConfirmationOpen} autoHideDuration={2000}
+                          onClose={handleCloseFavouriteConfirmation}
+                          message={
+                              favouriteConfirmation === 'added'
+                                  ? 'Added to favourites'
+                                  : 'Removed from favourites' } />
+            </>
+        );
+    }
 
     // ---------------------------------------------------------------------------------------------
 
@@ -320,10 +395,12 @@ export function EventPage(props: EventPageProps) {
         <>
             <SetTitle title={activity.title} />
             <HeaderSectionCard>
-                <CardHeader title={activity.title} subheader={eventLocation}
+                <CardHeader title={activity.title} subheader={eventLocation} action={action}
                             slotProps={{
+                                action: { sx: { alignSelf: 'center', pl: 2 } },
+                                content: { sx: { minWidth: 0 } },
                                 subheader: { sx: kEnforceSingleLine },
-                                title: { variant: 'subtitle2' }
+                                title: { variant: 'subtitle2', sx: kEnforceSingleLine }
                             }} />
             </HeaderSectionCard>
             { descriptions.map(description =>

@@ -251,6 +251,14 @@ export default async function IntegrationsPage() {
                     'shown for',
             },
             {
+                setting: 'schedule-favourite-events',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Favourites',
+                description: 'Enable volunteers to star their favourite events',
+            },
+            {
                 setting: 'schedule-knowledge-base',
                 type: 'boolean',
                 defaultValue: true,

@@ -81,6 +81,11 @@ export const kPublicSchedule = z.strictObject({
         enableAvatarManagement: z.boolean().optional(),
 
         /**
+         * Whether the ability for volunteer to favourite events should be enabled.
+         */
+        enableFavourites: z.boolean().optional(),
+
+        /**
          * Whether access to help requests should be enabled.
          */
         enableHelpRequests: z.boolean().optional(),
@@ -148,6 +153,11 @@ export const kPublicSchedule = z.strictObject({
          */
         updateFrequencyMs: z.number(),
     }),
+
+    /**
+     * Activity IDs that have been favourited by the volunteer.
+     */
+    favourites: z.array(z.string()).optional(),
 
     /**
      * Number of help requests that are still pending activity from a senior volunteer.
