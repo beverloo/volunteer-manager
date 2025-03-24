@@ -13,6 +13,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import GroupIcon from '@mui/icons-material/Group';
 import HomeIcon from '@mui/icons-material/Home';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
@@ -38,8 +39,9 @@ export function MobileNavigation() {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    const [ activeEvents, areas, userVolunteer ] = useMemo(() => {
+    const [ activeEvents, areas, enableKnowledgeBase, userVolunteer ] = useMemo(() => {
         let activeEvents: number = 0;
+        let enableKnowledgeBase: boolean = false;
         let userVolunteer: PublicSchedule['volunteers'][number] | undefined;
 
         const areas: { id: string; name: string; }[] = [];
@@ -54,10 +56,13 @@ export function MobileNavigation() {
 
             areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
 
+            enableKnowledgeBase = !!schedule?.config.enableKnowledgeBase;
+
             if (!!schedule.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
                 userVolunteer = schedule.volunteers[schedule.userId];
         }
-        return [ activeEvents, areas, userVolunteer ];
+
+        return [ activeEvents, areas, enableKnowledgeBase, userVolunteer ];
 
     }, [ schedule ]);
 
@@ -102,6 +107,9 @@ export function MobileNavigation() {
             case 'shifts':
                 router.push(`${scheduleBaseUrl}/shifts`);
                 break;
+            case 'knowledge':
+                router.push(`${scheduleBaseUrl}/knowledge`);
+                break;
             case 'volunteers':
                 router.push(`${scheduleBaseUrl}/volunteers`);
                 break;
@@ -118,6 +126,9 @@ export function MobileNavigation() {
                 { !!userVolunteer &&
                     <BottomNavigationAction icon={shiftsIcon} label="Shifts" value="shifts" /> }
                 <BottomNavigationAction icon={eventsIcon} label="Events" value="areas" />
+                { !!enableKnowledgeBase &&
+                    <BottomNavigationAction icon={ <InfoOutlinedIcon /> } label="FAQ"
+                                            value="knowledge" /> }
                 <BottomNavigationAction icon={volunteersIcon} label="Volunteers"
                                         value="volunteers" />
             </BottomNavigation>
