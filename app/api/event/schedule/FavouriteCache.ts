@@ -13,7 +13,7 @@ declare namespace globalThis {
  * Volunteer Manager, which avoids needing database queries every time the information is needed.
  */
 class FavouriteCache {
-    #cache: Map<string, string[]> = new Map;
+    #cache: Map<string, Record<string, true>> = new Map;
 
     /**
      * Clears any cached favourite activities for the given |userId|.
@@ -26,23 +26,25 @@ class FavouriteCache {
      * Obtains the favourited activities for the given { eventId, userId } pair. May run a database
      * query when the information has not been cached yet.
      */
-    async read(dbInstance: DBConnection, eventId: number, userId: number): Promise<string[]> {
+    async read(dbInstance: DBConnection, eventId: number, userId: number) {
         const key = `${userId}:${eventId}`;
 
         const cachedValue = this.#cache.get(key);
         if (!!cachedValue)
             return cachedValue;
 
-        const favourites = await dbInstance.selectFrom(tUsersEventsFavourites)
+        const favouriteActivities = await dbInstance.selectFrom(tUsersEventsFavourites)
             .where(tUsersEventsFavourites.userId.equals(userId))
                 .and(tUsersEventsFavourites.eventId.equals(eventId))
             .selectOneColumn(tUsersEventsFavourites.activityId)
             .executeSelectMany();
 
-        const favouritesStr: string[] = favourites.map(activityId => `${activityId}`);
-        this.#cache.set(key, favouritesStr);
+        const favourites: Record<string, true> =
+            Object.fromEntries(favouriteActivities.map(activityId => [ `${activityId}`, true ]));
 
-        return favouritesStr;
+        this.#cache.set(key, favourites);
+
+        return favourites;
     }
 }
 

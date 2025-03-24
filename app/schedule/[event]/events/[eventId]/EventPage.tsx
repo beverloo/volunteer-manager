@@ -176,7 +176,7 @@ export function EventPage(props: EventPageProps) {
         let timeslotsHidden: boolean = false;
 
         if (!!schedule && !!schedule.config.enableFavourites)
-            favourited = !!schedule.favourites?.includes(props.activityId);
+            favourited = !!schedule.favourites?.hasOwnProperty(props.activityId);
 
         if (!!schedule && schedule.program.activities.hasOwnProperty(props.activityId)) {
             const activity = schedule.program.activities[props.activityId];

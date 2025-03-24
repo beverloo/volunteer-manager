@@ -157,7 +157,7 @@ export const kPublicSchedule = z.strictObject({
     /**
      * Activity IDs that have been favourited by the volunteer.
      */
-    favourites: z.array(z.string()).optional(),
+    favourites: z.record(z.string(), z.literal(true)).optional(),
 
     /**
      * Number of help requests that are still pending activity from a senior volunteer.

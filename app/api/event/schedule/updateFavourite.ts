@@ -70,7 +70,7 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
 
     let favourited: boolean;
 
-    if (activities.includes(request.activityId)) {
+    if (activities.hasOwnProperty(request.activityId)) {
         await dbInstance.deleteFrom(tUsersEventsFavourites)
             .where(tUsersEventsFavourites.userId.equals(props.user.userId))
                 .and(tUsersEventsFavourites.eventId.equals(event.id))
