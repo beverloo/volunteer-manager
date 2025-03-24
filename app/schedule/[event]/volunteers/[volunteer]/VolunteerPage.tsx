@@ -19,9 +19,12 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import NotesIcon from '@mui/icons-material/Notes';
+import Paper from '@mui/material/Paper';
 import PhoneIcon from '@mui/icons-material/Phone';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Avatar } from '@components/Avatar';
@@ -371,9 +374,13 @@ export function VolunteerPage(props: VolunteerPageProps) {
                            title="Notes"
                            notes={volunteer.notes} /> }
             { !scheduledShifts.length &&
-                <ErrorCard title="No scheduled shifts">
-                    This volunteer has not been assigned to any shifts.
-                </ErrorCard> }
+                <Stack component={Paper} direction="row" spacing={2} alignItems="center"
+                       sx={{ px: 2, py: 1 }}>
+                    <ScheduleIcon color="error" />
+                    <Typography variant="body2" color="error">
+                        They haven't been given any shifts just yet
+                    </Typography>
+                </Stack> }
             { scheduledShifts.map(section =>
                 <React.Fragment key={section.label}>
                     { section.divider && <Divider sx={{ pt: 1 }} /> }

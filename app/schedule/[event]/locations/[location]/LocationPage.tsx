@@ -14,10 +14,10 @@ import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
-import StarIcon from '@mui/icons-material/Star';
 
 import { ErrorCard } from '../../components/ErrorCard';
 import { HeaderSectionCard } from '../../components/HeaderSectionCard';
+import { InlineFavouriteStar } from '../../components/InlineFavouriteStar';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { ListItemEventText } from '../../components/ListItemEventText';
 import { ScheduleContext } from '../../ScheduleContext';
@@ -280,13 +280,7 @@ export function LocationPage(props: LocationPageProps) {
                                         <ListItemEventText invisible={timeslot.invisible}
                                                            title={timeslot.activity} />
                                         <ListItemDetails>
-                                            { !!timeslot.favourite &&
-                                                <StarIcon color="primary" fontSize="inherit"
-                                                          sx={{
-                                                              verticalAlign: 'middle',
-                                                              mr: .5,
-                                                              mt: -0.25
-                                                          }} /> }
+                                            { !!timeslot.favourite && <InlineFavouriteStar /> }
                                             {timeslot.start}–{timeslot.end}
                                         </ListItemDetails>
                                     </ListItemButton>
