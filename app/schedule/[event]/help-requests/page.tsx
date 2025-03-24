@@ -26,6 +26,7 @@ import Typography from '@mui/material/Typography';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { Alert } from '../components/Alert';
 import { type DisplayHelpRequestTarget, kDisplayHelpRequestTarget } from '@lib/database/Types';
+import { HeaderSectionCard } from '../components/HeaderSectionCard';
 import { HelpRequestTarget } from '../components/HelpRequestTarget';
 import { SetTitle } from '../components/SetTitle';
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -203,14 +204,14 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
     return (
         <>
             <SetTitle title="Help Requests" />
-            <Card>
+            <HeaderSectionCard>
                 <Box sx={{
                     backgroundImage: 'url(/images/help-requests.jpg)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
                     aspectRatio: 4 }} />
-            </Card>
+            </HeaderSectionCard>
             { !!activeRequests.length &&
                 <Box>
                     <Typography variant="button" sx={{ color: 'text.secondary' }}>

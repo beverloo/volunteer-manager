@@ -26,6 +26,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { Avatar } from '@components/Avatar';
 import { ErrorCard } from '../../components/ErrorCard';
+import { HeaderSectionCard } from '../../components/HeaderSectionCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { NotesCard } from '../../components/NotesCard';
 import { ScheduleContext } from '../../ScheduleContext';
@@ -328,10 +329,10 @@ export function VolunteerPage(props: VolunteerPageProps) {
     return (
         <>
             <SetTitle title={volunteer.name} />
-            <Card>
+            <HeaderSectionCard>
                 <CardHeader title={volunteer.name}
-                            titleTypographyProps={{ variant: 'subtitle2' }}
                             subheader={volunteer.role}
+                            slotProps={{ title: { variant: 'subtitle2' } }}
                             sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' },
                                   '& .MuiCardHeader-content': kEnforceSingleLine,
                                   '& .MuiCardHeader-content>:first-child': { display: 'inline' } }}
@@ -364,7 +365,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                     {volunteer.name}
                                 </Avatar>
                             } />
-            </Card>
+            </HeaderSectionCard>
             { !!volunteer.notes &&
                 <NotesCard icon={ <NotesIcon color="primary" /> }
                            title="Notes"
@@ -385,8 +386,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                     <ListItemButton LinkComponent={Link} href={href} key={shift.id}
                                                     sx={shift.sx}>
                                         <ListItemText primary={shift.name}
-                                                      primaryTypographyProps={{
-                                                          sx: kEnforceSingleLine
+                                                      slotProps={{
+                                                          primary: { sx: kEnforceSingleLine }
                                                       }} />
                                         <ListItemDetails>
                                             {shift.start}–{shift.end}

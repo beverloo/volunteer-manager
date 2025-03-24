@@ -16,6 +16,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { ErrorCard } from '../../components/ErrorCard';
+import { HeaderSectionCard } from '../../components/HeaderSectionCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { ListItemEventText } from '../../components/ListItemEventText';
 import { ScheduleContext } from '../../ScheduleContext';
@@ -247,11 +248,11 @@ export function LocationPage(props: LocationPageProps) {
     return (
         <>
             <SetTitle title={location.name} />
-            <Card>
+            <HeaderSectionCard>
                 <CardHeader title={location.name}
-                            titleTypographyProps={{ variant: 'subtitle2' }}
+                            slotProps={{ title: { variant: 'subtitle1' } }}
                             subheader={area.name} />
-            </Card>
+            </HeaderSectionCard>
             { !sections.length &&
                 <ErrorCard title="No scheduled events">
                     This location will not be hosting any events.

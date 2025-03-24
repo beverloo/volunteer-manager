@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AcknowledgeForm } from './AcknowledgeForm';
 import { CloseForm } from './CloseForm';
+import { HeaderSectionCard } from '../../components/HeaderSectionCard';
 import { HelpRequestTarget } from '../../components/HelpRequestTarget';
 import { SetTitle } from '../../components/SetTitle';
 import { formatDate, formatDuration } from '@lib/Temporal';
@@ -110,14 +111,14 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
     return (
         <>
             <SetTitle title={request.display} />
-            <Card>
+            <HeaderSectionCard>
                 <Box sx={{
                     backgroundImage: 'url(/images/help-request.jpg)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
                     aspectRatio: 4 }} />
-            </Card>
+            </HeaderSectionCard>
             <Card>
                 <CardHeader avatar={ <HelpRequestTarget target={request.target} /> }
                             title={`${request.display} asks for ${target}`}

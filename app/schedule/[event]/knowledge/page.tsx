@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { HeaderSectionCard } from '../components/HeaderSectionCard';
 import { KnowledgeBaseCategories } from './KnowledgeBaseCategories';
 import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -17,14 +18,14 @@ export default async function ScheduleKnowledgePage(props: NextPageParams<'event
     await requireAuthenticationContext({ check: 'event', event: (await props.params).event });
     return (
         <>
-            <Card>
+            <HeaderSectionCard>
                 <Box sx={{
                     backgroundImage: 'url(/images/knowledge-base.jpg)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
                     aspectRatio: 4 }} />
-            </Card>
+            </HeaderSectionCard>
             <KnowledgeBaseCategories />
         </>
     );

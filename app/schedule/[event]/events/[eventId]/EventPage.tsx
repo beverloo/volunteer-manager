@@ -20,6 +20,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { ErrorCard } from '../../components/ErrorCard';
+import { HeaderSectionCard } from '../../components/HeaderSectionCard';
 import { ListItemDetails } from '../../components/ListItemDetails';
 import { ScheduleContext } from '../../ScheduleContext';
 import { Section } from '../../components/Section';
@@ -318,13 +319,13 @@ export function EventPage(props: EventPageProps) {
     return (
         <>
             <SetTitle title={activity.title} />
-            <Card>
+            <HeaderSectionCard>
                 <CardHeader title={activity.title} subheader={eventLocation}
                             slotProps={{
                                 subheader: { sx: kEnforceSingleLine },
                                 title: { variant: 'subtitle2' }
                             }} />
-            </Card>
+            </HeaderSectionCard>
             { descriptions.map(description =>
                 <NotesCard key={description.id}
                            icon={ <NotesIcon htmlColor={description.teamColour} /> }

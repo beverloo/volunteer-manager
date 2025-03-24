@@ -207,7 +207,12 @@ export function VolunteerListPage() {
         return (
             <>
                 <SetTitle title="Volunteers" />
-                <Paper>
+                <Paper sx={{
+                    '&.MuiPaper-root': {
+                        borderRadius: { xs: 0, md: 1 },
+                        margin: { xs: '-16px -16px -8px -16px', md: 0 },
+                    },
+                }}>
                     <Tabs onChange={handleTeamChange} value={selectedTeam} variant="fullWidth">
                         { teams.map(team =>
                             <Tab key={team.id} value={team.id} label={team.label} /> )}

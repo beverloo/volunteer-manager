@@ -12,6 +12,7 @@ import CardHeader from '@mui/material/CardHeader';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { HeaderSectionCard } from '../../components/HeaderSectionCard';
 import { KnowledgeBaseIcon } from '@components/KnowledgeBaseIcon';
 import { Markdown } from '@components/Markdown';
 import { SetTitle } from '../../components/SetTitle';
@@ -64,14 +65,14 @@ export default async function ScheduleKnowledgeCategoryPage(
     return (
         <>
             <SetTitle title={category.title} />
-            <Card>
+            <HeaderSectionCard>
                 <Box sx={{
                     backgroundImage: 'url(/images/knowledge-base-category.jpg)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
                     aspectRatio: 4 }} />
-            </Card>
+            </HeaderSectionCard>
             <Card>
                 <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
                             title={category.title}
