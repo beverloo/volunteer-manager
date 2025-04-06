@@ -298,7 +298,7 @@ async function getRecentChanges(access: AccessControl, event: string, eventId: n
             for (const [ rhsChange, rhsUpdated ] of Object.entries(updatesToVerify)) {
                 if (lhsChange === rhsChange)
                     continue;  // don't "merge" a change to itself
-                if (lhsUpdated.epochMicroseconds !== rhsUpdated.epochMicroseconds)
+                if (lhsUpdated.epochMilliseconds !== rhsUpdated.epochMilliseconds)
                     continue;  // the changes happened at different moments
 
                 const update = rhsChange as EventRecentChangeUpdate;

@@ -28,7 +28,7 @@ export function AreaList() {
         if (!schedule)
             return [ now, [ /* no areas */ ] ];
 
-        const nowEpochSeconds = now.epochSeconds;
+        const nowEpochSeconds = Math.round(now.epochMilliseconds / 1000);
 
         const areas = Object.values(schedule.program.areas).map(area => {
             const timeslots: CardTimeslot[] = [];

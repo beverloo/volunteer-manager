@@ -204,11 +204,11 @@ export function VolunteerPage(props: VolunteerPageProps) {
 
             let finished: boolean = false;
             if (shifts.length > 0) {
-                finished = toZonedDateTime(shifts[0].startTime).with({
+                finished = Math.round(toZonedDateTime(shifts[0].startTime).with({
                     hour: 23,
                     minute: 59,
                     second: 59,
-                }).epochSeconds < currentTime;
+                }).epochMilliseconds / 1000) < currentTime;
             }
 
             scheduledShifts.push({

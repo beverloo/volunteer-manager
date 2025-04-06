@@ -38,7 +38,7 @@ export function LocationList(props: LocationListProps) {
         if (!schedule || !schedule.program.areas.hasOwnProperty(props.areaId))
             return [ now, [ /* no locations */ ] ];
 
-        const nowEpochSeconds = now.epochSeconds;
+        const nowEpochSeconds = Math.round(now.epochMilliseconds / 1000);
 
         const area = schedule.program.areas[props.areaId];
 

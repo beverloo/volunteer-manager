@@ -197,11 +197,11 @@ export function LocationPage(props: LocationPageProps) {
 
             let finished: boolean = false;
             if (timeslots.length > 0) {
-                finished = toZonedDateTime(timeslots[0].startTime).with({
+                finished = Math.round(toZonedDateTime(timeslots[0].startTime).with({
                     hour: 23,
                     minute: 59,
                     second: 59,
-                }).epochSeconds < currentTime;
+                }).epochMilliseconds / 1000) < currentTime;
             }
 
             sections.push({

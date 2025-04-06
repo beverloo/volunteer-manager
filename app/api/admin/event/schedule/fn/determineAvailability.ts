@@ -152,7 +152,7 @@ export function determineAvailability(input: AvailabilityInput): AvailabilityInf
         let currentDay = firstDay;
         while (Temporal.ZonedDateTime.compare(currentDay, lastDay) <= 0) {
             let startHour: number;
-            if (currentDay.epochSeconds === firstDay.epochSeconds)
+            if (currentDay.epochMilliseconds === firstDay.epochMilliseconds)
                 startHour = 0;  // midnight, event hasn't started yet
             else if (volunteer.preferenceTimingEnd > dailyStartHour)
                 startHour = volunteer.preferenceTimingEnd - 24;
@@ -160,7 +160,7 @@ export function determineAvailability(input: AvailabilityInput): AvailabilityInf
                 startHour = volunteer.preferenceTimingEnd;
 
             let endHour: number;
-            if (currentDay.epochSeconds === firstDay.epochSeconds) {
+            if (currentDay.epochMilliseconds === firstDay.epochMilliseconds) {
                 if (eventStartScheduleHour < volunteer.preferenceTimingStart)
                     endHour = volunteer.preferenceTimingStart;
                 else

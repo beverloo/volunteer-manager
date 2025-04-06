@@ -215,7 +215,7 @@ async function populateMetadata(
     const timeLimitMinutes = adviceTimeLimitMinutes;
     const timeLimitSeconds = timeLimitMinutes * 60;
 
-    const seedBase = Temporal.Now.instant().epochSeconds;
+    const seedBase = Math.round(Temporal.Now.instant().epochMilliseconds / 1000);
     const seed = Math.round(seedBase / timeLimitSeconds) * timeLimitSeconds;
 
     const nardoAdviceSubQuery = dbInstance.selectFrom(tNardo)
@@ -404,8 +404,8 @@ async function populateProgram(
                 id: timeslotId,
                 activity: activityId,
                 location: locationId,
-                start: timeslot.start.epochSeconds,
-                end: timeslot.end.epochSeconds,
+                start: Math.round(timeslot.start.epochMilliseconds / 1000),
+                end: Math.round(timeslot.end.epochMilliseconds / 1000),
             };
 
             if (isBefore(timeslot.start, currentTime) && isAfter(timeslot.end, currentTime)) {
@@ -460,8 +460,8 @@ async function populateVendors(
                 id: vendor.id,
                 name: vendor.firstName,
                 shifts: vendor.shifts.map(shift => ({
-                    start: shift.start.epochSeconds,
-                    end: shift.end.epochSeconds,
+                    start: Math.round(shift.start.epochMilliseconds / 1000),
+                    end: Math.round(shift.end.epochMilliseconds / 1000),
                 })),
             });
         } else {
@@ -764,8 +764,8 @@ async function populateVolunteers(
                         id: timeslotIdString,
                         activity: activityId,
                         location: locationId,
-                        start: timeslot.start.epochSeconds,
-                        end: timeslot.end.epochSeconds,
+                        start: Math.round(timeslot.start.epochMilliseconds / 1000),
+                        end: Math.round(timeslot.end.epochMilliseconds / 1000),
                     };
 
                     if (isBefore(timeslot.start, currentTime)
@@ -795,8 +795,8 @@ async function populateVolunteers(
                 id: scheduledId,
                 volunteer: volunteerId,
                 shift: shiftId,
-                start: scheduledShift.start.epochSeconds,
-                end: scheduledShift.end.epochSeconds,
+                start: Math.round(scheduledShift.start.epochMilliseconds / 1000),
+                end: Math.round(scheduledShift.end.epochMilliseconds / 1000),
             };
 
             if (isBefore(scheduledShift.start, currentTime)

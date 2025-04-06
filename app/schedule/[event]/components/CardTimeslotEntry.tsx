@@ -85,11 +85,13 @@ export function CardTimeslotEntry(props: CardTimeslotEntryProps) {
     let sx: SxProps<Theme> = null;
     let time: React.ReactNode;
 
-    if (currentTime.epochSeconds >= timeslot.end) {
+    const currentTimeEpochSeconds = Math.round(currentTime.epochMilliseconds / 1000);
+
+    if (currentTimeEpochSeconds >= timeslot.end) {
         // Past events should not be shown as <CardTimeslotEntry> components. If we end up in here
         // then something is off; don't do any unnecessary work in addition to that.
 
-    } else if (currentTime.epochSeconds >= timeslot.start) {
+    } else if (currentTimeEpochSeconds >= timeslot.start) {
         // Active events:
 
         const endZonedDateTime = toZonedDateTime(timeslot.end);

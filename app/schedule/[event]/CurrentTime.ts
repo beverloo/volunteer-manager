@@ -32,7 +32,7 @@ export function currentInstant(): Temporal.Instant {
  * Returns the current time as a UNIX timestamp, represented in number of seconds since 1970 in UTC.
  */
 export function currentTimestamp(): number {
-    return currentInstant().epochSeconds;
+    return Math.round(currentInstant().epochMilliseconds / 1000);
 }
 
 /**

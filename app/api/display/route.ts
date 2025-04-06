@@ -355,7 +355,7 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
         const timeLimitMinutes = settings['schedule-del-a-rie-advies-time-limit'] ?? 5;
         const timeLimitSeconds = timeLimitMinutes * 60;
 
-        const seedBase = Temporal.Now.instant().epochSeconds;
+        const seedBase = Math.round(Temporal.Now.instant().epochMilliseconds / 1000);
         const seed = Math.round(seedBase / timeLimitSeconds) * timeLimitSeconds;
 
         response.nardo = await db.selectFrom(tNardo)
@@ -425,8 +425,8 @@ async function display(request: Request, props: ActionProps): Promise<Response> 
             for (const entry of schedule) {
                 const completedEntry = {
                     ...entry,
-                    start: entry.start.epochSeconds,
-                    end: entry.end.epochSeconds,
+                    start: Math.round(entry.start.epochMilliseconds / 1000),
+                    end: Math.round(entry.end.epochMilliseconds / 1000),
                     avatar: entry.avatar ? `/blob/${entry.avatar}.png` : undefined,
                 };
 

@@ -106,10 +106,9 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
     } else if (dateTime instanceof Temporal.PlainDateTime) {
         zonedDateTime = dateTime.toZonedDateTime('UTC', { disambiguation: 'earlier' });
     } else if (dateTime instanceof Temporal.PlainTime) {
-        zonedDateTime = dateTime.toZonedDateTime({
-            plainDate: Temporal.PlainDate.from('1970-01-01'),
-            timeZone: 'UTC',
-        });
+        zonedDateTime = Temporal.PlainDate.from('1970-01-01')
+            .toZonedDateTime('UTC')
+            .withPlainTime(dateTime);
     } else if (dateTime instanceof Temporal.ZonedDateTime) {
         zonedDateTime = dateTime;
     } else {
@@ -117,32 +116,31 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
     }
 
     const effectiveLocale = locale ?? 'en-GB';
-    const fields = zonedDateTime.getISOFields();
 
     const matches = (match: string) => {
         switch (match) {
             case 'YY':
-                return `${fields.isoYear}`.substr(2);
+                return `${zonedDateTime.year}`.substr(2);
             case 'YYYY':
-                return fields.isoYear;
+                return zonedDateTime.year;
 
             case 'M':
-                return `${fields.isoMonth}`;
+                return `${zonedDateTime.month}`;
             case 'MM':
-                return `0${fields.isoMonth}`.substr(-2);
+                return `0${zonedDateTime.month}`.substr(-2);
             case 'MMM':
                 return zonedDateTime.toLocaleString(effectiveLocale, { month: 'short' });
             case 'MMMM':
                 return zonedDateTime.toLocaleString(effectiveLocale, { month: 'long' });
 
             case 'D':
-                return `${fields.isoDay}`;
+                return `${zonedDateTime.day}`;
             case 'DD':
-                return `0${fields.isoDay}`.substr(-2);
+                return `0${zonedDateTime.day}`.substr(-2);
             case 'd':
                 return `${zonedDateTime.dayOfWeek}`;
             case 'Do':  // advancedFormat plugin
-                return withOrdinal(fields.isoDay);
+                return withOrdinal(zonedDateTime.day);
             case 'dd':
                 return zonedDateTime.toLocaleString(effectiveLocale, { weekday: 'narrow' });
             case 'ddd':
@@ -160,53 +158,53 @@ export function formatDate(dateTime: any, format: string, locale?: string): stri
                 return `0${zonedDateTime.weekOfYear}`.substr(-2);
 
             case 'H':
-                return `${fields.isoHour}`;
+                return `${zonedDateTime.hour}`;
             case 'HH':
-                return `0${fields.isoHour}`.substr(-2);
+                return `0${zonedDateTime.hour}`.substr(-2);
             case 'h':
-                return `${fields.isoHour % 12}`;
+                return `${zonedDateTime.hour % 12}`;
             case 'hh':
-                return `0${fields.isoHour % 12}`.substr(-2);
+                return `0${zonedDateTime.hour % 12}`.substr(-2);
             case 'k':  // advancedFormat plugin
-                return `${fields.isoHour + 1}`;
+                return `${zonedDateTime.hour + 1}`;
             case 'kk':  // advancedFormat plugin
-                return `0${fields.isoHour + 1}`.substr(-2);
+                return `0${zonedDateTime.hour + 1}`.substr(-2);
 
             case 'm':
-                return `${fields.isoMinute}`;
+                return `${zonedDateTime.minute}`;
             case 'mm':
-                return `0${fields.isoMinute}`.substr(-2);
+                return `0${zonedDateTime.minute}`.substr(-2);
 
             case 's':
-                return `${fields.isoSecond}`;
+                return `${zonedDateTime.second}`;
             case 'ss':
-                return `0${fields.isoSecond}`.substr(-2);
+                return `0${zonedDateTime.second}`.substr(-2);
 
             case 'X':  // advancedFormat plugin
-                return `${zonedDateTime.epochSeconds}`;
+                return `${Math.floor(zonedDateTime.epochMilliseconds / 1000)}`;
             case 'x':  // advancedFormat plugin
                 return `${zonedDateTime.epochMilliseconds}`;
 
             case 'SSS':
-                return `00${fields.isoMillisecond}`.substr(-3);
+                return `00${zonedDateTime.millisecond}`.substr(-3);
             case 'SSSS':
-                return `00${fields.isoMicrosecond}`.substr(-3);
+                return `00${zonedDateTime.microsecond}`.substr(-3);
 
             case 'Z':
-                return fields.offset;
+                return zonedDateTime.offset;
             case 'z':  // advancedFormat plugin
             case 'zzz':  // advancedFormat plugin
                 return zonedDateTime.timeZoneId;
             case 'ZZ':
-                return fields.offset.replace(':', '');
+                return zonedDateTime.offset.replace(':', '');
 
             case 'A':
-                return fields.isoHour < 12 ? 'AM' : 'PM';
+                return zonedDateTime.hour < 12 ? 'AM' : 'PM';
             case 'a':
-                return fields.isoHour < 12 ? 'am' : 'pm';
+                return zonedDateTime.hour < 12 ? 'am' : 'pm';
 
             case 'Q':  // advancedFormat plugin
-                return `${Math.ceil(fields.isoMonth / 3)}`;
+                return `${Math.ceil(zonedDateTime.month / 3)}`;
 
             default:
                 throw new Error(`Invalid formatting parameter received (f=${format}, v=${match})`);
