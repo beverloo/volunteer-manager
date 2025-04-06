@@ -12,7 +12,7 @@ import type {
     GridRenderCellParams, GridRowModesModel, GridRowOrderChangeParams, GridSortItem, GridSortModel,
     GridValidRowModel } from '@mui/x-data-grid-pro';
 
-import { DataGridPro, GridRowModes } from '@mui/x-data-grid-pro';
+import { DataGridPro, GridRowModes, GRID_REORDER_COL_DEF } from '@mui/x-data-grid-pro';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Alert from '@mui/material/Alert';
@@ -241,6 +241,25 @@ export function RemoteDataTable<
             return props.columns;
 
         const columns: GridColDef<RowModel>[] = [];
+
+        // When reordering is enabled, MUI adds a column to the table with drag handles, which needs
+        // to be amended with the ability to create a new row when both features are enabled.
+        // https://mui.com/x/react-data-grid/row-ordering/#customizing-the-row-reordering-icon
+        if (enableReorder && enableCreate && props.columns[0]?.field !== 'id') {
+            columns.push({
+                ...GRID_REORDER_COL_DEF,
+                renderHeader: () => {
+                    return (
+                        <Tooltip title={`Create a new ${subject}`}>
+                            <IconButton size="small" onClick={handleCreate}>
+                                <AddCircleIcon color="success" fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    );
+                },
+            });
+        }
+
         for (const column of props.columns) {
             let sortable: boolean | undefined = column.sortable;
             if (enableReorder) {
