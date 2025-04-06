@@ -183,6 +183,7 @@ export type ApiEndpoints = {
         '/api/admin/volunteer-list': VolunteerListDefinition,
         '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
+        '/api/admin/volunteers/roles': RolesEndpoints['create'],
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/confirm-identity': ConfirmIdentityDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,

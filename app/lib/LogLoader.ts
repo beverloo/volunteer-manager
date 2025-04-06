@@ -117,6 +117,7 @@ const kLogMessageFormatter: {
     [kLogType.AdminContentMutation]: (source, target, { mutation, context }) => {
         return `${mutation} page ${context}`;
     },
+    [kLogType.AdminCreateRole]: 'Created a new volunteering role',
     [kLogType.AdminDisplayMutation]: (source, target, { mutation, identifier, label }) => {
         return `${mutation} the "${identifier}" physical display` + (!!label ? ` (${label})` : '');
     },

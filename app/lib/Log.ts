@@ -43,6 +43,7 @@ export const kLogType = {
     AdminClearHotelPreferences: 'admin-clear-hotel-preferences',
     AdminClearRefundRequest: 'admin-clear-refund-request',
     AdminClearTrainingPreferences: 'admin-clear-training-preferences',
+    AdminCreateRole: 'admin-create-role',
     AdminDisplayMutation: 'admin-display-mutation',
     AdminContentMutation: 'admin-content-mutation',
     AdminEventApplication: 'admin-event-application',

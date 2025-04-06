@@ -81,15 +81,62 @@ export type RoleContext = z.infer<typeof kRoleContext>;
  * This is implemented as a regular DataTable API. The following endpoints are provided by this
  * implementation:
  *
- *     GET /api/admin/volunteers/roles
- *     PUT /api/admin/volunteers/roles/:id
+ *     GET  /api/admin/volunteers/roles
+ *     POST /api/admin/volunteers/roles
+ *     PUT  /api/admin/volunteers/roles/:id
  */
-export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
+export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
             permission: 'volunteer.settings.teams',
         });
+
+        switch (action) {
+            case 'create':
+            case 'delete':
+                executeAccessCheck(props.authenticationContext, { permission: 'root' });
+                break;
+
+            case 'list':
+            case 'reorder':
+            case 'update':
+                // No additional permission checks required.
+                break;
+        }
+    },
+
+    async create() {
+        const kDefaultAvailabilityEventLimit = 3;
+        const kDefaultRoleName = 'New role';
+
+        const insertId = await db.insertInto(tRoles)
+            .set({
+                roleName: kDefaultRoleName,
+                roleOrder: /* first= */ 0,
+                roleAvailabilityEventLimit: kDefaultAvailabilityEventLimit,
+                roleAdminAccess: /* false= */ 0,
+                roleHotelEligible: /* false= */ 0,
+                roleTrainingEligible: /* false= */ 0,
+            })
+            .returningLastInsertedId()
+            .executeInsert();
+
+        if (!insertId)
+            return { success: false, error: 'Unable to create a new role in the database.' };
+
+        return {
+            success: true,
+            row: {
+                id: insertId,
+                roleName: kDefaultRoleName,
+                roleOrder: /* first= */ 0,
+                availabilityEventLimit: kDefaultAvailabilityEventLimit,
+                adminAccess: false,
+                hotelEligible: false,
+                trainingEligible: false,
+            },
+        };
     },
 
     async list() {
@@ -148,21 +195,35 @@ export const { GET, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
     },
 
     async writeLog({ id }, mutation, props) {
-        if (mutation === 'Reordered')
-            return;  // no need to log when someone changes the order of roles
-
         const roleName = await db.selectFrom(tRoles)
             .where(tRoles.roleId.equals(id))
             .selectOneColumn(tRoles.roleName)
             .executeSelectNoneOrOne();
 
-        RecordLog({
-            type: kLogType.AdminUpdateRole,
-            severity: kLogSeverity.Warning,
-            sourceUser: props.user,
-            data: {
-                role: roleName,
-            },
-        });
+        switch (mutation) {
+            case 'Created':
+                RecordLog({
+                    type: kLogType.AdminCreateRole,
+                    severity: kLogSeverity.Warning,
+                    sourceUser: props.user,
+                });
+                break;
+
+            case 'Updated':
+                RecordLog({
+                    type: kLogType.AdminUpdateRole,
+                    severity: kLogSeverity.Warning,
+                    sourceUser: props.user,
+                    data: {
+                        role: roleName,
+                    },
+                });
+                break;
+
+            case 'Deleted':
+            case 'Reordered':
+                // Deletion is not supported, re-ordering doesn't have to be logged.
+                break;
+        }
     },
 });

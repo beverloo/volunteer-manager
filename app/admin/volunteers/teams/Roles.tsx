@@ -16,10 +16,20 @@ import { VolunteerBadge } from '@components/VolunteerBadge';
 import { kRoleBadge } from '@lib/database/Types';
 
 /**
+ * Props accepted by the <Roles> component.
+ */
+interface RolesProps {
+    /**
+     * Whether the ability to create new roles should be enabled.
+     */
+    enableCreate?: boolean;
+}
+
+/**
  * The <Roles> component represents the roles that exist in the Volunteer Manager. Each role has a
  * few basic settings that can be manipulated as a Data Table.
  */
-export function Roles() {
+export function Roles(props: RolesProps) {
     const columns: RemoteDataTableColumn<RoleRowModel>[] = [
         {
             field: 'roleName',
@@ -105,8 +115,8 @@ export function Roles() {
                 This table is editable, and can be used to update the settings for each role.
             </Alert>
             <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
-                             enableUpdate disableFooter pageSize={25}
-                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} />
+                             enableCreate={props.enableCreate} enableUpdate disableFooter
+                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} pageSize={25} />
         </Paper>
     );
 }
