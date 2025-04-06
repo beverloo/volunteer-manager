@@ -36,6 +36,7 @@ const kTypeOptions = [
     { id: 'Refunds', label: 'Refund requests' },
     { id: 'Trainings', label: 'Training participation' },
     { id: 'Volunteers', label: 'Volunteer list' },
+    { id: 'WhatsApp', label: 'WhatsApp contact details' },
 ];
 
 /**

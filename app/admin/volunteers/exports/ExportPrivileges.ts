@@ -23,6 +23,9 @@ export function hasAccessToExport(type: ExportType, access: AccessControl): bool
 
         case kExportType.Trainings:
             return access.can('event.trainings', { event: kAnyEvent });
+
+        case kExportType.WhatsApp:
+            return access.can('volunteer.pii');
     }
 
     throw new Error(`Unrecognised export type: "${type}"`);

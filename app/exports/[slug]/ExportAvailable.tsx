@@ -12,14 +12,15 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
-import type { CreditsDataExport, RefundsDataExport, TrainingsDataExport, VolunteersDataExport }
-    from '@app/api/exports/route';
+import type { CreditsDataExport, RefundsDataExport, TrainingsDataExport, VolunteersDataExport,
+    WhatsAppDataExport } from '@app/api/exports/route';
 
 import type { ExportMetadata } from './ExportMetadata';
 import { ExportCredits } from './ExportCredits';
 import { ExportRefunds } from './ExportRefunds';
 import { ExportTrainings } from './ExportTrainings';
 import { ExportVolunteers } from './ExportVolunteers';
+import { ExportWhatsapp } from './ExportWhatsapp';
 import { callApi } from '@lib/callApi';
 
 import { kExportType } from '@lib/database/Types';
@@ -56,6 +57,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
         case kExportType.Volunteers:
             description = 'volunteer participation';
             break;
+        case kExportType.WhatsApp:
+            description = 'WhatsApp contact details';
+            break;
         default:
             throw new Error(`Unrecognised export type: ${metadata.type}`);
     }
@@ -64,6 +68,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
     const [ refunds, setRefunds ] = useState<RefundsDataExport | undefined>();
     const [ trainings, setTrainings ] = useState<TrainingsDataExport | undefined>();
     const [ volunteers, setVolunteers ] = useState<VolunteersDataExport | undefined>();
+    const [ whatsapp, setWhatsapp ] = useState<WhatsAppDataExport | undefined>();
 
     const [ error, setError ] = useState<string | undefined>();
     const [ loading, setLoading ] = useState<boolean>(false);
@@ -80,6 +85,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
                 setRefunds(response.refunds);
                 setTrainings(response.trainings);
                 setVolunteers(response.volunteers);
+                setWhatsapp(response.whatsapp);
             } else {
                 setError(response.error ?? 'Unable to retrieve the data from our server');
             }
@@ -102,7 +108,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
                     {error}
                 </Alert>
             </Collapse>
-            <Collapse in={!credits && !trainings && !volunteers} unmountOnExit>
+            <Collapse in={!credits && !trainings && !volunteers && !whatsapp} unmountOnExit>
                 <Paper component={Stack} alignItems="center" sx={{ p: 2 }}>
                     <Button loading={loading} variant="contained" onClick={handleAccessData}
                             startIcon={ <LaunchIcon /> }>
@@ -121,6 +127,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
             </Collapse>
             <Collapse in={!!volunteers} unmountOnExit>
                 <ExportVolunteers volunteers={volunteers!} />
+            </Collapse>
+            <Collapse in={!!whatsapp} unmountOnExit>
+                <ExportWhatsapp whatsapp={whatsapp!} />
             </Collapse>
         </>
     );

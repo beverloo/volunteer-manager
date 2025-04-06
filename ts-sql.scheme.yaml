@@ -2187,7 +2187,7 @@ tables:
     default: null
     comment: ""
   - name: export_type
-    type: enum('Credits','Refunds','Trainings','Volunteers')
+    type: enum('Credits','Refunds','Trainings','Volunteers','WhatsApp')
     nullable: false
     default: null
     comment: ""
@@ -2250,7 +2250,7 @@ tables:
       `export_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `export_slug` varchar(16) NOT NULL,
       `export_event_id` int(8) unsigned NOT NULL,
-      `export_type` enum('Credits','Refunds','Trainings','Volunteers') NOT NULL,
+      `export_type` enum('Credits','Refunds','Trainings','Volunteers','WhatsApp') NOT NULL,
       `export_justification` text NOT NULL,
       `export_created_date` datetime NOT NULL,
       `export_created_user_id` int(8) unsigned NOT NULL,

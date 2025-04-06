@@ -112,7 +112,7 @@ const kTrainingsDataExport = z.object({
 
 /**
  * Data export type definition for volunteer participation. This follows the structure that is
-* preferred by the AnimeCon Desk team.
+ * preferred by the AnimeCon Desk team.
  */
 const kVolunteersDataExport = z.array(z.object({
     /**
@@ -167,12 +167,33 @@ const kVolunteersDataExport = z.array(z.object({
 }));
 
 /**
+ * Data export type definition for WhatsApp contact details.
+ */
+const kWhatsAppDataExport = z.array(z.object({
+    /**
+     * The role that has been assigned to the volunteer. Primary sorting key.
+     */
+    role: z.string(),
+
+    /**
+     * The name by which they volunteer would like to be identified. Secondary sorting key.
+     */
+    name: z.string(),
+
+    /**
+     * Phone number that we've got on file for this volunteer.
+     */
+    phoneNumber: z.string(),
+}));
+
+/**
  * Export the aforementioned type definitions for use elsewhere in the Volunteer Manager.
  */
 export type CreditsDataExport = z.infer<typeof kCreditsDataExport>;
 export type RefundsDataExport = z.infer<typeof kRefundsDataExport>;
 export type TrainingsDataExport = z.infer<typeof kTrainingsDataExport>;
 export type VolunteersDataExport = z.infer<typeof kVolunteersDataExport>;
+export type WhatsAppDataExport = z.infer<typeof kWhatsAppDataExport>;
 
 /**
  * Interface definition for the Exports API, exposed through /api/exports.
@@ -214,6 +235,11 @@ const kExportsDefinition = z.object({
          * Volunteer participation data export, when the `slug` describes that kind of export.
          */
         volunteers: kVolunteersDataExport.optional(),
+
+        /**
+         * WhatsApp contact details data export, when the `slug` describes that kind of export.
+         */
+        whatsapp: kWhatsAppDataExport.optional(),
     }),
 });
 
@@ -548,9 +574,29 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         }
     }
 
+    let whatsapp: WhatsAppDataExport | undefined = undefined;
+    if (metadata.type === kExportType.WhatsApp) {
+        whatsapp = await db.selectFrom(tUsersEvents)
+            .innerJoin(tUsers)
+                .on(tUsers.userId.equals(tUsersEvents.userId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
+            .where(tUsersEvents.eventId.equals(metadata.eventId))
+                .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
+                .and(tUsersEvents.includeSocials.equals(/* true= */ 1))
+            .select({
+                role: tRoles.roleName,
+                name: tUsers.name,
+                phoneNumber: tUsers.phoneNumber.valueWhenNull('+31600000000'),
+            })
+            .orderBy(tRoles.roleOrder, 'asc')
+            .orderBy('name', 'asc')
+            .executeSelectMany();
+    }
+
     return {
         success: true,
-        credits, refunds, trainings, volunteers,
+        credits, refunds, trainings, volunteers, whatsapp,
     };
 }
 

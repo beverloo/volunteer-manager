@@ -111,6 +111,7 @@ export const kExportType = {
     Refunds: 'Refunds',
     Trainings: 'Trainings',
     Volunteers: 'Volunteers',
+    WhatsApp: 'WhatsApp',
 } as const;
 
 /**
