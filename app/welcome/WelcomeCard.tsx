@@ -59,7 +59,7 @@ export function WelcomeCard(props: React.PropsWithChildren<WelcomeCardProps>) {
     return (
         <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
             <Grid size={{ xs: 12, md: 5 }}>
-                <Markdown sx={{ px: 2 }}>
+                <Markdown sx={{ pt: 1, px: 2 }}>
                     {description}
                 </Markdown>
                 <Stack direction="column" spacing={2} sx={{ p: 2, mt: 1 }}>
