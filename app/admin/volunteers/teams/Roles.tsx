@@ -105,8 +105,8 @@ export function Roles() {
                 This table is editable, and can be used to update the settings for each role.
             </Alert>
             <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
-                             enableUpdate defaultSort={{ field: 'roleOrder', sort: 'asc' }}
-                             disableFooter />
+                             enableUpdate disableFooter pageSize={25}
+                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} />
         </Paper>
     );
 }
