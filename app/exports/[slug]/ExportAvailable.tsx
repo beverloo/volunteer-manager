@@ -12,11 +12,12 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 
-import type { CreditsDataExport, RefundsDataExport, TrainingsDataExport, VolunteersDataExport,
-    WhatsAppDataExport } from '@app/api/exports/route';
+import type { CreditsDataExport, DiscordDataExport, RefundsDataExport, TrainingsDataExport,
+    VolunteersDataExport, WhatsAppDataExport } from '@app/api/exports/route';
 
 import type { ExportMetadata } from './ExportMetadata';
 import { ExportCredits } from './ExportCredits';
+import { ExportDiscord } from './ExportDiscord';
 import { ExportRefunds } from './ExportRefunds';
 import { ExportTrainings } from './ExportTrainings';
 import { ExportVolunteers } from './ExportVolunteers';
@@ -48,6 +49,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
         case kExportType.Credits:
             description = 'credit real consent';
             break;
+        case kExportType.Discord:
+            description = 'Discord handles';
+            break;
         case kExportType.Refunds:
             description = 'ticket refund requests';
             break;
@@ -65,6 +69,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
     }
 
     const [ credits, setCredits ] = useState<CreditsDataExport | undefined>();
+    const [ discord, setDiscord ] = useState<DiscordDataExport | undefined>();
     const [ refunds, setRefunds ] = useState<RefundsDataExport | undefined>();
     const [ trainings, setTrainings ] = useState<TrainingsDataExport | undefined>();
     const [ volunteers, setVolunteers ] = useState<VolunteersDataExport | undefined>();
@@ -82,6 +87,7 @@ export function ExportAvailable(props: ExportAvailableProps) {
 
             if (response.success) {
                 setCredits(response.credits);
+                setDiscord(response.discord);
                 setRefunds(response.refunds);
                 setTrainings(response.trainings);
                 setVolunteers(response.volunteers);
@@ -108,7 +114,8 @@ export function ExportAvailable(props: ExportAvailableProps) {
                     {error}
                 </Alert>
             </Collapse>
-            <Collapse in={!credits && !trainings && !volunteers && !whatsapp} unmountOnExit>
+            <Collapse in={!credits && !discord && !trainings && !volunteers && !whatsapp}
+                      unmountOnExit>
                 <Paper component={Stack} alignItems="center" sx={{ p: 2 }}>
                     <Button loading={loading} variant="contained" onClick={handleAccessData}
                             startIcon={ <LaunchIcon /> }>
@@ -118,6 +125,9 @@ export function ExportAvailable(props: ExportAvailableProps) {
             </Collapse>
             <Collapse in={!!credits} unmountOnExit>
                 <ExportCredits credits={credits!} />
+            </Collapse>
+            <Collapse in={!!discord} unmountOnExit>
+                <ExportDiscord discord={discord!} />
             </Collapse>
             <Collapse in={!!refunds} unmountOnExit>
                 <ExportRefunds refunds={refunds!} />

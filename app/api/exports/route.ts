@@ -41,6 +41,46 @@ const kCreditsDataExport = z.object({
 });
 
 /**
+ * Data export type definition for Discord handles.
+ */
+const kDiscordDataExport = z.object({
+    /**
+     * Array of people for whom Discord Crew access should be granted.
+     */
+    granted: z.array(z.object({
+        /**
+         * Name of the person for whom the role should be granted.
+         */
+        name: z.string(),
+
+        /**
+         * Their role.
+         */
+        role: z.string(),
+
+        /**
+         * Their Discord handle.
+         */
+        handle: z.string(),
+    })),
+
+    /**
+     * Array of people for whom Discord Crew access should no longer be granted.
+     */
+    revoked: z.array(z.object({
+        /**
+         * Name of the person for whom the role should no longer be granted.
+         */
+        name: z.string(),
+
+        /**
+         * Their Discord handle.
+         */
+        handle: z.string(),
+    })),
+});
+
+/**
  * Data export type definition for refund requests.
  */
 const kRefundsDataExport = z.object({
@@ -190,6 +230,7 @@ const kWhatsAppDataExport = z.array(z.object({
  * Export the aforementioned type definitions for use elsewhere in the Volunteer Manager.
  */
 export type CreditsDataExport = z.infer<typeof kCreditsDataExport>;
+export type DiscordDataExport = z.infer<typeof kDiscordDataExport>;
 export type RefundsDataExport = z.infer<typeof kRefundsDataExport>;
 export type TrainingsDataExport = z.infer<typeof kTrainingsDataExport>;
 export type VolunteersDataExport = z.infer<typeof kVolunteersDataExport>;
@@ -222,12 +263,17 @@ const kExportsDefinition = z.object({
         credits: kCreditsDataExport.optional(),
 
         /**
-         * Refund request data export, when the `slug` desccribes that kind of export.
+         * Discord handle data export, when the `slug` describes that kind of content.
+         */
+        discord: kDiscordDataExport.optional(),
+
+        /**
+         * Refund request data export, when the `slug` describes that kind of export.
          */
         refunds: kRefundsDataExport.optional(),
 
         /**
-         * Training participation data export, when the `slug` desccribes that kind of export.
+         * Training participation data export, when the `slug` describes that kind of export.
          */
         trainings: kTrainingsDataExport.optional(),
 
@@ -374,6 +420,39 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 role: currentRole,
                 volunteers: currentRoleGroup
             });
+        }
+    }
+
+    let discord: DiscordDataExport | undefined = undefined;
+    if (metadata.type === kExportType.Discord) {
+        discord = { granted: [], revoked: [] };
+
+        const rolesJoin = tRoles.forUseInLeftJoin();
+        const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
+
+        const usersWithKnownDiscordHandle = await db.selectFrom(tUsers)
+            .leftJoin(usersEventsJoin)
+                .on(usersEventsJoin.userId.equals(tUsers.userId))
+                    .and(usersEventsJoin.eventId.equals(metadata.eventId))
+                    .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
+            .leftJoin(rolesJoin)
+                .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
+            .where(tUsers.discordHandle.isNotNull())
+            .select({
+                name: tUsers.name,
+                role: rolesJoin.roleName,
+                handle: tUsers.discordHandle,
+            })
+            .orderBy('name', 'asc')
+            .executeSelectMany();
+
+        for (const { name, role, handle } of usersWithKnownDiscordHandle) {
+            if (!handle) continue;  // make TypeScript happy
+
+            if (!!role)
+                discord.granted.push({ name, role, handle });
+            else
+                discord.revoked.push({ name, handle });
         }
     }
 
@@ -596,7 +675,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
 
     return {
         success: true,
-        credits, refunds, trainings, volunteers, whatsapp,
+        credits, discord, refunds, trainings, volunteers, whatsapp,
     };
 }
 

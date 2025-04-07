@@ -33,6 +33,7 @@ const kAvailabilityOptions = [
  */
 const kTypeOptions = [
     { id: 'Credits', label: 'Credit reel consent' },
+    { id: 'Discord', label: 'Discord handles' },
     { id: 'Refunds', label: 'Refund requests' },
     { id: 'Trainings', label: 'Training participation' },
     { id: 'Volunteers', label: 'Volunteer list' },

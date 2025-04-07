@@ -98,7 +98,7 @@ export function Information(props: InformationProps) {
 
     const handleVerifyDiscord = useCallback(() => {
         setDiscordConfirmationOpen(true);
-    }, [ account ]);
+    }, [ /* no dependencies */ ]);
 
     const defaultValues = {
         ...account,
