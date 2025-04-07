@@ -252,6 +252,9 @@ const kLogMessageFormatter: {
     [kLogType.AdminVendorScheduleUpdate]: (start, target, { event, team }) => {
         return `Updated the ${team} schedule for ${event}`;
     },
+    [kLogType.AdminVerifyDiscord]: (source, target) => {
+        return `Verified the Discord account of ${target?.name}`;
+    },
     [kLogType.AdminUpdateTeamVolunteer]: (source, target, data) => {
         return `Updated event preferences for ${target?.name}`;
     },

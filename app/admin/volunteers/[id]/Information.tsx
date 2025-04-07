@@ -10,6 +10,7 @@ import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -18,6 +19,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { VolunteerInfo } from './page';
+import { ConfirmationDialog } from '@app/admin/components/ConfirmationDialog';
 import { DiscordIcon } from '../DiscordIcon';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
@@ -78,9 +80,24 @@ export function Information(props: InformationProps) {
         }
     }, [ account, router ]);
 
-    const handleVerifyDiscord = useCallback(() => {
-        /* todo */
+    const [ discordConfirmationOpen, setDiscordConfirmationOpen ] = useState<boolean>(false);
 
+    const handleCloseDiscord = useCallback(() => setDiscordConfirmationOpen(false), []);
+    const handleConfirmDiscord = useCallback(async () => {
+        const response = await callApi('post', '/api/admin/verify-discord', {
+            userId: account.userId,
+        });
+
+        if (!response.success)
+            return { error: response.error || 'The verification could not be processed' };
+
+        router.refresh();
+        return true;
+
+    }, [ account, router ]);
+
+    const handleVerifyDiscord = useCallback(() => {
+        setDiscordConfirmationOpen(true);
     }, [ account ]);
 
     const defaultValues = {
@@ -147,9 +164,9 @@ export function Information(props: InformationProps) {
                                 </Tooltip> }
                             { !account.discordHandleUpdated &&
                                 <Tooltip title="Their handle has been verified">
-                                    <IconButton disabled>
+                                    <Box sx={{ p: 1, pb: 0 }}>
                                         <DiscordIcon color="disabled" />
-                                    </IconButton>
+                                    </Box>
                                 </Tooltip> }
                         </Stack>
                     </Grid>
@@ -162,6 +179,13 @@ export function Information(props: InformationProps) {
                     </Grid>
                 </Grid>
             </Paper>
+            <ConfirmationDialog open={!!discordConfirmationOpen} onClose={handleCloseDiscord}
+                                onConfirm={handleConfirmDiscord}
+                                title="Verify their Discord handle">
+                By confirming this dialog, you verify that their Discord handle
+                (<strong>{account.discordHandle}</strong>) has been granted the "Crew" role on our
+                server. Ideally you'd have send them a nice message too.
+            </ConfirmationDialog>
         </FormContainer>
     );
 }

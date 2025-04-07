@@ -93,6 +93,7 @@ export const kLogType = {
     AdminUpdateVolunteer: 'admin-update-volunteer',
     AdminVendorMutation: 'admin-vendor-mutation',
     AdminVendorScheduleUpdate: 'admin-vendor-schedule-update',
+    AdminVerifyDiscord: 'admin-verify-discord',
     ApplicationAvailabilityPreferences: 'application-availability-preferences',
     ApplicationHotelPreferences: 'application-hotel-preferences',
     ApplicationRefundRequest: 'application-refund-request',
