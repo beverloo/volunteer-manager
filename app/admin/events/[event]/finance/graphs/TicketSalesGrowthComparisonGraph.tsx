@@ -3,23 +3,21 @@
 
 import type { EventSalesCategory } from '@lib/database/Types';
 import type { SalesLineGraphProps } from './SalesLineGraph';
-import { ComparisonGraph, kComparisonEditionColours } from './ComparisonGraph';
+import { SalesBarGraph } from './SalesBarGraph';
 import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
 
-/**
- * How many days should be compared within the comparable graphs?
- */
-export const kTicketSalesComparisonDays = 90;
+import { kComparisonEditionColours } from './ComparisonGraph';
+import { kTicketSalesComparisonDays } from './TicketSalesComparisonGraph';
 
 /**
  * How many editions should be compared within the comparable graphs, including the selected one?
  */
-export const kTicketSalesComparisonEditionCount = kComparisonEditionColours.length;
+const kTicketSalesComparisonEditionCount = kComparisonEditionColours.length;
 
 /**
- * Props accepted by the <TicketSalesComparisonGraph> component.
+ * Props accepted by the <TicketSalesGrowthComparisonGraph> component.
  */
-interface TicketSalesComparisonGraphProps {
+interface TicketSalesGrowthComparisonGraphProps {
     /**
      * Categories of sales for which this graph is being displayed.
      */
@@ -38,11 +36,13 @@ interface TicketSalesComparisonGraphProps {
 }
 
 /**
- * The <TicketSalesComparisonGraph> component displays a graph comparing ticket sales, either within
- * a single category or within multiple categories, between several years.
+ * The <TicketSalesGrowthComparisonGraph> component displays a bar graph comparing 7-day average
+ * growth in ticket sales for the weeks leading up to the convention.
  */
-export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
+export async function TicketSalesGrowthComparisonGraph(props: TicketSalesGrowthComparisonGraphProps) {
     const series: SalesLineGraphProps['series'] = [];
+
+    const kWeeks = Math.floor(kTicketSalesComparisonDays / 7);
 
     const dbInstance = db;
 
@@ -90,34 +90,50 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
             .orderBy('days', 'desc')
             .executeSelectMany();
 
-        let aggregateSales: number = 0;
-
-        const aggregateSalesData: number[] = [ /* no data yet */ ];
+        const bucketedSalesData: number[][] = [];
+        for (let bucket = 0; bucket < kWeeks; ++bucket)
+            bucketedSalesData[bucket] = [ /* no data yet */ ];
 
         for (const data of salesData) {
             if (data.days < 0 || data.sales === undefined)
                 break;  // ignore this data; the sale happened after the convention(?!)
 
-            aggregateSales += data.sales;
+            const bucket = Math.floor(data.days / 7);
+            if (bucket < 0 || bucket >= kWeeks)
+                continue;  // the bucket is out of bounds, won't be displayed
 
-            if (data.days > kTicketSalesComparisonDays)
-                continue;  // the data is considered, but not included in the series
+            bucketedSalesData[bucket].push(data.sales);
+        }
 
-            aggregateSalesData.push(aggregateSales);
+        let averagedSalesData: number[] = [];
+
+        for (let bucket = kWeeks - 1; bucket >= 0; --bucket) {
+            if (!bucketedSalesData[bucket].length) {
+                averagedSalesData.push(0);
+            } else {
+                averagedSalesData.push(
+                    bucketedSalesData[bucket].reduce((a, b) => a + b, 0) /
+                        bucketedSalesData[bucket].length);
+            }
         }
 
         series.push({
             id: currentId++,
-            data: aggregateSalesData,
+            data: averagedSalesData,
             color: kComparisonEditionColours[currentSeriesColourIndex++],
             label: event.name,
-            type: 'line',
+            type: 'bar',
         });
     }
 
     // ---------------------------------------------------------------------------------------------
 
+    const xLabels: string[] = [];
+
+    for (let week = kWeeks - 1; week >= 0; --week)
+        xLabels.push(`${week * 7}–${(week + 1) * 7}`);
+
     return (
-        <ComparisonGraph days={kTicketSalesComparisonDays} height={props.height} series={series} />
+        <SalesBarGraph height={props.height} series={series} xLabels={xLabels} />
     );
 }

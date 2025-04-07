@@ -23,9 +23,9 @@ const kMaximumColor = '#C62828';
 const kTodayColor = '#1976D2';
 
 /**
- * Props accepted by the <SalesGraph> component.
+ * Props accepted by the <SalesLineGraph> component.
  */
-export interface SalesGraphProps {
+export interface SalesLineGraphProps {
     /**
      * Action to display at the right-hand side of the title.
      */
@@ -78,11 +78,11 @@ export interface SalesGraphProps {
 }
 
 /**
- * The <SalesGraph> component renders a graph with settings consistent to how we would like graphs
- * to work in the Volunteer Manager. Input are the series, axis contents, and optional configuration
- * to specialise the default display.
+ * The <SalesLineGraph> component renders a graph with settings consistent to how we would like
+ * graphs to work in the Volunteer Manager. Input are the series, axis contents, and optional
+ * configuration to specialise the default display.
  */
-export function SalesGraph(props: SalesGraphProps) {
+export function SalesLineGraph(props: SalesLineGraphProps) {
     const clipPathId = useId();
 
     const height = props.height ?? 300;

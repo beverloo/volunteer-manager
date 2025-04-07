@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import type { EventSalesCategory } from '@lib/database/Types';
-import { SalesGraph, type SalesGraphProps } from './SalesGraph';
+import { SalesLineGraph, type SalesLineGraphProps } from './SalesLineGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
 import db, { tActivities, tEvents } from '@lib/database';
@@ -61,7 +61,7 @@ export interface EventSalesGraphProps {
     /**
      * Variant of the <Typography> component that should be used for the title. Defaults to "h5".
      */
-    titleVariant?: SalesGraphProps['titleVariant'];
+    titleVariant?: SalesLineGraphProps['titleVariant'];
 }
 
 /**
@@ -128,7 +128,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesGraph action={action} limit={props.limit} series={series} title={title}
-                    titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
+        <SalesLineGraph action={action} limit={props.limit} series={series} title={title}
+                        titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
     );
 }

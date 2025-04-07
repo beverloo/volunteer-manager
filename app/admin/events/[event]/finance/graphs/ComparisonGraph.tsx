@@ -1,7 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { SalesGraph, type SalesGraphProps } from './SalesGraph';
+import { SalesLineGraph, type SalesLineGraphProps } from './SalesLineGraph';
 
 /**
  * Which colours should the edition series be rendered in? More recent series (first entries) should
@@ -31,7 +31,7 @@ interface ComparisonGraphProps {
     /**
      * The data that should be shown on the comparison graph.
      */
-    series: SalesGraphProps['series'];
+    series: SalesLineGraphProps['series'];
 }
 
 /**
@@ -45,12 +45,12 @@ export async function ComparisonGraph(props: ComparisonGraphProps) {
         xLabels.push(label.toString());
 
     return (
-        <SalesGraph height={props.height} series={props.series} xLabels={xLabels} zoom
-                    sx={{
-                        [ '& .MuiLineElement-series-1' ]: { strokeWidth: 3 },
-                        [ '& .MuiLineElement-series-2' ]: { strokeWidth: 1 },
-                        [ '& .MuiLineElement-series-3' ]: { strokeWidth: 1 },
-                        [ '& .MuiLineElement-series-4' ]: { strokeWidth: 1 },
-                    }} />
+        <SalesLineGraph height={props.height} series={props.series} xLabels={xLabels} zoom
+                        sx={{
+                            [ '& .MuiLineElement-series-1' ]: { strokeWidth: 3 },
+                            [ '& .MuiLineElement-series-2' ]: { strokeWidth: 1 },
+                            [ '& .MuiLineElement-series-3' ]: { strokeWidth: 1 },
+                            [ '& .MuiLineElement-series-4' ]: { strokeWidth: 1 },
+                        }} />
     );
 }

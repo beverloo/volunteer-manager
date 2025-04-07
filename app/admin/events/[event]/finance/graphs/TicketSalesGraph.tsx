@@ -1,11 +1,15 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Stack from '@mui/material/Stack';
+
 import { type EventSalesCategory, kEventSalesCategory } from '@lib/database/Types';
-import { SalesGraph } from './SalesGraph';
+import { SalesLineGraph } from './SalesLineGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { TicketSalesComparisonAction } from './TicketSalesComparisonAction';
 import { TicketSalesComparisonGraph } from './TicketSalesComparisonGraph';
+import { TicketSalesGrowthComparisonAction } from './TicketSalesGrowthComparisonAction';
+import { TicketSalesGrowthComparisonGraph } from './TicketSalesGrowthComparisonGraph';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
 
 /**
@@ -75,12 +79,21 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
     // the user, but it depends on a fair number of queries.
 
     const action = (
-        <TicketSalesComparisonAction
-            graph={
-                <TicketSalesComparisonGraph categories={[ props.category ]}
-                                            eventId={props.eventId} />
-            }
-            title={title} />
+        <Stack direction="row" spacing={1}>
+            <TicketSalesGrowthComparisonAction
+                graph={
+                    <TicketSalesGrowthComparisonGraph categories={[ props.category ]}
+                                                      eventId={props.eventId} />
+                }
+                title={`${title} — Y/Y 7DA`} />
+
+            <TicketSalesComparisonAction
+                graph={
+                    <TicketSalesComparisonGraph categories={[ props.category ]}
+                                                eventId={props.eventId} />
+                }
+                title={`${title} — Y/Y`} />
+        </Stack>
     );
 
     // ---------------------------------------------------------------------------------------------
@@ -94,6 +107,7 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesGraph action={action} series={series} title={title} today={today} xLabels={xLabels} />
+        <SalesLineGraph action={action} series={series} title={title} today={today}
+                        xLabels={xLabels} />
     );
 }
