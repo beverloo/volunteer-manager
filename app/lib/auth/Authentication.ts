@@ -53,6 +53,11 @@ interface AccountCreationData {
      * Phone number of the user, in an undefined format.
      */
     phoneNumber: string;
+
+    /**
+     * Discord handle owned by the user, when provided, in an undefined format.
+     */
+    discordHandle?: string;
 }
 
 /**
@@ -257,6 +262,10 @@ export async function createAccount(data: AccountCreationData): Promise<number |
                 gender: data.gender,
                 birthdate: Temporal.PlainDate.from(data.birthdate),
                 phoneNumber: data.phoneNumber,
+                discordHandle: data.discordHandle,
+                discordHandleUpdated:
+                    !!data.discordHandle ? dbInstance.currentZonedDateTime()
+                                         : null
             })
             .returningLastInsertedId()
             .executeInsert();

@@ -45,10 +45,15 @@ export function RegisterForm() {
                                    required />
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
                                   fullWidth size="small" required
                                   autoComplete="tel" />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+                <TextFieldElement name="discordHandle" label="Discord handle"
+                                  fullWidth size="small" />
             </Grid>
         </>
     );

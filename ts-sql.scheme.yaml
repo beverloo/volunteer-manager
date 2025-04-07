@@ -1,69 +1,48 @@
 name: anime
-desc: ""
 tables:
 - name: environments
   type: BASE TABLE
-  comment: ""
   columns:
   - name: environment_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: environment_admin_area
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: environment_colour_dark_mode
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: environment_colour_light_mode
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: environment_description
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: environment_domain
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: environment_purpose
     type: enum('LandingPage')
     nullable: false
     default: "'LandingPage'"
-    comment: ""
   - name: environment_title
     type: text
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (environment_id) USING BTREE
     table: environments
     columns:
     - environment_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (environment_id)
     table: environments
-    referencedTable: null
     columns:
     - environment_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `environments` (
       `environment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -78,88 +57,69 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_teams
   type: BASE TABLE
-  comment: ""
   columns:
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_target_size
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_maximum_size
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_team
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: enable_applications_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_applications_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_registration_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_registration_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_schedule_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: enable_schedule_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_link
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: events_teams
     columns:
     - event_id
-    comment: ""
   - name: team_id
     def: KEY team_id (team_id) USING BTREE
     table: events_teams
     columns:
     - team_id
-    comment: ""
   - name: event_id_2
     def: UNIQUE KEY event_id_2 (event_id, team_id) USING BTREE
     table: events_teams
     columns:
     - event_id
     - team_id
-    comment: ""
   constraints:
   - name: events_teams_event_id
     type: FOREIGN KEY
@@ -170,7 +130,6 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
   - name: events_teams_team_id
     type: FOREIGN KEY
     def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
@@ -180,18 +139,13 @@ tables:
     - team_id
     referencedColumns:
     - team_id
-    comment: ""
   - name: event_id_2
     type: UNIQUE
     def: UNIQUE KEY event_id_2 (event_id, team_id)
     table: events_teams
-    referencedTable: null
     columns:
     - event_id
     - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `events_teams` (
       `event_id` int(4) unsigned NOT NULL,
@@ -214,62 +168,49 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels
   type: BASE TABLE
-  comment: ""
   columns:
   - name: hotel_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: hotel_name
     type: varchar(64)
     nullable: false
     default: "''"
-    comment: ""
   - name: hotel_description
     type: text
     nullable: false
     default: "''"
-    comment: ""
   - name: hotel_room_name
     type: varchar(64)
     nullable: false
     default: "''"
-    comment: ""
   - name: hotel_room_people
     type: int(8)
     nullable: false
     default: "1"
-    comment: ""
   - name: hotel_room_price
     type: int(8)
     nullable: false
     default: "0"
-    comment: ""
   - name: hotel_room_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: hotels
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (hotel_id) USING BTREE
     table: hotels
     columns:
     - hotel_id
-    comment: ""
   constraints:
   - name: hotels_event_id
     type: FOREIGN KEY
@@ -280,17 +221,12 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (hotel_id)
     table: hotels
-    referencedTable: null
     columns:
     - hotel_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `hotels` (
       `hotel_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -307,77 +243,58 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: roles
   type: BASE TABLE
-  comment: ""
   columns:
   - name: role_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: role_name
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: role_badge
     type: enum('Staff','Senior','Host')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: role_order
     type: int(4)
     nullable: false
     default: "0"
-    comment: ""
   - name: role_availability_event_limit
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: role_permission_grant
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: role_admin_access
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: role_hotel_eligible
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: role_schedule_collapse
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: role_training_eligible
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (role_id) USING BTREE
     table: roles
     columns:
     - role_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (role_id)
     table: roles
-    referencedTable: null
     columns:
     - role_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `roles` (
       `role_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -394,119 +311,88 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: twilio_webhook_calls
   type: BASE TABLE
-  comment: ""
   columns:
   - name: webhook_call_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: webhook_call_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_call_endpoint
     type: enum('Inbound','Outbound')
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_request_source
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_request_method
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_request_url
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_request_headers
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_request_body
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: webhook_request_signature
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_request_authenticated
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: webhook_message_sid
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_message_original_sid
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_error_name
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_error_cause
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: webhook_error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: webhook_message_original_sid
     def: KEY webhook_message_original_sid (webhook_message_original_sid) USING BTREE
     table: twilio_webhook_calls
     columns:
     - webhook_message_original_sid
-    comment: ""
   - name: webhook_message_sid
     def: KEY webhook_message_sid (webhook_message_sid) USING BTREE
     table: twilio_webhook_calls
     columns:
     - webhook_message_sid
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (webhook_call_id) USING BTREE
     table: twilio_webhook_calls
     columns:
     - webhook_call_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (webhook_call_id)
     table: twilio_webhook_calls
-    referencedTable: null
     columns:
     - webhook_call_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `twilio_webhook_calls` (
       `webhook_call_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -531,82 +417,60 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
-  comment: ""
   columns:
   - name: display_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: display_identifier
     type: varchar(4)
     nullable: false
-    default: null
-    comment: ""
   - name: display_label
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: display_event_id
     type: int(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: display_location_id
     type: int(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: display_color
     type: varchar(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: display_help_request_status
     type: enum('Pending','Acknowledged')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: display_check_in
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: display_check_in_ip
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: display_locked
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: display_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (display_id) USING BTREE
     table: displays
     columns:
     - display_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (display_id)
     table: displays
-    referencedTable: null
     columns:
     - display_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `displays` (
       `display_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -624,36 +488,26 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: settings
   type: BASE TABLE
-  comment: ""
   columns:
   - name: setting_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: setting_value
     type: text
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: setting_name
     def: UNIQUE KEY setting_name (setting_name) USING BTREE
     table: settings
     columns:
     - setting_name
-    comment: ""
   constraints:
   - name: setting_name
     type: UNIQUE
     def: UNIQUE KEY setting_name (setting_name)
     table: settings
-    referencedTable: null
     columns:
     - setting_name
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `settings` (
       `setting_name` varchar(64) NOT NULL,
@@ -662,73 +516,53 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: storage
   type: BASE TABLE
-  comment: ""
   columns:
   - name: file_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: file_hash
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: file_type
     type: enum('Avatar','EventIdentity')
     nullable: false
-    default: null
-    comment: ""
   - name: file_mime_type
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: file_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: file_data
     type: mediumblob
     nullable: false
-    default: null
-    comment: ""
   - name: user_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: file_hash
     def: KEY file_hash (file_hash) USING BTREE
     table: storage
     columns:
     - file_hash
-    comment: ""
   - name: storage_user_id
     def: KEY storage_user_id (user_id) USING BTREE
     table: storage
     columns:
     - user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (file_id) USING BTREE
     table: storage
     columns:
     - file_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (file_id)
     table: storage
-    referencedTable: null
     columns:
     - file_id
-    referencedColumns: []
-    comment: ""
   - name: storage_user_id
     type: FOREIGN KEY
     def: FOREIGN KEY (user_id) REFERENCES users (user_id)
@@ -738,8 +572,6 @@ tables:
     - user_id
     referencedColumns:
     - user_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `storage` (
       `file_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -756,73 +588,53 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_deadlines
   type: BASE TABLE
-  comment: ""
   columns:
   - name: deadline_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: deadline_date
     type: date
     nullable: false
-    default: null
-    comment: ""
   - name: deadline_owner_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: deadline_title
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: deadline_description
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: deadline_completed
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: deadline_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: events_deadlines
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (deadline_id) USING BTREE
     table: events_deadlines
     columns:
     - deadline_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (deadline_id)
     table: events_deadlines
-    referencedTable: null
     columns:
     - deadline_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `events_deadlines` (
       `deadline_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -838,36 +650,28 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams_roles
   type: BASE TABLE
-  comment: ""
   columns:
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: role_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: role_default
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   indexes:
   - name: teams_roles_role_id
     def: KEY teams_roles_role_id (role_id) USING BTREE
     table: teams_roles
     columns:
     - role_id
-    comment: ""
   - name: team_id
     def: KEY team_id (team_id) USING BTREE
     table: teams_roles
     columns:
     - team_id
-    comment: ""
   constraints:
   - name: teams_roles_role_id
     type: FOREIGN KEY
@@ -878,7 +682,6 @@ tables:
     - role_id
     referencedColumns:
     - role_id
-    comment: ""
   - name: teams_roles_team_id
     type: FOREIGN KEY
     def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
@@ -888,8 +691,6 @@ tables:
     - team_id
     referencedColumns:
     - team_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `teams_roles` (
       `team_id` int(4) unsigned NOT NULL,
@@ -902,67 +703,52 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: trainings
   type: BASE TABLE
-  comment: ""
   columns:
   - name: training_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: training_start
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: training_end
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: training_address
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: training_capacity
     type: int(4)
     nullable: false
     default: "10"
-    comment: ""
   - name: training_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: trainings
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (training_id) USING BTREE
     table: trainings
     columns:
     - training_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (training_id)
     table: trainings
-    referencedTable: null
     columns:
     - training_id
-    referencedColumns: []
-    comment: ""
   - name: trainings_event_id
     type: FOREIGN KEY
     def: FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -972,8 +758,6 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `trainings` (
       `training_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -989,63 +773,48 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: trainings_extra
   type: BASE TABLE
-  comment: ""
   columns:
   - name: training_extra_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: training_extra_name
     type: varchar(128)
     nullable: false
     default: "''"
-    comment: ""
   - name: training_extra_email
     type: varchar(128)
     nullable: false
     default: "''"
-    comment: ""
   - name: training_extra_birthdate
     type: date
     nullable: true
     default: "NULL"
-    comment: ""
   - name: training_extra_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: trainings_extra
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (training_extra_id) USING BTREE
     table: trainings_extra
     columns:
     - training_extra_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (training_extra_id)
     table: trainings_extra
-    referencedTable: null
     columns:
     - training_extra_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `trainings_extra` (
       `training_extra_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1059,117 +828,97 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: username
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: first_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: last_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: display_name
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: gender
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: birthdate
     type: date
     nullable: true
     default: "NULL"
-    comment: ""
   - name: phone_number
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
+  - name: discord_handle
+    type: varchar(64)
+    nullable: true
+    default: "NULL"
+  - name: discord_handle_updated
+    type: datetime
+    nullable: true
+    default: "NULL"
   - name: avatar_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: privileges
     type: bigint(20)
     nullable: false
     default: "0"
-    comment: ""
   - name: participation_suspended
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: permissions_grants
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: permissions_revokes
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: permissions_events
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: permissions_teams
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: challenge
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activated
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: session_token
     type: int(4) unsigned
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (user_id) USING BTREE
     table: users
     columns:
     - user_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (user_id)
     table: users
-    referencedTable: null
     columns:
     - user_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users` (
       `user_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1180,6 +929,8 @@ tables:
       `gender` varchar(32) NOT NULL,
       `birthdate` date DEFAULT NULL,
       `phone_number` varchar(32) DEFAULT NULL,
+      `discord_handle` varchar(64) DEFAULT NULL,
+      `discord_handle_updated` datetime DEFAULT NULL,
       `avatar_id` int(4) unsigned DEFAULT NULL,
       `privileges` bigint(20) NOT NULL DEFAULT 0,
       `participation_suspended` text DEFAULT NULL,
@@ -1194,30 +945,22 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_auth
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: auth_type
     type: enum('code','password','passkey')
     nullable: false
-    default: null
-    comment: ""
   - name: auth_value
     type: text
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: user_id
     def: KEY user_id (user_id) USING BTREE
     table: users_auth
     columns:
     - user_id
-    comment: ""
   constraints:
   - name: users_auth_user_id
     type: FOREIGN KEY
@@ -1228,8 +971,6 @@ tables:
     - user_id
     referencedColumns:
     - user_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users_auth` (
       `user_id` int(8) unsigned NOT NULL,
@@ -1240,142 +981,111 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_events
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: role_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: registration_date
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: registration_status
     type: enum('Registered','Cancelled','Accepted','Rejected')
     nullable: false
     default: "'Registered'"
-    comment: ""
   - name: registration_notes
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shirt_fit
     type: enum('Regular','Girly')
     nullable: false
     default: "'Regular'"
-    comment: ""
   - name: shirt_size
     type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_eligible
     type: tinyint(1) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: training_eligible
     type: tinyint(1) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: availability_event_limit
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: availability_exceptions
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: availability_timeslots
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preference_hours
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preference_timing_start
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preference_timing_end
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preferences
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preferences_dietary
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preferences_updated
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: fully_available
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   - name: include_credits
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   - name: include_socials
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: users_events_event_id
     def: KEY users_events_event_id (event_id) USING BTREE
     table: users_events
     columns:
     - event_id
-    comment: ""
   - name: users_events_role_id
     def: KEY users_events_role_id (role_id) USING BTREE
     table: users_events
     columns:
     - role_id
-    comment: ""
   - name: users_events_team_id
     def: KEY users_events_team_id (team_id) USING BTREE
     table: users_events
     columns:
     - team_id
-    comment: ""
   - name: user_id
     def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
     table: users_events
@@ -1383,7 +1093,6 @@ tables:
     - user_id
     - event_id
     - team_id
-    comment: ""
   constraints:
   - name: users_events_event_id
     type: FOREIGN KEY
@@ -1394,7 +1103,6 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
   - name: users_events_role_id
     type: FOREIGN KEY
     def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
@@ -1404,7 +1112,6 @@ tables:
     - role_id
     referencedColumns:
     - role_id
-    comment: ""
   - name: users_events_team_id
     type: FOREIGN KEY
     def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
@@ -1414,7 +1121,6 @@ tables:
     - team_id
     referencedColumns:
     - team_id
-    comment: ""
   - name: users_events_user_id
     type: FOREIGN KEY
     def: FOREIGN KEY (user_id) REFERENCES users (user_id)
@@ -1424,19 +1130,14 @@ tables:
     - user_id
     referencedColumns:
     - user_id
-    comment: ""
   - name: user_id
     type: UNIQUE
     def: UNIQUE KEY user_id (user_id, event_id, team_id)
     table: users_events
-    referencedTable: null
     columns:
     - user_id
     - event_id
     - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users_events` (
       `user_id` int(4) unsigned NOT NULL,
@@ -1473,23 +1174,16 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_settings
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: setting_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: setting_value
     type: text
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: user_id
     def: UNIQUE KEY user_id (user_id, setting_name) USING BTREE
@@ -1497,7 +1191,6 @@ tables:
     columns:
     - user_id
     - setting_name
-    comment: ""
   constraints:
   - name: users_settings_user_id
     type: FOREIGN KEY
@@ -1508,18 +1201,13 @@ tables:
     - user_id
     referencedColumns:
     - user_id
-    comment: ""
   - name: user_id
     type: UNIQUE
     def: UNIQUE KEY user_id (user_id, setting_name)
     table: users_settings
-    referencedTable: null
     columns:
     - user_id
     - setting_name
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users_settings` (
       `user_id` int(8) unsigned NOT NULL,
@@ -1530,118 +1218,91 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: trainings_assignments
   type: BASE TABLE
-  comment: ""
   columns:
   - name: assignment_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: assignment_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_extra_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_training_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_updated
     type: timestamp
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_confirmed
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: preference_training_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: preference_updated
     type: timestamp
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: assignment_user_id
     def: KEY assignment_user_id (assignment_user_id) USING BTREE
     table: trainings_assignments
     columns:
     - assignment_user_id
-    comment: ""
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: trainings_assignments
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (assignment_id) USING BTREE
     table: trainings_assignments
     columns:
     - assignment_id
-    comment: ""
   - name: event_id_2
     def: UNIQUE KEY event_id_2 (event_id, assignment_user_id) USING BTREE
     table: trainings_assignments
     columns:
     - event_id
     - assignment_user_id
-    comment: ""
   - name: event_id_3
     def: UNIQUE KEY event_id_3 (event_id, assignment_extra_id) USING BTREE
     table: trainings_assignments
     columns:
     - event_id
     - assignment_extra_id
-    comment: ""
   constraints:
   - name: event_id_2
     type: UNIQUE
     def: UNIQUE KEY event_id_2 (event_id, assignment_user_id)
     table: trainings_assignments
-    referencedTable: null
     columns:
     - event_id
     - assignment_user_id
-    referencedColumns: []
-    comment: ""
   - name: event_id_3
     type: UNIQUE
     def: UNIQUE KEY event_id_3 (event_id, assignment_extra_id)
     table: trainings_assignments
-    referencedTable: null
     columns:
     - event_id
     - assignment_extra_id
-    referencedColumns: []
-    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (assignment_id)
     table: trainings_assignments
-    referencedTable: null
     columns:
     - assignment_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `trainings_assignments` (
       `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1661,43 +1322,31 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: refunds
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: refund_ticket_number
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: refund_account_iban
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: refund_account_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: refund_requested
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: refund_confirmed
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (user_id, event_id) USING BTREE
@@ -1705,19 +1354,14 @@ tables:
     columns:
     - user_id
     - event_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (user_id, event_id)
     table: refunds
-    referencedTable: null
     columns:
     - user_id
     - event_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `refunds` (
       `user_id` int(8) unsigned NOT NULL,
@@ -1731,89 +1375,66 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays_requests
   type: BASE TABLE
-  comment: ""
   columns:
   - name: request_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: display_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: request_event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: request_received_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: request_received_target
     type: enum('Crew','Nardo','Stewards')
     nullable: false
-    default: null
-    comment: ""
   - name: request_acknowledged_by
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: request_acknowledged_date
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: request_closed_by
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: request_closed_date
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: request_closed_reason
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: display_id
     def: KEY display_id (display_id) USING BTREE
     table: displays_requests
     columns:
     - display_id
-    comment: ""
   - name: request_event_id
     def: KEY request_event_id (request_event_id) USING BTREE
     table: displays_requests
     columns:
     - request_event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (request_id) USING BTREE
     table: displays_requests
     columns:
     - request_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (request_id)
     table: displays_requests
-    referencedTable: null
     columns:
     - request_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `displays_requests` (
       `request_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1832,53 +1453,35 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_timeslots
   type: BASE TABLE
-  comment: ""
   columns:
   - name: activity_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_type
     type: enum('Program','Internal')
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_start_time
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_end_time
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_location_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: timeslot_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: activity_id_2
     def: UNIQUE KEY activity_id_2 (activity_id, timeslot_id) USING BTREE
@@ -1886,19 +1489,14 @@ tables:
     columns:
     - activity_id
     - timeslot_id
-    comment: ""
   constraints:
   - name: activity_id_2
     type: UNIQUE
     def: UNIQUE KEY activity_id_2 (activity_id, timeslot_id)
     table: activities_timeslots
-    referencedTable: null
     columns:
     - activity_id
     - timeslot_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `activities_timeslots` (
       `activity_id` int(8) unsigned NOT NULL,
@@ -1914,63 +1512,46 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: exports_logs
   type: BASE TABLE
-  comment: ""
   columns:
   - name: export_log_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: export_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: access_date
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: access_ip_address
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: access_user_agent
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: access_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: export_id
     def: KEY export_id (export_id) USING BTREE
     table: exports_logs
     columns:
     - export_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (export_log_id) USING BTREE
     table: exports_logs
     columns:
     - export_log_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (export_log_id)
     table: exports_logs
-    referencedTable: null
     columns:
     - export_log_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `exports_logs` (
       `export_log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1984,103 +1565,73 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_passkeys
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_passkey_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: credential_id
     type: blob
     nullable: false
-    default: null
-    comment: ""
   - name: credential_rpid
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: credential_format
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: credential_name
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: credential_created
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: credential_origin
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: credential_public_key
     type: blob
     nullable: false
-    default: null
-    comment: ""
   - name: credential_device_type
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: credential_backed_up
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: credential_transport
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: credential_last_used
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: counter
     type: bigint(8)
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: user_id
     def: KEY user_id (user_id) USING BTREE
     table: users_passkeys
     columns:
     - user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (user_passkey_id) USING BTREE
     table: users_passkeys
     columns:
     - user_passkey_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (user_passkey_id)
     table: users_passkeys
-    referencedTable: null
     columns:
     - user_passkey_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users_passkeys` (
       `user_passkey_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -2102,38 +1653,28 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: retention
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: retention_status
     type: enum('Contacting','Declined')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: retention_assignee_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: retention_notes
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (user_id, event_id, team_id) USING BTREE
@@ -2142,20 +1683,15 @@ tables:
     - user_id
     - event_id
     - team_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (user_id, event_id, team_id)
     table: retention
-    referencedTable: null
     columns:
     - user_id
     - event_id
     - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `retention` (
       `user_id` int(8) unsigned NOT NULL,
@@ -2168,83 +1704,57 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: exports
   type: BASE TABLE
-  comment: ""
   columns:
   - name: export_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: export_slug
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: export_event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: export_type
     type: enum('Credits','Refunds','Trainings','Volunteers','WhatsApp')
     nullable: false
-    default: null
-    comment: ""
   - name: export_justification
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: export_created_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: export_created_user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: export_expiration_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: export_expiration_views
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: export_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: export_slug
     def: KEY export_slug (export_slug) USING BTREE
     table: exports
     columns:
     - export_slug
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (export_id) USING BTREE
     table: exports
     columns:
     - export_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (export_id)
     table: exports
-    referencedTable: null
     columns:
     - export_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `exports` (
       `export_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -2262,103 +1772,72 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: teams
   type: BASE TABLE
-  comment: ""
   columns:
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: team_slug
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: team_name
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: team_plural
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: team_title
     type: varchar(128)
     nullable: false
-    default: null
-    comment: ""
   - name: team_description
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: team_environment
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: team_environment_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_request_confirmation
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: team_manages_faq
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: team_manages_first_aid
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: team_manages_security
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: team_colour_dark_theme
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: team_colour_light_theme
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: team_slug
     def: KEY team_slug (team_slug) USING BTREE
     table: teams
     columns:
     - team_slug
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (team_id) USING BTREE
     table: teams
     columns:
     - team_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (team_id)
     table: teams
-    referencedTable: null
     columns:
     - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `teams` (
       `team_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -2380,53 +1859,40 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_preferences
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: hotel_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_date_check_in
     type: date
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_date_check_out
     type: date
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_sharing_people
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_sharing_preferences
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_preferences_updated
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   indexes:
   - name: user_id
     def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
@@ -2435,20 +1901,15 @@ tables:
     - user_id
     - event_id
     - team_id
-    comment: ""
   constraints:
   - name: user_id
     type: UNIQUE
     def: UNIQUE KEY user_id (user_id, event_id, team_id)
     table: hotels_preferences
-    referencedTable: null
     columns:
     - user_id
     - event_id
     - team_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `hotels_preferences` (
       `user_id` int(8) unsigned NOT NULL,
@@ -2464,155 +1925,120 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox
   type: BASE TABLE
-  comment: ""
   columns:
   - name: outbox_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: outbox_timestamp
     type: timestamp
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: outbox_sender
     type: varchar(128)
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_sender_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_to
     type: varchar(128)
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_to_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_cc
     type: varchar(128)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_bcc
     type: varchar(128)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_headers
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_subject
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_body_html
     type: text
     nullable: false
     default: "''"
-    comment: ""
   - name: outbox_body_text
     type: text
     nullable: false
     default: "''"
-    comment: ""
   - name: outbox_logs
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_name
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_cause
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_message_id
     type: varchar(256)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_accepted
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_rejected
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_pending
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_response
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: outbox_date
     def: KEY outbox_date (outbox_timestamp) USING BTREE
     table: outbox
     columns:
     - outbox_timestamp
-    comment: ""
   - name: outbox_sender_user_id
     def: KEY outbox_sender_user_id (outbox_sender_user_id) USING BTREE
     table: outbox
     columns:
     - outbox_sender_user_id
-    comment: ""
   - name: outbox_to_user_id
     def: KEY outbox_to_user_id (outbox_to_user_id) USING BTREE
     table: outbox
     columns:
     - outbox_to_user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (outbox_id) USING BTREE
     table: outbox
     columns:
     - outbox_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (outbox_id)
     table: outbox
-    referencedTable: null
     columns:
     - outbox_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `outbox` (
       `outbox_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -2644,53 +2070,39 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: nardo
   type: BASE TABLE
-  comment: ""
   columns:
   - name: nardo_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: nardo_advice
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: nardo_author_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: nardo_author_date
     type: timestamp
     nullable: false
     default: current_timestamp()
     extraDef: on update current_timestamp()
-    comment: ""
   - name: nardo_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (nardo_id) USING BTREE
     table: nardo
     columns:
     - nardo_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (nardo_id)
     table: nardo
-    referencedTable: null
     columns:
     - nardo_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `nardo` (
       `nardo_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -2702,52 +2114,38 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: feedback
   type: BASE TABLE
-  comment: ""
   columns:
   - name: feedback_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: feedback_name
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: feedback_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: feedback_text
     type: text
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (feedback_id) USING BTREE
     table: feedback
     columns:
     - feedback_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (feedback_id)
     table: feedback
-    referencedTable: null
     columns:
     - feedback_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `feedback` (
       `feedback_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -2759,63 +2157,46 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities
   type: BASE TABLE
-  comment: ""
   columns:
   - name: activity_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: activity_festival_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type
     type: enum('Program','Internal')
     nullable: false
-    default: null
-    comment: ""
   - name: activity_title
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: activity_description
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_description_web
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_rules
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_url
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_price
     type: double
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_help_needed
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_max_visitors
     type: int(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_location_id
     type: int(8) unsigned
     nullable: true
@@ -2824,103 +2205,72 @@ tables:
   - name: activity_type_adults_only
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type_competition
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type_cosplay
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type_event
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type_game_room
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_type_video
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_visible
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: activity_visible_reason
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_request_assignee
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_request_notes
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: activity_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: activity_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: activity_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (activity_id) USING BTREE
     table: activities
     columns:
     - activity_id
-    comment: ""
   - name: activity_id
     def: UNIQUE KEY activity_id (activity_id, activity_festival_id) USING BTREE
     table: activities
     columns:
     - activity_id
     - activity_festival_id
-    comment: ""
   constraints:
   - name: activity_id
     type: UNIQUE
     def: UNIQUE KEY activity_id (activity_id, activity_festival_id)
     table: activities
-    referencedTable: null
     columns:
     - activity_id
     - activity_festival_id
-    referencedColumns: []
-    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (activity_id)
     table: activities
-    referencedTable: null
     columns:
     - activity_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `activities` (
       `activity_id` int(8) unsigned NOT NULL,
@@ -2953,112 +2303,85 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_logs
   type: BASE TABLE
-  comment: ""
   columns:
   - name: mutation_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: festival_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: activity_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: area_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: timeslot_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: location_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation
     type: enum('Created','Updated','Deleted')
     nullable: false
-    default: null
-    comment: ""
   - name: mutation_fields
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_severity
     type: enum('Low','Moderate','Important')
     nullable: false
-    default: null
-    comment: ""
   - name: mutation_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: activity_id
     def: KEY activity_id (activity_id) USING BTREE
     table: activities_logs
     columns:
     - activity_id
-    comment: ""
   - name: area_id
     def: KEY area_id (area_id) USING BTREE
     table: activities_logs
     columns:
     - area_id
-    comment: ""
   - name: festival_id
     def: KEY festival_id (festival_id) USING BTREE
     table: activities_logs
     columns:
     - festival_id
-    comment: ""
   - name: location_id
     def: KEY location_id (location_id) USING BTREE
     table: activities_logs
     columns:
     - location_id
-    comment: ""
   - name: timeslot_id
     def: KEY timeslot_id (timeslot_id) USING BTREE
     table: activities_logs
     columns:
     - timeslot_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (mutation_id) USING BTREE
     table: activities_logs
     columns:
     - mutation_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (mutation_id)
     table: activities_logs
-    referencedTable: null
     columns:
     - mutation_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `activities_logs` (
       `mutation_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3081,62 +2404,43 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: shifts_categories
   type: BASE TABLE
-  comment: ""
   columns:
   - name: shift_category_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: shift_category_name
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_colour
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_excitement
     type: double
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_count_contribution
     type: tinyint(1)
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_order
     type: int(8)
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (shift_category_id) USING BTREE
     table: shifts_categories
     columns:
     - shift_category_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (shift_category_id)
     table: shifts_categories
-    referencedTable: null
     columns:
     - shift_category_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `shifts_categories` (
       `shift_category_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3150,68 +2454,52 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_bookings
   type: BASE TABLE
-  comment: ""
   columns:
   - name: booking_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: booking_hotel_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: booking_check_in
     type: date
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: booking_check_out
     type: date
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: booking_confirmed
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: booking_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: hotels_bookings
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (booking_id) USING BTREE
     table: hotels_bookings
     columns:
     - booking_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (booking_id)
     table: hotels_bookings
-    referencedTable: null
     columns:
     - booking_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `hotels_bookings` (
       `booking_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3226,80 +2514,61 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: hotels_assignments
   type: BASE TABLE
-  comment: ""
   columns:
   - name: assignment_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: booking_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: assignment_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_name
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: assignment_primary
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: assignment_created
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   indexes:
   - name: assignment_user_id
     def: KEY assignment_user_id (assignment_user_id) USING BTREE
     table: hotels_assignments
     columns:
     - assignment_user_id
-    comment: ""
   - name: booking_id
     def: KEY booking_id (booking_id) USING BTREE
     table: hotels_assignments
     columns:
     - booking_id
-    comment: ""
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: hotels_assignments
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (assignment_id) USING BTREE
     table: hotels_assignments
     columns:
     - assignment_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (assignment_id)
     table: hotels_assignments
-    referencedTable: null
     columns:
     - assignment_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `hotels_assignments` (
       `assignment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3316,53 +2585,36 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_locations
   type: BASE TABLE
-  comment: ""
   columns:
   - name: location_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: location_festival_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: location_type
     type: enum('Program','Internal')
     nullable: false
-    default: null
-    comment: ""
   - name: location_name
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: location_display_name
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: location_area_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: location_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: location_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: location_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (location_id, location_festival_id) USING BTREE
@@ -3370,19 +2622,14 @@ tables:
     columns:
     - location_id
     - location_festival_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (location_id, location_festival_id)
     table: activities_locations
-    referencedTable: null
     columns:
     - location_id
     - location_festival_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `activities_locations` (
       `location_id` int(8) unsigned NOT NULL,
@@ -3398,77 +2645,55 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: error_logs
   type: BASE TABLE
-  comment: ""
   columns:
   - name: error_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: error_date
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: error_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: error_ip_address
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: error_origin
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: error_pathname
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: error_name
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: error_message
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: error_digest
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (error_id) USING BTREE
     table: error_logs
     columns:
     - error_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (error_id)
     table: error_logs
-    referencedTable: null
     columns:
     - error_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `error_logs` (
       `error_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3485,109 +2710,82 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule_logs
   type: BASE TABLE
-  comment: ""
   columns:
   - name: mutation_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: schedule_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: mutation
     type: enum('Created','Updated','Deleted')
     nullable: false
-    default: null
-    comment: ""
   - name: mutation_before_shift_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_before_time_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_before_time_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_before_user_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_after_shift_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_after_time_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_after_time_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_after_user_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: mutation_user_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: mutation_date
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: schedule_logs
     columns:
     - event_id
-    comment: ""
   - name: schedule_id
     def: KEY schedule_id (schedule_id) USING BTREE
     table: schedule_logs
     columns:
     - schedule_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (mutation_id) USING BTREE
     table: schedule_logs
     columns:
     - mutation_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (mutation_id)
     table: schedule_logs
-    referencedTable: null
     columns:
     - mutation_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `schedule_logs` (
       `mutation_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -3610,48 +2808,33 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: activities_areas
   type: BASE TABLE
-  comment: ""
   columns:
   - name: area_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: area_festival_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: area_type
     type: enum('Program','Internal')
     nullable: false
-    default: null
-    comment: ""
   - name: area_name
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: area_display_name
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: area_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: area_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: area_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (area_id, area_festival_id) USING BTREE
@@ -3659,19 +2842,14 @@ tables:
     columns:
     - area_id
     - area_festival_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (area_id, area_festival_id)
     table: activities_areas
-    referencedTable: null
     columns:
     - area_id
     - area_festival_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `activities_areas` (
       `area_id` int(8) unsigned NOT NULL,
@@ -3686,118 +2864,88 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox_twilio
   type: BASE TABLE
-  comment: ""
   columns:
   - name: outbox_twilio_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: outbox_timestamp
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_type
     type: enum('SMS','WhatsApp')
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_sender
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_sender_user_id
     type: int(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_recipient
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_recipient_user_id
     type: int(8)
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_message
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_error_name
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_cause
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_status
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_sid
     type: varchar(64)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_time
     type: int(11)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_error_code
     type: int(8)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: outbox_result_sid
     def: KEY outbox_result_sid (outbox_result_sid) USING BTREE
     table: outbox_twilio
     columns:
     - outbox_result_sid
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (outbox_twilio_id) USING BTREE
     table: outbox_twilio
     columns:
     - outbox_twilio_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (outbox_twilio_id)
     table: outbox_twilio
-    referencedTable: null
     columns:
     - outbox_twilio_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `outbox_twilio` (
       `outbox_twilio_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3822,52 +2970,38 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: subscriptions_publications
   type: BASE TABLE
-  comment: ""
   columns:
   - name: publication_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: publication_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: publication_subscription_type
     type: enum('Application','Help','Registration','Test')
     nullable: false
-    default: null
-    comment: ""
   - name: publication_subscription_type_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: publication_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (publication_id) USING BTREE
     table: subscriptions_publications
     columns:
     - publication_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (publication_id)
     table: subscriptions_publications
-    referencedTable: null
     columns:
     - publication_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `subscriptions_publications` (
       `publication_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3879,73 +3013,51 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: subscriptions
   type: BASE TABLE
-  comment: ""
   columns:
   - name: subscription_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: subscription_user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: subscription_type
     type: enum('Application','Help','Registration','Test')
     nullable: false
-    default: null
-    comment: ""
   - name: subscription_type_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: subscription_channel_email
     type: tinyint(1) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: subscription_channel_notification
     type: tinyint(1) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: subscription_channel_sms
     type: tinyint(1) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: subscription_channel_whatsapp
     type: tinyint(1) unsigned
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: whatsapp_user_id
     def: KEY whatsapp_user_id (subscription_user_id) USING BTREE
     table: subscriptions
     columns:
     - subscription_user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (subscription_id) USING BTREE
     table: subscriptions
     columns:
     - subscription_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (subscription_id)
     table: subscriptions
-    referencedTable: null
     columns:
     - subscription_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `subscriptions` (
       `subscription_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -3961,152 +3073,113 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events
   type: BASE TABLE
-  comment: ""
   columns:
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: event_short_name
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: event_slug
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: event_hidden
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: event_start_time
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: event_end_time
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: hotel_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: hotel_information_published
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: hotel_preferences_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: hotel_preferences_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: refund_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: refund_information_published
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: refund_requests_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: refund_requests_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: training_enabled
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: training_information_published
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
-    comment: ""
   - name: training_preferences_start
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: training_preferences_end
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   - name: event_availability_status
     type: enum('Unavailable','Available','Locked')
     nullable: false
-    default: null
-    comment: ""
   - name: event_location
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: event_timezone
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: event_hotel_room_form
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: event_festival_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: event_identity_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (event_id) USING BTREE
     table: events
     columns:
     - event_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (event_id)
     table: events
-    referencedTable: null
     columns:
     - event_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `events` (
       `event_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -4138,82 +3211,57 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: vendors
   type: BASE TABLE
-  comment: ""
   columns:
   - name: vendor_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_team
     type: enum('first-aid','security')
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_first_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_last_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_role
     type: varchar(32)
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_gender
     type: enum('Female','Other','Male')
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_shirt_size
     type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: vendor_shirt_fit
     type: enum('Regular','Girly')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: vendor_modified
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: vendor_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (vendor_id) USING BTREE
     table: vendors
     columns:
     - vendor_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (vendor_id)
     table: vendors
-    referencedTable: null
     columns:
     - vendor_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `vendors` (
       `vendor_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -4231,72 +3279,54 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: tasks
   type: BASE TABLE
-  comment: ""
   columns:
   - name: task_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: task_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: task_params
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: task_parent_task_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: task_scheduled_date
     type: timestamp
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: task_scheduled_interval_ms
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: task_invocation_result
     type: enum('TaskSuccess','TaskException','TaskFailure','InvalidNamedTask','InvalidParameters','UnknownFailure')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: task_invocation_logs
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: task_invocation_time_ms
     type: double
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (task_id) USING BTREE
     table: tasks
     columns:
     - task_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (task_id)
     table: tasks
-    referencedTable: null
     columns:
     - task_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `tasks` (
       `task_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -4312,74 +3342,54 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: shifts
   type: BASE TABLE
-  comment: ""
   columns:
   - name: shift_id
     type: int(4) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: shift_category_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: shift_name
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: shift_activity_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shift_location_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shift_colour
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shift_description
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shift_demand
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: shift_demand_overlap
     type: enum('None','Partial','Cover')
     nullable: false
     default: "'Cover'"
-    comment: ""
   - name: shift_excitement
     type: double
     nullable: false
-    default: null
-    comment: ""
   - name: shift_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id, team_id) USING BTREE
@@ -4387,29 +3397,23 @@ tables:
     columns:
     - event_id
     - team_id
-    comment: ""
   - name: shifts_team_id
     def: KEY shifts_team_id (team_id) USING BTREE
     table: shifts
     columns:
     - team_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (shift_id) USING BTREE
     table: shifts
     columns:
     - shift_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (shift_id)
     table: shifts
-    referencedTable: null
     columns:
     - shift_id
-    referencedColumns: []
-    comment: ""
   - name: shifts_event_id
     type: FOREIGN KEY
     def: FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -4419,7 +3423,6 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
   - name: shifts_team_id
     type: FOREIGN KEY
     def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
@@ -4429,8 +3432,6 @@ tables:
     - team_id
     referencedColumns:
     - team_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `shifts` (
       `shift_id` int(4) unsigned NOT NULL AUTO_INCREMENT,
@@ -4454,155 +3455,120 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox_email
   type: BASE TABLE
-  comment: ""
   columns:
   - name: outbox_email_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: outbox_timestamp
     type: timestamp
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: outbox_sender
     type: varchar(128)
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_sender_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_to
     type: varchar(128)
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_to_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_cc
     type: varchar(128)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_bcc
     type: varchar(128)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_headers
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_subject
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: outbox_body_html
     type: text
     nullable: false
     default: "''"
-    comment: ""
   - name: outbox_body_text
     type: text
     nullable: false
     default: "''"
-    comment: ""
   - name: outbox_logs
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_name
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_cause
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_message_id
     type: varchar(256)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_accepted
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_rejected
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_pending
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: outbox_result_response
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: outbox_date
     def: KEY outbox_date (outbox_timestamp) USING BTREE
     table: outbox_email
     columns:
     - outbox_timestamp
-    comment: ""
   - name: outbox_sender_user_id
     def: KEY outbox_sender_user_id (outbox_sender_user_id) USING BTREE
     table: outbox_email
     columns:
     - outbox_sender_user_id
-    comment: ""
   - name: outbox_to_user_id
     def: KEY outbox_to_user_id (outbox_to_user_id) USING BTREE
     table: outbox_email
     columns:
     - outbox_to_user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (outbox_email_id) USING BTREE
     table: outbox_email
     columns:
     - outbox_email_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (outbox_email_id)
     table: outbox_email
-    referencedTable: null
     columns:
     - outbox_email_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `outbox_email` (
       `outbox_email_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -4634,103 +3600,78 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: outbox_whatsapp
   type: BASE TABLE
-  comment: ""
   columns:
   - name: whatsapp_message_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: whatsapp_date
     type: datetime
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: whatsapp_recipient_user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: whatsapp_recipient_phone_number
     type: varchar(16)
     nullable: false
-    default: null
-    comment: ""
   - name: whatsapp_request
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: whatsapp_error_name
     type: varchar(32)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_error_message
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_error_stack
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_error_cause
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_response_status
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_response_time
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_response_message_id
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_response_message_status
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: whatsapp_response_text
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: whatsapp_message_recipient_user_id
     def: KEY whatsapp_message_recipient_user_id (whatsapp_recipient_user_id) USING BTREE
     table: outbox_whatsapp
     columns:
     - whatsapp_recipient_user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (whatsapp_message_id) USING BTREE
     table: outbox_whatsapp
     columns:
     - whatsapp_message_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (whatsapp_message_id)
     table: outbox_whatsapp
-    referencedTable: null
     columns:
     - whatsapp_message_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `outbox_whatsapp` (
       `whatsapp_message_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -4752,23 +3693,16 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_events_favourites
   type: BASE TABLE
-  comment: ""
   columns:
   - name: user_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: activity_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: user_id
     def: KEY user_id (user_id, event_id) USING BTREE
@@ -4776,7 +3710,6 @@ tables:
     columns:
     - user_id
     - event_id
-    comment: ""
   - name: user_id_2
     def: UNIQUE KEY user_id_2 (user_id, event_id, activity_id) USING BTREE
     table: users_events_favourites
@@ -4784,20 +3717,15 @@ tables:
     - user_id
     - event_id
     - activity_id
-    comment: ""
   constraints:
   - name: user_id_2
     type: UNIQUE
     def: UNIQUE KEY user_id_2 (user_id, event_id, activity_id)
     table: users_events_favourites
-    referencedTable: null
     columns:
     - user_id
     - event_id
     - activity_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `users_events_favourites` (
       `user_id` int(4) unsigned NOT NULL,
@@ -4808,78 +3736,61 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: logs
   type: BASE TABLE
-  comment: ""
   columns:
   - name: log_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: log_date
     type: timestamp
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: log_type
     type: varchar(48)
     nullable: false
-    default: null
-    comment: ""
   - name: log_severity
     type: enum('Debug','Info','Warning','Error')
     nullable: false
-    default: null
-    comment: ""
   - name: log_source_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: log_source_ip_address
     type: varchar(45)
     nullable: true
     default: "NULL"
-    comment: ""
   - name: log_source_user_agent
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: log_target_user_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: log_data
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: log_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: log_source_user_id
     def: KEY log_source_user_id (log_source_user_id) USING BTREE
     table: logs
     columns:
     - log_source_user_id
-    comment: ""
   - name: log_target_user_id
     def: KEY log_target_user_id (log_target_user_id) USING BTREE
     table: logs
     columns:
     - log_target_user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (log_id) USING BTREE
     table: logs
     columns:
     - log_id
-    comment: ""
   constraints:
   - name: logs_log_source_user_id
     type: FOREIGN KEY
@@ -4890,7 +3801,6 @@ tables:
     - log_source_user_id
     referencedColumns:
     - user_id
-    comment: ""
   - name: logs_log_target_user_id
     type: FOREIGN KEY
     def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
@@ -4900,17 +3810,12 @@ tables:
     - log_target_user_id
     referencedColumns:
     - user_id
-    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (log_id)
     table: logs
-    referencedTable: null
     columns:
     - log_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `logs` (
       `log_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -4931,95 +3836,70 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: schedule
   type: BASE TABLE
-  comment: ""
   columns:
   - name: schedule_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: user_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: shift_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: schedule_time_start
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: schedule_time_end
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: schedule_updated_by
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: schedule_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: schedule_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: schedule_event_id
     def: KEY schedule_event_id (event_id) USING BTREE
     table: schedule
     columns:
     - event_id
-    comment: ""
   - name: schedule_shift_id
     def: KEY schedule_shift_id (shift_id) USING BTREE
     table: schedule
     columns:
     - shift_id
-    comment: ""
   - name: schedule_updated_by
     def: KEY schedule_updated_by (schedule_updated_by) USING BTREE
     table: schedule
     columns:
     - schedule_updated_by
-    comment: ""
   - name: schedule_user_id
     def: KEY schedule_user_id (user_id) USING BTREE
     table: schedule
     columns:
     - user_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (schedule_id) USING BTREE
     table: schedule
     columns:
     - schedule_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (schedule_id)
     table: schedule
-    referencedTable: null
     columns:
     - schedule_id
-    referencedColumns: []
-    comment: ""
   - name: schedule_event_id
     type: FOREIGN KEY
     def: FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -5029,7 +3909,6 @@ tables:
     - event_id
     referencedColumns:
     - event_id
-    comment: ""
   - name: schedule_shift_id
     type: FOREIGN KEY
     def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
@@ -5039,7 +3918,6 @@ tables:
     - shift_id
     referencedColumns:
     - shift_id
-    comment: ""
   - name: schedule_updated_by
     type: FOREIGN KEY
     def: FOREIGN KEY (schedule_updated_by) REFERENCES users (user_id)
@@ -5049,7 +3927,6 @@ tables:
     - schedule_updated_by
     referencedColumns:
     - user_id
-    comment: ""
   - name: schedule_user_id
     type: FOREIGN KEY
     def: FOREIGN KEY (user_id) REFERENCES users (user_id)
@@ -5059,8 +3936,6 @@ tables:
     - user_id
     referencedColumns:
     - user_id
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `schedule` (
       `schedule_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -5084,78 +3959,55 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content_category
   type: BASE TABLE
-  comment: ""
   columns:
   - name: category_id
     type: int(8) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: category_title
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: category_icon
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: category_description
     type: text
     nullable: true
     default: "NULL"
-    comment: ""
   - name: category_order
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: category_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: category_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: category_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: content_category
     columns:
     - event_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (category_id) USING BTREE
     table: content_category
     columns:
     - category_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (category_id)
     table: content_category
-    referencedTable: null
     columns:
     - category_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `content_category` (
       `category_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -5172,69 +4024,48 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: content
   type: BASE TABLE
-  comment: ""
   columns:
   - name: content_id
     type: int(10) unsigned
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: event_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: team_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: content_path
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: content_title
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: content_type
     type: enum('Page','FAQ')
     nullable: false
-    default: null
-    comment: ""
   - name: content_category_id
     type: int(8) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: content_protected
     type: tinyint(1)
     nullable: false
     default: "0"
-    comment: ""
   - name: content
     type: text
     nullable: false
-    default: null
-    comment: ""
   - name: revision_author_id
     type: int(4) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: revision_date
     type: timestamp
     nullable: false
     default: current_timestamp()
-    comment: ""
   - name: revision_visible
     type: tinyint(1)
     nullable: false
     default: "1"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id, team_id) USING BTREE
@@ -5242,13 +4073,11 @@ tables:
     columns:
     - event_id
     - team_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (content_id) USING BTREE
     table: content
     columns:
     - content_id
-    comment: ""
   - name: event_id_2
     def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible) USING HASH
     table: content
@@ -5257,30 +4086,22 @@ tables:
     - team_id
     - content_path
     - revision_visible
-    comment: ""
   constraints:
   - name: event_id_2
     type: UNIQUE
     def: UNIQUE KEY event_id_2 (event_id, team_id, content_path, revision_visible)
     table: content
-    referencedTable: null
     columns:
     - event_id
     - team_id
     - content_path
     - revision_visible
-    referencedColumns: []
-    comment: ""
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (content_id)
     table: content
-    referencedTable: null
     columns:
     - content_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `content` (
       `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -5301,68 +4122,48 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: vendors_schedule
   type: BASE TABLE
-  comment: ""
   columns:
   - name: vendors_schedule_id
     type: int(8)
     nullable: false
-    default: null
     extraDef: auto_increment
-    comment: ""
   - name: vendor_id
     type: int(8)
     nullable: false
-    default: null
-    comment: ""
   - name: vendors_schedule_start
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: vendors_schedule_end
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: vendors_schedule_created
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: vendors_schedule_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   - name: vendors_schedule_deleted
     type: datetime
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: vendor_id
     def: KEY vendor_id (vendor_id) USING BTREE
     table: vendors_schedule
     columns:
     - vendor_id
-    comment: ""
   - name: PRIMARY
     def: PRIMARY KEY (vendors_schedule_id) USING BTREE
     table: vendors_schedule
     columns:
     - vendors_schedule_id
-    comment: ""
   constraints:
   - name: PRIMARY
     type: PRIMARY KEY
     def: PRIMARY KEY (vendors_schedule_id)
     table: vendors_schedule
-    referencedTable: null
     columns:
     - vendors_schedule_id
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `vendors_schedule` (
       `vendors_schedule_id` int(8) NOT NULL AUTO_INCREMENT,
@@ -5377,33 +4178,22 @@ tables:
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_sales
   type: BASE TABLE
-  comment: ""
   columns:
   - name: event_id
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_sale_date
     type: date
     nullable: false
-    default: null
-    comment: ""
   - name: event_sale_type
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: event_sale_count
     type: int(8) unsigned
     nullable: false
-    default: null
-    comment: ""
   - name: event_sale_updated
     type: datetime
     nullable: false
-    default: null
-    comment: ""
   indexes:
   - name: event_id
     def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type) USING BTREE
@@ -5412,20 +4202,15 @@ tables:
     - event_id
     - event_sale_date
     - event_sale_type
-    comment: ""
   constraints:
   - name: event_id
     type: UNIQUE
     def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type)
     table: events_sales
-    referencedTable: null
     columns:
     - event_id
     - event_sale_date
     - event_sale_type
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `events_sales` (
       `event_id` int(8) unsigned NOT NULL,
@@ -5437,71 +4222,55 @@ tables:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_sales_configuration
   type: BASE TABLE
-  comment: ""
   columns:
   - name: event_id
     type: int(11)
     nullable: false
-    default: null
-    comment: ""
   - name: event_sale_type
     type: varchar(64)
     nullable: false
-    default: null
-    comment: ""
   - name: sale_category
     type: enum('Event','Hidden','Locker','TicketFriday','TicketSaturday','TicketSunday','TicketWeekend')
     nullable: true
     default: "NULL"
-    comment: ""
   - name: sale_category_limit
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   - name: sale_event_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
-    comment: ""
   indexes:
   - name: event_id
     def: KEY event_id (event_id) USING BTREE
     table: events_sales_configuration
     columns:
     - event_id
-    comment: ""
   - name: event_sale_type
     def: KEY event_sale_type (event_sale_type) USING BTREE
     table: events_sales_configuration
     columns:
     - event_sale_type
-    comment: ""
   - name: sale_event_id
     def: KEY sale_event_id (sale_event_id) USING BTREE
     table: events_sales_configuration
     columns:
     - sale_event_id
-    comment: ""
   - name: event_id_2
     def: UNIQUE KEY event_id_2 (event_id, event_sale_type) USING BTREE
     table: events_sales_configuration
     columns:
     - event_id
     - event_sale_type
-    comment: ""
   constraints:
   - name: event_id_2
     type: UNIQUE
     def: UNIQUE KEY event_id_2 (event_id, event_sale_type)
     table: events_sales_configuration
-    referencedTable: null
     columns:
     - event_id
     - event_sale_type
-    referencedColumns: []
-    comment: ""
-  triggers: []
   def: |-
     CREATE TABLE `events_sales_configuration` (
       `event_id` int(11) NOT NULL,
@@ -5518,214 +4287,213 @@ relations:
 - table: events_teams
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: events_teams
   columns:
   - team_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: teams
   parentColumns:
   - team_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 - table: hotels
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: storage
   columns:
   - user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Zero or one
+  parentCardinality: zero_or_one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 - table: teams_roles
   columns:
   - role_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: roles
   parentColumns:
   - role_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
   virtual: false
 - table: teams_roles
   columns:
   - team_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: teams
   parentColumns:
   - team_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 - table: trainings
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: users_auth
   columns:
   - user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 - table: users_events
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: users_events
   columns:
   - role_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: roles
   parentColumns:
   - role_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
   virtual: false
 - table: users_events
   columns:
   - team_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: teams
   parentColumns:
   - team_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 - table: users_events
   columns:
   - user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 - table: users_settings
   columns:
   - user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
 - table: shifts
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: shifts
   columns:
   - team_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: teams
   parentColumns:
   - team_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
   virtual: false
 - table: logs
   columns:
   - log_source_user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Zero or one
+  parentCardinality: zero_or_one
   def: FOREIGN KEY (log_source_user_id) REFERENCES users (user_id)
   virtual: false
 - table: logs
   columns:
   - log_target_user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Zero or one
+  parentCardinality: zero_or_one
   def: FOREIGN KEY (log_target_user_id) REFERENCES users (user_id)
   virtual: false
 - table: schedule
   columns:
   - event_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: events
   parentColumns:
   - event_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: schedule
   columns:
   - shift_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: shifts
   parentColumns:
   - shift_id
-  parentCardinality: Zero or one
+  parentCardinality: zero_or_one
   def: FOREIGN KEY (shift_id) REFERENCES shifts (shift_id)
   virtual: false
 - table: schedule
   columns:
   - schedule_updated_by
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (schedule_updated_by) REFERENCES users (user_id)
   virtual: false
 - table: schedule
   columns:
   - user_id
-  cardinality: Zero or more
+  cardinality: zero_or_more
   parentTable: users
   parentColumns:
   - user_id
-  parentCardinality: Exactly one
+  parentCardinality: exactly_one
   def: FOREIGN KEY (user_id) REFERENCES users (user_id)
   virtual: false
-functions: []
 driver:
   name: mysql
   databaseVersion: 10.6.14-MariaDB

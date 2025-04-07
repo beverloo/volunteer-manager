@@ -55,6 +55,7 @@ export function IdentityAccountDialog(props: IdentityAccountDialogProps) {
                     gender: data.gender,
                     birthdate: dayjs(data.rawBirthdate).format('YYYY-MM-DD'),
                     phoneNumber: data.phoneNumber,
+                    discordHandle: data.discordHandle,
                 },
             });
 

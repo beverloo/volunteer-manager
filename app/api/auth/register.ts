@@ -53,6 +53,11 @@ export const kRegisterDefinition = z.object({
         phoneNumber: z.string(),
 
         /**
+         * Discord handle owned by the user, when provided, in an undefined format.
+         */
+        discordHandle: z.string().optional(),
+
+        /**
          * Whether the user has accepted the terms of our privacy policy.
          */
         gdpr: z.boolean(),
@@ -102,6 +107,7 @@ export async function register(request: Request, props: ActionProps): Promise<Re
         gender: request.gender,
         birthdate: request.birthdate,
         phoneNumber: request.phoneNumber,
+        discordHandle: request.discordHandle,
     });
 
     if (!userId)

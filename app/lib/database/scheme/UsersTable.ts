@@ -13,6 +13,7 @@ import {
 } from "../TemporalTypeAdapter";
 import {
     PlainDate,
+    ZonedDateTime,
 } from "../../Temporal";
 
 export class UsersTable extends Table<DBConnection, 'UsersTable'> {
@@ -24,6 +25,8 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     gender = this.column('gender', 'string');
     birthdate = this.optionalColumnWithDefaultValue<PlainDate>('birthdate', 'customLocalDate', 'date', TemporalTypeAdapter);
     phoneNumber = this.optionalColumnWithDefaultValue('phone_number', 'string');
+    discordHandle = this.optionalColumnWithDefaultValue('discord_handle', 'string');
+    discordHandleUpdated = this.optionalColumnWithDefaultValue<ZonedDateTime>('discord_handle_updated', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     avatarId = this.optionalColumnWithDefaultValue('avatar_id', 'int');
     privileges = this.columnWithDefaultValue('privileges', 'bigint');
     participationSuspended = this.optionalColumnWithDefaultValue('participation_suspended', 'string');

@@ -43,6 +43,11 @@ export const kAccountFields = z.object({
      * Phone number of the user, in an undefined format.
      */
     phoneNumber: z.string().optional(),
+
+    /**
+     * Discord handle owned by the user, when provided, in an undefined format.
+     */
+    discordHandle: z.string().optional(),
 });
 
 /**
@@ -85,7 +90,9 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
     if (!props.user)
         return forbidden();
 
-    const account = await db.selectFrom(tUsers)
+    const dbInstance = db;
+
+    const account = await dbInstance.selectFrom(tUsers)
         .where(tUsers.userId.equals(props.user.userId))
         .select({
             firstName: tUsers.firstName,
@@ -94,6 +101,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             gender: tUsers.gender,
             birthdate: tUsers.birthdate,
             phoneNumber: tUsers.phoneNumber,
+            discordHandle: tUsers.discordHandle,
         })
         .executeSelectNoneOrOne();
 
@@ -126,13 +134,20 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
     if (!update.phoneNumber || update.phoneNumber.length < 8)
         return { success: false, error: 'You need to fill in your phone number.' };
 
-    await db.update(tUsers)
+    const discordHandleUpdated =
+        (account.discordHandle !== update.discordHandle && !!update.discordHandle)
+            ? dbInstance.currentZonedDateTime()
+            : null;
+
+    await dbInstance.update(tUsers)
         .set({
             firstName: update.firstName,
             lastName: update.lastName,
             gender: update.gender,
             birthdate: Temporal.PlainDate.from(update.birthdate),
-            phoneNumber: update.phoneNumber
+            phoneNumber: update.phoneNumber,
+            discordHandle: update.discordHandle,
+            discordHandleUpdated,
         })
         .where(tUsers.userId.equals(props.user.userId))
         .executeUpdate();
