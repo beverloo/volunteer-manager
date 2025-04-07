@@ -2,15 +2,19 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Metadata } from 'next';
+import type React from 'react';
 import Link from 'next/link';
 
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
+import PhoneDisabledIcon from '@mui/icons-material/PhoneDisabled';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
+import { DiscordIcon } from './DiscordIcon';
 import { ExpandableSection } from '../components/ExpandableSection';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -20,6 +24,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
+
 /**
  * Regular expression to verify that phone numbers are stored in a E.164-compatible format.
  */
@@ -57,6 +62,8 @@ export default async function VolunteersPage() {
             name: tUsers.name,
             gender: tUsers.gender,
             phoneNumber: tUsers.phoneNumber,
+            discordHandle: tUsers.discordHandle,
+            discordHandleUpdated: tUsers.discordHandleUpdated,
             birthdate: dbInstance.dateAsString(tUsers.birthdate),
             teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
             activated: tUsers.activated.equals(/* true= */ 1),
@@ -95,6 +102,8 @@ export default async function VolunteersPage() {
     type Warning = {
         userId: number;
         name: string;
+        priority: number;
+        icon: React.ReactNode;
         text: string;
     };
 
@@ -105,6 +114,8 @@ export default async function VolunteersPage() {
             warnings.push({
                 userId: volunteer.id,
                 name: volunteer.name,
+                priority: 3,
+                icon: <PauseCircleOutlineIcon color="disabled" />,
                 text: 'Their account has not been activated yet.',
             })
         }
@@ -113,14 +124,33 @@ export default async function VolunteersPage() {
             warnings.push({
                 userId: volunteer.id,
                 name: volunteer.name,
+                priority: 2,
+                icon: <PhoneDisabledIcon color="info" />,
                 text:
                     `Their phone number (${volunteer.phoneNumber}) should be stored in a ` +
                     'E.164-compatible format.',
             });
         }
+
+        if (!!volunteer.discordHandle && !!volunteer.discordHandleUpdated) {
+            warnings.push({
+                userId: volunteer.id,
+                name: volunteer.name,
+                priority: 1,
+                icon: <DiscordIcon color="warning" />,
+                text:
+                    `Their Discord handle (${volunteer.discordHandle}) was recently updated and ` +
+                    'should be verified.',
+            });
+        }
     }
 
-    warnings.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
+    warnings.sort((lhs, rhs) => {
+        if (lhs.priority !== rhs.priority)
+            return lhs.priority > rhs.priority ? 1 : -1;
+
+        return lhs.name.localeCompare(rhs.name);
+    });
 
     const warningLabel = !!warnings.length ? `${warnings.length}` : undefined;
     const warningIcon = !!warnings.length ? <WarningAmberIcon color="warning" />
@@ -157,7 +187,7 @@ export default async function VolunteersPage() {
                         <ListItemButton LinkComponent={Link} href={`./volunteers/${warning.userId}`}
                                         key={index}>
                             <ListItemIcon>
-                                <WarningAmberIcon color="info" />
+                                {warning.icon}
                             </ListItemIcon>
                             <ListItemText primary={warning.name}
                                           secondary={warning.text} />
