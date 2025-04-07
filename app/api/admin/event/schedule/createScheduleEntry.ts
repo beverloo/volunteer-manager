@@ -38,6 +38,12 @@ export const kCreateScheduleEntryDefinition = z.object({
             userId: z.number(),
 
             /**
+             * Unique ID of the defined shift, as it exists in the database. Only applicable for
+             * shifts that have been copy/pasted.
+             */
+            shiftId: z.number().optional(),
+
+            /**
              * Time at which the shift will start.
              */
             start: kTemporalZonedDateTime,
@@ -111,7 +117,7 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
             .set({
                 userId: volunteer.id,
                 eventId: event.id,
-                shiftId: /* to be determined= */ undefined,
+                shiftId: request.shift.shiftId,
                 scheduleTimeStart: request.shift.start,
                 scheduleTimeEnd: request.shift.end,
                 scheduleUpdatedBy: props.user!.userId,
@@ -125,7 +131,7 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
                 eventId: event.id,
                 scheduleId,
                 mutation: kMutation.Created,
-                mutationAfterShiftId: /* to be determined= */ undefined,
+                mutationAfterShiftId: request.shift.shiftId,
                 mutationAfterTimeStart: request.shift.start,
                 mutationAfterTimeEnd: request.shift.end,
                 mutationAfterUserId: volunteer.id,

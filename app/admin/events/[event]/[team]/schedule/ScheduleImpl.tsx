@@ -361,7 +361,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                       displayTimezone={context.schedule.timezone} subject="shift" />
 
             { !!dialogEvent &&
-                <SettingDialog title="Select a shift" delete
+                <SettingDialog title="Select a shift" open delete
                                onClose={handleSettingDialogClose}
                                onDelete={handleSettingDialogDelete}
                                onSubmit={handleSettingDialogUpdate}

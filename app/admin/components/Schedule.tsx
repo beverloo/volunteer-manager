@@ -40,32 +40,63 @@ export function Schedule(props: ScheduleProps) {
     const subject = props.subject ?? 'event';
     const theme = useTheme();
 
-    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
-    const [ errorMessage, setErrorMessage ] = useState<string | undefined>();
+    const [ snackbarMessage, setSnackbarMessage ] = useState<string>('Unknown error');
+    const [ snackbarSeverity, setSnackbarSeverity ] = useState<'error' | 'info'>('info');
+    const [ snackbarOpen, setSnackbarOpen ] = useState<boolean>(false);
+
     const [ mounted, setMounted ] = useState<boolean>(false);
 
     useEffect(() => setMounted(true), [ /* no dependencies */ ]);
 
-    const handleErrorClose = useCallback(() => setErrorOpen(false), [ /* no dependencies */ ]);
+    // ---------------------------------------------------------------------------------------------
+
+    const handleErrorClose = useCallback(() => setSnackbarOpen(false), [ /* no dependencies */ ]);
     const handleError = useCallback((action: 'create' | 'update', reason: 'invalid' | 'overlap') =>
     {
+        setSnackbarSeverity('error');
+
         switch (reason) {
             case 'invalid':
-                setErrorMessage(`Cannot schedule the ${subject} at that time`);
+                setSnackbarMessage(`Cannot schedule the ${subject} at that time`);
                 break;
 
             case 'overlap':
-                setErrorMessage(`Cannot overlap with another ${subject}`);
+                setSnackbarMessage(`Cannot overlap with another ${subject}`);
                 break;
 
             default:
-                setErrorMessage('Something went wrong');
+                setSnackbarMessage('Something went wrong');
                 break;
         }
 
-        setErrorOpen(true);
+        setSnackbarOpen(true);
 
     }, [ subject ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const didCopy = useCallback((event: ScheduleEvent) => {
+        setSnackbarSeverity('info');
+        setSnackbarMessage(`Copied the ${event.title} shift to your clipboard`);
+        setSnackbarOpen(true);
+
+    }, [ /* no dependencies */ ]);
+
+    const didPaste = useCallback((event: ScheduleEvent, resource: ScheduleResource) => {
+        setSnackbarSeverity('info');
+        setSnackbarMessage(`Pasted the ${event.title} shift to ${resource.name}`);
+        setSnackbarOpen(true);
+
+    }, [ /* no dependencies */ ]);
+
+    const didPasteFail = useCallback((event: ScheduleEvent) => {
+        setSnackbarSeverity('error');
+        setSnackbarMessage(`Unable to paste the ${event.title} shift`);
+        setSnackbarOpen(true);
+
+    }, [ /* no dependencies */ ]);
+
+    // ---------------------------------------------------------------------------------------------
 
     // Only render timelines on the client, never on the server. This is meaningful because the
     // calendar component calculates text colour, which yields different results.
@@ -75,10 +106,11 @@ export function Schedule(props: ScheduleProps) {
     return (
         <>
             <ScheduleInternal {...props} dataTimezone="utc" temporal={Temporal}
-                              theme={theme.palette.mode} onError={handleError} />
-            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={errorOpen}>
-                <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
-                    {errorMessage}
+                              theme={theme.palette.mode} onError={handleError}
+                              onCopy={didCopy} onPaste={didPaste} onPasteFail={didPasteFail} />
+            <Snackbar autoHideDuration={3000} onClose={handleErrorClose} open={snackbarOpen}>
+                <Alert severity={snackbarSeverity} variant="filled" sx={{ width: '100%' }}>
+                    {snackbarMessage}
                 </Alert>
             </Snackbar>
         </>
