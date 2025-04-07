@@ -11,10 +11,14 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Grid2';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { VolunteerInfo } from './page';
+import { DiscordIcon } from '../DiscordIcon';
 import { SubmitCollapse } from '../../components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 import { dayjs } from '@lib/DateTime';
@@ -60,6 +64,7 @@ export function Information(props: InformationProps) {
                 gender: data.gender,
                 birthdate: birthdate.isValid() ? birthdate.format('YYYY-MM-DD') : undefined,
                 phoneNumber: data.phoneNumber ?? undefined,
+                discordHandle: data.discordHandle,
             });
 
             if (response.success) {
@@ -72,6 +77,11 @@ export function Information(props: InformationProps) {
             setLoading(false);
         }
     }, [ account, router ]);
+
+    const handleVerifyDiscord = useCallback(() => {
+        /* todo */
+
+    }, [ account ]);
 
     const defaultValues = {
         ...account,
@@ -102,9 +112,10 @@ export function Information(props: InformationProps) {
                     </Grid>
 
                     <Grid size={{ xs: 6 }}>
-                        <TextFieldElement name="username" label="E-mail address" type="email"
-                                          fullWidth size="small"
-                                          onChange={ () => setInvalidated(true) } />
+                        <DatePickerElement name="rawBirthdate" label="Date of birth"
+                                           disableFuture disableHighlightToday openTo="year"
+                                           inputProps={{ fullWidth: true, size: 'small' }}
+                                           onChange={ () => setInvalidated(true) } />
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                         <SelectElement name="gender" label="Gender" options={kGenderOptions}
@@ -113,15 +124,37 @@ export function Information(props: InformationProps) {
                     </Grid>
 
                     <Grid size={{ xs: 6 }}>
-                        <DatePickerElement name="rawBirthdate" label="Date of birth"
-                                           disableFuture disableHighlightToday openTo="year"
-                                           inputProps={{ fullWidth: true, size: 'small' }}
-                                           onChange={ () => setInvalidated(true) } />
+                        <TextFieldElement name="username" label="E-mail address" type="email"
+                                          fullWidth size="small"
+                                          onChange={ () => setInvalidated(true) } />
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
                                           fullWidth size="small"
                                           onChange={ () => setInvalidated(true) } />
+                    </Grid>
+
+                    <Grid size={{ xs: 6 }}>
+                        <Stack direction="row" spacing={1}>
+                            <TextFieldElement name="discordHandle" label="Discord handle"
+                                              fullWidth size="small"
+                                              onChange={ () => setInvalidated(true) } />
+                            { !!account.discordHandleUpdated &&
+                                <Tooltip title="Mark their handle as verified">
+                                    <IconButton onClick={handleVerifyDiscord}>
+                                        <DiscordIcon htmlColor="#5865F2" />
+                                    </IconButton>
+                                </Tooltip> }
+                            { !account.discordHandleUpdated &&
+                                <Tooltip title="Their handle has been verified">
+                                    <IconButton disabled>
+                                        <DiscordIcon color="disabled" />
+                                    </IconButton>
+                                </Tooltip> }
+                        </Stack>
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                        { /* available */ }
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>

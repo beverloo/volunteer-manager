@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import type { Temporal } from '@lib/Temporal';
 import { Header } from './Header';
 import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
@@ -33,6 +34,8 @@ export interface VolunteerInfo {
         gender: string;
         birthdate?: string;  // YYYY-MM-DD
         phoneNumber?: string;
+        discordHandle?: string;
+        discordHandleUpdated?: Temporal.ZonedDateTime;
         activated: number;
     };
 
@@ -62,6 +65,8 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
             gender: tUsers.gender,
             birthdate: dbInstance.dateAsString(tUsers.birthdate),
             phoneNumber: tUsers.phoneNumber,
+            discordHandle: tUsers.discordHandle,
+            discordHandleUpdated: tUsers.discordHandleUpdated,
             activated: tUsers.activated,
         })
         .executeSelectNoneOrOne();

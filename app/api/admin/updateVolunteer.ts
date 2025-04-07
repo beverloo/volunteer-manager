@@ -95,6 +95,7 @@ export async function updateVolunteer(request: Request, props: ActionProps): Pro
             gender: request.gender,
             birthdate: request.birthdate ? Temporal.PlainDate.from(request.birthdate) : null,
             phoneNumber: request.phoneNumber,
+            discordHandle: request.discordHandle,
         })
         .where(tUsers.userId.equals(request.userId))
         .executeUpdate();
