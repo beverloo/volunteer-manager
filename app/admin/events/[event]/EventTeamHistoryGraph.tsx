@@ -1,7 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { SalesGraphProps } from './finance/graphs/SalesGraph';
+import type { SalesLineGraphProps } from './finance/graphs/SalesLineGraph';
 import { ComparisonGraph, kComparisonEditionColours } from './finance/graphs/ComparisonGraph';
 import db, { tEvents, tUsersEvents } from '@lib/database';
 
@@ -37,7 +37,7 @@ interface EventTeamHistoryGraphProps {
  * of the volunteering team, based on the date at which the volunteers registered to participate.
  */
 export async function EventTeamHistoryGraph(props: EventTeamHistoryGraphProps) {
-    const series: SalesGraphProps['series'] = [];
+    const series: SalesLineGraphProps['series'] = [];
 
     // ---------------------------------------------------------------------------------------------
     // Delay loading the event team history graph by anything between 0 and 2 seconds, to spread out

@@ -45,11 +45,10 @@ export function SalesBarGraph(props: SalesBarGraphProps) {
         {
             scaleType: 'band',
             data: props.xLabels,
-            zoom: props.zoom,
         }
     ];
 
-    const yAxis: ResponsiveChartContainerProProps['yAxis'] = [{ zoom: props.zoom }];
+    const yAxis: ResponsiveChartContainerProProps['yAxis'] = [{ zoom: false }];
 
     return (
         <ResponsiveChartContainerPro series={props.series} height={height} margin={{ top: 24 }}

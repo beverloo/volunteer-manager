@@ -11,6 +11,9 @@ import { TicketSalesComparisonGraph } from './TicketSalesComparisonGraph';
 import { TicketSalesGrowthComparisonAction } from './TicketSalesGrowthComparisonAction';
 import { TicketSalesGrowthComparisonGraph } from './TicketSalesGrowthComparisonGraph';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
+import db, { tEvents, tEventsSalesConfiguration } from '@lib/database';
+
+import { kTicketSalesComparisonEditionCount } from './TicketSalesComparisonGraph';
 
 /**
  * Props accepted by the <TicketSalesGraph> component.
@@ -68,6 +71,28 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
     }
 
     // ---------------------------------------------------------------------------------------------
+    // Determine the events that should be compared. This will be based on the event that has been
+    // selected, and the number of editions that should be compared.
+
+    const dbInstance = db;
+
+    const events = await dbInstance.selectFrom(tEvents)
+        .innerJoin(tEventsSalesConfiguration)
+            .on(tEventsSalesConfiguration.eventId.equals(tEvents.eventId))
+                .and(tEventsSalesConfiguration.saleCategory.equals(props.category))
+        .where(tEvents.eventId.lessOrEquals(props.eventId))
+        .select({
+            id: tEvents.eventId,
+            name: tEvents.eventShortName,
+            products:
+                dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+        })
+        .groupBy(tEvents.eventId)
+        .orderBy(tEvents.eventEndTime, 'desc')
+        .limit(kTicketSalesComparisonEditionCount)
+        .executeSelectMany();
+
+    // ---------------------------------------------------------------------------------------------
     // Determine series of the graph. A series is created for each of the products, which is
     // important because we might want to distinguish between tickets for adults and children.
 
@@ -83,16 +108,16 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
             <TicketSalesGrowthComparisonAction
                 graph={
                     <TicketSalesGrowthComparisonGraph categories={[ props.category ]}
-                                                      eventId={props.eventId} />
+                                                      events={events} />
                 }
-                title={`${title} — Y/Y 7DA`} />
+                title={`${title} — Y/Y Daily Sales`} />
 
             <TicketSalesComparisonAction
                 graph={
                     <TicketSalesComparisonGraph categories={[ props.category ]}
-                                                eventId={props.eventId} />
+                                                events={events} />
                 }
-                title={`${title} — Y/Y`} />
+                title={`${title} — Y/Y Cumulative Sales`} />
         </Stack>
     );
 

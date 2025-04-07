@@ -43,7 +43,7 @@ export function TicketSalesGrowthComparisonAction(props: TicketSalesGrowthCompar
 
     return (
         <>
-            <Tooltip title="Compare sales (7DA)">
+            <Tooltip title="Y/Y Daily Sales">
                 <IconButton onClick={openComparison}>
                     <BarChartIcon color="info" fontSize="small" />
                 </IconButton>

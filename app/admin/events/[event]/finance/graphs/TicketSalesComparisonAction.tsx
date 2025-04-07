@@ -43,7 +43,7 @@ export function TicketSalesComparisonAction(props: TicketSalesComparisonActionPr
 
     return (
         <>
-            <Tooltip title="Compare to previous festivals">
+            <Tooltip title="Y/Y Cumulative Sales">
                 <IconButton onClick={openComparison}>
                     <HistoryIcon color="info" fontSize="small" />
                 </IconButton>

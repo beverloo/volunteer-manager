@@ -17,6 +17,7 @@ import SsidChartIcon from '@mui/icons-material/SsidChart';
 import type { AccessControl } from '@lib/auth/AccessControl';
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextPageParams } from '@lib/NextRouterParams';
+import type { TicketSalesComparisonGraphProps } from './finance/graphs/TicketSalesComparisonGraph';
 import { EventDeadlines } from './EventDeadlines';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
@@ -31,11 +32,12 @@ import { TicketSalesComparisonGraph } from './finance/graphs/TicketSalesComparis
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { isAvailabilityWindowOpen } from '@lib/isAvailabilityWindowOpen';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
-    tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
+import db, { tEvents, tEventsDeadlines, tEventsSalesConfiguration, tEventsTeams, tRoles, tStorage,
+    tTeams, tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
 
 import { kEventSalesCategory, kRegistrationStatus } from '@lib/database/Types';
+import { kTicketSalesComparisonEditionCount } from './finance/graphs/TicketSalesComparisonGraph';
 
 /**
  * Updates within how many minutes of each other should be merged together?
@@ -416,6 +418,30 @@ export default async function EventPage(props: NextPageParams<'event'>) {
 
     const canAccessFinanceStatistics = access.can('statistics.finances');
 
+    let financialEventsData: TicketSalesComparisonGraphProps['events'] = [ /* none yet */ ];
+    if (!!canAccessFinanceStatistics) {
+        financialEventsData = await db.selectFrom(tEvents)
+            .innerJoin(tEventsSalesConfiguration)
+                .on(tEventsSalesConfiguration.eventId.equals(tEvents.eventId))
+                    .and(tEventsSalesConfiguration.saleCategory.in([
+                        kEventSalesCategory.TicketFriday,
+                        kEventSalesCategory.TicketSaturday,
+                        kEventSalesCategory.TicketSunday,
+                        kEventSalesCategory.TicketWeekend,
+                    ]))
+            .where(tEvents.eventId.lessOrEquals(event.id))
+            .select({
+                id: tEvents.eventId,
+                name: tEvents.eventShortName,
+                products:
+                    db.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+            })
+            .groupBy(tEvents.eventId)
+            .orderBy(tEvents.eventEndTime, 'desc')
+            .limit(kTicketSalesComparisonEditionCount)
+            .executeSelectMany();
+    }
+
     return (
         <Grid container spacing={2} alignItems="stretch">
             <Grid size={{ xs: 3 }}>
@@ -455,7 +481,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                                             kEventSalesCategory.TicketSunday,
                                             kEventSalesCategory.TicketWeekend,
                                         ]}
-                                        eventId={event.id} height={250} />
+                                        events={financialEventsData} height={250} />
                                 </Suspense>
                             </CardContent>
                             <Divider />

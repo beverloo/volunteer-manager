@@ -4,7 +4,7 @@
 import type { EventSalesCategory } from '@lib/database/Types';
 import type { SalesLineGraphProps } from './SalesLineGraph';
 import { ComparisonGraph, kComparisonEditionColours } from './ComparisonGraph';
-import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
+import db, { tEvents, tEventsSales } from '@lib/database';
 
 /**
  * How many days should be compared within the comparable graphs?
@@ -19,17 +19,31 @@ export const kTicketSalesComparisonEditionCount = kComparisonEditionColours.leng
 /**
  * Props accepted by the <TicketSalesComparisonGraph> component.
  */
-interface TicketSalesComparisonGraphProps {
+export interface TicketSalesComparisonGraphProps {
     /**
      * Categories of sales for which this graph is being displayed.
      */
     categories: EventSalesCategory[];
 
     /**
-     * Base event for which the comparison graph should be displayed. Previous events with sales
-     * information will be automatically selected from the database.
+     * Events that are to be included on the comparison graph.
      */
-    eventId: number;
+    events: {
+        /**
+         * Unique ID of the event as it exists in the database.
+         */
+        id: number;
+
+        /**
+         * Label that represents the name of the event.
+         */
+        name: string;
+
+        /**
+         * Set of products that are in scope for the comparison for this event.
+         */
+        products: string[];
+    }[];
 
     /**
      * Maximum height of the graph, in pixels. Defaults to 300px.
@@ -47,26 +61,6 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
     const dbInstance = db;
 
     // ---------------------------------------------------------------------------------------------
-    // Determine the events that should be compared. This will be based on the event that has been
-    // selected, and the number of editions that should be compared.
-
-    const events = await dbInstance.selectFrom(tEvents)
-        .innerJoin(tEventsSalesConfiguration)
-            .on(tEventsSalesConfiguration.eventId.equals(tEvents.eventId))
-                .and(tEventsSalesConfiguration.saleCategory.in(props.categories))
-        .where(tEvents.eventId.lessOrEquals(props.eventId))
-        .select({
-            id: tEvents.eventId,
-            name: tEvents.eventShortName,
-            products:
-                dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
-        })
-        .groupBy(tEvents.eventId)
-        .orderBy(tEvents.eventEndTime, 'desc')
-        .limit(kTicketSalesComparisonEditionCount)
-        .executeSelectMany();
-
-    // ---------------------------------------------------------------------------------------------
     // Create a series for each of the events that should be compared. This requires a query per
     // edition. The series will be coloured based on how far in the past the event happened.
 
@@ -76,7 +70,7 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
     let currentSeriesColourIndex = 0;
     let currentId = 1;
 
-    for (const event of events) {
+    for (const event of props.events) {
         const salesData = await dbInstance.selectFrom(tEventsSales)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tEventsSales.eventId))
