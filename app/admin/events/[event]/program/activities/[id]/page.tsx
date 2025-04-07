@@ -68,6 +68,7 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
         notFound();
 
     const anplanLink = getAnPlanActivityUrl(activityId);
+    const portalLink = `/schedule/${event.slug}/events/${activityId}`;
 
     const timeslots = await dbInstance.selectFrom(tActivitiesTimeslots)
         .innerJoin(tActivitiesLocations)
@@ -146,6 +147,12 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
                                 click
                             </MuiLink>
                         </Typography> }
+                    <Typography variant="body2">
+                        <strong>Portal link</strong>:{' '}
+                        <MuiLink component={Link} target="_blank" href={portalLink}>
+                            click
+                        </MuiLink>
+                    </Typography>
                     { !!activity.url &&
                         <Typography variant="body2">
                             <strong>Website link</strong>:{' '}
