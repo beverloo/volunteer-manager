@@ -26,7 +26,8 @@ import { VolunteerNotes } from './VolunteerNotes';
 import { VolunteerSchedule } from './VolunteerSchedule';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
-import { getPublicEventsForFestival, type EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+import { getPublicEventsForFestival, type EventTimeslotEntry }
+    from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 import { readUserSettings } from '@lib/UserSettings';
@@ -286,4 +287,11 @@ export default async function EventVolunteerPage(props: RouterParams) {
     );
 }
 
-export const generateMetadata = generateEventMetadataFn('Volunteer');
+export async function generateMetadata(props: NextPageParams<'event' | 'volunteer'>) {
+    const userName = await db.selectFrom(tUsers)
+        .where(tUsers.userId.equals(parseInt((await props.params).volunteer, 10)))
+        .selectOneColumn(tUsers.name)
+        .executeSelectNoneOrOne() ?? undefined;
+
+    return generateEventMetadataFn(userName)(props);
+}
