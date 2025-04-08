@@ -80,7 +80,7 @@ interface ScheduleContextImplProps {
     /**
      * Default values that should be set in the context.
      */
-    defaultContext: ScheduleInfo & { date?: string };
+    defaultContext: ScheduleInfo & { date?: string; highlightedActivities?: string };
 }
 
 /**
@@ -121,6 +121,9 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // Initialise the state based on the `props`. The `date` will be validated on initialisation as
     // the setting may be persisted across events.
+    const [ highlightedActivities, setHighlightedActivities ] = useState<string | undefined>(
+        defaultContext.highlightedActivities);
+
     const [ inclusiveShifts, setInclusiveShifts ] = useState(defaultContext.inclusiveShifts);
     const [ date, setDate ] = useState<string | undefined>(() => {
         for (const { date } of availableDays) {
@@ -130,6 +133,8 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
         return undefined;
     });
+
+    // TODO: Provide a way to reach setHighlightedActivities() through some sort of picker
 
     // Called when the selected `date` has changed. The given `date` may either be a string when a
     // particular button has been selected, or `undefined` when all buttons have been unselected.
@@ -158,6 +163,8 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         const endpointParams = new URLSearchParams;
         if (!!date)
             endpointParams.set('date', date);
+        if (!!highlightedActivities)
+            endpointParams.set('highlights', highlightedActivities);
 
         const params = endpointParams.toString();
         return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;

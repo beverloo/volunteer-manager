@@ -42,6 +42,7 @@ import { useWindowHeight } from '@app/admin/lib/useWindowHeight';
 const kMarkerBackgroundColor = {
     avoid: '#ffe082',
     unavailable: '#eceff1',
+    highlight: '#b2ff5967',
 };
 
 /**

@@ -18,6 +18,7 @@ import db, { tRoles, tSchedule, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
+import { getTimeslotsForActivities } from './fn/getTimeslotsForActivities';
 
 /**
  * Type that describes the contents of a schedule as it will be consumed by the client.
@@ -61,7 +62,7 @@ export const kScheduleDefinition = z.object({
         /**
          * Type of marker that should be added to the schedule.
          */
-        type: z.enum([ 'avoid', 'unavailable' ]),
+        type: z.enum([ 'avoid', 'unavailable', 'highlight' ]),
     })),
 
     /**
@@ -208,6 +209,11 @@ export const kGetScheduleDefinition = z.object({
         team: z.string(),
 
         /**
+         * Optional comma-separated list of activity Ids that should be highlighted.
+         */
+        highlights: z.string().optional(),
+
+        /**
          * Optional date on which the schedule should focus, if any. Defaults to the entire event
          * when omitted.
          */
@@ -286,7 +292,7 @@ function determineDateRange(input: DateRangeInput) {
  * calculations go a bit wonky, and taking off a minute for presentational purposes only helps.
  */
 function adjustedStringForDisplay(dateTime: Temporal.ZonedDateTime): string {
-    return dateTime.subtract({ minutes: 1 }).toString({ timeZoneName: 'never' });
+    return dateTime.add({ minutes: 5 }).toString({ timeZoneName: 'never' });
 }
 
 /**
@@ -414,6 +420,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         .orderBy(tRoles.roleOrder, 'asc')
         .executeSelectMany();
 
+    const humanResources: number[] = [ /* none yet */ ];
+
     for (const roleResource of resources) {
         const roleId = `role/${roleResource.id}`;
 
@@ -445,6 +453,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
             // TODO: Compute warnings
 
+            humanResources.push(humanResource.id);
+
             children.push({
                 id: humanResource.id,
                 name: humanResource.name,
@@ -465,6 +475,20 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     }
 
     schedule.markers = mergeDuplicateMarkers(schedule.markers);
+
+    if (!!request.highlights) {
+        const highlights = request.highlights.split(',').map(v => parseInt(v, 10)).filter(Boolean);
+        const highlightedTimeslots = await getTimeslotsForActivities(highlights);
+        for (const { id, start, end } of highlightedTimeslots) {
+            schedule.markers.push({
+                id: `highlights/${id}`,
+                start: adjustedStringForDisplay(start),
+                end: adjustedStringForDisplay(end),
+                resource: humanResources,
+                type: 'highlight',
+            });
+        }
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Retrieve information about the assigned shifts.
