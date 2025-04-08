@@ -56,7 +56,7 @@ export const kScheduleDefinition = z.object({
         /**
          * Unique ID of the volunteer for whom this marker has been created.
          */
-        resource: z.number(),
+        resource: z.number().or(z.array(z.number())),
 
         /**
          * Type of marker that should be added to the schedule.
@@ -289,6 +289,38 @@ function adjustedStringForDisplay(dateTime: Temporal.ZonedDateTime): string {
     return dateTime.subtract({ minutes: 1 }).toString({ timeZoneName: 'never' });
 }
 
+/**
+ * Merges duplicated markers contained within the `input` into a markers shared across multiple
+ * resources. This is a performance optimisation to reduce the number of entities: for example, in
+ * the 2024 Crew team this reduces the number of markers from 287 to 50 (-82.6%).
+ */
+function mergeDuplicateMarkers(input: GetScheduleResult['markers']) {
+    const output: GetScheduleResult['markers'] = [ /* none yet */ ];
+    const markerIndices: Map<string, number> = new Map;
+
+    function getKeyForMarker(marker: GetScheduleResult['markers'][number]): string {
+        return `${marker.type}-${marker.start}-${marker.end}`;
+    }
+
+    for (const marker of input) {
+        const markerKey = getKeyForMarker(marker);
+        const markerIndex = markerIndices.get(markerKey);
+
+        if (markerIndex !== undefined) {
+            if (!Array.isArray(output[markerIndex].resource))
+                output[markerIndex].resource = [ output[markerIndex].resource ];
+
+            output[markerIndex].resource.push(marker.resource as number);
+
+        } else {
+            markerIndices.set(markerKey, output.length);
+            output.push(marker);
+        }
+    }
+
+    return output;
+}
+
 export type GetScheduleDefinition = ApiDefinition<typeof kGetScheduleDefinition>;
 
 type Request = ApiRequest<typeof kGetScheduleDefinition>;
@@ -431,6 +463,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             collapsed: !!roleResource.collapsed,
         });
     }
+
+    schedule.markers = mergeDuplicateMarkers(schedule.markers);
 
     // ---------------------------------------------------------------------------------------------
     // Retrieve information about the assigned shifts.
