@@ -62,9 +62,8 @@ async function LineGraphImpl(props: LineGraphProps) {
     const data = await props.query(props.filters);
 
     return <LineGraphClient {...data}
-                            grid={{ horizontal: true, vertical: true }}
-                            margin={{ left: 32, right: 16, top: 16, bottom: 32 }}
-                            slotProps={{ legend: { hidden: true } }}
+                            grid={{ horizontal: true }}
+                            margin={{ left: 0, right: 16, top: 24, bottom: 8 }} hideLegend
                             height={200} percentage={props.percentage} suffix={props.suffix} />;
 }
 

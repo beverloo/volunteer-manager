@@ -3,70 +3,10 @@
 
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import type { GridColDef, GridFilterModel, GridPaginationModel, GridValidRowModel } from '@mui/x-data-grid-pro';
-import { DataGridPro, GridToolbarQuickFilter, type DataGridProProps } from '@mui/x-data-grid-pro';
-
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-
-/**
- * Custom styles applied to the <DataTable> & related components.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    filterContainer: {
-        p: 1,
-
-        backgroundColor: theme => theme.palette.mode === 'light' ? 'grey.200'
-                                                                 : 'grey.800',
-    },
-
-    filterTextField: {
-        width: '100%',
-        pb: 0,
-
-        '& .MuiInputBase-adornedEnd > .MuiSvgIcon-root': {
-            color: 'action.active',
-        },
-
-        '& .MuiInput-underline:before': {
-            borderBottomWidth: 0,
-        },
-    },
-};
-
-/**
- * Component that displays a quick filter at the top of the <DataTable> component. The user can type
- * whatever they're searching for in this filter, which will automatically search through all data.
- */
-function DataTableFilter() {
-    const inputReference = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        function handleKeyPress(event: KeyboardEvent) {
-            if (!inputReference.current)
-                return;
-
-            if (event.keyCode !== 114 && !(event.ctrlKey && event.keyCode === 70))
-                return;
-
-            event.preventDefault();
-            inputReference.current.focus();
-        }
-
-        document.addEventListener('keydown', handleKeyPress);
-        return () => document.removeEventListener('keydown', handleKeyPress);
-    });
-
-    return (
-        <Box sx={kStyles.filterContainer}>
-            <GridToolbarQuickFilter debounceMs={200} fullWidth sx={kStyles.filterTextField}
-                                    slotProps={{ input: { inputRef: inputReference } }} />
-        </Box>
-    )
-}
+import { DataGridPro, type DataGridProProps } from '@mui/x-data-grid-pro';
 
 /**
  * Type describing a column definition in the DataTable API.
@@ -184,7 +124,13 @@ export function DataTable<RowModel extends GridValidRowModel = GridValidRowModel
                      paginationModel={paginationModel} pagination
                      onPaginationModelChange={onPaginationModelChange}
 
-                     slots={{ toolbar: !!props.enableFilter ? DataTableFilter : undefined }}
+                     showToolbar={!!props.enableFilter}
+                     slotProps={{
+                         toolbar: {
+                             csvOptions: { disableToolbarButton: true },
+                             printOptions: { disableToolbarButton: true },
+                         }
+                     }}
 
                      onColumnVisibilityModelChange={props.onColumnVisibilityModelChange}
                      onFilterModelChange={props.onFilterModelChange}

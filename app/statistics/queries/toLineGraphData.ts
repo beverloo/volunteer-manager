@@ -27,7 +27,7 @@ export function toLineGraphData(input: DatabaseResult[]): LineGraphData {
     const series = new Map<string, LineGraphData['series'][number]>();
 
     const xAxis = new Map<string, NonNullable<LineGraphData['xAxis']>[number]>();
-    const xAxisKeys: string[] = [ /* empty */ ];
+    const xAxisIds: string[] = [ /* empty */ ];
 
     for (const entry of input) {
         if (!dataset.has(entry.event.slug)) {
@@ -48,7 +48,7 @@ export function toLineGraphData(input: DatabaseResult[]): LineGraphData {
         }
 
         if (!xAxis.has(entry.event.slug)) {
-            xAxisKeys.push(entry.event.slug);
+            xAxisIds.push(entry.event.slug);
             xAxis.set(entry.event.slug, {
                 id: entry.event.slug,
                 dataKey: 'event',
@@ -60,6 +60,6 @@ export function toLineGraphData(input: DatabaseResult[]): LineGraphData {
     return {
         dataset: [ ...dataset.values() ],
         series: [ ...series.values() ],
-        xAxis: xAxisKeys.map(key => xAxis.get(key)!),
+        xAxis: xAxisIds.map(key => xAxis.get(key)!),
     };
 }

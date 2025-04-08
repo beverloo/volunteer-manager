@@ -8,9 +8,9 @@ import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 import {
-    ChartsAxisHighlight, ChartsClipPath, ChartsGrid, ChartsReferenceLine, ChartsTooltip,
-    ChartsXAxis, ChartsYAxis, LinePlot, ResponsiveChartContainerPro, ZoomSetup,
-    type ResponsiveChartContainerProProps } from './MuiChartProxy';
+    type AllSeriesType, ChartContainerPro, type ChartContainerProProps, ChartsAxisHighlight,
+    ChartsClipPath, ChartsGrid, ChartsReferenceLine, ChartsTooltip, ChartsXAxis, ChartsYAxis,
+    LinePlot } from './MuiChartProxy';
 
 /**
  * Colour in which the line visualising maximum ticket sales should be displayed.
@@ -44,12 +44,12 @@ export interface SalesLineGraphProps {
     /**
      * Series that should be displayed on the graph.
      */
-    series: ResponsiveChartContainerProProps['series'];
+    series: AllSeriesType[];
 
     /**
      * Optional styling to apply to the graph. Will be forwarded to the container.
      */
-    sx?: ResponsiveChartContainerProProps['sx'];
+    sx?: ChartContainerProProps['sx'];
 
     /**
      * Title that should be displayed on the graph, if any.
@@ -87,7 +87,7 @@ export function SalesLineGraph(props: SalesLineGraphProps) {
 
     const height = props.height ?? 300;
 
-    const xAxis: ResponsiveChartContainerProProps['xAxis'] = [
+    const xAxis: ChartContainerProProps['xAxis'] = [
         {
             scaleType: 'point',
             data: props.xLabels,
@@ -95,7 +95,7 @@ export function SalesLineGraph(props: SalesLineGraphProps) {
         }
     ];
 
-    const yAxis: ResponsiveChartContainerProProps['yAxis'] = [
+    const yAxis: ChartContainerProProps['yAxis'] = [
         {
             max: props.limit ? Math.floor(props.limit * 1.1) : undefined,
             zoom: props.zoom,
@@ -115,8 +115,8 @@ export function SalesLineGraph(props: SalesLineGraphProps) {
                             {props.action}
                         </Box> }
                 </Stack> }
-            <ResponsiveChartContainerPro series={props.series} height={height} margin={{ top: 24 }}
-                                         xAxis={xAxis} yAxis={yAxis} sx={props.sx}>
+            <ChartContainerPro series={props.series} height={height} margin={{ left: 8, top: 24 }}
+                               xAxis={xAxis} yAxis={yAxis} sx={props.sx}>
                 <ChartsClipPath id={clipPathId} />
                 <g clipPath={`url(#${clipPathId})`}>
                     <LinePlot />
@@ -142,8 +142,7 @@ export function SalesLineGraph(props: SalesLineGraphProps) {
                 <ChartsTooltip />
                 <ChartsXAxis />
                 <ChartsYAxis />
-                { !!props.zoom && <ZoomSetup /> }
-            </ResponsiveChartContainerPro>
+            </ChartContainerPro>
         </>
     );
 }

@@ -1,7 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { ResponsiveChartContainerProProps } from '@mui/x-charts-pro/ResponsiveChartContainerPro';
+import type { AllSeriesType } from './MuiChartProxy';
 
 import { Temporal, isAfter } from '@lib/Temporal';
 import db, { tEvents, tEventsSales } from '@lib/database';
@@ -22,7 +22,7 @@ export async function generateSeriesForProducts(
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
-    const series: ResponsiveChartContainerProProps['series'] = [];
+    const series: AllSeriesType[] = [];
 
     const salesDatabaseData = await dbInstance.selectFrom(tEventsSales)
         .where(tEventsSales.eventId.equals(eventId))

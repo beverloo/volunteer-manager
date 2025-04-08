@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 
 import type {
     GridCellParams, GridColDef, GridGroupingColDefOverride, GridPaginationModel,
-    GridRenderCellParams, GridRowModesModel, GridRowOrderChangeParams, GridSortItem, GridSortModel,
+    GridRenderCellParams, GridRowModesModel, GridRowOrderChangeParams, GridSortModel,
     GridValidRowModel } from '@mui/x-data-grid-pro';
 
 import { DataGridPro, GridRowModes, GRID_REORDER_COL_DEF } from '@mui/x-data-grid-pro';
@@ -28,6 +28,8 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import { type ApiEndpoints, callApi } from '@lib/callApi';
+
+type GridSortItem = GridSortModel[number];
 
 /**
  * Icon used to be able to drag and re-order rows. We use a smaller icon than default to fit in with

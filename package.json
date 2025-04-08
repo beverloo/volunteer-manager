@@ -33,10 +33,10 @@
     "@mui/lab": "^7.0.0-beta.10",
     "@mui/material": "^7.0.1",
     "@mui/material-nextjs": "^7.0.0",
-    "@mui/x-charts-pro": "^7.28.0",
-    "@mui/x-data-grid-pro": "^7.28.3",
-    "@mui/x-date-pickers": "^7.28.3",
-    "@mui/x-license": "^7.28.0",
+    "@mui/x-charts-pro": "^8.0.0-beta.3",
+    "@mui/x-data-grid-pro": "^8.0.0-beta.3",
+    "@mui/x-date-pickers": "^8.0.0-beta.3",
+    "@mui/x-license": "^8.0.0-beta.3",
     "@peculiar/webcrypto": "^1.5.0",
     "@simplewebauthn/browser": "^13.1.0",
     "@simplewebauthn/server": "^13.1.1",
@@ -69,6 +69,9 @@
   "overrides": {
     "mui-color-input": {
       "@mui/material": "^7.0.1"
+    },
+    "react-hook-form-mui": {
+      "@mui/x-date-pickers": "^8.0.0-beta.3"
     }
   },
   "devDependencies": {
