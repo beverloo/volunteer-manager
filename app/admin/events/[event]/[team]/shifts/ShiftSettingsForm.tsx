@@ -7,7 +7,7 @@ import { type FieldValues, AutocompleteElement, FormContainer, TextFieldElement,
     from '@proxy/react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
 import type { EventShiftRowModel } from '@app/api/admin/event/shifts/[[...id]]/route';

@@ -8,7 +8,7 @@ import type { Theme, ThemeOptions } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 
-import grey from '@mui/material/colors/grey';
+import { grey } from '@mui/material/colors';
 
 /**
  * Mixins that should be added to a created type depending on the chosen palette mode.

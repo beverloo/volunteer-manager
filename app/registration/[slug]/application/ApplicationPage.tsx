@@ -15,7 +15,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import FaceIcon from '@mui/icons-material/Face';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import MuiAvatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';

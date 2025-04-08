@@ -7,7 +7,7 @@ import type { PaletteMode } from '@mui/material';
 import { Roboto } from 'next/font/google';
 import { type Theme, type ThemeOptions, createTheme, lighten } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
-import grey from '@mui/material/colors/grey'
+import { grey } from '@mui/material/colors';
 
 /**
  * Representation of the theme colours for each of the valid Palette modes.

@@ -24,9 +24,7 @@ import Typography from '@mui/material/Typography';
 
 import { darken, lighten } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
-import green from '@mui/material/colors/lightGreen'
-import red from '@mui/material/colors/red';
-import yellow from '@mui/material/colors/yellow';
+import { green, red, yellow } from '@mui/material/colors';
 
 import type { EventData } from '@lib/Event';
 import type { RegistrationData } from '@lib/Registration';

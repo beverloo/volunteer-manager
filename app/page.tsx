@@ -9,7 +9,7 @@ import type { Theme } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { deepmerge } from '@mui/utils';
 
 import type { Event } from '@lib/Event';

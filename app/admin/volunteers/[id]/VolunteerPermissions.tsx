@@ -8,7 +8,7 @@ import { SelectElement } from '@components/proxy/react-hook-form-mui';
 import Alert from '@mui/material/Alert';
 import CategoryIcon from '@mui/icons-material/Category';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';

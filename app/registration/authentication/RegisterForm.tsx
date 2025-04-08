@@ -4,7 +4,7 @@
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 /**
  * The options we'll present to users when having to pick their gender.

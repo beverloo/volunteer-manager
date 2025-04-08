@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { default as MuiLink } from '@mui/material/Link';
 import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SalesUploadInput } from './SalesUploadInput';

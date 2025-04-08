@@ -5,7 +5,7 @@
 
 import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import type { ApplicationDefinition } from '@app/api/event/application';
 

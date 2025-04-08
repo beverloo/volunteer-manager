@@ -3,7 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
-import Grid from '@mui/material/Grid2/Grid2';
+import Grid from '@mui/material/Grid';
 
 import type { NextSearchParams } from '@lib/NextRouterParams';
 import { LineGraph } from './components/LineGraph';

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { type FieldValues, type FieldValue, FormContainer, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 

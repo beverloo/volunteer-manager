@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { type EventAvailabilityStatus, kEventAvailabilityStatus } from '@lib/database/Types';
 import { EventSettingsForm } from './EventSettingsForm';

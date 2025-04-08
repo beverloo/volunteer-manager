@@ -9,7 +9,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import { Section } from '@app/admin/components/Section';

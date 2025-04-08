@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, SelectElement, TextFieldElement }
     from '@proxy/react-hook-form-mui';
 
 import type { ValueOptions } from '@mui/x-data-grid-pro';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import type { ContentScope } from '@app/api/admin/content/[[...id]]/route';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';

@@ -4,7 +4,7 @@
 import { Suspense } from 'react';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
 import { type EventSalesGraphProps, EventSalesGraph } from './graphs/EventSalesGraph';

@@ -11,7 +11,7 @@ import { type FieldValues, FormContainer, SelectElement, TextareaAutosizeElement
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';

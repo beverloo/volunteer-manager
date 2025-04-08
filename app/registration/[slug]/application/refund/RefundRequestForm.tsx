@@ -5,7 +5,7 @@
 
 import { TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 /**
  * Props accepted by the <RefundRequestForm> component.

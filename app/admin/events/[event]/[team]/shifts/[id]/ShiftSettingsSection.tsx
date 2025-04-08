@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { FieldValues } from '@proxy/react-hook-form-mui';
 import type { ValueOptions } from '@mui/x-data-grid-pro';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { MuiColorInput } from 'mui-color-input';
 import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';

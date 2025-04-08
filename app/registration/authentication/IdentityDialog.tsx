@@ -11,7 +11,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import PasswordIcon from '@mui/icons-material/Password';
 import Typography from '@mui/material/Typography';
 

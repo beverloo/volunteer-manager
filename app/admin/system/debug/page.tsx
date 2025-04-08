@@ -8,7 +8,7 @@ import { cookies, headers } from 'next/headers';
 
 import { DateTimePickerElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';

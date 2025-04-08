@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { type FieldValues, FormContainer, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { Section } from '@app/admin/components/Section';
 import { SubmitCollapse } from '../../components/SubmitCollapse';

@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
 import { type FieldValues, FormContainer, SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';

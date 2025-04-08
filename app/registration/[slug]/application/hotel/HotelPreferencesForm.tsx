@@ -10,7 +10,7 @@ import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Collapse from '@mui/material/Collapse';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { Temporal, formatDate } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';

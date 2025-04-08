@@ -8,7 +8,7 @@ import { useCallback, useState } from 'react';
 import { type FieldValues, FormContainer, TextFieldElement } from '@proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
