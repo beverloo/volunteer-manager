@@ -10,6 +10,7 @@ import { SelectElement } from '@proxy/react-hook-form-mui';
 import type { PopoverPosition } from '@mui/material/Popover';
 import Button from '@mui/material/Button';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -244,6 +245,15 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ contextMenuPosition, setContextMenuPosition ] = useState<PopoverPosition | undefined>();
     const [ contextMenuResolver, setContextMenuResolver ] = useState<ContextMenuResolver>();
 
+    const handleRightClickMenuRemove = useCallback(() => {
+        if (!contextMenuEvent || !contextMenuResolver)
+            return;
+
+        contextMenuResolver({ delete: true });
+        setContextMenuEvent(undefined);
+
+    }, [ contextMenuEvent, contextMenuResolver ]);
+
     const handleRightClickMenuHistory = useCallback(() => {
         if (!contextMenuEvent || !contextMenuResolver)
             return;
@@ -411,6 +421,12 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                             <HistoryIcon fontSize="small" />
                         </ListItemIcon>
                         History
+                    </MenuItem>
+                    <MenuItem onClick={handleRightClickMenuRemove}>
+                        <ListItemIcon>
+                            <DeleteForeverIcon fontSize="small" />
+                        </ListItemIcon>
+                        Remove
                     </MenuItem>
                     { recentShifts.length > 0 && <Divider /> }
                     { recentShifts.map(shift =>
