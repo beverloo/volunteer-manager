@@ -8,10 +8,17 @@ import useSWR from 'swr';
 
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
@@ -137,8 +144,6 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         return undefined;
     });
 
-    // TODO: Provide a way to reach setHighlightedShifts() through some sort of picker
-
     // Called when the selected `date` has changed. The given `date` may either be a string when a
     // particular button has been selected, or `undefined` when all buttons have been unselected.
     const handleDateChange = useCallback((event: unknown, date?: string) => {
@@ -172,7 +177,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         const params = endpointParams.toString();
         return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;
 
-    }, [ date, props.event.slug, props.team.slug ]);
+    }, [ date, highlightedShifts, props.event.slug, props.team.slug ]);
 
     const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(endpoint, fetcher, {
         refreshInterval: /* ms= */ 15 * 1000,
@@ -239,17 +244,31 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // ---------------------------------------------------------------------------------------------
 
-    const handleHighlightDialogOpen = useCallback(() => {
-        // TODO
-    }, [ /* no dependencies yet */ ]);
+    const [ highlightDialogOpen, setHighlightDialogOpen ] = useState<boolean>(false);
+
+    const handleHighlightDialogClose = useCallback(() => setHighlightDialogOpen(false), []);
+    const handleHighlightDialogOpen = useCallback(() => setHighlightDialogOpen(true), []);
+
+    const handleToggleShiftHighlight = useCallback((shiftId: number) => {
+        const highlightedShiftIds =
+            !!highlightedShifts ? new Set(highlightedShifts.split(',').map(v => parseInt(v)))
+                                : new Set();
+
+        highlightedShiftIds.has(shiftId) ? highlightedShiftIds.delete(shiftId)
+                                         : highlightedShiftIds.add(shiftId);
+
+        setHighlightedShifts([ ...highlightedShiftIds ].join(','));
+        mutate();  // invalidate the `schedule`
+
+    }, [ highlightedShifts, mutate ]);
 
     // ---------------------------------------------------------------------------------------------
 
-    // Contents of the highlighted item badge, which indicates to the user how many shifts have been
-    // selected as highlights on the schedule screen. Small detail, but informative.
-    const highlightBadgeContent =
-        !!highlightedShifts ? highlightedShifts.split(',').length
-                            : 0;
+    // Set of highlighted shifts. Always an instance, only set to the right shifts when at least a
+    // single shift has been selected for highlight.
+    const highlightedShiftIds =
+        !!highlightedShifts ? new Set(highlightedShifts.split(',').map(v => parseInt(v)))
+                            : new Set();
 
     // The schedule context contains our local confirmation, as well as the schedule that has been
     // fetched from the server, when the data is ready. On top of that, we provide utility functions
@@ -290,7 +309,8 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                                                                            mr: .5 } } }} />
                     </Tooltip>
                     <Tooltip title="Highlight shifts">
-                        <Badge badgeContent={highlightBadgeContent} overlap="circular" color="info">
+                        <Badge badgeContent={highlightedShiftIds.size} overlap="circular"
+                               color="info">
                             <IconButton onClick={handleHighlightDialogOpen}>
                                 <PendingActionsIcon fontSize="small" />
                             </IconButton>
@@ -307,6 +327,34 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 </Stack>
             </Stack>
             {props.children}
+            { (!!highlightDialogOpen && !!scheduleContext.schedule) &&
+                <Dialog open fullWidth onClose={handleHighlightDialogClose}>
+                    <DialogTitle>Shifts to highlight</DialogTitle>
+                    <DialogContent>
+                        <FormGroup>
+                            { scheduleContext.schedule.metadata.shifts.map(shift => {
+                                if (!shift.localTeam) return undefined;
+
+                                const callback = handleToggleShiftHighlight.bind(null, shift.id);
+                                const checked = highlightedShiftIds.has(shift.id);
+
+                                return (
+                                    <FormControlLabel key={shift.id}
+                                                      control={
+                                                          <Checkbox checked={checked} size="small"
+                                                                    onClick={callback}/>
+                                                      }
+                                                      label={shift.label} />
+                                );
+                            } )}
+                        </FormGroup>
+                    </DialogContent>
+                    <DialogActions sx={{ pt: 0, mr: 1, mb: 0 }}>
+                        <Button onClick={handleHighlightDialogClose} variant="text">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog> }
             <Snackbar autoHideDuration={3000} onClose={doCloseError} open={!!processingError}>
                 <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
                     {processingError}
