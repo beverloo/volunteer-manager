@@ -331,7 +331,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                     <DialogContent>
                         <FormGroup>
                             { scheduleContext.schedule.metadata.shifts.map(shift => {
-                                if (!shift.localTeam) return undefined;
+                                if (!shift.localTeam && !inclusiveShifts) return undefined;
 
                                 const callback = handleToggleShiftHighlight.bind(null, shift.id);
                                 const checked = highlightedShiftIds.has(shift.id);
