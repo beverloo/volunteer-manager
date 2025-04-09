@@ -10,6 +10,7 @@ import { Temporal } from '@lib/Temporal';
 import { determineAvailability } from './fn/determineAvailability';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
+import { getTimeslotsForShifts } from './fn/getTimeslotsForShifts';
 import { getTimeslots } from './fn/getTimeslots';
 import { readSettings } from '@lib/Settings';
 import { validateContext } from '../validateContext';
@@ -18,7 +19,6 @@ import db, { tRoles, tSchedule, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
-import { getTimeslotsForActivities } from './fn/getTimeslotsForActivities';
 
 /**
  * Type that describes the contents of a schedule as it will be consumed by the client.
@@ -62,7 +62,7 @@ export const kScheduleDefinition = z.object({
         /**
          * Type of marker that should be added to the schedule.
          */
-        type: z.enum([ 'avoid', 'unavailable', 'highlight' ]),
+        type: z.enum([ 'avoid', 'unavailable', 'highlight-demand', 'highlight-timeslot' ]),
     })),
 
     /**
@@ -209,7 +209,7 @@ export const kGetScheduleDefinition = z.object({
         team: z.string(),
 
         /**
-         * Optional comma-separated list of activity Ids that should be highlighted.
+         * Optional comma-separated list of shift Ids that should be highlighted.
          */
         highlights: z.string().optional(),
 
@@ -478,15 +478,34 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
 
     if (!!request.highlights) {
         const highlights = request.highlights.split(',').map(v => parseInt(v, 10)).filter(Boolean);
-        const highlightedTimeslots = await getTimeslotsForActivities(highlights);
-        for (const { id, start, end } of highlightedTimeslots) {
-            schedule.markers.push({
-                id: `highlights/${id}`,
-                start: adjustedStringForDisplay(start),
-                end: adjustedStringForDisplay(end),
-                resource: humanResources,
-                type: 'highlight',
-            });
+        const highlightedShifts = await getTimeslotsForShifts(highlights);
+
+        for (const { id, demand, timeslots } of highlightedShifts) {
+            if (!!demand) {
+                let demandIndex = 0;
+                for (const { start, end } of demand) {
+                    schedule.markers.push({
+                        id: `highlights/${id}/d/${demandIndex++}`,
+                        start: start,
+                        end: end,
+                        resource: humanResources,
+                        type: 'highlight-demand',
+                    });
+                }
+            }
+
+            if (!!timeslots && timeslots.length > 0) {
+                let timeslotIndex = 0;
+                for (const { start, end } of timeslots) {
+                    schedule.markers.push({
+                        id: `highlights/${id}/t/${timeslotIndex++}`,
+                        start: adjustedStringForDisplay(start),
+                        end: adjustedStringForDisplay(end),
+                        resource: humanResources,
+                        type: 'highlight-timeslot',
+                    });
+                }
+            }
         }
     }
 
