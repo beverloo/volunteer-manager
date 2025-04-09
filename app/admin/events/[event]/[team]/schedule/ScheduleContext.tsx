@@ -131,9 +131,6 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // Initialise the state based on the `props`. The `date` will be validated on initialisation as
     // the setting may be persisted across events.
-    const [ highlightedShifts, setHighlightedShifts ] = useState<string | undefined>(
-        defaultContext.highlightedShifts);
-
     const [ inclusiveShifts, setInclusiveShifts ] = useState(defaultContext.inclusiveShifts);
     const [ date, setDate ] = useState<string | undefined>(() => {
         for (const { date } of availableDays) {
@@ -165,6 +162,9 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ highlightedShifts, setHighlightedShifts ] = useState<string | undefined>(
+        defaultContext.highlightedShifts);
+
     // Load the schedule using SWR. The endpoint will be composed based on the props and the date,
     // following which we will acquire the necessary information from the server.
     const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(() => {
@@ -178,6 +178,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;
 
     }, fetcher, {
+        keepPreviousData: true,
         refreshInterval: /* ms= */ 15 * 1000,
     });
 
