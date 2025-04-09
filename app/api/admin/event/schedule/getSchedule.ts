@@ -15,6 +15,7 @@ import { getTimeslots } from './fn/getTimeslots';
 import { readSettings } from '@lib/Settings';
 import { validateContext } from '../validateContext';
 import { validateTime } from './fn/validateTime';
+import { writeUserSetting } from '@lib/UserSettings';
 import db, { tRoles, tSchedule, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
@@ -480,6 +481,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         const highlights = request.highlights.split(',').map(v => parseInt(v, 10)).filter(Boolean);
         const highlightedShifts = await getTimeslotsForShifts(highlights);
 
+        await writeUserSetting(
+            props.user.userId, 'user-admin-schedule-highlight-shifts', highlights.join(','));
+
         for (const { id, demand, timeslots } of highlightedShifts) {
             if (!!demand) {
                 let demandIndex = 0;
@@ -507,6 +511,9 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 }
             }
         }
+    } else {
+        await writeUserSetting(
+            props.user.userId, 'user-admin-schedule-highlight-shifts', undefined);
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -167,7 +167,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // Load the schedule using SWR. The endpoint will be composed based on the props and the date,
     // following which we will acquire the necessary information from the server.
-    const endpoint = useMemo(() => {
+    const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(() => {
         const endpointParams = new URLSearchParams;
         if (!!date)
             endpointParams.set('date', date);
@@ -177,9 +177,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
         const params = endpointParams.toString();
         return `/api/admin/event/schedule/${props.event.slug}/${props.team.slug}?${params}`;
 
-    }, [ date, highlightedShifts, props.event.slug, props.team.slug ]);
-
-    const { data, error, isLoading, mutate } = useSWR<GetScheduleResult>(endpoint, fetcher, {
+    }, fetcher, {
         refreshInterval: /* ms= */ 15 * 1000,
     });
 

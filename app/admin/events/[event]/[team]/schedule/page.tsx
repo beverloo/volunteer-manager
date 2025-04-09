@@ -37,12 +37,13 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
         'user-admin-schedule-expand-sections',
         'user-admin-schedule-expand-history',
         'user-admin-schedule-expand-warnings',
+        'user-admin-schedule-highlight-shifts',
         'user-admin-schedule-inclusive-shifts',
     ]);
 
     const defaultContext = {
         date: userSettings['user-admin-schedule-date'],
-        highlightedShifts: '307,302',
+        highlightedShifts: userSettings['user-admin-schedule-highlight-shifts'],
         inclusiveShifts: userSettings['user-admin-schedule-inclusive-shifts'] ?? false,
     };
 

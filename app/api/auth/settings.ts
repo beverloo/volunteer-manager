@@ -57,6 +57,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
         'user-admin-schedule-expand-sections': 'string',
         'user-admin-schedule-expand-history': 'boolean',
         'user-admin-schedule-expand-warnings': 'boolean',
+        'user-admin-schedule-highlight-shifts': 'string',
         'user-admin-schedule-inclusive-shifts': 'boolean',
         'user-admin-shifts-display-other-teams': 'boolean',
         'user-admin-shifts-expand-shifts': 'boolean',
