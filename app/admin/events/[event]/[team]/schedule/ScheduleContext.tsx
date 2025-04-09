@@ -7,11 +7,14 @@ import React, { createContext, useCallback, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
 import Alert from '@mui/material/Alert';
+import Badge from '@mui/material/Badge';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import PeopleIcon from '@mui/icons-material/People';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
@@ -236,6 +239,18 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     // ---------------------------------------------------------------------------------------------
 
+    const handleHighlightDialogOpen = useCallback(() => {
+        // TODO
+    }, [ /* no dependencies yet */ ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    // Contents of the highlighted item badge, which indicates to the user how many shifts have been
+    // selected as highlights on the schedule screen. Small detail, but informative.
+    const highlightBadgeContent =
+        !!highlightedShifts ? highlightedShifts.split(',').length
+                            : 0;
+
     // The schedule context contains our local confirmation, as well as the schedule that has been
     // fetched from the server, when the data is ready. On top of that, we provide utility functions
     // for schedule mutations to be shared back with the server.
@@ -273,6 +288,13 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                                           onChange={handleInclusiveShiftsChange}
                                           slotProps={{ typography: { sx: { display: 'flex',
                                                                            mr: .5 } } }} />
+                    </Tooltip>
+                    <Tooltip title="Highlight shifts">
+                        <Badge badgeContent={highlightBadgeContent} overlap="circular" color="info">
+                            <IconButton onClick={handleHighlightDialogOpen}>
+                                <PendingActionsIcon fontSize="small" />
+                            </IconButton>
+                        </Badge>
                     </Tooltip>
                     <ToggleButtonGroup exclusive value={date} size="small"
                                        onChange={handleDateChange} >
