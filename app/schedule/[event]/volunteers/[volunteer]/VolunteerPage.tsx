@@ -35,7 +35,7 @@ import { SetTitle } from '../../components/SetTitle';
 import { SubHeader } from '../../components/SubHeader';
 import { callApi } from '@lib/callApi';
 import { currentTimestamp, toZonedDateTime } from '../../CurrentTime';
-import { formatDate } from '@lib/Temporal';
+import { formatDate, type Temporal } from '@lib/Temporal';
 
 import { kEnforceSingleLine } from '../../Constants';
 import { kLogicalDayChangeHour } from '../../lib/isDifferentDay';
@@ -45,12 +45,13 @@ const NotesEditorDialog = dynamic(() => import('../../components/NotesEditorDial
 });
 
 /**
- * Sorted and associated information regarding the shifts assigned to a volunteer, grouped together
- * in any number of sections, generally days.
+ * Sorted and associated information regarding the a particular section of the volunteer's schedule,
+ * grouped together in any number of sections, generally days. Includes both scheduled shifts and,
+ * for the local volunteer, their starred events.
  */
-interface ScheduledShiftsSection {
+interface ScheduleSection {
     /**
-     * Label to assign to the section of scheduled shifts.
+     * Label to assign to the section of their schedule.
      */
     label: string;
 
@@ -65,13 +66,18 @@ interface ScheduledShiftsSection {
     finished: boolean;
 
     /**
-     * The shifts that are part of this section.
+     * The entries that are part of this section.
      */
-    shifts: {
+    entries: {
         /**
-         * Unique ID of this section.
+         * Unique ID of this entry.
          */
         id: string;
+
+        /**
+         * Type of entry that is described.
+         */
+        type: 'favourite' | 'shift';
 
         /**
          * Unique ID of the activity this shift is associated with. Will be used to linkify.
@@ -112,6 +118,53 @@ interface ScheduledShiftsSection {
 }
 
 /**
+ * Determines the section that an event with the given |start| and |end| moments should be part of,
+ * which depends on whether the logical day setting is enabled.
+ */
+function determineSection(
+    start: Temporal.ZonedDateTime, end: Temporal.ZonedDateTime, enableLogicalDays: boolean): string
+{
+    let startForSection = start;
+
+    // We consider shifts that end before the `kLogicalDayChangeHour` to be part of the
+    // previous day, to avoid volunteer confusion about when shifts are meant to take place.
+    if (enableLogicalDays && end.hour <= kLogicalDayChangeHour)
+        startForSection = start.subtract({ hours: kLogicalDayChangeHour });
+
+    return formatDate(startForSection, 'dddd');
+}
+
+/**
+ * Determines the style that should be applied to a row on a volunteer's schedule, which is based
+ * on the lifecycle stage of the shift or favourited entry that's being displayed.
+ */
+function determineSx(start: number, end: number, currentTime: number): SxProps<Theme> | undefined {
+    if (end <= currentTime) {
+        return {
+            backgroundColor: 'animecon.pastBackground',
+            textDecoration: 'line-through',
+            textDecorationColor: theme => theme.palette.animecon.pastForeground,
+            '&:hover': {
+                backgroundColor: 'animecon.pastBackgroundHover',
+                textDecoration: 'line-through',
+                textDecorationColor: theme => theme.palette.animecon.pastForeground,
+            },
+        };
+    }
+
+    if (start <= currentTime) {
+        return {
+            backgroundColor: 'animecon.activeBackground',
+            '&:hover': {
+                backgroundColor: 'animecon.activeBackgroundHover',
+            },
+        };
+    }
+
+    return undefined;
+}
+
+/**
  * Props accepted by the <VolunteerPageProps> component.
  */
 interface VolunteerPageProps {
@@ -134,14 +187,18 @@ export function VolunteerPage(props: VolunteerPageProps) {
     // Scheduled shifts:
     // ---------------------------------------------------------------------------------------------
 
-    const scheduledShifts = useMemo(() => {
-        const scheduledShifts: ScheduledShiftsSection[] = [ /* empty */ ];
+    const [ hasShifts, isSelf, scheduleSections ] = useMemo(() => {
+        let hasShifts: boolean = false;
+        const isSelf = props.userId === `${schedule?.userId}`;
+        const scheduleSections: ScheduleSection[] = [ /* empty */ ];
+
         if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
-            return scheduledShifts;  // incomplete |schedule|
+            return [ hasShifts, isSelf, scheduleSections ];  // incomplete |schedule|
 
         const currentTime = currentTimestamp();
+        const enableLogicalDays = !!schedule.config.enableLogicalDays;
 
-        const scheduledShiftSections = new Map<string, ScheduledShiftsSection['shifts'][number][]>;
+        const scheduledShiftSections = new Map<string, ScheduleSection['entries'][number][]>;
         for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
             const scheduledShift = schedule.schedule[scheduledShiftId];
             const shift = schedule.shifts[scheduledShift.shift];
@@ -149,51 +206,59 @@ export function VolunteerPage(props: VolunteerPageProps) {
             const start = toZonedDateTime(scheduledShift.start);
             const end = toZonedDateTime(scheduledShift.end);
 
-            // We consider shifts that end before the `kLogicalDayChangeHour` to be part of the
-            // previous day, to avoid volunteer confusion about when shifts are meant to take place.
-            let startForSection = start;
-            if (!!schedule.config.enableLogicalDays && end.hour <= kLogicalDayChangeHour)
-                startForSection = start.subtract({ hours: kLogicalDayChangeHour });
-
-            const section = formatDate(startForSection, 'dddd');
+            const section = determineSection(start, end, enableLogicalDays);
             if (!scheduledShiftSections.has(section))
                 scheduledShiftSections.set(section, [ /* empty */ ]);
 
-            let sx: SxProps<Theme> | undefined;
-            if (scheduledShift.end <= currentTime) {
-                sx = {
-                    backgroundColor: 'animecon.pastBackground',
-                    textDecoration: 'line-through',
-                    textDecorationColor: theme => theme.palette.animecon.pastForeground,
-                    '&:hover': {
-                        backgroundColor: 'animecon.pastBackgroundHover',
-                        textDecoration: 'line-through',
-                        textDecorationColor: theme => theme.palette.animecon.pastForeground,
-                    },
-                };
-            } else if (scheduledShift.start <= currentTime) {
-                sx = {
-                    backgroundColor: 'animecon.activeBackground',
-                    '&:hover': {
-                        backgroundColor: 'animecon.activeBackgroundHover',
-                    },
-                };
-            }
-
             scheduledShiftSections.get(section)!.push({
                 id: scheduledShiftId,
+                type: 'shift',
                 activity: shift.activity,
                 name: shift.name,
                 start: formatDate(start, 'HH:mm'),
                 startTime: scheduledShift.start,
                 finished: scheduledShift.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
-                sx,
+                sx: determineSx(scheduledShift.start, scheduledShift.end, currentTime),
             });
         }
 
-        for (const [ label, shifts ] of scheduledShiftSections.entries()) {
-            shifts.sort((lhs, rhs) => {
+        if (!!schedule.config.enableFavourites && isSelf && !!schedule.favourites) {
+            for (const activityId of Object.keys(schedule.favourites)) {
+                if (!schedule.program.activities.hasOwnProperty(activityId))
+                    continue;  // the |activityId| no longer exists
+
+                const activity = schedule.program.activities[activityId];
+                for (const timeslotId of activity.timeslots) {
+                    if (!schedule.program.timeslots.hasOwnProperty(timeslotId))
+                        continue;  // the |activity| refers to an invalid |timeslotId|
+
+                    const timeslot = schedule.program.timeslots[timeslotId];
+
+                    const start = toZonedDateTime(timeslot.start);
+                    const end = toZonedDateTime(timeslot.end);
+
+                    const section = determineSection(start, end, enableLogicalDays);
+                    if (!scheduledShiftSections.has(section))
+                        scheduledShiftSections.set(section, [ /* empty */ ]);
+
+                    scheduledShiftSections.get(section)!.push({
+                        id: `f/${activityId}`,
+                        type: 'favourite',
+                        activity: activityId,
+                        name: activity.title,
+                        start: formatDate(start, 'HH:mm'),
+                        startTime: timeslot.start,
+                        finished: false,
+                        end: formatDate(end, 'HH:mm'),
+                        sx: determineSx(timeslot.start, timeslot.end, currentTime),
+                    });
+                }
+            }
+        }
+
+        for (const [ label, entries ] of scheduledShiftSections.entries()) {
+            entries.sort((lhs, rhs) => {
                 if (schedule.config.sortPastEventsLast && lhs.finished !== rhs.finished)
                     return lhs.finished ? 1 : -1;
 
@@ -201,47 +266,44 @@ export function VolunteerPage(props: VolunteerPageProps) {
             });
 
             let finished: boolean = false;
-            if (shifts.length > 0) {
-                finished = Math.round(toZonedDateTime(shifts[0].startTime).with({
+            if (entries.length > 0) {
+                finished = Math.round(toZonedDateTime(entries[0].startTime).with({
                     hour: 23,
                     minute: 59,
                     second: 59,
                 }).epochMilliseconds / 1000) < currentTime;
             }
 
-            scheduledShifts.push({
+            scheduleSections.push({
                 label,
                 divider: false,
                 finished,
-                shifts,
+                entries,
             });
         }
 
-        scheduledShifts.sort((lhs, rhs) => {
+        scheduleSections.sort((lhs, rhs) => {
             if (schedule.config.sortPastDaysLast && lhs.finished !== rhs.finished)
                 return lhs.finished ? 1 : -1;
 
-            return lhs.shifts[0].startTime - rhs.shifts[0].startTime;
+            return lhs.entries[0].startTime - rhs.entries[0].startTime;
         });
 
-        for (let index = 1; index < scheduledShifts.length; ++index) {
-            if (scheduledShifts[index].finished === scheduledShifts[0].finished)
+        for (let index = 1; index < scheduleSections.length; ++index) {
+            if (scheduleSections[index].finished === scheduleSections[0].finished)
                 continue;
 
-            scheduledShifts[index].divider = true;
+            scheduleSections[index].divider = true;
             break;
         }
 
-        return scheduledShifts;
+        return [ hasShifts, isSelf, scheduleSections ];
 
     }, [ props.userId, schedule ]);
 
     // ---------------------------------------------------------------------------------------------
     // Avatar management:
     // ---------------------------------------------------------------------------------------------
-
-    // Whether the volunteer is looking at a page describing their own schedule.
-    const isSelf = props.userId === `${schedule?.userId}`;
 
     // Volunteers are able to edit their own avatar by default, and can be granted a permission that
     // will allow them to edit anyone's avatar. That permission is conveyed as a config option.
@@ -373,30 +435,30 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 <NotesCard icon={ <NotesIcon color="primary" /> }
                            title="Notes"
                            notes={volunteer.notes} /> }
-            { !scheduledShifts.length &&
+            { !hasShifts &&
                 <Alert severity="warning">
                     { isSelf &&
                         `Your shifts haven't been scheduled yet` }
                     { !isSelf &&
                         `${volunteer.name} hasn't been given any shifts just yet` }
                 </Alert>}
-            { scheduledShifts.map(section =>
+            { scheduleSections.map(section =>
                 <React.Fragment key={section.label}>
                     { section.divider && <Divider sx={{ pt: 1 }} /> }
                     <SubHeader>{section.label}</SubHeader>
                     <Card sx={{ mt: '8px !important' }}>
                         <List dense disablePadding>
-                            {section.shifts.map(shift => {
-                                const href = `/schedule/${schedule.slug}/events/${shift.activity}`;
+                            {section.entries.map(entry => {
+                                const href = `/schedule/${schedule.slug}/events/${entry.activity}`;
                                 return (
-                                    <ListItemButton LinkComponent={Link} href={href} key={shift.id}
-                                                    sx={shift.sx}>
-                                        <ListItemText primary={shift.name}
+                                    <ListItemButton LinkComponent={Link} href={href} key={entry.id}
+                                                    sx={entry.sx}>
+                                        <ListItemText primary={entry.name}
                                                       slotProps={{
                                                           primary: { sx: kEnforceSingleLine }
                                                       }} />
                                         <ListItemDetails>
-                                            {shift.start}–{shift.end}
+                                            {entry.start}–{entry.end}
                                         </ListItemDetails>
                                     </ListItemButton>
                                 );
