@@ -14,13 +14,16 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import Divider from '@mui/material/Divider';
 import EditNoteIcon from '@mui/icons-material/EditNote';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import NotesIcon from '@mui/icons-material/Notes';
 import PhoneIcon from '@mui/icons-material/Phone';
 import Stack from '@mui/material/Stack';
+import StarIcon from '@mui/icons-material/Star';
 import Tooltip from '@mui/material/Tooltip';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
@@ -85,35 +88,40 @@ interface ScheduleSection {
         activity: string;
 
         /**
-         * Name of the shift that the volunteer will be working on.
+         * Name of the entry as it should appear in their schedule.
          */
         name: string;
 
         /**
-         * Time at which the shift will start.
+         * Time at which the entry will start.
          */
         start: string;
 
         /**
-         * Time at which the shift will end.
+         * Time at which the entry will end.
          */
         end: string;
 
         /**
-         * Time at which the shift will start, as a UNIX timestamp. Only included for sorting
+         * Time at which the entry will start, as a UNIX timestamp. Only included for sorting
          * purposes, should not be used to present to the user.
          */
         startTime: number;
 
         /**
-         * Whether the shift has finished already. Only included to enable sorting the results.
+         * Whether the entry has finished already. Only included to enable sorting the results.
          */
         finished: boolean;
 
         /**
-         * Optional styling that should be applied to this shift entry.
+         * Optional styling that should be applied to this entry.
          */
         sx?: SxProps<Theme>;
+
+        /**
+         * Optional styling that should be applied to this entry's text label.
+         */
+        sxPrimaryLabel?: SxProps<Theme>;
     }[];
 }
 
@@ -187,13 +195,14 @@ export function VolunteerPage(props: VolunteerPageProps) {
     // Scheduled shifts:
     // ---------------------------------------------------------------------------------------------
 
-    const [ hasShifts, isSelf, scheduleSections ] = useMemo(() => {
+    const [ hasFavourites, hasShifts, isSelf, scheduleSections ] = useMemo(() => {
+        let hasFavourites: boolean = false;
         let hasShifts: boolean = false;
         const isSelf = props.userId === `${schedule?.userId}`;
         const scheduleSections: ScheduleSection[] = [ /* empty */ ];
 
         if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
-            return [ hasShifts, isSelf, scheduleSections ];  // incomplete |schedule|
+            return [ hasFavourites, hasShifts, isSelf, scheduleSections ];  // incomplete |schedule|
 
         const currentTime = currentTimestamp();
         const enableLogicalDays = !!schedule.config.enableLogicalDays;
@@ -210,6 +219,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
             if (!scheduledShiftSections.has(section))
                 scheduledShiftSections.set(section, [ /* empty */ ]);
 
+            hasShifts = true;
             scheduledShiftSections.get(section)!.push({
                 id: scheduledShiftId,
                 type: 'shift',
@@ -220,10 +230,17 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 finished: scheduledShift.end <= currentTime,
                 end: formatDate(end, 'HH:mm'),
                 sx: determineSx(scheduledShift.start, scheduledShift.end, currentTime),
+                sxPrimaryLabel: kEnforceSingleLine,
             });
         }
 
         if (!!schedule.config.enableFavourites && isSelf && !!schedule.favourites) {
+            const sxPrimaryLabel: SxProps<Theme> = {
+                ...kEnforceSingleLine,
+                color: 'text.disabled',
+                fontStyle: 'italic',
+            };
+
             for (const activityId of Object.keys(schedule.favourites)) {
                 if (!schedule.program.activities.hasOwnProperty(activityId))
                     continue;  // the |activityId| no longer exists
@@ -242,6 +259,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                     if (!scheduledShiftSections.has(section))
                         scheduledShiftSections.set(section, [ /* empty */ ]);
 
+                    hasFavourites = true;
                     scheduledShiftSections.get(section)!.push({
                         id: `f/${activityId}`,
                         type: 'favourite',
@@ -252,6 +270,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                         finished: false,
                         end: formatDate(end, 'HH:mm'),
                         sx: determineSx(timeslot.start, timeslot.end, currentTime),
+                        sxPrimaryLabel,
                     });
                 }
             }
@@ -297,7 +316,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
             break;
         }
 
-        return [ hasShifts, isSelf, scheduleSections ];
+        return [ hasFavourites, hasShifts, isSelf, scheduleSections ];
 
     }, [ props.userId, schedule ]);
 
@@ -442,6 +461,11 @@ export function VolunteerPage(props: VolunteerPageProps) {
                     { !isSelf &&
                         `${volunteer.name} hasn't been given any shifts just yet` }
                 </Alert>}
+            { (!!hasShifts && !!hasFavourites) &&
+                <Alert severity="warning">
+                    Your schedule contains both shifts and favorited events—take care not to confuse
+                    them
+                </Alert> }
             { scheduleSections.map(section =>
                 <React.Fragment key={section.label}>
                     { section.divider && <Divider sx={{ pt: 1 }} /> }
@@ -453,9 +477,17 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 return (
                                     <ListItemButton LinkComponent={Link} href={href} key={entry.id}
                                                     sx={entry.sx}>
+                                        { entry.type === 'favourite' &&
+                                            <ListItemIcon sx={{ minWidth: '32px', mt: '-1px' }}>
+                                                <StarIcon color="disabled" fontSize="inherit" />
+                                            </ListItemIcon> }
+                                        { (entry.type === 'shift' && hasFavourites) &&
+                                            <ListItemIcon sx={{ minWidth: '32px', mt: '-1px' }}>
+                                                <EventNoteIcon color="primary" fontSize="inherit" />
+                                            </ListItemIcon> }
                                         <ListItemText primary={entry.name}
                                                       slotProps={{
-                                                          primary: { sx: kEnforceSingleLine }
+                                                          primary: { sx: entry.sxPrimaryLabel }
                                                       }} />
                                         <ListItemDetails>
                                             {entry.start}–{entry.end}
