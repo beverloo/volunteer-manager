@@ -20,8 +20,8 @@ export const Alert = styled(MuiAlert)(({ theme }) => {
                                         : lighten(theme.palette.error.light, 0.9),
         },
         '&.MuiAlert-standardInfo': {
-            backgroundColor: isDarkMode ? darken(lightBlue[900], 0.25)
-                                        : lighten(theme.palette.info.light, 0.9),
+            backgroundColor: isDarkMode ? darken(lightBlue[900], 0.15)
+                                        : lightBlue['100'],
         },
         '&.MuiAlert-standardSuccess': {
             backgroundColor: isDarkMode ? darken(theme.palette.success.dark, 0.35)
