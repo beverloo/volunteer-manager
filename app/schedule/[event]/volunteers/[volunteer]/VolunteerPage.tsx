@@ -456,10 +456,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
                            notes={volunteer.notes} /> }
             { !hasShifts &&
                 <Alert severity="warning">
-                    { isSelf &&
-                        `Your shifts haven't been scheduled yet` }
-                    { !isSelf &&
-                        `${volunteer.name} hasn't been given any shifts just yet` }
+                    { isSelf && 'Your shifts haven\'t been scheduled yet' }
+                    { !isSelf && `${volunteer.name} hasn't been given any shifts just yet` }
                 </Alert>}
             { (!!hasShifts && !!hasFavourites) &&
                 <Alert severity="warning">
