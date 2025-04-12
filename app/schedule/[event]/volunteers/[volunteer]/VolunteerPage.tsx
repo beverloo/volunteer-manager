@@ -19,14 +19,12 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import NotesIcon from '@mui/icons-material/Notes';
-import Paper from '@mui/material/Paper';
 import PhoneIcon from '@mui/icons-material/Phone';
-import ScheduleIcon from '@mui/icons-material/Schedule';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
+import { Alert } from '../../components/Alert';
 import { Avatar } from '@components/Avatar';
 import { ErrorCard } from '../../components/ErrorCard';
 import { HeaderSectionCard } from '../../components/HeaderSectionCard';
@@ -242,10 +240,12 @@ export function VolunteerPage(props: VolunteerPageProps) {
     // Avatar management:
     // ---------------------------------------------------------------------------------------------
 
+    // Whether the volunteer is looking at a page describing their own schedule.
+    const isSelf = props.userId === `${schedule?.userId}`;
+
     // Volunteers are able to edit their own avatar by default, and can be granted a permission that
     // will allow them to edit anyone's avatar. That permission is conveyed as a config option.
-    const avatarEditable =
-        schedule?.config.enableAvatarManagement || props.userId === `${schedule?.userId}`;
+    const avatarEditable = isSelf || schedule?.config.enableAvatarManagement;
 
     // Called when a new avatar has been selected that hsould be uploaded to the server.
     const handleAvatarChange = useCallback(async (avatar: Blob) => {
@@ -374,13 +374,12 @@ export function VolunteerPage(props: VolunteerPageProps) {
                            title="Notes"
                            notes={volunteer.notes} /> }
             { !scheduledShifts.length &&
-                <Stack component={Paper} direction="row" spacing={2} alignItems="center"
-                       sx={{ px: 2, py: 1 }}>
-                    <ScheduleIcon color="error" />
-                    <Typography variant="body2" color="error">
-                        They haven't been given any shifts just yet
-                    </Typography>
-                </Stack> }
+                <Alert severity="warning">
+                    { isSelf &&
+                        `Your shifts haven't been scheduled yet` }
+                    { !isSelf &&
+                        `${volunteer.name} hasn't been given any shifts just yet` }
+                </Alert>}
             { scheduledShifts.map(section =>
                 <React.Fragment key={section.label}>
                     { section.divider && <Divider sx={{ pt: 1 }} /> }

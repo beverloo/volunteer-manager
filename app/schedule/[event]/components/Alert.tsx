@@ -4,8 +4,8 @@
 'use client';
 
 import { default as MuiAlert } from '@mui/material/Alert';
+import { amber, lightBlue } from '@mui/material/colors';
 import { darken, lighten } from '@mui/system/colorManipulator';
-import { lightBlue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 
 /**
@@ -28,8 +28,8 @@ export const Alert = styled(MuiAlert)(({ theme }) => {
                                         : lighten(theme.palette.success.light, 0.9),
         },
         '&.MuiAlert-standardWarning': {
-            backgroundColor: isDarkMode ? darken(theme.palette.warning.dark, 0.4)
-                                        : lighten(theme.palette.warning.light, 0.9),
+            backgroundColor: isDarkMode ? darken(theme.palette.warning.dark, 0.35)
+                                        : amber['A200'],
         },
     };
 });
