@@ -16,8 +16,8 @@ export const Alert = styled(MuiAlert)(({ theme }) => {
     const isDarkMode = theme.palette.mode === 'dark';
     return {
         '&.MuiAlert-standardError': {
-            backgroundColor: isDarkMode ? darken(theme.palette.error.dark, 0.35)
-                                        : lighten(theme.palette.error.light, 0.9),
+            backgroundColor: isDarkMode ? darken(theme.palette.error.dark, 0.4)
+                                        : lighten(theme.palette.error.light, 0.6),
         },
         '&.MuiAlert-standardInfo': {
             backgroundColor: isDarkMode ? darken(lightBlue[900], 0.15)
