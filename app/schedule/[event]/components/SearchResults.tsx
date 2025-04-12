@@ -35,7 +35,10 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         width: `calc(100vw - ${theme.spacing(16)})`,
         [theme.breakpoints.up('md')]: {
             width: '50vw',
-        }
+        },
+
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
     }),
 };
 
