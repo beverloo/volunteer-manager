@@ -157,6 +157,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
                     }
                 ],
 
@@ -204,6 +205,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
                     }
                 ],
 
@@ -251,6 +253,15 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 14,  // <-- updated from "12"
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
+                    },
+                    {
+                        Id: 152224,
+                        Name: 'History and Tasting of Chuhi',
+                        Price: 20.0018,  // <-- floating points bite again
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                        Live: true,
                     }
                 ],
 
@@ -261,16 +272,26 @@ describe('ImportYourTicketProviderTask', () => {
                         limit: 100,
                         price: 12,
                         product: 'Locker Sunday',
+                    },
+                    {
+                        id: 152224,
+                        limit: 100,
+                        price: 20,
+                        product: 'History and Tasting of Chuhi',
                     }
                 ],
 
-                existingSales: [ { id: 143341, total: 50 } ],
+                existingSales: [
+                    { id: 143341, total: 50 },
+                    { id: 152224, total: 50 },
+                ],
             }
         ]);
 
         let receivedUpdate = false;
 
         mockConnection.expect('update', (values: unknown) => { receivedUpdate = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
         mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
@@ -298,6 +319,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 120,  // <-- updated from "100"
                         CurrentAvailable: 70,
+                        Live: true,
                     }
                 ],
 
@@ -345,6 +367,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
                     }
                 ],
 
@@ -384,6 +407,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
                     },
                     {
                         Id: 143338,
@@ -392,6 +416,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Price: 12,
                         Amount: 100,
                         CurrentAvailable: 50,
+                        Live: true,
                     },
                 ],
 

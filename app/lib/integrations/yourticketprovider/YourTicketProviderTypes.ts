@@ -83,6 +83,12 @@ export const kYourTicketProviderTicketsResponse = z.object({
          * when no further tickets are available.
          */
         CurrentAvailable: z.number().nullable(),
+
+        /**
+         * Whether the product is still live. Products that aren't will be ignored, as their sales
+         * information no longer is accurate.
+         */
+        Live: z.boolean(),
     })),
 });
 

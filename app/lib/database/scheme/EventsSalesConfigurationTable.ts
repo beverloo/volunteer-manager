@@ -18,7 +18,7 @@ export class EventsSalesConfigurationTable extends Table<DBConnection, 'EventsSa
     saleCategory = this.optionalColumnWithDefaultValue<EventSalesCategory>('sale_category', 'enum', 'EventSalesCategory');
     saleCategoryLimit = this.optionalColumnWithDefaultValue('sale_category_limit', 'int');
     saleDescription = this.optionalColumnWithDefaultValue('sale_description', 'string');
-    salePrice = this.optionalColumnWithDefaultValue('sale_price', 'int');
+    salePrice = this.optionalColumnWithDefaultValue('sale_price', 'double');
     saleProduct = this.column('sale_product', 'string');
     saleEventId = this.optionalColumnWithDefaultValue('sale_event_id', 'int');
 

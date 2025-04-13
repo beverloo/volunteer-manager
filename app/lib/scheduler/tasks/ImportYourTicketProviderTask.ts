@@ -19,6 +19,20 @@ interface EventInfo {
 }
 
 /**
+ * Returns whether the prices included in |lhs| and |rhs| are different. This is a separate method
+ * because the YourTicketProvider API stores these as doubles, which leads to prices such as 20.0018
+ * rather than 20.
+ */
+function arePricesDifferent(lhs?: number, rhs?: number): boolean {
+    if (typeof lhs !== typeof rhs)
+        return true;  // one is undefined, the other is a number
+    if (typeof lhs !== 'number' || typeof rhs !== 'number')
+        return false;  // both are undefined
+
+    return Math.abs(lhs - rhs) > 0.01;
+}
+
+/**
  * Task that imports ticket sales information from YourTicketProvider. The applicable event(s) will
  * automatically be selected based on their configuration, whereas frequency of data imports will
  * be automatically altered based on proximity to the festival.
@@ -114,8 +128,8 @@ export class ImportYourTicketProviderTask extends Task {
             // update the configuration entry for the product in the database.
             if (ticketConfiguration.product !== ticketInfo.Name ||
                 ticketConfiguration.description !== ticketInfo.Description ||
-                ticketConfiguration.price !== ticketInfo.Price ||
-                ticketConfiguration.limit !== ticketInfo.Amount)
+                ticketConfiguration.limit !== ticketInfo.Amount ||
+                arePricesDifferent(ticketConfiguration.price, ticketInfo.Price))
             {
                 this.log.info(`${event.name}: Product "${ticketInfo.Name}" has been updated.`);
 
@@ -123,6 +137,7 @@ export class ImportYourTicketProviderTask extends Task {
                     .set({
                         saleCategoryLimit: ticketInfo.Amount,
                         saleDescription: ticketInfo.Description,
+                        salePrice: ticketInfo.Price,
                         saleProduct: ticketInfo.Name,
                     })
                     .where(tEventsSalesConfiguration.eventId.equals(event.id))
@@ -131,19 +146,29 @@ export class ImportYourTicketProviderTask extends Task {
             }
 
             // Step (3): Process sales, and issue a log statement when we observe that tickets have
-            // been sold *today*, and not just within this update cycle.
-            const ticketsSold = ticketInfo.Amount - (ticketInfo.CurrentAvailable ?? 0);
+            // been sold *today*, and not just within this update cycle. We need to special case
+            // products that haven't been seen before, and products which no longer are live, as
+            // the YourTicketProvider API only returns partial information for those.
 
-            if (sales.get(ticketInfo.Id) !== ticketsSold) {
-                if (!sales.has(ticketInfo.Id)) {
+            if (!ticketInfo.Live && ticketInfo.CurrentAvailable === null) {
+                this.log.debug(
+                    `${event.name}: Product "${ticketInfo.Name}" ignored, no longer live`);
+                continue;
+            }
+
+            let currentTicketsSold: number = 0;
+            let updatedTicketsSold = ticketInfo.Amount - (ticketInfo.CurrentAvailable ?? 0);
+
+            if (sales.has(ticketInfo.Id)) {
+                currentTicketsSold = sales.get(ticketInfo.Id)!;
+                if (currentTicketsSold !== updatedTicketsSold) {
                     this.log.info(
-                        `${event.name}: Product "${ticketInfo.Name}" records inaugural sales`);
-                } else {
-                    const previousTicketsSold = sales.get(ticketInfo.Id);
-                    this.log.info(
-                        `${event.name}: Product "${ticketInfo.Name}" records change in sales (` +
-                        `${previousTicketsSold} -> ${ticketsSold})`);
+                        `${event.name}: Product "${ticketInfo.Name}" records change in sales ` +
+                        `today (${currentTicketsSold} -> ${updatedTicketsSold})`);
                 }
+            } else {
+                this.log.info(
+                    `${event.name}: Product "${ticketInfo.Name}" records inaugural sales`);
             }
 
             await dbInstance.insertInto(tEventsSales)
@@ -151,11 +176,11 @@ export class ImportYourTicketProviderTask extends Task {
                     eventId: event.id,
                     eventSaleId: ticketInfo.Id,
                     eventSaleDate: currentDate,
-                    eventSaleCount: ticketsSold,
+                    eventSaleCount: updatedTicketsSold - currentTicketsSold,
                     eventSaleUpdated: dbInstance.currentZonedDateTime(),
                 })
                 .onConflictDoUpdateSet({
-                    eventSaleCount: ticketsSold,
+                    eventSaleCount: updatedTicketsSold - currentTicketsSold,
                     eventSaleUpdated: dbInstance.currentZonedDateTime(),
                 })
                 .executeInsert();
@@ -170,7 +195,7 @@ export class ImportYourTicketProviderTask extends Task {
     async determineApplicableUpcomingEvents(dbInstance: typeof db): Promise<EventInfo[]> {
         return await dbInstance.selectFrom(tEvents)
             .where(tEvents.eventHidden.equals(/* false= */ 0))
-                .and(tEvents.eventEndTime.lessOrEquals(dbInstance.currentZonedDateTime()))
+                .and(tEvents.eventEndTime.greaterOrEquals(dbInstance.currentZonedDateTime()))
                 .and(tEvents.eventYtpId.isNotNull())
             .select({
                 id: tEvents.eventId,
