@@ -17,6 +17,16 @@ import { getEventBySlug } from '@lib/EventLoader';
 import db, { tEventsSales } from '@lib/database';
 
 /**
+ * Sales fields included in the manual YTP export that should be ignored.
+ */
+const kSalesFieldsToIgnore = [
+    'Datum',
+    'Totaal bestellingen',
+    'Totaal subproducten',
+    'Totaal tickets',
+];
+
+/**
  * Validation that will be applied to confirm a complete, valid sales upload.
  */
 const kSalesUploadData = z.object({
@@ -115,8 +125,8 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
             const existingData = existingSalesData.get(date.toString());
 
             for (const field of fields) {
-                if (field === 'Datum')
-                    continue;  // represents the date
+                if (kSalesFieldsToIgnore.includes(field))
+                    continue;  // this field should not be updated in the database
 
                 const count = parseInt(day[field], 10);
 
