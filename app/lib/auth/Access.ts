@@ -496,7 +496,10 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.content',
         'system.displays',
         'system.feedback',
-        // note: system.internals omitted
+        'system.internals.ai',
+        'system.internals.outbox',
+        'system.internals.scheduler',
+        // note: system.internals.settings omitted
         // note: system.logs:delete omitted
         'system.logs:read',
         'system.nardo',
