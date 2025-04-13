@@ -1,7 +1,8 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { type YourTicketProviderOrganisersResponse, kYourTicketProviderOrganisersResponse } from './YourTicketProviderTypes';
+import type { YourTicketProviderOrganisersResponse, YourTicketProviderTicketsResponse } from './YourTicketProviderTypes';
+import { kYourTicketProviderOrganisersResponse, kYourTicketProviderTicketsResponse } from './YourTicketProviderTypes';
 
 /**
  * Settings required by the YourTicketProvider integration.
@@ -37,7 +38,7 @@ export class YourTicketProviderClient {
      * Calls the /Organisers API, which returns a list of the organisers that the given API Key has
      * access to. This is used to avoid requiring user information for the service's health check.
      */
-    async getOrganisers(): Promise<YourTicketProviderOrganisersResponse['value']> {
+    async getOrganisers(): Promise<YourTicketProviderOrganisersResponse> {
         const url = `${this.#settings.endpoint}/Organisers?api_key=${this.#settings.apiKey}`;
         const response = await fetch(url, {
             method: 'GET',
@@ -56,6 +57,35 @@ export class YourTicketProviderClient {
         const unverifiedResponseJson = await response.json();
         const verifiedResponseJson =
             kYourTicketProviderOrganisersResponse.parse(unverifiedResponseJson);
+
+        return verifiedResponseJson.value;
+    }
+
+    /**
+     * Calls the /Events({id})/Tickets API, which returns information about the tickets associated
+     * with the given event `id`. This is a slow API, and may take some time to complete.
+     */
+    async getEventTickets(id: number): Promise<YourTicketProviderTicketsResponse> {
+        const url =
+            `${this.#settings.endpoint}/Events(${id})/Tickets?api_key=${this.#settings.apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: [
+                [ 'Accept', 'application/json' ],
+                [ 'Authorization', `${this.#settings.apiKey}`],
+            ],
+            next: {
+                revalidate: /* seconds= */ 300,
+            }
+        });
+
+        if (!response.ok)
+            throw new Error(`Unable to call into the YTP API (${response.statusText})`);
+
+        const unverifiedResponseJson = await response.json();
+        const verifiedResponseJson =
+            kYourTicketProviderTicketsResponse.parse(unverifiedResponseJson);
 
         return verifiedResponseJson.value;
     }

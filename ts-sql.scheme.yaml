@@ -4234,12 +4234,28 @@ tables:
   - name: event_sale_type
     type: varchar(64)
     nullable: false
+  - name: sale_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
   - name: sale_category
     type: enum('Event','Hidden','Locker','TicketFriday','TicketSaturday','TicketSunday','TicketWeekend')
     nullable: true
     default: "NULL"
   - name: sale_category_limit
     type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+  - name: sale_description
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: sale_price
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+  - name: sale_product
+    type: text
     nullable: true
     default: "NULL"
   - name: sale_event_id
@@ -4280,8 +4296,12 @@ tables:
     CREATE TABLE `events_sales_configuration` (
       `event_id` int(11) NOT NULL,
       `event_sale_type` varchar(64) NOT NULL,
+      `sale_id` int(8) unsigned DEFAULT NULL,
       `sale_category` enum('Event','Hidden','Locker','TicketFriday','TicketSaturday','TicketSunday','TicketWeekend') DEFAULT NULL,
       `sale_category_limit` int(4) unsigned DEFAULT NULL,
+      `sale_description` text DEFAULT NULL,
+      `sale_price` int(8) unsigned DEFAULT NULL,
+      `sale_product` text DEFAULT NULL,
       `sale_event_id` int(4) unsigned DEFAULT NULL,
       UNIQUE KEY `event_id_2` (`event_id`,`event_sale_type`),
       KEY `event_id` (`event_id`),

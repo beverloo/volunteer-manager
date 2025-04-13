@@ -1,12 +1,16 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { YourTicketProviderTicketsResponse } from '@lib/integrations/yourticketprovider/YourTicketProviderTypes';
 import { ImportYourTicketProviderTask } from './ImportYourTicketProviderTask';
 import { TaskContext } from '../TaskContext';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { useMockConnection } from '@lib/database/Connection';
 
 describe('ImportYourTicketProviderTask', () => {
+    const kEndTimeTwoWeeksFromNow =
+        formatDate(Temporal.Now.zonedDateTimeISO('UTC').add({ days: 42 }), 'YYYY-MM-DD HH:mm:ss');
+
     const mockConnection = useMockConnection();
 
     interface FestivalOptions {
@@ -14,12 +18,19 @@ describe('ImportYourTicketProviderTask', () => {
         name: string;
         endTime: string;  // YYYY-MM-DD HH:mm:ss
         yourTicketProviderId: number;
+
+        apiTickets?: YourTicketProviderTicketsResponse;
+
+        existingProducts?: {
+            id: number;
+            description?: string;
+            limit?: number;
+            price?: number;
+            product: string;
+        }[];
     }
 
-    function createImportYourTicketProviderTask(
-        options?: FestivalOptions | FestivalOptions[],
-        skipUpdate?: boolean)
-    {
+    function createImportYourTicketProviderTask(options: FestivalOptions[], skipUpdate?: boolean) {
         const context = TaskContext.forEphemeralTask('ImportYourTicketProviderTask', {});
         const task = new class extends ImportYourTicketProviderTask {
             constructor() {
@@ -30,16 +41,26 @@ describe('ImportYourTicketProviderTask', () => {
                 if (!skipUpdate)
                     await super.executeForEvent(dbInstance, event);
             }
+
+            override async fetchEventTicketsFromApi(forYourTicketProviderId: number) {
+                for (const { apiTickets, yourTicketProviderId } of options) {
+                    if (yourTicketProviderId === forYourTicketProviderId)
+                        return apiTickets;
+                }
+
+                // Note: Never call super.fetchEventTicketsFromApi(), as we do not want tests to
+                // reach the production API server.
+                return undefined;
+            }
         };
 
         expect(task.isComplexTask()).toBeFalse();
 
-        mockConnection.expect('selectManyRows', () => {
-            if (!options)
-                return undefined;
-
-            return Array.isArray(options) ? options : [ options ];
-        });
+        mockConnection.expect('selectManyRows', () =>  options);
+        for (const { existingProducts } of options) {
+            if (Array.isArray(existingProducts))
+                mockConnection.expect('selectManyRows', () => existingProducts);
+        }
 
         return task;
     }
@@ -92,15 +113,211 @@ describe('ImportYourTicketProviderTask', () => {
         }
     });
 
-    it('should upsert information retrieved from the API in the database', async () => {
-        // TODO
+    it('should skip events for which no ticket information could be fetched', async () => {
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [ /* no results */ ],
+                existingProducts: [ /* no existing products */ ],
+            }
+        ]);
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('No tickets were returned');
+    });
+
+    it('should update the product name when it changed', async () => {
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday XL',  // <-- updated from "Locker Sunday"
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 12,
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    }
+                ],
+
+                existingProducts: [
+                    {
+                        id: 143341,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Sunday',
+                    }
+                ],
+            }
+        ]);
+
+        let receivedUpdate = false;
+
+        mockConnection.expect('update', (values: unknown) => {
+            receivedUpdate = true;
+        });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(receivedUpdate).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday XL');
     });
 
     it('should update the product description when it changed', async () => {
-        // TODO
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday',
+                        Description: '35 x 28 x 500 cm. Can contain larger bags.',  // <-- updated
+                        Price: 12,
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    }
+                ],
+
+                existingProducts: [
+                    {
+                        id: 143341,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Sunday',
+                    }
+                ],
+            }
+        ]);
+
+        let receivedUpdate = false;
+
+        mockConnection.expect('update', (values: unknown) => {
+            receivedUpdate = true;
+        });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(receivedUpdate).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+    });
+
+    it('should update the price when it changed', async () => {
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday',
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 14,  // <-- updated from "12"
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    }
+                ],
+
+                existingProducts: [
+                    {
+                        id: 143341,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Sunday',
+                    }
+                ],
+            }
+        ]);
+
+        let receivedUpdate = false;
+
+        mockConnection.expect('update', (values: unknown) => {
+            receivedUpdate = true;
+        });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(receivedUpdate).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday');
     });
 
     it('should update maximum ticket information in the database when it changed', async () => {
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday',
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 12,
+                        Amount: 120,  // <-- updated from "100"
+                        CurrentAvailable: 50,
+                    }
+                ],
+
+                existingProducts: [
+                    {
+                        id: 143341,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Sunday',
+                    }
+                ],
+            }
+        ]);
+
+        let receivedUpdate = false;
+
+        mockConnection.expect('update', (values: any) => {
+            receivedUpdate = true;
+        });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(receivedUpdate).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+    });
+
+    it('should upsert information retrieved from the API in the database', async () => {
         // TODO
     });
 });

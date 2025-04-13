@@ -42,4 +42,51 @@ export const kYourTicketProviderOrganisersResponse = z.object({
  * Interface describing the data we expect from the Organisers API.
  */
 export type YourTicketProviderOrganisersResponse =
-    z.infer<typeof kYourTicketProviderOrganisersResponse>;
+    z.infer<typeof kYourTicketProviderOrganisersResponse>['value'];
+
+/**
+ * Type definition that defines the response we expect when calling the Tickets API.
+ */
+export const kYourTicketProviderTicketsResponse = z.object({
+    /**
+     * Array of response values.
+     */
+    value: z.array(z.object({
+        /**
+         * Unique ID of the product as it's known to YourTicketProvider.
+         */
+        Id: z.number(),
+
+        /**
+         * Name of the product.
+         */
+        Name: z.string(),
+
+        /**
+         * Optional description associated with the product.
+         */
+        Description: z.string().optional(),
+
+        /**
+         * Price of the product, in the event's local currency.
+         */
+        Price: z.number(),
+
+        /**
+         * Total number of times that this product can be purchased.
+         */
+        Amount: z.number(),
+
+        /**
+         * Number of times that this product can still be purchased. This also considers tickets
+         * that were issued from non-sales, e.g. people being on the guest list.
+         */
+        CurrentAvailable: z.number(),
+    })),
+});
+
+/**
+ * Interface describing the data we expect from the Tickets API.
+ */
+export type YourTicketProviderTicketsResponse =
+    z.infer<typeof kYourTicketProviderTicketsResponse>['value'];

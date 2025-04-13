@@ -1,9 +1,10 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { YourTicketProviderTicketsResponse } from '@lib/integrations/yourticketprovider/YourTicketProviderTypes';
 import { Task } from '../Task';
 import { Temporal } from '@lib/Temporal';
-import db, { tEvents } from '@lib/database';
+import db, { tEvents, tEventsSalesConfiguration } from '@lib/database';
 
 /**
  * Information made available for a particular event for which YourTicketProvider should be queried.
@@ -60,6 +61,38 @@ export class ImportYourTicketProviderTask extends Task {
      * Actually executes the task for the given `event`.
      */
     async executeForEvent(dbInstance: typeof db, event: EventInfo): Promise<void> {
+        const configuration = await this.queryEventSalesConfiguration(dbInstance, event.id);
+
+        const tickets = await this.fetchEventTicketsFromApi(event.yourTicketProviderId);
+        if (!tickets?.length) {
+            this.log.info(`${event.name}: No tickets were returned by the API; skipping`);
+            return;
+        }
+
+        for (const ticketInfo of tickets) {
+            const ticketConfiguration = configuration.get(ticketInfo.Id);
+            if (!ticketConfiguration)
+                continue;  // TODO: Insert a new entry? Something else?
+
+            if (ticketConfiguration.product !== ticketInfo.Name ||
+                ticketConfiguration.description !== ticketInfo.Description ||
+                ticketConfiguration.price !== ticketInfo.Price ||
+                ticketConfiguration.limit !== ticketInfo.Amount)
+            {
+                this.log.info(`${event.name}: Product "${ticketInfo.Name}" has been updated.`);
+
+                await dbInstance.update(tEventsSalesConfiguration)
+                    .set({
+                        saleCategoryLimit: ticketInfo.Amount,
+                        saleDescription: ticketInfo.Description,
+                        saleProduct: ticketInfo.Name,
+                    })
+                    .where(tEventsSalesConfiguration.eventId.equals(event.id))
+                        .and(tEventsSalesConfiguration.saleId.equals(ticketConfiguration.id))
+                    .executeUpdate();
+            }
+        }
+
         // TODO
     }
 
@@ -81,6 +114,38 @@ export class ImportYourTicketProviderTask extends Task {
             })
             .orderBy(tEvents.eventEndTime, 'desc')
             .executeSelectMany() as EventInfo[];
+    }
+
+    /**
+     * Fetches the event ticket information from the YourTicketProvider API. Will issue a call to
+     * their server, which may take an arbitrary time to complete.
+     */
+    async fetchEventTicketsFromApi(yourTicketProviderId: number)
+        : Promise<YourTicketProviderTicketsResponse | undefined>
+    {
+        // getEventTickets
+        return undefined;
+    }
+
+    /**
+     * Queries the available event sales information from the database, for the given `eventId`.
+     * Returns a Map keyed by the product's ID, and valued by its metadata.
+     */
+    async queryEventSalesConfiguration(dbInstance: typeof db, eventId: number) {
+        const configuration = await dbInstance.selectFrom(tEventsSalesConfiguration)
+            .where(tEventsSalesConfiguration.eventId.equals(eventId))
+                .and(tEventsSalesConfiguration.saleId.isNotNull())
+            .select({
+                id: tEventsSalesConfiguration.saleId,
+
+                description: tEventsSalesConfiguration.saleDescription,
+                limit: tEventsSalesConfiguration.saleCategoryLimit,
+                price: tEventsSalesConfiguration.salePrice,
+                product: tEventsSalesConfiguration.saleProduct,
+            })
+            .executeSelectMany();
+
+        return new Map(configuration.map(entry => ([ entry.id, entry ])));
     }
 
     /**
