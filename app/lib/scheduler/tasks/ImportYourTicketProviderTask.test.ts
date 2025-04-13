@@ -28,6 +28,11 @@ describe('ImportYourTicketProviderTask', () => {
             price?: number;
             product: string;
         }[];
+
+        existingSales?: {
+            id: number;
+            total: number;
+        }[];
     }
 
     function createImportYourTicketProviderTask(options: FestivalOptions[], skipUpdate?: boolean) {
@@ -57,9 +62,11 @@ describe('ImportYourTicketProviderTask', () => {
         expect(task.isComplexTask()).toBeFalse();
 
         mockConnection.expect('selectManyRows', () =>  options);
-        for (const { existingProducts } of options) {
+        for (const { existingProducts, existingSales } of options) {
             if (Array.isArray(existingProducts))
                 mockConnection.expect('selectManyRows', () => existingProducts);
+            if (Array.isArray(existingSales))
+                mockConnection.expect('selectManyRows', () => existingSales);
         }
 
         return task;
@@ -123,6 +130,7 @@ describe('ImportYourTicketProviderTask', () => {
 
                 apiTickets: [ /* no results */ ],
                 existingProducts: [ /* no existing products */ ],
+                existingSales: [ /* no existing sales */ ],
             }
         ]);
 
@@ -161,14 +169,15 @@ describe('ImportYourTicketProviderTask', () => {
                         product: 'Locker Sunday',
                     }
                 ],
+
+                existingSales: [ { id: 143341, total: 50 } ],
             }
         ]);
 
         let receivedUpdate = false;
 
-        mockConnection.expect('update', (values: unknown) => {
-            receivedUpdate = true;
-        });
+        mockConnection.expect('update', (values: unknown) => { receivedUpdate = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
         expect(result).toBeTrue();
@@ -207,14 +216,15 @@ describe('ImportYourTicketProviderTask', () => {
                         product: 'Locker Sunday',
                     }
                 ],
+
+                existingSales: [ { id: 143341, total: 50 } ],
             }
         ]);
 
         let receivedUpdate = false;
 
-        mockConnection.expect('update', (values: unknown) => {
-            receivedUpdate = true;
-        });
+        mockConnection.expect('update', (values: unknown) => { receivedUpdate = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
         expect(result).toBeTrue();
@@ -253,14 +263,15 @@ describe('ImportYourTicketProviderTask', () => {
                         product: 'Locker Sunday',
                     }
                 ],
+
+                existingSales: [ { id: 143341, total: 50 } ],
             }
         ]);
 
         let receivedUpdate = false;
 
-        mockConnection.expect('update', (values: unknown) => {
-            receivedUpdate = true;
-        });
+        mockConnection.expect('update', (values: unknown) => { receivedUpdate = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
         expect(result).toBeTrue();
@@ -286,7 +297,7 @@ describe('ImportYourTicketProviderTask', () => {
                         Description: '35 x 28 x 50 cm. Can contain larger bags.',
                         Price: 12,
                         Amount: 120,  // <-- updated from "100"
-                        CurrentAvailable: 50,
+                        CurrentAvailable: 70,
                     }
                 ],
 
@@ -299,14 +310,15 @@ describe('ImportYourTicketProviderTask', () => {
                         product: 'Locker Sunday',
                     }
                 ],
+
+                existingSales: [ { id: 143341, total: 50 } ],
             }
         ]);
 
         let receivedUpdate = false;
 
-        mockConnection.expect('update', (values: any) => {
-            receivedUpdate = true;
-        });
+        mockConnection.expect('update', (values: unknown) => { receivedUpdate = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
         expect(result).toBeTrue();
@@ -337,25 +349,83 @@ describe('ImportYourTicketProviderTask', () => {
                 ],
 
                 existingProducts: [ /* no existing products */ ],
+                existingSales: [ /* no existing sales */ ],
             }
         ]);
 
         let receivedInsert = false;
 
-        mockConnection.expect('insert', (values: any) => {
-            receivedInsert = true;
-        });
+        mockConnection.expect('insert', (values: unknown) => { receivedInsert = true; });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale */ });
 
         const result = await task.execute();
         expect(result).toBeTrue();
 
         expect(receivedInsert).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday');  // created
+        expect(task.log.entries[2].message).toInclude('Locker Sunday');  // sales
     });
 
     it('should upsert information retrieved from the API in the database', async () => {
-        // TODO
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday',
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 12,
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    },
+                    {
+                        Id: 143338,
+                        Name: 'Locker Weekend',
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 12,
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    },
+                ],
+
+                existingProducts: [
+                    {
+                        id: 143341,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Sunday',
+                    },
+                    {
+                        id: 143338,
+                        description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        limit: 100,
+                        price: 12,
+                        product: 'Locker Weekend',
+                    }
+                ],
+                existingSales: [
+                    { id: 143341, total: 50 },
+                    { id: 143338, total: 48 },  // <-- two have been sold
+                ],
+            }
+        ]);
+
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale 143341 */ });
+        mockConnection.expect('insert', (values: unknown) => { /* ticketSale 143338 */ });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Weekend');
+        expect(task.log.entries[1].message).toInclude('48 -> 50');
     });
 });

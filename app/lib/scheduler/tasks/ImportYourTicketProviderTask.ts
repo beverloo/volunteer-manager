@@ -1,10 +1,12 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { YourTicketProviderClient } from '@lib/integrations/yourticketprovider/YourTicketProviderClient';
 import type { YourTicketProviderTicketsResponse } from '@lib/integrations/yourticketprovider/YourTicketProviderTypes';
 import { Task } from '../Task';
 import { Temporal } from '@lib/Temporal';
-import db, { tEvents, tEventsSalesConfiguration } from '@lib/database';
+import { createYourTicketProviderClient } from '@lib/integrations/yourticketprovider';
+import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
 
 /**
  * Information made available for a particular event for which YourTicketProvider should be queried.
@@ -37,6 +39,12 @@ export class ImportYourTicketProviderTask extends Task {
     ];
 
     /**
+     * The YourTicketProviderClient interface through which we can query the YTP API. Will be
+     * created and initialised lazily, right before the first time first access is required.
+     */
+    #client?: YourTicketProviderClient;
+
+    /**
      * Actually executes the task.
      */
     override async execute(): Promise<boolean> {
@@ -61,7 +69,10 @@ export class ImportYourTicketProviderTask extends Task {
      * Actually executes the task for the given `event`.
      */
     async executeForEvent(dbInstance: typeof db, event: EventInfo): Promise<void> {
+        const currentDate = Temporal.Now.plainDateISO();
+
         const configuration = await this.queryEventSalesConfiguration(dbInstance, event.id);
+        const sales = await this.queryEventSales(dbInstance, event.id, currentDate);
 
         const tickets = await this.fetchEventTicketsFromApi(event.yourTicketProviderId);
         if (!tickets?.length) {
@@ -71,6 +82,9 @@ export class ImportYourTicketProviderTask extends Task {
 
         for (const ticketInfo of tickets) {
             let ticketConfiguration = configuration.get(ticketInfo.Id);
+
+            // Step (1): If the |ticketInfo| was not previously known to the Volunteer Manager,
+            // create a new configuration entry for the product in the database.
             if (!ticketConfiguration) {
                 ticketConfiguration = {
                     id: ticketInfo.Id,
@@ -86,7 +100,7 @@ export class ImportYourTicketProviderTask extends Task {
                 await dbInstance.insertInto(tEventsSalesConfiguration)
                     .set({
                         eventId: event.id,
-                        eventSaleType: ticketInfo.Name,  // TODO: Get rid of name association?
+                        eventSaleType: '',  // TODO: Get rid of name association
 
                         saleId: ticketInfo.Id,
                         saleCategoryLimit: ticketInfo.Amount,
@@ -97,6 +111,8 @@ export class ImportYourTicketProviderTask extends Task {
                     .executeInsert();
             }
 
+            // Step (2): If the |ticketInfo| had its metadata updated from the existing metadata,
+            // update the configuration entry for the product in the database.
             if (ticketConfiguration.product !== ticketInfo.Name ||
                 ticketConfiguration.description !== ticketInfo.Description ||
                 ticketConfiguration.price !== ticketInfo.Price ||
@@ -114,9 +130,38 @@ export class ImportYourTicketProviderTask extends Task {
                         .and(tEventsSalesConfiguration.saleId.equals(ticketConfiguration.id))
                     .executeUpdate();
             }
-        }
 
-        // TODO
+            // Step (3): Process sales, and issue a log statement when we observe that tickets have
+            // been sold *today*, and not just within this update cycle.
+            const ticketsSold = ticketInfo.Amount - ticketInfo.CurrentAvailable;
+
+            if (sales.get(ticketInfo.Id) !== ticketsSold) {
+                if (!sales.has(ticketInfo.Id)) {
+                    this.log.info(
+                        `${event.name}: Product "${ticketInfo.Name}" records inaugural sales`);
+                } else {
+                    const previousTicketsSold = sales.get(ticketInfo.Id);
+                    this.log.info(
+                        `${event.name}: Product "${ticketInfo.Name}" records change in sales (` +
+                        `${previousTicketsSold} -> ${ticketsSold})`);
+                }
+            }
+
+            await dbInstance.insertInto(tEventsSales)
+                .set({
+                    eventId: event.id,
+                    eventSaleId: ticketInfo.Id,
+                    eventSaleDate: currentDate,
+                    eventSaleType: '',  // TODO: Get rid of name association
+                    eventSaleCount: ticketsSold,
+                    eventSaleUpdated: dbInstance.currentZonedDateTime(),
+                })
+                .onConflictDoUpdateSet({
+                    eventSaleCount: ticketsSold,
+                    eventSaleUpdated: dbInstance.currentZonedDateTime(),
+                })
+                .executeInsert();
+        }
     }
 
     /**
@@ -146,8 +191,10 @@ export class ImportYourTicketProviderTask extends Task {
     async fetchEventTicketsFromApi(yourTicketProviderId: number)
         : Promise<YourTicketProviderTicketsResponse | undefined>
     {
-        // getEventTickets
-        return undefined;
+        if (!this.#client)
+            this.#client = await createYourTicketProviderClient();
+
+        return this.#client.getEventTickets(yourTicketProviderId);
     }
 
     /**
@@ -169,6 +216,25 @@ export class ImportYourTicketProviderTask extends Task {
             .executeSelectMany();
 
         return new Map(configuration.map(entry => ([ entry.id, entry ])));
+    }
+
+    /**
+     * Queries existing sales information from the database for the given `eventId`. The
+     * `currentDate` is significant as that information has to be excluded from the results.
+     */
+    async queryEventSales(dbInstance: typeof db, eventId: number, currentDate: Temporal.PlainDate) {
+        const sales = await dbInstance.selectFrom(tEventsSales)
+            .where(tEventsSales.eventId.equals(eventId))
+                .and(tEventsSales.eventSaleId.isNotNull())
+                .and(tEventsSales.eventSaleDate.isNot(currentDate))
+            .select({
+                id: tEventsSales.eventSaleId,
+                total: dbInstance.sum(tEventsSales.eventSaleCount),
+            })
+            .groupBy(tEventsSales.eventSaleId)
+            .executeSelectMany();
+
+        return new Map(sales.map(entry => ([ entry.id, entry.total ])));
     }
 
     /**

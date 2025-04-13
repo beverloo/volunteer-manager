@@ -18,6 +18,7 @@ import {
 
 export class EventsSalesTable extends Table<DBConnection, 'EventsSalesTable'> {
     eventId = this.column('event_id', 'int');
+    eventSaleId = this.optionalColumnWithDefaultValue('event_sale_id', 'int');
     eventSaleDate = this.column<PlainDate>('event_sale_date', 'customLocalDate', 'date', TemporalTypeAdapter);
     eventSaleType = this.column('event_sale_type', 'string');
     eventSaleCount = this.column('event_sale_count', 'int');

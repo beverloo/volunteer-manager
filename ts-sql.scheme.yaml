@@ -4187,6 +4187,10 @@ tables:
   - name: event_id
     type: int(8) unsigned
     nullable: false
+  - name: event_sale_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
   - name: event_sale_date
     type: date
     nullable: false
@@ -4219,6 +4223,7 @@ tables:
   def: |-
     CREATE TABLE `events_sales` (
       `event_id` int(8) unsigned NOT NULL,
+      `event_sale_id` int(8) unsigned DEFAULT NULL,
       `event_sale_date` date NOT NULL,
       `event_sale_type` varchar(64) NOT NULL,
       `event_sale_count` int(8) unsigned NOT NULL,
