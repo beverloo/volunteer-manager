@@ -55,6 +55,28 @@ export function SalesConfigurationSection(props: SalesConfigurationSectionProps)
             flex: 2,
         },
         {
+            field: 'price',
+            headerName: 'Price',
+            headerAlign: 'left',
+            align: 'left',
+            type: 'number',
+            editable: true,
+            sortable: false,
+            flex: 1,
+
+            renderCell: params => {
+                if (params.value === undefined) {
+                    return (
+                        <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
+                            Unknown
+                        </Typography>
+                    );
+                }
+
+                return `€ ${params.value}`;
+            },
+        },
+        {
             display: 'flex',
             field: 'category',
             headerName: 'Category',

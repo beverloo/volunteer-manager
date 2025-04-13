@@ -36,6 +36,16 @@ const kEventFinanceRowModel = z.object({
     categoryLimit: z.number().optional(),
 
     /**
+     * Description of the product, when known.
+     */
+    description: z.string().optional(),
+
+    /**
+     * Price of the product, when known.
+     */
+    price: z.number().optional(),
+
+    /**
      * Optional event ID that this product is associated with.
      */
     eventId: z.number().optional(),
@@ -98,6 +108,8 @@ createDataTableApi(kEventFinanceRowModel, kEventFinanceContext, {
                 product: tEventsSalesConfiguration.saleProduct,
                 category: tEventsSalesConfiguration.saleCategory,
                 categoryLimit: tEventsSalesConfiguration.saleCategoryLimit,
+                description: tEventsSalesConfiguration.saleDescription,
+                price: tEventsSalesConfiguration.salePrice,
                 eventId: tEventsSalesConfiguration.saleEventId,
             })
             .orderBy(tEventsSalesConfiguration.saleProduct, 'asc')
@@ -121,8 +133,8 @@ createDataTableApi(kEventFinanceRowModel, kEventFinanceContext, {
             .set({
                 saleCategory,
                 saleCategoryLimit: row.categoryLimit || null,
-                // TODO: saleDescription
-                // TODO: salePrice
+                saleDescription: row.description || null,
+                salePrice: row.price || null,
                 saleEventId: row.eventId || null,
             })
             .where(tEventsSalesConfiguration.eventId.equals(event.id))
