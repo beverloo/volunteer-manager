@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { ImportActivitiesTask } from './tasks/ImportActivitiesTask';
+import { ImportYourTicketProviderTask } from './tasks/ImportYourTicketProviderTask';
 import { NoopComplexTask } from './tasks/NoopComplexTask';
 import { NoopTask } from './tasks/NoopTask';
 import { PopulateSchedulerTask } from './tasks/PopulateSchedulerTask';
@@ -16,6 +17,7 @@ import { SendWhatsappTask } from './tasks/SendWhatsappTask';
  */
 export const kTaskRegistry = {
     ImportActivitiesTask,
+    ImportYourTicketProviderTask,
     NoopComplexTask,
     NoopTask,
     PopulateSchedulerTask,
@@ -39,6 +41,7 @@ type TaskFormatFn = (params: any) => string;
  */
 export const kTaskFormatFn: { [k in RegisteredTasks]: TaskFormatFn } = {
     ImportActivitiesTask: () => 'Import activities from AnPlan',
+    ImportYourTicketProviderTask: () => 'Import data from YourTicketProvider',
     NoopComplexTask: () => 'No-op task (complex)',
     NoopTask: () => 'No-op task',
     PopulateSchedulerTask: () => 'Populate scheduler task',

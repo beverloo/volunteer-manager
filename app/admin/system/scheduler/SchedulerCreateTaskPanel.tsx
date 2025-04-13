@@ -59,6 +59,7 @@ function CreateNoopComplexTaskPanel() {
  */
 const kTaskOptions = [
     { id: 'ImportActivitiesTask', label: 'ImportActivitiesTask' },
+    { id: 'ImportYourTicketProviderTask', label: 'ImportYourTicketProviderTask' },
     { id: 'NoopComplexTask', label: 'NoopComplexTask' },
     { id: 'NoopTask', label: 'NoopTask' },
     { id: 'PopulateSchedulerTask', label: 'PopulateSchedulerTask' },
