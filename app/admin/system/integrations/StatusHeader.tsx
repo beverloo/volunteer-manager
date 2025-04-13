@@ -14,6 +14,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import GoogleIcon from '@mui/icons-material/Google';
 import HeatPumpIcon from '@mui/icons-material/HeatPump';
 import IconButton from '@mui/material/IconButton';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import Paper from '@mui/material/Paper';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import Stack from '@mui/material/Stack';
@@ -104,6 +105,7 @@ export function StatusHeader() {
     const [ emailStatus, setEmailStatus ] = useState<ServiceHealthResponse>();
     const [ googleStatus, setGoogleStatus ] = useState<ServiceHealthResponse>();
     const [ vertexAiStatus, setVertexAiStatus ] = useState<ServiceHealthResponse>();
+    const [ ytpStatus, setYtpStatus ] = useState<ServiceHealthResponse>();
 
     const handleHealthCheck = useCallback(async () => {
         setLoading(true);
@@ -112,6 +114,7 @@ export function StatusHeader() {
             determineServiceStatus('Email').then(result => setEmailStatus(result)),
             determineServiceStatus('Google').then(result => setGoogleStatus(result)),
             determineServiceStatus('VertexAI').then(result => setVertexAiStatus(result)),
+            determineServiceStatus('YourTicketProvider').then(result => setYtpStatus(result)),
         ]);
         setLoading(false);
     }, [ /* no deps */ ]);
@@ -146,6 +149,9 @@ export function StatusHeader() {
 
                         <ServiceStatus icon={ <HeatPumpIcon /> }
                                        label="Vertex AI" status={vertexAiStatus?.status} />
+
+                        <ServiceStatus icon={ <LocalActivityIcon /> }
+                                       label="YTP" status={ytpStatus?.status} />
 
                     </Stack>
                 </ContrastBox>

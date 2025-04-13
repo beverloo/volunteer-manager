@@ -66,6 +66,14 @@ export const kUpdateIntegrationDefinition = z.object({
          * Vertex AI settings that should be updated.
          */
         vertexAi: kVertexAiSettings.optional(),
+
+        /**
+         * YourTicketProvider settings that should be updated.
+         */
+        yourTicketProvider: z.object({
+            apiKey: z.string(),
+            endpoint: z.string(),
+        }).optional(),
     }),
     response: z.strictObject({
         /**
@@ -182,6 +190,22 @@ export async function updateIntegration(request: Request, props: ActionProps): P
             sourceUser: props.user,
             data: {
                 integration: 'Vertex AI LLM',
+            }
+        });
+    }
+
+    if (request.yourTicketProvider) {
+        await writeSettings({
+            'integration-ytp-api-key': request.yourTicketProvider.apiKey,
+            'integration-ytp-endpoint': request.yourTicketProvider.endpoint,
+        });
+
+        RecordLog({
+            type: kLogType.AdminUpdateIntegration,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                integration: 'YourTicketProvider',
             }
         });
     }

@@ -4,12 +4,14 @@
 import type { Metadata } from 'next';
 
 import type { TwilioSettings } from '@lib/integrations/twilio/TwilioClient';
+import type { YourTicketProviderClientSettings } from '@lib/integrations/yourticketprovider/YourTicketProviderClient';
 import { AnimeCon, type AnimeConSettings } from './AnimeCon';
 import { Email, type EmailSettings } from './Email';
 import { Google, type GoogleSettings } from './Google';
 import { StatusHeader } from './StatusHeader';
 import { Twilio } from './Twilio';
 import { VertexAI, type VertexAISettings } from './VertexAI';
+import { YourTicketProvider } from './YourTicketProvider';
 import { readSettings } from '@lib/Settings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -60,6 +62,10 @@ export default async function IntegrationsPage() {
         'integration-twilio-messaging-sid-sms',
         'integration-twilio-messaging-sid-whatsapp',
         'integration-twilio-region',
+
+        // YourTicketProvider:
+        'integration-ytp-api-key',
+        'integration-ytp-endpoint',
     ]);
 
     const animeConSettings: AnimeConSettings = {
@@ -103,6 +109,11 @@ export default async function IntegrationsPage() {
         topP: settings['integration-vertex-top-p'] ?? 0.8,
     };
 
+    const yourTicketProviderSettings: YourTicketProviderClientSettings = {
+        apiKey: settings['integration-ytp-api-key'] ?? '',
+        endpoint: settings['integration-ytp-endpoint'] ?? '',
+    };
+
     return (
         <>
             <StatusHeader />
@@ -111,6 +122,7 @@ export default async function IntegrationsPage() {
             <Google settings={googleSettings} />
             <VertexAI settings={vertexSettings} />
             <Twilio settings={twilioSettings} />
+            <YourTicketProvider settings={yourTicketProviderSettings} />
         </>
     );
 }

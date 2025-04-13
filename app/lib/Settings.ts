@@ -105,6 +105,10 @@ type SettingsMap = {
     'integration-twilio-messaging-sid-whatsapp': string;
     'integration-twilio-region': TwilioRegion;
 
+    // YourTicketProvider:
+    'integration-ytp-api-key': string;
+    'integration-ytp-endpoint': string;
+
     // ---------------------------------------------------------------------------------------------
     // Schedule settings:
     // ---------------------------------------------------------------------------------------------

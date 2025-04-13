@@ -10,6 +10,7 @@ import type { User } from '@lib/auth/User';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { createAnimeConClient } from '@lib/integrations/animecon';
 import { createVertexAIClient } from '@lib/integrations/vertexai';
+import { createYourTicketProviderClient } from '@lib/integrations/yourticketprovider';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tTasks } from '@lib/database';
 
@@ -18,7 +19,13 @@ import { kTaskResult } from '@lib/database/Types';
 /**
  * The services for which health check can be carried out.
  */
-const ServiceEnumeration = z.enum([ 'AnimeCon', 'Email', 'Google', 'VertexAI' ]);
+const ServiceEnumeration = z.enum([
+    'AnimeCon',
+    'Email',
+    'Google',
+    'VertexAI',
+    'YourTicketProvider'
+]);
 
 /**
  * Interface definition for the Integration API, exposed through /api/admin/service-health.
@@ -171,6 +178,37 @@ async function runVertexAIHealthCheck(): Promise<Response> {
 }
 
 /**
+ * Runs a health check for the YourTicketProvider API integration.
+ */
+async function runYourTicketProviderHealthCheck(): Promise<Response> {
+    try {
+        const client = await createYourTicketProviderClient();
+        const organisers = await client.getOrganisers();
+
+        if (organisers.length > 0) {
+            return {
+                status: 'success',
+                service: 'YourTicketProvider',
+                message: `The integration is functional ("${organisers[0].Email}")`
+            };
+        }
+
+        return {
+            status: 'warning',
+            service: 'YourTicketProvider',
+            message: 'The integration may be functional (no organisers were found)',
+        };
+
+    } catch (error: any) {
+        return {
+            status: 'error',
+            service: 'YourTicketProvider',
+            message: error.message,
+        };
+    }
+}
+
+/**
  * API that allows the health of our integrations to be checked. One request will be fired off for
  * each integration that we support.
  */
@@ -189,5 +227,7 @@ export async function serviceHealth(request: Request, props: ActionProps): Promi
             return runGoogleHealthCheck();
         case 'VertexAI':
             return runVertexAIHealthCheck();
+        case 'YourTicketProvider':
+            return runYourTicketProviderHealthCheck();
     }
 }
