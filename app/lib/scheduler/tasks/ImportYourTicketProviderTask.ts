@@ -133,7 +133,7 @@ export class ImportYourTicketProviderTask extends Task {
 
             // Step (3): Process sales, and issue a log statement when we observe that tickets have
             // been sold *today*, and not just within this update cycle.
-            const ticketsSold = ticketInfo.Amount - ticketInfo.CurrentAvailable;
+            const ticketsSold = ticketInfo.Amount - (ticketInfo.CurrentAvailable ?? 0);
 
             if (sales.get(ticketInfo.Id) !== ticketsSold) {
                 if (!sales.has(ticketInfo.Id)) {
@@ -186,7 +186,8 @@ export class ImportYourTicketProviderTask extends Task {
 
     /**
      * Fetches the event ticket information from the YourTicketProvider API. Will issue a call to
-     * their server, which may take an arbitrary time to complete.
+     * their server, which may take an arbitrary time to complete. This API further sanitizes the
+     * information, to remove excess spacing from names and descriptions.
      */
     async fetchEventTicketsFromApi(yourTicketProviderId: number)
         : Promise<YourTicketProviderTicketsResponse | undefined>
@@ -194,7 +195,12 @@ export class ImportYourTicketProviderTask extends Task {
         if (!this.#client)
             this.#client = await createYourTicketProviderClient();
 
-        return this.#client.getEventTickets(yourTicketProviderId);
+        const tickets = await this.#client.getEventTickets(yourTicketProviderId);
+        return tickets.map(ticket => ({
+            ...ticket,
+            Name: ticket.Name.trim(),
+            Description: ticket.Description?.trim(),
+        }));
     }
 
     /**

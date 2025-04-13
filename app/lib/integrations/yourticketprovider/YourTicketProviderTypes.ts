@@ -79,9 +79,10 @@ export const kYourTicketProviderTicketsResponse = z.object({
 
         /**
          * Number of times that this product can still be purchased. This also considers tickets
-         * that were issued from non-sales, e.g. people being on the guest list.
+         * that were issued from non-sales, e.g. people being on the guest list. Will be set to NULL
+         * when no further tickets are available.
          */
-        CurrentAvailable: z.number(),
+        CurrentAvailable: z.number().nullable(),
     })),
 });
 
