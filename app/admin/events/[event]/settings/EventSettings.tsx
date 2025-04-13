@@ -93,6 +93,11 @@ const kEventSettingsData = z.object({
     hotelRoomForm: z.string().optional(),
 
     /**
+     * YourTicketProvider event ID that has been assigned to this festival.
+     */
+    yourTicketProviderId: z.coerce.number().optional(),
+
+    /**
      * Whether volunteers can indicate their availability.
      */
     availabilityStatus: z.nativeEnum(kEventAvailabilityStatus),
@@ -130,6 +135,7 @@ async function updateEventSettings(eventId: number, formData: unknown) {
                 eventLocation: data.location,
                 eventTimezone: data.timezone,
                 eventFestivalId: data.festivalId,
+                eventYtpId: data.yourTicketProviderId,
                 eventHotelRoomForm: data.hotelRoomForm,
 
                 eventAvailabilityStatus: data.availabilityStatus,
@@ -190,6 +196,7 @@ export async function EventSettings(props: EventSettingsProps) {
             location: tEvents.eventLocation,
             timezone: tEvents.eventTimezone,
             festivalId: tEvents.eventFestivalId,
+            yourTicketProviderId: tEvents.eventYtpId,
             hotelRoomForm: tEvents.eventHotelRoomForm,
 
             availabilityStatus: tEvents.eventAvailabilityStatus,
@@ -204,19 +211,23 @@ export async function EventSettings(props: EventSettingsProps) {
             <EventSettingsForm />
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="location" label="Location"
-                                    fullWidth size="small" />
+                                  fullWidth size="small" />
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="timezone" label="Timezone"
-                                    fullWidth size="small" />
+                                  fullWidth size="small" />
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="festivalId" label="AnPlan Festival ID" type="number"
-                                    fullWidth size="small" />
+                                  fullWidth size="small" />
             </Grid>
             <Grid size={{ xs: 6 }}>
+                <TextFieldElement name="yourTicketProviderId" label="YourTicketProvider Event ID"
+                                  type="number" fullWidth size="small" />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="hotelRoomForm" label="Hotel room form URL"
-                                    fullWidth size="small" />
+                                  fullWidth size="small" />
             </Grid>
             <Grid size={{ xs: 12 }}>
                 <Divider />

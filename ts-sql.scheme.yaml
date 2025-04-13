@@ -3167,6 +3167,10 @@ tables:
     type: int(8) unsigned
     nullable: true
     default: "NULL"
+  - name: event_ytp_id
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (event_id) USING BTREE
@@ -3207,6 +3211,7 @@ tables:
       `event_hotel_room_form` text DEFAULT NULL,
       `event_festival_id` int(8) unsigned DEFAULT NULL,
       `event_identity_id` int(8) unsigned DEFAULT NULL,
+      `event_ytp_id` int(8) unsigned DEFAULT NULL,
       PRIMARY KEY (`event_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: vendors
