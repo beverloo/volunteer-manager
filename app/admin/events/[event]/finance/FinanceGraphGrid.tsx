@@ -6,9 +6,11 @@ import { Suspense } from 'react';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
 import { type EventSalesGraphProps, EventSalesGraph } from './graphs/EventSalesGraph';
 import { type TicketSalesGraphProps, TicketSalesGraph } from './graphs/TicketSalesGraph';
+import { TicketSalesTopLineGraph } from './graphs/TicketSalesTopLineGraph';
 import { LoadingGraph } from './graphs/LoadingGraph';
 import { Section } from '@app/admin/components/Section';
 import { selectRangeForEvent } from './graphs/SalesGraphUtils';
@@ -65,6 +67,8 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
         .groupBy(tEventsSalesConfiguration.saleCategory, tEventsSalesConfiguration.saleEventId)
         .executeSelectMany();
 
+    let ticketCategoriesFound: boolean = false;
+
     const eventGraphs: EventSalesGraphProps[] = [ /* no graphs */ ];
     const lockerGraphs: EventSalesGraphProps[] = [ /* no graphs */ ];
     const ticketGraphs: TicketSalesGraphProps[] = [ /* no graphs */ ];
@@ -102,6 +106,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
             case kEventSalesCategory.TicketSaturday:
             case kEventSalesCategory.TicketSunday:
             case kEventSalesCategory.TicketWeekend:
+                ticketCategoriesFound = true;
                 ticketGraphs.push({
                     category: graph.category,
                     eventId: eventId,
@@ -123,6 +128,15 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
 
     return (
         <Grid container spacing={2}>
+            { ticketCategoriesFound &&
+                <Grid size={{ xs: 12 }}>
+                    <Section noHeader>
+                        <Typography noWrap variant="h5">
+                            Combined ticket sales
+                        </Typography>
+                        <TicketSalesTopLineGraph eventId={eventId} />
+                    </Section>
+                </Grid> }
             { ticketGraphs.map((ticketGraphProps, index) =>
                 <Grid key={index} size={{ xs: 12, md: 6 }}>
                     <Section noHeader>

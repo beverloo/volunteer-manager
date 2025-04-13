@@ -67,13 +67,14 @@ export function SalesConfigurationSection(props: SalesConfigurationSectionProps)
             renderCell: params => {
                 if (params.value === undefined) {
                     return (
-                        <Typography component="span" variant="body2" sx={{ color: 'text.disabled' }}>
+                        <Typography component="span" variant="body2"
+                                    sx={{ color: 'text.disabled' }}>
                             Unknown
                         </Typography>
                     );
                 }
 
-                return `€ ${params.value}`;
+                return `€${Math.round(params.value * 100) / 100}`;
             },
         },
         {

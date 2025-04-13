@@ -157,7 +157,7 @@ export class ImportYourTicketProviderTask extends Task {
             }
 
             let currentTicketsSold: number = 0;
-            let updatedTicketsSold = ticketInfo.Amount - (ticketInfo.CurrentAvailable ?? 0);
+            const updatedTicketsSold = ticketInfo.Amount - (ticketInfo.CurrentAvailable ?? 0);
 
             if (sales.has(ticketInfo.Id)) {
                 currentTicketsSold = sales.get(ticketInfo.Id)!;

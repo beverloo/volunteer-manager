@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { Suspense } from 'react';
 
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -17,7 +16,6 @@ import SsidChartIcon from '@mui/icons-material/SsidChart';
 import type { AccessControl } from '@lib/auth/AccessControl';
 import type { EventRecentChangeUpdate, EventRecentChangesProps } from './EventRecentChanges';
 import type { NextPageParams } from '@lib/NextRouterParams';
-import type { TicketSalesComparisonGraphProps } from './finance/graphs/TicketSalesComparisonGraph';
 import { EventDeadlines } from './EventDeadlines';
 import { EventIdentityCard } from './EventIdentityCard';
 import { EventMetadata } from './EventMetadata';
@@ -26,18 +24,16 @@ import { EventRecentVolunteers } from './EventRecentVolunteers';
 import { EventSeniors } from './EventSeniors';
 import { EventTeamCard } from './EventTeamCard';
 import { EventTeamHistoryGraph } from './EventTeamHistoryGraph';
-import { LoadingGraph } from './finance/graphs/LoadingGraph';
 import { Temporal, isAfter } from '@lib/Temporal';
-import { TicketSalesComparisonGraph } from './finance/graphs/TicketSalesComparisonGraph';
+import { TicketSalesTopLineGraph } from './finance/graphs/TicketSalesTopLineGraph';
 import { generateEventMetadataFn } from './generateEventMetadataFn';
 import { isAvailabilityWindowOpen } from '@lib/isAvailabilityWindowOpen';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tEventsDeadlines, tEventsSalesConfiguration, tEventsTeams, tRoles, tStorage,
-    tTeams, tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
+import db, { tEvents, tEventsDeadlines, tEventsTeams, tRoles, tStorage, tTeams,
+    tTrainingsAssignments, tTrainings, tUsersEvents, tUsers, tHotels, tHotelsAssignments,
     tHotelsBookings, tHotelsPreferences, tRefunds } from '@lib/database';
 
-import { kEventSalesCategory, kRegistrationStatus } from '@lib/database/Types';
-import { kTicketSalesComparisonEditionCount } from './finance/graphs/TicketSalesComparisonGraph';
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Updates within how many minutes of each other should be merged together?
@@ -418,30 +414,6 @@ export default async function EventPage(props: NextPageParams<'event'>) {
 
     const canAccessFinanceStatistics = access.can('statistics.finances');
 
-    let financialEventsData: TicketSalesComparisonGraphProps['events'] = [ /* none yet */ ];
-    if (!!canAccessFinanceStatistics) {
-        financialEventsData = await db.selectFrom(tEvents)
-            .innerJoin(tEventsSalesConfiguration)
-                .on(tEventsSalesConfiguration.eventId.equals(tEvents.eventId))
-                    .and(tEventsSalesConfiguration.saleCategory.in([
-                        kEventSalesCategory.TicketFriday,
-                        kEventSalesCategory.TicketSaturday,
-                        kEventSalesCategory.TicketSunday,
-                        kEventSalesCategory.TicketWeekend,
-                    ]))
-            .where(tEvents.eventId.lessOrEquals(event.id))
-            .select({
-                id: tEvents.eventId,
-                name: tEvents.eventShortName,
-                products:
-                    db.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
-            })
-            .groupBy(tEvents.eventId)
-            .orderBy(tEvents.eventEndTime, 'desc')
-            .limit(kTicketSalesComparisonEditionCount)
-            .executeSelectMany();
-    }
-
     return (
         <Grid container spacing={2} alignItems="stretch">
             <Grid size={{ xs: 3 }}>
@@ -473,16 +445,8 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                                         titleTypographyProps={{ variant: 'subtitle2' }} />
                             <Divider />
                             <CardContent sx={{ p: '0 !important' }}>
-                                <Suspense fallback={ <LoadingGraph padding={2} /> }>
-                                    <TicketSalesComparisonGraph
-                                        categories={[
-                                            kEventSalesCategory.TicketFriday,
-                                            kEventSalesCategory.TicketSaturday,
-                                            kEventSalesCategory.TicketSunday,
-                                            kEventSalesCategory.TicketWeekend,
-                                        ]}
-                                        events={financialEventsData} height={250} />
-                                </Suspense>
+                                <TicketSalesTopLineGraph eventId={event.id} height={250}
+                                                         loadingGraphPadding={2} />
                             </CardContent>
                             <Divider />
                             <CardActions sx={{ justifyContent: 'flex-end' }}>
