@@ -70,9 +70,32 @@ export class ImportYourTicketProviderTask extends Task {
         }
 
         for (const ticketInfo of tickets) {
-            const ticketConfiguration = configuration.get(ticketInfo.Id);
-            if (!ticketConfiguration)
-                continue;  // TODO: Insert a new entry? Something else?
+            let ticketConfiguration = configuration.get(ticketInfo.Id);
+            if (!ticketConfiguration) {
+                ticketConfiguration = {
+                    id: ticketInfo.Id,
+
+                    description: ticketInfo.Description,
+                    limit: ticketInfo.Amount,
+                    price: ticketInfo.Price,
+                    product: ticketInfo.Name,
+                };
+
+                this.log.info(`${event.name}: Product "${ticketInfo.Name}" has been created.`);
+
+                await dbInstance.insertInto(tEventsSalesConfiguration)
+                    .set({
+                        eventId: event.id,
+                        eventSaleType: ticketInfo.Name,  // TODO: Get rid of name association?
+
+                        saleId: ticketInfo.Id,
+                        saleCategoryLimit: ticketInfo.Amount,
+                        saleDescription: ticketInfo.Description,
+                        salePrice: ticketInfo.Price,
+                        saleProduct: ticketInfo.Name,
+                    })
+                    .executeInsert();
+            }
 
             if (ticketConfiguration.product !== ticketInfo.Name ||
                 ticketConfiguration.description !== ticketInfo.Description ||

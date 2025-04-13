@@ -317,6 +317,44 @@ describe('ImportYourTicketProviderTask', () => {
         expect(task.log.entries[1].message).toInclude('Locker Sunday');
     });
 
+    it('should create product information when a new product is seen', async () => {
+        const task = createImportYourTicketProviderTask([
+            {
+                id: 100,
+                name: 'AnimeCon',
+                endTime: kEndTimeTwoWeeksFromNow,
+                yourTicketProviderId: 1337,
+
+                apiTickets: [
+                    {
+                        Id: 143341,
+                        Name: 'Locker Sunday',
+                        Description: '35 x 28 x 50 cm. Can contain larger bags.',
+                        Price: 12,
+                        Amount: 100,
+                        CurrentAvailable: 50,
+                    }
+                ],
+
+                existingProducts: [ /* no existing products */ ],
+            }
+        ]);
+
+        let receivedInsert = false;
+
+        mockConnection.expect('insert', (values: any) => {
+            receivedInsert = true;
+        });
+
+        const result = await task.execute();
+        expect(result).toBeTrue();
+
+        expect(receivedInsert).toBeTrue();
+
+        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+    });
+
     it('should upsert information retrieved from the API in the database', async () => {
         // TODO
     });
