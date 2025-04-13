@@ -20,7 +20,7 @@ import { LoadingGraph } from '../../../finance/graphs/LoadingGraph';
 import { formatDate } from '@lib/Temporal';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { getAnPlanActivityUrl } from '@lib/AnPlan';
-import { selectRangeForEvent } from '../../../finance/graphs/SalesGraphUtils';
+import { selectRangeForEvent, type SalesProduct } from '../../../finance/graphs/SalesGraphUtils';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tActivities, tActivitiesLocations, tActivitiesTimeslots, tEventsSalesConfiguration,
     tShifts, tTeams } from '@lib/database';
@@ -104,7 +104,7 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
         .executeSelectMany();
 
     let salesLimit: number | undefined = undefined;
-    let salesProducts: number[] = [ /* no products */ ];
+    let salesProducts: SalesProduct[] = [ /* no products */ ];
     let salesRange: [ string, string ] = [ '1998-09-04', '1998-09-18' ];
 
     if (access.can('statistics.finances')) {
@@ -112,7 +112,10 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
             .where(tEventsSalesConfiguration.eventId.equals(event.id))
                 .and(tEventsSalesConfiguration.saleEventId.equals(activityId))
             .select({
-                products: dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
+                products: dbInstance.aggregateAsArray({
+                    id: tEventsSalesConfiguration.saleId,
+                    label: tEventsSalesConfiguration.saleProduct,
+                }),
                 limit: tEventsSalesConfiguration.saleCategoryLimit,
             })
             .groupBy(tEventsSalesConfiguration.saleEventId)

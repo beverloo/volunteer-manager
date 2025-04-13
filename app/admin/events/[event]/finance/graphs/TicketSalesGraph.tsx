@@ -3,6 +3,7 @@
 
 import Stack from '@mui/material/Stack';
 
+import type { SalesProduct } from './SalesGraphUtils';
 import { type EventSalesCategory, kEventSalesCategory } from '@lib/database/Types';
 import { SalesLineGraph } from './SalesLineGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
@@ -30,9 +31,9 @@ export interface TicketSalesGraphProps {
     eventId: number;
 
     /**
-     * Sale IDs of products that will be counted towards this graph.
+     * Products that will be counted towards this graph.
      */
-    products: number[];
+    products: SalesProduct[];
 
     /**
      * Range of the graph, indicated as the first and last date to display. Dates must be formatted

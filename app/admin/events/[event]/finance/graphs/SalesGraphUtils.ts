@@ -7,13 +7,18 @@ import { Temporal, isAfter } from '@lib/Temporal';
 import db, { tEvents, tEventsSales } from '@lib/database';
 
 /**
+ * Type defining the information that must be known regarding a sales product.
+ */
+export type SalesProduct = { id: number; label: string; };
+
+/**
  * Generates the series for a given set of products, associated with a given event. This function
  * will communicate with the database. Optionally the `includeAggregate` parameter can be set to
  * compute an additional series that combines the sales of all products, in case more than a single
  * product is included in the given `products` parameter.
  */
 export async function generateSeriesForProducts(
-    eventId: number, products: number[], start: Temporal.PlainDate, end: Temporal.PlainDate,
+    eventId: number, products: SalesProduct[], start: Temporal.PlainDate, end: Temporal.PlainDate,
     includeAggregate: boolean)
 {
     type SeriesData = Map<string, number>;
@@ -26,7 +31,7 @@ export async function generateSeriesForProducts(
 
     const salesDatabaseData = await dbInstance.selectFrom(tEventsSales)
         .where(tEventsSales.eventId.equals(eventId))
-            .and(tEventsSales.eventSaleId.in(products))
+            .and(tEventsSales.eventSaleId.in(products.map(product => product.id)))
         .select({
             date: dbInstance.dateAsString(tEventsSales.eventSaleDate),
             product: tEventsSales.eventSaleId,
@@ -52,10 +57,10 @@ export async function generateSeriesForProducts(
     }
 
     for (const product of products) {
-        if (!salesData.has(product))
+        if (!salesData.has(product.id))
             continue;  // no sales data, skip this product
 
-        const productSalesData = salesData.get(product)!;
+        const productSalesData = salesData.get(product.id)!;
         let totalProductSales = 0;
 
         const data = [];
@@ -71,7 +76,7 @@ export async function generateSeriesForProducts(
 
         series.push({
             data,
-            label: /* FIXME: */` ${product}`,
+            label: product.label,
             type: 'line',
         });
     }

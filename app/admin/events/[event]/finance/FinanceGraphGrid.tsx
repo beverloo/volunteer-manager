@@ -56,8 +56,11 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
         .select({
             category: tEventsSalesConfiguration.saleCategory,
             categoryLimit: tEventsSalesConfiguration.saleCategoryLimit,
+            products: dbInstance.aggregateAsArray({
+                id: tEventsSalesConfiguration.saleId,
+                label: tEventsSalesConfiguration.saleProduct,
+            }),
             saleEventId: tEventsSalesConfiguration.saleEventId,
-            saleIds: dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
         })
         .groupBy(tEventsSalesConfiguration.saleCategory, tEventsSalesConfiguration.saleEventId)
         .executeSelectMany();
@@ -67,6 +70,8 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
     const ticketGraphs: TicketSalesGraphProps[] = [ /* no graphs */ ];
 
     for (const graph of graphs) {
+        graph.products.sort((lhs, rhs) => lhs.label.localeCompare(rhs.label));
+
         switch (graph.category) {
             case kEventSalesCategory.Event:
                 eventGraphs.push({
@@ -75,7 +80,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                     disableEventLinks,
                     eventId: eventId,
                     limit: graph.categoryLimit,
-                    products: graph.saleIds,
+                    products: graph.products,
                     range,
                 });
                 break;
@@ -87,7 +92,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 lockerGraphs.push({
                     category: graph.category,
                     eventId: eventId,
-                    products: graph.saleIds,
+                    products: graph.products,
                     range,
                     title: 'Lockers',
                 });
@@ -100,7 +105,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 ticketGraphs.push({
                     category: graph.category,
                     eventId: eventId,
-                    products: graph.saleIds,
+                    products: graph.products,
                     range,
                 });
                 break;

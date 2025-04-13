@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 
 import type { EventSalesCategory } from '@lib/database/Types';
+import type { SalesProduct } from './SalesGraphUtils';
 import { SalesLineGraph, type SalesLineGraphProps } from './SalesLineGraph';
 import { Temporal, isBefore, isAfter } from '@lib/Temporal';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
@@ -43,9 +44,9 @@ export interface EventSalesGraphProps {
     limit?: number;
 
     /**
-     * Sale IDs of products that will be counted towards this graph.
+     * Products that will be counted towards this graph.
      */
-    products: number[];
+    products: SalesProduct[];
 
     /**
      * Range of the graph, indicated as the first and last date to display. Dates must be formatted
@@ -79,7 +80,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     // label of the first product being the fallback.
 
     let action: React.ReactNode;
-    let title = props.title ?? props.products[0];
+    let title = props.title ?? props.products[0].label;
 
     if (!props.title && !!props.activityId) {
         const eventsJoin = tEvents.forUseInLeftJoin();
@@ -128,7 +129,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesLineGraph action={action} limit={props.limit} series={series} title={`XX${title}`}
+        <SalesLineGraph action={action} limit={props.limit} series={series} title={title}
                         titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
     );
 }
