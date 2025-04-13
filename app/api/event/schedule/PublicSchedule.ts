@@ -245,6 +245,11 @@ export const kPublicSchedule = z.strictObject({
                 limit: z.number().optional(),
 
                 /**
+                 * When known, price of the product, in euros.
+                 */
+                price: z.number().optional(),
+
+                /**
                  * The number of products that have been sold so far.
                  */
                 sold: z.number(),

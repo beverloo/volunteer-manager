@@ -251,8 +251,9 @@ async function populateProgram(
     currentTime: Temporal.ZonedDateTime, eventId: number, festivalId: number)
 {
     type ProductSalesInfo = {
-        product: string;
         limit?: number;
+        price?: number;
+        product: string;
         sold: number;
     };
 
@@ -270,8 +271,9 @@ async function populateProgram(
             .select({
                 activityId: tEventsSalesConfiguration.saleEventId,
 
-                product: tEventsSalesConfiguration.saleProduct,
                 limit: tEventsSalesConfiguration.saleCategoryLimit,
+                price: tEventsSalesConfiguration.salePrice,
+                product: tEventsSalesConfiguration.saleProduct,
                 sold: dbInstance.sum(tEventsSales.eventSaleCount).valueWhenNull(0),
             })
             .groupBy(tEventsSalesConfiguration.saleId)

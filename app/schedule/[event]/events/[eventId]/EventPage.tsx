@@ -14,7 +14,6 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import NotesIcon from '@mui/icons-material/Notes';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
@@ -430,31 +429,28 @@ export function EventPage(props: EventPageProps) {
                                 <ListItemText primary={product.product}
                                               slotProps={{ primary: { sx: kEnforceSingleLine} }} />
                                 <ListItemDetails>
-                                    <Stack direction="row" spacing={1} alignItems="center">
+                                    <Stack direction="row" spacing={0.5} alignItems="center">
                                         { (!!product.limit && product.sold >= product.limit) &&
-                                            <>
-                                                <Typography variant="caption" color="error">
-                                                    sold out ({product.sold})
-                                                </Typography>
-                                                <LocalActivityIcon color="error" fontSize="small" />
-                                            </> }
+                                            <Typography variant="caption" color="error">
+                                                sold out ({product.sold})
+                                            </Typography> }
                                         { (!product.limit || product.sold < product.limit) &&
-                                            <>
-                                                <Typography variant="caption">
-                                                    { !product.limit && `${product.sold}` }
-                                                    { !!product.limit &&
-                                                        <>
-                                                            {product.sold}{' '}
-                                                            <Typography variant="inherit"
-                                                                        component="span"
-                                                                        color="text.disabled">
-                                                                / {product.limit}
-                                                            </Typography>
-                                                        </> }
-                                                </Typography>
-                                                <LocalActivityIcon color="action"
-                                                                   fontSize="small" />
-                                            </> }
+                                            <Typography variant="caption">
+                                                { !product.limit && `${product.sold}` }
+                                                { !!product.limit &&
+                                                    <>
+                                                        {product.sold}{' '}
+                                                        <Typography variant="inherit"
+                                                                    component="span"
+                                                                    color="text.disabled">
+                                                            / {product.limit}
+                                                        </Typography>
+                                                    </> }
+                                            </Typography> }
+                                        { !!product.price &&
+                                            <Typography variant="inherit" color="inherit">
+                                                — €{product.price}
+                                            </Typography> }
                                     </Stack>
                                 </ListItemDetails>
                             </ListItem> )}
