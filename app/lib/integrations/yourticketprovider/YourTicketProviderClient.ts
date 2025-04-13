@@ -23,7 +23,7 @@ export interface YourTicketProviderClientSettings {
 /**
  * The YourTicketProvider client integrates with the YTP Ticketing API to obtain information about
  * the products and tickets sold for particular events.
- * 
+ *
  * @see https://www.yourticketprovider.nl/account/accountintegrations/ticketing-api
  */
 export class YourTicketProviderClient {
