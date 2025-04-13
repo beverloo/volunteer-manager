@@ -14,13 +14,12 @@ import {
 
 export class EventsSalesConfigurationTable extends Table<DBConnection, 'EventsSalesConfigurationTable'> {
     eventId = this.column('event_id', 'int');
-    eventSaleType = this.column('event_sale_type', 'string');
-    saleId = this.optionalColumnWithDefaultValue('sale_id', 'int');
+    saleId = this.column('sale_id', 'int');
     saleCategory = this.optionalColumnWithDefaultValue<EventSalesCategory>('sale_category', 'enum', 'EventSalesCategory');
     saleCategoryLimit = this.optionalColumnWithDefaultValue('sale_category_limit', 'int');
     saleDescription = this.optionalColumnWithDefaultValue('sale_description', 'string');
     salePrice = this.optionalColumnWithDefaultValue('sale_price', 'int');
-    saleProduct = this.optionalColumnWithDefaultValue('sale_product', 'string');
+    saleProduct = this.column('sale_product', 'string');
     saleEventId = this.optionalColumnWithDefaultValue('sale_event_id', 'int');
 
     constructor() {

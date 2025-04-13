@@ -218,10 +218,10 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         uncategorisedProductCount = await dbInstance.selectFrom(tEventsSales)
             .leftJoin(eventsSalesConfigurationJoin)
                 .on(eventsSalesConfigurationJoin.eventId.equals(tEventsSales.eventId))
-                .and(eventsSalesConfigurationJoin.eventSaleType.equals(tEventsSales.eventSaleType))
+                .and(eventsSalesConfigurationJoin.saleId.equals(tEventsSales.eventSaleId))
             .where(tEventsSales.eventId.equals(info.event.id))
-                .and(eventsSalesConfigurationJoin.eventSaleType.isNull())
-            .selectOneColumn(dbInstance.countDistinct(tEventsSales.eventSaleType))
+                .and(eventsSalesConfigurationJoin.saleId.greaterThan(10_000_000))  // FIXME
+            .selectOneColumn(dbInstance.countDistinct(tEventsSales.eventSaleId))
             .executeSelectOne();
     }
 

@@ -42,7 +42,7 @@ export interface TicketSalesComparisonGraphProps {
         /**
          * Set of products that are in scope for the comparison for this event.
          */
-        products: string[];
+        products: number[];
     }[];
 
     /**
@@ -75,7 +75,7 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tEventsSales.eventId))
             .where(tEventsSales.eventId.equals(event.id))
-                .and(tEventsSales.eventSaleType.in(event.products))
+                .and(tEventsSales.eventSaleId.in(event.products))
             .select({
                 days: daysFromEvent,
                 sales: dbInstance.sum(tEventsSales.eventSaleCount),

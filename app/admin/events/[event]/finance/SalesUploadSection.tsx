@@ -11,20 +11,8 @@ import Grid from '@mui/material/Grid';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { SalesUploadInput } from './SalesUploadInput';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { Temporal } from '@lib/Temporal';
 import { executeServerAction } from '@lib/serverAction';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tEventsSales } from '@lib/database';
-
-/**
- * Sales fields included in the manual YTP export that should be ignored.
- */
-const kSalesFieldsToIgnore = [
-    'Datum',
-    'Totaal bestellingen',
-    'Totaal subproducten',
-    'Totaal tickets',
-];
 
 /**
  * Validation that will be applied to confirm a complete, valid sales upload.
@@ -93,6 +81,8 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
         // inserted in the database, values that already exist will remain untouched.
         // -----------------------------------------------------------------------------------------
 
+        // TODO: Reenable manual import now that this has been automated.
+        /*
         const dbInstance = db;
 
         const existingSalesData: Map<string, Map<string, number>> = new Map();
@@ -148,7 +138,7 @@ export async function salesUpload(eventSlug: string, formData: unknown) {
                     .executeInsert();
             }
         }
-
+        */
         // Refresh the rest of the page, as both graphs and further sales configuration may have
         // been invalidated based on the newly uploaded data.
         return { success: true, refresh: true };

@@ -13,11 +13,11 @@ import db, { tEvents, tEventsSales } from '@lib/database';
  * product is included in the given `products` parameter.
  */
 export async function generateSeriesForProducts(
-    eventId: number, products: string[], start: Temporal.PlainDate, end: Temporal.PlainDate,
+    eventId: number, products: number[], start: Temporal.PlainDate, end: Temporal.PlainDate,
     includeAggregate: boolean)
 {
     type SeriesData = Map<string, number>;
-    type SeriesMap = Map<string, SeriesData>;
+    type SeriesMap = Map<number, SeriesData>;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -26,10 +26,10 @@ export async function generateSeriesForProducts(
 
     const salesDatabaseData = await dbInstance.selectFrom(tEventsSales)
         .where(tEventsSales.eventId.equals(eventId))
-            .and(tEventsSales.eventSaleType.in(products))
+            .and(tEventsSales.eventSaleId.in(products))
         .select({
             date: dbInstance.dateAsString(tEventsSales.eventSaleDate),
-            type: tEventsSales.eventSaleType,
+            product: tEventsSales.eventSaleId,
             count: tEventsSales.eventSaleCount,
         })
         .executeSelectMany();
@@ -40,10 +40,10 @@ export async function generateSeriesForProducts(
     const salesData: SeriesMap = new Map();
 
     for (const entry of salesDatabaseData) {
-        if (!salesData.has(entry.type))
-            salesData.set(entry.type, new Map());
+        if (!salesData.has(entry.product))
+            salesData.set(entry.product, new Map());
 
-        salesData.get(entry.type)!.set(entry.date, entry.count);
+        salesData.get(entry.product)!.set(entry.date, entry.count);
 
         if (includeAggregate) {
             aggregateSalesData.set(
@@ -71,7 +71,7 @@ export async function generateSeriesForProducts(
 
         series.push({
             data,
-            label: product,
+            label: /* FIXME: */` ${product}`,
             type: 'line',
         });
     }

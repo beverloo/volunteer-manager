@@ -7,7 +7,8 @@ import { z } from 'zod';
 import { type DataTableEndpoints, createDataTableApi } from '../../../../createDataTableApi';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
-import db, { tEventsSalesConfiguration, tEventsSales } from '@lib/database';
+import db, { tEventsSalesConfiguration } from '@lib/database';
+
 import { kEventSalesCategory } from '@lib/database/Types';
 
 /**
@@ -90,31 +91,22 @@ createDataTableApi(kEventFinanceRowModel, kEventFinanceContext, {
         if (!event)
             notFound();
 
-        const eventsSalesConfigurationJoin = tEventsSalesConfiguration.forUseInLeftJoin();
-        const results = await db.selectDistinctFrom(tEventsSales)
-            .leftJoin(eventsSalesConfigurationJoin)
-                .on(eventsSalesConfigurationJoin.eventId.equals(tEventsSales.eventId))
-                .and(eventsSalesConfigurationJoin.eventSaleType.equals(tEventsSales.eventSaleType))
-            .where(tEventsSales.eventId.equals(event.id))
+        const results = await db.selectFrom(tEventsSalesConfiguration)
+            .where(tEventsSalesConfiguration.eventId.equals(event.id))
             .select({
-                product: tEventsSales.eventSaleType,
-                category: eventsSalesConfigurationJoin.saleCategory,
-                categoryLimit: eventsSalesConfigurationJoin.saleCategoryLimit,
-                eventId: eventsSalesConfigurationJoin.saleEventId,
+                id: tEventsSalesConfiguration.saleId,
+                product: tEventsSalesConfiguration.saleProduct,
+                category: tEventsSalesConfiguration.saleCategory,
+                categoryLimit: tEventsSalesConfiguration.saleCategoryLimit,
+                eventId: tEventsSalesConfiguration.saleEventId,
             })
-            .groupBy(tEventsSales.eventSaleType)
-            .orderBy(tEventsSales.eventSaleType, 'asc')
+            .orderBy(tEventsSalesConfiguration.saleProduct, 'asc')
             .executeSelectMany();
-
-        let id = 0;
 
         return {
             success: true,
             rowCount: results.length,
-            rows: results.map(row => ({
-                id: ++id,
-                ...row,
-            })),
+            rows: results,
         };
     },
 
@@ -125,20 +117,17 @@ createDataTableApi(kEventFinanceRowModel, kEventFinanceContext, {
 
         const saleCategory = row.category === 'null' ? null : row.category;
 
-        const affectedRows = await db.insertInto(tEventsSalesConfiguration)
+        const affectedRows = await db.update(tEventsSalesConfiguration)
             .set({
-                eventId: event.id,
-                eventSaleType: row.product,
                 saleCategory,
                 saleCategoryLimit: row.categoryLimit || null,
+                // TODO: saleDescription
+                // TODO: salePrice
                 saleEventId: row.eventId || null,
             })
-            .onConflictDoUpdateSet({
-                saleCategory,
-                saleCategoryLimit: row.categoryLimit || null,
-                saleEventId: row.eventId || null,
-            })
-            .executeInsert();
+            .where(tEventsSalesConfiguration.eventId.equals(event.id))
+                .and(tEventsSalesConfiguration.saleId.equals(row.id))
+            .executeUpdate();
 
         return { success: !!affectedRows };
     },

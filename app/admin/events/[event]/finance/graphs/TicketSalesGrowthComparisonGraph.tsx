@@ -58,7 +58,7 @@ export async function TicketSalesGrowthComparisonGraph(
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tEventsSales.eventId))
             .where(tEventsSales.eventId.equals(event.id))
-                .and(tEventsSales.eventSaleType.in(event.products))
+                .and(tEventsSales.eventSaleId.in(event.products))
             .select({
                 days: daysFromEvent,
                 sales: dbInstance.sum(tEventsSales.eventSaleCount),

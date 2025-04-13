@@ -263,19 +263,19 @@ async function populateProgram(
         const salesInformation = await dbInstance.selectFrom(tEventsSalesConfiguration)
             .innerJoin(tEventsSales)
                 .on(tEventsSales.eventId.equals(tEventsSalesConfiguration.eventId))
-                    .and(tEventsSales.eventSaleType.equals(tEventsSalesConfiguration.eventSaleType))
+                    .and(tEventsSales.eventSaleId.equals(tEventsSalesConfiguration.saleId))
             .where(tEventsSalesConfiguration.eventId.equals(eventId))
                 .and(tEventsSalesConfiguration.saleCategory.equals(kEventSalesCategory.Event))
                 .and(tEventsSalesConfiguration.saleEventId.isNotNull())
             .select({
                 activityId: tEventsSalesConfiguration.saleEventId,
 
-                product: tEventsSalesConfiguration.eventSaleType,
+                product: tEventsSalesConfiguration.saleProduct,
                 limit: tEventsSalesConfiguration.saleCategoryLimit,
                 sold: dbInstance.sum(tEventsSales.eventSaleCount).valueWhenNull(0),
             })
-            .groupBy(tEventsSalesConfiguration.eventSaleType)
-            .orderBy(tEventsSalesConfiguration.eventSaleType, 'asc')
+            .groupBy(tEventsSalesConfiguration.saleId)
+            .orderBy(tEventsSalesConfiguration.saleProduct, 'asc')
             .executeSelectMany();
 
         for (const { activityId, ...product } of salesInformation) {

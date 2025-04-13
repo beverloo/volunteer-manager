@@ -57,8 +57,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
             category: tEventsSalesConfiguration.saleCategory,
             categoryLimit: tEventsSalesConfiguration.saleCategoryLimit,
             saleEventId: tEventsSalesConfiguration.saleEventId,
-            saleTypes:
-                dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+            saleIds: dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
         })
         .groupBy(tEventsSalesConfiguration.saleCategory, tEventsSalesConfiguration.saleEventId)
         .executeSelectMany();
@@ -76,7 +75,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                     disableEventLinks,
                     eventId: eventId,
                     limit: graph.categoryLimit,
-                    products: graph.saleTypes,
+                    products: graph.saleIds,
                     range,
                 });
                 break;
@@ -88,7 +87,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 lockerGraphs.push({
                     category: graph.category,
                     eventId: eventId,
-                    products: graph.saleTypes,
+                    products: graph.saleIds,
                     range,
                     title: 'Lockers',
                 });
@@ -101,7 +100,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
                 ticketGraphs.push({
                     category: graph.category,
                     eventId: eventId,
-                    products: graph.saleTypes,
+                    products: graph.saleIds,
                     range,
                 });
                 break;

@@ -434,7 +434,7 @@ export default async function EventPage(props: NextPageParams<'event'>) {
                 id: tEvents.eventId,
                 name: tEvents.eventShortName,
                 products:
-                    db.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+                    db.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
             })
             .groupBy(tEvents.eventId)
             .orderBy(tEvents.eventEndTime, 'desc')

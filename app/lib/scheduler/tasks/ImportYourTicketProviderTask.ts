@@ -100,7 +100,6 @@ export class ImportYourTicketProviderTask extends Task {
                 await dbInstance.insertInto(tEventsSalesConfiguration)
                     .set({
                         eventId: event.id,
-                        eventSaleType: '',  // TODO: Get rid of name association
 
                         saleId: ticketInfo.Id,
                         saleCategoryLimit: ticketInfo.Amount,
@@ -152,7 +151,6 @@ export class ImportYourTicketProviderTask extends Task {
                     eventId: event.id,
                     eventSaleId: ticketInfo.Id,
                     eventSaleDate: currentDate,
-                    eventSaleType: '',  // TODO: Get rid of name association
                     eventSaleCount: ticketsSold,
                     eventSaleUpdated: dbInstance.currentZonedDateTime(),
                 })

@@ -30,9 +30,9 @@ export interface TicketSalesGraphProps {
     eventId: number;
 
     /**
-     * String of products that will be counted towards this graph.
+     * Sale IDs of products that will be counted towards this graph.
      */
-    products: string[];
+    products: number[];
 
     /**
      * Range of the graph, indicated as the first and last date to display. Dates must be formatted
@@ -85,7 +85,7 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
             id: tEvents.eventId,
             name: tEvents.eventShortName,
             products:
-                dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+                dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
         })
         .groupBy(tEvents.eventId)
         .orderBy(tEvents.eventEndTime, 'desc')

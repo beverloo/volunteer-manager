@@ -483,6 +483,50 @@ tables:
       KEY `webhook_message_sid` (`webhook_message_sid`),
       KEY `webhook_message_original_sid` (`webhook_message_original_sid`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: events_sales
+  type: BASE TABLE
+  columns:
+  - name: event_id
+    type: int(8) unsigned
+    nullable: false
+  - name: event_sale_id
+    type: int(8) unsigned
+    nullable: false
+  - name: event_sale_date
+    type: date
+    nullable: false
+  - name: event_sale_count
+    type: int(8) unsigned
+    nullable: false
+  - name: event_sale_updated
+    type: datetime
+    nullable: false
+  indexes:
+  - name: event_id
+    def: UNIQUE KEY event_id (event_id, event_sale_id, event_sale_date) USING BTREE
+    table: events_sales
+    columns:
+    - event_id
+    - event_sale_id
+    - event_sale_date
+  constraints:
+  - name: event_id
+    type: UNIQUE
+    def: UNIQUE KEY event_id (event_id, event_sale_id, event_sale_date)
+    table: events_sales
+    columns:
+    - event_id
+    - event_sale_id
+    - event_sale_date
+  def: |-
+    CREATE TABLE `events_sales` (
+      `event_id` int(8) unsigned NOT NULL,
+      `event_sale_id` int(8) unsigned NOT NULL,
+      `event_sale_date` date NOT NULL,
+      `event_sale_count` int(8) unsigned NOT NULL,
+      `event_sale_updated` datetime NOT NULL,
+      UNIQUE KEY `event_id` (`event_id`,`event_sale_id`,`event_sale_date`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: displays
   type: BASE TABLE
   columns:
@@ -4181,68 +4225,15 @@ tables:
       PRIMARY KEY (`vendors_schedule_id`),
       KEY `vendor_id` (`vendor_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: events_sales
-  type: BASE TABLE
-  columns:
-  - name: event_id
-    type: int(8) unsigned
-    nullable: false
-  - name: event_sale_id
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-  - name: event_sale_date
-    type: date
-    nullable: false
-  - name: event_sale_type
-    type: varchar(64)
-    nullable: false
-  - name: event_sale_count
-    type: int(8) unsigned
-    nullable: false
-  - name: event_sale_updated
-    type: datetime
-    nullable: false
-  indexes:
-  - name: event_id
-    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type) USING BTREE
-    table: events_sales
-    columns:
-    - event_id
-    - event_sale_date
-    - event_sale_type
-  constraints:
-  - name: event_id
-    type: UNIQUE
-    def: UNIQUE KEY event_id (event_id, event_sale_date, event_sale_type)
-    table: events_sales
-    columns:
-    - event_id
-    - event_sale_date
-    - event_sale_type
-  def: |-
-    CREATE TABLE `events_sales` (
-      `event_id` int(8) unsigned NOT NULL,
-      `event_sale_id` int(8) unsigned DEFAULT NULL,
-      `event_sale_date` date NOT NULL,
-      `event_sale_type` varchar(64) NOT NULL,
-      `event_sale_count` int(8) unsigned NOT NULL,
-      `event_sale_updated` datetime NOT NULL,
-      UNIQUE KEY `event_id` (`event_id`,`event_sale_date`,`event_sale_type`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_sales_configuration
   type: BASE TABLE
   columns:
   - name: event_id
     type: int(11)
     nullable: false
-  - name: event_sale_type
-    type: varchar(64)
-    nullable: false
   - name: sale_id
     type: int(8) unsigned
-    nullable: true
-    default: "NULL"
+    nullable: false
   - name: sale_category
     type: enum('Event','Hidden','Locker','TicketFriday','TicketSaturday','TicketSunday','TicketWeekend')
     nullable: true
@@ -4261,57 +4252,43 @@ tables:
     default: "NULL"
   - name: sale_product
     type: text
-    nullable: true
-    default: "NULL"
+    nullable: false
   - name: sale_event_id
     type: int(4) unsigned
     nullable: true
     default: "NULL"
   indexes:
+  - name: event_id_2
+    def: KEY event_id_2 (event_id) USING BTREE
+    table: events_sales_configuration
+    columns:
+    - event_id
   - name: event_id
-    def: KEY event_id (event_id) USING BTREE
+    def: UNIQUE KEY event_id (event_id, sale_id) USING BTREE
     table: events_sales_configuration
     columns:
     - event_id
-  - name: event_sale_type
-    def: KEY event_sale_type (event_sale_type) USING BTREE
-    table: events_sales_configuration
-    columns:
-    - event_sale_type
-  - name: sale_event_id
-    def: KEY sale_event_id (sale_event_id) USING BTREE
-    table: events_sales_configuration
-    columns:
-    - sale_event_id
-  - name: event_id_2
-    def: UNIQUE KEY event_id_2 (event_id, event_sale_type) USING BTREE
-    table: events_sales_configuration
-    columns:
-    - event_id
-    - event_sale_type
+    - sale_id
   constraints:
-  - name: event_id_2
+  - name: event_id
     type: UNIQUE
-    def: UNIQUE KEY event_id_2 (event_id, event_sale_type)
+    def: UNIQUE KEY event_id (event_id, sale_id)
     table: events_sales_configuration
     columns:
     - event_id
-    - event_sale_type
+    - sale_id
   def: |-
     CREATE TABLE `events_sales_configuration` (
       `event_id` int(11) NOT NULL,
-      `event_sale_type` varchar(64) NOT NULL,
-      `sale_id` int(8) unsigned DEFAULT NULL,
+      `sale_id` int(8) unsigned NOT NULL,
       `sale_category` enum('Event','Hidden','Locker','TicketFriday','TicketSaturday','TicketSunday','TicketWeekend') DEFAULT NULL,
       `sale_category_limit` int(4) unsigned DEFAULT NULL,
       `sale_description` text DEFAULT NULL,
       `sale_price` int(8) unsigned DEFAULT NULL,
-      `sale_product` text DEFAULT NULL,
+      `sale_product` text NOT NULL,
       `sale_event_id` int(4) unsigned DEFAULT NULL,
-      UNIQUE KEY `event_id_2` (`event_id`,`event_sale_type`),
-      KEY `event_id` (`event_id`),
-      KEY `event_sale_type` (`event_sale_type`),
-      KEY `sale_event_id` (`sale_event_id`)
+      UNIQUE KEY `event_id` (`event_id`,`sale_id`),
+      KEY `event_id_2` (`event_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams

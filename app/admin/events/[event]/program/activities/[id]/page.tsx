@@ -104,7 +104,7 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
         .executeSelectMany();
 
     let salesLimit: number | undefined = undefined;
-    let salesProducts: string[] = [ /* no products */ ];
+    let salesProducts: number[] = [ /* no products */ ];
     let salesRange: [ string, string ] = [ '1998-09-04', '1998-09-18' ];
 
     if (access.can('statistics.finances')) {
@@ -112,8 +112,7 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
             .where(tEventsSalesConfiguration.eventId.equals(event.id))
                 .and(tEventsSalesConfiguration.saleEventId.equals(activityId))
             .select({
-                products:
-                    dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.eventSaleType),
+                products: dbInstance.aggregateAsArrayOfOneColumn(tEventsSalesConfiguration.saleId),
                 limit: tEventsSalesConfiguration.saleCategoryLimit,
             })
             .groupBy(tEventsSalesConfiguration.saleEventId)

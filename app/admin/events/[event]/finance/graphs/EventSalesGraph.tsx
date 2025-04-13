@@ -43,9 +43,9 @@ export interface EventSalesGraphProps {
     limit?: number;
 
     /**
-     * String of products that will be counted towards this graph.
+     * Sale IDs of products that will be counted towards this graph.
      */
-    products: string[];
+    products: number[];
 
     /**
      * Range of the graph, indicated as the first and last date to display. Dates must be formatted
@@ -128,7 +128,7 @@ export async function EventSalesGraph(props: EventSalesGraphProps) {
     const xLabels = generateXLabels(start, end);
 
     return (
-        <SalesLineGraph action={action} limit={props.limit} series={series} title={title}
+        <SalesLineGraph action={action} limit={props.limit} series={series} title={`XX${title}`}
                         titleVariant={props.titleVariant} today={today} xLabels={xLabels} />
     );
 }
