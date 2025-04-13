@@ -40,8 +40,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
                 <SectionIntroduction important>
                     Financial information regarding {event.shortName} is confidential, even within
                     the volunteering organisation. Do not share this information with anyone who
-                    isn't AnimeCon Staff. Sales have to be manually imported and may thus be
-                    delayed.
+                    isn't AnimeCon Staff.
                 </SectionIntroduction>
             </Section>
             <FinanceGraphGrid eventId={event.id} />
