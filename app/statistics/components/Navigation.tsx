@@ -4,7 +4,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import Button from '@mui/material/Button';
@@ -14,6 +14,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
+import { Temporal, formatDuration } from '@lib/Temporal';
 
 /**
  * Props accepted by the <StatisticsLayout> component.
@@ -35,6 +39,12 @@ export interface NavigationProps {
     }[];
 
     // TODO: enableVolunteers <events>
+
+    /**
+     * Most recent time at which sales information was updated, as a Temporal.ZonedDateTime
+     * compatible string representation.
+     */
+    recentSalesUpdate?: string;
 }
 
 /**
@@ -54,12 +64,33 @@ export function Navigation(props: NavigationProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const shouldDisplayUpdateTime = useMediaQuery(theme => theme.breakpoints.up('md'));
+
+    const updateTime = useMemo(() => {
+        let updateTime: Temporal.ZonedDateTime | undefined;
+        if (shouldDisplayUpdateTime) {
+            if (pathname.startsWith('/statistics/sales') && !!props.recentSalesUpdate)
+                updateTime = Temporal.ZonedDateTime.from(props.recentSalesUpdate);
+        }
+
+        if (!updateTime)
+            return undefined;
+
+        const currentTime = Temporal.Now.zonedDateTimeISO();
+        const difference = updateTime.since(currentTime);
+
+        return formatDuration(difference);
+
+    }, [ pathname, props.recentSalesUpdate, shouldDisplayUpdateTime ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     const dashboardColor = pathname === '/statistics' ? 'primary' : 'inherit';
     const salesColor = pathname.startsWith('/statistics/sales') ? 'primary' : 'inherit';
 
     return (
         <Stack direction="row" divider= { <Divider orientation="vertical" flexItem /> }
-               spacing={2}>
+               alignItems="center" spacing={2}>
             <Button LinkComponent={Link} href="/statistics" color={dashboardColor}>
                 Dashboard
             </Button>
@@ -81,6 +112,10 @@ export function Navigation(props: NavigationProps) {
                     </Menu>
                 </> }
             { /* TODO: Volunteers */ }
+            { !!updateTime &&
+                <Typography color="textDisabled" sx={{ marginLeft: 'auto !important' }}>
+                    updated {updateTime}
+                </Typography> }
         </Stack>
     );
 }
