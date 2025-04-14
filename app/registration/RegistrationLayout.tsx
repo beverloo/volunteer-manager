@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
+import Container, { type ContainerProps } from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { darken } from '@mui/material/styles';
 
@@ -55,6 +55,11 @@ interface RegistrationLayoutProps {
      * that will be used, which can be customised for the different sites.
      */
     environment: Environment;
+
+    /**
+     * Maximum width for the container layout. Defaults to "lg" in line with MUI standards.
+     */
+    maxWidth?: ContainerProps['maxWidth'];
 }
 
 /**
@@ -80,7 +85,7 @@ export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLa
     return (
         <>
             <Box sx={ generateBackgroundStylesForEnvironment(environment.domain) } />
-            <Container sx={{ pb: 2 }}>
+            <Container maxWidth={props.maxWidth} sx={{ pb: 2 }}>
                 <Container sx={{ py: 2, textAlign: 'center' }}>
                     <Link href="/" style={{ display: 'inline-block' }}>
                         <object type="image/svg+xml" style={kLogoContainerStyles} data={logoUrl} />

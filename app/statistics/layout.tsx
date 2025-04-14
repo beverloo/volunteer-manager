@@ -31,7 +31,7 @@ export default async function StatisticsLayout(props: React.PropsWithChildren) {
     }
 
     return (
-        <RegistrationLayout environment={environment}>
+        <RegistrationLayout environment={environment} maxWidth="xl">
             <MuiLicense />
             <Paper sx={{ mb: 2, px: 2, py: 1 }}>
                 <Navigation enableSales={enableSales} />
