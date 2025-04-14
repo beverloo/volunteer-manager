@@ -26,7 +26,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@beverloo/volunteer-manager-timeline": "^2.0.0",
+    "@beverloo/volunteer-manager-timeline": "^2.0.1",
     "@google-cloud/vertexai": "^1.9.3",
     "@mdxeditor/editor": "^3.30.0",
     "@mui/icons-material": "^7.0.2",
