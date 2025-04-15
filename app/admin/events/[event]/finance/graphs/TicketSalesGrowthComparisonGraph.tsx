@@ -1,8 +1,9 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type { BarSeriesType } from '@mui/x-charts-pro';
+
 import type { EventSalesCategory } from '@lib/database/Types';
-import type { SalesLineGraphProps } from './SalesLineGraph';
 import { SalesBarGraph } from './SalesBarGraph';
 import db, { tEvents, tEventsSales } from '@lib/database';
 
@@ -37,7 +38,7 @@ interface TicketSalesGrowthComparisonGraphProps {
 export async function TicketSalesGrowthComparisonGraph(
     props: TicketSalesGrowthComparisonGraphProps)
 {
-    const series: SalesLineGraphProps['series'] = [];
+    const series: BarSeriesType[] = [];
 
     const kWeeks = Math.floor(kTicketSalesComparisonDays / 7);
 

@@ -19,7 +19,7 @@ import db, { tEvents } from '@lib/database';
 /**
  * Interface definition for the Financial Insights API.
  */
-export const kFinancialInsightsDefinition = z.object({
+const kFinancialInsightsDefinition = z.object({
     request: z.object({
         /**
          * The events for which financial insights should be generated.
