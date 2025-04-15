@@ -50,7 +50,9 @@ export function TicketSalesComparisonAction(props: TicketSalesComparisonActionPr
             </Tooltip>
             { !!comparisonOpen &&
                 <Dialog open={comparisonOpen} onClose={closeComparison} fullWidth maxWidth="md">
-                    <DialogTitle>{title}</DialogTitle>
+                    <DialogTitle>
+                        {title} — Y/Y Cumulative Sales
+                    </DialogTitle>
                     <DialogContent>
                         {graph}
                     </DialogContent>

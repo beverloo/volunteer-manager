@@ -17,60 +17,42 @@ export const kTicketSalesComparisonDays = 90;
 export const kTicketSalesComparisonEditionCount = kComparisonEditionColours.length;
 
 /**
- * Props accepted by the <TicketSalesComparisonGraph> component.
+ * Events that are to be considered for the comparison.
  */
-export interface TicketSalesComparisonGraphProps {
+type TicketSalesComparisonEvent = {
     /**
-     * Categories of sales for which this graph is being displayed.
+     * Unique ID of the event as it exists in the database.
      */
-    categories: EventSalesCategory[];
-
-    /**
-     * Events that are to be included on the comparison graph.
-     */
-    events: {
-        /**
-         * Unique ID of the event as it exists in the database.
-         */
-        id: number;
-
-        /**
-         * Label that represents the name of the event.
-         */
-        name: string;
-
-        /**
-         * Set of products that are in scope for the comparison for this event.
-         */
-        products: number[];
-    }[];
+    id: number;
 
     /**
-     * Maximum height of the graph, in pixels. Defaults to 300px.
+     * Label that represents the name of the event.
      */
-    height?: number;
-}
+    name: string;
+
+    /**
+     * Set of products that are in scope for the comparison for this event.
+     */
+    products: number[];
+};
 
 /**
- * The <TicketSalesComparisonGraph> component displays a graph comparing ticket sales, either within
- * a single category or within multiple categories, between several years.
+ * Create a series for each of the events that should be compared. This requires a query per
+ * edition. The series will be coloured based on how far in the past the event happened.
  */
-export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
+export async function getTicketSalesComparisonSeries(events: TicketSalesComparisonEvent[])
+    : Promise<SalesLineGraphProps['series']>
+{
     const series: SalesLineGraphProps['series'] = [];
 
     const dbInstance = db;
-
-    // ---------------------------------------------------------------------------------------------
-    // Create a series for each of the events that should be compared. This requires a query per
-    // edition. The series will be coloured based on how far in the past the event happened.
-
     const daysFromEvent = dbInstance.fragmentWithType('int', 'required')
         .sql`DATEDIFF(${tEvents.eventStartTime}, ${tEventsSales.eventSaleDate})`;
 
     let currentSeriesColourIndex = 0;
     let currentId = 1;
 
-    for (const event of props.events) {
+    for (const event of events) {
         const salesData = await dbInstance.selectFrom(tEventsSales)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tEventsSales.eventId))
@@ -109,8 +91,35 @@ export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGra
         });
     }
 
-    // ---------------------------------------------------------------------------------------------
+    return series;
+}
 
+/**
+ * Props accepted by the <TicketSalesComparisonGraph> component.
+ */
+export interface TicketSalesComparisonGraphProps {
+    /**
+     * Categories of sales for which this graph is being displayed.
+     */
+    categories: EventSalesCategory[];
+
+    /**
+     * Events that are to be included on the comparison graph.
+     */
+    events: TicketSalesComparisonEvent[];
+
+    /**
+     * Maximum height of the graph, in pixels. Defaults to 300px.
+     */
+    height?: number;
+}
+
+/**
+ * The <TicketSalesComparisonGraph> component displays a graph comparing ticket sales, either within
+ * a single category or within multiple categories, between several years.
+ */
+export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
+    const series = await getTicketSalesComparisonSeries(props.events);
     return (
         <ComparisonGraph days={kTicketSalesComparisonDays} height={props.height} series={series} />
     );

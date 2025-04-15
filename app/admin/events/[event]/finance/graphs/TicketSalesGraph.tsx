@@ -11,6 +11,7 @@ import { TicketSalesComparisonAction } from './TicketSalesComparisonAction';
 import { TicketSalesComparisonGraph } from './TicketSalesComparisonGraph';
 import { TicketSalesGrowthComparisonAction } from './TicketSalesGrowthComparisonAction';
 import { TicketSalesGrowthComparisonGraph } from './TicketSalesGrowthComparisonGraph';
+import { TicketSalesInsightsAction } from './TicketSalesInsightsAction';
 import { generateSeriesForProducts, generateXLabels } from './SalesGraphUtils';
 import db, { tEvents, tEventsSalesConfiguration } from '@lib/database';
 
@@ -106,19 +107,21 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
 
     const action = (
         <Stack direction="row" spacing={1}>
+            <TicketSalesInsightsAction title={title} />
+
             <TicketSalesGrowthComparisonAction
                 graph={
                     <TicketSalesGrowthComparisonGraph categories={[ props.category ]}
                                                       events={events} />
                 }
-                title={`${title} — Y/Y Daily Sales`} />
+                title={title} />
 
             <TicketSalesComparisonAction
                 graph={
                     <TicketSalesComparisonGraph categories={[ props.category ]}
                                                 events={events} />
                 }
-                title={`${title} — Y/Y Cumulative Sales`} />
+                title={title} />
         </Stack>
     );
 

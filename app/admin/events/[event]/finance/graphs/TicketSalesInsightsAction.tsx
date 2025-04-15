@@ -5,24 +5,19 @@
 
 import React, { useCallback, useState } from 'react';
 
-import BarChartIcon from '@mui/icons-material/BarChart';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
+import InsightsIcon from '@mui/icons-material/Insights';
 import Tooltip from '@mui/material/Tooltip';
 
 /**
- * Props accepted by the <TicketSalesGrowthComparisonAction> component.
+ * Props accepted by the <TicketSalesInsightsAction> component.
  */
-interface TicketSalesGrowthComparisonActionProps {
-    /**
-     * The graph node that should be displayed once activated.
-     */
-    graph: React.ReactNode;
-
+interface TicketSalesInsightsActionProps {
     /**
      * Title of the graph, as should be displayed as the dialog's title.
      */
@@ -30,12 +25,10 @@ interface TicketSalesGrowthComparisonActionProps {
 }
 
 /**
- * The <TicketSalesGrowthComparisonAction> shows an action on the top-right corner of a regular
- * graph that can be used to visualise sales/week over a certain amount of time.
+ * The <TicketSalesInsightsAction> shows an action on the top-right corner of a ticket-related graph
+ * for which we can provide AI-generated insights and projections.
  */
-export function TicketSalesGrowthComparisonAction(props: TicketSalesGrowthComparisonActionProps) {
-    const { graph, title } = props;
-
+export function TicketSalesInsightsAction(props: TicketSalesInsightsActionProps) {
     const [ comparisonOpen, setComparisonOpen ] = useState<boolean>(false);
 
     const closeComparison = useCallback(() => setComparisonOpen(false), [ /* no deps */ ]);
@@ -43,18 +36,16 @@ export function TicketSalesGrowthComparisonAction(props: TicketSalesGrowthCompar
 
     return (
         <>
-            <Tooltip title="Y/Y Daily Sales">
+            <Tooltip title="Insights">
                 <IconButton onClick={openComparison}>
-                    <BarChartIcon color="info" fontSize="small" />
+                    <InsightsIcon color="info" fontSize="small" />
                 </IconButton>
             </Tooltip>
             { !!comparisonOpen &&
                 <Dialog open={comparisonOpen} onClose={closeComparison} fullWidth maxWidth="md">
-                    <DialogTitle>
-                        {title} — Y/Y Daily Sales
-                    </DialogTitle>
+                    <DialogTitle>{props.title} — Insights</DialogTitle>
                     <DialogContent>
-                        {graph}
+                        TODO: AI magic
                     </DialogContent>
                     <DialogActions sx={{ pt: 1, mr: 1, mb: 0 }}>
                         <Button onClick={closeComparison} variant="text">
