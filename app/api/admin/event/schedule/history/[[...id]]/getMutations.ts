@@ -27,18 +27,18 @@ interface MutationInfo {
  * Formats the given `mutation` into a human-readable string. This considers all of the important
  * permutations that can be made to the schedule, clarifying to the reader what has changed.
  */
-function formatMutation(mutation: MutationInfo): string {
+function formatMutation(mutation: MutationInfo, timezone: string): string {
     const beforeShiftName = mutation.beforeShift ?? 'unassigned';
     const afterShiftName = mutation.afterShift ?? 'unassigned';
 
     switch (mutation.mutation) {
-        case kMutation.Created:
+        case kMutation.Created: {
             return `Created a new shift for ${mutation.afterUser}`;
-
-        case kMutation.Deleted:
+        }
+        case kMutation.Deleted: {
             return `Removed a ${beforeShiftName} shift for ${mutation.beforeUser}`;
-
-        case kMutation.Updated:
+        }
+        case kMutation.Updated: {
             if (!!mutation.afterShift && mutation.beforeShift !== mutation.afterShift) {
                 return `Changed a ${beforeShiftName} shift to a ${afterShiftName} shift ` +
                     `for ${mutation.afterUser ?? mutation.beforeUser}`;
@@ -49,27 +49,31 @@ function formatMutation(mutation: MutationInfo): string {
                     `to ${mutation.afterUser}`;
             }
 
-            if (!!mutation.beforeTimeStart && !!mutation.afterTimeStart &&
-                    !!mutation.beforeTimeEnd && !!mutation.afterTimeEnd)
-            {
+            const beforeTimeStart = mutation.beforeTimeStart?.withTimeZone(timezone);
+            const beforeTimeEnd = mutation.beforeTimeEnd?.withTimeZone(timezone);
+            const afterTimeStart = mutation.afterTimeStart?.withTimeZone(timezone);
+            const afterTimeEnd = mutation.afterTimeEnd?.withTimeZone(timezone);
+
+            if (!!beforeTimeStart && !!afterTimeStart && !!beforeTimeEnd && !!afterTimeEnd) {
                 return `Moved a ${beforeShiftName} shift for ${mutation.beforeUser} from ` +
-                    `${formatDate(mutation.beforeTimeStart, 'ddd HH:mm')}–` +
-                    `${formatDate(mutation.beforeTimeEnd, 'HH:mm')} to ` +
-                    `${formatDate(mutation.afterTimeStart, 'ddd HH:mm')}–` +
-                    `${formatDate(mutation.afterTimeEnd, 'HH:mm')}`;
+                    `${formatDate(beforeTimeStart, 'ddd HH:mm')}–` +
+                    `${formatDate(beforeTimeEnd, 'HH:mm')} to ` +
+                    `${formatDate(afterTimeStart, 'ddd HH:mm')}–` +
+                    `${formatDate(afterTimeEnd, 'HH:mm')}`;
 
-            } else if (!!mutation.beforeTimeStart && !!mutation.afterTimeStart) {
+            } else if (!!beforeTimeStart && !!afterTimeStart) {
                 return `Changed a ${beforeShiftName} shift for ${mutation.beforeUser} to begin ` +
-                    `at ${formatDate(mutation.afterTimeStart, 'HH:mm')} instead of ` +
-                    `${formatDate(mutation.beforeTimeStart, 'HH:mm [on] dddd')}`;
+                    `at ${formatDate(afterTimeStart, 'HH:mm')} instead of ` +
+                    `${formatDate(beforeTimeStart, 'HH:mm [on] dddd')}`;
 
-            } else if (!!mutation.beforeTimeEnd && !!mutation.afterTimeEnd) {
+            } else if (!!beforeTimeEnd && !!afterTimeEnd) {
                 return `Changed a ${beforeShiftName} shift for ${mutation.beforeUser} to end ` +
-                    `at ${formatDate(mutation.afterTimeEnd, 'HH:mm')} instead of ` +
-                    `${formatDate(mutation.beforeTimeEnd, 'HH:mm [on] dddd')}`;
+                    `at ${formatDate(afterTimeEnd, 'HH:mm')} instead of ` +
+                    `${formatDate(beforeTimeEnd, 'HH:mm [on] dddd')}`;
             }
 
             break;
+        }
     }
 
     return 'Unknown mutation';
@@ -104,8 +108,9 @@ interface GetMutationsParams {
  * Returns the schedule mutations for the given |eventId| and |teamId|, based on the given |params|,
  * together with the total number of mutations that are available for this configuration.
  */
-export async function getMutations(eventId: number, teamId: number, params: GetMutationsParams)
-    : Promise<[ number, EventScheduleHistoryRowModel[] ]>
+export async function getMutations(
+    eventId: number, teamId: number, timezone: string, params: GetMutationsParams)
+        : Promise<[ number, EventScheduleHistoryRowModel[] ]>
 {
     const { pagination } = params;
 
@@ -167,7 +172,7 @@ export async function getMutations(eventId: number, teamId: number, params: GetM
             date: mutation.date,
             userId: mutation.userId,
             user: mutation.user,
-            mutation: formatMutation(mutation),
+            mutation: formatMutation(mutation, timezone),
         }))
     ];
 }

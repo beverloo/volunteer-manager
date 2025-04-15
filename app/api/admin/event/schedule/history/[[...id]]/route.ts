@@ -135,7 +135,7 @@ createDataTableApi(kEventScheduleHistoryRowModel, kEventScheduleHistoryContext, 
         if (!!context.scheduleId)
             scheduleId = parseInt(context.scheduleId, /* radix= */ 10);
 
-        const [ rowCount, rows ] = await getMutations(event.id, team.id, {
+        const [ rowCount, rows ] = await getMutations(event.id, team.id, event.timezone, {
             pagination,
             scheduleId
         });
