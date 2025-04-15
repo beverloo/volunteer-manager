@@ -216,11 +216,12 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ dialogDefaultValues, setDialogDefaultValues ] = useState<Record<string, any>>({ });
     useEffect(() => {
         if (!!dialogEvent) {
+            console.log(dialogEvent);
             setDialogDefaultValues({
                 ...dialogEvent,
                 shiftId: dialogEvent.shiftId,
-                startTime: dayjs(dialogEvent.start),
-                endTime: dayjs(dialogEvent.end),
+                startTime: dayjs(dialogEvent.start).tz(context.schedule?.timezone),
+                endTime: dayjs(dialogEvent.end).tz(context.schedule?.timezone),
             });
         }
     }, [ dialogEvent ]);
