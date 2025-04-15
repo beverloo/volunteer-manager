@@ -58,14 +58,20 @@ export async function isValidShift(
 
     // TODO: Process `availability.unavailable` - this isn't currently working
 
-    const conflictingShiftId = await db.selectFrom(tSchedule)
+    const conflictingShiftIds = await db.selectFrom(tSchedule)
         .where(tSchedule.userId.equals(volunteer.id))
             .and(tSchedule.eventId.equals(event.id))
             .and(tSchedule.scheduleTimeStart.lessThan(shift.end))
             .and(tSchedule.scheduleTimeEnd.greaterThan(shift.start))
             .and(tSchedule.scheduleDeleted.isNull())
         .selectOneColumn(tSchedule.scheduleId)
-        .executeSelectNoneOrOne();
+        .executeSelectMany();
 
-    return conflictingShiftId === null || conflictingShiftId === ignoreShift;
+    if (!conflictingShiftIds.length)
+        return true;  // no conflicting shifts were found
+
+    if (conflictingShiftIds.length === 1 && conflictingShiftIds[0] === ignoreShift)
+        return true;  // the only conflicting shift is the one we ignore
+
+    return false;  // one or more actually conflicting shifts were found
 }
