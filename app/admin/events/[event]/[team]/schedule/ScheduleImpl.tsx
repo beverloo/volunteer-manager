@@ -224,7 +224,7 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                 endTime: dayjs(dialogEvent.end).tz(context.schedule?.timezone),
             });
         }
-    }, [ dialogEvent ]);
+    }, [ context.schedule?.timezone, dialogEvent ]);
 
     // ---------------------------------------------------------------------------------------------
     // Interaction: right click -> history

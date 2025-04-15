@@ -4,11 +4,8 @@
 import { Suspense } from 'react';
 
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 
 import { type EventSalesGraphProps, EventSalesGraph } from './graphs/EventSalesGraph';
 import { type TicketSalesGraphProps, TicketSalesGraph } from './graphs/TicketSalesGraph';
@@ -19,7 +16,6 @@ import { selectRangeForEvent } from './graphs/SalesGraphUtils';
 import db, { tEventsSalesConfiguration } from '@lib/database';
 
 import { kEventSalesCategory } from '@lib/database/Types';
-import { TicketSalesInsightsAction } from './graphs/TicketSalesInsightsAction';
 
 /**
  * Props accepted by the <FinanceGraphGrid> component.
