@@ -5,12 +5,23 @@
  * Enumeration of the models that are supported by the Vertex AI API.
  */
 export const kVertexSupportedModels = {
-    'gemini-2.0-flash-exp': 'gemini-2.0-flash-exp',
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    'gemini-2.5-pro-preview-03-25': 'gemini-2.5-pro-preview-03-25',
+
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash
+    'gemini-2.0-flash-live-preview-04-09': 'gemini-2.0-flash-live-preview-04-09',
+    'gemini-2.0-flash-001': 'gemini-2.0-flash-001',
+
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash-lite
+    'gemini-2.0-flash-lite-001': 'gemini-2.0-flash-lite-001',
+
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/1-5-flash
     'gemini-1.5-flash-002': 'gemini-1.5-flash-002',
     'gemini-1.5-flash-001': 'gemini-1.5-flash-001',
+
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/1-5-pro
     'gemini-1.5-pro-001': 'gemini-1.5-pro-001',
-    'gemini-1.0-pro-002': 'gemini-1.0-pro-002',
-    'gemini-exp-1206': 'gemini-exp-1206',
+
 } as const;
 
 /**
