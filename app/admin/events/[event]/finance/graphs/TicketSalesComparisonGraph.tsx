@@ -1,7 +1,6 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { EventSalesCategory } from '@lib/database/Types';
 import type { SalesLineGraphProps } from './SalesLineGraph';
 import { ComparisonGraph, kComparisonEditionColours } from './ComparisonGraph';
 import db, { tEvents, tEventsSales } from '@lib/database';
@@ -98,11 +97,6 @@ export async function getTicketSalesComparisonSeries(events: TicketSalesComparis
  * Props accepted by the <TicketSalesComparisonGraph> component.
  */
 export interface TicketSalesComparisonGraphProps {
-    /**
-     * Categories of sales for which this graph is being displayed.
-     */
-    categories: EventSalesCategory[];
-
     /**
      * Events that are to be included on the comparison graph.
      */

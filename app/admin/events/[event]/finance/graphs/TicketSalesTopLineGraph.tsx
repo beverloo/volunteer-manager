@@ -3,8 +3,13 @@
 
 import { Suspense } from 'react';
 
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+
 import { LoadingGraph } from './LoadingGraph';
 import { TicketSalesComparisonGraph, type TicketSalesComparisonGraphProps } from './TicketSalesComparisonGraph';
+import { TicketSalesInsightsAction } from './TicketSalesInsightsAction';
 import db, { tEvents, tEventsSalesConfiguration } from '@lib/database';
 
 import { kEventSalesCategory } from '@lib/database/Types';
@@ -28,6 +33,11 @@ interface TicketSalesTopLineGraphProps {
      * Optional padding that should be applied to the loading graph.
      */
     loadingGraphPadding?: number;
+
+    /**
+     * Title to display above the graph, if any. Will be outside of the suspense boundary.
+     */
+    title?: string;
 }
 
 /**
@@ -57,15 +67,19 @@ export async function TicketSalesTopLineGraph(props: TicketSalesTopLineGraphProp
         .executeSelectMany();
 
     return (
-        <Suspense fallback={ <LoadingGraph padding={props.loadingGraphPadding} /> }>
-            <TicketSalesComparisonGraph
-                categories={[
-                    kEventSalesCategory.TicketFriday,
-                    kEventSalesCategory.TicketSaturday,
-                    kEventSalesCategory.TicketSunday,
-                    kEventSalesCategory.TicketWeekend,
-                ]}
-                events={events} height={props.height} />
-        </Suspense>
+        <>
+            { !!props.title &&
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Typography noWrap variant="h5">
+                        {props.title}
+                    </Typography>
+                    <Box justifySelf="flex-end">
+                        <TicketSalesInsightsAction events={events} title="Combined ticket sales" />
+                    </Box>
+                </Stack> }
+            <Suspense fallback={ <LoadingGraph padding={props.loadingGraphPadding} /> }>
+                <TicketSalesComparisonGraph events={events} height={props.height} />
+            </Suspense>
+        </>
     );
 }

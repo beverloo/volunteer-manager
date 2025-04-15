@@ -134,15 +134,7 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
             { ticketCategoriesFound &&
                 <Grid size={{ xs: 12 }}>
                     <Section noHeader>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                            <Typography noWrap variant="h5">
-                                Combined ticket sales
-                            </Typography>
-                            <Box justifySelf="flex-end">
-                                <TicketSalesInsightsAction title="Combined ticket sales" />
-                            </Box>
-                        </Stack>
-                        <TicketSalesTopLineGraph eventId={eventId} />
+                        <TicketSalesTopLineGraph eventId={eventId} title="Combined ticket sales" />
                     </Section>
                 </Grid> }
             { ticketGraphs.map((ticketGraphProps, index) =>

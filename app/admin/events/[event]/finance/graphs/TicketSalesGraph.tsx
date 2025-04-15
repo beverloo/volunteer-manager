@@ -107,7 +107,7 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
 
     const action = (
         <Stack direction="row" spacing={1}>
-            <TicketSalesInsightsAction title={title} />
+            <TicketSalesInsightsAction events={events} title={title} />
 
             <TicketSalesGrowthComparisonAction
                 graph={
@@ -117,10 +117,7 @@ export async function TicketSalesGraph(props: TicketSalesGraphProps) {
                 title={title} />
 
             <TicketSalesComparisonAction
-                graph={
-                    <TicketSalesComparisonGraph categories={[ props.category ]}
-                                                events={events} />
-                }
+                graph={ <TicketSalesComparisonGraph events={events} /> }
                 title={title} />
         </Stack>
     );

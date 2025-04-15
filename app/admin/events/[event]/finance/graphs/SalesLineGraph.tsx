@@ -8,9 +8,9 @@ import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
 
 import {
-    type AllSeriesType, ChartContainerPro, type ChartContainerProProps, ChartsAxisHighlight,
+    ChartContainerPro, type ChartContainerProProps, ChartsAxisHighlight,
     ChartsClipPath, ChartsGrid, ChartsReferenceLine, ChartsTooltip, ChartsXAxis, ChartsYAxis,
-    LinePlot } from './MuiChartProxy';
+    LinePlot, type LineSeriesType } from './MuiChartProxy';
 
 /**
  * Colour in which the line visualising maximum ticket sales should be displayed.
@@ -44,7 +44,7 @@ export interface SalesLineGraphProps {
     /**
      * Series that should be displayed on the graph.
      */
-    series: AllSeriesType[];
+    series: LineSeriesType[];
 
     /**
      * Optional styling to apply to the graph. Will be forwarded to the container.

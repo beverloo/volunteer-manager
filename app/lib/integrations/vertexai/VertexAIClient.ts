@@ -68,6 +68,11 @@ export type VertexAIClientSettings = VertexAISettings & GoogleClientSettings;
  */
 export interface VertexPrompt {
     /**
+     * Optional attachment that should be included with the prompt, as a separate input.
+     */
+    attachment?: string;
+
+    /**
      * The prompt that should be executed by the generative model.
      */
     prompt: string;
@@ -119,6 +124,7 @@ export class VertexAIClient {
             systemInstruction: prompt.systemInstruction,
         });
 
+        const attachment = prompt.attachment ? [ { text: prompt.attachment } ] : [];
         const result = await model.generateContent({
             contents: [
                 {
@@ -126,7 +132,8 @@ export class VertexAIClient {
                     parts: [
                         {
                             text: prompt.prompt,
-                        }
+                        },
+                        ...attachment,
                     ]
                 }
             ],
