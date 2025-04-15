@@ -66,6 +66,9 @@ type SettingsMap = {
     'gen-ai-intention-reject-volunteer': string;
     'gen-ai-intention-remind-participation': string;
 
+    // Prompts:
+    'gen-ai-prompt-financial-insights': string;
+
     // ---------------------------------------------------------------------------------------------
     // Integration settings
     // ---------------------------------------------------------------------------------------------
