@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden } from 'next/navigation';
 
 import Grid from '@mui/material/Grid';
 
@@ -69,7 +69,7 @@ export default async function StatisticsPage(params: NextSearchParams) {
 
     const filters = await determineFilters(searchParams);
     if (!filters.access.basic)
-        notFound();
+        forbidden();
 
     return (
         <>

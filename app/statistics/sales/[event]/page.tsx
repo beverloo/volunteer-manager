@@ -1,7 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { FinanceGraphGrid } from '@app/admin/events/[event]/finance/FinanceGraphGrid';
@@ -16,7 +16,7 @@ import { getEventBySlug } from '@lib/EventLoader';
 export default async function StatisticsPage(props: NextPageParams<'event'>) {
     const filters = await determineFilters();
     if (!filters.access.basic || !filters.access.finances)
-        notFound();
+        forbidden();
 
     const params = await props.params;
 
