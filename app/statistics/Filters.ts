@@ -4,8 +4,6 @@
 import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsSalesConfiguration, tTeams } from '@lib/database';
 
-import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
-
 /**
  * Filters that should be applied when fetching data for one of the statistics.
  */
@@ -132,9 +130,6 @@ export async function determineFilters(params?: URLSearchParams): Promise<Filter
     // ---------------------------------------------------------------------------------------------
 
     for (const { id, name, slug, hasSales } of events) {
-        if (!access.can('event.visible', { event: slug, team: kAnyTeam }))
-            continue;  // this event is not accessible by the volunteer
-
         if (requestedEvents && !requestedEvents.has(slug))
             continue;  // this event has not been selected
 
@@ -142,9 +137,6 @@ export async function determineFilters(params?: URLSearchParams): Promise<Filter
     }
 
     for (const { id, name, slug } of teams) {
-        if (!access.can('event.visible', { event: kAnyEvent, team: slug }))
-            continue;  // this team is not accessible by the volunteer
-
         if (requestedTeams && !requestedTeams.has(slug))
             continue;  // this team has not been selected
 
