@@ -5,6 +5,9 @@
  * Enumeration of the models that are supported by the Vertex AI API.
  */
 export const kVertexSupportedModels = {
+    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
+    'gemini-2.5-flash-preview-04-17': 'gemini-2.5-flash-preview-04-17',
+
     // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
     'gemini-2.5-pro-preview-03-25': 'gemini-2.5-pro-preview-03-25',
 
