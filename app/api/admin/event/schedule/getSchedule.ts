@@ -586,6 +586,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         });
     }
 
+    schedule.metadata.shifts.sort((lhs, rhs) => lhs.label.localeCompare(rhs.label));
+
     // ---------------------------------------------------------------------------------------------
 
     return {
