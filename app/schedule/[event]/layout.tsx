@@ -20,7 +20,6 @@ import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { getEventBySlug } from '@lib/EventLoader';
 
 import { kDesktopMaximumWidthPx, kDesktopMenuWidthPx } from './Constants';
-import { kAnyTeam } from '@lib/auth/AccessList';
 
 /**
  * Styling rules used for <ScheduleLayout> and friends.
