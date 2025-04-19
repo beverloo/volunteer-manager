@@ -80,7 +80,8 @@ export async function TicketSalesTopLineGraph(props: TicketSalesTopLineGraphProp
                     </Typography>
                     { !props.revenue &&
                         <Box justifySelf="flex-end">
-                            <TicketSalesInsightsAction events={events} title="Combined ticket sales" />
+                            <TicketSalesInsightsAction events={events}
+                                                       title="Combined ticket sales" />
                         </Box> }
                 </Stack> }
             <Suspense fallback={ <LoadingGraph padding={props.loadingGraphPadding} /> }>

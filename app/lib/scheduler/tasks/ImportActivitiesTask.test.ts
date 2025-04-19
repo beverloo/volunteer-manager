@@ -119,14 +119,19 @@ describe('ImportActivitiesTask', () => {
     }
 
     interface FestivalOptions {
-        festivalEndTime: Temporal.ZonedDateTime;
-        festivalId: number;
+        festivalEndTime?: Temporal.ZonedDateTime;
+        festivalId?: number;
         activities?: Activity[];
+        interval?: number;
+        // TODO: Move `skipDb` here
         storedActivities?: StoredActivity[];
     }
 
     function createImportActivitiesTaskForFestival(options?: FestivalOptions, skipDb?: boolean) {
         const context = TaskContext.forEphemeralTask('ImportActivitiesTask', { /* no params */ });
+        if (!!options?.interval)
+            context.setIntervalForRepeatingTask(options.interval, /* force= */ true);
+
         const task = new class extends ImportActivitiesTask {
             constructor() {
                 super(context);
@@ -148,7 +153,7 @@ describe('ImportActivitiesTask', () => {
 
         if (!skipDb) {
             mockConnection.expect('selectOneRow', () => {
-                if (!options)
+                if (!options?.festivalEndTime || !options?.festivalId)
                     return undefined;
 
                 return {
@@ -162,8 +167,8 @@ describe('ImportActivitiesTask', () => {
     }
 
     it('should skip when there are no upcoming festivals', async () => {
-        const task = createImportActivitiesTaskForFestival(/* no festival= */ undefined);
-        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
+        const task = createImportActivitiesTaskForFestival(
+            { interval: ImportActivitiesTask.kIntervalMaximum });
 
         const result = await task.execute({ /* no params */ });
         expect(result).toBeTrue();
@@ -191,9 +196,10 @@ describe('ImportActivitiesTask', () => {
 
     it('should scale the task interval based on duration until the festival', async () => {
         const task = createImportActivitiesTaskForFestival(
-            /* no festival= */ undefined, /* skipDb= */ true);
+            { interval: ImportActivitiesTask.kIntervalMaximum }, /* skipDb= */ true);
 
-        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
+        expect(task.contextForTesting.intervalMsForTesting).toBe(
+            ImportActivitiesTask.kIntervalMaximum);
 
         // Confirm that the configured intervals will be applied as expected.
         for (const { maximumDays, intervalMs } of ImportActivitiesTask.kIntervalConfiguration) {
@@ -239,8 +245,8 @@ describe('ImportActivitiesTask', () => {
         const implicitFestivalResult = await task.execute({ /* no params */ });
         expect(implicitFestivalResult).toBeTrue();
 
-        // Confirm that a task interval is set based on duration until the festival.
-        expect(task.contextForTesting.intervalMsForTesting).not.toBeUndefined();
+        // Confirm that the task remains as a one-off task.
+        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
 
         // Confirm that, when an explicit festival Id is given, it's passed to the select query.
         mockConnection.expect('selectOneRow', (query, params) => {

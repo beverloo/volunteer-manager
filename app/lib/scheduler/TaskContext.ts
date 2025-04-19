@@ -231,9 +231,15 @@ export class TaskContext {
 
     /**
      * Updates the interval to `intervalMs` in case this is a repeating task. `undefined` can be
-     * passed to stop repeating the task altogether.
+     * passed to stop repeating the task altogether. Only has an effect when the task already is set
+     * as a repeating task, unless the `force` flag has been set.
      */
-    setIntervalForRepeatingTask(intervalMs?: number): void {
+    setIntervalForRepeatingTask(intervalMs?: number, force?: boolean): void {
+        if (this.#intervalMs === undefined && !force) {
+            // TODO: Display a warning message
+            return;
+        }
+
         this.#intervalMs = intervalMs;
     }
 

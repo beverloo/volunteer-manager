@@ -35,8 +35,13 @@ describe('ImportYourTicketProviderTask', () => {
         }[];
     }
 
-    function createImportYourTicketProviderTask(options: FestivalOptions[], skipUpdate?: boolean) {
+    function createImportYourTicketProviderTask(
+        options: FestivalOptions[], skipUpdate?: boolean, interval?: number)
+    {
         const context = TaskContext.forEphemeralTask('ImportYourTicketProviderTask', {});
+        if (!!interval)
+            context.setIntervalForRepeatingTask(interval, /* force= */ true);
+
         const task = new class extends ImportYourTicketProviderTask {
             constructor() {
                 super(context);
@@ -73,8 +78,10 @@ describe('ImportYourTicketProviderTask', () => {
     }
 
     it('should skip when there are no upcoming festivals', async () => {
-        const task = createImportYourTicketProviderTask([ /* no events */ ]);
-        expect(task.contextForTesting.intervalMsForTesting).toBeUndefined();
+        const task = createImportYourTicketProviderTask(
+            [ /* no events */ ],
+            /* skipUpdate= */ false,
+            /* interval=*/ ImportYourTicketProviderTask.kIntervalMaximum);
 
         const result = await task.execute();
         expect(result).toBeTrue();
@@ -111,7 +118,9 @@ describe('ImportYourTicketProviderTask', () => {
                         'YYYY-MM-DD HH:mm:ss'),
                     yourTicketProviderId: 1337,
                 }
-            ], /* skipUpdate= */ true);
+            ],
+            /* skipUpdate= */ true,
+            /* interval= */ ImportYourTicketProviderTask.kIntervalMaximum);
 
             const result = await task.execute();
             expect(result).toBeTrue();

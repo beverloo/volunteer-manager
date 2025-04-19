@@ -236,6 +236,24 @@ describe('TaskRunner', () => {
         expect(update.scheduledTaskIntervalMs).toEqual(60000);
     });
 
+    it('should stop tasks from modifying their interval when manually triggered', async () => {
+        const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
+
+        installTaskContext(100, {
+            taskName: 'NoopComplexTask',
+            params: { succeed: true, intervalMs: 60000 },
+            intervalMs: /* missing= */ undefined,
+        });
+
+        const updatePromise = expectTaskUpdate(/* expectSchedule= */ false);
+        const result = await taskRunner.executeTask({ taskId: 100 });
+        expect(result).toEqual(kTaskResult.TaskSuccess);
+
+        const update = await updatePromise;
+        expect(update.taskId).toEqual(100);
+        expect(update.taskInvocationResult).toEqual(kTaskResult.TaskSuccess);
+    });
+
     it('should be able to have tasks cancel their repetition if they so desire', async () => {
         const taskRunner = TaskRunner.getOrCreateForScheduler(new MockScheduler);
 

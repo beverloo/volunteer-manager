@@ -40,7 +40,8 @@ abstract class TaskBase {
 
     /**
      * Updates the interval to `intervalMs` in case this is a repeating task. `undefined` can be
-     * passed to stop repeating the task altogether.
+     * passed to stop repeating the task altogether. Only has an effect when the task already is set
+     * as a repeating task.
      */
     setIntervalForRepeatingTask(intervalMs?: number) {
         this.#context.setIntervalForRepeatingTask(intervalMs);
