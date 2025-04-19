@@ -201,37 +201,39 @@ export function VolunteerPage(props: VolunteerPageProps) {
         const isSelf = props.userId === `${schedule?.userId}`;
         const scheduleSections: ScheduleSection[] = [ /* empty */ ];
 
-        if (!schedule || !schedule.volunteers.hasOwnProperty(props.userId))
+        if (!schedule)
             return [ hasFavourites, hasShifts, isSelf, scheduleSections ];  // incomplete |schedule|
 
         const currentTime = currentTimestamp();
         const enableLogicalDays = !!schedule.config.enableLogicalDays;
 
         const scheduledShiftSections = new Map<string, ScheduleSection['entries'][number][]>;
-        for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
-            const scheduledShift = schedule.schedule[scheduledShiftId];
-            const shift = schedule.shifts[scheduledShift.shift];
+        if (schedule.volunteers.hasOwnProperty(props.userId)) {
+            for (const scheduledShiftId of schedule.volunteers[props.userId].schedule) {
+                const scheduledShift = schedule.schedule[scheduledShiftId];
+                const shift = schedule.shifts[scheduledShift.shift];
 
-            const start = toZonedDateTime(scheduledShift.start);
-            const end = toZonedDateTime(scheduledShift.end);
+                const start = toZonedDateTime(scheduledShift.start);
+                const end = toZonedDateTime(scheduledShift.end);
 
-            const section = determineSection(start, end, enableLogicalDays);
-            if (!scheduledShiftSections.has(section))
-                scheduledShiftSections.set(section, [ /* empty */ ]);
+                const section = determineSection(start, end, enableLogicalDays);
+                if (!scheduledShiftSections.has(section))
+                    scheduledShiftSections.set(section, [ /* empty */ ]);
 
-            hasShifts = true;
-            scheduledShiftSections.get(section)!.push({
-                id: scheduledShiftId,
-                type: 'shift',
-                activity: shift.activity,
-                name: shift.name,
-                start: formatDate(start, 'HH:mm'),
-                startTime: scheduledShift.start,
-                finished: scheduledShift.end <= currentTime,
-                end: formatDate(end, 'HH:mm'),
-                sx: determineSx(scheduledShift.start, scheduledShift.end, currentTime),
-                sxPrimaryLabel: kEnforceSingleLine,
-            });
+                hasShifts = true;
+                scheduledShiftSections.get(section)!.push({
+                    id: scheduledShiftId,
+                    type: 'shift',
+                    activity: shift.activity,
+                    name: shift.name,
+                    start: formatDate(start, 'HH:mm'),
+                    startTime: scheduledShift.start,
+                    finished: scheduledShift.end <= currentTime,
+                    end: formatDate(end, 'HH:mm'),
+                    sx: determineSx(scheduledShift.start, scheduledShift.end, currentTime),
+                    sxPrimaryLabel: kEnforceSingleLine,
+                });
+            }
         }
 
         if (!!schedule.config.enableFavourites && isSelf && !!schedule.favourites) {
@@ -392,15 +394,31 @@ export function VolunteerPage(props: VolunteerPageProps) {
     if (!schedule)
         return undefined;  // the page is still loading
 
-    if (!schedule.volunteers.hasOwnProperty(props.userId)) {
-        return (
-            <ErrorCard title="This volunteer cannot be found!">
-                The volunteer you tried to access does not participate in this event.
-            </ErrorCard>
-        );
-    }
+    let isFakeVolunteer: boolean = false;
+    let volunteer = schedule.volunteers[props.userId];
 
-    const volunteer = schedule.volunteers[props.userId];
+    if (!volunteer) {
+        if (!hasFavourites) {
+            return (
+                <ErrorCard title="This volunteer cannot be found!">
+                    The volunteer you tried to access does not participate in this event.
+                </ErrorCard>
+            );
+        }
+
+        // Create a fake `volunteer` entry. This is the case where someone is not participating in
+        // the given event, but has still been granted access to the portal, *and* has favourited
+        // one or more events during the event that should be displayed.
+        isFakeVolunteer = true;
+
+        volunteer = {
+            schedule: [],
+            id: '12',
+            name: 'Your favourited events',
+            team: 'Guests',
+            role: schedule.event,
+        };
+    }
 
     let phoneNumber: string | undefined;
     let whatsAppNumber: string | undefined;
@@ -444,8 +462,8 @@ export function VolunteerPage(props: VolunteerPageProps) {
                                 </Stack>
                             }
                             avatar={
-                                <Avatar editable={avatarEditable} src={volunteer.avatar}
-                                        onChange={handleAvatarChange}>
+                                <Avatar editable={avatarEditable && !isFakeVolunteer}
+                                        src={volunteer.avatar} onChange={handleAvatarChange}>
                                     {volunteer.name}
                                 </Avatar>
                             } />
@@ -454,7 +472,7 @@ export function VolunteerPage(props: VolunteerPageProps) {
                 <NotesCard icon={ <NotesIcon color="primary" /> }
                            title="Notes"
                            notes={volunteer.notes} /> }
-            { !hasShifts &&
+            { (!hasShifts && !isFakeVolunteer) &&
                 <Alert severity="warning">
                     { isSelf && 'Your shifts haven\'t been scheduled yet' }
                     { !isSelf && `${volunteer.name} hasn't been given any shifts just yet` }

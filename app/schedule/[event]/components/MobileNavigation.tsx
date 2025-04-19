@@ -39,9 +39,11 @@ export function MobileNavigation() {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    const [ activeEvents, areas, enableKnowledgeBase, userVolunteer ] = useMemo(() => {
+    const [ activeEvents, areas, enableKnowledgeBase, hasFavourites, userVolunteer ] = useMemo(() =>
+    {
         let activeEvents: number = 0;
         let enableKnowledgeBase: boolean = false;
+        let hasFavourites: boolean = false;
         let userVolunteer: PublicSchedule['volunteers'][number] | undefined;
 
         const areas: { id: string; name: string; }[] = [];
@@ -56,13 +58,16 @@ export function MobileNavigation() {
 
             areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
 
+            if (!!schedule.favourites)
+                hasFavourites = !!Object.keys(schedule.favourites).length;
+
             enableKnowledgeBase = !!schedule?.config.enableKnowledgeBase;
 
             if (!!schedule.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
                 userVolunteer = schedule.volunteers[schedule.userId];
         }
 
-        return [ activeEvents, areas, enableKnowledgeBase, userVolunteer ];
+        return [ activeEvents, areas, enableKnowledgeBase, hasFavourites, userVolunteer ];
 
     }, [ schedule ]);
 
@@ -123,8 +128,8 @@ export function MobileNavigation() {
         <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 2 }} elevation={3}>
             <BottomNavigation onChange={handleNavigation} value={scheduleNavigationValue}>
                 <BottomNavigationAction icon={ <HomeIcon /> } label="Overview" value="" />
-                { !!userVolunteer &&
-                    <BottomNavigationAction icon={shiftsIcon} label="Shifts" value="shifts" /> }
+                { (hasFavourites || !!userVolunteer) &&
+                    <BottomNavigationAction icon={shiftsIcon} label="You" value="shifts" /> }
                 <BottomNavigationAction icon={eventsIcon} label="Events" value="areas" />
                 { !!enableKnowledgeBase &&
                     <BottomNavigationAction icon={ <InfoOutlinedIcon /> } label="FAQ"

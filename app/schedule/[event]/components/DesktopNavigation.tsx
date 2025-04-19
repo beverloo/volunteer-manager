@@ -203,8 +203,9 @@ export function DesktopNavigation() {
 
     }, [ pathname, scheduleBaseUrl ]);
 
-    const [ activeEvents, areas, userVolunteer ] = useMemo(() => {
+    const [ activeEvents, areas, hasFavourites, userVolunteer ] = useMemo(() => {
         let activeEvents: number = 0;
+        let hasFavourites: boolean = false;
         let userVolunteer: PublicSchedule['volunteers'][number] | undefined;
 
         const areas: { name: string; url: string }[] = [];
@@ -219,10 +220,13 @@ export function DesktopNavigation() {
 
             areas.sort((lhs, rhs) => lhs.name.localeCompare(rhs.name));
 
+            if (!!schedule.favourites)
+                hasFavourites = !!Object.keys(schedule.favourites).length;
+
             if (!!schedule.userId && schedule.volunteers.hasOwnProperty(schedule.userId))
                 userVolunteer = schedule.volunteers[schedule.userId];
         }
-        return [ activeEvents, areas, userVolunteer ];
+        return [ activeEvents, areas, hasFavourites, userVolunteer ];
 
     }, [ schedule, scheduleBaseUrl ]);
 
@@ -237,9 +241,9 @@ export function DesktopNavigation() {
                 <DesktopNavigationEntry active={ schedulePathname === '' }
                                         href={scheduleBaseUrl}
                                         icon={ <HomeIcon /> } label="Overview" />
-                { !!userVolunteer &&
+                { (hasFavourites || !!userVolunteer) &&
                     <DesktopNavigationEntry active={ schedulePathname === '/shifts' }
-                                            badge={ !!userVolunteer.activeShift }
+                                            badge={ !!userVolunteer?.activeShift }
                                             href={ scheduleBaseUrl + '/shifts' }
                                             icon={ <AccessTimeIcon /> } label="Your schedule" /> }
                 <DesktopNavigationEntry active={ schedulePathname === '/areas' }
