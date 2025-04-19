@@ -56,7 +56,7 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
     if (
         !props.user ||
         !props.access.can(
-            'event.schedules', 'update', { event: request.event, team: request.team }))
+            'event.schedule.planning', 'update', { event: request.event, team: request.team }))
     {
         notFound();
     }

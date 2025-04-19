@@ -92,7 +92,7 @@ createDataTableApi(kEventScheduleHistoryRowModel, kEventScheduleHistoryContext, 
             check: 'admin-event',
             event: context.event,
             permission: {
-                permission: 'event.schedules',
+                permission: 'event.schedule.planning',
                 operation: 'read',
                 scope: {
                     event: context.event,

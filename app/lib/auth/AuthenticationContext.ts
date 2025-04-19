@@ -239,8 +239,8 @@ export function executeAccessCheck(
                 break;
 
             case 'event':
-                if (!context.access.can('event.schedules', 'read', { event: access.event,
-                                                                     team: kAnyTeam })) {
+                if (!context.access.can('event.schedule.planning', 'read', { event: access.event,
+                                                                             team: kAnyTeam })) {
                     if (!context.events.has(access.event))
                         forbidden();
                 }

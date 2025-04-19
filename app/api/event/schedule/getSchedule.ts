@@ -846,7 +846,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (props.authenticationContext.events.has(event.slug)) {
         team = props.authenticationContext.events.get(event.slug)!;
     } else {
-        if (!access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam }))
+        if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: kAnyTeam }))
             notFound();
     }
 

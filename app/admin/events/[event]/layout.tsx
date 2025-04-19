@@ -376,7 +376,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     icon: <ScheduleIcon />,
                     label: 'Schedule',
                     permission: {
-                        permission: 'event.schedules',
+                        permission: 'event.schedule.planning',
                         operation: 'read',
                         scope: teamPermissionScope,
                     },

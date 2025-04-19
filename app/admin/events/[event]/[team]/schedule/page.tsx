@@ -29,7 +29,7 @@ const kExpandSection = z.record(z.string(), z.boolean());
  */
 export default async function EventTeamSchedulePage(props: NextPageParams<'event' | 'team'>) {
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
-    if (!access.can('event.schedules', 'read', { event: event.slug, team: team.slug }))
+    if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: team.slug }))
         notFound();
 
     const userSettings = await readUserSettings(user.userId, [
@@ -48,7 +48,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
     };
 
     const readOnly =
-        !access.can('event.schedules', 'update', { event: event.slug, team: team.slug });
+        !access.can('event.schedule.planning', 'update', { event: event.slug, team: team.slug });
 
     let sections: z.infer<typeof kExpandSection> = {};
     try {

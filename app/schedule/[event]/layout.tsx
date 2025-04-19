@@ -79,7 +79,7 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
 
     } else {
         const participation = authenticationContext.events.get(event.slug);
-        if (!access.can('event.schedules', 'read', { event: event.slug, team: kAnyTeam })) {
+        if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: kAnyTeam })) {
             if (!participation)
                 notFound();  // the |user| is not participating in the |event|
 

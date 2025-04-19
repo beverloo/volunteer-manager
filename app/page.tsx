@@ -75,7 +75,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         if (data?.enableRegistration || access.can('event.visible', accessScope))
             return true;  // access to the registration section
 
-        if (data?.enableSchedule || access.can('event.schedules', 'read', accessScope))
+        if (data?.enableSchedule || access.can('event.schedule.planning', 'read', accessScope))
             return true;  // access to the volunteering schedule
 
         return false;
@@ -116,7 +116,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
             const scheduleAccess =
                 registrationEventData.enableSchedule ||
-                access.can('event.schedules', 'read', {
+                access.can('event.schedule.planning', 'read', {
                     event: registrationEvent.slug,
                     team: defaultTeamSlug,
                 });
@@ -153,7 +153,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             eventData.enableRegistration || access.can('event.visible', accessScope);
         const displayScheduleButton =
             (eventData.enableSchedule && eventRegistration) ||
-                access.can('event.schedules', 'read', accessScope);
+                access.can('event.schedule.planning', 'read', accessScope);
 
         const highlightRegistration =
             eventData.enableRegistration && isBefore(currentTime, event.temporalStartTime);
@@ -240,7 +240,8 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
                         data?.enableRegistration || access.can('event.visible', accessScope);
 
                     const enableSchedule =
-                        data?.enableSchedule || access.can('event.schedules', 'read', accessScope);
+                        data?.enableSchedule ||
+                        access.can('event.schedule.planning', 'read', accessScope);
 
                     return (
                         <Grid key={event.slug} size={{ xs: 12, md: 4 }}>

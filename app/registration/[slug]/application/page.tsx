@@ -31,7 +31,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     const canAccessAvailability = access.can('event.visible', teamAccessScope);
     const canAccessHotels = access.can('event.hotels', eventAccessScope);
     const canAccessRefunds = access.can('event.refunds', eventAccessScope);
-    const canAccessSchedule = access.can('event.schedules', 'read', teamAccessScope);
+    const canAccessSchedule = access.can('event.schedule.planning', 'read', teamAccessScope);
     const canAccessTrainings = access.can('event.trainings', eventAccessScope);
 
     let content: Content | undefined = undefined;
