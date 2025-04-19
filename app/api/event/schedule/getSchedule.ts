@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { z } from 'zod';
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';
@@ -846,8 +846,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     if (props.authenticationContext.events.has(event.slug)) {
         team = props.authenticationContext.events.get(event.slug)!;
     } else {
-        if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: kAnyTeam }))
-            notFound();
+        if (!access.can('event.schedule.access', { event: event.slug }))
+            forbidden();
     }
 
     const notesAccess = access.can('event.volunteers.information', 'read', {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type React from 'react';
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
@@ -79,12 +79,12 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
 
     } else {
         const participation = authenticationContext.events.get(event.slug);
-        if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: kAnyTeam })) {
+        if (!access.can('event.schedule.access', { event: event.slug })) {
             if (!participation)
-                notFound();  // the |user| is not participating in the |event|
+                forbidden();  // the |user| is not participating in the |event|
 
             if (!eventData.enableSchedule)
-                notFound();  // the |event| has not been published for the |environment|
+                forbidden();  // the |event| has not been published for the |environment|
         }
     }
 

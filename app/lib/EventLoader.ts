@@ -163,6 +163,7 @@ export async function getEventsForUser(
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableRegistration) ||
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableApplications) ||
                 isAvailabilityWindowOpen(eventEnvironmentInfo.enableSchedule) ||
+                access.can('event.schedule.access', { event: eventInfo.eventSlug }) ||
                 access.can('event.visible', {
                     event: eventInfo.eventSlug,
                     team: eventEnvironmentInfo.slug,

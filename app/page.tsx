@@ -75,11 +75,13 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         if (data?.enableRegistration || access.can('event.visible', accessScope))
             return true;  // access to the registration section
 
-        if (data?.enableSchedule || access.can('event.schedule.planning', 'read', accessScope))
+        if (data?.enableSchedule || access.can('event.schedule.access', { event: event.slug }))
             return true;  // access to the volunteering schedule
 
         return false;
     });
+
+    console.log(access.query('event.schedule.access', { event: '2024' }));
 
     // ---------------------------------------------------------------------------------------------
 
@@ -116,10 +118,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
             const scheduleAccess =
                 registrationEventData.enableSchedule ||
-                access.can('event.schedule.planning', 'read', {
-                    event: registrationEvent.slug,
-                    team: defaultTeamSlug,
-                });
+                access.can('event.schedule.access', { event: registrationEvent.slug });
 
             if (registration.status === kRegistrationStatus.Accepted && scheduleAccess)
                 redirect(`/schedule/${registrationEvent.slug}`);
@@ -153,7 +152,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             eventData.enableRegistration || access.can('event.visible', accessScope);
         const displayScheduleButton =
             (eventData.enableSchedule && eventRegistration) ||
-                access.can('event.schedule.planning', 'read', accessScope);
+                access.can('event.schedule.access', { event: event.slug });
 
         const highlightRegistration =
             eventData.enableRegistration && isBefore(currentTime, event.temporalStartTime);
@@ -241,7 +240,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
 
                     const enableSchedule =
                         data?.enableSchedule ||
-                        access.can('event.schedule.planning', 'read', accessScope);
+                        access.can('event.schedule.access', { event: event.slug });
 
                     return (
                         <Grid key={event.slug} size={{ xs: 12, md: 4 }}>
