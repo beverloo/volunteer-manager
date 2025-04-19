@@ -30,6 +30,11 @@ interface FinanceGraphGridProps {
      * Unique ID of the event for which graphs should be shown.
      */
     eventId: number;
+
+    /**
+     * Whether the grid should include a graph on combined ticket revenue.
+     */
+    includeTicketRevenue?: boolean;
 }
 
 /**
@@ -128,9 +133,16 @@ export async function FinanceGraphGrid(props: FinanceGraphGridProps) {
     return (
         <Grid container spacing={2}>
             { ticketCategoriesFound &&
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: !!props.includeTicketRevenue ? 6 : 12 }}>
                     <Section noHeader>
                         <TicketSalesTopLineGraph eventId={eventId} title="Combined ticket sales" />
+                    </Section>
+                </Grid> }
+            { (ticketCategoriesFound && props.includeTicketRevenue) &&
+                <Grid size={6}>
+                    <Section noHeader>
+                        <TicketSalesTopLineGraph eventId={eventId} revenue
+                                                 title="Combined ticket revenue" />
                     </Section>
                 </Grid> }
             { ticketGraphs.map((ticketGraphProps, index) =>

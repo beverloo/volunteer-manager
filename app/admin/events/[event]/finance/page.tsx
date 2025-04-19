@@ -34,6 +34,8 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
             await readUserSetting(user.userId, 'user-admin-event-finance-configuration') ?? false;
     }
 
+    const includeTicketRevenue = access.can('admin');
+
     return (
         <>
             <Section title="Financial information" subtitle={event.shortName}>
@@ -43,7 +45,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
                     isn't AnimeCon Staff.
                 </SectionIntroduction>
             </Section>
-            <FinanceGraphGrid eventId={event.id} />
+            <FinanceGraphGrid eventId={event.id} includeTicketRevenue={includeTicketRevenue} />
             { canManageFinances &&
                 <SalesConfigurationSection event={event.slug} expanded={configurationExpanded} /> }
             { canManageFinances &&

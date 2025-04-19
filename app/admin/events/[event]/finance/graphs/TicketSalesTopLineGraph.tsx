@@ -35,6 +35,11 @@ interface TicketSalesTopLineGraphProps {
     loadingGraphPadding?: number;
 
     /**
+     * Whether the graph should display revenue information as opposed to sale counts.
+     */
+    revenue?: boolean;
+
+    /**
      * Title to display above the graph, if any. Will be outside of the suspense boundary.
      */
     title?: string;
@@ -73,12 +78,14 @@ export async function TicketSalesTopLineGraph(props: TicketSalesTopLineGraphProp
                     <Typography noWrap variant="h5">
                         {props.title}
                     </Typography>
-                    <Box justifySelf="flex-end">
-                        <TicketSalesInsightsAction events={events} title="Combined ticket sales" />
-                    </Box>
+                    { !props.revenue &&
+                        <Box justifySelf="flex-end">
+                            <TicketSalesInsightsAction events={events} title="Combined ticket sales" />
+                        </Box> }
                 </Stack> }
             <Suspense fallback={ <LoadingGraph padding={props.loadingGraphPadding} /> }>
-                <TicketSalesComparisonGraph events={events} height={props.height} />
+                <TicketSalesComparisonGraph events={events} height={props.height}
+                                            revenue={props.revenue} />
             </Suspense>
         </>
     );

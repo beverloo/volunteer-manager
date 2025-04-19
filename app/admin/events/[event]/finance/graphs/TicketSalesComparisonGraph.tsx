@@ -3,7 +3,7 @@
 
 import type { SalesLineGraphProps } from './SalesLineGraph';
 import { ComparisonGraph, kComparisonEditionColours } from './ComparisonGraph';
-import db, { tEvents, tEventsSales } from '@lib/database';
+import db, { tEvents, tEventsSales, tEventsSalesConfiguration } from '@lib/database';
 
 /**
  * How many days should be compared within the comparable graphs?
@@ -33,14 +33,19 @@ type TicketSalesComparisonEvent = {
      * Set of products that are in scope for the comparison for this event.
      */
     products: number[];
+
+    /**
+     * Whether the graph should display revenue information as opposed to sale counts.
+     */
+    revenue?: boolean;
 };
 
 /**
  * Create a series for each of the events that should be compared. This requires a query per
  * edition. The series will be coloured based on how far in the past the event happened.
  */
-export async function getTicketSalesComparisonSeries(events: TicketSalesComparisonEvent[])
-    : Promise<SalesLineGraphProps['series']>
+export async function getTicketSalesComparisonSeries(
+    events: TicketSalesComparisonEvent[], revenue?: boolean): Promise<SalesLineGraphProps['series']>
 {
     const series: SalesLineGraphProps['series'] = [];
 
@@ -55,25 +60,34 @@ export async function getTicketSalesComparisonSeries(events: TicketSalesComparis
         const salesData = await dbInstance.selectFrom(tEventsSales)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tEventsSales.eventId))
+            .innerJoin(tEventsSalesConfiguration)
+                .on(tEventsSalesConfiguration.saleId.equals(tEventsSales.eventSaleId))
             .where(tEventsSales.eventId.equals(event.id))
                 .and(tEventsSales.eventSaleId.in(event.products))
             .select({
                 days: daysFromEvent,
+
                 sales: dbInstance.sum(tEventsSales.eventSaleCount),
+                revenue: dbInstance.sum(
+                    tEventsSales.eventSaleCount.multiply(tEventsSalesConfiguration.salePrice)),
             })
             .groupBy(tEventsSales.eventSaleDate)
             .orderBy('days', 'desc')
             .executeSelectMany();
+
+        console.log()
 
         let aggregateSales: number = 0;
 
         const aggregateSalesData: number[] = [ /* no data yet */ ];
 
         for (const data of salesData) {
-            if (data.days < 0 || data.sales === undefined)
+            const value = !!revenue ? data.revenue : data.sales;
+
+            if (data.days < 0 || value === undefined)
                 break;  // ignore this data; the sale happened after the convention(?!)
 
-            aggregateSales += data.sales;
+            aggregateSales += value;
 
             if (data.days > kTicketSalesComparisonDays)
                 continue;  // the data is considered, but not included in the series
@@ -106,6 +120,11 @@ export interface TicketSalesComparisonGraphProps {
      * Maximum height of the graph, in pixels. Defaults to 300px.
      */
     height?: number;
+
+    /**
+     * Whether the graph should display revenue information as opposed to sale counts.
+     */
+    revenue?: boolean;
 }
 
 /**
@@ -113,7 +132,7 @@ export interface TicketSalesComparisonGraphProps {
  * a single category or within multiple categories, between several years.
  */
 export async function TicketSalesComparisonGraph(props: TicketSalesComparisonGraphProps) {
-    const series = await getTicketSalesComparisonSeries(props.events);
+    const series = await getTicketSalesComparisonSeries(props.events, props.revenue);
     return (
         <ComparisonGraph days={kTicketSalesComparisonDays} height={props.height} series={series} />
     );
