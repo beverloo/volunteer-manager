@@ -146,8 +146,8 @@ describe('ImportYourTicketProviderTask', () => {
         const result = await task.execute();
         expect(result).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('No tickets were returned');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('No tickets were returned');
     });
 
     it('should update the product name when it changed', async () => {
@@ -194,8 +194,8 @@ describe('ImportYourTicketProviderTask', () => {
 
         expect(receivedUpdate).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday XL');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('Locker Sunday XL');
     });
 
     it('should update the product description when it changed', async () => {
@@ -242,8 +242,8 @@ describe('ImportYourTicketProviderTask', () => {
 
         expect(receivedUpdate).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('Locker Sunday');
     });
 
     it('should update the price when it changed', async () => {
@@ -308,8 +308,8 @@ describe('ImportYourTicketProviderTask', () => {
 
         expect(receivedUpdate).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('Locker Sunday');
     });
 
     it('should update maximum ticket information in the database when it changed', async () => {
@@ -356,8 +356,8 @@ describe('ImportYourTicketProviderTask', () => {
 
         expect(receivedUpdate).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('Locker Sunday');
     });
 
     it('should create product information when a new product is seen', async () => {
@@ -395,9 +395,9 @@ describe('ImportYourTicketProviderTask', () => {
 
         expect(receivedInsert).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(3);
-        expect(task.log.entries[1].message).toInclude('Locker Sunday');  // created
-        expect(task.log.entries[2].message).toInclude('Locker Sunday');  // sales
+        expect(task.log.entries).toHaveLength(4);
+        expect(task.log.entries[2].message).toInclude('Locker Sunday');  // created
+        expect(task.log.entries[3].message).toInclude('Locker Sunday');  // sales
     });
 
     it('should upsert information retrieved from the API in the database', async () => {
@@ -458,8 +458,8 @@ describe('ImportYourTicketProviderTask', () => {
         const result = await task.execute();
         expect(result).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
-        expect(task.log.entries[1].message).toInclude('Locker Weekend');
-        expect(task.log.entries[1].message).toInclude('48 -> 50');
+        expect(task.log.entries).toHaveLength(3);
+        expect(task.log.entries[2].message).toInclude('Locker Weekend');
+        expect(task.log.entries[2].message).toInclude('48 -> 50');
     });
 });

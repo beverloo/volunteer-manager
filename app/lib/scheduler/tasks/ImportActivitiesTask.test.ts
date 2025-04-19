@@ -189,9 +189,10 @@ describe('ImportActivitiesTask', () => {
         const result = await task.execute({ /* no params */ });
         expect(result).toBeTrue();
 
-        expect(task.log.entries).toHaveLength(2);
+        expect(task.log.entries).toHaveLength(3);
         expect(task.log.entries[0].message).toInclude('Interval');
-        expect(task.log.entries[1].message).toInclude('No activities were returned');
+        expect(task.log.entries[1].message).toInclude('Interval');  // ignored
+        expect(task.log.entries[2].message).toInclude('No activities were returned');
     });
 
     it('should scale the task interval based on duration until the festival', async () => {

@@ -236,7 +236,9 @@ export class TaskContext {
      */
     setIntervalForRepeatingTask(intervalMs?: number, force?: boolean): void {
         if (this.#intervalMs === undefined && !force) {
-            // TODO: Display a warning message
+            if (!!intervalMs)
+                this.log.debug(`Interval update to ${intervalMs} ignored: not a repeating task`);
+
             return;
         }
 
