@@ -42,7 +42,8 @@ export default async function GuidePage() {
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer title="Volunteering Guide"
                                           user={authenticationContext.user}>
-                { !!teamContent && <Markdown sx={{ p: 2, pb: 0 }}>{teamContent.markdown}</Markdown> }
+                { !!teamContent &&
+                    <Markdown sx={{ p: 2, pb: 0 }}>{teamContent.markdown}</Markdown> }
                 <Markdown sx={{ p: 2 }}>{globalContent.markdown}</Markdown>
             </RegistrationContentContainer>
         </RegistrationLayout>
