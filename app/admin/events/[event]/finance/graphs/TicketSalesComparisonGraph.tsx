@@ -75,8 +75,6 @@ export async function getTicketSalesComparisonSeries(
             .orderBy('days', 'desc')
             .executeSelectMany();
 
-        console.log()
-
         let aggregateSales: number = 0;
 
         const aggregateSalesData: number[] = [ /* no data yet */ ];

@@ -219,7 +219,6 @@ export function ScheduleImpl(props: ScheduleImplProps) {
     const [ dialogDefaultValues, setDialogDefaultValues ] = useState<Record<string, any>>({ });
     useEffect(() => {
         if (!!dialogEvent) {
-            console.log(dialogEvent);
             setDialogDefaultValues({
                 ...dialogEvent,
                 shiftId: dialogEvent.shiftId,

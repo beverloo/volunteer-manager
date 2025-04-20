@@ -81,8 +81,6 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         return false;
     });
 
-    console.log(access.query('event.schedule.access', { event: '2024' }));
-
     // ---------------------------------------------------------------------------------------------
 
     const primaryEvent = events.shift();
