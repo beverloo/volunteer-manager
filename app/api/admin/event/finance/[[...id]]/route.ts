@@ -134,7 +134,7 @@ createDataTableApi(kEventFinanceRowModel, kEventFinanceContext, {
                 saleCategory,
                 saleCategoryLimit: row.categoryLimit || null,
                 saleDescription: row.description || null,
-                salePrice: row.price || null,
+                salePrice: row.price ?? null,
                 saleEventId: row.eventId || null,
             })
             .where(tEventsSalesConfiguration.eventId.equals(event.id))
