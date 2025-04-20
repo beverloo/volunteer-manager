@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
@@ -90,13 +90,15 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
     const shift = await dbInstance.selectFrom(tShifts)
         .innerJoin(tShiftsCategories)
             .on(tShiftsCategories.shiftCategoryId.equals(tShifts.shiftCategoryId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tShifts.teamId))
         .where(tShifts.shiftId.equals(parseInt(params.id, /* radix= */ 10)))
             .and(tShifts.eventId.equals(event.id))
-            .and(tShifts.teamId.equals(team.id))
             .and(tShifts.shiftDeleted.isNull())
         .select({
             id: tShifts.shiftId,
             name: tShifts.shiftName,
+            team: tTeams.teamSlug,
             category: tShiftsCategories.shiftCategoryName,
             categoryId: tShiftsCategories.shiftCategoryId,
             categoryOrder: tShiftsCategories.shiftCategoryOrder,
@@ -112,6 +114,9 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
 
     if (!shift)
         notFound();
+
+    if (shift.team !== team.slug)
+        redirect(`../../${shift.team}/shifts/${shift.id}`);
 
     // ---------------------------------------------------------------------------------------------
     // Compose the information required for the Volunteering Demand section. This combines timeslots

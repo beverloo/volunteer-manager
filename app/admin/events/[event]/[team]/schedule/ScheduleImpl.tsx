@@ -3,6 +3,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { SelectElement } from '@proxy/react-hook-form-mui';
@@ -22,6 +23,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import Skeleton from '@mui/material/Skeleton';
 
 import type { ScheduleEvent, ScheduleEventMutation, ScheduleMarker, ScheduleResource }
@@ -421,8 +423,16 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                         <ListItemIcon>
                             <HistoryIcon fontSize="small" />
                         </ListItemIcon>
-                        History
+                        History…
                     </MenuItem>
+                    { !!contextMenuEvent.shiftId &&
+                        <MenuItem component={Link}
+                                  href={`./shifts/${contextMenuEvent.shiftId}`} target="_blank">
+                            <ListItemIcon>
+                                <PendingActionsIcon fontSize="small" />
+                            </ListItemIcon>
+                            Shift
+                        </MenuItem> }
                     <MenuItem onClick={handleRightClickMenuRemove}>
                         <ListItemIcon>
                             <DeleteForeverIcon fontSize="small" />
