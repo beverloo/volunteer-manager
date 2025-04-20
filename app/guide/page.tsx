@@ -4,6 +4,7 @@
 import type { Metadata } from 'next';
 import { forbidden, notFound } from 'next/navigation'
 
+import type { NextPageParams } from '@lib/NextRouterParams';
 import { Markdown } from '@components/Markdown';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '../registration/RegistrationLayout';
@@ -15,7 +16,9 @@ import { getStaticContent } from '@lib/Content';
  * Root component for the /guide page, which displays the personalised Volunteer Guide. The goal
  * of this guide is to answer the most frequently asked questions by participating volunteers.
  */
-export default async function GuidePage() {
+export default async function GuidePage(props: NextPageParams<never, never>) {
+    const searchParams = await props.searchParams;
+
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
@@ -24,16 +27,21 @@ export default async function GuidePage() {
     if (!authenticationContext.user || !authenticationContext.events.size)
         forbidden();
 
-    // TODO: This is a very fragile way of determining the most recent team
-    const mostRecentEventSlug = [ ...authenticationContext.events.keys() ].sort().pop()!;
-    const mostRecentEnvironment = authenticationContext.events.get(mostRecentEventSlug)!;
+    let guideEnvironment: string;
+    if (searchParams.hasOwnProperty('environment')) {
+        guideEnvironment = searchParams['environment'];
+    } else {
+        // TODO: This is a very fragile way of determining the most recent team
+        const mostRecentEventSlug = [ ...authenticationContext.events.keys() ].sort().pop()!;
+        guideEnvironment = authenticationContext.events.get(mostRecentEventSlug)!;
+    }
 
     const substitutions = {
         name: authenticationContext.user.displayName || authenticationContext.user.firstName,
     };
 
     const globalContent = await getStaticContent([ 'guide/common' ], substitutions);
-    const teamContent = await getStaticContent([ `guide/${mostRecentEnvironment}` ], substitutions);
+    const envContent = await getStaticContent([ `guide/${guideEnvironment}` ], substitutions);
 
     if (!globalContent)
         notFound();
@@ -42,8 +50,8 @@ export default async function GuidePage() {
         <RegistrationLayout environment={environment}>
             <RegistrationContentContainer title="Volunteering Guide"
                                           user={authenticationContext.user}>
-                { !!teamContent &&
-                    <Markdown sx={{ p: 2, pb: 0 }}>{teamContent.markdown}</Markdown> }
+                { !!envContent &&
+                    <Markdown sx={{ p: 2, pb: 0 }}>{envContent.markdown}</Markdown> }
                 <Markdown sx={{ p: 2 }}>{globalContent.markdown}</Markdown>
             </RegistrationContentContainer>
         </RegistrationLayout>
