@@ -6,15 +6,17 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
+import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
 import type { GetScheduleResult } from '@app/api/admin/event/schedule/getSchedule';
@@ -94,8 +96,8 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                     { isUpdating && <CircularProgress color="error" size="1em" /> }
                 </Stack>
             </DialogTitle>
-            <DialogContent>
-                <FormGroup>
+            <DialogContent sx={{ px: 0 }}>
+                <List disablePadding>
                     { props.shifts.map(shift => {
                         if (!shift.localTeam && !props.inclusiveShifts) return undefined;
 
@@ -103,15 +105,15 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                         const checked = highlightedSet.has(shift.id);
 
                         return (
-                            <FormControlLabel key={shift.id}
-                                                control={
-                                                    <Checkbox checked={checked} size="small"
-                                                              onClick={callback}/>
-                                                }
-                                                label={shift.label} />
+                            <ListItemButton onClick={callback}>
+                                <ListItemIcon>
+                                    <Switch edge="end" size="small" checked={checked} />
+                                </ListItemIcon>
+                                <ListItemText primary={shift.label} />
+                            </ListItemButton>
                         );
                     } )}
-                </FormGroup>
+                </List>
             </DialogContent>
             <DialogActions sx={{ pt: 0, mr: 1, mb: 0 }}>
                 <Button onClick={props.onClose} variant="text">
