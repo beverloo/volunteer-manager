@@ -30,9 +30,9 @@ import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSide
     from '../../AdminSidebar';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-import db, { tActivities, tEvents, tEventsSales, tEventsSalesConfiguration, tEventsTeams,
-    tHotelsAssignments, tHotelsBookings, tHotelsPreferences, tRefunds, tShifts, tTeams,
-    tTrainingsAssignments, tUsersEvents } from '@lib/database';
+import db, { tActivities, tEvents, tEventsSalesConfiguration, tEventsTeams, tHotelsAssignments,
+    tHotelsBookings, tHotelsPreferences, tRefunds, tShifts, tTeams, tTrainingsAssignments,
+    tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 
@@ -213,15 +213,9 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
     // number should generally be zero, whereas any new entries need to be associated with an event.
     let uncategorisedProductCount: number | undefined;
     if (access.can('statistics.finances')) {
-        const eventsSalesConfigurationJoin = tEventsSalesConfiguration.forUseInLeftJoin();
-
-        uncategorisedProductCount = await dbInstance.selectFrom(tEventsSales)
-            .leftJoin(eventsSalesConfigurationJoin)
-                .on(eventsSalesConfigurationJoin.eventId.equals(tEventsSales.eventId))
-                .and(eventsSalesConfigurationJoin.saleId.equals(tEventsSales.eventSaleId))
-            .where(tEventsSales.eventId.equals(info.event.id))
-                .and(eventsSalesConfigurationJoin.saleId.greaterThan(10_000_000))  // FIXME
-            .selectOneColumn(dbInstance.countDistinct(tEventsSales.eventSaleId))
+        uncategorisedProductCount = await dbInstance.selectFrom(tEventsSalesConfiguration)
+            .where(tEventsSalesConfiguration.saleCategory.isNull())
+            .selectCountAll()
             .executeSelectOne();
     }
 
