@@ -66,7 +66,7 @@ interface ScheduleHighlightDialogProps {
  * where additional scheduling work is still expected.
  */
 export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
-    const [ isUpdating, setIsUpdating ] = useState<boolean>(false);
+    const onChange = props.onChange;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -78,18 +78,20 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ isUpdating, setIsUpdating ] = useState<boolean>(false);
+
     const handleUpdate = useCallback(async (shiftId: number) => {
         setIsUpdating(true);
         try {
-            if (!!props.onChange)
-                await props.onChange(shiftId);
+            if (!!onChange)
+                await onChange(shiftId);
 
         } catch (error: any) {
             console.error(`Unable to change the highlighted shifts: ${error}`);
         } finally {
             setIsUpdating(false);
         }
-    }, [ props.onChange ]);
+    }, [ onChange ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -114,7 +116,7 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                         const color = props.teams[shift.team]?.color;
 
                         return (
-                            <ListItemButton onClick={callback}>
+                            <ListItemButton key={shift.id} onClick={callback}>
                                 <ListItemIcon>
                                     <Switch edge="end" size="small" checked={checked} />
                                 </ListItemIcon>
