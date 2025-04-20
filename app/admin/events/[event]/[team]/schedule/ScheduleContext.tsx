@@ -251,7 +251,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                                          : highlightedShiftIds.add(shiftId);
 
         setHighlightedShifts([ ...highlightedShiftIds ].join(','));
-        mutate();  // invalidate the `schedule`
+        await mutate();  // invalidate the `schedule`
 
     }, [ highlightedShifts, mutate ]);
 

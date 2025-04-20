@@ -3,16 +3,20 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+
 import type { GetScheduleResult } from '@app/api/admin/event/schedule/getSchedule';
 
 /**
@@ -51,25 +55,51 @@ interface ScheduleHighlightDialogProps {
  * where additional scheduling work is still expected.
  */
 export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
+    const [ isUpdating, setIsUpdating ] = useState<boolean>(false);
+
     const highlightedSet = useMemo(() => {
         return !!props.highlighted ? new Set(props.highlighted.split(',').map(v => parseInt(v)))
                                    : new Set();
 
     }, [ props.highlighted ]);
 
+    // ---------------------------------------------------------------------------------------------
+
+    const handleUpdate = useCallback(async (shiftId: number) => {
+        setIsUpdating(true);
+        try {
+            if (!!props.onChange)
+                await props.onChange(shiftId);
+
+        } catch (error: any) {
+            console.error(`Unable to change the highlighted shifts: ${error}`);
+        } finally {
+            setIsUpdating(false);
+        }
+    }, [ props.onChange ]);
+
+    // ---------------------------------------------------------------------------------------------
+
     // TODO: Highlight which team owns the shift
     // TODO: Highlight which shifts haven't been completely scheduled yet
-    // TODO: Spinner when the selection is still being updated
 
     return (
         <Dialog open fullWidth onClose={props.onClose}>
-            <DialogTitle>Shifts to highlight</DialogTitle>
+            <DialogTitle>
+                <Stack direction="row" spacing={2} alignItems="center"
+                       justifyContent="space-between">
+                    <Typography variant="inherit">
+                        Shifts to highlight
+                    </Typography>
+                    { isUpdating && <CircularProgress color="error" size="1em" /> }
+                </Stack>
+            </DialogTitle>
             <DialogContent>
                 <FormGroup>
                     { props.shifts.map(shift => {
                         if (!shift.localTeam && !props.inclusiveShifts) return undefined;
 
-                        const callback = props.onChange?.bind(null, shift.id);
+                        const callback = handleUpdate.bind(null, shift.id);
                         const checked = highlightedSet.has(shift.id);
 
                         return (
