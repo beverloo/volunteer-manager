@@ -8,17 +8,10 @@ import useSWR from 'swr';
 
 import Alert from '@mui/material/Alert';
 import Badge from '@mui/material/Badge';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
@@ -38,6 +31,7 @@ import { DocumentationButton } from '@app/admin/components/DocumentationButton';
 import { SectionHeader } from '@app/admin/components/SectionHeader';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { callApi } from '@lib/callApi';
+import { ScheduleHighlightDialog } from './ScheduleHighlightDialog';
 
 /**
  * Information regarding the schedule context.
@@ -248,7 +242,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
     const handleHighlightDialogClose = useCallback(() => setHighlightDialogOpen(false), []);
     const handleHighlightDialogOpen = useCallback(() => setHighlightDialogOpen(true), []);
 
-    const handleToggleShiftHighlight = useCallback((shiftId: number) => {
+    const handleToggleShiftHighlight = useCallback(async (shiftId: number) => {
         const highlightedShiftIds =
             !!highlightedShifts ? new Set(highlightedShifts.split(',').map(v => parseInt(v)))
                                 : new Set();
@@ -281,6 +275,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
 
     return (
         <ScheduleContext.Provider value={scheduleContext}>
+
             <Stack component={Paper} direction="row" spacing={2} sx={{ px: 2, py: '13px' }}
                    justifyContent="space-between" alignItems="center">
                 <SectionHeader title="Schedule" subtitle={props.team.name} sx={{ mb: 0 }} />
@@ -325,40 +320,22 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                     <DocumentationButton color="info" size="medium" topic="schedule" />
                 </Stack>
             </Stack>
+
             {props.children}
+
             { (!!highlightDialogOpen && !!scheduleContext.schedule) &&
-                <Dialog open fullWidth onClose={handleHighlightDialogClose}>
-                    <DialogTitle>Shifts to highlight</DialogTitle>
-                    <DialogContent>
-                        <FormGroup>
-                            { scheduleContext.schedule.metadata.shifts.map(shift => {
-                                if (!shift.localTeam && !inclusiveShifts) return undefined;
+                <ScheduleHighlightDialog highlighted={highlightedShifts}
+                                         inclusiveShifts={inclusiveShifts}
+                                         shifts={scheduleContext.schedule.metadata.shifts}
+                                         onChange={handleToggleShiftHighlight}
+                                         onClose={handleHighlightDialogClose} /> }
 
-                                const callback = handleToggleShiftHighlight.bind(null, shift.id);
-                                const checked = highlightedShiftIds.has(shift.id);
-
-                                return (
-                                    <FormControlLabel key={shift.id}
-                                                      control={
-                                                          <Checkbox checked={checked} size="small"
-                                                                    onClick={callback}/>
-                                                      }
-                                                      label={shift.label} />
-                                );
-                            } )}
-                        </FormGroup>
-                    </DialogContent>
-                    <DialogActions sx={{ pt: 0, mr: 1, mb: 0 }}>
-                        <Button onClick={handleHighlightDialogClose} variant="text">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog> }
             <Snackbar autoHideDuration={3000} onClose={doCloseError} open={!!processingError}>
                 <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
                     {processingError}
                 </Alert>
             </Snackbar>
+
         </ScheduleContext.Provider>
     );
 }
