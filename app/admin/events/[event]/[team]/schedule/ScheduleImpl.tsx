@@ -19,6 +19,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import HistoryIcon from '@mui/icons-material/History';
+import InfoIcon from '@mui/icons-material/Info';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -257,6 +258,19 @@ export function ScheduleImpl(props: ScheduleImplProps) {
 
     }, [ contextMenuEvent, contextMenuResolver ]);
 
+    const handleRightClickMenuDetails = useCallback(() => {
+        if (!contextMenuEvent || !contextMenuResolver)
+            return;
+
+        setContextMenuEvent(undefined);
+
+        handleDoubleClick(contextMenuEvent).then(mutation => {
+            if (!!contextMenuResolver)
+                contextMenuResolver(mutation);
+        });
+
+    }, [ contextMenuEvent, contextMenuResolver, handleDoubleClick ]);
+
     const handleRightClickMenuHistory = useCallback(() => {
         if (!contextMenuEvent || !contextMenuResolver)
             return;
@@ -419,6 +433,12 @@ export function ScheduleImpl(props: ScheduleImplProps) {
                 <Menu open onClose={handleRightClickMenuClose}
                       anchorReference="anchorPosition" anchorPosition={contextMenuPosition}
                       slotProps={{ list: { dense: true } }}>
+                    <MenuItem onClick={handleRightClickMenuDetails}>
+                        <ListItemIcon>
+                            <InfoIcon fontSize="small" />
+                        </ListItemIcon>
+                        Details…
+                    </MenuItem>
                     <MenuItem onClick={handleRightClickMenuHistory}>
                         <ListItemIcon>
                             <HistoryIcon fontSize="small" />
