@@ -42,6 +42,8 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '& h6 + p, h6 + ul': { marginTop: 0 },
 
         '& li p': { margin: 0 },
+
+        '& hr': { marginBottom: 2 },
     },
 };
 
