@@ -6,11 +6,13 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
+import CheckIcon from '@mui/icons-material/Check';
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -18,6 +20,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import type { GetScheduleResult } from '@app/api/admin/event/schedule/getSchedule';
 
@@ -83,7 +86,7 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
     // ---------------------------------------------------------------------------------------------
 
     // TODO: Highlight which team owns the shift
-    // TODO: Highlight which shifts haven't been completely scheduled yet
+    // TODO: Warning message for shifts that haven't been completed yet
 
     return (
         <Dialog open fullWidth onClose={props.onClose}>
@@ -96,7 +99,7 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                     { isUpdating && <CircularProgress color="error" size="1em" /> }
                 </Stack>
             </DialogTitle>
-            <DialogContent sx={{ px: 0 }}>
+            <DialogContent sx={{ px: 0, '&>ul>*': { py: 0.5 } }}>
                 <List disablePadding>
                     { props.shifts.map(shift => {
                         if (!shift.localTeam && !props.inclusiveShifts) return undefined;
@@ -110,6 +113,12 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                                     <Switch edge="end" size="small" checked={checked} />
                                 </ListItemIcon>
                                 <ListItemText primary={shift.label} />
+                                { shift.status === 'error' &&
+                                    <ErrorOutlineIcon fontSize="small" color="error" /> }
+                                { shift.status === 'warning' &&
+                                    <WarningAmberIcon fontSize="small" color="warning" /> }
+                                { shift.status === 'complete' &&
+                                    <CheckIcon fontSize="small" color="success" /> }
                             </ListItemButton>
                         );
                     } )}

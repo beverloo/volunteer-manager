@@ -98,6 +98,11 @@ export const kScheduleDefinition = z.object({
              * Whether the shift is part of the local team, or of one of the partnering teams.
              */
             localTeam: z.boolean(),
+
+            /**
+             * Status of the shift, i.e. has everything been scheduled already?
+             */
+            status: z.enum([ 'error', 'warning', 'complete' ]).optional(),
         })),
     }),
 
@@ -583,6 +588,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             label: shift.name,
             color: shift.colour,
             localTeam: shift.team.id === team.id,
+            // TODO: Implement determination for `status`
         });
     }
 
