@@ -18,6 +18,7 @@ describe('getShiftsForEvent', () => {
                 name: 'My shift',
                 team: {
                     id: 1,
+                    color: '#ff0000',
                     name: 'Crew',
                     slug: 'crew',
                 },
@@ -42,6 +43,7 @@ describe('getShiftsForEvent', () => {
             },
             team: {
                 id: 1,
+                color: '#ff0000',
                 name: 'Crew',
                 slug: 'crew',
             },
@@ -73,6 +75,7 @@ describe('getShiftsForEvent', () => {
             },
             team: {
                 id: 1,
+                color: '#ff0000',
                 name: 'Crew',
                 slug: 'crew',
             },
@@ -101,8 +104,8 @@ describe('getShiftsForEvent', () => {
     });
 
     it('should consider the team a shift is assigned to when given a gradient', async () => {
-        const kCrew = { id: 1, name: 'Crew', slug: 'crew' };
-        const kHosts = { id: 2, name: 'Hosts', slug: 'hosts' };
+        const kCrew = { id: 1, color: '#ff0000', name: 'Crew', slug: 'crew' };
+        const kHosts = { id: 2, color: '#00ff00', name: 'Hosts', slug: 'hosts' };
 
         const shiftTemplate = {
             category: {
@@ -140,6 +143,7 @@ describe('getShiftsForEvent', () => {
             },
             team: {
                 id: 1,
+                color: '#ff0000',
                 name: 'Crew',
                 slug: 'crew',
             },

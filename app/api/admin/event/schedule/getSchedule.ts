@@ -623,8 +623,12 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             label: shift.name,
             color: shift.colour,
             localTeam: shift.team.id === team.id,
-            // TODO: Implement determination for `status`
+            status:
+                shift.scheduledInMinutes === 0
+                    ? 'error'
+                    : !!shift.warning ? 'warning' : 'complete',
             team: shift.team.slug,
+            warning: shift.warning,
         });
     }
 

@@ -70,6 +70,11 @@ interface Shift {
      * Excitement level, between 0 and 1 inclusive, associated with this shift.
      */
     excitement: number;
+
+    /**
+     * Optional warning that should be displayed with the shift, if needed.
+     */
+    warning?: string;
 }
 
 /**
@@ -97,6 +102,36 @@ function calculateDemandMinutes(demand?: string): number {
     }
 
     return totalMinutes;
+}
+
+/**
+ * Formats the given number of `minutes` to a HH:MM string.
+ */
+function formatMinutes(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes - hours * 60;
+
+    return remainingMinutes ? `${hours}:${('00' + remainingMinutes).substr(-2)}`
+                            : `${hours}`;
+}
+
+type DemandShift = Omit<Shift, 'category' | 'colour' | 'demandInMinutes' | 'scheduledInMinutes'>;
+
+/**
+ * Determines whether a warning for the given |shift| should be displayed.
+ */
+function determineShiftWarning(shift: DemandShift, demand: number, scheduled: number)
+    : string | undefined
+{
+    if (scheduled === 0)
+        return 'No shifts have been scheduled yet';
+
+    if (scheduled < demand) {
+        return `${formatMinutes(scheduled)} hours scheduled, ` +
+            `${formatMinutes(demand)} hours requested`;
+    }
+
+    return undefined;
 }
 
 /**
@@ -217,12 +252,16 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
             colour = colourInterpolator(colourPosition);
         }
 
+        const demandInMinutes = calculateDemandMinutes(shift.demand);
+        const scheduledInMinutes = shift.scheduledInMinutes ?? 0;
+
         return {
             ...shift,
             category: shift.category.name,
             colour: colour!,
-            demandInMinutes: calculateDemandMinutes(shift.demand),
-            scheduledInMinutes: shift.scheduledInMinutes ?? 0,
+            demandInMinutes,
+            scheduledInMinutes,
+            warning: determineShiftWarning(shift, demandInMinutes, scheduledInMinutes),
         };
     });
 }

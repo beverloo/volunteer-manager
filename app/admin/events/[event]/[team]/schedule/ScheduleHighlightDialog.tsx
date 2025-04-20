@@ -121,7 +121,7 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
                                 <ListItemText
                                     slotProps={{
                                         secondary: {
-                                            color: 'warning',
+                                            color: 'textSecondary',
                                             pt: !!props.inclusiveShifts ? 0.25 : 0,
                                         }
                                     }}
