@@ -38,6 +38,7 @@ interface Shift {
      */
     team: {
         id: number;
+        color: string;
         name: string;
         slug: string;
     }
@@ -138,6 +139,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
             name: tShifts.shiftName,
             team: {
                 id: tTeams.teamId,
+                color: tTeams.teamColourLightTheme,
                 name: tTeams.teamName,
                 slug: tTeams.teamSlug,
             },

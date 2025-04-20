@@ -96,6 +96,7 @@ export const kScheduleDefinition = z.object({
 
             /**
              * Whether the shift is part of the local team, or of one of the partnering teams.
+             * @deprecated
              */
             localTeam: z.boolean(),
 
@@ -103,6 +104,32 @@ export const kScheduleDefinition = z.object({
              * Status of the shift, i.e. has everything been scheduled already?
              */
             status: z.enum([ 'error', 'warning', 'complete' ]).optional(),
+
+            /**
+             * URL-safe slug of the team who owns this particular shift.
+             */
+            team: z.string(),
+
+            /**
+             * Optional warning that should be displayed in the shift listing.
+             */
+            warning: z.string().optional(),
+        })),
+
+        /**
+         * Teams for which shifts may appear on the schedule. Record keyed by the team's slug, and
+         * valued with the team's name and colour.
+         */
+        teams: z.record(z.string(), z.object({
+            /**
+             * Colour of the team, to enable the volunteering lead to quick scan.
+             */
+            color: z.string(),
+
+            /**
+             * Label of the team, should be crisp (prefer "Crew" over "Volunteering Crew").
+             */
+            label: z.string(),
         })),
     }),
 
@@ -369,6 +396,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         metadata: {
             recent: [ /* empty */ ],
             shifts: [ /* empty */ ],
+            teams: { /* empty */ },
         },
         resources: [],
         shifts: [],
@@ -583,12 +611,20 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     }
 
     for (const shift of shifts) {
+        if (!schedule.metadata.teams.hasOwnProperty(shift.team.slug)) {
+            schedule.metadata.teams[shift.team.slug] = {
+                color: shift.team.color,
+                label: shift.team.name,
+            };
+        }
+
         schedule.metadata.shifts.push({
             id: shift.id,
             label: shift.name,
             color: shift.colour,
             localTeam: shift.team.id === team.id,
             // TODO: Implement determination for `status`
+            team: shift.team.slug,
         });
     }
 

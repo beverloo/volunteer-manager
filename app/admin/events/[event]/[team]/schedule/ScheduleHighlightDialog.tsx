@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import CheckIcon from '@mui/icons-material/Check';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -44,6 +45,11 @@ interface ScheduleHighlightDialogProps {
     shifts: GetScheduleResult['metadata']['shifts'];
 
     /**
+     * The full set of teams for which shifts are known in the system.
+     */
+    teams: GetScheduleResult['metadata']['teams'];
+
+    /**
      * Callback that should be invoked when the status for a shift is being changed.
      */
     onChange?: (shiftId: number) => Promise<void>;
@@ -61,6 +67,8 @@ interface ScheduleHighlightDialogProps {
  */
 export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
     const [ isUpdating, setIsUpdating ] = useState<boolean>(false);
+
+    // ---------------------------------------------------------------------------------------------
 
     const highlightedSet = useMemo(() => {
         return !!props.highlighted ? new Set(props.highlighted.split(',').map(v => parseInt(v)))
@@ -85,9 +93,6 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    // TODO: Highlight which team owns the shift
-    // TODO: Warning message for shifts that haven't been completed yet
-
     return (
         <Dialog open fullWidth onClose={props.onClose}>
             <DialogTitle>
@@ -106,13 +111,34 @@ export function ScheduleHighlightDialog(props: ScheduleHighlightDialogProps) {
 
                         const callback = handleUpdate.bind(null, shift.id);
                         const checked = highlightedSet.has(shift.id);
+                        const color = props.teams[shift.team]?.color;
 
                         return (
                             <ListItemButton onClick={callback}>
                                 <ListItemIcon>
                                     <Switch edge="end" size="small" checked={checked} />
                                 </ListItemIcon>
-                                <ListItemText primary={shift.label} />
+                                <ListItemText
+                                    slotProps={{
+                                        secondary: {
+                                            color: 'warning',
+                                            pt: !!props.inclusiveShifts ? 0.25 : 0,
+                                        }
+                                    }}
+                                    primary={
+                                        <Stack direction="row" spacing={1}>
+                                            <Typography variant="inherit">
+                                                {shift.label}
+                                            </Typography>
+                                            { !!props.inclusiveShifts &&
+                                                <Chip label={props.teams[shift.team].label}
+                                                      size="small" sx={{
+                                                          backgroundColor: color,
+                                                          color: 'white'
+                                                      }} /> }
+                                        </Stack>
+                                    }
+                                    secondary={shift.warning} />
                                 { shift.status === 'error' &&
                                     <ErrorOutlineIcon fontSize="small" color="error" /> }
                                 { shift.status === 'warning' &&

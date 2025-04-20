@@ -327,6 +327,7 @@ export function ScheduleContextImpl(props: React.PropsWithChildren<ScheduleConte
                 <ScheduleHighlightDialog highlighted={highlightedShifts}
                                          inclusiveShifts={inclusiveShifts}
                                          shifts={scheduleContext.schedule.metadata.shifts}
+                                         teams={scheduleContext.schedule.metadata.teams}
                                          onChange={handleToggleShiftHighlight}
                                          onClose={handleHighlightDialogClose} /> }
 
