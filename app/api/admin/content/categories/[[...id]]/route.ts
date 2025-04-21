@@ -37,6 +37,11 @@ const kContentCategoryRowModel = z.object({
     description: z.string().optional(),
 
     /**
+     * Permission necessary to access the category.
+     */
+    permission: z.string().optional(),
+
+    /**
      * Ordering for this category.
      */
     order: z.number(),
@@ -107,6 +112,7 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
                 eventId: event.id,
                 categoryTitle: kDefaultTitle,
                 categoryIcon: kDefaultIcon,
+                categoryPermission: null,
                 categoryOrder,
                 categoryCreated: dbInstance.currentZonedDateTime(),
                 categoryUpdated: dbInstance.currentZonedDateTime(),
@@ -166,6 +172,7 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
                 icon: tContentCategories.categoryIcon,
                 title: tContentCategories.categoryTitle,
                 description: tContentCategories.categoryDescription,
+                permission: tContentCategories.categoryPermission,
                 order: tContentCategories.categoryOrder,
             })
             .orderBy(sort?.field ?? 'title', sort?.sort ?? 'asc')
@@ -207,6 +214,7 @@ createDataTableApi(kContentCategoryRowModel, kContentCategoryContext, {
                 categoryTitle: row.title,
                 categoryIcon: row.icon,
                 categoryDescription: !!row.description ? row.description : null,
+                categoryPermission: !!row.permission ? row.permission : null,
                 categoryUpdated: dbInstance.currentZonedDateTime(),
             })
             .where(tContentCategories.categoryId.equals(row.id))

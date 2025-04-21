@@ -21,6 +21,8 @@ import { kActivityType, kEventSalesCategory, kRegistrationStatus, kVendorTeam } 
 import { kAnyTeam } from '@lib/auth/AccessList';
 import { kAvailabilityException } from '@app/api/admin/event/schedule/fn/determineAvailability';
 import { kPublicSchedule } from './PublicSchedule';
+import type { AccessControl } from '@lib/auth/AccessControl';
+import type { BooleanPermission } from '@lib/auth/Access';
 
 /**
  * Interface definition for the public Schedule API, exposed through /api/event/schedule.
@@ -165,7 +167,7 @@ async function populateFavourites(
  * provided by the server when accessing the associated page.
  */
 async function populateKnowledgeBase(
-    dbInstance: DBConnection, schedule: Response, eventId: number)
+    dbInstance: DBConnection, access: AccessControl, schedule: Response, eventId: number)
 {
     const knowledge = await dbInstance.selectFrom(tContentCategories)
         .innerJoin(tContent)
@@ -178,19 +180,36 @@ async function populateKnowledgeBase(
             icon: tContentCategories.categoryIcon,
             title: tContentCategories.categoryTitle,
             description: tContentCategories.categoryDescription,
+            permission: tContentCategories.categoryPermission,
             questions: dbInstance.aggregateAsArray({
                 id: tContent.contentPath,
                 question: tContent.contentTitle,
             }),
         })
         .groupBy(tContentCategories.categoryId)
+        .orderBy(tContentCategories.categoryOrder, 'asc')
         .executeSelectMany();
 
-    schedule.knowledge = knowledge.map(category => ({
-        ...category,
-        questions: Object.fromEntries(
-            category.questions.map(({ id, question }) => [ question, id ])),
-    }));
+    schedule.knowledge = knowledge.map(category => {
+        const { permission, ...rest } = category;
+
+        if (!!permission) {
+            const granted = access.can(permission as BooleanPermission, {
+                event: schedule.event,
+                team: kAnyTeam,
+            });
+
+            if (!granted)
+                return undefined;
+        }
+
+        return {
+            ...rest,
+            questions: Object.fromEntries(
+                category.questions.map(({ id, question }) => [ question, id ])),
+        };
+
+    }).filter(v => v !== undefined);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -937,7 +956,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         await populateFavourites(dbInstance, schedule, event.id, props.user.userId);
 
     if (schedule.config.enableKnowledgeBase)
-        await populateKnowledgeBase(dbInstance, schedule, event.id);
+        await populateKnowledgeBase(dbInstance, access, schedule, event.id);
 
     await populateMetadata(
         dbInstance, schedule, event.id, !!settings['schedule-del-a-rie-advies'],

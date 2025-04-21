@@ -91,6 +91,25 @@ export function KnowledgeCategories(props: KnowledgeCategoriesProps) {
                 );
             },
         },
+        {
+            field: 'permission',
+            headerName: 'Permission',
+            editable: true,
+            sortable: false,
+            flex: 1,
+
+            renderCell: params => {
+                if (!!params.value)
+                    return params.value;
+
+                return (
+                    <Typography component="span" variant="body2"
+                                sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+                        No restrictions…
+                    </Typography>
+                );
+            },
+        }
     ];
 
     return (

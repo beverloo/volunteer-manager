@@ -20,6 +20,7 @@ import MapIcon from '@mui/icons-material/Map';
 import RamenDiningIcon from '@mui/icons-material/RamenDining';
 import SecurityIcon from '@mui/icons-material/Security';
 import SvgIcon, { type SvgIconProps } from '@mui/material/SvgIcon';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 /**
  * Icons known to the knowledge base. It's safe to add or remove entries from this object.
@@ -34,6 +35,7 @@ export const kKnowledgeBaseIconTable: { [k: string]: typeof SvgIcon } = {
     Neighbourhood: MapIcon,
     Rules: GavelIcon,
     Security: SecurityIcon,
+    Senior: WhatshotIcon,
     Taxi: AirportShuttleIcon,
     Tickets: LocalActivityIcon,
     Time: AccessTimeIcon,
