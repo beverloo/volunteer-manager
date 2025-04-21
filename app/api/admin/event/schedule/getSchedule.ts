@@ -321,14 +321,6 @@ function determineDateRange(input: DateRangeInput) {
 }
 
 /**
- * Adjusts the given `dateTime` for display purposes. The calendar component has an issue where the
- * calculations go a bit wonky, and taking off a minute for presentational purposes only helps.
- */
-function adjustedStringForDisplay(dateTime: Temporal.ZonedDateTime): string {
-    return dateTime.add({ minutes: 5 }).toString({ timeZoneName: 'never' });
-}
-
-/**
  * Merges duplicated markers contained within the `input` into a markers shared across multiple
  * resources. This is a performance optimisation to reduce the number of entities: for example, in
  * the 2024 Crew team this reduces the number of markers from 287 to 50 (-82.6%).
@@ -468,8 +460,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             for (const { start, end } of avoid) {
                 schedule.markers.push({
                     id: `${humanResource.id}/m/a/${++volunteerMarkerId}`,
-                    start: adjustedStringForDisplay(start),
-                    end: adjustedStringForDisplay(end),
+                    start: start.toString({ timeZoneName: 'never' }),
+                    end: end.toString({ timeZoneName: 'never' }),
                     resource: humanResource.id,
                     type: 'avoid',
                 });
@@ -478,8 +470,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
             for (const { start, end } of unavailable) {
                 schedule.markers.push({
                     id: `${humanResource.id}/m/u/${++volunteerMarkerId}`,
-                    start: adjustedStringForDisplay(start),
-                    end: adjustedStringForDisplay(end),
+                    start: start.toString({ timeZoneName: 'never' }),
+                    end: end.toString({ timeZoneName: 'never' }),
                     resource: humanResource.id,
                     type: 'unavailable',
                 });
@@ -536,8 +528,8 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
                 for (const { start, end } of timeslots) {
                     schedule.markers.push({
                         id: `highlights/${id}/t/${timeslotIndex++}`,
-                        start: adjustedStringForDisplay(start),
-                        end: adjustedStringForDisplay(end),
+                        start: start.toString({ timeZoneName: 'never' }),
+                        end: end.toString({ timeZoneName: 'never' }),
                         resource: humanResources,
                         type: 'highlight-timeslot',
                     });
