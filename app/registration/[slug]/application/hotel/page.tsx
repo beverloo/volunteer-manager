@@ -37,11 +37,13 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
     const preferences = registration.hotelPreferences;
 
-    if ((!eligible || !enabled) && !bookings)
-        notFound();  // the volunteer is not eligible to a hotel reservation
+    if (!bookings) {
+        if (!eligible || !enabled)
+            notFound();  // the volunteer is not eligible to a hotel reservation
 
-    if (registration.hotelAvailabilityWindow.status === 'pending' && !override)
-        notFound();  // the availability window has not opened yet
+        if (registration.hotelAvailabilityWindow.status === 'pending' && !override)
+            notFound();  // the availability window has not opened yet
+    }
 
     const options = await getHotelRoomOptions(event.eventId);
     const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
@@ -63,14 +65,15 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
     return (
         <Stack spacing={2} sx={{ p: 2 }}>
-            { !registration.hotelInformationPublished &&
+            { (!registration.hotelInformationPublished && !bookings) &&
                 <Alert severity="warning">
                     Details about the available hotel rooms have not been published yet, which may
                     result in this page appearing incomplete or broken.
                 </Alert> }
 
-            <AvailabilityWarning override={override}
-                                 window={registration.hotelAvailabilityWindow} />
+            { !bookings &&
+                <AvailabilityWarning override={override}
+                                     window={registration.hotelAvailabilityWindow} /> }
 
             { content && <Markdown>{content.markdown}</Markdown> }
             { bookings.length > 0 &&

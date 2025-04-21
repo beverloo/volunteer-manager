@@ -211,6 +211,7 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
 
     // (1) The volunteer has one or more confirmed hotel room bookings.
     if (bookings.length > 0) {
+        enabled = true;
         status = 'confirmed';
 
         let hotel: string;
