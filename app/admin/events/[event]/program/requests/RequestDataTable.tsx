@@ -211,8 +211,8 @@ export function RequestDataTable(props: RequestDataTableProps) {
     return (
         <Box sx={{ p: 2 }}>
             <RemoteDataTable columns={columns} endpoint="/api/admin/program/requests" enableUpdate
-                             context={{ event: props.event }} refreshOnUpdate pageSize={25}
-                             enableQueryParams={true} defaultSort={{ field: 'id', sort: 'asc' }} />
+                             context={{ event: props.event }} refreshOnUpdate pageSize={100}
+                             disableFooter defaultSort={{ field: 'id', sort: 'asc' }} />
         </Box>
     );
 }
