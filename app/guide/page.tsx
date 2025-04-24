@@ -27,13 +27,13 @@ export default async function GuidePage(props: NextPageParams<never, never>) {
     if (!authenticationContext.user || !authenticationContext.events.size)
         forbidden();
 
-    let guideEnvironment: string;
+    let guideTeamSlug: string;
     if (searchParams.hasOwnProperty('environment')) {
-        guideEnvironment = searchParams['environment'];
+        guideTeamSlug = searchParams['environment'];
     } else {
         // TODO: This is a very fragile way of determining the most recent team
         const mostRecentEventSlug = [ ...authenticationContext.events.keys() ].sort().pop()!;
-        guideEnvironment = authenticationContext.events.get(mostRecentEventSlug)!;
+        guideTeamSlug = authenticationContext.events.get(mostRecentEventSlug)!;
     }
 
     const substitutions = {
@@ -41,7 +41,7 @@ export default async function GuidePage(props: NextPageParams<never, never>) {
     };
 
     const globalContent = await getStaticContent([ 'guide/common' ], substitutions);
-    const envContent = await getStaticContent([ `guide/${guideEnvironment}` ], substitutions);
+    const envContent = await getStaticContent([ `guide/${guideTeamSlug}` ], substitutions);
 
     if (!globalContent)
         notFound();

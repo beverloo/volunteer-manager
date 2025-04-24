@@ -73,18 +73,15 @@ export default async function ScheduleLayout(props: React.PropsWithChildren<Sche
         notFound();  // the requested |event| does not exist
 
     const eventData = event.getEnvironmentData(environment.domain);
-    if (!eventData) {
+    if (!eventData)
         notFound();  // the |environment| does not participate in the |event|
 
-    } else {
-        const participation = authenticationContext.events.get(event.slug);
-        if (!access.can('event.schedule.access', { event: event.slug })) {
-            if (!participation)
-                forbidden();  // the |user| is not participating in the |event|
+    if (!access.can('event.schedule.access', { event: event.slug })) {
+        if (!authenticationContext.events.has(event.slug))
+            forbidden();  // the |user| is not participating in the |event|
 
-            if (!eventData.enableSchedule)
-                forbidden();  // the |event| has not been published for the |environment|
-        }
+        if (!eventData.enableSchedule)
+            forbidden();  // the |event| has not been published for the |environment|
     }
 
     return (

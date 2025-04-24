@@ -117,8 +117,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             events: dbInstance.aggregateAsArray({
                 event: eventsJoin.eventSlug,
                 grant: rolesJoin.rolePermissionGrant,
-                team: teamsJoin.teamEnvironment,  /// @todo: remove?
-                teamSlug: teamsJoin.teamSlug,
+                team: teamsJoin.teamSlug,
 
                 // TODO: Figure out if we can do this filtering in the query somehow...
                 isEventHidden: eventsJoin.eventHidden,
@@ -200,7 +199,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
         grants.push(authenticationResult.accessControl.grants);
 
     for (const entry of authenticationResult.events) {
-        if (!entry.event || !entry.team || !entry.teamSlug)
+        if (!entry.event || !entry.team)
             continue;  // incomplete data
 
         if (entry.isEventHidden)
@@ -210,7 +209,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
             grants.push({
                 permission: entry.grant,
                 event: entry.event,
-                team: entry.teamSlug,
+                team: entry.team,
             });
         }
 
