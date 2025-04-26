@@ -36,6 +36,7 @@ export function NardoAdviceCard(props: NardoAdviceCardProps) {
                 <Typography variant="button" sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     borderRadius: 1,
+                    color: 'black',
                     alignSelf: 'flex-end',
                     m: 1,
                     px: 1,
