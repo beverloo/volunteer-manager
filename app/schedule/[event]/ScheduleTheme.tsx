@@ -86,6 +86,8 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         },
 
         backgroundColor: 'background.default',
+        backgroundImage: theme => `url(/images/schedule/background-${theme.palette.mode}.png)`,
+
         colorScheme: 'light only',
     },
 };
