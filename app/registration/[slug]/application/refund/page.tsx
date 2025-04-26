@@ -30,7 +30,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
 
     const { event, registration, slug, user } = context;
 
-    if (registration.refundAvailabilityWindow.status === 'pending') {
+    if (registration.refundAvailabilityWindow.status === 'pending' && !registration.refund) {
         if (!context.access.can('event.refunds', { event: event.slug }))
             notFound();  // the availability window has not opened yet
     }
@@ -59,19 +59,24 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
             firstName: user.firstName,
         });
     } else {
+        const { refundRequestsStart, refundRequestsEnd } = refundAvailability;
+
         const substitutions = {
             event: event.shortName,
             firstName: user.firstName,
-            refundRequestsStart: formatDate(refundAvailability.refundRequestsStart, 'dddd, MMMM D'),
-            refundRequestsEnd: formatDate(refundAvailability.refundRequestsEnd, 'dddd, MMMM D'),
+            refundRequestsStart: formatDate(refundRequestsStart, 'dddd, MMMM D'),
+            refundRequestsEnd: formatDate(refundRequestsEnd, 'dddd, MMMM D'),
         };
 
         const now = Temporal.Now.zonedDateTimeISO('UTC');
 
-        if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundRequestsStart) < 0) {
+        if (!!registration.refund) {
+            state = 'available';
+            content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
+        } else if (Temporal.ZonedDateTime.compare(now, refundRequestsStart) < 0) {
             state = 'too-early';
             content = await getStaticContent([ ...contentPath, 'refund-early' ], substitutions);
-        } else if (Temporal.ZonedDateTime.compare(now, refundAvailability.refundRequestsEnd) > 0) {
+        } else if (Temporal.ZonedDateTime.compare(now, refundRequestsEnd) > 0) {
             state = 'too-late';
             content = await getStaticContent([ ...contentPath, 'refund-late' ], substitutions);
         } else {
