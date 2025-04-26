@@ -67,7 +67,7 @@ export default async function ScheduleKnowledgeCategoryPage(
             <SetTitle title={category.title} />
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base-category.jpg)',
+                    backgroundImage: 'url(/images/knowledge-base-category.jpg?2025)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

@@ -19,7 +19,7 @@ export default async function ScheduleKnowledgePage(props: NextPageParams<'event
         <>
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base.jpg)',
+                    backgroundImage: 'url(/images/knowledge-base.jpg?2025)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
