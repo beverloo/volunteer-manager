@@ -25,7 +25,7 @@ export function AdviceCard(props: AdviceCardProps) {
     return (
         <Paper>
             <Box sx={{
-                backgroundImage: 'url(/images/del-a-rie-advies.jpg)',
+                backgroundImage: 'url(/images/del-a-rie-advies-display.jpg?2025)',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 borderTopLeftRadius: theme => theme.shape.borderRadius,
