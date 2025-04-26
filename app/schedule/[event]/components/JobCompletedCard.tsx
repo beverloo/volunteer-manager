@@ -16,13 +16,13 @@ export function JobCompletedCard() {
     return (
         <Card>
             <Box sx={{
-                backgroundImage: 'url(/images/job-completed.jpg)',
+                backgroundImage: 'url(/images/job-completed.jpg?2025)',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100%',
-                aspectRatio: 5 }} />
+                aspectRatio: 3.5 }} />
             <CardContent sx={{ pb: '16px !important' }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     <strong>You have completed all your shifts</strong>! Thank you so much for
