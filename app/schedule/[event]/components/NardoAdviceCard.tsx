@@ -26,13 +26,13 @@ export function NardoAdviceCard(props: NardoAdviceCardProps) {
     return (
         <Card>
             <Box sx={{
-                backgroundImage: 'url(/images/del-a-rie-advies-2.jpg)',
+                backgroundImage: 'url(/images/del-a-rie-advies-2.jpg?2025)',
                 backgroundPosition: 'center 70%',
                 backgroundSize: 'cover',
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100%',
-                aspectRatio: 4.5 }}>
+                aspectRatio: 4 }}>
                 <Typography variant="button" sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     borderRadius: 1,
