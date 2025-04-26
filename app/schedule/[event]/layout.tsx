@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type React from 'react';
-import { forbidden, notFound } from 'next/navigation';
+import { forbidden, notFound, unauthorized } from 'next/navigation';
 
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
@@ -58,7 +58,7 @@ type ScheduleLayoutProps = NextLayoutParams<'event'>;
 export default async function ScheduleLayout(props: React.PropsWithChildren<ScheduleLayoutProps>) {
     const authenticationContext = await getAuthenticationContext();
     if (!authenticationContext.user)
-        notFound();  // only signed in users can access the schedule
+        unauthorized();  // only signed in users can access the schedule
 
     const { access } = authenticationContext;
 
