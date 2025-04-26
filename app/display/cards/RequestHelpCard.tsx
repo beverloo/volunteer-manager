@@ -150,12 +150,12 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
     return (
         <Paper>
             <Box sx={{
-                backgroundImage: 'url(/images/request-help.jpg)',
+                backgroundImage: 'url(/images/request-help.jpg?2025)',
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 borderTopLeftRadius: theme => theme.shape.borderRadius,
                 borderTopRightRadius: theme => theme.shape.borderRadius,
-                filter: 'grayscale(0.2)',
+                filter: 'grayscale(0.1)',
                 width: '100%',
                 aspectRatio: 3.5 }} />
             <CardActionArea onClick={handleOpen} sx={{ p: 2 }}>
