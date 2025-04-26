@@ -117,7 +117,7 @@ export default async function ScheduleHelpRequestPage(props: NextPageParams<'eve
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4 }} />
+                    aspectRatio: 3.5 }} />
             </HeaderSectionCard>
             <Card>
                 <CardHeader avatar={ <HelpRequestTarget target={request.target} /> }

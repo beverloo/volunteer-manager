@@ -206,11 +206,11 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
             <SetTitle title="Help Requests" />
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/help-requests.jpg)',
+                    backgroundImage: 'url(/images/help-requests.jpg?2025)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4 }} />
+                    aspectRatio: 3.5 }} />
             </HeaderSectionCard>
             { !!activeRequests.length &&
                 <Box>
