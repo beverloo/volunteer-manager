@@ -23,7 +23,7 @@ export default async function ScheduleKnowledgePage(props: NextPageParams<'event
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4 }} />
+                    aspectRatio: 3.5 }} />
             </HeaderSectionCard>
             <KnowledgeBaseCategories />
         </>

@@ -71,7 +71,7 @@ export default async function ScheduleKnowledgeCategoryPage(
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4 }} />
+                    aspectRatio: 3.5 }} />
             </HeaderSectionCard>
             <Card>
                 <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
