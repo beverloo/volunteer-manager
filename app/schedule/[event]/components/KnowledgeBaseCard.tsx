@@ -32,16 +32,16 @@ export function KnowledgeBaseCard(props: KnowledgeBaseCardProps) {
         <Card>
             <CardActionArea LinkComponent={Link} href={`/schedule/${props.slug}/knowledge`}>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base.jpg)',
+                    backgroundImage: 'url(/images/knowledge-base-category.jpg?2025)',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',
-                    aspectRatio: 4.5 }} />
+                    aspectRatio: 4 }} />
                 <CardContent>
                     <Stack direction="row" alignItems="center">
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Check out the brand new <strong>Knowledge Base</strong>, where you can
-                            find answers to the most frequently asked questions by visitors!
+                            Check out the <strong>Knowledge Base</strong>, where you can find
+                            answers to the most frequently asked questions by visitors!
                         </Typography>
                         <ReadMoreIcon color="disabled" sx={{ ml: 2 }} />
                     </Stack>
