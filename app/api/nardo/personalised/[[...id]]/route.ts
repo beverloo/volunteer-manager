@@ -159,9 +159,13 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
         if (!userContext)
             notFound();
 
+        const startDate = formatDate(event.temporalStartTime, 'dddd, MMMM Do, YYYY [at] h:mm A');
+        const endDate = formatDate(event.temporalEndTime, 'dddd, MMMM Do, YYYY [at] h:mm A');
+
         const context = [
             `You are talking to a person named ${userContext.name}, and must address them by name`,
-            `They are participating in ${event.name}, taking place in ${event.location}`,
+            `They are participating in ${event.name}, taking place in ${event.location}, which ` +
+                `starts on ${startDate} and ends on ${endDate}`,
         ];
 
         if (!!userContext.events)
