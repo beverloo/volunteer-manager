@@ -28,6 +28,7 @@ export { tHotelsBookings } from './scheme/HotelsBookingsTable';
 export { tHotelsPreferences } from './scheme/HotelsPreferencesTable';
 export { tLogs } from './scheme/LogsTable';
 export { tNardo } from './scheme/NardoTable';
+export { tNardoPersonalised } from './scheme/NardoPersonalisedTable';
 export { tOutboxEmail } from './scheme/OutboxEmailTable';
 export { tOutboxTwilio } from './scheme/OutboxTwilioTable';
 export { tRefunds } from './scheme/RefundsTable';

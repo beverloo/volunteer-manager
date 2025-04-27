@@ -104,6 +104,7 @@ export const kLogType = {
     EventHelpRequestUpdate: 'event-help-request-update',
     EventVolunteerNotes: 'event-volunteer-notes',
     ExportDataAccess: 'export-data-access',
+    NardoPersonalisedAdvice: 'nardo-personalised-advice',
 } as const;
 
 /**

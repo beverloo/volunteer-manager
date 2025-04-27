@@ -292,6 +292,7 @@ const kLogMessageFormatter: {
     [kLogType.ExportDataAccess]: (source, target, { event, type }) => {
         return `Accessed exported ${event} ${type} data`;
     },
+    [kLogType.NardoPersonalisedAdvice]: 'Requested personalised advice from Del a Rie Advies',
 
     // ---------------------------------------------------------------------------------------------
     // Deprecated

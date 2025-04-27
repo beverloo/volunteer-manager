@@ -4339,6 +4339,47 @@ tables:
       UNIQUE KEY `event_id` (`event_id`,`sale_id`),
       KEY `event_id_2` (`event_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+- name: nardo_personalised
+  type: BASE TABLE
+  columns:
+  - name: nardo_personalised_id
+    type: int(8) unsigned
+    nullable: false
+    extraDef: auto_increment
+  - name: nardo_personalised_user_id
+    type: int(8) unsigned
+    nullable: false
+  - name: nardo_personalised_date
+    type: datetime
+    nullable: false
+  - name: nardo_personalised_input
+    type: text
+    nullable: false
+  - name: nardo_personalised_output
+    type: text
+    nullable: false
+  indexes:
+  - name: PRIMARY
+    def: PRIMARY KEY (nardo_personalised_id) USING BTREE
+    table: nardo_personalised
+    columns:
+    - nardo_personalised_id
+  constraints:
+  - name: PRIMARY
+    type: PRIMARY KEY
+    def: PRIMARY KEY (nardo_personalised_id)
+    table: nardo_personalised
+    columns:
+    - nardo_personalised_id
+  def: |-
+    CREATE TABLE `nardo_personalised` (
+      `nardo_personalised_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+      `nardo_personalised_user_id` int(8) unsigned NOT NULL,
+      `nardo_personalised_date` datetime NOT NULL,
+      `nardo_personalised_input` text NOT NULL,
+      `nardo_personalised_output` text NOT NULL,
+      PRIMARY KEY (`nardo_personalised_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
 - table: events_teams
   columns:

@@ -79,6 +79,7 @@ import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignmen
 import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
 import type { LogsEndpoints } from '@app/api/admin/logs/[[...id]]/route';
 import type { NardoEndpoints } from '@app/api/nardo/[[...id]]/route';
+import type { NardoPersonalisedEndpoints } from '@app/api/nardo/personalised/[[...id]]/route';
 import type { OutboxEmailEndpoints } from '@app/api/admin/outbox/email/[[...id]]/route';
 import type { OutboxTwilioEndpoints } from '@app/api/admin/outbox/twilio/route';
 import type { ProgramActivitiesEndpoints } from '@app/api/admin/program/activities/[[...id]]/route';
@@ -151,6 +152,7 @@ export type ApiEndpoints = {
         '/api/event/trainings/:event': TrainingsDefinition,
         '/api/display': DisplayDefinition,
         '/api/nardo': NardoEndpoints['list'],
+        '/api/nardo/personalised': NardoPersonalisedEndpoints['list'],
     },
     'post': {
         '/api/admin/content/categories': ContentCategoriesEndpoints['create'],
@@ -216,6 +218,7 @@ export type ApiEndpoints = {
         '/api/event/training-preferences': TrainingPreferencesDefinition,
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
+        '/api/nardo/personalised': NardoPersonalisedEndpoints['create'],
     },
     'delete': {
         '/api/admin/content/categories/:id': ContentCategoriesEndpoints['delete'],
