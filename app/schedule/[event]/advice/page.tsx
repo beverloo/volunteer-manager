@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AdviceContainer } from './AdviceContainer';
 import { HeaderSectionCard } from '../components/HeaderSectionCard';
+import { SetTitle } from '../components/SetTitle';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -19,6 +20,7 @@ export default async function AdvicePage(props: NextPageParams<'event'>) {
 
     return (
         <>
+            <SetTitle title="Del a Rie Advies" />
             <HeaderSectionCard>
                 <Box sx={{
                     backgroundImage: 'url(/images/del-a-rie-advies-personalised.jpg?2025)',
