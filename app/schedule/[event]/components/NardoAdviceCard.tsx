@@ -3,15 +3,52 @@
 
 'use client';
 
+import type { PropsWithChildren } from 'react';
+import Link from 'next/link';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
 /**
+ * Props accepted by the <NardoAdviceClickthroughContainer> component.
+ */
+interface NardoAdviceClickthroughContainerProps {
+    /**
+     * Whether the advice can be activated to enable a more personal approach.
+     */
+    clickthrough?: boolean;
+
+    /**
+     * Slug of the event that should be linked through to.
+     */
+    slug: string;
+}
+
+/**
+ * The <NardoAdviceClickthroughContainer> component either returns a transparent fragment, or a
+ * <CardActionArea> component with the appropriate link options set, based on the given `props`.
+ */
+function NardoAdviceClickthroughContainer(
+    props: PropsWithChildren<NardoAdviceClickthroughContainerProps>)
+{
+    if (props.clickthrough) {
+        return (
+            <CardActionArea LinkComponent={Link} href={`/schedule/${props.slug}/advice`}>
+                {props.children}
+            </CardActionArea>
+        );
+    }
+
+    return <>{props.children}</>;
+}
+
+/**
  * Props accepted by the <NardoAdviceCard> component.
  */
-interface NardoAdviceCardProps {
+interface NardoAdviceCardProps extends NardoAdviceClickthroughContainerProps {
     /**
      * The piece of advice that should be displayed.
      */
@@ -23,35 +60,39 @@ interface NardoAdviceCardProps {
  * server. It includes a colourful graphic to remind us of what's important in live.
  */
 export function NardoAdviceCard(props: NardoAdviceCardProps) {
+    const { advice, ...containerProps } = props;
+
     return (
         <Card>
-            <Box sx={{
-                backgroundImage: 'url(/images/del-a-rie-advies-2.jpg?2025)',
-                backgroundPosition: 'center 70%',
-                backgroundSize: 'cover',
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                aspectRatio: 4 }}>
-                <Typography variant="button" sx={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    borderRadius: 1,
-                    color: 'black',
-                    alignSelf: 'flex-end',
-                    m: 1,
-                    px: 1,
-                }}>
-                    Ad
-                </Typography>
-            </Box>
-            <CardContent sx={{ pb: '16px !important' }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {props.advice}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.disabled', pt: 0.5 }}>
-                    {' '}— Del a Rie Advies
-                </Typography>
-            </CardContent>
+            <NardoAdviceClickthroughContainer {...containerProps}>
+                <Box sx={{
+                    backgroundImage: 'url(/images/del-a-rie-advies-2.jpg?2025)',
+                    backgroundPosition: 'center 70%',
+                    backgroundSize: 'cover',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    aspectRatio: 4 }}>
+                    <Typography variant="button" sx={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: 1,
+                        color: 'black',
+                        alignSelf: 'flex-end',
+                        m: 1,
+                        px: 1,
+                    }}>
+                        Ad
+                    </Typography>
+                </Box>
+                <CardContent sx={{ pb: '16px !important' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        {advice}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.disabled', pt: 0.5 }}>
+                        {' '}— Del a Rie Advies
+                    </Typography>
+                </CardContent>
+            </NardoAdviceClickthroughContainer>
         </Card>
     );
 }

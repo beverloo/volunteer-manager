@@ -104,7 +104,9 @@ export function OverviewPage() {
                 <OverviewVendorCard team={kVendorTeam.FirstAid} /> }
             { !!schedule?.vendors[kVendorTeam.Security] &&
                 <OverviewVendorCard team={kVendorTeam.Security} /> }
-            { !!schedule?.nardo && <NardoAdviceCard advice={schedule.nardo} /> }
+            { !!schedule?.nardo &&
+                <NardoAdviceCard advice={schedule.nardo} slug={schedule.slug}
+                                 clickthrough={!!schedule.config.enableGeneratedAdvice} /> }
         </>
     );
 }

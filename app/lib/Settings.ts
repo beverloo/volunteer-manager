@@ -119,6 +119,7 @@ type SettingsMap = {
     'schedule-activity-list-limit': number;
     'schedule-check-in-rate-seconds': number;
     'schedule-del-a-rie-advies': boolean;
+    'schedule-del-a-rie-advies-genai': boolean;
     'schedule-del-a-rie-advies-time-limit': number;
     'schedule-favourite-events': boolean;
     'schedule-knowledge-base': boolean;

@@ -241,6 +241,16 @@ export default async function IntegrationsPage() {
                 description: 'Whether the advice service should be enabled',
             },
             {
+                setting: 'schedule-del-a-rie-advies-genai',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Del a Rie Advies (GenAI)',
+                description:
+                    'Whether Del a Rie Advies can utilize generative AI to create personalised ' +
+                    'advice',
+            },
+            {
                 setting: 'schedule-del-a-rie-advies-time-limit',
                 type: 'number',
                 defaultValue: 5,

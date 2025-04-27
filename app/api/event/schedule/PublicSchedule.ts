@@ -86,6 +86,11 @@ export const kPublicSchedule = z.strictObject({
         enableFavourites: z.boolean().optional(),
 
         /**
+         * Whether Del a Rie Advies is able to generate personalised advice.
+         */
+        enableGeneratedAdvice: z.boolean().optional(),
+
+        /**
          * Whether access to help requests should be enabled.
          */
         enableHelpRequests: z.boolean().optional(),
