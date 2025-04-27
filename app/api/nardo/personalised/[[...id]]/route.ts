@@ -284,7 +284,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
     },
 
     async writeLog(request, mutation, props) {
-        if (mutation === 'Created' && false) {
+        if (mutation === 'Created') {
             RecordLog({
                 type: kLogType.NardoPersonalisedAdvice,
                 sourceUser: props.user!.userId,
