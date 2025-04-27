@@ -7,6 +7,7 @@ import { z } from 'zod';
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
 import { getEventBySlug } from '@lib/EventLoader';
+import { isAfter } from '@lib/Temporal';
 import { isValidShift } from './fn/isValidShift';
 import db, { tSchedule, tScheduleLogs, tTeams, tUsersEvents } from '@lib/database';
 
@@ -87,6 +88,13 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
     const event = await getEventBySlug(request.event);
     if (!event)
         notFound();
+
+    if (!isAfter(request.shift.end, request.shift.start)) {
+        return {
+            success: false,
+            error: 'The shift ends before it starts. Please tell Peter how you did this!'
+        };
+    }
 
     const volunteer = await db.selectFrom(tUsersEvents)
         .innerJoin(tTeams)

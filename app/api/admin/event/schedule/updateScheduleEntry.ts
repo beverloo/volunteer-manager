@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import type { ActionProps } from '../../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '@app/api/Types';
-import { Temporal } from '@lib/Temporal';
+import { Temporal, isAfter } from '@lib/Temporal';
 import { getEventBySlug } from '@lib/EventLoader';
 import { isValidShift } from './fn/isValidShift';
 import db, { tSchedule, tScheduleLogs, tTeams, tUsersEvents } from '@lib/database';
@@ -137,6 +137,13 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
 
     if (!volunteer || volunteer.teamSlug !== request.team)
         return { success: false, error: 'The selected volunteer is not part of this team' };
+
+    if (!isAfter(request.shift.end, request.shift.start)) {
+        return {
+            success: false,
+            error: 'The shift ends before it starts. Please tell Peter how you did this!'
+        };
+    }
 
     const valid = await isValidShift(event, volunteer, request.shift, /* ignoreShift= */ id);
     if (!valid)
