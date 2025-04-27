@@ -81,6 +81,11 @@ interface MarkdownProps extends BoxProps {
      * The content that should be displayed as the content of this component.
      */
     children?: string | null;
+
+    /**
+     * The default variant to apply to text, if any.
+     */
+    defaultVariant?: TypographyProps['variant'];
 }
 
 /**
@@ -88,11 +93,11 @@ interface MarkdownProps extends BoxProps {
  * tree that can be used in the display of content.
  */
 export function Markdown(props: MarkdownProps) {
-    const { children, ...boxProps } = props;
+    const { children, defaultVariant, ...boxProps } = props;
 
     return (
         <Box {...boxProps}>
-            <Box sx={kStyles.root}>
+            <Typography component="div" sx={kStyles.root} variant={defaultVariant}>
                 <MuiMarkdown overrides={{
                     ...defaultOverrides,
                     a: { component: LinkComponent },
@@ -103,11 +108,12 @@ export function Markdown(props: MarkdownProps) {
                     h4: { component: Text, props: { tag: 'h4' } },
                     h5: { component: Text, props: { tag: 'h5' } },
                     h6: { component: Text, props: { tag: 'h6' } },
-                    p: { component: Text, props: { tag: 'p' } },
+                    p: { component: Text, props: { tag: 'p', variant: defaultVariant } },
+                    span: { component: Text, props: { tag: 'span', variant: defaultVariant } },
                     RemoteContent: { component: RemoteContent } }}>
                     {children}
                 </MuiMarkdown>
-            </Box>
+            </Typography>
         </Box>
     );
 }

@@ -61,7 +61,7 @@ export function ActiveShiftCard(props: ActiveShiftCardProps) {
                     { !!shift.description &&
                         <>
                             <Divider sx={{ pt: 1, mb: 1 }} />
-                            <Markdown>{shift.description}</Markdown>
+                            <Markdown defaultVariant="body2">{shift.description}</Markdown>
                         </> }
                 </CardContent>
             </CardActionArea>

@@ -45,9 +45,7 @@ export function NotesCard(props: NotesCardProps) {
                     <Typography variant="subtitle2">
                         {props.title}
                     </Typography>
-                    <Typography component="div" variant="body2">
-                        <Markdown>{props.notes}</Markdown>
-                    </Typography>
+                    <Markdown defaultVariant="body2">{props.notes}</Markdown>
                 </Box>
             </Stack>
         </Card>
