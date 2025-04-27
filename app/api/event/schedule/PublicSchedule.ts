@@ -194,6 +194,11 @@ export const kPublicSchedule = z.strictObject({
         description: z.string().optional(),
 
         /**
+         * Whether the category is gated behind a permission.
+         */
+        limited: z.literal(true).optional(),
+
+        /**
          * Record containing all questions (keys) that exist in this category, each valued by the
          * unique Id of the question in the database to enable deep links.
          */

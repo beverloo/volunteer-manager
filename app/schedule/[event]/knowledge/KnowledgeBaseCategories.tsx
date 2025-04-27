@@ -9,8 +9,9 @@ import { useContext } from 'react';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardHeader from '@mui/material/CardHeader';
-
+import LockOutlineIcon from '@mui/icons-material/LockOutline';
 import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
 
 import { Alert } from '../components/Alert';
 import { ScheduleContext } from '../ScheduleContext';
@@ -41,9 +42,20 @@ export function KnowledgeBaseCategories() {
                 <Card key={category.id}>
                     <CardActionArea LinkComponent={Link} href={`./knowledge/${category.id}`}>
                         <CardHeader avatar={ <KnowledgeBaseIcon variant={category.icon} /> }
+                                    action={
+                                        category.limited ?
+                                            <Tooltip title="Access is limited">
+                                                <LockOutlineIcon color="warning" />
+                                            </Tooltip> : undefined
+                                    }
                                     title={category.title}
                                     titleTypographyProps={{ variant: 'subtitle2' }}
-                                    subheader={category.description} />
+                                    subheader={category.description}
+                                    slotProps={{
+                                        action: {
+                                            sx: { alignSelf: 'center', pr: 2, pt: 1 }
+                                        }
+                                    }} />
                     </CardActionArea>
                 </Card> )}
         </>

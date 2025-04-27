@@ -193,6 +193,8 @@ async function populateKnowledgeBase(
     schedule.knowledge = knowledge.map(category => {
         const { permission, ...rest } = category;
 
+        let limited: true | undefined;
+
         if (!!permission) {
             const granted = access.can(permission as BooleanPermission, {
                 event: schedule.event,
@@ -201,10 +203,13 @@ async function populateKnowledgeBase(
 
             if (!granted)
                 return undefined;
+
+            limited = true;
         }
 
         return {
             ...rest,
+            limited,
             questions: Object.fromEntries(
                 category.questions.map(({ id, question }) => [ question, id ])),
         };
