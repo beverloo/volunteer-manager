@@ -1,14 +1,19 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { forbidden, unauthorized } from 'next/navigation';
+import { forbidden, notFound, unauthorized } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { RecordLog, kLogType } from '@lib/Log';
+import { Temporal, formatDate } from '@lib/Temporal';
+import { createVertexAIClient } from '@lib/integrations/vertexai';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { getEventBySlug } from '@lib/EventLoader';
 import { readSettings } from '@lib/Settings';
-import db, { tNardoPersonalised, tUsers } from '@lib/database';
+import db, { tNardoPersonalised, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Row model for an individual piece of personalised advice offered by Del a Rie Advies.
@@ -44,6 +49,21 @@ const kNardoPersonalisedRowModel = z.object({
      * The piece of personalised advice that has been created.
      */
     output: z.string(),
+
+    /**
+     * Client-side provided context, only considered when new advice is being generated.
+     */
+    context: z.array(z.string()).optional(),
+
+    /**
+     * Client-side provided context advice, which is input to the situation.
+     */
+    contextAdvice: z.string().optional(),
+
+    /**
+     * Client-side provided context event, as a URL-safe event slug.
+     */
+    contextEvent: z.string().optional(),
 });
 
 /**
@@ -99,6 +119,16 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
     },
 
     async create(request, props) {
+        if (!props.user)
+            unauthorized();  // already handled by the permission check, make TypeScript happy
+
+        if (!request.row.context?.length || !request.row.contextAdvice || !request.row.contextEvent)
+            notFound();
+
+        const event = await getEventBySlug(request.row.contextEvent);
+        if (!event)
+            notFound();
+
         const settings = await readSettings([
             'gen-ai-prompt-del-a-rie-advies',
             'schedule-del-a-rie-advies-genai',
@@ -107,11 +137,120 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
         if (!settings['schedule-del-a-rie-advies-genai'])
             forbidden();
 
-        // TODO: Enable creating advice.
+        const dbInstance = db;
+
+        // -----------------------------------------------------------------------------------------
+        // Step 1: Include server-side context that's not known to the client
+        // -----------------------------------------------------------------------------------------
+
+        const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
+        const userContext = await dbInstance.selectFrom(tUsers)
+            .leftJoin(usersEventsJoin)
+                .on(usersEventsJoin.userId.equals(tUsers.userId))
+                    .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
+            .where(tUsers.userId.equals(props.user?.userId))
+            .select({
+                name: tUsers.firstName,
+                events: dbInstance.count(usersEventsJoin.eventId),
+            })
+            .groupBy(tUsers.userId)
+            .executeSelectNoneOrOne();
+
+        if (!userContext)
+            notFound();
+
+        const context = [
+            `You are talking to a person named ${userContext.name}, and must address them by name`,
+            `They are participating in ${event.name}, taking place in ${event.location}`,
+        ];
+
+        if (!!userContext.events)
+            context.push(`They helped out at a total of ${userContext.events} AnimeCon events`);
+
+        // -----------------------------------------------------------------------------------------
+        // Step 2: Append client-provided context to the information
+        // -----------------------------------------------------------------------------------------
+
+        context.push(...request.row.context);
+
+        // -----------------------------------------------------------------------------------------
+        // Step 3: Compose the prompt that should be proposed to AI
+        // -----------------------------------------------------------------------------------------
+
+        const basePrompt = settings['gen-ai-prompt-del-a-rie-advies'] ?? '';
+        const prompt =
+            basePrompt.replaceAll('{advice}', request.row.contextAdvice)
+                      .replaceAll('{context}', context.join('\n'));
+
+        // -----------------------------------------------------------------------------------------
+        // Step 4: Return a cached version when the given |prompt| has already been asked
+        // -----------------------------------------------------------------------------------------
+
+        const cachedOutput = await dbInstance.selectFrom(tNardoPersonalised)
+            .where(tNardoPersonalised.nardoPersonalisedUserId.equals(props.user.userId))
+                .and(tNardoPersonalised.nardoPersonalisedInput.equals(prompt))
+            .selectOneColumn(tNardoPersonalised.nardoPersonalisedOutput)
+            .orderBy(tNardoPersonalised.nardoPersonalisedDate, 'desc')
+                .limit(1)
+            .executeSelectNoneOrOne();
+
+        if (!!cachedOutput)
+            return { success: true, row: { id: 0, output: cachedOutput } };
+
+        // Append the current date and time to the prompt, as we don't want that to bust the prompt
+        // cache in the database. Con of this approach is that the text will be omitted from the
+        // inspection UI as well, but we'll have to live with that.
+
+        const currentLocalZonedDateTime = Temporal.Now.zonedDateTimeISO(event.timezone);
+        const currentLocalDate =
+            formatDate(currentLocalZonedDateTime, 'dddd, MMMM Do, YYYY [at] HH:mm');
+
+        const fullPrompt = `${prompt}\n\nThe current date and time is ${currentLocalDate}.`;
+
+        // -----------------------------------------------------------------------------------------
+        // Step 5: Consult the Vertex AI API to actually execute the prompt.
+        // -----------------------------------------------------------------------------------------
+
+        let response: string;
+        try {
+            const client = await createVertexAIClient();
+            const clientResponse = await client.predictText({
+                prompt: fullPrompt
+            });
+
+            if (!clientResponse)
+                throw new Error('VertexAI did not generate a piece of advice');
+
+            response = clientResponse;
+
+        } catch (error: any) {
+            return {
+                success: false,
+                error: error.message,
+            };
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // Step 6: Store the returned prompt in the database for inspection and caching
+        // -----------------------------------------------------------------------------------------
+
+        await dbInstance.insertInto(tNardoPersonalised)
+            .set({
+                nardoPersonalisedUserId: props.user.userId,
+                nardoPersonalisedDate: dbInstance.currentZonedDateTime(),
+                nardoPersonalisedInput: prompt,
+                nardoPersonalisedOutput: response,
+            })
+            .executeInsert();
+
+        // -----------------------------------------------------------------------------------------
 
         return {
-            success: false,
-            error: 'Not yet implemented',
+            success: true,
+            row: {
+                id: 0,
+                output: response,
+            },
         }
     },
 
@@ -141,7 +280,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
     },
 
     async writeLog(request, mutation, props) {
-        if (mutation === 'Created') {
+        if (mutation === 'Created' && false) {
             RecordLog({
                 type: kLogType.NardoPersonalisedAdvice,
                 sourceUser: props.user!.userId,
