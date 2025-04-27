@@ -67,6 +67,7 @@ type SettingsMap = {
     'gen-ai-intention-remind-participation': string;
 
     // Prompts:
+    'gen-ai-prompt-del-a-rie-advies': string;
     'gen-ai-prompt-financial-insights': string;
 
     // ---------------------------------------------------------------------------------------------

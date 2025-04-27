@@ -36,6 +36,7 @@ export default async function AiPage() {
         'gen-ai-intention-remind-participation',
 
         // <AiPrompts>:
+        'gen-ai-prompt-del-a-rie-advies',
         'gen-ai-prompt-financial-insights',
     ]);
 
@@ -75,6 +76,7 @@ export default async function AiPage() {
 
     // <AiPrompts> prompts:
     const prompts: AiPromptsProps['prompts'] = {
+        'gen-ai-prompt-del-a-rie-advies': settings['gen-ai-prompt-del-a-rie-advies'] ?? '',
         'gen-ai-prompt-financial-insights': settings['gen-ai-prompt-financial-insights'] ?? '',
     };
 
@@ -99,4 +101,3 @@ export default async function AiPage() {
 export const metadata: Metadata = {
     title: 'Generative AI | AnimeCon Volunteer Manager',
 };
-

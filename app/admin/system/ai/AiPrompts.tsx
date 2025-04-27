@@ -22,6 +22,7 @@ export interface AiPromptsProps {
      * The prompts that should be shown on this page.
      */
     prompts: {
+        'gen-ai-prompt-del-a-rie-advies': string;
         'gen-ai-prompt-financial-insights': string;
     };
 }
@@ -42,6 +43,7 @@ export function AiPrompts(props: AiPromptsProps) {
         try {
             const response = await callApi('put', '/api/ai/settings', {
                 promptsFeatures: {
+                    'gen-ai-prompt-del-a-rie-advies': data['gen-ai-prompt-del-a-rie-advies'],
                     'gen-ai-prompt-financial-insights': data['gen-ai-prompt-financial-insights'],
                 },
             });
@@ -59,6 +61,19 @@ export function AiPrompts(props: AiPromptsProps) {
         <FormContainer defaultValues={props.prompts} onSuccess={handleSubmit}>
             <Section title="Intentions">
                 <Grid container spacing={2}>
+                    <Grid size={{ xs: 3 }}>
+                        <Typography variant="subtitle2">
+                            Del a Rie Advies
+                        </Typography>
+                        <Typography variant="body2">
+                            Used for personalised advice issued by Del a Rie Advies.
+                        </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 9 }}>
+                        <TextareaAutosizeElement name={'gen-ai-prompt-del-a-rie-advies'}
+                                                 size="small" onChange={handleChange} fullWidth />
+                    </Grid>
+
                     <Grid size={{ xs: 3 }}>
                         <Typography variant="subtitle2">
                             Financial insights

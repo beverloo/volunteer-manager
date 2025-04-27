@@ -1,11 +1,13 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { forbidden, unauthorized } from 'next/navigation';
 import { z } from 'zod';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
 import { RecordLog, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
+import { readSettings } from '@lib/Settings';
 import db, { tNardoPersonalised, tUsers } from '@lib/database';
 
 /**
@@ -69,7 +71,16 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
     accessCheck(request, action, props) {
         switch (action) {
             case 'create':
-                throw new Error('Not yet implemented');
+                if (!props.authenticationContext.user)
+                    unauthorized();
+
+                if (!props.authenticationContext.events.size)
+                    forbidden();
+
+                // This API is publicly available for any signed in user who is participating in at
+                // least one unsuspended event. A check whether the feature is enabled is included
+                // in the implementation of the `create()` function.
+                break;
 
             case 'list':
                 executeAccessCheck(props.authenticationContext, {
@@ -88,7 +99,16 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
     },
 
     async create(request, props) {
+        const settings = await readSettings([
+            'gen-ai-prompt-del-a-rie-advies',
+            'schedule-del-a-rie-advies-genai',
+        ]);
+
+        if (!settings['schedule-del-a-rie-advies-genai'])
+            forbidden();
+
         // TODO: Enable creating advice.
+
         return {
             success: false,
             error: 'Not yet implemented',
