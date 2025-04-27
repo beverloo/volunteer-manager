@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { LocalDateTime } from '@app/admin/components/LocalDateTime';
+import { Markdown } from '@components/Markdown';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -81,9 +82,7 @@ export default async function PersonalisedNardoAdvicePage(props: NextPageParams<
                 </Typography>
             </Section>
             <Section title="Generated advice">
-                <Typography>
-                    {advice.output}
-                </Typography>
+                <Markdown>{advice.output}</Markdown>
             </Section>
         </>
     );
