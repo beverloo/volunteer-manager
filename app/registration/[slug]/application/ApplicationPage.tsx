@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { type FieldValues, CheckboxElement, FormContainer } from '@proxy/react-hook-form-mui';
@@ -24,7 +24,7 @@ import { lighten } from '@mui/system/colorManipulator';
 
 import type { Content } from '@lib/Content';
 import type { EventDataWithEnvironment } from '@lib/Event';
-import type { RegistrationStatus } from '@lib/database/Types';
+import type { RegistrationStatus, ShirtFit, ShirtSize } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { ApplicationParticipationForm, ApplicationAvailabilityForm } from './ApplicationParticipation';
 import { AuthenticationContext } from '../../AuthenticationContext';
@@ -101,7 +101,7 @@ export interface PartneringTeamApplication {
 /**
  * Props accepted by the <ApplicationPage> component.
  */
-interface ApplicationPageProps {
+export interface ApplicationPageProps {
     /**
      * The content that should be displayed on the registration page.
      */
@@ -111,6 +111,15 @@ interface ApplicationPageProps {
      * The event for which data is being displayed on this page.
      */
     event: EventDataWithEnvironment;
+
+    /**
+     * Historic preferences that the volunteer indicated in previous events, so that they can be
+     * carried over to this event. This makes the application flow just a little bit easier.
+     */
+    historicPreferences?: {
+        tshirtFit?: ShirtFit;
+        tshirtSize?: ShirtSize;
+    };
 
     /**
      * Applications made by the same `user` with partnering teams.
@@ -189,12 +198,16 @@ export function ApplicationPage(props: ApplicationPageProps) {
 
     }, [ event, router, team, user ]);
 
+    const defaultValues = useMemo(
+        () => ({ ...kDefaultValues, ...props.historicPreferences }),
+        [ props.historicPreferences ]);
+
     const availabilityLabel = `Yes, I will be fully available during ${event.shortName}`;
     const creditsLabel = `Yes, I'd like to be included in the ${event.shortName} credit reel`;
     const socialsLabel = 'Yes, I would like to join the private Discord and WhatsApp groups';
 
     return (
-        <FormContainer defaultValues={kDefaultValues} onSuccess={requestRegistration}>
+        <FormContainer defaultValues={defaultValues} onSuccess={requestRegistration}>
             <Box sx={{ p: 2 }}>
                 {props.content && <Markdown sx={{ pb: 2 }}>{props.content.markdown}</Markdown> }
 

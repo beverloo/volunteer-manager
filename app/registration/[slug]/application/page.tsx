@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getContent, getStaticContent } from '@lib/Content';
-import { ApplicationPage, type PartneringTeamApplication } from './ApplicationPage';
+import { ApplicationPage, type ApplicationPageProps, type PartneringTeamApplication } from './ApplicationPage';
 import { ApplicationStatusPage, type ApplicationStatusPageProps } from './ApplicationStatusPage';
 import { Markdown } from '@components/Markdown';
 import { contextForRegistrationPage } from '../contextForRegistrationPage';
@@ -51,7 +51,9 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
         }
     }
 
+    let historicPreferences: ApplicationPageProps['historicPreferences'];
     let partnerApplications: PartneringTeamApplication[] = [];
+
     if (state === 'application' && user) {
         partnerApplications = await db.selectFrom(tUsersEvents)
             .innerJoin(tTeams)
@@ -67,6 +69,18 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             })
             .orderBy(tTeams.teamName, 'asc')
             .executeSelectMany();
+
+        historicPreferences = await db.selectFrom(tUsersEvents)
+            .innerJoin(tEvents)
+                .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .where(tUsersEvents.userId.equals(user.userId))
+            .select({
+                tshirtFit: tUsersEvents.shirtFit,
+                tshirtSize: tUsersEvents.shirtSize,
+            })
+            .orderBy(tEvents.eventStartTime, 'desc')
+            .limit(1)
+            .executeSelectNoneOrOne() ?? undefined;
     }
 
     let availabilityWindows: ApplicationStatusPageProps['availabilityWindows'] = { /* default */ };
@@ -97,7 +111,8 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             { state === 'application' &&
                 <ApplicationPage content={content} team={teamSlug}
                                  user={user} partnerApplications={partnerApplications}
-                                 event={event.toEventData(environment.domain)} /> }
+                                 event={event.toEventData(environment.domain)}
+                                 historicPreferences={historicPreferences} /> }
             { (state === 'status' && (registration && user)) &&
                 <ApplicationStatusPage availabilityWindows={availabilityWindows}
                                        canAccessAvailability={canAccessAvailability}
