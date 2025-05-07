@@ -53,6 +53,13 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
         .forUseInQueryAs('PendingApplications')
         .forUseInLeftJoinAs('PendingApplications');
 
+    const financialProductCount = dbInstance.selectFrom(tEvents)
+        .innerJoin(tEventsSalesConfiguration)
+            .on(tEventsSalesConfiguration.eventId.equals(tEvents.eventId))
+        .where(tEvents.eventSlug.equals(eventSlug))
+        .selectCountAll()
+        .forUseAsInlineQueryValue();
+
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
@@ -81,6 +88,8 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 hotelEnabled: tEvents.hotelEnabled.equals(/* true= */ 1),
                 refundEnabled: tEvents.refundEnabled.equals(/* true= */ 1),
                 trainingEnabled: tEvents.trainingEnabled.equals(/* true= */ 1),
+
+                financialProductCount,
             },
             teams: dbInstance.aggregateAsArray({
                 id: teamsJoin.teamId,
@@ -229,6 +238,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         {
             icon: <EuroIcon />,
             label: 'Finance',
+            condition: !!info.event.financialProductCount,
             permission: {
                 permission: 'statistics.finances',
             },
