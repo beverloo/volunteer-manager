@@ -96,6 +96,20 @@ export function AdviceContainer() {
 
                     break;  // only include the first current or upcoming shift
                 }
+
+                if (!context.length) {
+                    if (!volunteer.schedule.length) {
+                        context.push('Their shifts are a surprise; none have been scheduled yet.');
+                    } else {
+                        context.push(
+                            'They finished all of their shifts, and have helped us out ' +
+                            'tremendously well. Maybe emphasise that?');
+                    }
+                }
+            } else {
+                context.push(
+                    'They are a volunteer, but have not signed up to participate in any of ' +
+                    'our teams yet. Maybe remind them that they should?');
             }
         }
 
