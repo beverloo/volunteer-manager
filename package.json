@@ -67,6 +67,9 @@
     "zod": "^3.24.4"
   },
   "overrides": {
+    "nodemailer-mock": {
+      "nodemailer": "^6.x || ^7.x"
+    },
     "react-hook-form-mui": {
       "@mui/x-date-pickers": "^8.2.0"
     }
