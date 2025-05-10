@@ -123,7 +123,7 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
 
     const canImpersonate = access.can('volunteer.account.impersonation');
 
-    const permissionsReadOnly = !access.can('volunteer.account.permissions', 'update');
+    const permissionsReadOnly = !access.can('organisation.permissions', 'update');
 
     return (
         <>
@@ -142,7 +142,7 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
                                    pageSize={10} />
                 </Paper> }
 
-            { access.can('volunteer.account.permissions', 'read') &&
+            { access.can('organisation.permissions', 'read') &&
                 <VolunteerPermissions readOnly={permissionsReadOnly} userId={account.userId} /> }
 
         </>

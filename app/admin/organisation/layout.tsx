@@ -1,6 +1,8 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import CategoryIcon from '@mui/icons-material/Category';
+
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
 import { AdminPageContainer } from '../AdminPageContainer';
@@ -24,7 +26,15 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
         // TODO: Displays
         // TODO: Environments
         // TODO: Feedback
-        // TODO: Permissions
+        {
+            icon: <CategoryIcon />,
+            label: 'Permissions',
+            permission: {
+                permission: 'organisation.permissions',
+                operation: 'read',
+            },
+            url: '/admin/organisation/permissions',
+        },
         // TODO: Roles
         // TODO: Teams
     ];

@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import CategoryIcon from '@mui/icons-material/Category';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import ShareIcon from '@mui/icons-material/Share';
@@ -22,10 +21,6 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
         check: 'admin',
         permission: or(
             'volunteer.export',
-            {
-                permission: 'volunteer.account.permissions',
-                operation: 'read',
-            },
             'volunteer.settings.shifts',
             'volunteer.settings.teams',
             {
@@ -40,15 +35,6 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
             label: 'Exports',
             permission: 'volunteer.export',
             url: '/admin/volunteers/exports',
-        },
-        {
-            icon: <CategoryIcon />,
-            label: 'Permissions',
-            permission: {
-                permission: 'volunteer.account.permissions',
-                operation: 'read',
-            },
-            url: '/admin/volunteers/permissions',
         },
         {
             icon: <WorkspacesIcon />,

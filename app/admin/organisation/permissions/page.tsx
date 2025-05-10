@@ -12,7 +12,6 @@ import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-
 import db, { tEvents, tRoles, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
 import { kPermissions, type BooleanPermission, type CRUDPermission } from '@lib/auth/Access';
@@ -147,7 +146,7 @@ export default async function PermissionsPage() {
     await requireAuthenticationContext({
         check: 'admin',
         permission: {
-            permission: 'volunteer.account.permissions',
+            permission: 'organisation.permissions',
             operation: 'read',
         },
     });
@@ -275,5 +274,5 @@ export default async function PermissionsPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Permissions | AnimeCon Volunteer Manager',
+    title: 'Permissions | Organisation | AnimeCon Volunteer Manager',
 };

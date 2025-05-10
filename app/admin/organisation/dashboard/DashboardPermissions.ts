@@ -12,7 +12,10 @@ export const kDashboardPermissions = or(
     // TODO: Displays
     // TODO: Environments
     // TODO: Feedback
-    // TODO: Permissions
+    {
+        permission: 'organisation.permissions',
+        operation: 'read',
+    },
     // TODO: Roles
     // TODO: Teams
 

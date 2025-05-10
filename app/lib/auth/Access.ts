@@ -210,6 +210,17 @@ export const kPermissions = {
 
     // TODO: Migrate and group together existing options
 
+    'organisation.permissions': {
+        name: 'Permission management',
+        description:
+            'This permission determines whether the volunteer is able to manage the permissions ' +
+            'of other accounts. This is an extremely dangerous permission, as it enables them ' +
+            'to manage their own permissions as well.',
+        hide: [ 'create', 'delete' ],  // all mutations are considered updates
+        type: 'crud',
+        warning: true,
+    },
+
     // ---------------------------------------------------------------------------------------------
     // Statistics-associated permissions
     // ---------------------------------------------------------------------------------------------
@@ -373,17 +384,6 @@ export const kPermissions = {
         warning: true,
     },
 
-    'volunteer.account.permissions': {
-        name: 'Volunteer account permissions',
-        description:
-            'This permission determines whether the volunteer is able to manage the permissions ' +
-            'of other volunteers. This is an extremely dangerous permission, as it enables them ' +
-            'to manage their own permissions as well.',
-        hide: [ 'create', 'delete' ],  // all mutations are considered updates
-        type: 'crud',
-        warning: true,
-    },
-
     'volunteer.avatars': {
         name: 'Avatar management',
         description:
@@ -520,13 +520,13 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.nardo',
         'system.subscriptions',
 
+        'organisation.permissions',
+
         'volunteer.avatars',
         'volunteer.export',
         // note: volunteer.account omitted
         // note: volunteer.account.impersonate omitted
         'volunteer.account.information',
-        // note: volunteer.account.permissions:update omitted
-        'volunteer.account.permissions:read',
         'volunteer.pii',
         'volunteer.settings',
         'volunteer.silent',
