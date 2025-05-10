@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import CategoryIcon from '@mui/icons-material/Category';
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import TabletIcon from '@mui/icons-material/Tablet';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
@@ -31,7 +32,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
             url: '/admin/organisation/displays',
         },
         // TODO: Environments
-        // TODO: Feedback
+        {
+            icon: <FeedbackOutlinedIcon />,
+            label: 'Feedback',
+            permission: 'organisation.feedback',
+            url: '/admin/organisation/feedback',
+        },
         {
             icon: <CategoryIcon />,
             label: 'Permissions',

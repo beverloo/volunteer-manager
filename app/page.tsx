@@ -121,7 +121,7 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
             if (registration.status === kRegistrationStatus.Accepted && scheduleAccess)
                 redirect(`/schedule/${registrationEvent.slug}`);
         }
-        else if (access.can('system.feedback') &&
+        else if (access.can('organisation.feedback') &&
                      !access.can('event.visible', { event: kAnyEvent, team: kAnyTeam })) {
             redirect('/feedback');
         }

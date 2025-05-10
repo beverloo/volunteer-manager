@@ -71,18 +71,11 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <ChatBubbleOutlineIcon />,
             label: 'Communication',
             permission: [
-                'system.feedback',
                 'system.internals',
                 'system.internals.outbox',
                 'system.subscriptions.management',
             ],
             menu: [
-                {
-                    icon: <FeedbackOutlinedIcon />,
-                    label: 'Feedback',
-                    permission: 'system.feedback',
-                    url: '/admin/system/feedback',
-                },
                 {
                     icon: <OutboxIcon />,
                     label: 'Outbox',

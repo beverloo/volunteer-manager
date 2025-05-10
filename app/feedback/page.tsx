@@ -17,7 +17,7 @@ import { kRegistrationStatus } from '@lib/database/Types';
  * soliciting feedback from volunteers. The page will automatically determine the right event.
  */
 export default async function FeedbackPage() {
-    await requireAuthenticationContext({ permission: 'system.feedback' });
+    await requireAuthenticationContext({ permission: 'organisation.feedback' });
 
     const currentTime = Temporal.Now.zonedDateTimeISO('utc');
     const eventSelectionTime = currentTime.subtract({ days: 30 });

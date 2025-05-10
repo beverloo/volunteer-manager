@@ -217,6 +217,15 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.feedback': {
+        name: 'Feedback access',
+        description:
+            'Volunteers have the ability to submit feedback through the portals, as well as ' +
+            'through the feedback sub-app. This permission controls whether they have access to ' +
+            'read all the feedback, possibly attributed.',
+        type: 'boolean',
+    },
+
     'organisation.permissions': {
         name: 'Permission management',
         description:
@@ -256,15 +265,6 @@ export const kPermissions = {
             'This permission controls whether they are able to access global content, which ' +
             'includes our privacy policy, e-mail messages, notifications and other content that ' +
             'is shared across events and teams.',
-        type: 'boolean',
-    },
-
-    'system.feedback': {
-        name: 'Feedback access',
-        description:
-            'Volunteers have the ability to submit feedback through the portals, as well as ' +
-            'through the feedback sub-app. This permission controls whether they have access to ' +
-            'read all the feedback, possibly attributed.',
         type: 'boolean',
     },
 
@@ -506,10 +506,13 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'event',
 
+        'organisation.displays',
+        'organisation.feedback',
+        'organisation.permissions',
+
         'statistics',
 
         'system.content',
-        'system.feedback',
         'system.internals.ai',
         'system.internals.outbox',
         'system.internals.scheduler',
@@ -518,9 +521,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.logs:read',
         'system.nardo',
         'system.subscriptions',
-
-        'organisation.displays',
-        'organisation.permissions',
 
         'volunteer.avatars',
         'volunteer.export',

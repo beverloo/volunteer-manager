@@ -64,7 +64,7 @@ export async function submitFeedback(request: Request, props: ActionProps): Prom
     let userId: number | undefined = props.user.userId;
     let feedbackName: string | undefined;
 
-    if (props.access.can('system.feedback') && !!request.overrides) {
+    if (props.access.can('organisation.feedback') && !!request.overrides) {
         if (!!request.overrides.userId || !!request.overrides.name) {
             userId = request.overrides.userId ?? undefined;
             feedbackName = request.overrides.name ?? undefined;

@@ -15,7 +15,7 @@ import { FeedbackDataTable } from './FeedbackDataTable';
 export default async function FeedbackPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.feedback',
+        permission: 'organisation.feedback',
     });
 
     return (
