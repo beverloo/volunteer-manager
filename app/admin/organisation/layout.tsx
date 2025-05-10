@@ -3,6 +3,7 @@
 
 import CategoryIcon from '@mui/icons-material/Category';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+import GridViewIcon from '@mui/icons-material/GridView';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import TabletIcon from '@mui/icons-material/Tablet';
@@ -26,6 +27,15 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
     });
 
     const organisationMenu: AdminSidebarMenuEntry[] = [
+        {
+            icon: <GridViewIcon />,
+            label: 'Dashboard',
+            url: '/admin/organisation',
+            urlMatchMode: 'strict',
+        },
+        {
+            divider: true
+        },
         {
             icon: <PersonIcon />,
             label: 'Accounts',
