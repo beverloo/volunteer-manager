@@ -3,6 +3,7 @@
 
 import CategoryIcon from '@mui/icons-material/Category';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+import GroupsIcon from '@mui/icons-material/Groups';
 import TabletIcon from '@mui/icons-material/Tablet';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
@@ -19,9 +20,9 @@ import { kDashboardPermissions } from './dashboard/DashboardPermissions';
  */
 export default async function OrganisationLayout(props: React.PropsWithChildren) {
     const { access } = await requireAuthenticationContext({
-            check: 'admin',
-            permission: kDashboardPermissions,
-        });
+        check: 'admin',
+        permission: kDashboardPermissions,
+    });
 
     const organisationMenu: AdminSidebarMenuEntry[] = [
         // TODO: Accounts
@@ -47,8 +48,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
             },
             url: '/admin/organisation/permissions',
         },
-        // TODO: Roles
-        // TODO: Teams
+        {
+            icon: <GroupsIcon />,
+            label: 'Teams & roles',
+            permission: 'organisation.teams',
+            url: '/admin/organisation/teams',
+        },
     ];
 
     return (

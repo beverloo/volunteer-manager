@@ -20,7 +20,7 @@ import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
 export default async function VolunteersTeamsPage() {
     const { access } = await requireAuthenticationContext({
         check: 'admin',
-        permission: 'volunteer.settings.teams',
+        permission: 'organisation.teams',
     });
 
     const dbInstance = db;

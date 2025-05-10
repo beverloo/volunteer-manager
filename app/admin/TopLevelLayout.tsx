@@ -7,7 +7,6 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import DvrIcon from '@mui/icons-material/Dvr';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
-import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import ForumIcon from '@mui/icons-material/Forum';
 import GridViewIcon from '@mui/icons-material/GridView';
 import LanguageIcon from '@mui/icons-material/Language';

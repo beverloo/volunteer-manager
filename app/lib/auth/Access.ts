@@ -237,6 +237,16 @@ export const kPermissions = {
         warning: true,
     },
 
+    'organisation.teams': {
+        name: 'Team and role settings',
+        description:
+            'This permission decides whether they have access to settings regarding teams and ' +
+            'roles that existing within the Volunteer Manager. This is considered a dangerous ' +
+            'permission as this currently also contains environment configuration.',
+        type: 'boolean',
+        warning: true,
+    },
+
     // ---------------------------------------------------------------------------------------------
     // Statistics-associated permissions
     // ---------------------------------------------------------------------------------------------
@@ -418,16 +428,6 @@ export const kPermissions = {
             'which are shared across events. Messing up these settings could potentially affect ' +
             'mutability of past events in the scheduling app.',
         type: 'boolean',
-    },
-
-    'volunteer.settings.teams': {
-        name: 'Team and role settings',
-        description:
-            'This permission decides whether they have access to settings regarding teams and ' +
-            'roles that existing within the Volunteer Manager. This is considered a dangerous ' +
-            'permission as this currently also contains environment configuration.',
-        type: 'boolean',
-        warning: true,
     },
 
     'volunteer.silent': {

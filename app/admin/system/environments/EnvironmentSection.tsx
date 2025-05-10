@@ -13,7 +13,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { ColorFieldElement } from '@app/admin/volunteers/teams/Team';
+import { ColorFieldElement } from '@app/admin/organisation/teams/Team';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';

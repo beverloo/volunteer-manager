@@ -23,7 +23,6 @@ export default async function RootAdminLayout(props: React.PropsWithChildren) {
     const canAccessVolunteersSection = checkPermission(access, or(
         'volunteer.export',
         'volunteer.settings.shifts',
-        'volunteer.settings.teams',
         {
             permission: 'volunteer.account.information',
             operation: 'read',

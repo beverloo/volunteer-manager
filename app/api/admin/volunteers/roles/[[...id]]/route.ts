@@ -89,7 +89,7 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'volunteer.settings.teams',
+            permission: 'organisation.teams',
         });
 
         switch (action) {

@@ -75,7 +75,7 @@ type Response = ApiResponse<typeof kUpdateTeamDefinition>;
 export async function updateTeam(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        permission: 'volunteer.settings.teams',
+        permission: 'organisation.teams',
     });
 
     // Verify that the `request` contains at least one role, and a valid default role.
